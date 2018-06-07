@@ -1,0 +1,27 @@
+#immodb-app{
+  h1{
+    .version{font-size:12px;opacity:0.4;}
+  }
+  .config-grid-block{
+    display:grid;
+    grid-template-columns: 1fr 5fr;
+    grid-gap: 10px;
+    .block-content{
+      padding:20px;
+    }
+  }
+
+  .route-item{
+    display:grid;
+    grid-template-columns: 100px 1fr 20px;
+    align-items: center;
+    grid-gap: 10px;
+    md-input-container{
+      .md-errors-spacer{display:none;}
+    }
+    &.headers{
+      border-bottom:solid 1px #ccc;
+      div{font-size:13px;text-transform:uppercase;color:#333;opacity:0.5;}
+    }
+  }
+}
