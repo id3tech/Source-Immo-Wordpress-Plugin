@@ -21,6 +21,7 @@ register_deactivation_hook( __FILE__, array( 'ImmoDB', 'plugin_deactivation' ) )
 
 require_once( IMMODB_PLUGIN_DIR . '/core/utils.immodb.php' );
 require_once( IMMODB_PLUGIN_DIR . '/core/class.immodb-config.php' );
+require_once( IMMODB_PLUGIN_DIR . '/core/class.immodb-shortcodes.php' );
 require_once( IMMODB_PLUGIN_DIR . '/core/class.immodb.php' );
 require_once( IMMODB_PLUGIN_DIR . '/core/class.immodb-api.php' );
 

@@ -26,9 +26,14 @@ class ImmoDBConfig {
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     $this->detail_routes  = array(
-      array('lang' => 'fr', 'route' => 'proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
-      array('lang' => 'en', 'route' => 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+      new ImmoDBRoute('fr','proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+      new ImmoDBRoute('en', 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
     );
+    // $this->detail_routes  = array(
+    //   array('lang' => 'fr', 'route' => 'proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+    //   array('lang' => 'en', 'route' => 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+    // );
+
   }
 
   public static function load(){
@@ -53,4 +58,30 @@ class ImmoDBConfig {
   public function save(){
     update_option('ImmoDBConfig', json_encode($this));
   }
+}
+
+
+class ImmoDBRoute{
+
+  public $lang = '';
+  public $route = '';
+
+  public function __construct($lang='', $route=''){
+    $this->lang = $lang;
+    $this->route = $route;
+  }
+}
+
+class ImmoDBView {
+  public $source = 'default';
+  public $alias = 'default';
+  public $limit = 0;
+  public $filters = null;
+  public $sort = 'default';
+}
+
+class ImmoDBFilter {
+  public $field = '';
+  public $operator = '='
+  public $value = '';
 }

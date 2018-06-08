@@ -10,6 +10,11 @@ class ImmoDB {
 
   public function __construct(){
     $this->configs = ImmoDbConfig::load();
+
+    if (!is_admin() ){
+      // create an instance of the shortcodes class to force code bindings
+      new ImmoDbShorcodes();
+    }
   }
 
   /**
@@ -25,6 +30,16 @@ class ImmoDB {
 
   public function get_api_key() {
     return $this->configs->api_key;
+  }
+
+  /**
+  * Set routes based on configurations
+  */
+  public function update_routes() {
+    // check if routes exists
+
+    // add routes
+
   }
 
 /**
@@ -56,7 +71,7 @@ class ImmoDB {
     if(file_exists($file)){
   		include( $file );
     }
-    
+
   }
 
 

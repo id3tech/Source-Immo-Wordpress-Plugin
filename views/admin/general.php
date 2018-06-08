@@ -40,13 +40,13 @@
           </md-menu-item>
           <md-divider></md-divider>
           <md-menu-item>
-            <md-button ng-click="removeItem(route, configs.detail_routes)"><md-icon class="fal fa-times"></md-icon> Remove</md-button>
+            <md-button ng-disabled="hasMinRouteCount()" ng-click="removeRoute(route)"><md-icon class="fal fa-times"></md-icon> Remove</md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
     </div>
     <div layout="row" layout-align="center center">
-      <md-button class="md-raised md-primary md-icon-button" ng-click="addRoute()"><i class="fal fa-plus fa-lg"></i></md-button>
+      <md-button class="md-raised md-primary md-icon-button" ng-disabled="hasMaxRouteCount()" ng-click="addRoute()"><i class="fal fa-plus fa-lg"></i></md-button>
     </div>
   </div>
 </div>

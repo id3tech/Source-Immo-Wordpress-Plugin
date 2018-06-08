@@ -5,12 +5,55 @@ ImmoDbApp
       '{{id}}' : 'ID',
       '{{transaction}}' : 'Transaction type',
       '{{location.region}}' : 'Region',
-      '{{location.city}}' : 'City'
+      '{{location.city}}' : 'City',
+      '{{location.street}}' : 'Street',
+      '{{location.civic_address}}' : 'Civic address'
   }
 
 
   $scope.init = function(){
 
+  }
+
+  $scope.addRouteElement = function($item,$elm){
+    $item.route += $elm;
+  }
+
+  $scope.addRoute = function(){
+    let lLocale = '';
+    for (let $key in $scope.lang_codes) {
+      if($scope.configs.detail_routes.map(function(e) {return e.lang}).indexOf($key)<0){
+        lLocale = $key;
+      }
+    }
+
+    $scope.configs.detail_routes.push({lang: lLocale, route : ''});
+  }
+
+  $scope.removeRoute = function($route){
+    let lNewRoutes = [];
+    $scope.configs.detail_routes.forEach(function($e){
+      if($e!=$route){
+        lNewRoutes.push($e);
+      }
+    });
+    $scope.configs.detail_routes = lNewRoutes;
+  }
+
+  //
+  $scope.hasMinRouteCount = function(){
+    return $scope.configs.detail_routes.length==1;
+  }
+  $scope.hasMaxRouteCount = function(){
+    let lResult = true;
+    if($scope.configs.detail_routes){
+      for (let $key in $scope.lang_codes) {
+        if($scope.configs.detail_routes.map(function(e) {return e.lang}).indexOf($key)<0){
+          lResult = false;
+        }
+      }
+    }
+    return lResult;
   }
 });
 
