@@ -23,7 +23,7 @@ class ImmoDBConfig {
   * List configuration
   * @var ArrayImmoDBView
   */
-  public $streams = array();
+  public $lists = array();
 
   /**
   * Detail configuration
@@ -41,8 +41,8 @@ class ImmoDBConfig {
       new ImmoDBRoute('en', 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
     );
 
-    $this->streams = array(
-      new ImmoDBStream()
+    $this->lists = array(
+      new ImmoDBList()
     );
     // $this->detail_routes  = array(
     //   array('lang' => 'fr', 'route' => 'proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
@@ -87,7 +87,7 @@ class ImmoDBRoute{
   }
 }
 
-class ImmoDBStream {
+class ImmoDBList {
   public $source = 'default';
   public $alias = 'default';
   public $limit = 0;

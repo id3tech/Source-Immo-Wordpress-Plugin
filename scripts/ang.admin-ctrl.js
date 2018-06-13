@@ -3,7 +3,10 @@
  * Main Configuration Controller
  */
 ImmoDbApp
-.controller('mainConfigurationCtrl', function($scope, $rootScope){
+.controller('homeCtrl', function($scope, $rootScope){
+
+  console.log('configs controller loaded');
+
   $scope.route_elements = {
       '{{id}}' : 'ID',
       '{{transaction}}' : 'Transaction type',
@@ -14,7 +17,7 @@ ImmoDbApp
   }
 
 
-  $scope.init = function(){
+  $scope._pageInit_ = function(){
 
   }
 
@@ -68,57 +71,50 @@ ImmoDbApp
 
  // List
 ImmoDbApp
-.controller('streamListCtrl', function($scope, $rootScope){
+.controller('listCollectionCtrl', function($scope, $rootScope){
   $scope.init = function(){
 
   }
 
   $scope.add = function(){
-    let lNew = {
-      alias: 'New stream'.translate(),
-      source :'default',
-      sort: 'auto',
-      limit: 0,
-      filters : null
-    }
-
-    $scope.dialog('streamEdit', lNew).then(function($result){
-      lNew = angular.merge(lNew,$result);
-      $scope.configs.streams.push(lNew);
+    $scope.show_page('listEdit', null).then(function($result){
+      lNew = $result;
+      $scope.configs.lists.push(lNew);
     });
   }
 
-  $scope.edit = function($stream){
-    $scope.dialog('streamEdit', $stream).then(function($result){
-      $stream = angular.merge($stream,$result);
+  $scope.edit = function($list){
+    $scope.show_page('listEdit', $list).then(function($result){
+      $list = angular.merge($list,$result);
     });
   }
 
-  $scope.remove = function($stream){
-    $scope.confirm('Are you sure you want to remove this stream?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
-      let lNewStreams = [];
-      $scope.configs.streams.forEach(function($e){
-        if($e!=$stream){
-          lNewStreams.push($e);
+  $scope.remove = function($list){
+    $scope.confirm('Are you sure you want to remove this list?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
+      let lNewlists = [];
+      $scope.configs.lists.forEach(function($e){
+        if($e!=$list){
+          lNewlists.push($e);
         }
       });
-      $scope.configs.streams = lNewStreams;
-      
-      $scope.show_toast('Stream removed');
+      $scope.configs.lists = lNewlists;
+
+      $scope.show_toast('list removed');
     });
   }
 
-  $scope.getStreamShortcode = function($stream){
-    return '[immodb alias="' + $stream.alias + '"]';
+  $scope.getListShortcode = function($list){
+    return '[immodb alias="' + $list.alias + '"]';
   }
 });
 
 // Edit
 ImmoDbApp
-.controller('streamEditCtrl', function($scope, $rootScope, $mdDialog){
-  BaseDialogController('streamEdit', $scope, $rootScope, $mdDialog);
+.controller('listEditCtrl', function($scope, $rootScope){
+  BasePageController('listEdit', $scope,$rootScope);
 
   $scope.model = {};
+  $scope._original = null;
   $scope.filter_operators = {
     '='       : 'Equals'.translate(),
     '!='      : 'Different from'.translate(),
@@ -134,8 +130,21 @@ ImmoDbApp
   ];
 
   $scope.init = function($params){
-    $scope.model = angular.copy($params);
-    $scope.setTitle('Edit "{0}"'.translate().format($params.alias));
+    console.log('listEdit init');
+    if($params==null){
+      $scope.model = {
+        alias: 'New list'.translate(),
+        source :'default',
+        sort: 'auto',
+        limit: 0,
+        filters : null
+      }
+    }
+    else{
+      $scope.model = angular.copy($params);
+    }
+
+    $scope._original = $params;
   }
 
   $scope.addFilter = function(){
@@ -145,8 +154,20 @@ ImmoDbApp
 
     $scope.model.filters.push({field: '', operator: '=', value: ''});
   }
-});
 
+  $scope.saveOrClose = function(){
+    if($scope.hasChanged()){
+      $scope.return($scope.model);
+    }
+    else{
+      $scope.cancel();
+    }
+  }
+
+  $scope.hasChanged = function(){
+    return !$scope.isSame($scope.model,$scope._original);
+  }
+});
 
 /**
  * MAIN ROOT CONTROLLER
@@ -161,6 +182,12 @@ ImmoDbApp
   }
   $scope.global_list = {
     sources: []
+  }
+
+  $rootScope.current_page = 'home'
+  $scope.pages = {
+    'home': {label: 'Home'.translate(), style: ''},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
   }
 
   $scope.init = function(){
@@ -182,6 +209,20 @@ ImmoDbApp
   /*
   * UI
   */
+
+  $scope.show_page = function($page_id, $params){
+    console.log('page is called', $page_id);
+    let lPromise = $q(function($resolve, $reject){
+      $rootScope.$broadcast(
+          'on-' + $page_id,     // broadcast event
+          $params,                 // page parameters
+          function($result){      // callback handler
+            $resolve($result);
+          });
+    });
+
+    return lPromise;
+  }
 
   /**
    * Display a confirmation box
@@ -313,6 +354,45 @@ ImmoDbApp
 
   }
 
+  $scope.isSame = function($objA, $objB){
+    if($objA != null && $objB != null){
+      
+      for (const key in $objA) {
+        if(key == '$$hashKey') continue;
+
+        if ($objA.hasOwnProperty(key) && $objB.hasOwnProperty(key)) {
+          if(Array.isArray($objA[key])){
+            if($objA[key].length != $objB[key].length){
+              //console.log(key, 'lengths differ');
+              return false;
+            }
+            else{
+              for(let i = 0;i<$objA[key].length;i++){
+                if(!$scope.isSame($objA[key][i], $objB[key][i])){
+                  return false;
+                }
+              }
+            }
+          }
+          else if($objA[key] != $objB[key]){
+            //console.log(key, 'values differ');
+            return false;
+          }
+        }
+        else{
+          //console.log('$objB does not have key ', key);
+          return false;
+        }
+      }
+
+    }
+    else if ($objA == null || $objB == null){
+      return false;
+    }
+
+    return true;
+  }
+
 });
 
 /**
@@ -326,6 +406,11 @@ function BaseDialogController($dialogId, $scope, $rootScope, $mdDialog){
       { label: 'OK', action: function () { $scope.cancel() } }
   ];
   
+  /**
+   * Initialize dialog
+   * 
+   * Add a listener for broadcast event
+   */
   $scope._dialogInit_ = function () {
       
       $scope.$on('on-' + $scope.dialogId, function ($event, $params, $callback) {
@@ -360,6 +445,55 @@ function BaseDialogController($dialogId, $scope, $rootScope, $mdDialog){
   $scope.return = function($result){
     $scope.callback($result);
     $mdDialog.cancel();
+  }
+
+  return $scope;
+}
+
+/**
+ * Sets basic page handler interface function
+ */
+function BasePageController($pageId, $scope, $rootScope){
+  $scope.pageId = $pageId;
+  $scope.callback = null;
+  $scope.actions = [
+      { label: 'OK', action: function () { $scope.cancel() } }
+  ];
+  
+  /**
+   * Initialize page
+   * 
+   * Add a listener for broadcast event
+   */
+  $scope._pageInit_ = function () {
+      console.log('pageInit for', $scope.pageId, 'called');
+      $scope.$on('on-' + $scope.pageId, function ($event, $params, $callback) {
+        console.log('instance of page', $scope.pageId, 'called with', $params);
+          if (typeof ($scope.init) == 'function') {
+              $scope.init($params);
+          }
+
+          $scope.open_page($scope.pageId);
+          $scope.callback = $callback;
+      });
+  }
+
+
+  $scope.cancel = function () {
+      $scope.close_page();
+  }
+
+  $scope.return = function($result){
+    $scope.callback($result);
+    $scope.close_page();
+  }
+
+  $scope.open_page = function($page_id){
+    $rootScope.current_page = $page_id;
+  }
+
+  $scope.close_page = function(){
+    $rootScope.current_page = 'home';
   }
 
   return $scope;

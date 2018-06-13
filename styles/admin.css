@@ -24,6 +24,17 @@ body.wp-admin #immodb-app h3, body.wp-admin #immodb-app h4, body.wp-admin #immod
   text-transform: uppercase;
 }
 
+body.wp-admin #immodb-app .page-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+body.wp-admin #immodb-app .page-viewport .page-container {
+  display: grid;
+  grid-template-columns: 100% 100%;
+  transition: 0.5s;
+}
+
 body.wp-admin #immodb-app .config-grid-block {
   display: grid;
   grid-template-columns: 1fr 5fr;
@@ -56,7 +67,7 @@ body.wp-admin #immodb-app .route-item.headers div {
   opacity: 0.5;
 }
 
-body.wp-admin #immodb-app .stream-list {
+body.wp-admin #immodb-app .list-list {
   margin-top: 20px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
@@ -64,11 +75,11 @@ body.wp-admin #immodb-app .stream-list {
   align-items: center;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item {
+body.wp-admin #immodb-app .list-list .list-item {
   max-width: 400px;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .header {
+body.wp-admin #immodb-app .list-list .list-item .header {
   margin: 0;
   padding: 10px;
   background: #2196F3;
@@ -76,12 +87,12 @@ body.wp-admin #immodb-app .stream-list .stream-item .header {
   border-radius: 5px 5px 0 0;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .header .md-headline {
+body.wp-admin #immodb-app .list-list .list-item .header .md-headline {
   margin: 0px;
   color: inherit;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .header .md-headline span {
+body.wp-admin #immodb-app .list-list .list-item .header .md-headline span {
   max-width: 280px;
   display: block;
   text-overflow: ellipsis;
@@ -89,7 +100,7 @@ body.wp-admin #immodb-app .stream-list .stream-item .header .md-headline span {
   white-space: nowrap;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .infos {
+body.wp-admin #immodb-app .list-list .list-item .infos {
   padding: 10px;
   display: grid;
   grid-template-columns: 1fr 50px;
@@ -100,22 +111,44 @@ body.wp-admin #immodb-app .stream-list .stream-item .infos {
   border-radius: 0 0 5px 5px;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .infos i {
+body.wp-admin #immodb-app .list-list .list-item .infos i {
   justify-self: flex-start;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .infos span {
+body.wp-admin #immodb-app .list-list .list-item .infos span {
   justify-self: flex-end;
 }
 
-body.wp-admin #immodb-app .stream-list .stream-item .infos button.md-button {
+body.wp-admin #immodb-app .list-list .list-item .infos button.md-button {
   margin: 0px;
   padding: 0px;
 }
 
+body.wp-admin #immodb-app #listEdit .back-button {
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+}
+
+body.wp-admin #immodb-app #listEdit .back-button i {
+  font-size: 30px;
+}
+
+body.wp-admin #immodb-app #listEdit .grid-layout {
+  grid-template-columns: 80px 400px 3fr;
+}
+
+body.wp-admin #immodb-app #listEdit .grid-row {
+  grid-template-columns: 1fr 1fr 1fr 50px;
+}
+
+body.wp-admin #immodb-app #listEdit .grid-row.header {
+  margin-top: 20px;
+}
+
 body.wp-admin .grid-layout {
   display: grid;
-  grid-gap: 10px;
+  grid-gap: 20px;
 }
 
 body.wp-admin .grid-row {
@@ -150,18 +183,6 @@ body.wp-admin .md-dialog-container md-toolbar {
 
 body.wp-admin .md-dialog-container md-toolbar h2 {
   color: inherit;
-}
-
-body.wp-admin .md-dialog-container#streamEdit md-dialog {
-  min-width: 75vw;
-}
-
-body.wp-admin .md-dialog-container#streamEdit .grid-layout {
-  grid-template-columns: 400px 3fr;
-}
-
-body.wp-admin .md-dialog-container#streamEdit .grid-row {
-  grid-template-columns: 1fr 1fr 1fr 50px;
 }
 
 body.wp-admin md-icon.fas, body.wp-admin md-icon.fal, body.wp-admin md-icon.far {

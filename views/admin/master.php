@@ -8,15 +8,22 @@ $lTwoLetterLocale = substr(get_locale(),0,2);
     <h1 class="md-display-1">Immo DB <span class="version">v.<?php echo IMMODB_VERSION?></span></h1>
 
 
-    <div layout="row" layout-align="end center">
+    <div layout="row" layout-align="end center" ng-show="current_page=='home'">
       <md-button class="md-raised md-primary md-icon-button" ng-click="save_configs()" title="<?php _e('Save', IMMODB)?>"><i class="fal fa-save fa-lg"></i></md-button>
       <md-button class="md-icon-button" ng-click="save_configs()"><i class="fal fa-undo fa-lg" title="<?php _e('Reset to demo settings', IMMODB)?>"></i></md-button>
     </div>
 
   </div>
-<?php
-ImmoDB::view('admin/main');
-?>
+
+  <div class="page-viewport">
+    <div class="page-container" style="{{pages[current_page].style}}">
+    <?php
+    ImmoDB::page('admin/configs/index','home');
+    ImmoDB::page('admin/lists/index','listEdit');
+    ?>
+    </div>
+  </div>
+
   <script type="text/javascript">
     var wpApiSettings={root:'<?php echo esc_url_raw( rest_url() ) ?>', nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'};
   </script>

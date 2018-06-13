@@ -19,6 +19,15 @@ body.wp-admin{
       text-transform:uppercase;
     }
 
+    .page-viewport{
+      width:100%;overflow:hidden;
+      .page-container{
+        display:grid;
+        grid-template-columns: 100% 100%;
+        transition:0.5s;
+      }
+    }
+    
     
 
     .config-grid-block{
@@ -44,14 +53,14 @@ body.wp-admin{
       }
     }
 
-    .stream-list{
+    .list-list{
       margin-top:20px;
       display:grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
       grid-gap:10px;
       align-items: center;
 
-      .stream-item{
+      .list-item{
         max-width:400px;
         
         
@@ -89,12 +98,30 @@ body.wp-admin{
         }
       }
     }
+
+    #listEdit{
+      //md-dialog{min-width: 75vw;}
+      .back-button{
+        width:60px;height:60px;line-height:60px;
+        i{font-size:30px;}
+      }
+      .grid-layout{
+        grid-template-columns: 80px 400px 3fr;
+      }
+      .grid-row{
+        grid-template-columns: 1fr 1fr 1fr 50px;
+        &.header{
+          margin-top:20px;
+        }
+      }
+    }
+
   }
 
   /* Grid and rows basics */
   .grid-layout{
     display:grid;
-    grid-gap: 10px;
+    grid-gap: 20px;
   }
 
   .grid-row{
@@ -121,15 +148,6 @@ body.wp-admin{
     md-toolbar{
       color:#fff;
       h2{color:inherit;}
-    }
-    &#streamEdit{
-      md-dialog{min-width: 75vw;}
-      .grid-layout{
-        grid-template-columns: 400px 3fr;
-      }
-      .grid-row{
-        grid-template-columns: 1fr 1fr 1fr 50px;
-      }
     }
 
   }

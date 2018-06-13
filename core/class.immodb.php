@@ -89,6 +89,23 @@ class ImmoDB {
   }
 
   /**
+   * Render a configuration page view
+   * 
+   * The function will look into the active theme for a file override before falling back
+   * to the default plugin file. 
+   * @param string $path The path, relative to the view folder, of the file to render
+   * @param array $args Associative array of parameters to pass through to the view
+   */
+  public static function page(string $path, string $page_id, array $args = array() ){
+    //$page_path = $path;
+    $args = array_merge($args, array(
+      'page_id' => $page_id,
+      'page_path' => $path
+    ));
+    self::view('admin/page.ui',$args);
+  }
+
+  /**
    * Render a dialog containing with a page view
    * 
    * The function will look into the active theme for a file override before falling back
