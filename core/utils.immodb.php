@@ -7,27 +7,18 @@ class Debug {
     // TODO: add to log
   }
 
+  /**
+   * Show content of objects
+   * @param ArrayObject $data List of object to display
+   * @return null
+   */
   public static function write(...$data){
     ob_start();
-    foreach ($data as $item) {
-      var_dump($item);
-    }
-    $lResult = ob_get_contents();
-		ob_end_clean();
-
-		echo($lResult);
-		return $lResult;
-  }
-
-  public static function print(...$data){
-    ob_start();
-
     foreach ($data as $item) {
       echo('<pre>');
       var_dump($item);
       echo('</pre>');
     }
-
     $lResult = ob_get_contents();
 		ob_end_clean();
 
@@ -43,10 +34,11 @@ class ThemeOverrides {
 
   /**
   * Search the file in the theme, under the plugin name directory.
-  * @param file_path : the path of the file
-  * @param search_in : Optional. Subpath in the theme's plugin name directory in which the search occurs. Default: empty
-  * @param fallback : Optional. Search fallback in the theme's plugin name directory in case the search fail in subpath. Default: false
-  * @return String : Return the theme file if found, original file path otherwise
+  * @param string $file_path the path of the file
+  * @param string $search_in Optional. Subpath in the theme's plugin name directory in which the search occurs. Default: empty
+  * @param bool $fallback Optional. Search fallback in the theme's plugin name directory in case the search fail in subpath. Default: false
+  * @return string Path of the theme file if found, original file path otherwise
+  * @static
   */
   public static function search(string $file_path, $search_in = '', $fallback=false){
     $theme_dir = get_template_directory();
@@ -146,7 +138,7 @@ class HttpCall{
   }
 
   private function _handle_error($curlHdl){
-    Debug::print(curl_error($curlHdl));
+    Debug::write(curl_error($curlHdl));
   }
 
 }

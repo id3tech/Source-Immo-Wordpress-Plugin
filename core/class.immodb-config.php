@@ -7,17 +7,28 @@ class ImmoDBConfig {
   /**
   * Required properties for API call
   */
+  
+  /**
+   * API Key
+   * @var string
+   */
   public $api_key = '';
+  /**
+   * Accound ID
+   * @var string
+   */
   public $account_id = '';
 
   /**
   * List configuration
+  * @var ArrayImmoDBView
   */
+  public $streams = array();
 
   /**
   * Detail configuration
+  * @var ArrayImmoDBRoute
   */
-  //
   public $detail_routes = array();
 
   public function __construct(){
@@ -28,6 +39,10 @@ class ImmoDBConfig {
     $this->detail_routes  = array(
       new ImmoDBRoute('fr','proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
       new ImmoDBRoute('en', 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+    );
+
+    $this->streams = array(
+      new ImmoDBStream()
     );
     // $this->detail_routes  = array(
     //   array('lang' => 'fr', 'route' => 'proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
@@ -72,16 +87,16 @@ class ImmoDBRoute{
   }
 }
 
-class ImmoDBView {
+class ImmoDBStream {
   public $source = 'default';
   public $alias = 'default';
   public $limit = 0;
   public $filters = null;
-  public $sort = 'default';
+  public $sort = 'auto';
 }
 
 class ImmoDBFilter {
   public $field = '';
-  public $operator = '='
+  public $operator = '=';
   public $value = '';
 }

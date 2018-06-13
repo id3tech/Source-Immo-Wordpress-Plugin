@@ -1,26 +1,25 @@
 <div class="config-grid-block">
-  <h2 class="md-headline">Authentication</h2>
+  <h2 class="md-headline"><?php _e('Authentication',IMMODB)?></h2>
   <div class="block-content" layout="column" layout-align="start stretch" layout-padding>
     <md-input-container>
-      <label>Api key</label>
+      <label><?php _e('Api key',IMMODB)?></label>
       <input ng-model="configs.api_key" required />
     </md-input-container>
 
     <md-input-container>
-      <label>Account ID</label>
+      <label><?php _e('Account ID',IMMODB)?></label>
       <input ng-model="configs.account_id" required />
     </md-input-container>
   </div>
 </div>
 
-
 <div class="config-grid-block">
-  <h2 class="md-headline">Permalinks</h2>
+  <h2 class="md-headline"><?php _e('Permalinks',IMMODB)?></h2>
 
   <div class="block-content" layout="column" layout-align="start stretch" layout-padding>
     <div class="route-item headers">
-      <div>Language</div>
-      <div>Route</div>
+      <div><?php _e('Language',IMMODB)?></div>
+      <div><?php _e('Route',IMMODB)?></div>
     </div>
     <div class="route-item" ng-repeat="route in configs.detail_routes">
       <md-input-container>
@@ -40,7 +39,7 @@
           </md-menu-item>
           <md-divider></md-divider>
           <md-menu-item>
-            <md-button ng-disabled="hasMinRouteCount()" ng-click="removeRoute(route)"><md-icon class="fal fa-times"></md-icon> Remove</md-button>
+            <md-button ng-disabled="hasMinRouteCount()" ng-click="removeRoute(route)"><md-icon class="fal fa-times"></md-icon> <?php _e('Remove', IMMODB) ?></md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>

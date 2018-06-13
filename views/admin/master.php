@@ -1,3 +1,6 @@
+<?php 
+$lTwoLetterLocale = substr(get_locale(),0,2);
+?>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css">
 
 <div id="immodb-app" ng-app="ImmoDb" ng-controller="mainCtrl" ng-init="init()">
@@ -6,13 +9,13 @@
 
 
     <div layout="row" layout-align="end center">
-      <md-button class="md-raised md-primary md-icon-button" ng-click="save_configs()" title="Save"><i class="fal fa-save fa-lg"></i></md-button>
-      <md-button class="md-icon-button" ng-click="save_configs()"><i class="fal fa-undo fa-lg" title="Reset to demo settings"></i></md-button>
+      <md-button class="md-raised md-primary md-icon-button" ng-click="save_configs()" title="<?php _e('Save', IMMODB)?>"><i class="fal fa-save fa-lg"></i></md-button>
+      <md-button class="md-icon-button" ng-click="save_configs()"><i class="fal fa-undo fa-lg" title="<?php _e('Reset to demo settings', IMMODB)?>"></i></md-button>
     </div>
 
   </div>
 <?php
-ImmoDB::view('admin/config');
+ImmoDB::view('admin/main');
 ?>
   <script type="text/javascript">
     var wpApiSettings={root:'<?php echo esc_url_raw( rest_url() ) ?>', nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'};
@@ -21,11 +24,21 @@ ImmoDB::view('admin/config');
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-messages.min.js"></script>
 
   <!-- Angular Material Library -->
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js"></script>
+
+  <script type="text/javascript">
+  var $locales = {
+    _current_lang_ : '<?php echo($lTwoLetterLocale); ?>',
+    <?php echo($lTwoLetterLocale); ?> : {}
+  }
+  </script>
+  <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , IMMODB_PLUGIN ) ?>"></script>
+  
   <script src="<?php echo plugins_url( 'scripts/ang.admin-app.js' , IMMODB_PLUGIN ) ?>"></script>
   <script src="<?php echo plugins_url( 'scripts/ang.admin-ctrl.js' , IMMODB_PLUGIN ) ?>"></script>
 

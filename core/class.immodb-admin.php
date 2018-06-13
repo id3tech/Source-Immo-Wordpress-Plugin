@@ -49,8 +49,8 @@ class ImmoDBAdmin {
   */
   public function load_menu() {
 		$hook = add_options_page(
-              __('Immo DB', IMMODB_TEXT_DOMAIN),
-              __('Immo DB', IMMODB_TEXT_DOMAIN),
+              __('Immo DB', IMMODB),
+              __('Immo DB', IMMODB),
               'manage_options',
               self::CONFIG_PAGE_KEY,
               array( $this, 'render_page' )
@@ -65,7 +65,7 @@ class ImmoDBAdmin {
   * Initialization on admin
   */
   public static function admin_init() {
-		load_plugin_textdomain( IMMODB_TEXT_DOMAIN );
+		load_plugin_textdomain( IMMODB );
 	}
 
 
@@ -73,7 +73,7 @@ class ImmoDBAdmin {
   * Add the "settings" link below the plugin name in the plugins management page
   */
   public function admin_plugin_settings_link( $links ) {
-  		$settings_link = '<a href="'.esc_url( self::get_page_url() ).'">'.__('Settings', IMMODB_TEXT_DOMAIN).'</a>';
+  		$settings_link = '<a href="'.esc_url( self::get_page_url() ).'">'.__('Settings', IMMODB).'</a>';
   		array_unshift( $links, $settings_link );
   		return $links;
 	}

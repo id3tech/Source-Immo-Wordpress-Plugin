@@ -8,8 +8,11 @@ class ImmoDB {
 
   public $configs = null;
 
+  public $locales = null;
+
   public function __construct(){
     $this->configs = ImmoDbConfig::load();
+    $this->load_locales();
 
     if (!is_admin() ){
       // create an instance of the shortcodes class to force code bindings
@@ -22,6 +25,8 @@ class ImmoDB {
   */
   private function init_hooks() {
 
+    // add custom translation
+    add_filter( 'gettext', array($this, 'translate'), 20, 3 );
   }
 
   public function get_account_id() {
@@ -45,6 +50,15 @@ class ImmoDB {
 /**
   RENDERING
 */
+
+  /**
+   * Render a page view or code fragment
+   * 
+   * The function will look into the active theme for a file override before falling back
+   * to the default plugin file. 
+   * @param string $path The path, relative to the view folder, of the file to render
+   * @param array $args Associative array of parameters to pass through to the view
+   */
   public static function view(string $path, array $args = array() ){
     $args = apply_filters( 'immodb_view_arguments', $args, $path );
 
@@ -74,6 +88,63 @@ class ImmoDB {
 
   }
 
+  /**
+   * Render a dialog containing with a page view
+   * 
+   * The function will look into the active theme for a file override before falling back
+   * to the default plugin file. 
+   * @param string $path The path, relative to the view folder, of the file to render
+   * @param array $args Associative array of parameters to pass through to the view
+   */
+  public static function dialog(string $path, string $dialog_id, array $args = array() ){
+    //$dialog_path = $path;
+    $args = array_merge($args, array(
+      'dialog_id' => $dialog_id,
+      'dialog_path' => $path
+    ));
+    self::view('admin/dialog.ui',$args);
+  }
+
+
+  /** 
+   TRANSLATION
+  */
+  public function load_locales(){
+    $locale = substr(get_locale(),0,2);
+    $locale_file_path = IMMODB_PLUGIN_DIR . '/scripts/locales/global.' . $locale . '.js';
+    if(file_exists($locale_file_path)){
+      $locale_str = file_get_contents($locale_file_path);
+      
+      // remove first line
+      $locale_str = preg_replace('/^.+\n/', '', $locale_str);
+      // remove comment lines
+      $locale_str = preg_replace('/.+\/\/.+/m', '', $locale_str);
+
+      if (0 === strpos(bin2hex($locale_str), 'efbbbf')) $locale_str = substr($locale_str, 3);
+
+      $this->locales = json_decode($locale_str, true);
+    }
+  }
+
+  public function translate($translated_text, $text, $domain){
+    
+    if($domain == IMMODB){
+      
+      $locale = substr(get_locale(),0,2);
+      
+      // this is most likely not translated
+      if($translated_text == $text && $locale != 'en'){
+        
+
+        if(isset($this->locales[$text])){
+         
+          $translated_text = $this->locales[$text];
+        }
+      }
+    }
+
+    return $translated_text;
+  }
 
   /**
   STATICS

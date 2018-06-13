@@ -1,6 +1,9 @@
 
+/**
+ * Main Configuration Controller
+ */
 ImmoDbApp
-.controller('configCtrl', function($scope, $rootScope){
+.controller('mainConfigurationCtrl', function($scope, $rootScope){
   $scope.route_elements = {
       '{{id}}' : 'ID',
       '{{transaction}}' : 'Transaction type',
@@ -57,6 +60,97 @@ ImmoDbApp
   }
 });
 
+
+
+/**
+ * Views Controllers
+ */
+
+ // List
+ImmoDbApp
+.controller('streamListCtrl', function($scope, $rootScope){
+  $scope.init = function(){
+
+  }
+
+  $scope.add = function(){
+    let lNew = {
+      alias: 'New stream'.translate(),
+      source :'default',
+      sort: 'auto',
+      limit: 0,
+      filters : null
+    }
+
+    $scope.dialog('streamEdit', lNew).then(function($result){
+      lNew = angular.merge(lNew,$result);
+      $scope.configs.streams.push(lNew);
+    });
+  }
+
+  $scope.edit = function($stream){
+    $scope.dialog('streamEdit', $stream).then(function($result){
+      $stream = angular.merge($stream,$result);
+    });
+  }
+
+  $scope.remove = function($stream){
+    $scope.confirm('Are you sure you want to remove this stream?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
+      let lNewStreams = [];
+      $scope.configs.streams.forEach(function($e){
+        if($e!=$stream){
+          lNewStreams.push($e);
+        }
+      });
+      $scope.configs.streams = lNewStreams;
+      
+      $scope.show_toast('Stream removed');
+    });
+  }
+
+  $scope.getStreamShortcode = function($stream){
+    return '[immodb alias="' + $stream.alias + '"]';
+  }
+});
+
+// Edit
+ImmoDbApp
+.controller('streamEditCtrl', function($scope, $rootScope, $mdDialog){
+  BaseDialogController('streamEdit', $scope, $rootScope, $mdDialog);
+
+  $scope.model = {};
+  $scope.filter_operators = {
+    '='       : 'Equals'.translate(),
+    '!='      : 'Different from'.translate(),
+    'in'      : 'One of'.translate(),
+    'not in'  : 'Not one of'.translate(),
+    'like'    : 'Contains'.translate(),
+    'not like': 'Does not contains'.translate()
+  };
+
+  $scope.actions = [
+    {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
+    {label: 'Cancel'.translate(), action: $scope.cancel},
+  ];
+
+  $scope.init = function($params){
+    $scope.model = angular.copy($params);
+    $scope.setTitle('Edit "{0}"'.translate().format($params.alias));
+  }
+
+  $scope.addFilter = function(){
+    if($scope.model.filters==null){
+      $scope.model.filters = [];
+    }
+
+    $scope.model.filters.push({field: '', operator: '=', value: ''});
+  }
+});
+
+
+/**
+ * MAIN ROOT CONTROLLER
+ */
 ImmoDbApp
 .controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast){
   $scope.configs = {};
@@ -65,6 +159,10 @@ ImmoDbApp
     en: 'English',
     es: 'Español'
   }
+  $scope.global_list = {
+    sources: []
+  }
+
   $scope.init = function(){
     $scope.load_configs();
   }
@@ -84,19 +182,72 @@ ImmoDbApp
   /*
   * UI
   */
+
+  /**
+   * Display a confirmation box
+   * @param {string} $title Main confirm message
+   * @param {string} $message Optional. Additionnal information to help understand the main message. Default : empty
+   * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
+   * @return {promise}
+   */
+  $scope.confirm = function($title, $message, $options){
+    $options = angular.merge({
+      ev: null,
+      ok: 'OK',
+      cancel: 'Cancel'
+    }, $options);
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.confirm()
+          .title($title.translate())
+          .textContent($message.translate())
+          .targetEvent($options.ev)
+          .ok($options.ok.translate())
+          .cancel($options.cancel.translate());
+
+    confirm._options.parent = angular.element(document.body);
+    return $mdDialog.show(confirm);
+  }
+
+  /**
+   * Display a notification toast in the top right of the screen
+   * @param {string} $message 
+   */
   $scope.show_toast = function($message){
     $mdToast.show(
       $mdToast.simple()
-        .textContent($message)
+        .textContent($message.translate())
         .position('top right')
         .hideDelay(3000)
     );
   }
 
+  /**
+   * Call a dialog to open
+   * @param {string} $dialog_id 
+   * @param {*} $params 
+   */
+  $scope.dialog = function($dialog_id, $params){
+    let lPromise = $q(function($resolve, $reject){
+      $rootScope.$broadcast(
+          'on-' + $dialog_id,     // broadcast event
+          $params,                 // dialog parameters
+          function($result){      // callback handler
+            $resolve($result);
+          });
+    });
+
+    return lPromise;
+  }
+
+
 
   /**
-  * Main api call
-  */
+   * Call the API
+   * @param {string} $path Endpoint to the api call
+   * @param {*} $data Data object to send in the request
+   * @param {*} $options Options to add at the $http call
+   * @return {promise} Promise object
+   */
   $scope.api = function($path, $data, $options){
       $options = angular.merge({
         url     : wpApiSettings.root + 'immodb/' + $path,
@@ -129,4 +280,87 @@ ImmoDbApp
       return lPromise;
   }
 
+  /**
+   * Copy some data into clipboard
+   * @param {*} $data Information to put in the clipboard
+   */
+  $scope.copy = function($data){
+    // Make sure $data is a string. If it's and object, transform via JSON
+    let lContent = '';
+    if($data !== null && typeof $data === 'object'){
+      lContent = JSON.stringify($data);
+    }
+    else{
+      lContent = $data;
+    }
+
+    let lTextarea = document.createElement("textarea");
+    lTextarea.textContent = lContent;
+    lTextarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+    document.body.appendChild(lTextarea);
+    lTextarea.select();
+    try {
+      $scope.show_toast('Copied to clipboard');
+      document.execCommand("copy");  // Security exception may be thrown by some browsers.
+    } 
+    catch (ex) {
+        console.warn("Copy to clipboard failed.", ex);
+        return false;
+    } 
+    finally {
+      document.body.removeChild(lTextarea);
+    }
+
+  }
+
 });
+
+/**
+ * Sets basic dialog handler interface function
+ */
+function BaseDialogController($dialogId, $scope, $rootScope, $mdDialog){
+  $scope.dialogId = $dialogId;
+  $scope.callback = null;
+  $scope.title = $dialogId.replace('-',' ');
+  $scope.actions = [
+      { label: 'OK', action: function () { $scope.cancel() } }
+  ];
+  
+  $scope._dialogInit_ = function () {
+      
+      $scope.$on('on-' + $scope.dialogId, function ($event, $params, $callback) {
+        console.log('instance of dialog', $scope.dialogId, 'called with', $params);
+          if (typeof ($scope.init) == 'function') {
+              $scope.init($params);
+          }
+
+          $scope.open($scope.dialogId);
+          $scope.callback = $callback;
+      });
+  }
+
+  $scope.setTitle = function($new_title){
+    $scope.title = $new_title;
+  }
+
+  $scope.open = function($dialogId){
+    return $mdDialog.show({
+        contentElement: '#' + $dialogId,
+        parent: angular.element(document.body),
+        targetEvent: null,
+        clickOutsideToClose: true,
+        fullscreen: true // Only for -xs, -sm breakpoints.
+    });
+  }
+
+  $scope.cancel = function () {
+      $mdDialog.cancel();
+  }
+
+  $scope.return = function($result){
+    $scope.callback($result);
+    $mdDialog.cancel();
+  }
+
+  return $scope;
+}
