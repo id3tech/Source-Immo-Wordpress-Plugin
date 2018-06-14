@@ -10,7 +10,7 @@ $lTwoLetterLocale = substr(get_locale(),0,2);
 
     <div layout="row" layout-align="end center" ng-show="current_page=='home'">
       <md-button class="md-raised md-primary md-icon-button" ng-click="save_configs()" title="<?php _e('Save', IMMODB)?>"><i class="fal fa-save fa-lg"></i></md-button>
-      <md-button class="md-icon-button" ng-click="save_configs()"><i class="fal fa-undo fa-lg" title="<?php _e('Reset to demo settings', IMMODB)?>"></i></md-button>
+      <md-button class="md-icon-button" ng-click="reset_configs()"><i class="fal fa-undo fa-lg" title="<?php _e('Reset to demo settings', IMMODB)?>"></i></md-button>
     </div>
 
   </div>

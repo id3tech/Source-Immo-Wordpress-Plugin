@@ -45,22 +45,26 @@ body.wp-admin #immodb-app .config-grid-block .block-content {
   padding: 20px;
 }
 
-body.wp-admin #immodb-app .route-item {
+body.wp-admin #immodb-app .general-settings .route-item {
   display: grid;
   grid-template-columns: 100px 1fr 20px;
   align-items: center;
   grid-gap: 10px;
 }
 
-body.wp-admin #immodb-app .route-item md-input-container .md-errors-spacer {
+body.wp-admin #immodb-app .general-settings .route-item md-input-container {
+  margin: 0px;
+}
+
+body.wp-admin #immodb-app .general-settings .route-item md-input-container .md-errors-spacer {
   display: none;
 }
 
-body.wp-admin #immodb-app .route-item.headers {
+body.wp-admin #immodb-app .general-settings .route-item.headers {
   border-bottom: solid 1px #ccc;
 }
 
-body.wp-admin #immodb-app .route-item.headers div {
+body.wp-admin #immodb-app .general-settings .route-item.headers div {
   font-size: 13px;
   text-transform: uppercase;
   color: #333;
@@ -138,12 +142,24 @@ body.wp-admin #immodb-app #listEdit .grid-layout {
   grid-template-columns: 80px 400px 3fr;
 }
 
-body.wp-admin #immodb-app #listEdit .grid-row {
+body.wp-admin #immodb-app #listEdit .filters .grid-row {
   grid-template-columns: 1fr 1fr 1fr 50px;
 }
 
-body.wp-admin #immodb-app #listEdit .grid-row.header {
+body.wp-admin #immodb-app #listEdit .filters .grid-row.header {
   margin-top: 20px;
+}
+
+body.wp-admin #immodb-app #listEdit .layouts {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  justify-content: stretch;
+}
+
+body.wp-admin #immodb-app #listEdit .layouts .layout {
+  justify-self: stretch;
 }
 
 body.wp-admin .grid-layout {

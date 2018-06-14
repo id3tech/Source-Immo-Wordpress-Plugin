@@ -28,7 +28,7 @@ class ImmoDBApi {
         ), // End GET
 
         array(
-  				'methods' => WP_REST_Server::EDITABLE,
+  				'methods' => WP_REST_Server::CREATABLE,
   				'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
   				'callback' => array( 'ImmoDBApi', 'set_configs' ),
   				'args' => array(
@@ -38,7 +38,13 @@ class ImmoDBApi {
   						'description' => __( 'Configuration informations', 'immodb' ),
   					)
   				)
-  			), // End POST
+        ), // End POST
+        
+        array(
+  				'methods' => WP_REST_Server::EDITABLE,
+  				'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+  				'callback' => array( 'ImmoDBApi', 'reset_configs' ),
+  			), // End PATCH
       )
     );
 
@@ -80,6 +86,14 @@ class ImmoDBApi {
     $config_value = $request->get_param('settings');
 
     ImmoDB::current()->configs->parse($config_value);
+    ImmoDB::current()->configs->save();
+
+    return self::get_configs();
+  }
+
+  public static function reset_configs($request){
+    $new_config_value = new ImmoDBConfig();
+    ImmoDB::current()->configs = $new_config_value;
     ImmoDB::current()->configs->save();
 
     return self::get_configs();

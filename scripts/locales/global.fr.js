@@ -16,6 +16,8 @@ $locales.fr.global =
     , "Reset to demo settings" : "Réinitialisé aux configurations démo"
     , "Copied to clipboard" : "Copié dans le presse-papier"
     , "Save completed" : "Sauvegarde complétée"
+    , "Standard" : "Régulier"
+    , "Custom" : "Personnalisé"
     // Configuration Screen
     , "General" : "Général"
     , "Lists" : "Listes"
@@ -30,6 +32,10 @@ $locales.fr.global =
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"
     , "Source ImmoDB view" : "Vue ImmoDB d'origine"
+    , "List of" : "Liste de"
+    , "Listings" : "Propriétés"
+    , "Brokers" : "Courtiers"
+    , "Cities" : "Villes"
     , "Sort by" : "Ordonné par"
     , "Limit the number of displayed elements" : "Limiter le nombre d'élément affiché"
     , "Filters" : "Filtres"
@@ -45,6 +51,8 @@ $locales.fr.global =
     , "List removed" : "Liste retirée"
     , "Are you sure you want to remove this list?" : "Êtes-vous certain de vouloir retirer cette liste?"
     , "This action could renders some sections of your site blank":"Cette action pourrait rendre certaines sections de votre site vides"
+    , "List layout" : "Disposition de la liste"
+    , "List items layout" : "Disposition des éléments de la liste"
     // Operators
     , "Equals" : "Égale"
     , "Different from" : "Différent de"

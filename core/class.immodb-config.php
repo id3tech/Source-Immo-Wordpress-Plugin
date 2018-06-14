@@ -26,19 +26,33 @@ class ImmoDBConfig {
   public $lists = array();
 
   /**
-  * Detail configuration
+  * Listing details route path configuration
   * @var ArrayImmoDBRoute
   */
-  public $detail_routes = array();
+  public $listing_routes = array();
 
+  /**
+  * Broker details route path configuration
+  * @var ArrayImmoDBRoute
+  */
+  public $broker_routes = array();
+
+
+  /**
+   * Configuration constructor class
+   */
   public function __construct(){
 
     // set defaut DEMO value
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
-    $this->detail_routes  = array(
-      new ImmoDBRoute('fr','proprietes/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
-      new ImmoDBRoute('en', 'listings/{{transation}}/{{location.region}}/{{location.city}}/{{id}}'),
+    $this->listing_routes  = array(
+      new ImmoDBRoute('fr','proprietes/{{location.region}}/{{location.city}}/{{transaction}}/{{id}}'),
+      new ImmoDBRoute('en', 'listings/{{location.region}}/{{location.city}}/{{transaction}}/{{id}}'),
+    );
+    $this->broker_routes  = array(
+      new ImmoDBRoute('fr','courtiers/{{location.region}}/{{location.city}}/{{id}}'),
+      new ImmoDBRoute('en', 'brokers/{{location.region}}/{{location.city}}/{{id}}'),
     );
 
     $this->lists = array(
@@ -91,8 +105,14 @@ class ImmoDBList {
   public $source = 'default';
   public $alias = 'default';
   public $limit = 0;
+  public $type = 'listings';
   public $filters = null;
   public $sort = 'auto';
+
+  public $list_layout = 'standard';
+  public $list_custom_layout = null;
+  public $list_item_layout = 'standard';
+  public $list_item_custom_layout = null;
 }
 
 class ImmoDBFilter {

@@ -19,6 +19,13 @@
         </md-input-container>
 
         <md-input-container>
+            <label><?php _e('List of',IMMODB) ?></label>
+            <md-select ng-model="model.type">
+                <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
+            </md-select>
+        </md-input-container>
+
+        <md-input-container>
             <label><?php _e('Sort by',IMMODB) ?></label>
             <input ng-model="model.sort" placeholder="ex.: location.city" />
         </md-input-container>  

@@ -25,36 +25,37 @@ ImmoDbApp
     $item.route += $elm;
   }
 
-  $scope.addRoute = function(){
+  $scope.addRoute = function($list){
     let lLocale = '';
     for (let $key in $scope.lang_codes) {
-      if($scope.configs.detail_routes.map(function(e) {return e.lang}).indexOf($key)<0){
+      if($list.map(function(e) {return e.lang}).indexOf($key)<0){
         lLocale = $key;
       }
     }
 
-    $scope.configs.detail_routes.push({lang: lLocale, route : ''});
+    $list.push({lang: lLocale, route : ''});
   }
 
-  $scope.removeRoute = function($route){
+  $scope.removeRoute = function($route,$list_name){
     let lNewRoutes = [];
-    $scope.configs.detail_routes.forEach(function($e){
+    let lList = $scope.configs[$list_name];
+    lList.forEach(function($e){
       if($e!=$route){
         lNewRoutes.push($e);
       }
     });
-    $scope.configs.detail_routes = lNewRoutes;
+    $scope.configs[$list_name] = lNewRoutes;
   }
 
   //
-  $scope.hasMinRouteCount = function(){
-    return $scope.configs.detail_routes.length==1;
+  $scope.hasMinRouteCount = function($list){
+    return $list.length==1;
   }
-  $scope.hasMaxRouteCount = function(){
+  $scope.hasMaxRouteCount = function($list){
     let lResult = true;
-    if($scope.configs.detail_routes){
+    if($list){
       for (let $key in $scope.lang_codes) {
-        if($scope.configs.detail_routes.map(function(e) {return e.lang}).indexOf($key)<0){
+        if($list.map(function(e) {return e.lang}).indexOf($key)<0){
           lResult = false;
         }
       }
@@ -135,8 +136,11 @@ ImmoDbApp
       $scope.model = {
         alias: 'New list'.translate(),
         source :'default',
+        type: 'listings',
         sort: 'auto',
         limit: 0,
+        list_layout : 'standard',
+        list_item_layout : 'standard',
         filters : null
       }
     }
@@ -181,7 +185,22 @@ ImmoDbApp
     es: 'Español'
   }
   $scope.global_list = {
-    sources: []
+    sources: [],
+    list_types: [
+      {key: 'listings', label: 'Listings'},
+      {key: 'brokers', label: 'Brokers'},
+      {key: 'cities', label: 'Cities'}
+    ],
+    list_layouts:[
+      {name: 'standard', label: 'Standard'},
+      {name: 'custom', label: 'Custom'}
+    ],
+    list_item_layouts:[
+      {name: 'standard', label: 'Standard'},
+      {name: 'reduced', label: 'Reduced'},
+      {name: 'minimal', label: 'Minimal'},
+      {name: 'custom', label: 'Custom'}
+    ],
   }
 
   $rootScope.current_page = 'home'
@@ -197,6 +216,13 @@ ImmoDbApp
   $scope.load_configs = function(){
     $scope.api('configs').then(function($response){
       $scope.configs = $response;
+    });
+  }
+
+  $scope.reset_configs = function(){
+    $scope.api('configs',null, {method:'PATCH'}).then(function($response){
+      $scope.configs = $response;
+      $scope.show_toast('Configuration reset to demo mode');
     });
   }
 
