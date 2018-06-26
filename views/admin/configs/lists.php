@@ -36,6 +36,9 @@
             
                 <i class="far fa-lg fa-filter"></i>
                 <span>{{(list.filters==null)? 'none'.translate() : list.filters.length}}</span>
+
+                <i class="far fa-lg fa-filter"></i>
+                <span>{{list.list_layout.preset}}/{{list.list_item_layout.preset}}</span>
             
         </div>
     </div>

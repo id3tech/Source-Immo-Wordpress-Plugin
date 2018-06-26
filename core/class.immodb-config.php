@@ -20,6 +20,12 @@ class ImmoDBConfig {
   public $account_id = '';
 
   /**
+   * Default currency
+   * @var string
+   */
+  public $default_currency = 'CAD';
+
+  /**
   * List configuration
   * @var ArrayImmoDBView
   */
@@ -47,12 +53,12 @@ class ImmoDBConfig {
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     $this->listing_routes  = array(
-      new ImmoDBRoute('fr','proprietes/{{location.region}}/{{location.city}}/{{transaction}}/{{id}}'),
-      new ImmoDBRoute('en', 'listings/{{location.region}}/{{location.city}}/{{transaction}}/{{id}}'),
+      new ImmoDBRoute('fr','proprietes/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{id}}'),
+      new ImmoDBRoute('en', 'listings/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{id}}'),
     );
     $this->broker_routes  = array(
-      new ImmoDBRoute('fr','courtiers/{{location.region}}/{{location.city}}/{{id}}'),
-      new ImmoDBRoute('en', 'brokers/{{location.region}}/{{location.city}}/{{id}}'),
+      new ImmoDBRoute('fr','courtiers/{{getRegion(item)}}/{{getCity(item)}}/{{id}}'),
+      new ImmoDBRoute('en', 'brokers/{{getRegion(item)}}/{{getCity(item)}}/{{id}}'),
     );
 
     $this->lists = array(
@@ -108,11 +114,22 @@ class ImmoDBList {
   public $type = 'listings';
   public $filters = null;
   public $sort = 'auto';
+  public $searchable = true;
+  public $sortable = true;
 
-  public $list_layout = 'standard';
-  public $list_custom_layout = null;
+  public $list_layout = null;
   public $list_item_layout = 'standard';
-  public $list_item_custom_layout = null;
+  
+  public function __construct(){
+    $this->list_layout = new ImmoDBLayout();
+    $this->list_item_layout = new ImmoDBLayout();
+  }
+}
+
+class ImmoDBLayout {
+  public $preset = 'standard';
+  public $scope_class = '';
+  public $custom = null;
 }
 
 class ImmoDBFilter {

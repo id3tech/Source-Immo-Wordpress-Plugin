@@ -27,6 +27,16 @@ class ImmoDB {
 
     // add custom translation
     add_filter( 'gettext', array($this, 'translate'), 20, 3 );
+
+    if (!is_admin() ){
+      $this->register_filters(array(
+        'language_attributes' => 'set_html_attributes'
+      ));
+
+      $this->register_actions(array(
+        'wp_enqueue_scripts' => 'load_resources',
+      ));
+    }
   }
 
   public function get_account_id() {
@@ -36,6 +46,51 @@ class ImmoDB {
   public function get_api_key() {
     return $this->configs->api_key;
   }
+
+  public function get_list_configs($alias){
+    foreach ($this->configs->lists as $list) {
+      if($list->alias == $alias){
+        return $list;
+      }
+    } 
+
+    return null;
+  }
+
+  public function get_permalink($type, $locale = null){
+    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
+
+    if(method_exists($this, "get_{$type}_permalink")){
+      return $this->{'get_' . $type . '_permalink'}($locale);
+    }
+    
+    return '';
+  }
+
+  public function get_listing_permalink($locale = null){
+    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
+    $lResult = $this->configs->listing_routes[0]->route;
+    foreach($this->configs->listing_routes as $item){
+      if($item->lang == $locale){
+        $lResult = $item->route;
+      }
+    }
+
+    return  $lResult;
+  }
+
+  public function get_broker_permalink($locale = null){
+    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
+    $lResult = $this->configs->listing_routes[0]->route;
+    foreach($this->configs->listing_routes as $item){
+      if($item->lang == $locale){
+        $lResult = $item->route;
+      }
+    }
+
+    return $lResult;
+  }
+
 
   /**
   * Set routes based on configurations
@@ -47,9 +102,28 @@ class ImmoDB {
 
   }
 
+
+
 /**
   RENDERING
 */
+
+  public function load_resources(){
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+
+    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', IMMODB_PLUGIN) );
+    wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN) );
+
+    wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, '1.6.9', false );
+    wp_add_inline_script( 'angular', 'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' );
+    wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
+    wp_enqueue_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.js', IMMODB_PLUGIN), null, null, true );
+  }
+
+  public function set_html_attributes($attr){
+    return "{$attr} ng-app=\"ImmoDb\" ng-controller=\"publicCtrl\" ";
+  }
+
 
   /**
    * Render a page view or code fragment
@@ -206,5 +280,35 @@ class ImmoDB {
   */
   public static function plugin_deactivation( ) {
 
+  }
+
+  /**
+  PRIVATES
+  **/
+
+  /**
+  * Shortcut for multiple action hook registration
+  */
+  private function register_actions($hooks){
+    foreach ($hooks as $hook => $func) {
+      // if $func is empty, fallback to $hook for function name
+      $funcName = (empty($func))?$hook:$func;
+      if(method_exists($this,$funcName)){ // only if method exists
+        add_action($hook, array($this, $funcName));
+      }
+    }
+  }
+
+  /**
+  * Shortcut for multiple filter hook registration
+  */
+  private function register_filters($hooks){
+    foreach ($hooks as $hook => $func) {
+      // if $func is empty, fallback to $hook for function name
+      $funcName = (empty($func))?$hook:$func;
+      if(method_exists($this,$funcName)){ // only if method exists
+        add_filter($hook, array($this, $funcName));
+      }
+    }
   }
 }

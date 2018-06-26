@@ -142,6 +142,18 @@ body.wp-admin #immodb-app #listEdit .grid-layout {
   grid-template-columns: 80px 400px 3fr;
 }
 
+body.wp-admin #immodb-app #listEdit .options .input-container {
+  padding: 10px 0;
+}
+
+body.wp-admin #immodb-app #listEdit .options .input-container label {
+  margin-left: 3px;
+}
+
+body.wp-admin #immodb-app #listEdit .options .input-container md-checkbox {
+  margin: 0px;
+}
+
 body.wp-admin #immodb-app #listEdit .filters .grid-row {
   grid-template-columns: 1fr 1fr 1fr 50px;
 }

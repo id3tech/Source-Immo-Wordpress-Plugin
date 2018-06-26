@@ -35,7 +35,7 @@ class ImmoDBApi {
   					'settings' => array(
   						'required' => true,
   						'type' => 'ImmoDBConfig',
-  						'description' => __( 'Configuration informations', 'immodb' ),
+  						'description' => __( 'Configuration informations', IMMODB ),
   					)
   				)
         ), // End POST
@@ -48,6 +48,20 @@ class ImmoDBApi {
       )
     );
 
+    //Read List configs
+    register_rest_route( 'immodb','/list_configs',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => array( 'ImmoDBApi', 'get_list_configs' ),
+        'args' => array(
+          'alias' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Alias identifier of the List object', IMMODB ),
+          )
+        )
+      ) // End GET
+    );
 
   }
 
@@ -97,6 +111,13 @@ class ImmoDBApi {
     ImmoDB::current()->configs->save();
 
     return self::get_configs();
+  }
+
+
+  public static function get_list_configs($request){
+    $alias = $request->get_param('alias');
+    $result = ImmoDB::current()->get_list_configs($alias);
+    return $result;
   }
 
   /*

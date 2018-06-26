@@ -12,6 +12,22 @@ if(typeof String.format === 'undefined'){
         }
         return lResult;
     }
+}
+
+if(typeof Number.formatPrice === 'undefined' ){
+
+    Number.prototype.formatPrice = function($locale, $currency){
+        $currency = ($currency==undefined)?'':$currency;
+        let lResult = this.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
+        switch($locale){
+            case 'fr':
+                lResult = lResult + '$ ' + $currency;
+                break;
+            default:
+                lResult = '$' + lResult + ' ' + $currency;
+        }
+        return lResult;
+    }
 
 }
 

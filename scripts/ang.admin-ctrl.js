@@ -139,8 +139,10 @@ ImmoDbApp
         type: 'listings',
         sort: 'auto',
         limit: 0,
-        list_layout : 'standard',
-        list_item_layout : 'standard',
+        searchable:true,
+        sortable:true,
+        list_layout : { preset: 'standard', scope_class : '', custom:null},
+        list_item_layout : { preset: 'standard', scope_class : '', custom:null},
         filters : null
       }
     }
@@ -385,29 +387,40 @@ ImmoDbApp
       
       for (const key in $objA) {
         if(key == '$$hashKey') continue;
-
-        if ($objA.hasOwnProperty(key) && $objB.hasOwnProperty(key)) {
-          if(Array.isArray($objA[key])){
-            if($objA[key].length != $objB[key].length){
-              //console.log(key, 'lengths differ');
-              return false;
-            }
-            else{
-              for(let i = 0;i<$objA[key].length;i++){
-                if(!$scope.isSame($objA[key][i], $objB[key][i])){
-                  return false;
+        if($objA[key]!=null && $objB[key]!=null){
+          if ($objA.hasOwnProperty(key) && $objB.hasOwnProperty(key)) {
+            if(Array.isArray($objA[key])){
+              if($objA[key].length != $objB[key].length){
+                //console.log(key, 'lengths differ');
+                return false;
+              }
+              else{
+                for(let i = 0;i<$objA[key].length;i++){
+                  if(!$scope.isSame($objA[key][i], $objB[key][i])){
+                    return false;
+                  }
                 }
               }
             }
+            else if(typeof($objA[key]) == 'object'){
+              if(!$scope.isSame($objA[key], $objB[key])){
+                //console.log(key, 'differ');
+                return false;
+              }
+            }
+            else if($objA[key] != $objB[key]){
+              //console.log(key, 'values differ');
+              return false;
+            }
+            
           }
-          else if($objA[key] != $objB[key]){
-            //console.log(key, 'values differ');
+          else{
+            //console.log('$objB does not have key ', key);
             return false;
           }
         }
         else{
-          //console.log('$objB does not have key ', key);
-          return false;
+          //console.log(key,'is null');
         }
       }
 

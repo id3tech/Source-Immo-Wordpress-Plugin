@@ -1,7 +1,7 @@
 
 <div class="grid-layout">
     <div class="nav" layout="column" layout-align="start center">
-        <md-button class="md-icon-button md-raised md-primary back-button" ng-click="saveOrClose()"><i class="fal {{hasChanged() ? 'fa-save' : 'fa-arrow-left'}}"></i></md-button>
+        <md-button class="md-icon-button md-raised md-primary back-button" ng-click="saveOrClose()"><i class="fal {{hasChanged() ? 'fa-check' : 'fa-arrow-left'}}"></i></md-button>
         <md-button class="md-icon-button" ng-show="hasChanged()" ng-click="cancel()"><i class="fal fa-arrow-left"></i></md-button>
     </div>
     <div class="options" layout="column" layout-align="start stretch">
@@ -24,6 +24,16 @@
                 <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
+        
+        <div class="input-container" layout="row" layout-align="space-between center">
+            <label><?php _e('Allow search',IMMODB) ?></label>
+            <md-checkbox ng-model="model.searchable"></md-checkbox>
+        </div>
+
+        <div class="input-container" layout="row" layout-align="space-between center">
+            <label><?php _e('Allow sort',IMMODB) ?></label>
+            <md-checkbox ng-model="model.sortable"></md-checkbox>
+        </div>
 
         <md-input-container>
             <label><?php _e('Sort by',IMMODB) ?></label>

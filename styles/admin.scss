@@ -111,6 +111,13 @@ body.wp-admin{
       .grid-layout{
         grid-template-columns: 80px 400px 3fr;
       }
+      .options{
+        .input-container{
+          padding:10px 0;
+          label{margin-left:3px;}
+          md-checkbox{margin:0px;}
+        }
+      }
       .filters{
         .grid-row{
           grid-template-columns: 1fr 1fr 1fr 50px;
