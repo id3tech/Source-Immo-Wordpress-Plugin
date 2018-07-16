@@ -16,16 +16,10 @@ if(typeof String.format === 'undefined'){
 
 if(typeof Number.formatPrice === 'undefined' ){
 
-    Number.prototype.formatPrice = function($locale, $currency){
+    Number.prototype.formatPrice = function($currency){
         $currency = ($currency==undefined)?'':$currency;
         let lResult = this.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
-        switch($locale){
-            case 'fr':
-                lResult = lResult + '$ ' + $currency;
-                break;
-            default:
-                lResult = '$' + lResult + ' ' + $currency;
-        }
+        lResult = '${0}'.translate().format(lResult);
         return lResult;
     }
 
@@ -58,6 +52,19 @@ if(typeof String.translate === 'undefined'){
         }
     
         return $key;
+    }
+
+}
+
+if(typeof Number.between === 'undefined'){
+
+    /**
+     * Check if a number is between two others
+     * @param {number} $lower 
+     * @param {number} $upper 
+     */
+    Number.prototype.between = function($lower, $upper){
+        return ( (this >= $lower) && (this <= $upper) );
     }
 
 }

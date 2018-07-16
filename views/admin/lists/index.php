@@ -24,26 +24,17 @@
                 <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
-        
-        <div class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow search',IMMODB) ?></label>
-            <md-checkbox ng-model="model.searchable"></md-checkbox>
-        </div>
-
-        <div class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow sort',IMMODB) ?></label>
-            <md-checkbox ng-model="model.sortable"></md-checkbox>
-        </div>
 
         <md-input-container>
             <label><?php _e('Sort by',IMMODB) ?></label>
             <input ng-model="model.sort" placeholder="ex.: location.city" />
+            <md-icon ng-click="switchSortReverse()" class="fal {{model.sort_reverse? 'fa-sort-amount-down' : 'fa-sort-amount-up'}}"></md-icon>
         </md-input-container>  
 
 
         <md-input-container>
             <label><?php _e('Limit the number of displayed elements',IMMODB) ?></label>
-            <input type="number" ng-model="model.limit" />
+            <input type="number" ng-model="model.limit" ng-change="validate()" />
         </md-input-container>
     </div>
 

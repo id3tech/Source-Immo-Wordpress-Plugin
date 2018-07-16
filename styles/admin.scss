@@ -23,7 +23,7 @@ body.wp-admin{
       width:100%;overflow:hidden;
       .page-container{
         display:grid;
-        grid-template-columns: 100% 100%;
+        grid-template-columns: 90vw 90vw;
         transition:0.5s;
       }
     }
@@ -50,8 +50,8 @@ body.wp-admin{
           .md-errors-spacer{display:none;}
         }
         &.headers{
-          border-bottom:solid 1px #ccc;
-          div{font-size:13px;text-transform:uppercase;color:#333;opacity:0.5;}
+          border-bottom:solid 1px #1E88E5;
+          div{font-size:13px;text-transform:uppercase;color:#1E88E5;opacity:0.75;}
         }
       }
     }    
@@ -118,13 +118,66 @@ body.wp-admin{
           md-checkbox{margin:0px;}
         }
       }
-      .filters{
-        .grid-row{
-          grid-template-columns: 1fr 1fr 1fr 50px;
-          &.header{
-            margin-top:20px;
+      .list-filters{
+        .immodb-filter-group{
+          padding:5px 5px 5px 0;
+          .immodb-filter-group{
+            border:dashed 1px #ccc;
+            
+          }
+          .group-header{
+            background-color:#ccc;
+          }
+          .subgroup{
+            padding: 5px;
+            width: calc(100% - 10px);
+          }
+          .filter-operator{
+            text-transform: uppercase;font-weight: 700;
+          }
+          &.group-operator-and{
+            >div{
+              >.filters,>.subgroups{
+                border-left:10px solid #159F5C;
+                .filter-operator{color:#159F5C;}
+              }
+            }
+          }
+          &.group-operator-or{
+            >div{
+              >.filters,>.subgroups{
+                border-left:10px solid #F17421;
+                .filter-operator{color:#F17421;}
+              }
+            }
+          }
+
+          .filters,.subgroups{
+            padding-left:10px;
+            .filter-operator{text-align:center;}
+            &:last-child{
+              > .filter-operator{display:none;}
+            }
+          }
+
+          .grid-row{
+            grid-template-columns: 1fr 1fr 1fr 50px;
+            grid-gap:10px;
+            md-input-container{
+              margin:0px;
+              .md-errors-spacer{display:none;}
+            }
+            &.header{
+              margin-top:20px;
+              margin-left: 25px;
+              div{
+                //font-style: italic;font-size:80%;
+                &:not(:first-child){text-align:center;}
+              }
+            }
           }
         }
+        
       }
       .layouts{
         padding:10px;
@@ -149,8 +202,8 @@ body.wp-admin{
   .grid-row{
     display:grid;
     &.header{
-      border-bottom:solid 1px #ccc;
-      div{font-size:13px;text-transform:uppercase;color:#333;opacity:0.5;}
+      border-bottom:solid 1px #1E88E5;
+      div{font-size:13px;text-transform:uppercase;color:#1E88E5;opacity:0.75;}
     }
   }
 

@@ -1,21 +1,192 @@
+@import url('https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css');
+
 .immodb{
     display:grid;
+    a{
+        color: #333;
+        text-decoration: none;
+        &:hover{
+            color:inherit;
+            text-decoration:inherit;
+        }
+    }
+
+    .layout-row{
+        display:grid;
+        grid-auto-columns: 1fr;
+        grid-gap:10px;
+    }
+    .layout-column{
+        display:grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-gap:10px;
+    }
+
+    // -------------------------
+    // Elements initialization 
+    // ------------------------- 
     .search-container{
         grid-area: search;
+        display:grid;
+        grid-gap:10px;
+        padding:5px 15px;
+        position:relative;
+        align-items:center;
+        .btn{width:100%;}
+        .input{
+            display:grid;grid-gap:10px;
+            align-items:center;
+            grid-area: input;
+
+            input{
+                border:none;
+                outline:none;
+            }
+            .suggestion-panel{
+                display:none;
+                position: absolute;
+                width:100%;
+                top:50px;background:#fff;
+                z-index:9999;
+                min-height:500px;max-height:80vh;
+                border:solid 1px #ccc;
+                border-radius:0 0 5px 5px;
+                border-top:none;
+                box-shadow: rgba(#000,0.5) 0 10px 10px;
+            }
+            input:focus ~ .suggestion-panel{
+                display:block;
+            }
+        }
+
+        .advanced{
+            display:grid;grid-gap:10px;
+            align-items:center;
+            grid-area: advanced;
+            .search-trigger{
+                grid-area: trigger;
+                display:none;
+            }
+            .category{
+                grid-area: category;
+                .dropdown-menu{
+                    padding:10px;
+                    form{
+                        display:grid;grid-gap:10px;
+                        align-items: flex-start;
+                        grid-template-columns: 1fr 1fr;
+                        grid-template-areas: "category subcategory";
+                    }
+                }
+            }
+            .subcategory{
+                grid-area:subcategory;
+            }
+            .price{
+                grid-area: price;
+                .dropdown-menu{
+                    padding:10px;
+                    form{
+                        display:grid;grid-gap:10px;
+                        align-items: flex-start;
+                        grid-template-columns:1fr 1fr;
+                        .layout-column{min-width:150px;}
+                    }
+                }
+            }
+            .bedrooms{
+                grid-area: bedrooms;
+                .menu-item{
+                    padding:10px;
+                    text-align:center;
+                    transition:0.25s;
+                    &:hover{
+                        background:#ccc;
+                    }
+                    &.selected{
+                        background:#333;
+                        color:#fff;
+                    }
+                }
+            }
+            .more{
+                grid-area: more;
+            }
+        }
+        .client-filters{
+            grid-area: client_filters;
+            display:grid;grid-gap:10px;
+            align-items:center;
+            .label{grid-area: label;}
+            .list{
+                grid-area: list;
+                display:flex;
+                flex-wrap: wrap;
+                .item{
+                    background:#ccc;
+                    padding:5px;
+                    margin:2px;
+                    font-size:0.8em;
+                    border-radius:3px;
+                    .fal{color:#333;}
+                }
+            }
+            .reset{grid-area: reset;}
+        }
     }   
     .sort-container{
         grid-area: sort;
+    }
+    .pages-container{
+        grid-area: pages;
+    }
+    .pages-container{
+        grid-area: pages;
+    }
+    .view-switch{
+        grid-area: switch;
+    }
+    .list-meta{
+        grid-area: meta;
+        .list-count{
+            em{font-weight: 700;font-style:normal;}
+        }
+    }
+    .next-page{
+        grid-area: next-page
+    }
+    .immodb-list-container{
+        grid-area: list;
+        display:grid;
+        grid-gap:20px;
+        padding:20px;
+        border:solid 1px #ccc;
+        border-radius:5px;
+    }
+    .immodb-list-header{
+        grid-area: header;
+        display:grid;
+        grid-gap: 20px;
+        grid-template-columns: 1fr 1fr 1fr;
+        align-items: center;
     }
     .immodb-list{
         grid-area: list;
         display:grid;
         grid-gap: 20px;
         grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
+        justify-items:stretch;align-items: stretch;
     }
     .immodb-item{
+        border:solid 1px #aaa;
+        border-radius:5px;
+        overflow: hidden;
+        justify-self: stretch;
         .content{
             display:grid;
             position:relative;
+            
             .image{
                 grid-area: image;
                 position:relative;
@@ -45,13 +216,129 @@
         }
     }
 
+
+    // -------------------------
+    // STANDARD LAYOUT 
+    // ------------------------- 
+
     &.standard-layout{
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
         grid-gap: 20px;
         grid-template-areas: 
-            "search search search sort"
-            "list list list list";
+            "search search search"
+            "list list list";
+
+        // search container
+        // ----------------
+        .search-container{
+            border:solid 1px #aaa;
+            border-radius:5px;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto;
+            grid-template-areas: 
+                "input advanced"
+                "client_filters client_filters";
+            
+            .input{
+                grid-template-columns: 20px 1fr 20px;
+                label.placeholder{
+                    padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+                }
+                .keyword-suggestion{
+                    padding:5px 10px;
+                    transition:0.25s;
+                    &:hover{
+                        background:#ccc;
+                    }
+                    &.selected{
+                        background:#aaa;
+                    }
+                }
+            }
+            .advanced{
+                justify-content: flex-end;
+                grid-template-columns: auto;
+                grid-template-areas: "category price bedrooms more";
+            }
+            &.show-trigger{
+                .advanced{
+                    grid-template-areas: "category price bedrooms more trigger";
+                    .search-trigger{display:block;}
+                }
+            }
+            .client-filters{
+                grid-template-columns: minmax(100px,1fr) 10fr 1fr;
+                grid-template-areas: "label list reset";
+
+                .list{
+                    grid-template-columns: repeat(auto-fill);
+                    
+                }
+            }
+
+            
+
+        }
+
+        // list-meta
+        // ----------------
+        .list-meta{
+            .list-count{text-align:center;};
+        }
+
+        // main list container
+        // ----------------
+        .immodb-list-container{
+            grid-template-areas:
+                "header header header"
+                "list list list"
+                "footer footer footer"
+                ". next-page .";
+
+            .immodb-list-header{
+                grid-template-areas:
+                    "switch meta sort";
+                .sort-container{justify-self: end;}
+            }
+        }
+
+        // list item
+        // ----------------
+        .immodb-item{
+            box-shadow: rgba(#000, 0.5) 0 0 10px;
+            .content{
+                padding:10px;
+                grid-gap: 10px;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: auto 150px auto;
+                grid-template-areas: 
+                    "price price price"
+                    "image image image"
+                    "category category ref_number"
+                    "subcategory subcategory subcategory"
+                    "description description description"
+                    ;
+            }
+        }
+    }
+
+
+    // -------------------------
+    // DIRECT LAYOUT 
+    // ------------------------- 
+    &.direct-layout{
+        grid-template-columns: 120px 1fr 60px 60px;
+        grid-template-rows: auto;
+        grid-gap: 20px;
+        grid-template-areas: 
+            "list list list list"
+            "meta meta meta meta"
+        ;
+
+        .list-meta{
+            .list-count{text-align:center;};
+        }
 
         .immodb-item{
             .content{
@@ -69,4 +356,11 @@
         }
     }
 
+
+    /* Basic Bootstrap requirements overrides */
+    @media screen and (min-width: 48em){
+        .dropdown-toggle {
+            display: block;position:relative;
+        }
+    }
 }

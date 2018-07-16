@@ -86,7 +86,14 @@ ImmoDbApp
 
   $scope.edit = function($list){
     $scope.show_page('listEdit', $list).then(function($result){
-      $list = angular.merge($list,$result);
+      console.log('new list data', $result);
+      for (const key in $result) {
+        if ($result.hasOwnProperty(key)) {
+          const element = $result[key];
+          $list[key] = element;
+        }
+      }
+      
     });
   }
 
@@ -107,23 +114,26 @@ ImmoDbApp
   $scope.getListShortcode = function($list){
     return '[immodb alias="' + $list.alias + '"]';
   }
+
+  $scope.countFilters = function($list){
+    let lResult = 0;
+    if($list.filter_groups!=null){
+      $list.filter_groups.forEach(function($e){
+        lResult += $e.filters.length;
+      });
+    }
+    return lResult;
+  }
 });
 
 // Edit
 ImmoDbApp
-.controller('listEditCtrl', function($scope, $rootScope){
+.controller('listEditCtrl', function($scope, $rootScope,$q){
   BasePageController('listEdit', $scope,$rootScope);
 
   $scope.model = {};
   $scope._original = null;
-  $scope.filter_operators = {
-    '='       : 'Equals'.translate(),
-    '!='      : 'Different from'.translate(),
-    'in'      : 'One of'.translate(),
-    'not in'  : 'Not one of'.translate(),
-    'like'    : 'Contains'.translate(),
-    'not like': 'Does not contains'.translate()
-  };
+  
 
   $scope.actions = [
     {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
@@ -138,40 +148,124 @@ ImmoDbApp
         source :'default',
         type: 'listings',
         sort: 'auto',
+        sort_reverse : false,
         limit: 0,
         searchable:true,
         sortable:true,
+        mappable: true,
         list_layout : { preset: 'standard', scope_class : '', custom:null},
         list_item_layout : { preset: 'standard', scope_class : '', custom:null},
-        filters : null
+        filter_group : {
+          filters : [],
+          filter_groups: [],
+          operator:'and'
+        }
       }
     }
     else{
       $scope.model = angular.copy($params);
+      $scope.validate();
     }
 
     $scope._original = $params;
   }
 
-  $scope.addFilter = function(){
-    if($scope.model.filters==null){
-      $scope.model.filters = [];
-    }
-
-    $scope.model.filters.push({field: '', operator: '=', value: ''});
-  }
 
   $scope.saveOrClose = function(){
     if($scope.hasChanged()){
-      $scope.return($scope.model);
+      $scope.renewSearchToken().then(function($searchToken){
+        $scope.model.search_token = $searchToken;
+        $scope.return($scope.model);
+      });
     }
     else{
       $scope.cancel();
     }
   }
 
+  $scope.renewSearchToken = function(){
+    let lFilters = $scope.buildFilters();
+            
+    let lPromise =  $q(function($resolve, $reject){
+        if(lFilters != null){
+            $scope.api('', lFilters,{
+              url: wpApiSettings.api_root + '/api/utils/search_encode'
+            }).then(function($response){
+                $resolve($response);
+            });
+        }
+        else{
+            $resolve('');
+        }
+        
+    });
+
+    return lPromise;
+  }
+
+  $scope.buildFilters = function(){
+      let lResult = null;
+
+      if($scope.model.limit>0){
+          lResult = {
+              max_item_count : $scope.model.limit
+          }
+      }
+
+      if($scope.model.sort != '' && $scope.model.sort != 'auto'){
+        if(lResult==null) lResult = {};
+        lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
+      }
+
+      if($scope.model.filter_group != null){
+        if(lResult==null) lResult = {};
+
+        lResult.filter_group = $scope.normalizeFilterGroup(angular.copy($scope.model.filter_group));
+      }
+      return lResult;
+  }
+
+  $scope.normalizeFilterGroup = function($filter_group){
+      if($filter_group.filters){
+          $filter_group.filters.forEach(function($filter){
+              if(['in','not_in'].indexOf($filter.operator) >= 0){
+                  $filter.value = $filter.value.split(",");
+                  $filter.value.forEach(function($val){
+                      if(!isNaN($val)){
+                          $val = Number($val)
+                      }
+                  });
+              }
+              else{
+                  if(!isNaN($filter.value)){
+                      $filter.value = Number($filter.value);
+                  }
+              }
+          });
+      }
+      
+      if($filter_group.filter_groups){
+          $filter_group.filter_groups.forEach(function($group){
+              $scope.normalizeFilterGroup($group);
+          });
+      }
+
+      return $filter_group;
+  }
+
+  $scope.switchSortReverse = function(){
+    $scope.model.sort_reverse = !$scope.model.sort_reverse;
+  }
+
   $scope.hasChanged = function(){
     return !$scope.isSame($scope.model,$scope._original);
+  }
+
+  $scope.validate = function(){
+    // if there's a limit but under 100, turn off searchable and pageable flags
+    if($scope.model.limit.between(1, 100)){
+      $scope.model.searchable = false;
+    }
   }
 });
 
@@ -195,6 +289,8 @@ ImmoDbApp
     ],
     list_layouts:[
       {name: 'standard', label: 'Standard'},
+      {name: 'map', label: 'Map'},
+      {name: 'direct', label: 'Direct render'},
       {name: 'custom', label: 'Custom'}
     ],
     list_item_layouts:[
@@ -208,11 +304,15 @@ ImmoDbApp
   $rootScope.current_page = 'home'
   $scope.pages = {
     'home': {label: 'Home'.translate(), style: ''},
-    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-90vw);'},
   }
+
+  $scope.wp_pages = [];
+
 
   $scope.init = function(){
     $scope.load_configs();
+    $scope.load_wp_pages();
   }
 
   $scope.load_configs = function(){
@@ -231,6 +331,12 @@ ImmoDbApp
   $scope.save_configs = function(){
     $scope.api('configs',{settings: $scope.configs}).then(function($response){
       $scope.show_toast('Save completed');
+    });
+  }
+
+  $scope.load_wp_pages = function(){
+    $scope.api('pages').then(function($response){
+      $scope.wp_pages = $response;
     });
   }
 
@@ -384,12 +490,14 @@ ImmoDbApp
 
   $scope.isSame = function($objA, $objB){
     if($objA != null && $objB != null){
-      
       for (const key in $objA) {
+
         if(key == '$$hashKey') continue;
         if($objA[key]!=null && $objB[key]!=null){
-          if ($objA.hasOwnProperty(key) && $objB.hasOwnProperty(key)) {
-            if(Array.isArray($objA[key])){
+          if ( (typeof($objA[key])!='undefined') && (typeof($objB[key])!='undefined') ) {
+            //console.log('checking array', key,typeof($objA[key]));
+            if(typeof($objA[key].push) == 'function'){
+              //console.log('checking array',key);
               if($objA[key].length != $objB[key].length){
                 //console.log(key, 'lengths differ');
                 return false;
@@ -419,8 +527,9 @@ ImmoDbApp
             return false;
           }
         }
-        else{
+        else if($objA[key]!=null || $objB[key]!=null){
           //console.log(key,'is null');
+          return false;
         }
       }
 
@@ -433,6 +542,93 @@ ImmoDbApp
   }
 
 });
+
+
+/* DIRECTIVES */
+ImmoDbApp
+.directive('immodbFilterGroup', function(){
+  let dir_controller = function ($scope,$rootScope) {
+    $scope.filter_group_operators = {
+      'and' : 'And',
+      'or'  : 'Or'
+    }
+  
+    $scope.filter_operators = {
+      'equal'    : 'Equal to',
+      'not_equal'   : 'Different of',
+      'less_than'    : 'Less than',
+      'less_or_equal_to'    : 'Less or equals to',
+      'greater_than'    : 'Greater than',
+      'greater_or_equal_to'    : 'Greater or equals to',
+      'in'        : 'One of',
+      'not_in'     : 'Not one of',
+      'like'  : 'Contains',
+      'not_like'    : 'Does not contains'
+    };
+    
+    $scope.$watch("model", function(){
+      $scope.init();
+    });
+
+    $scope.init = function(){
+      console.log('filter_group model', $scope.model, $scope.parent);
+    }
+
+    $scope.addFilterGroup = function(){
+      if($scope.model.filter_groups==null){
+        $scope.model.filter_groups = [];
+      }
+
+      $scope.model.filter_groups.push({filters: null, operator: 'and'});
+    }
+
+    $scope.removeGroup = function(){
+      $scope.removeFromList($scope.model, $scope.parent, 'filter_groups');
+    }
+
+    $scope.removeFromList = function($item,$parent, $name){
+      let lNewList = [];
+      $list = $parent[$name];
+      $list.forEach(function($elm){
+        if(JSON.stringify($elm) != JSON.stringify($item)){
+          lNewList.push($elm);
+        }
+      })
+      
+      if(lNewList.length == 0){
+        lNewList = null;
+      }
+
+      $parent[$name] = lNewList;
+    }
+
+
+    $scope.addFilter = function($group){
+      if($scope.model.filters==null){
+        $scope.model.filters = [];
+      }
+
+      $scope.model.filters.push({field: '', operator: 'Equal', value: ''});
+    }
+
+    $scope.switchOperator = function($newOperator){
+      $scope.model.operator = $newOperator;
+    }
+  };
+
+  return {
+    restrict: 'E',
+    scope: {
+        model: '=ngModel',
+        parent: '=ngParent'
+    },
+    controllerAs: 'ctrl',
+    template: '<div ng-include="\'filter-group\'" class="immodb-filter-group group-operator-{{model.operator}}"></div>',
+    controller: dir_controller
+  };
+})
+
+
 
 /**
  * Sets basic dialog handler interface function

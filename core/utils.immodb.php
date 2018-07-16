@@ -25,7 +25,35 @@ class Debug {
 		echo($lResult);
 		return $lResult;
   }
+
+  public static function force(...$data){
+    ob_start();
+    foreach ($data as $item) {
+      echo('<pre>');
+      var_dump($item);
+      echo('</pre>');
+    }
+    $lResult = ob_get_contents();
+		ob_end_clean();
+
+    echo($lResult);
+    exit;
+  }
 }
+
+/**
+ * String prototype utilities
+ */
+class StringPrototype{
+  public static function format($format, ...$inputs){
+    $result = $format;
+    for ($i=0; $i < count($inputs); $i++) { 
+      $result = str_replace('{' . $i . '}',$inputs[$i], $result);
+    }
+    return $result;
+  }
+}
+
 
 /**
 * Utility class for theme overriding of layout files
@@ -60,9 +88,13 @@ class ThemeOverrides {
   }
 }
 
+/**
+ * Utility class for Http calls
+ */
 class HttpCall{
   const TIMEOUT = 800;
   public $endpoint = '';
+  public $request_options = array();
 
   /**
   * Entry point to the class
@@ -82,12 +114,17 @@ class HttpCall{
 
   }
 
+  public function with_oauth(string $credentials){
+    $this->request_options[CURLOPT_HTTPHEADER] = array('auth_token' => $credentials);
+    return $this;
+  }
+
   /**
   * Send a GET request to the endpoint
   * @param params : associative array of parameters to add to the query
   * @return string : result of the call
   */
-  public function get(array $params=null){
+  public function get(array $params=null, $as_json = false){
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
@@ -96,8 +133,11 @@ class HttpCall{
 
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
-    }
+    } 
 
+    if($as_json){
+      return json_decode($lResult);
+    }
     return $lResult;
   }
 
@@ -108,10 +148,10 @@ class HttpCall{
   */
   public function post(array $data=null){
 
-    $lCurlHandle = $this->_setup_curl(array(
+    $lCurlHandle = $this->_setup_curl(array_merge(array(
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => json_encode($data),
-    ));
+    ), $this->request_options));
 
     $lResult = curl_exec($lCurlHandle);
 

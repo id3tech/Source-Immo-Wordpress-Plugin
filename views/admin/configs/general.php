@@ -3,13 +3,18 @@
     <h2 class="md-headline"><?php _e('Authentication',IMMODB)?></h2>
     <div class="block-content" layout="row" layout-align="start center" layout-padding>
       <md-input-container flex>
-        <label><?php _e('Api key',IMMODB)?></label>
+        <label><?php _e('API key',IMMODB)?></label>
         <input ng-model="configs.api_key" required />
       </md-input-container>
 
       <md-input-container flex>
         <label><?php _e('Account ID',IMMODB)?></label>
         <input ng-model="configs.account_id" required />
+      </md-input-container>
+
+      <md-input-container flex>
+        <label><?php _e('Map API key',IMMODB)?></label>
+        <input ng-model="configs.map_api_key" />
       </md-input-container>
     </div>
   </div>

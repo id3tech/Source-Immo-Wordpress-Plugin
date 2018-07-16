@@ -31,13 +31,13 @@
                 <i class="far fa-lg fa-arrow-to-right"></i>
                 <span>{{(list.limit==0)? 'unlimited'.translate() : list.limit}}</span>
             
-                <i class="far fa-lg fa-sort-amount-down"></i>
+                <i class="far fa-lg fa-sort-amount-{{list.sort_reverse?'down':'up'}}"></i>
                 <span>{{list.sort.translate()}}</span>
             
                 <i class="far fa-lg fa-filter"></i>
-                <span>{{(list.filters==null)? 'none'.translate() : list.filters.length}}</span>
+                <span>{{(countFilters(list)==0)? 'none'.translate() : countFilters(list)}}</span>
 
-                <i class="far fa-lg fa-filter"></i>
+                <i class="far fa-lg fa-th-list"></i>
                 <span>{{list.list_layout.preset}}/{{list.list_item_layout.preset}}</span>
             
         </div>

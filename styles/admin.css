@@ -31,7 +31,7 @@ body.wp-admin #immodb-app .page-viewport {
 
 body.wp-admin #immodb-app .page-viewport .page-container {
   display: grid;
-  grid-template-columns: 100% 100%;
+  grid-template-columns: 90vw 90vw;
   transition: 0.5s;
 }
 
@@ -61,14 +61,14 @@ body.wp-admin #immodb-app .general-settings .route-item md-input-container .md-e
 }
 
 body.wp-admin #immodb-app .general-settings .route-item.headers {
-  border-bottom: solid 1px #ccc;
+  border-bottom: solid 1px #1E88E5;
 }
 
 body.wp-admin #immodb-app .general-settings .route-item.headers div {
   font-size: 13px;
   text-transform: uppercase;
-  color: #333;
-  opacity: 0.5;
+  color: #1E88E5;
+  opacity: 0.75;
 }
 
 body.wp-admin #immodb-app .list-list {
@@ -154,12 +154,76 @@ body.wp-admin #immodb-app #listEdit .options .input-container md-checkbox {
   margin: 0px;
 }
 
-body.wp-admin #immodb-app #listEdit .filters .grid-row {
-  grid-template-columns: 1fr 1fr 1fr 50px;
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group {
+  padding: 5px 5px 5px 0;
 }
 
-body.wp-admin #immodb-app #listEdit .filters .grid-row.header {
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .immodb-filter-group {
+  border: dashed 1px #ccc;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .group-header {
+  background-color: #ccc;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .subgroup {
+  padding: 5px;
+  width: calc(100% - 10px);
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .filter-operator {
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-and > div > .filters, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-and > div > .subgroups {
+  border-left: 10px solid #159F5C;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-and > div > .filters .filter-operator, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-and > div > .subgroups .filter-operator {
+  color: #159F5C;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-or > div > .filters, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-or > div > .subgroups {
+  border-left: 10px solid #F17421;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-or > div > .filters .filter-operator, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group.group-operator-or > div > .subgroups .filter-operator {
+  color: #F17421;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .filters, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .subgroups {
+  padding-left: 10px;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .filters .filter-operator, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .subgroups .filter-operator {
+  text-align: center;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .filters:last-child > .filter-operator, body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .subgroups:last-child > .filter-operator {
+  display: none;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .grid-row {
+  grid-template-columns: 1fr 1fr 1fr 50px;
+  grid-gap: 10px;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .grid-row md-input-container {
+  margin: 0px;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .grid-row md-input-container .md-errors-spacer {
+  display: none;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .grid-row.header {
   margin-top: 20px;
+  margin-left: 25px;
+}
+
+body.wp-admin #immodb-app #listEdit .list-filters .immodb-filter-group .grid-row.header div:not(:first-child) {
+  text-align: center;
 }
 
 body.wp-admin #immodb-app #listEdit .layouts {
@@ -184,14 +248,14 @@ body.wp-admin .grid-row {
 }
 
 body.wp-admin .grid-row.header {
-  border-bottom: solid 1px #ccc;
+  border-bottom: solid 1px #1E88E5;
 }
 
 body.wp-admin .grid-row.header div {
   font-size: 13px;
   text-transform: uppercase;
-  color: #333;
-  opacity: 0.5;
+  color: #1E88E5;
+  opacity: 0.75;
 }
 
 body.wp-admin label.placeholder {

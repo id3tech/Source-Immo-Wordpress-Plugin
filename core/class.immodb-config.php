@@ -14,10 +14,15 @@ class ImmoDBConfig {
    */
   public $api_key = '';
   /**
-   * Accound ID
+   * Account ID
    * @var string
    */
   public $account_id = '';
+  /**
+   * Google Map API key
+   * @var string
+   */
+  public $map_api_key = '';
 
   /**
    * Default currency
@@ -53,12 +58,12 @@ class ImmoDBConfig {
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     $this->listing_routes  = array(
-      new ImmoDBRoute('fr','proprietes/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{id}}'),
-      new ImmoDBRoute('en', 'listings/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{id}}'),
+      new ImmoDBRoute('fr','proprietes/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{ref_number}}'),
+      new ImmoDBRoute('en', 'listings/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{ref_number}}'),
     );
     $this->broker_routes  = array(
-      new ImmoDBRoute('fr','courtiers/{{getRegion(item)}}/{{getCity(item)}}/{{id}}'),
-      new ImmoDBRoute('en', 'brokers/{{getRegion(item)}}/{{getCity(item)}}/{{id}}'),
+      new ImmoDBRoute('fr','courtiers/{{getRegion(item)}}/{{getCity(item)}}/{{ref_number}}'),
+      new ImmoDBRoute('en', 'brokers/{{getRegion(item)}}/{{getCity(item)}}/{{ref_number}}'),
     );
 
     $this->lists = array(
@@ -112,17 +117,42 @@ class ImmoDBList {
   public $alias = 'default';
   public $limit = 0;
   public $type = 'listings';
-  public $filters = null;
+  public $filter_group = null;
   public $sort = 'auto';
+  public $sort_reverse = false;
   public $searchable = true;
   public $sortable = true;
-
+  public $mappable = true;
+  public $show_list_meta = true;
   public $list_layout = null;
   public $list_item_layout = 'standard';
-  
+  public $browse_mode = null;
+
   public function __construct(){
     $this->list_layout = new ImmoDBLayout();
     $this->list_item_layout = new ImmoDBLayout();
+
+    $this->filter_group = new ImmoDBFilterGroup();
+  }
+
+  static function parse($source){
+    return unserialize(sprintf(
+      'O:%d:"%s"%s',
+      strlen('ImmoDBList'),
+      'ImmoDBList',
+      strstr(strstr(serialize($source), '"'), ':')
+    ));
+  }
+
+
+  public function getViewEndpoint(){
+    $lTypedPaths = array(
+      'listings' => 'listing',
+      'cities' => 'city',
+      'brokers' => 'broker',
+    );
+    
+    return "{$lTypedPaths[$this->type]}/view";
   }
 }
 
@@ -132,8 +162,19 @@ class ImmoDBLayout {
   public $custom = null;
 }
 
+class ImmoDBFilterGroup {
+  public $operator = 'and';
+  public $filters = null;
+  public $filter_groups = null;
+
+  public function __construct(){
+    $this->filters = array();
+    $this->filter_groups = array();
+  }
+}
+
 class ImmoDBFilter {
   public $field = '';
-  public $operator = '=';
+  public $operator = 'equal';
   public $value = '';
 }

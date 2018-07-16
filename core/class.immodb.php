@@ -24,9 +24,18 @@ class ImmoDB {
   * Initializes WordPress hooks
   */
   private function init_hooks() {
-
+    
     // add custom translation
     add_filter( 'gettext', array($this, 'translate'), 20, 3 );
+    
+    $this->register_filters(array(
+      // add route rules
+      'query_vars' => 'update_routes_query_var',
+      'rewrite_rules_array' => 'update_routes'
+    ));
+    $this->register_actions(array(
+      'template_redirect'
+    ));
 
     if (!is_admin() ){
       $this->register_filters(array(
@@ -50,25 +59,23 @@ class ImmoDB {
   public function get_list_configs($alias){
     foreach ($this->configs->lists as $list) {
       if($list->alias == $alias){
-        return $list;
+        return ImmoDBList::parse($list);
       }
     } 
 
     return null;
   }
 
-  public function get_permalink($type, $locale = null){
-    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
-
+  public function get_permalink($type){
     if(method_exists($this, "get_{$type}_permalink")){
-      return $this->{'get_' . $type . '_permalink'}($locale);
+      return $this->{'get_' . $type . '_permalink'}();
     }
     
     return '';
   }
 
-  public function get_listing_permalink($locale = null){
-    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
+  public function get_listing_permalink(){
+    $locale = substr(get_locale(),0,2);
     $lResult = $this->configs->listing_routes[0]->route;
     foreach($this->configs->listing_routes as $item){
       if($item->lang == $locale){
@@ -79,10 +86,10 @@ class ImmoDB {
     return  $lResult;
   }
 
-  public function get_broker_permalink($locale = null){
-    $locale = ($locale == null)?substr(get_locale(),0,2): $locale;
-    $lResult = $this->configs->listing_routes[0]->route;
-    foreach($this->configs->listing_routes as $item){
+  public function get_broker_permalink(){
+    $locale = substr(get_locale(),0,2);
+    $lResult = $this->configs->broker_routes[0]->route;
+    foreach($this->configs->broker_routes as $item){
       if($item->lang == $locale){
         $lResult = $item->route;
       }
@@ -95,14 +102,57 @@ class ImmoDB {
   /**
   * Set routes based on configurations
   */
-  public function update_routes() {
+  public function update_routes($rules) {
     // check if routes exists
+    //Debug::write($rules);
+    $newrules = array();
 
     // add routes
+    foreach($this->configs->listing_routes as $route){
+      $ruleKey = array();
+      $routeParts = explode('/', $route->route);
+      $index = 0;
+      $matches = array();
+      foreach ($routeParts as $part) {
+        if(strpos($part,'{{')===false){
+          $ruleKey[] = $part;
+        }
+        else{
+          $ruleKey[] = '(.+)';
+          if($part=='{{item.ref_number}}'){
+            $matches[] = 'ref_number=$matches[' . $index . ']';
+          }
+        }
+        $index++;
+      }
+      $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
 
+      //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
+    }
+    //Debug::force($this->configs->listing_routes, $newRules);
+
+    return array_merge($newrules, $rules);
   }
 
+  public function update_routes_query_var($vars){
+    $vars[] = "ref_number";
+    $vars[] = "type";
+    $vars[] = "lang";
 
+    return $vars;
+  }
+
+  
+	function template_redirect(){
+    $ref_number = get_query_var( 'ref_number' );
+		if ( $ref_number ) {
+      $type = get_query_var( 'type' );
+      add_filter( 'template_include', array($this, 'include_' . $type . '_detail_template'));
+    }
+	}
+
+
+  
 
 /**
   RENDERING
@@ -112,16 +162,34 @@ class ImmoDB {
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', IMMODB_PLUGIN) );
+    wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
     wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN) );
-
-    wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, '1.6.9', false );
-    wp_add_inline_script( 'angular', 'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' );
+    
+    wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, null, true );
+    wp_enqueue_script( 'angular-sanitize', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js', 'angular', null, true );
+    wp_enqueue_script( 'bootstrap-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', null, null, true );
+    wp_enqueue_script( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', 'bootstrap-popper', null, true );
+    wp_add_inline_script( 'angular', 'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' );
+    
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
+    wp_enqueue_script( 'immodb-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', IMMODB_PLUGIN), null, null, true );
     wp_enqueue_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.js', IMMODB_PLUGIN), null, null, true );
+    
   }
 
   public function set_html_attributes($attr){
-    return "{$attr} ng-app=\"ImmoDb\" ng-controller=\"publicCtrl\" ";
+    $ref_number = get_query_var( 'ref_number');
+    $init_func = '';
+    if($ref_number!=null){
+      $init_func = "ng-init=\"init('{$ref_number}')\"";
+    }
+
+    return "{$attr} ng-app=\"ImmoDb\" ng-controller=\"publicCtrl\" {$init_func}";
+  }
+
+  function include_listings_detail_template(){
+    $ref_number = get_query_var( 'ref_number' );
+    self::view('single/listings', array('ref_number'=>$ref_number));
   }
 
 
@@ -195,7 +263,6 @@ class ImmoDB {
     ));
     self::view('admin/dialog.ui',$args);
   }
-
 
   /** 
    TRANSLATION
@@ -291,10 +358,10 @@ class ImmoDB {
   */
   private function register_actions($hooks){
     foreach ($hooks as $hook => $func) {
-      // if $func is empty, fallback to $hook for function name
-      $funcName = (empty($func))?$hook:$func;
-      if(method_exists($this,$funcName)){ // only if method exists
-        add_action($hook, array($this, $funcName));
+      // if $hook is a number, fallback to $func for hook name
+      $hookName = (is_numeric($hook))?$func:$hook;
+      if(method_exists($this,$func)){ // only if method exists
+        add_action($hookName, array($this, $func));
       }
     }
   }
@@ -304,11 +371,13 @@ class ImmoDB {
   */
   private function register_filters($hooks){
     foreach ($hooks as $hook => $func) {
-      // if $func is empty, fallback to $hook for function name
-      $funcName = (empty($func))?$hook:$func;
-      if(method_exists($this,$funcName)){ // only if method exists
-        add_filter($hook, array($this, $funcName));
+      // if $hook is a number, fallback to $func for hook name
+      $hookName = (is_numeric($hook))?$func:$hook;
+      if(method_exists($this,$func)){ // only if method exists
+        add_filter($hookName, array($this, $func));
       }
     }
+
+    
   }
 }

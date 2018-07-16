@@ -25,7 +25,7 @@ $lTwoLetterLocale = substr(get_locale(),0,2);
   </div>
 
   <script type="text/javascript">
-    var wpApiSettings={root:'<?php echo esc_url_raw( rest_url() ) ?>', nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'};
+    var wpApiSettings={api_root: '<?php echo ImmoDB::API_HOST ?>', root:'<?php echo esc_url_raw( rest_url() ) ?>', nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'};
   </script>
   <!-- Angular Material requires Angular.js Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
