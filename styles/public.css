@@ -239,50 +239,111 @@
 
 .immodb .immodb-item {
   border: solid 1px #aaa;
-  border-radius: 5px;
   overflow: hidden;
   justify-self: stretch;
+  transition: 0.25s;
+}
+
+.immodb .immodb-item .ref-number {
+  grid-area: ref-number;
+}
+
+.immodb .immodb-item .category {
+  grid-area: category;
+}
+
+.immodb .immodb-item .subcategory {
+  grid-area: subcategory;
+}
+
+.immodb .immodb-item .price {
+  grid-area: price;
+}
+
+.immodb .immodb-item .city {
+  grid-area: city;
+}
+
+.immodb .immodb-item .image {
+  grid-area: image;
+}
+
+.immodb .immodb-item .description {
+  grid-area: description;
+}
+
+.immodb .immodb-item .address {
+  grid-area: address;
+}
+
+.immodb .immodb-item .region {
+  grid-area: region;
+}
+
+.immodb .immodb-item .state {
+  grid-area: state;
+}
+
+.immodb .immodb-item .country {
+  grid-area: country;
+}
+
+.immodb .immodb-item.sold {
+  background: #aaa;
+}
+
+.immodb .immodb-item.sold a {
+  color: #fff;
+}
+
+.immodb .immodb-item:hover {
+  box-shadow: rgba(0, 0, 0, 0.5) 0 20px 30px;
 }
 
 .immodb .immodb-item .content {
   display: grid;
   position: relative;
+  color: inherit;
 }
 
 .immodb .immodb-item .content .image {
   grid-area: image;
   position: relative;
   overflow: hidden;
+  place-self: stretch;
 }
 
 .immodb .immodb-item .content .image img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  max-width: 100%;
+  object-fit: cover;
+}
+
+.immodb .immodb-item .content .city {
+  grid: area;
 }
 
 .immodb .immodb-item .content .category {
   grid-area: category;
+  color: inherit;
 }
 
 .immodb .immodb-item .content .subcategory {
   grid-area: subcategory;
+  color: inherit;
 }
 
 .immodb .immodb-item .content .description {
   grid-area: description;
+  color: inherit;
 }
 
 .immodb .immodb-item .content .price {
   grid-area: price;
+  color: inherit;
 }
 
 .immodb .immodb-item .content .ref_number {
   grid-area: ref_number;
+  color: inherit;
 }
 
 .immodb.standard-layout {
@@ -362,10 +423,6 @@
 
 .immodb.standard-layout .immodb-list-container .immodb-list-header .sort-container {
   justify-self: end;
-}
-
-.immodb.standard-layout .immodb-item {
-  box-shadow: rgba(0, 0, 0, 0.5) 0 0 10px;
 }
 
 .immodb.standard-layout .immodb-item .content {

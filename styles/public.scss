@@ -185,39 +185,65 @@
         justify-items:stretch;align-items: stretch;
     }
     .immodb-item{
+        $areas : 'ref-number' 'category' 'subcategory' 'price' 'city' 'image' 
+                    'description' 'address' 'region' 'state' 'country'
+                    
+                    ;
+        @each $item in $areas {
+            .#{$item} {
+                grid-area: #{$item};
+            }
+        }
+
         border:solid 1px #aaa;
-        border-radius:5px;
         overflow: hidden;
         justify-self: stretch;
+        transition:0.25s;
+        &.sold{
+            background:#aaa;
+            a{color:#fff;}
+        }
+        &:hover{
+            box-shadow:rgba(#000,0.5) 0 20px 30px;
+        }
+
         .content{
             display:grid;
             position:relative;
+            color:inherit;
+            
             
             .image{
                 grid-area: image;
                 position:relative;
                 overflow:hidden;
+                place-self:stretch;
                 img{
-                    position:absolute;top:50%;left:50%;
-                    transform:translate(-50%,-50%);
-                    min-width:100%;min-height:100%;
-                    max-width:100%;
+                    object-fit: cover;
                 }
+            }
+            .city{
+                grid:area;
             }
             .category{
                 grid-area: category;
+                color:inherit;
             }
             .subcategory{
                 grid-area: subcategory;
+                color:inherit;
             }
             .description{
                 grid-area: description;
+                color:inherit;
             }
             .price{
                 grid-area: price;
+                color:inherit;
             }
             .ref_number{
                 grid-area: ref_number;
+                color:inherit;
             }
         }
     }
@@ -312,7 +338,7 @@
         // list item
         // ----------------
         .immodb-item{
-            box-shadow: rgba(#000, 0.5) 0 0 10px;
+            
             .content{
                 padding:10px;
                 grid-gap: 10px;

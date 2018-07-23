@@ -1,7 +1,7 @@
 var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize']);
 
 ImmoDbApp
-.controller('publicCtrl', function($scope,$immodbApi, $immodbDictionary){
+.controller('publicCtrl', function($scope,$rootScope,$immodbApi, $immodbDictionary){
     $scope.model = null;
 
     $scope.init = function($ref_type, $ref_number){
@@ -13,8 +13,18 @@ ImmoDbApp
         return $immodbDictionary.getCaption($key, $domain, $asAbbr);
     }
 
-    $scope.formatPrice = function($item){
+    $rootScope.formatPrice = function($item){
         let lResult = [];
+        console.log('$item.status', $item.status);
+        if($item.status=='SOLD'){
+            if($item.price.sell != undefined){
+                lResult.push('Sold'.translate());
+            }
+            else{
+                lResult.push('Leased'.translate());
+            }
+            return lResult.join('');
+        }
         for(let $key in $item.price){
             if(['sell','lease'].indexOf($key) >=0 ){
                 let lPart = [$item.price[$key].amount.formatPrice()];
@@ -464,27 +474,18 @@ ImmoDbApp
         }
 
         $scope.formatPrice = function($item){
-            let lResult = [];
-            for(let $key in $item.price){
-                if(['sell','lease'].indexOf($key) >=0 ){
-                    let lPart = [$item.price[$key].amount.formatPrice()];
-                    if($item.price[$key].taxable){
-                        lPart[0] += '+tx';
-                    }
-
-                    if($item.price[$key].unit){
-                        lPart.push($scope.getCaption($item.price[$key].unit,'price_unit',true))
-                    }
-
-                    lResult.push(lPart.join('/'));
-                }
-            }
-            
-            let lSeperator = ' or '.translate();
-
-            return lResult.join(lSeperator);
+            return $rootScope.formatPrice($item);
         }
 
+        $scope.getClassList = function($item){
+            let lResult = [];
+            
+            if($item.status=='SOLD'){
+                lResult.push('sold');
+            }
+
+            return lResult.join(' ');
+        }
 
         $scope.getCity = function($item, $sanitize){
             $sanitize = ($sanitize==undefined)?true:$sanitize;
