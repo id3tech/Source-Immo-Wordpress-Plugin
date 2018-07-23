@@ -11,6 +11,8 @@
         }
     }
 
+    label{font-weight: 400;}
+
     .layout-row{
         display:grid;
         grid-auto-columns: 1fr;
@@ -22,6 +24,10 @@
         grid-template-rows: auto;
         grid-gap:10px;
     }
+
+    // ************************
+    // LIST
+    // ************************
 
     // -------------------------
     // Elements initialization 
@@ -356,11 +362,565 @@
         }
     }
 
+    // ***************************
+    // SINGLE
+    // ***************************
+    
+    // ---------------
+    // Listing
+    // ---------------
+    &.listing-single{
+        label.placeholder{
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+        }
+        .content{
+
+            display:none;
+            $areas : 'ref-number' 'subcategory' 'price' 'city' 'medias' 
+                    'header' 'summary' 'details' 'left' 'right' 'flags'
+                    'description' 'addendum' 'information_request'
+                    'location' 'address' 'near' 'region' 'state' 'country'
+                    'brokers' 'name' 'contact' 'phone' 'photo' 'tools'
+                    'mortgage-calculator'
+                    
+                    ;
+            @each $item in $areas {
+                .#{$item} {
+                    grid-area: #{$item};
+                }
+            }
+
+            grid-gap: 20px;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto;
+            align-items: start;
+            grid-template-areas: 
+                "header header"
+                "medias summary"
+                "details details"
+                ;
+            @media screen and (max-width:640px){
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "medias"
+                    "summary"
+                    "details"
+                ;
+            }
+
+            .header{
+                display:grid;
+                grid-gap: 10px;
+                grid-template-columns: repeat(7, 1fr);
+                grid-template-rows: auto;
+                grid-template-areas: 
+                    "subcategory subcategory  subcategory price price price price" 
+                    "city city city city tools information_request information_request";
+                @media screen and (max-width:640px){
+                    grid-template-columns: 1fr;
+                    justify-items:center;
+                    grid-template-areas:
+                        "subcategory"
+                        "city"
+                        "price"
+                        "tools"
+                        "information_request"
+                    ;
+                }
+                .information_request{
+                    place-self: stretch;
+                    text-align:center;
+                    grid-column-span: 2;
+                    button{width:100%;display:block;}
+                }
+
+                .tools{
+                    place-self: self-end;
+                    grid-column-span: 2;
+                    button{
+                        background-color:#777;
+                        padding:1em 1em;
+                        &:hover{background-color:lighten(#777,15)}
+                    } 
+                    @media screen and (max-width:640px){
+                        place-self:center;
+                    }
+                }
+                .subcategory{
+                    font-size:2em;font-weight:600;
+                    text-transform: uppercase;
+                }
+                .city{
+                    font-size:1.75em;font-weight: 300;
+                    place-self: center self-start;
+                }
+                .price{
+                    font-size:1.75em;font-weight: 600;
+                    place-self: self-end;
+                    text-align:right;
+                    .mortgage{
+                        font-size:0.5em;font-weight:400;
+                        a{border-bottom:dotted 1px rgba(#000,0.75);outline:none;}
+                    }
+                    @media screen and (max-width:640px){
+                        place-self:center;
+                    }
+                }
+            }
+            .medias{
+                position:relative;    
+                place-self: stretch;
+                .tabs{
+                    .tab{
+                        background:none;color:#333;font-weight: 400;
+                        transition:0.25s;
+                        outline:none;
+                        position:relative;
+                        &:after{
+                            content:"";
+                            background:currentColor;
+                            height:3px;width:0px;
+                            position: absolute;bottom:0px;
+                            left:50%;transform:translateX(-50%);
+                            transition:0.25s;
+                        }
+                        &.selected{
+                            font-weight: 600;
+                            &:after{
+                                width:100%;
+                            }
+                        }
+                    }
+                }
+                > .viewport{
+                    position:relative;
+                    width:100%;height:560px;
+                    overflow:hidden;
+
+                    > .trolley{
+                        height:100%;width:100%;
+                        position:absolute;top:0px;left:0px;
+                        display:grid;
+                        grid-gap:0;
+                        grid-template-rows: 100%;
+                        grid-template-columns: repeat(4,100%);
+                        place-items:stretch;
+                        transition:0.25s;
+                        .tab-content {position:relative;}
+                        .placeholder{
+                            position:absolute;
+                            font-size:3em;opacity:0.2;
+                            width:100%;text-align: center;
+                            top:50%;transform:translateY(-50%);
+                        }
+                    }
+                }
+                
+                .picture-gallery{
+                    width:100%;height:100%;
+                    overflow:hidden;
+                }
+                &.select-pictures{
+                    >.viewport>.trolley{transform:translateX(0);}
+                }
+                &.select-videos{
+                    >.viewport>.trolley{transform:translateX(-100%);}
+                }
+                &.select-streetview{
+                    >.viewport>.trolley{transform:translateX(-200%);}
+                }
+                &.select-map{
+                    >.viewport>.trolley{transform:translateX(-300%);}
+                }
+
+                .viewport{
+                    .video{
+                        background:#aaa;
+                    }
+                    .streetview{
+                        background:#A0E3FA;
+                    }
+                    .map{
+                        background:#CCF7E2;
+                    }
+                }
+            }
+            .summary{
+                
+                display:grid;
+                grid-gap:0px;
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: 
+                    "ref-number ref-number"
+                    "region state"
+                    "address address"
+                    "near near"
+                    "description description"
+                    "flags flags"
+                    "information_request information_request"
+                ;
+
+
+                .ref-number{
+                    opacity:0.5;
+                    &:before{content:"# ref: ";}
+                }
+                .address{
+                    font-weight: 600;
+                    text-transform: uppercase;
+                }
+                .near{
+                    opacity:0.75;
+                }
+                .state{
+                    place-self: self-end;
+                }
+                .description{
+                    margin:20px 0;
+                    padding-top:20px;
+                    border-top:solid 1px rgba(#000,0.25);
+                }
+                .flags{
+                    display:grid;
+                    grid-template-columns: repeat(auto-fill,minmax(50px,1fr));
+                    grid-template-rows:auto;
+                    grid-gap: 20px;
+                    .flag{
+                        position:relative;
+                        i{
+                            font-size:40px;text-align:center;color:#888;
+                            width:100%;
+                        }
+                        em{
+                            font-size:15px; font-style:normal;
+                            text-align:center;
+                            position: absolute; top:0px;right:0px;
+                            width:20px;height:20px;line-height:20px;
+                            background:#333;color:#fff;
+                            border-radius:50%;
+                        }
+                    }
+                }
+                
+            }
+
+            .details{
+                display:grid;
+                grid-gap: 20px;
+                grid-template-columns: 2fr 1fr;
+                grid-template-rows: auto;
+                grid-template-areas: "left right";
+                @media screen and (max-width:640px){
+                    grid-template-columns: 1fr;
+                    grid-template-areas: "left" "right";
+                }
+            }
+
+            .spec-grid{
+                display:grid;
+                grid-gap: 20px;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                .spec{
+                    display:block;
+                    label{font-weight: 600;margin:0px;}
+                    div{
+                        span{
+                            font-size:0.9em;
+                            &:after{
+                                content: ", "
+                            }
+                            &:last-child{
+                                &:after{content:"";}
+                            }
+                        }
+                    }
+                }
+            }
+            
+            .section{
+                .title{
+                    font-size:1.25em;text-transform: uppercase;
+                    border-bottom: solid 1px rgba(#000,0.1);
+                    padding:20px 0 10px 0;margin-bottom:10px;
+                    display:grid;
+                    grid-template-columns: 1fr 30px;
+                    .icon{
+                        position:relative;
+                        width:30px;height:30px;transition:0.5s;
+                        .fal{position: absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:0.25s;}
+                        .fa-minus{opacity:0;}
+                    }
+                }
+                .content{
+                    max-height:0px;
+                    overflow: hidden;
+                    transition:0.25s;
+                }
+                &.opened{
+                    .title{
+                        .icon{
+                            transform: rotate(360deg);
+                            .fa-minus{opacity:1;}
+                            .fa-plus{opacity:0;}
+                        }
+                    }
+                    .content{
+                        max-height:3000px;
+                        transition:1s;
+                    }
+                }
+            }
+
+            .addendum{
+                .content{white-space: pre;}
+            }
+
+            .brokers{
+                display:grid;
+                grid-gap:5px;
+                .broker{
+                    display:grid;
+                    grid-gap:10px;
+                    grid-template-columns: 100px 1fr;
+                    grid-template-rows: minmax(30px, auto) auto;
+                    grid-template-areas: 
+                        "photo name" 
+                        "photo contact"
+                    ;
+                    background:rgba(#000,0.1);
+                    padding:10px;
+                    .photo{
+                        width:100px;height:100px;
+                        border-radius:50%;background:#fff;
+                    }
+                    .name{
+                        font-size:1.25em;font-weight: 600;
+                    }
+                    .contact{
+                        align-self: start;
+                    }
+                }
+            }
+
+            .mortgage-calculator{
+                background-color:#999;
+                color:#fff;
+                .immodb-calculator{padding:20px;}
+                .title{
+                    font-size:1.6em;padding:20px;
+                }
+                
+                .result{
+                    background:#333;
+                    padding:20px;
+                    text-align:center;
+                    .mortgage{
+                        font-size:1.2em;
+                        margin-bottom:10px;
+                    }
+                    label{
+                        color:inherit;opacity:0.5;
+                        font-size:1.25em;
+                    }
+                    .value{
+                        line-height:1.5em;
+                        em{font-size:1.75em;display:block;font-style:normal;}
+                    }
+                }
+            }
+        }
+        &.loaded{
+            .content{
+                display:grid;
+            }
+        }
+    }
+
+    #information_request{
+        $areas : 
+                'firstname' 'lastname' 'email' 
+                'phone' 'subject' 'message'
+                ;
+            @each $item in $areas {
+                .#{$item} {
+                    grid-area: #{$item};
+                }
+            }
+        
+        .modal-body{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            grid-template-areas: 
+                    "firstname lastname"
+                    "phone email"
+                    "subject subject"
+                    "message message"
+                ;
+        }
+    }
+
 
     /* Basic Bootstrap requirements overrides */
     @media screen and (min-width: 48em){
         .dropdown-toggle {
             display: block;position:relative;
         }
+    }
+}
+
+.immodb-image-slider{
+    position:absolute;
+    width:100%;height:100%;
+    overflow:hidden;
+    
+    .viewport{
+        position: absolute;
+        width:100%;height:100%;
+        top:0px;left:0px;
+        overflow:hidden;
+
+        .trolley{
+            display:grid;
+            grid-template-rows: 100%;
+            place-items: stretch;
+            position: absolute;
+            height:100%;
+            top:0px;left:0px;
+            transition:0.25s;
+            .item{
+                height:100%;
+                img{object-fit: cover;width: 100%;height:100%;}
+            }
+        }
+    }
+    
+    .counter{
+        position: absolute;
+        top:10px;right:10px;
+        font-size:30px;font-weight: 600;color:#fff;
+        pointer-events: none;
+    }
+    
+    .preview{
+        position: absolute;
+        bottom:5px;
+        left:0;
+        width:100%;
+        opacity: 0.1;
+        transition:0.25s;
+        height:60px;
+        .trolley{
+            position:absolute;
+            left:50%;transform:translateX(-50%);
+            bottom:0px;
+            display: grid;
+            grid-gap:10px;
+            grid-template-columns: repeat(5,1fr);
+            height:2px;
+            transition:0.25s;
+            place-items: stretch;
+            .item{
+                height:2px;
+                background-color:#fff;
+                opacity:0.5;
+                transition:0.25s;
+
+                img{object-fit: cover;width: 100%;height:100%;opacity:0;transition:0.25s;}
+                &.selected{
+                    opacity:1;
+                    border:solid 2px rgba(#fff,0.75);
+                }
+            }
+        }
+        &:hover{
+            .trolley{
+                height: 60px;
+                .item{
+                    height:60px;opacity:1;
+                    img{opacity:1;}
+                }
+            }
+        }
+
+        .btn{
+            background:rgba(#000, 0.75);
+            position:absolute;padding:10px;color:#fff;
+            right:10px;bottom:10px;
+            &.expand{display:none;}
+        }
+    }
+
+
+    .controls{
+        position: absolute;top:0px;left:0px;width:100%;height:100%;
+        .btn{
+            position: absolute;height:75px;width:75px;
+            background:rgba(#000,0);border-radius:0;padding:0px;
+            transition:0.25s;opacity:0.5;
+            .fal{position: absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;}
+            &.next{top:50%;right:0px;transform:translateX(100%) translateY(-50%);}
+            &.previous{top:50%;left:0px;transform:translateX(-100%) translateY(-50%);}
+        }
+    }
+    &:hover{
+        .controls{
+            opacity:1;
+            .btn{transform:translateX(0) translateY(-50%);background:rgba(#000,0.4);}
+        }
+        .preview{
+            opacity:1;
+        }
+    }
+    &.expanded{
+        position:fixed;
+        top:0px;left:0px;
+        z-index:99999;
+        background:rgba(#000,0.9);
+        .viewport{
+            top:20px;left:20px;right:20px;bottom:20px;
+            width:calc(100% - 40px);height:calc(100% - 40px);
+            .trolley{
+                .item{
+                    img{object-fit: contain;}
+                }
+            }
+        }
+        .preview{
+            &:hover{
+                .trolley{
+                    height: 120px;
+                    .item{
+                        height:120px;opacity:1;
+                        img{opacity:1;}
+                    }
+                }
+            }
+        }
+        .controls{
+            opacity:1;
+        }
+    }
+}
+
+.immodb-calculator{
+    
+    display:grid;
+        grid-gap:20px;
+        grid-template-rows: auto;
+    .input-container{
+        display:grid;
+        grid-gap:10px;
+        grid-template-columns: 3fr 2fr 25px;
+        grid-template-areas: "label input extra";
+        input{padding:10px;}
+        place-items: center stretch;
+        label{grid-area:label;color:inherit;}
+        .dropdown{
+            > .btn{color:inherit;}
+        }
+        .input{grid-area:input}
+        .extra{grid-area:extra;}
     }
 }

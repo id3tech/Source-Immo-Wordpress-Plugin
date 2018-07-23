@@ -93,6 +93,19 @@
             <div class="dropdown-menu dropdown-menu-right">
                 <form>
                     <div class="states layout-column">
+                        <h4><?php _e('Caracteristics',IMMODB) ?></h4>
+                        <div class="dropdown-divider"></div>
+                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_states"
+                            ng-click="setState(item)">
+                            <input type="checkbox" ng-model="item.selected"> 
+                            <div class="state p-success">
+                                <i class="icon fal fa-check"></i>
+                                <label>{{item.caption}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="states layout-column">
                         <h4><?php _e('Transaction',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
                         <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_states"

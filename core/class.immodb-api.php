@@ -18,6 +18,15 @@ class ImmoDBApi {
         'callback' => array( 'ImmoDBApi', 'get_access_token' ),
       )
     );
+    
+    // Acquire default data view
+    register_rest_route( 'immodb','/data_view',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+        'callback' => array( 'ImmoDBApi', 'get_data_view' ),
+      )
+    );
 
     // Acquire access token to make call to the immodb remote api
     register_rest_route( 'immodb','/pages',
@@ -72,6 +81,25 @@ class ImmoDBApi {
       ) // End GET
     );
 
+
+    //Write message
+    register_rest_route( 'immodb','/message',array(
+        
+        array(
+          'methods' => WP_REST_Server::CREATABLE,
+          //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+          'callback' => array( 'ImmoDBApi', 'send_message' ),
+          'args' => array(
+            'message' => array(
+              'required' => true,
+              'type' => 'MessageData',
+              'description' => __( 'Message information', IMMODB ),
+            )
+          )
+        ), // End POST
+        
+      )
+    );
   }
 
   public static function get_pages(){
@@ -121,6 +149,15 @@ class ImmoDBApi {
     return json_decode($lResult);
   }
 
+
+  public static function get_data_view(){
+    if(ImmoDB::current()->configs->default_view != null){
+      return ImmoDB::current()->configs->default_view;
+    }
+
+    $lToken = self::get_access_token();
+    return $lToken->view_ids[0];
+  }
 
 
   /**
@@ -203,6 +240,10 @@ class ImmoDBApi {
     $lResult = HttpCall::to('~', 'listing/view', $list_config->source,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
     
     return $lResult;
+  }
+
+  public static function send_message($message){
+    
   }
 
   /*

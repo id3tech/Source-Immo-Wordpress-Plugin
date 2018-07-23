@@ -48,6 +48,10 @@ class ImmoDBConfig {
   */
   public $broker_routes = array();
 
+  public $default_view = null;
+  public $listing_layout = 'standard';
+  public $listing_layout_page = null;
+  
 
   /**
    * Configuration constructor class

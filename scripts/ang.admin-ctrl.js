@@ -299,6 +299,10 @@ ImmoDbApp
       {name: 'minimal', label: 'Minimal'},
       {name: 'custom', label: 'Custom'}
     ],
+    detail_layouts:[
+      {name: 'standard', label: 'Standard'},
+      {name: 'custom_page', label : 'Custom layout from page'}
+    ]
   }
 
   $rootScope.current_page = 'home'
@@ -306,13 +310,15 @@ ImmoDbApp
     'home': {label: 'Home'.translate(), style: ''},
     'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-90vw);'},
   }
-
+  
+  $scope.data_views = [];
   $scope.wp_pages = [];
 
 
   $scope.init = function(){
     $scope.load_configs();
     $scope.load_wp_pages();
+    $scope.load_data_views();
   }
 
   $scope.load_configs = function(){
@@ -337,6 +343,13 @@ ImmoDbApp
   $scope.load_wp_pages = function(){
     $scope.api('pages').then(function($response){
       $scope.wp_pages = $response;
+    });
+  }
+
+  $scope.load_data_views = function(){
+    $scope.api('access_token').then(function($response){
+      console.log($response);
+      $scope.data_views = $response.view_ids;
     });
   }
 
@@ -454,6 +467,7 @@ ImmoDbApp
 
       return lPromise;
   }
+
 
   /**
    * Copy some data into clipboard

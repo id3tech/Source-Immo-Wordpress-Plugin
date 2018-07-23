@@ -1,18 +1,238 @@
 var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize']);
 
 ImmoDbApp
-.controller('publicCtrl', function($scope,$http,$q){
-    
+.controller('publicCtrl', function($scope,$immodbApi, $immodbDictionary){
+    $scope.model = null;
 
-    $scope.init = function($ref_number){
-        if($ref_number != undefined){
-            console.log($ref_number)
-        }
+    $scope.init = function($ref_type, $ref_number){
+        
     }
 
+    
+    $scope.getCaption = function($key, $domain, $asAbbr){
+        return $immodbDictionary.getCaption($key, $domain, $asAbbr);
+    }
+
+    $scope.formatPrice = function($item){
+        let lResult = [];
+        for(let $key in $item.price){
+            if(['sell','lease'].indexOf($key) >=0 ){
+                let lPart = [$item.price[$key].amount.formatPrice()];
+                if($item.price[$key].taxable){
+                    lPart[0] += '+tx';
+                }
+
+                if($item.price[$key].unit){
+                    lPart.push($scope.getCaption($item.price[$key].unit,'price_unit',true))
+                }
+
+                lResult.push(lPart.join('/'));
+            }
+        }
+        
+        let lSeperator = ' or '.translate();
+
+        return lResult.join(lSeperator);
+    }
+
+    $scope.scrollTo = function($target){
+        let opt = {
+            "duration": 250,
+            "easing": 'swing'
+          };
+        let position = angular.element($target).offset().top;
+        angular.element("html, body").animate({
+            "scrollTop": position
+          }, opt);
+
+
+    }
 
 });
 
+
+ImmoDbApp
+.controller('singleListingCtrl', function($scope,$q,$immodbApi, $immodbDictionary){
+    $scope.model = null;
+    $scope.sections = {
+        addendum : {opened:true},
+        building : {opened:false},
+        lot : {opened:false},
+        other: {opened: false},
+        in_exclusions:{opened:false}
+    }
+    $scope.selected_media = 'pictures';
+    $scope.calculator_result = {};
+    $scope.message_model = {};
+
+    $scope.init = function($ref_type, $ref_number){
+        if($ref_number != undefined){
+            console.log($ref_type, $ref_number)
+            //$scope['load' + $ref_type + 'Data']
+            $scope.loadSingleData($ref_type, $ref_number);
+        }
+    }
+
+    $scope.loadSingleData = function($ref_type, $ref_number){
+        $immodbApi.getDefaultDataView().then(function($viewId){
+
+            $immodbApi.api("{0}/view/{1}/{2}/items/ref_number/{3}".format($scope.toSingleRefType($ref_type),$viewId,immodbApiSettings.locale,$ref_number)).then(function($data){
+                $scope.model = $data;
+                $immodbDictionary.source = $data.dictionary;
+
+                $scope.preprocess();
+                $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.fullAddress($scope.model),$scope.model.ref_number);
+                console.log($scope.model);
+            });
+        });
+    }
+
+    $scope.preprocess = function(){
+        // set basic information from dictionary
+        $scope.model.location.city      = $scope.getCaption($scope.model.location.city_code, 'city');
+        $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
+        $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
+        $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
+        $scope.model.category           = $scope.getCaption($scope.model.category, 'listing_category');
+        $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory, 'listing_subcategory');
+        $scope.model.addendum           = $scope.model.addendum.trim();
+
+        $scope.model.building.attributes = [];
+        $scope.model.lot = {attributes : []};
+        $scope.model.other = {attributes : []};
+        $scope.model.important_flags = [];
+
+        // from main unit
+        let lMainUnit = $scope.model.units.find(function($u){return $u.category=='MAIN'});
+        if(lMainUnit!=null){
+            if(lMainUnit.bedroom_count) $scope.model.important_flags.push({icon: 'bed', value: lMainUnit.bedroom_count, caption:'Bedroom'.translate()});
+            if(lMainUnit.bathroom_count) $scope.model.important_flags.push({icon: 'bath', value: lMainUnit.bathroom_count, caption: 'Bathroom'.translate()});
+            if(lMainUnit.waterroom_count) $scope.model.important_flags.push({icon: 'hand-holding-water', value: lMainUnit.waterroom_count, caption: 'Water room'.translate()});
+        }
+
+        // from attributes
+        $scope.model.attributes.forEach(function($e){
+            $e.caption = $scope.getCaption($e.code, 'attribute');
+            $e.values.forEach(function($v){
+                $v.caption = $scope.getCaption($v.code,'attribute_value');
+                if($v.count){
+                    $v.caption = $v.caption.concat(' ({0})'.format($v.count));
+                }
+                if($v.details){
+                    $v.caption = $v.details;
+                }
+            });
+
+            // append to rightful domains
+            // Building
+            if(['CUPBOARD','WINDOWS',
+                'WINDOW TYPE','ROOFING','FOUNDATION',
+                'GARAGE','SIDING','BATHR./WASHR','BASEMENT'].includes($e.code)){
+                $scope.model.building.attributes.push($e);
+            }
+            // Lot
+            else if(['LANDSCAPING','DRIVEWAY','PARKING','POOL',
+                     'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'].includes($e.code)){
+                $scope.model.lot.attributes.push($e);
+            }
+            // other
+            else if(['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'].includes($e.code)){
+                $scope.model.other.attributes.push($e);
+            }
+
+            if($e.code=='PARKING'){
+                let lParkingCount = 0;
+                $e.values.forEach(function($v){lParkingCount += $v.count;});
+                if(lParkingCount > 0) $scope.model.important_flags.push({icon: 'car', value: lParkingCount, caption: $e.caption});
+            }
+            if($e.code=='POOL'){
+                $scope.model.important_flags.push({icon: 'swimmer', value: 0, caption: $e.caption});
+            }
+            if($e.code=='HEART STOVE'){
+                $scope.model.important_flags.push({icon: 'fire', value: 0, caption: $e.caption});
+            }
+        });
+
+        
+    }
+
+    $scope.sectionOpened = function($section){
+        return $scope.sections[$section].opened;
+    }
+    $scope.toggleSection = function($section){
+        $scope.sections[$section].opened = !$scope.sections[$section].opened;
+    }
+
+    $scope.toSingleRefType = function($ref_type){
+        switch($ref_type){
+            case 'cities':
+                return 'city';
+                break;    
+        }
+
+        return $ref_type.substring(0,$ref_type.length-1);
+    }
+
+
+    $scope.fullAddress = function($item){
+        if($item==null) return '';
+        let lResult = '{0} {1}, {2}'.format(
+                            $item.location.address.street_number,
+                            $item.location.address.street_name,
+                            $immodbDictionary.getCaption($item.location.city_code,'city')
+                        );
+        return lResult;
+    }  
+    
+    $scope.longPrice = function($item){
+        if($item==null) return '';
+
+        let lResult = [];
+        if($item.status == "SOLD"){
+            $lStatus = {
+                sell : 'Sold',
+                lease : 'Leased'
+            }
+            for(let $key in $item.price){
+                if(['sell','lease'].indexOf($key) >=0 ){
+                    lResult.push($lStatus[$key].translate());
+                }
+            }
+        }
+        else{    
+            for(let $key in $item.price){
+                if(['sell','lease'].indexOf($key) >=0 ){
+                    let lPart = [$item.price[$key].amount.formatPrice()];
+                    if($item.price[$key].taxable){
+                        lPart[0] += '+tx';
+                    }
+
+                    if($item.price[$key].unit){
+                        lPart.push($scope.getCaption($item.price[$key].unit,'price_unit',true))
+                    }
+                    let lStart = 'for {0} for '.format($key).translate();
+                    lResult.push(lStart + lPart.join('/'));
+                }
+            }    
+        }
+
+        return lResult.join(' or '.translate());
+    }
+
+    $scope.mortgageChange = function($calculatorResult){
+        console.log('Mortage calculation changed', $calculatorResult);
+        $scope.calculator_result = $calculatorResult;
+    }
+
+    $scope.sendMessage = function(){
+        console.log('message data:', $scope.message_model);
+    }
+});
+
+
+/* ------------------------------- 
+        DIRECTIVES
+-------------------------------- */
 
 ImmoDbApp
 .directive('immodbList', function(){
@@ -887,8 +1107,15 @@ ImmoDbApp
         $scope.loadState = function($item_key){
             $key = 'immodb.' + $scope.alias + '.{0}';
             if($item_key == undefined){
-                $scope.filter_group = JSON.parse(sessionStorage.getItem($key.format('filter_group')));
-                $scope.data = JSON.parse(sessionStorage.getItem($key.format('data')));
+                let lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));
+                let lSessionData = sessionStorage.getItem($key.format('data'));
+                if(lSessionFilterGroup != null){
+                    $scope.filter_group = JSON.parse(lSessionFilterGroup);
+                }
+                if(lSessionData != null){
+                    $scope.data = JSON.parse(lSessionData);
+                }
+                
             }
             else{
                 return JSON.parse(sessionStorage.getItem($key.format($item_key)));
@@ -1165,6 +1392,378 @@ ImmoDbApp
 });
 
 ImmoDbApp
+.directive('immodbImageSlider', function(){
+    let dir_controller = function ($scope, $q,$immodbApi,$rootScope) {
+        $scope.expand_mode = false;
+
+        $scope.position = {
+            current_picture_index : 0
+        };
+
+        $scope.init = function(){
+            $scope.index = 0;
+            // window.setInterval(function(){
+            //     $scope.next();
+            //     $scope.$digest();
+            // },4000);
+            
+        }
+
+        $scope.next = function(){
+            
+            let lNewIndex = $scope.index+1;
+            if(lNewIndex ==  $scope.pictures.length-1){
+                lNewIndex= 0;
+            }
+            $scope.set(lNewIndex);
+            
+        }
+
+        $scope.previous = function(){
+            let lNewIndex = $scope.index-1;
+            if(lNewIndex ==  -1){
+                lNewIndex= $scope.pictures.length-2;
+            }
+            $scope.set(lNewIndex);
+        }
+
+        $scope.set = function($index){
+            $scope.index = $index;
+            try{
+                $scope.$digest();
+            }catch($e){}
+        }
+
+        $scope.toggleExpand = function(){
+            $scope.expand_mode = !$scope.expand_mode;
+        }
+
+        $scope.getPosition = function(){
+            return '-' + ($scope.position.current_picture_index * 100) + '%';
+        }
+
+        // watch for alias to be valid then init directive
+        $scope.$watch("pictures", function(){
+            if($scope.pictures!=null){
+                $scope.init();
+            }
+        });
+    };
+
+    return {
+        restrict: 'E',
+        scope: {
+            pictures: '=immodbPictures',
+            dictionary: '=?immodbDictionary',
+            gap: '@immodbGap',
+            index: '=?immodbIndex'
+        },
+        controllerAs: 'ctrl',
+        replace:true,
+        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-image-slider.html',
+        controller: dir_controller,
+        link: function (scope, element, attrs) {
+            scope.$element = element[0];
+            var mc = new Hammer(element[0]);
+            let lPanHndl = null;
+            // let the pan gesture support all directions.
+            // this will block the vertical scrolling on a touch-device while on the element
+            mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+            mc.on("swipeleft swiperight", function(ev) {
+                
+                console.log( ev.type +" gesture detected.");
+
+                    switch(ev.type){
+                        case 'swipeleft':
+                            scope.next();
+                            break;
+                        case 'swiperight':
+                            scope.previous();
+                            break;
+                    }
+                    
+                
+            });
+        }
+    };
+});
+
+ImmoDbApp
+.directive('immodbCalculator', function(){
+    let dir_controller = function ($scope, $q,$rootScope) {
+        $scope.downpayment_selection = 'manual';
+        
+        $scope.data = {
+            amount:0,
+            amortization:25,
+            downpayment: 20,
+            interest: 3,
+            frequency: 26,
+            downpayment_method : 'percent'
+        }
+        $scope.frequencies = {
+            '12' : 'Monthly',
+            '26' : 'Every two weeks',
+            '52' : 'Weekly'
+        }
+        $scope.init = function(){
+            $scope.preload();
+
+            $scope.data.amount = $scope.amount;
+            $scope.process();
+        }
+
+        $scope.changeDownpaymentMethod = function($value){
+            if($value != $scope.data.downpayment_method){
+                $scope['convertDownpaymentTo_' + $value]();
+                $scope.data.downpayment_method = $value;
+
+                $scope.process();
+            }
+        }
+
+        $scope.convertDownpaymentTo_cash = function(){
+            let lResult = 0;
+
+            lResult = Math.round($scope.data.amount * ($scope.data.downpayment / 100));
+
+            $scope.data.downpayment = lResult;
+        }
+
+        $scope.convertDownpaymentTo_percent = function(){
+            let lResult = 0;
+
+            lResult = Math.round(100 / ($scope.data.amount / $scope.data.downpayment));
+
+            $scope.data.downpayment = lResult;
+        }
+
+        $scope.setFrequency = function($value){
+            $scope.data.frequency = $value;
+
+            $scope.process();
+        }
+
+        $scope.process = function(){
+            if($scope.downpayment_selection=='manual'){
+                $scope.process_single();
+            }
+            else{
+                $scope.process_multi();
+            }
+
+            $scope.save();
+        }
+
+        $scope.process_single = function(){
+            
+            // init branch
+            let lBranch = {
+                downpayment: 0,
+                insurance: 0,
+                mortgage: 0,
+                amortization: $scope.data.amortization,
+                rate: $scope.data.interest,
+                frequency: $scope.data.frequency,
+                frequency_caption : $scope.frequencies[$scope.data.frequency],
+                payment: 0
+            }
+            let lRatio = $scope.data.downpayment_method == 'percent' ? 
+                            $scope.data.downpayment / 100 : 
+                            ($scope.data.downpayment / $scope.data.amount);
+            console.log('ratio', lRatio);
+            $scope.process_branch(lBranch, lRatio);
+
+            let lResult = {
+                mortgage : lBranch,
+                transfer_tax : getTransferTax($scope.data.amount,$scope.region=='06 ')
+            }
+
+            $rootScope.$broadcast('immodb-mortgage-calculator-result-changed', lResult);
+            
+            if(typeof($scope.on_change) == 'function'){
+                $scope.on_change({'$result' : lResult});
+            }
+
+            console.log('processing triggered', lResult);
+        }
+
+        $scope.process_branch = function (branch, downpayment_ratio) {
+            branch.downpayment = getDownPayment($scope.data.amount, downpayment_ratio);
+            branch.insurance = getMortgageInsurance($scope.data.amount, downpayment_ratio);
+            branch.mortgage = $scope.data.amount - branch.downpayment + branch.insurance;
+
+
+            var PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
+            var IntRate = branch.rate / 100; //Number($("input[name=calInterest]").val()) / 100;
+            var Period = branch.amortization; //Number($("input[name=calAmortizationPeriod]").val());
+            var PPay = branch.frequency; //Number($("input[name=calFreq]").val());
+
+            var intcandebase = Math.pow((1 + IntRate / 2), (2 / PPay)) - 1;
+            var paymperiobase = (PrValue * intcandebase) / (1 - (1 / Math.pow((1 + intcandebase), (Period * PPay))));
+            branch.payment = paymperiobase;
+        };
+
+        getDownPayment = function (price, downpayment_ratio) {
+            return price * downpayment_ratio;
+        };
+
+        getMortgageInsurance = function (price, downpayment_ratio) {
+            var lResult = price - (price * downpayment_ratio);
+            switch (downpayment_ratio) {
+                case 0.05:
+                    lResult = lResult * 0.036;
+                    break;
+                case 0.10:
+                    lResult = lResult * 0.024;
+                    break;
+                case 0.15:
+                    lResult = lResult * 0.018;
+                    break;
+                case 0.20:
+                    lResult = lResult * 0;
+                    break;
+            }
+            return lResult;
+        };
+
+        getTransferTax = function (amount, in_montreal) {
+            in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
+            parts = [];
+
+            console.log('in montreal', in_montreal);
+
+            parts.push((amount > 50000 ? 50000 : amount) * 0.005);
+            if (amount > 50000) {
+                parts.push((amount > 250000 ? 200000 : amount - 50000) * 0.01);
+
+                if (in_montreal) {
+                    if (amount > 250000) {
+                        parts.push((amount > 500000 ? 250000 : amount - 250000) * 0.015);
+                    }
+
+                    if (amount > 500000) {
+                        parts.push((amount - 500000) * 0.02);
+                    }
+                }
+                else {
+                    if (amount > 250000) {
+                        parts.push((amount - 250000) * 0.015);
+                    }
+                }
+            }
+
+            var lResult = 0;
+            for (var i = 0; i < parts.length; i++) {
+                lResult += parts[i];
+            }
+
+            return lResult;
+        };
+
+        $scope.preload = function(){
+            let lData = sessionStorage.getItem('immodb.mortgage-calculator');
+            if(lData != null){
+                $scope.data = JSON.parse(lData);
+            }
+        }
+
+        $scope.save = function(){
+            sessionStorage.setItem('immodb.mortgage-calculator', JSON.stringify($scope.data));
+        }
+
+        // watch for amount to be valid then init directive
+        $scope.$watch("amount", function(){
+            if($scope.amount!=null){
+                $scope.init();
+            }
+        });
+
+        
+    };
+
+    return {
+        restrict: 'E',
+        scope: {
+            amount: '=immodbAmount',
+            dictionary: '=?immodbDictionary',
+            downpayment_selection: '@?immodbDownpaymentSelection',
+            region: '@?immodbRegion',
+            on_change: '&onChange'
+        },
+        controllerAs: 'ctrl',
+        replace:true,
+        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-calculator.html',
+        controller: dir_controller
+    };
+});
+
+ImmoDbApp
+.directive('immodbModal', function(){
+    let dir_controller = function ($scope, $q,$immodbApi,$rootScope) {
+
+        $scope.options = {
+            close_label : 'Close',
+            ok_label: 'OK'
+        }
+
+        $scope.init = function(){
+            if($scope.model==null){
+                $scope.model = {};
+            }
+        }
+
+        $scope.closeWithValue = function(){
+            console.log('close with value',typeof($scope.onOK))
+            if(typeof($scope.onOK)=='function'){
+                $scope.onOK();
+            }
+        }
+
+
+        // watch for amount to be valid then init directive
+        $scope.$watch("modal_title", function(){
+            if($scope.amount!=null){
+                $scope.init();
+            }
+        });
+
+        $scope.$watch("ok_label", function(){
+            if($scope.ok_label!=null){
+                $scope.options.ok_label = $scope.ok_label;
+            }
+        });
+
+        
+        $scope.$watch("close_label", function(){
+            if($scope.close_label!=null){
+                $scope.options.close_label = $scope.close_label;
+            }
+        });
+    };
+
+    return {
+        restrict: 'E',
+        scope: {
+            modal_id        : '@modalId',
+            modal_title     : '@modalTitle',
+            onOK            : '&?onOk',
+            model           : '=ngModel',
+            ok_label        : '@?okLabel',
+            cancel_label    : '@?cancelLabel'
+        },
+        controllerAs    : 'ctrl',
+        replace         : true,
+        transclude      : true,
+        templateUrl     : immodbCtx.base_path + 'views/ang-templates/immodb-modal.html',
+        controller      : dir_controller,
+    };
+});
+
+/* ------------------------------- 
+        FACTORIES
+-------------------------------- */
+ImmoDbApp
 .factory('$immodbApi', ["$http","$q", function($http,$q){
     let $scope = {};
     
@@ -1223,6 +1822,22 @@ ImmoDbApp
             else{
                 $resolve();
             }
+        });
+
+        return lPromise;
+    }
+
+    $scope.getDefaultDataView = function(){
+        let lPromise = $q(function($resolve, $reject){
+            $scope.call(null,null,{
+                url : immodbApiSettings.rest_root + 'immodb/data_view',
+                headers: {
+                    'X-WP-Nonce': immodbApiSettings.nonce
+                },
+            }).then(function($response){
+                $resolve($response);
+            })
+        
         });
 
         return lPromise;
@@ -1321,4 +1936,72 @@ ImmoDbApp
     return $scope;
 }]);
 
+ImmoDbApp
+.factory('$immodbDictionary', function(){
+    let $scope = {};
 
+
+    $scope.source = null;
+
+    /** 
+     * Get the caption matching key and domain from the dictionary
+     * @param {string} $key Key code of the dictionary item
+     * @param {string} $domain Group key that (should) hold the item
+     * @return {string} Caption matched or the key in case the something's missing or went wrong
+     */
+    $scope.getCaption = function($key, $domain, $asAbbr){
+        let lResult = $key;
+        $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
+
+        if($scope.source && $scope.source[$domain]){
+            if($scope.source[$domain][$key] != undefined){
+                if($asAbbr){
+                    lResult = $scope.source[$domain][$key].abbr;
+                }
+                else{
+                    lResult = $scope.source[$domain][$key].caption;
+                }
+            }
+        }
+        return lResult;
+    }
+
+    return $scope;
+})
+
+
+/* ------------------------------- 
+        FILTERS
+-------------------------------- */
+
+ImmoDbApp
+.filter('range', function(){
+    return function($items, $lowerBound, $upperBound){
+        if($items==null) return null;
+        $items.forEach(function($e,$i){
+            $e.index = $i;
+        });
+        let lRange = $upperBound - $lowerBound;
+        
+        if(lRange > $items.length){
+            lRange = $items.length;
+            $lowerBound = 0;
+            $upperBound = $items.length - 1;
+        }
+        else if($lowerBound < 0){
+            $lowerBound = 0;
+            $upperBound = $lowerBound + lRange;
+        }
+        else if($upperBound > $items.length - 1){
+            $upperBound = $items.length - 1;
+            $lowerBound = $upperBound - lRange;
+        }
+
+        
+        let lResult = $items.filter(function($e,$i){
+            return ($lowerBound <= $i && $i < $upperBound);
+        });
+        
+        return lResult;
+    }
+})

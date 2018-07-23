@@ -1,0 +1,68 @@
+<div class="immodb-calculator">
+    <div class="input-container">
+        <label>{{'Property evaluation'.translate()}}</label>
+        <div class="input" >
+            <input type="number" ng-model="data.amount" autocomplete="off" ng-change="process()" />
+        </div>
+        <i class="extra fal fa-dollar-sign"></i>
+    </div>
+
+    <div class="input-container">
+        <label>
+            <div>{{'Down payment'.translate()}}</div>
+            <div class="alt-method">
+                <div class="pretty p-icon p-round p-jelly"
+                    ng-click="changeDownpaymentMethod('percent')">
+                    <input type="radio" name="downpayment_method" ng-checked="data.downpayment_method=='percent'" > 
+                    <div class="state">
+                        <i class="icon fal fa-check"></i>
+                        <label>%</label>
+                    </div>
+                </div>
+
+                <div class="pretty p-icon p-round p-jelly"
+                    ng-click="changeDownpaymentMethod('cash')">
+                    <input type="radio" name="downpayment_method" ng-checked="data.downpayment_method=='cash'"> 
+                    <div class="state">
+                        <i class="icon fal fa-check"></i>
+                        <label>$</label>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <div class="input">
+            <input type="number" autocomplete="off" ng-model="data.downpayment" ng-change="process()" />
+        </div>
+        <i class="extra fal fa-{{(data.downpayment_method=='cash') ? 'dollar-sign' : 'percent'}}"></i>
+    </div>
+
+    <div class="input-container">
+        <label>{{'Interest rate'.translate()}}</label>
+        <div class="input">
+            <input type="number" autocomplete="off" ng-model="data.interest"  ng-change="process()" />
+        </div>
+        <i class="extra fal fa-percent"></i>
+    </div>
+
+    <div class="input-container">
+        <label>{{'Amortization period'.translate()}}</label>
+        <div class="input">
+            <input type="number" autocomplete="off" ng-model="data.amortization"  ng-change="process()" />
+        </div>
+        <i class="extra fal fa-calendar-alt"></i>
+    </div>
+
+    <div class="input-container">
+        <label>{{'Payments'.translate()}}</label>
+
+        <div class="input dropdown">
+            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{frequencies[data.frequency].translate()}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-item {{(data.frequency==value) ? 'active' : ''}}" ng-click="setFrequency(value)" ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
+            </div>
+        </div>
+        <i class="extra fal fa-repeat"></i>
+    </div>
+</div>

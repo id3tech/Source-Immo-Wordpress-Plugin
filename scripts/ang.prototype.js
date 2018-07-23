@@ -17,8 +17,10 @@ if(typeof String.format === 'undefined'){
 if(typeof Number.formatPrice === 'undefined' ){
 
     Number.prototype.formatPrice = function($currency){
+        let lValue = this;
+        lValue = Math.round(lValue * 100) / 100;
         $currency = ($currency==undefined)?'':$currency;
-        let lResult = this.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
+        let lResult = lValue.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
         lResult = '${0}'.translate().format(lResult);
         return lResult;
     }

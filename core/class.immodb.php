@@ -39,7 +39,8 @@ class ImmoDB {
 
     if (!is_admin() ){
       $this->register_filters(array(
-        'language_attributes' => 'set_html_attributes'
+        'language_attributes' => 'set_html_attributes',
+        'body_class' => 'body_class',
       ));
 
       $this->register_actions(array(
@@ -160,31 +161,54 @@ class ImmoDB {
 
   public function load_resources(){
     $lTwoLetterLocale = substr(get_locale(),0,2);
-
-    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', IMMODB_PLUGIN) );
+    
+    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', IMMODB_PLUGIN) );
     wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
+    //wp_enqueue_style( 'material', 'https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css');
     wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN) );
     
     wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, null, true );
     wp_enqueue_script( 'angular-sanitize', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js', 'angular', null, true );
+    //wp_enqueue_script( 'angular-animate', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.min.js', 'angular', null, true );
+    //wp_enqueue_script( 'angular-aria', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js', 'angular', null, true );
+    //wp_enqueue_script( 'angular-message', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-messages.min.js', 'angular', null, true );
     wp_enqueue_script( 'bootstrap-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', null, null, true );
     wp_enqueue_script( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', 'bootstrap-popper', null, true );
-    wp_add_inline_script( 'angular', 'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' );
+    wp_enqueue_script( 'material', 'https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js', 'angular', null, true );
+    wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
+    
+    wp_add_inline_script( 'angular', 
+                          'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .
+                          'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
+                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '"};'
+                        );
     
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
     wp_enqueue_script( 'immodb-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', IMMODB_PLUGIN), null, null, true );
     wp_enqueue_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.js', IMMODB_PLUGIN), null, null, true );
     
+    
+  }
+
+  public function body_class($classes){
+    $ref_number = get_query_var( 'ref_number');
+    if($ref_number != null){
+      $type = get_query_var( 'type' );
+      $classes[] = 'single-' . $type;
+      $classes[] = $type . '-' . $ref_number;
+
+      // remove sidebar class
+      $has_sidebar_needle = array_search("has-sidebar",$classes);
+      if($has_sidebar_needle!==false){
+        unset($classes[$has_sidebar_needle]);
+      }
+    }
+
+    return $classes;
   }
 
   public function set_html_attributes($attr){
-    $ref_number = get_query_var( 'ref_number');
-    $init_func = '';
-    if($ref_number!=null){
-      $init_func = "ng-init=\"init('{$ref_number}')\"";
-    }
-
-    return "{$attr} ng-app=\"ImmoDb\" ng-controller=\"publicCtrl\" {$init_func}";
+    return "{$attr} ng-app=\"ImmoDb\" ng-controller=\"publicCtrl\"";
   }
 
   function include_listings_detail_template(){

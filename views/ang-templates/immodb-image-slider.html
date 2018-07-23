@@ -1,0 +1,18 @@
+<div class="immodb-image-slider {{expand_mode?'expanded' : ''}}">
+    <div class="viewport"> 
+        <div class="trolley" style="transform:translateX(-{{index * 100}}%);grid-gap:{{gap}}px;grid-template-columns: repeat({{pictures.length-1}},100%);">
+            <div class="item" ng-repeat="img in pictures"><img ng-src="{{img.url}}" alt="{{getCaption(img.category,'photo_category')}}" /></div>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="btn next" ng-click="next()"><i class="fal fa-fw fa-2x fa-angle-right"></i></div>
+        <div class="btn previous" ng-click="previous()"><i class="fal fa-fw fa-2x fa-angle-left"></i></div>
+    </div>
+    <div class="preview">
+        <div class="trolley">
+            <div class="item {{img.index == index?'selected':''}}" ng-click="set(img.index)" ng-repeat="img in pictures | range: index - 2 : index + 3"><img ng-src="{{img.url}}" alt="{{getCaption(img.category,'photo_category')}}" /></div>
+        </div>
+        <div class="btn expand" ng-click="toggleExpand()"><i class="fal fa-expand-arrows"></i></div>
+    </div>
+    <div class="counter">{{pictures.length}} <i class="fal fa-images"></i></div>
+</div>
