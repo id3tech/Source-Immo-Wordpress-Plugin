@@ -317,13 +317,13 @@ class ImmoDBListingsResult{
       $lResult[] = StringPrototype::format($priceFormat,number_format($price->lease->amount,2,"."," "));
     }
 
-    return implode(' ' . __('or',IMMODB) . ' ', $lResult);
+    return implode(__(' or ',IMMODB), $lResult);
   }
 
   public static function buildPermalink($item, $format){
     $lResult = $format;
     $lAttrList = self::getAttributeValueList($item);
-    //Debug::force($lAttrList);
+    
 
     foreach($lAttrList as $lAttr){
       $lValue = $lAttr['value'];
@@ -335,6 +335,7 @@ class ImmoDBListingsResult{
       $lResult = str_replace(
           array(
             '{{' . $lAttr['key'] . '}}',
+            '{{item.' . $lAttr['key'] . '}}',
             '{{get' . $lAttr['key'] . '(item)}}'
           ), $lValue, $lResult);
     }
@@ -370,10 +371,12 @@ class ImmoDBListingsResult{
     $lResult = array();
 
     foreach ($item->price as $key => $value) {
-      $lResult[] = $key;
+      if(in_array($key, array('sell','lease'))){
+        $lResult[] = __('To ' . $key, IMMODB);
+      }
     }
 
-    $lResult = implode(' ' . __('or',IMMODB) . ' ',$lResult);
+    $lResult = implode(__(' or ',IMMODB),$lResult);
 
     if($sanitize){
         $lResult = sanitize_title($lResult);

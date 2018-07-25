@@ -50,15 +50,20 @@ class ImmoDbShorcodes{
 
         ob_start();
         $listConfig = ImmoDB::current()->get_list_configs($alias);
+        
         if($listConfig != null){
             $global_container_classes = array('immodb', 'standard-layout', "immodb-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
             $global_container_attr = array();
 
-            echo('<immodb-list immodb-alias="' . $alias . '" immodb-class="' . implode(' ' , $global_container_classes) . '" ></immodb-list>');
-
-            echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
-            ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
-            echo('</script>');
+            if(in_array($listConfig->list_layout->preset, array('direct','map'))){
+                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
+            }
+            else{
+                echo('<immodb-list immodb-alias="' . $alias . '" immodb-class="' . implode(' ' , $global_container_classes) . '" ></immodb-list>');
+                echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
+                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
+                echo('</script>');
+            }
 
             if($listConfig->searchable){ 
                 echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');

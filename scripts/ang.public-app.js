@@ -15,7 +15,6 @@ ImmoDbApp
 
     $rootScope.formatPrice = function($item){
         let lResult = [];
-        console.log('$item.status', $item.status);
         if($item.status=='SOLD'){
             if($item.price.sell != undefined){
                 lResult.push('Sold'.translate());
@@ -558,11 +557,16 @@ ImmoDbApp
 .directive('immodbSearch', function(){
     let dir_controller = 
     function($scope, $q, $immodbApi, $rootScope){
+        let lToday = new Date().round();
+        
+        $scope.geolocation_available = navigator.geolocation!=undefined;
         $scope.sort_fields = [];
+        $scope.selected_price_input = 'min';
         $scope.keyword = '';
-        $scope.minPriceSuggestions = [];
-        $scope.maxPriceSuggestions = [];
+        $scope.priceSuggestions = [];
         $scope.bedroomSuggestions = [];
+        $scope.bathroomSuggestions = [];
+        $scope.parkingSuggestions = [];
         $scope.filterHints = [];
         $scope.suggestions = [];
         $scope.query_text = null;
@@ -578,23 +582,65 @@ ImmoDbApp
             filters: null,
             filter_groups: null
         }
-
+        
         $scope.listing_states = {
+            sold: {
+                caption : 'Sold',
+                filter : {field: 'status', operator: 'not_equal_to', value: 'AVAILABLE'}
+            },
             sell : {
-                caption: 'To sell'.translate(), 
+                caption: 'To sell', 
                 filter : {field: 'price.sell.amount', operator: 'greater_than', value: 0}
             },
             lease : {
-                caption: 'To lease'.translate(),
+                caption: 'To lease',
                 filter : {field: 'price.lease.amount', operator: 'greater_than', value: 0}
             },
             open_house : {
-                caption: 'Open house'.translate(),
+                caption: 'Open house',
                 filter : {field: 'price.sell.amount', operator: 'greater_than', value: 0}
             },
             forclosure : {
-                caption: 'Foreclosure'.translate(),
+                caption: 'Foreclosure',
                 filter : {field: 'price.foreclosure', operator: 'equal', value: true}
+            }
+        }
+
+        $scope.listing_ages = [
+            {
+                caption : 'No limit'.translate(),
+                filter : {field: 'contract.start_date', operator: 'greater_than', value: ''}
+            },
+            {
+                caption: '7 days'.translate(), 
+                filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-7).toJSON()}
+            },
+            {
+                caption: '1 month'.translate(),
+                filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addMonths(-1).toJSON()}
+            },
+            {
+                caption: '6 months'.translate(),
+                filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addMonths(-6).toJSON()}
+            },
+            {
+                caption: '1 year'.translate(),
+                filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addYears(-1).toJSON()}
+            },
+        ];
+
+        $scope.listing_attributes = {
+            pool : {
+                caption: 'Pool', 
+                field: 'attributes.POOL'
+            },
+            fireplace : {
+                caption: 'Fireplace', 
+                field: 'attributes.HEARTSTOVE'
+            },
+            garage : {
+                caption: 'Garage', 
+                field: 'attributes.GARAGE'
             }
         }
 
@@ -650,10 +696,16 @@ ImmoDbApp
             // Prices
             $scope.updatePriceSuggestions();
 
-            // Bedrooms
+           
             for(let i=1; i<6; i++){
-                $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i)})
+                // Bedrooms
+                $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i)});
+                // Bathrooms
+                $scope.bathroomSuggestions.push({value:i, label: '{0}+'.format(i), caption: '{0}+ bathrooms'.translate().format(i)});
+                // Parking
+                $scope.parkingSuggestions.push({value:i, label: '{0}+'.format(i), caption: '{0}+ parking spaces'.translate().format(i)});
             }
+            
         }
 
         /**
@@ -675,13 +727,14 @@ ImmoDbApp
                     console.log('suggestions for ', lValue, $scope.data.keyword);
                     lResult = [
                         {selected:true, label : 'ID is "{0}"'.translate().format(lValue), action: function(){$scope.addFilter('ref_number','equal_to',lValue,'ID is "{0}"'.translate().format(lValue) )}},
-                        {label : 'Price is between {0}$ and {1}$'.translate().format(lPriceMin, lPriceMax), action: function(){
-                                $scope.setMinPrice(lPriceMin);
-                                $scope.setMaxPrice(lPriceMax);
-                            }},
-                        {label : 'Price is more than {0}$'.translate().format(lValue), action: function(){$scope.setMinPrice(lValue);}},
-                        {label : 'Price is less than {0}$'.translate().format(lValue), action: function(){$scope.setMaxPrice(lValue);}},
                         
+                        {label : 'Price is less than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMaxPrice(lValue);}},
+                        {label : 'Price is more than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMinPrice(lValue);}},
+                        {label : 'Price is between {0} and {1}'.translate().format(lPriceMin.formatPrice(), lPriceMax.formatPrice()), action: function(){
+                            $scope.setMinPrice(lPriceMin);
+                            $scope.setMaxPrice(lPriceMax);
+                        }},
+
                         {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal_to',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
                     ];
                 }
@@ -693,25 +746,25 @@ ImmoDbApp
                     for($key in $scope.dictionary.listing_category){
                         let lElm = $scope.dictionary.listing_category[$key];
                         if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                            lResult.push({label: lElm.caption + ' (category)', action: function(){ lElm.selected=true;  $scope.addFilter('category','in',$scope.getSelection($scope.dictionary.listing_category));} }) 
+                            lResult.push({label: '{0} (category)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('category','in',$scope.getSelection($scope.dictionary.listing_category));} }) 
                         }
                     }
                     for($key in $scope.dictionary.listing_subcategory){
                         let lElm = $scope.dictionary.listing_subcategory[$key];
                         if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                            lResult.push({label: lElm.caption + ' (subcategory)', action: function(){ lElm.selected=true;  $scope.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));} }) 
-                        }
-                    }
-                    for($key in $scope.dictionary.city){
-                        let lElm = $scope.dictionary.city[$key];
-                        if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                            lResult.push({label: lElm.caption + ' (city)', action: function(){ lElm.selected=true;  $scope.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));} }) 
+                            lResult.push({label: '{0} (subcategory)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));} }) 
                         }
                     }
                     for($key in $scope.dictionary.region){
                         let lElm = $scope.dictionary.region[$key];
                         if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                            lResult.push({label: lElm.caption + ' (region)', action: function(){ lElm.selected=true;  $scope.addFilter('location.region_code','in',$scope.getSelection($scope.dictionary.region));} }) 
+                            lResult.push({label: '{0} (region)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('location.region_code','in',$scope.getSelection($scope.dictionary.region));} }) 
+                        }
+                    }
+                    for($key in $scope.dictionary.city){
+                        let lElm = $scope.dictionary.city[$key];
+                        if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
+                            lResult.push({label: '{0} (city)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));} }) 
                         }
                     }
                 }
@@ -775,12 +828,16 @@ ImmoDbApp
             return lResult;
         }
 
+        $scope.selectPriceInput = function($value){
+            $scope.selected_price_input = $value;
+            $scope.updatePriceSuggestions();
+        }
+
         /**
          * Update price suggestions shortcut. Update both min and max
          */
         $scope.updatePriceSuggestions = function(){
-            $scope.minPriceSuggestions = $scope.getPriceSuggestions('min');
-            $scope.maxPriceSuggestions = $scope.getPriceSuggestions('max');
+            $scope.priceSuggestions = $scope.getPriceSuggestions($scope.selected_price_input);
         }
 
         /**
@@ -789,23 +846,24 @@ ImmoDbApp
          */
         $scope.getPriceSuggestions = function($minOrMax){
             let lResult = [];
-            let lMinPrice = $scope.min_price || 1000;
+            let lMinPrice = $scope.min_price || 10000;
             let lMaxPrice = $scope.max_price || 500000;
-            let lStartAt = 1000;
-            let lEndsAt = Math.min(50000, lMaxPrice-50000);
-            
+            let lStartAt = 10000;
+            let lEndsAt = 100000;
+            let lStep = 10000;
+
             if($minOrMax=='max'){
                 lStartAt = Math.max(lMinPrice+50000,lMaxPrice-200000);
                 lEndsAt = lStartAt + 500000;
+                lStep = (lEndsAt-lStartAt)/10;
             }
-            let lStep = (lEndsAt-lStartAt)/10;
-
+            
             if($minOrMax=='min'){
                 lResult.push({value:'', label: 'Min'});
             }
 
             for(let $i=lStartAt;$i<=lEndsAt;$i+=lStep){
-                lResult.push({value: $i, label: $i});
+                lResult.push({value: $i, label: $i.formatPrice()});
             }
             
             if($minOrMax=='max'){
@@ -816,31 +874,23 @@ ImmoDbApp
             return lResult;
         }
 
-        
+        $scope.setPrice = function($value, $eventOrInput){
+            let lInput = $scope.selected_price_input;
+            if(typeof $eventOrInput == 'string'){
+                lInput = $eventOrInput;
+            }
 
-        $scope.setMinPrice = function($value, $event){
             if($value == ''){
-                $scope.data.min_price = undefined;
+                $scope.data[lInput + '_price'] = undefined;
             }
             else{
-                $scope.data.min_price = $value;
+                $scope.data[lInput + '_price'] = $value;
             }
-
-            if($event){
-                $event.stopPropagation();
-            }
-        }
-
-        $scope.setMaxPrice = function($value, $event){
-            if($value == ''){
-                $scope.data.max_price = undefined;
-            }
-            else{
-                $scope.data.max_price = $value;
-            }
-
-            if($event){
-                $event.stopPropagation();
+            
+            if($scope.selected_price_input=='min'){       
+                if($eventOrInput && (typeof $eventOrInput != 'string')){
+                    $eventOrInput.stopPropagation();
+                }
             }
         }
 
@@ -849,7 +899,13 @@ ImmoDbApp
                 $e.selected = false;
             });
             $item.selected = true;
-            $scope.addFilter('main_unit.bedroom_count','greater_or_equal_to',$item.value, '{0}+ bedrooms'.translate().format($item.value));
+            $scope.addFilter(
+                'main_unit.bedroom_count',
+                'greater_or_equal_to',$item.value, '{0}+ bedrooms'.translate().format($item.value),
+                function(){
+                    $scope.setBedroomCount({value:''});
+                }                
+            );
         }
 
         $scope.setState = function($item){
@@ -857,7 +913,12 @@ ImmoDbApp
             if($item.selected!=true){
                 lValue = '';
             }
-            $scope.addFilter($item.filter.field, $item.filter.operator, lValue, $item.caption);
+            $scope.addFilter($item.filter.field, $item.filter.operator, lValue, $item.caption.translate(),
+                function(){
+                    $item.selected = '';
+                    $scope.setState($item);
+                }
+            );
         }
 
         /**
@@ -878,11 +939,25 @@ ImmoDbApp
                     lPriceHint[1] = $scope.data.max_price.formatPrice();
                 }
 
-                lResult.push({item : 'PRICE', label: lPriceHint.join(' - ')});
+                lResult.push({
+                    item : 'PRICE', 
+                    label: lPriceHint.join(' - '),
+                    reverse: function(){
+                        $scope.setPrice('','min');
+                        $scope.setPrice('','max');
+                    }
+                });
             }
 
             if($scope.query_text!=null){
-                lResult.push({item: "QUERY_TEXT", label: 'Contains "{0}"'.translate().format($scope.query_text)});
+                lResult.push({
+                    item: "QUERY_TEXT", 
+                    label: 'Contains "{0}"'.translate().format($scope.query_text),
+                    reverse: function(){
+                        $scope.query_text = null;
+                        $scope.buildFilters(); $scope.buildHints();
+                    }
+                });
             }
 
             console.log('hints', lResult);
@@ -897,20 +972,34 @@ ImmoDbApp
         $scope.buildFilterHints = function($group){
             let lResult = [];
             let lListSync = {
+                // dictionary
                 "category" : "listing_category",
                 "subcategory" : "listing_subcategory",
                 "location.city_code" : "city",
-                "location.region_code" : "region"
+                "location.region_code" : "region",
             }
             // filters that as a label
             if($group.filters != null){
-                $group.filters.forEach(function($e){
+                $group.filters.forEach(function($e,$i){
                     if(lListSync[$e.field] != undefined){
                         let lDictionaryKey = lListSync[$e.field];
-                        lResult = lResult.concat($scope.buildFilterHintListSync($e, $scope.dictionary[lDictionaryKey]));
+                        if($scope.dictionary[lDictionaryKey]){
+                            lResult = lResult.concat($scope.buildFilterHintListSync($e, $scope.dictionary[lDictionaryKey]));
+                        }
                     }
                     else if($e.label){
-                        lResult.push({item:$e, label: $e.label});
+                        lResult.push({
+                            item:$e, 
+                            label: $e.label,
+                            reverse: function(){
+                                if(typeof($e.reverse)=='function'){
+                                    $e.reverse();
+                                }
+                                else{
+                                    $scope.addFilter($e.field,$e.operator, '');
+                                }
+                            }
+                        });
                     }
                 })
             }
@@ -927,12 +1016,28 @@ ImmoDbApp
         }
 
         $scope.buildFilterHintListSync = function($filter, $list){
-            
             let lResult = [];
-            for($key in $list){
-                if($filter.value.indexOf($key)>=0){
+            for(let $key in $list){
+                if($filter.operator=='in' && $filter.value.indexOf($key)>=0){
                     if(!$list[$key].selected) $list[$key].selected=true;
-                    lResult.push({item:$key, label: $list[$key].caption});
+                    lResult.push({
+                        item:$key, 
+                        label: $list[$key].caption, 
+                        reverse: function(){
+                            $list[$key].selected = false;
+                            $scope.addFilter($filter.field, 'in', $scope.getSelection($list))
+                        }
+                    });
+                }
+                else if ($list[$key].selected){
+                    lResult.push({
+                        item:$key, 
+                        label: $list[$key].caption, 
+                        reverse: function(){
+                            $list[$key].selected = false;
+                            $scope.addFilter($filter.field, 'equal', '')
+                        }
+                    });
                 }
             };
             console.log('hint sync', $filter, $list, lResult);
@@ -947,8 +1052,25 @@ ImmoDbApp
             return $scope.filter_group.filter_groups != null || $scope.filter_group.filters != null || $scope.query_text!=null;
         }
 
+        $scope.hasFilter = function($fieldname){
+            if($scope.hasFilters()){
+                let lFilter = $scope.getFilterByFieldName($fieldname);
+                return lFilter != null;
+            }
+            else{
+                return false;
+            }
+        }
 
         //// FILTER MANAGEMENT
+
+        $scope.getFilterValue = function($fieldname){
+            let lFilter = $scope.getFilterByFieldName($fieldname);
+            if(lFilter!=null){
+                return lFilter.value;
+            }
+            return null;
+        }
 
         $scope.getFilterByFieldName = function($fieldname){
             let lResult = null;
@@ -981,8 +1103,6 @@ ImmoDbApp
             }
             $scope.resetListSelections($scope.transaction_types);
 
-
-
             // save filters to localStorage
             $scope.saveState();
 
@@ -996,7 +1116,8 @@ ImmoDbApp
             }
         }
 
-        $scope.addFilter = function($field,$operator,$value, $label){
+
+        $scope.addFilter = function($field,$operator,$value, $label, $reverseFunc){
             console.log('filter added',$field,$operator,$value, $label );
             
             if(typeof($field.push)=='function'){
@@ -1005,7 +1126,7 @@ ImmoDbApp
             }
             else{
                 console.log('adding single filter')
-                $scope.setFilter($field, $operator, $value, $scope.filter_group, $label);
+                $scope.setFilter($field, $operator, $value, $scope.filter_group, $label,$reverseFunc);
             }
 
             // save filters to localStorage
@@ -1013,6 +1134,33 @@ ImmoDbApp
 
             $scope.buildHints();
             $scope.buildFilters();
+        }
+
+        $scope.addAttributeFilter = function($attr){
+            let lValue = $attr.selected ? true : '';
+
+            $scope.addFilter(
+                $attr.field, 
+                'equal', 
+                lValue, 
+                $attr.caption.translate(),
+                function(){
+                    console.log('reversin attr',$attr);
+                    $attr.selected=false;
+                    $scope.addFilter($attr.field,'equal','');
+                }
+            );
+        }
+
+        $scope.addGeoFilter = function(){
+            if($scope.hasFilter('location.position')){
+                $scope.addFilter('location.position','equal','');
+            }
+            else{
+                navigator.geolocation.getCurrentPosition(function($position){
+                    $scope.addFilter('location.position','equal',$position, 'Near me'.translate());
+                });
+            }
         }
 
         $scope.addFilterGroup = function($field,$operator,$value, $label){
@@ -1039,14 +1187,14 @@ ImmoDbApp
                         $scope.filter_group.filter_groups.splice($i,1);
                         return false;
                     }
-                })    
+                });
             }
             if($scope.filter_group.filter_groups.length==0){
                 $scope.filter_group.filter_groups = null;
             }
         };
 
-        $scope.setFilter = function($field, $operator, $value, $group,$label){
+        $scope.setFilter = function($field, $operator, $value, $group,$label,$reverseFunc){
             if($group.filters == null){
                 $group.filters = [];
             }
@@ -1056,7 +1204,10 @@ ImmoDbApp
                 field: $field,
                 operator: $operator,
                 value: $value,
-                label: $label
+                label: $label,
+                reverse: $reverseFunc || function(){
+                    $scope.addFilter($field,$operator, '')
+                }
             };
 
             for(lFilterIndex = 0; lFilterIndex < $group.filters.length; lFilterIndex++){
@@ -1064,14 +1215,16 @@ ImmoDbApp
                     break;
                 }
             }
-            console.log('setFilter', $value ,$value==='',$value==null,(typeof($value.push)=='function' && $value.length == 0))
-            if($value==='' || $value==null || (typeof($value.push)=='function' && $value.length == 0)){
+            
+            if($value==='' || $value==null){
+                $scope.removeFilter(lFilterIndex, $group);
+            }
+            else if (typeof($value.push)=='function' && $value.length == 0){
                 $scope.removeFilter(lFilterIndex, $group);
             }
             else{
                 $scope.updateFilter(lNewFilter, lFilterIndex, $group);
             }
-            
         }
 
         $scope.updateFilter = function($filter,$index, $group){
@@ -1115,6 +1268,7 @@ ImmoDbApp
                 }
                 if(lSessionData != null){
                     $scope.data = JSON.parse(lSessionData);
+                    $scope.data.keyword = '';
                 }
                 
             }

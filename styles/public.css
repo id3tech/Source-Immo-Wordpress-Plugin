@@ -31,6 +31,11 @@
   grid-gap: 10px;
 }
 
+.immodb .layout-column .dropdown-divider {
+  height: 5px;
+  margin: 0;
+}
+
 .immodb .search-container {
   grid-area: search;
   display: grid;
@@ -42,6 +47,10 @@
 
 .immodb .search-container .btn {
   width: 100%;
+}
+
+.immodb .search-container .dropdown-menu {
+  box-shadow: rgba(0, 0, 0, 0.5) 0 15px 30px;
 }
 
 .immodb .search-container .input {
@@ -75,11 +84,32 @@
   display: block;
 }
 
+.immodb .search-container .input .geo-btn {
+  cursor: pointer;
+}
+
+.immodb .search-container .input .geo-btn.active {
+  color: #007ACC;
+  font-weight: 700;
+}
+
 .immodb .search-container .advanced {
   display: grid;
   grid-gap: 10px;
   align-items: center;
   grid-area: advanced;
+}
+
+.immodb .search-container .advanced h4 {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0px;
+}
+
+.immodb .search-container .advanced form {
+  padding: 20px;
+  display: grid;
+  place-items: start stretch;
 }
 
 .immodb .search-container .advanced .search-trigger {
@@ -91,14 +121,7 @@
   grid-area: category;
 }
 
-.immodb .search-container .advanced .category .dropdown-menu {
-  padding: 10px;
-}
-
 .immodb .search-container .advanced .category .dropdown-menu form {
-  display: grid;
-  grid-gap: 10px;
-  align-items: flex-start;
   grid-template-columns: 1fr 1fr;
   grid-template-areas: "category subcategory";
 }
@@ -111,19 +134,41 @@
   grid-area: price;
 }
 
-.immodb .search-container .advanced .price .dropdown-menu {
-  padding: 10px;
-}
-
 .immodb .search-container .advanced .price .dropdown-menu form {
-  display: grid;
-  grid-gap: 10px;
-  align-items: flex-start;
-  grid-template-columns: 1fr 1fr;
+  min-width: 300px;
+  grid-template-areas: "price-inputs" "price-suggestions";
 }
 
-.immodb .search-container .advanced .price .dropdown-menu form .layout-column {
-  min-width: 150px;
+.immodb .search-container .advanced .price .dropdown-menu form .price-inputs {
+  grid-area: price-inputs;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-suggestions {
+  grid-area: price-suggestions;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-inputs {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr 36px 1fr;
+  place-items: center stretch;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-suggestions {
+  grid-gap: 0px;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-suggestions .item {
+  transition: 0.25s;
+  padding: 8px 10px;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-suggestions .item:hover {
+  background: #ccc;
+}
+
+.immodb .search-container .advanced .price .dropdown-menu form .price-suggestions.target-max {
+  text-align: right;
 }
 
 .immodb .search-container .advanced .bedrooms {
@@ -147,6 +192,37 @@
 
 .immodb .search-container .advanced .more {
   grid-area: more;
+}
+
+.immodb .search-container .advanced .more form {
+  display: grid;
+  grid-gap: 20px 0px;
+  grid-template-areas: "bathrooms age parkings"  "attribute building_category transaction";
+  width: 800px;
+}
+
+.immodb .search-container .advanced .more form .building_category {
+  grid-area: building_category;
+}
+
+.immodb .search-container .advanced .more form .transaction {
+  grid-area: transaction;
+}
+
+.immodb .search-container .advanced .more form .parkings {
+  grid-area: parkings;
+}
+
+.immodb .search-container .advanced .more form .attribute {
+  grid-area: attribute;
+}
+
+.immodb .search-container .advanced .more form .bathrooms {
+  grid-area: bathrooms;
+}
+
+.immodb .search-container .advanced .more form .age {
+  grid-area: age;
 }
 
 .immodb .search-container .client-filters {
@@ -175,7 +251,25 @@
 }
 
 .immodb .search-container .client-filters .list .item .fal {
-  color: #333;
+  margin: 3px;
+  text-align: center;
+  line-height: 1.3em;
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  background-color: #555;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.immodb .search-container .client-filters .list .item .fal:hover {
+  transform: rotate(360deg);
+  background-color: #333;
+}
+
+.immodb .search-container .client-filters .list .item .fal:hover:before {
+  content: "\f068";
 }
 
 .immodb .search-container .client-filters .reset {
@@ -246,46 +340,57 @@
 
 .immodb .immodb-item .ref-number {
   grid-area: ref-number;
+  color: inherit;
 }
 
 .immodb .immodb-item .category {
   grid-area: category;
+  color: inherit;
 }
 
 .immodb .immodb-item .subcategory {
   grid-area: subcategory;
+  color: inherit;
 }
 
 .immodb .immodb-item .price {
   grid-area: price;
+  color: inherit;
 }
 
 .immodb .immodb-item .city {
   grid-area: city;
+  color: inherit;
 }
 
 .immodb .immodb-item .image {
   grid-area: image;
+  color: inherit;
 }
 
 .immodb .immodb-item .description {
   grid-area: description;
+  color: inherit;
 }
 
 .immodb .immodb-item .address {
   grid-area: address;
+  color: inherit;
 }
 
 .immodb .immodb-item .region {
   grid-area: region;
+  color: inherit;
 }
 
 .immodb .immodb-item .state {
   grid-area: state;
+  color: inherit;
 }
 
 .immodb .immodb-item .country {
   grid-area: country;
+  color: inherit;
 }
 
 .immodb .immodb-item.sold {
@@ -304,10 +409,14 @@
   display: grid;
   position: relative;
   color: inherit;
+  padding: 10px;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto 150px auto;
+  grid-template-areas: "price price price" "image image image" "city city region" "category category ref_number" "subcategory subcategory subcategory" "description description description";
 }
 
 .immodb .immodb-item .content .image {
-  grid-area: image;
   position: relative;
   overflow: hidden;
   place-self: stretch;
@@ -315,35 +424,6 @@
 
 .immodb .immodb-item .content .image img {
   object-fit: cover;
-}
-
-.immodb .immodb-item .content .city {
-  grid: area;
-}
-
-.immodb .immodb-item .content .category {
-  grid-area: category;
-  color: inherit;
-}
-
-.immodb .immodb-item .content .subcategory {
-  grid-area: subcategory;
-  color: inherit;
-}
-
-.immodb .immodb-item .content .description {
-  grid-area: description;
-  color: inherit;
-}
-
-.immodb .immodb-item .content .price {
-  grid-area: price;
-  color: inherit;
-}
-
-.immodb .immodb-item .content .ref_number {
-  grid-area: ref_number;
-  color: inherit;
 }
 
 .immodb.standard-layout {
@@ -425,14 +505,6 @@
   justify-self: end;
 }
 
-.immodb.standard-layout .immodb-item .content {
-  padding: 10px;
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto 150px auto;
-  grid-template-areas: "price price price" "image image image" "category category ref_number" "subcategory subcategory subcategory" "description description description";
-}
-
 .immodb.direct-layout {
   grid-template-columns: 120px 1fr 60px 60px;
   grid-template-rows: auto;
@@ -442,13 +514,6 @@
 
 .immodb.direct-layout .list-meta .list-count {
   text-align: center;
-}
-
-.immodb.direct-layout .immodb-item .content {
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto 150px auto;
-  grid-template-areas: "price price price" "image image image" "category category ref_number" "subcategory subcategory subcategory" "description description description";
 }
 
 .immodb.listing-single label.placeholder {

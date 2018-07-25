@@ -70,3 +70,29 @@ if(typeof Number.between === 'undefined'){
     }
 
 }
+
+if(typeof Date.addMonths === 'undefined'){
+    
+    Date.prototype.round = function(){
+        let lResult = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+        return lResult;
+    }
+
+    Date.prototype.addMonths = function($value){
+        let lResult = new Date(this.getTime());
+        lResult.setMonth(lResult.getMonth() + $value);
+        return lResult;
+    }
+
+    Date.prototype.addDays = function($value){
+        let lResult = new Date(this.getTime());
+        lResult.setDate(lResult.getDate() + $value);
+        return lResult;
+    }
+
+    Date.prototype.addYears = function($value){
+        let lResult = new Date(this.getTime());
+        lResult.setFullYear(lResult.getFullYear() + $value);
+        return lResult;
+    }
+}

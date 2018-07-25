@@ -14,7 +14,7 @@ $resultView = new ImmoDBListingsResult(ImmoDBApi::get_data($configs));
 <div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
     <?php
     if(is_array($resultView->listings) && !empty($resultView->listings)){
-        if($configs->show_list_meta){
+        if($configs->show_list_meta==true){
             ImmoDB::view("list/{$configs->type}/direct/list-meta",
                 array("configs" => $configs, "global_meta" => $meta, "result"=> $resultView));
         }

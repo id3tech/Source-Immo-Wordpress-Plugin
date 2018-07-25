@@ -1,5 +1,13 @@
 @import url('https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css');
 
+@mixin gridAreas($areas...){
+    @each $item in $areas {
+        .#{$item} {
+            grid-area: #{$item};
+        }
+    }
+}
+
 .immodb{
     display:grid;
     a{
@@ -23,6 +31,9 @@
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         grid-gap:10px;
+        .dropdown-divider{
+            height:5px;margin: 0;
+        }
     }
 
     // ************************
@@ -40,6 +51,7 @@
         position:relative;
         align-items:center;
         .btn{width:100%;}
+        .dropdown-menu{box-shadow: rgba(#000,0.5) 0 15px 30px;}
         .input{
             display:grid;grid-gap:10px;
             align-items:center;
@@ -64,12 +76,24 @@
             input:focus ~ .suggestion-panel{
                 display:block;
             }
+            .geo-btn{
+                cursor:pointer;
+                &.active{color:#007ACC;font-weight: 700;}
+            }
         }
 
         .advanced{
             display:grid;grid-gap:10px;
             align-items:center;
             grid-area: advanced;
+            h4{
+                font-size:20px;font-weight: 400;margin:0px;
+            }
+            form{
+                padding:20px;
+                display:grid;
+                place-items: start stretch;
+            }
             .search-trigger{
                 grid-area: trigger;
                 display:none;
@@ -77,27 +101,47 @@
             .category{
                 grid-area: category;
                 .dropdown-menu{
-                    padding:10px;
                     form{
-                        display:grid;grid-gap:10px;
-                        align-items: flex-start;
                         grid-template-columns: 1fr 1fr;
                         grid-template-areas: "category subcategory";
                     }
                 }
             }
+            
             .subcategory{
                 grid-area:subcategory;
             }
             .price{
                 grid-area: price;
                 .dropdown-menu{
-                    padding:10px;
                     form{
-                        display:grid;grid-gap:10px;
-                        align-items: flex-start;
-                        grid-template-columns:1fr 1fr;
-                        .layout-column{min-width:150px;}
+                        @include gridAreas('price-inputs','price-suggestions');
+                        min-width:300px;
+                        grid-template-areas : 
+                            "price-inputs"
+                            "price-suggestions"
+                            ;
+                        
+                        .price-inputs{
+                            display:grid;
+                            grid-gap: 5px;
+                            grid-template-columns: 1fr 36px 1fr;
+                            place-items: center stretch;
+                        }
+
+                        .price-suggestions{
+                            grid-gap:0px;
+                            .item{
+                                transition:0.25s;
+                                padding:8px 10px;
+                                &:hover{
+                                    background:#ccc;
+                                }
+                            }
+                            &.target-max{
+                                text-align:right;
+                            }
+                        }
                     }
                 }
             }
@@ -118,6 +162,18 @@
             }
             .more{
                 grid-area: more;
+                form{
+                    display:grid;
+                    @include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
+
+                    grid-gap: 20px 0px;
+                    grid-template-areas:
+                            "bathrooms age parkings" 
+                            "attribute building_category transaction"
+                            ;
+                            
+                    width:800px;
+                }
             }
         }
         .client-filters{
@@ -135,7 +191,20 @@
                     margin:2px;
                     font-size:0.8em;
                     border-radius:3px;
-                    .fal{color:#333;}
+                    .fal{
+                        margin:3px;
+                        text-align:center;line-height:1.3em;
+                        width:16px;height:16px;
+                        color:#fff;background-color:#555;
+                        border-radius:50%;
+                        cursor:pointer;
+                        transition:0.25s;
+                        &:hover{
+                            transform:rotate(360deg);
+                            background-color:#333;
+                            &:before{content:"\f068"}
+                        }
+                    }
                 }
             }
             .reset{grid-area: reset;}
@@ -186,15 +255,15 @@
     }
     .immodb-item{
         $areas : 'ref-number' 'category' 'subcategory' 'price' 'city' 'image' 
-                    'description' 'address' 'region' 'state' 'country'
-                    
-                    ;
+                    'description' 'address' 'region' 'state' 'country';
         @each $item in $areas {
             .#{$item} {
                 grid-area: #{$item};
+                color:inherit;
             }
         }
-
+        // list item
+        // ----------------
         border:solid 1px #aaa;
         overflow: hidden;
         justify-self: stretch;
@@ -211,39 +280,26 @@
             display:grid;
             position:relative;
             color:inherit;
-            
+            padding:10px;
+            grid-gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 150px auto;
+            grid-template-areas: 
+                "price price price"
+                "image image image"
+                "city city region"
+                "category category ref_number"
+                "subcategory subcategory subcategory"
+                "description description description"
+                ;
             
             .image{
-                grid-area: image;
                 position:relative;
                 overflow:hidden;
                 place-self:stretch;
                 img{
                     object-fit: cover;
                 }
-            }
-            .city{
-                grid:area;
-            }
-            .category{
-                grid-area: category;
-                color:inherit;
-            }
-            .subcategory{
-                grid-area: subcategory;
-                color:inherit;
-            }
-            .description{
-                grid-area: description;
-                color:inherit;
-            }
-            .price{
-                grid-area: price;
-                color:inherit;
-            }
-            .ref_number{
-                grid-area: ref_number;
-                color:inherit;
             }
         }
     }
@@ -335,24 +391,6 @@
             }
         }
 
-        // list item
-        // ----------------
-        .immodb-item{
-            
-            .content{
-                padding:10px;
-                grid-gap: 10px;
-                grid-template-columns: 1fr 1fr 1fr;
-                grid-template-rows: auto 150px auto;
-                grid-template-areas: 
-                    "price price price"
-                    "image image image"
-                    "category category ref_number"
-                    "subcategory subcategory subcategory"
-                    "description description description"
-                    ;
-            }
-        }
     }
 
 
@@ -370,21 +408,6 @@
 
         .list-meta{
             .list-count{text-align:center;};
-        }
-
-        .immodb-item{
-            .content{
-                grid-gap: 10px;
-                grid-template-columns: 1fr 1fr 1fr;
-                grid-template-rows: auto 150px auto;
-                grid-template-areas: 
-                    "price price price"
-                    "image image image"
-                    "category category ref_number"
-                    "subcategory subcategory subcategory"
-                    "description description description"
-                    ;
-            }
         }
     }
 

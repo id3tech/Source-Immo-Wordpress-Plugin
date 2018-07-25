@@ -15,6 +15,8 @@ get_header();
                 $layout = ImmoDB::current()->configs->listing_layout;
                 if($layout=='custom_page'){
                     // load page content
+                    $lPost = get_post(ImmoDB::current()->configs->listing_layout_page);
+                    echo(do_shortcode($lPost->post_content));
                 }
                 else{
                     ImmoDB::view('single/listings_layouts/' . $layout);
