@@ -88,6 +88,7 @@ $locales.fr = {};$locales.fr.global =
     // Public - LIST
     , "Displaying {0} listings out of {1} results found" : "Affichage de {0} propriétés parmi les {1} résultats retournés"
     , "{0} results found" : "{0} éléments trouvés"
+    , "Load more" : "Charger plus"
     // Public - SEARCH
     , "Search" : "Recherche"
     , "{0}+ bedrooms" : "{0}+ chambres"

@@ -253,7 +253,7 @@ ImmoDbApp
         $scope.dictionary = {};
         $scope.auth_token = null;
         $scope.is_ready = false;
-        //$scope.client = ClientClass($scope);
+        $scope.display_mode = 'list';
         $scope.page_index = 0;
         $scope.is_loading_data = false;
         $scope.client = {
@@ -484,6 +484,14 @@ ImmoDbApp
             }
 
             return lResult.join(' ');
+        }
+
+        $scope.switchDisplayTo = function($mode){
+            if($scope.display_mode != $mode){
+                $scope.display_mode = $mode;
+                $rootScope.$broadcast('immodb-{0}-display-switch-{1}'.format($scope.alias,$mode));
+                console.log('swith display to', $mode);
+            }
         }
 
         $scope.getCity = function($item, $sanitize){
@@ -1518,6 +1526,107 @@ ImmoDbApp
         controllerAs: 'ctrl',
         template: '<div ng-include="\'immodb-search-for-\' + alias"></div>',
         controller: dir_controller
+    };
+});
+
+ImmoDbApp
+.directive('immodbMap', function(){
+    let dir_controller = 
+    function($scope, $q, $immodbApi, $rootScope){
+        $scope.ready = false;
+        $scope.late_init = true;
+        $scope.markers = [];
+
+        $scope.$onInit = function(){
+            console.log('init', $scope);
+            if($scope.latlng!=null){
+                $scope.mapInit();
+            }
+            else{
+                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
+                    $scope.mapInit();
+                });
+            }
+        }
+
+        $scope.mapInit = function(){
+            
+            let options = {
+                center: new google.maps.LatLng(40.7127837, -74.00594130000002),
+                zoom: 13,
+                disableDefaultUI: true    
+            }
+            
+            $scope.map = new google.maps.Map(
+                $scope.viewport_element, options
+            );
+            $scope.ready = true;
+
+        }
+
+        $scope.clear = function(){
+            if($scope.markers) $scope.markers.forEach(function($m){
+                $m.setMap(null);
+            });
+            $scope.markers = [];
+        }
+
+        $scope.addSingleMarker = function($location) {
+            console.log('adding single marker at', $location);
+            
+            $scope.clear();
+            $scope.markers.push(new google.maps.Marker({
+                map: $scope.map,
+                position: $location,
+                animation: google.maps.Animation.DROP
+            }));
+            $scope.map.setCenter($location);
+        }
+
+        $scope.isReady = function(){
+            let lPromise = $q(function($resolve,$reject){
+                if($scope.ready==true){
+                    $resolve();
+                }
+                else{
+                    $scope.$watch('ready', function(){
+                        if($scope.ready==true){
+                            $resolve();
+                        }
+                    });
+                }
+            });
+
+            return lPromise;
+        }
+
+        $scope.$watch('latlng', function(){
+            if($scope.latlng != null && $scope.latlng.lat!=undefined){
+                console.log('latlng', $scope.latlng);
+                $scope.isReady().then(function(){
+                    $scope.addSingleMarker($scope.latlng);
+                });
+            }
+        });
+    };
+
+
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            alias: '@immodbAlias',
+            class: '@class',
+            configs: '=?immodbConfigs',
+            latlng: '=?latlng'
+        },
+        controllerAs: 'ctrl',
+        template: '<div><div id="map-{{alias}}" class="viewport"></div></div>',
+        controller: dir_controller,
+        link: function($scope, element){
+            $scope.viewport_element = element.children()[0];
+            $scope.$onInit();
+        }
     };
 });
 

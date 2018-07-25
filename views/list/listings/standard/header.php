@@ -9,14 +9,7 @@ if($configs->show_list_meta){
 if($configs->sortable){ ImmoDB::view('list/listings/sort'); }
     
 if($configs->mappable){ 
-    ImmoDB::view('list/switch'); 
+    ImmoDB::view('list/listings/switch'); 
 }
 ?>
  </div>
-
- <?php
- if($configs->mappable){ 
-    ImmoDB::view("list/listings/map", array(
-                    "configs" => $configs
-                ));
-}

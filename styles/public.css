@@ -276,6 +276,10 @@
   grid-area: reset;
 }
 
+.immodb .map-container {
+  grid-area: map;
+}
+
 .immodb .sort-container {
   grid-area: sort;
 }
@@ -489,12 +493,21 @@
   grid-template-columns: repeat(auto-fill);
 }
 
+.immodb.standard-layout .map-container .viewport {
+  height: 640px;
+  width: 100%;
+}
+
 .immodb.standard-layout .list-meta .list-count {
   text-align: center;
 }
 
 .immodb.standard-layout .immodb-list-container {
   grid-template-areas: "header header header" "list list list" "footer footer footer" ". next-page .";
+}
+
+.immodb.standard-layout .immodb-list-container.display-mode-map {
+  grid-template-areas: "header header header" "map map map";
 }
 
 .immodb.standard-layout .immodb-list-container .immodb-list-header {
@@ -831,6 +844,19 @@
 
 .immodb.listing-single .content .medias .viewport .map {
   background: #CCF7E2;
+}
+
+.immodb.listing-single .content .medias .viewport .map .detail-map {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.immodb.listing-single .content .medias .viewport .map .detail-map .viewport {
+  width: 100%;
+  height: 100%;
 }
 
 .immodb.listing-single .content .summary {

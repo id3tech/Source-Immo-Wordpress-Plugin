@@ -164,18 +164,20 @@ class ImmoDB {
     
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', IMMODB_PLUGIN) );
     wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
-    //wp_enqueue_style( 'material', 'https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css');
     wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN) );
     
     wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, null, true );
     wp_enqueue_script( 'angular-sanitize', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js', 'angular', null, true );
-    //wp_enqueue_script( 'angular-animate', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.min.js', 'angular', null, true );
-    //wp_enqueue_script( 'angular-aria', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js', 'angular', null, true );
-    //wp_enqueue_script( 'angular-message', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-messages.min.js', 'angular', null, true );
     wp_enqueue_script( 'bootstrap-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', null, null, true );
     wp_enqueue_script( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', 'bootstrap-popper', null, true );
     wp_enqueue_script( 'material', 'https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js', 'angular', null, true );
+    // swipe-touch handling library
     wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
+    // google map API library
+    if($this->configs->map_api_key != ''){
+      wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $this->configs->map_api_key . '&libraries=places', null, null, true );
+    }
+
     
     wp_add_inline_script( 'angular', 
                           'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .

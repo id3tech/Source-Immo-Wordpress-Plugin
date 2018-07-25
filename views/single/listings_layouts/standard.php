@@ -38,6 +38,7 @@
             </div>
             <div class="tab-content map">
                 <label class="placeholder"><?php _e('Map',IMMODB)?></label>
+                <immodb-map class="detail-map" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-map>
             </div>
         </div>
     </div>

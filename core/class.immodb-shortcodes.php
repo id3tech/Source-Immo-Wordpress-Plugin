@@ -55,7 +55,7 @@ class ImmoDbShorcodes{
             $global_container_classes = array('immodb', 'standard-layout', "immodb-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
             $global_container_attr = array();
 
-            if(in_array($listConfig->list_layout->preset, array('direct','map'))){
+            if(in_array($listConfig->list_layout->preset, array('direct'))){
                 ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
             }
             else{
@@ -63,12 +63,12 @@ class ImmoDbShorcodes{
                 echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
                 ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
                 echo('</script>');
-            }
 
-            if($listConfig->searchable){ 
-                echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-                ImmoDB::view('list/listings/search', array("configs" => $listConfig)); 
-                echo('</script>');
+                if($listConfig->searchable){ 
+                    echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
+                    ImmoDB::view('list/listings/search', array("configs" => $listConfig)); 
+                    echo('</script>');
+                }
             }
         }
 

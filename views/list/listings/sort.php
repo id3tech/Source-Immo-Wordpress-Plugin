@@ -1,4 +1,4 @@
-<div class="sort-container">
+<div class="sort-container" ng-show="display_mode!='map'">
     <div class="dropdown">
         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fal fa-sort-amount-down"></i></button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
