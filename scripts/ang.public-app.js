@@ -104,7 +104,7 @@ ImmoDbApp
         $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
         $scope.model.category           = $scope.getCaption($scope.model.category, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory, 'listing_subcategory');
-        $scope.model.addendum           = $scope.model.addendum.trim();
+        $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
 
         $scope.model.building.attributes = [];
         $scope.model.lot = {attributes : []};
@@ -245,7 +245,7 @@ ImmoDbApp
 
 ImmoDbApp
 .directive('immodbList', function(){
-    let dir_controller = function ($scope, $q,$immodbApi,$rootScope) {
+    let dir_controller = function ($scope, $q,$immodbApi,$rootScope,$immodbDictionary) {
         $scope.configs = null;
         $scope.list = [];
         $scope.page = 1;
@@ -292,8 +292,8 @@ ImmoDbApp
         $scope.start = function(){
             console.log('starting list with ', $scope.configs);
             $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source).then(function($response){
+                $immodbDictionary.init($response.dictionary);
                 $scope.dictionary = $response.dictionary;
-                console.log($scope.dictionary);
                 $scope.is_ready = true;
                 $scope.getList();
             });
@@ -456,20 +456,22 @@ ImmoDbApp
          * @return {string} Caption matched or the key in case the something's missing or went wrong
          */
         $scope.getCaption = function($key, $domain, $asAbbr){
-            let lResult = $key;
-            $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
+            return $immodbDictionary.getCaption($key, $domain, $asAbbr);
 
-            if($scope.dictionary && $scope.dictionary[$domain]){
-                if($scope.dictionary[$domain][$key] != undefined){
-                    if($asAbbr){
-                        lResult = $scope.dictionary[$domain][$key].abbr;
-                    }
-                    else{
-                        lResult = $scope.dictionary[$domain][$key].caption;
-                    }
-                }
-            }
-            return lResult;
+            // let lResult = $key;
+            // $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
+
+            // if($scope.dictionary && $scope.dictionary[$domain]){
+            //     if($scope.dictionary[$domain][$key] != undefined){
+            //         if($asAbbr){
+            //             lResult = $scope.dictionary[$domain][$key].abbr;
+            //         }
+            //         else{
+            //             lResult = $scope.dictionary[$domain][$key].caption;
+            //         }
+            //     }
+            // }
+            // return lResult;
         }
 
         $scope.formatPrice = function($item){
@@ -564,9 +566,12 @@ ImmoDbApp
 ImmoDbApp
 .directive('immodbSearch', function(){
     let dir_controller = 
-    function($scope, $q, $immodbApi, $rootScope){
+    function($scope, $q, $immodbApi, $rootScope,$immodbDictionary){
         let lToday = new Date().round();
         
+        $scope.tab_category = 'RESIDENTIAL';
+        $scope.tab_region = '';
+        $scope.regions = [];
         $scope.geolocation_available = navigator.geolocation!=undefined;
         $scope.sort_fields = [];
         $scope.selected_price_input = 'min';
@@ -582,7 +587,8 @@ ImmoDbApp
         $scope.data = {
             keyword : '',
             min_price: null,
-            max_price: null
+            max_price: null,
+            location: null
         }
 
         $scope.filter_group = {
@@ -644,11 +650,19 @@ ImmoDbApp
             },
             fireplace : {
                 caption: 'Fireplace', 
-                field: 'attributes.HEARTSTOVE'
+                field: 'attributes.HEART_STOVE'
             },
             garage : {
                 caption: 'Garage', 
                 field: 'attributes.GARAGE'
+            },
+            waterfront : {
+                caption: 'Water front', 
+                field: 'attributes.WATER_FRONT'
+            },
+            panoramicview : {
+                caption: 'Panoramic view', 
+                field: 'attributes.PANORAMIC_VIEW'
             }
         }
 
@@ -682,6 +696,7 @@ ImmoDbApp
                         $scope.getConfigs().then(function($configs){
                             console.log('getting view metas');
                             $immodbApi.getViewMeta($configs.type,$configs.source).then(function($response){
+                                //$immodbDictionary.init($response.dictionary);
                                 $scope.dictionary = $response.dictionary;
                                 $resolve();
                             });
@@ -714,6 +729,26 @@ ImmoDbApp
                 $scope.parkingSuggestions.push({value:i, label: '{0}+'.format(i), caption: '{0}+ parking spaces'.translate().format(i)});
             }
             
+        }
+
+        $scope.getCategoryIcon = function($key){
+            lIconset = {
+                'RESIDENTIAL' : 'home',
+                'COM' : 'shopping-bag',
+                'FARM' : 'paw',
+                'LOT' : 'tree-alt',
+                'MULTI-FAMILY' : 'building',
+                'REVENUE PROP' : 'usd-square'
+            }
+
+            return lIconset[$key];
+        }
+        $scope.changeCategoryTab = function($key){
+            $scope.tab_category = $key;
+        }
+
+        $scope.changeRegionTab = function($key){
+            $scope.tab_region = $key;
         }
 
         /**
@@ -968,6 +1003,18 @@ ImmoDbApp
                 });
             }
 
+            console.log('hint for data', $scope.data);
+            if($scope.data.location!=null){
+                lResult.push({
+                    item: "NEAR_ME", 
+                    label: 'Near me'.translate(),
+                    reverse: function(){
+                        $scope.data.location = null;
+                        $scope.buildFilters(); $scope.buildHints();
+                    }
+                });
+            }
+
             console.log('hints', lResult);
 
             $scope.filterHints = lResult;
@@ -985,17 +1032,26 @@ ImmoDbApp
                 "subcategory" : "listing_subcategory",
                 "location.city_code" : "city",
                 "location.region_code" : "region",
+                "building.category" : "building_category"
             }
             // filters that as a label
             if($group.filters != null){
                 $group.filters.forEach(function($e,$i){
+                    let lList = null;
+
+
                     if(lListSync[$e.field] != undefined){
                         let lDictionaryKey = lListSync[$e.field];
                         if($scope.dictionary[lDictionaryKey]){
-                            lResult = lResult.concat($scope.buildFilterHintListSync($e, $scope.dictionary[lDictionaryKey]));
+                            lList = $scope.dictionary[lDictionaryKey];
+                            lResult = lResult.concat($scope.buildFilterHintListSync($e, lList))
                         }
                     }
                     else if($e.label){
+                        // sync
+                        $scope.syncToList($e, $scope.listing_attributes);
+                        $scope.syncToList($e, $scope.listing_states);
+
                         lResult.push({
                             item:$e, 
                             label: $e.label,
@@ -1023,11 +1079,31 @@ ImmoDbApp
             return lResult;
         }
 
+        $scope.syncToList = function($filter, $list){
+            let lListArray = $list;
+
+            if(angular.isObject($list)){
+                lListArray = [];
+                for(let key in $list){
+                    lListArray.push($list[key]);
+                }
+            }
+
+            lListArray.forEach(function($e){
+                if($e.field==$filter.field){
+                    if(!$e.selected) $e.selected=true; // set selection on the list item
+                }
+                else if(($e.filter != undefined) && $e.filter.field == $filter.field){
+                    if(!$e.selected) $e.selected=true; // set selection on the list item
+                }
+            });
+        }
+
         $scope.buildFilterHintListSync = function($filter, $list){
             let lResult = [];
             for(let $key in $list){
                 if($filter.operator=='in' && $filter.value.indexOf($key)>=0){
-                    if(!$list[$key].selected) $list[$key].selected=true;
+                    if(!$list[$key].selected) $list[$key].selected=true; // set selection on the list item
                     lResult.push({
                         item:$key, 
                         label: $list[$key].caption, 
@@ -1057,7 +1133,7 @@ ImmoDbApp
          * Check wether there's filters or not
          */
         $scope.hasFilters = function(){
-            return $scope.filter_group.filter_groups != null || $scope.filter_group.filters != null || $scope.query_text!=null;
+            return $scope.filter_group.filter_groups != null || $scope.filter_group.filters != null || $scope.query_text!=null || $scope.data.location !=null;
         }
 
         $scope.hasFilter = function($fieldname){
@@ -1105,6 +1181,7 @@ ImmoDbApp
             $scope.query_text = null;
             $scope.data.min_price = null;
             $scope.data.max_price = null;
+            $scope.data.location = null;
 
             for(let $key in $scope.dictionary){
                 $scope.resetListSelections($scope.dictionary[$key]);
@@ -1161,14 +1238,34 @@ ImmoDbApp
         }
 
         $scope.addGeoFilter = function(){
-            if($scope.hasFilter('location.position')){
-                $scope.addFilter('location.position','equal','');
+
+            let lSaveAndBuild = function(){
+                // save filters to localStorage
+                $scope.saveState();
+
+                $scope.buildHints();
+                $scope.buildFilters();
+            }
+
+            if($scope.data.location != null){
+                $scope.data.location = null;
+                
+                lSaveAndBuild();
             }
             else{
                 navigator.geolocation.getCurrentPosition(function($position){
-                    $scope.addFilter('location.position','equal',$position, 'Near me'.translate());
+                    console.log($position);
+                    $scope.data.location = {
+                        latitude: $position.coords.latitude,
+                        longitude: $position.coords.longitude,
+                        distance : 5000 // set radius to 5Km
+                    };
+
+                    lSaveAndBuild();
                 });
             }
+
+            
         }
 
         $scope.addFilterGroup = function($field,$operator,$value, $label){
@@ -1343,6 +1440,10 @@ ImmoDbApp
                         lResult.query_text = $scope.query_text;
                     }
 
+                    if($scope.data.location != null){
+                        lResult.proximity_filter = $scope.data.location;
+                    }
+
                     $scope.getSearchToken(lResult).then(function($token){
                         if($token!=''){
                             
@@ -1380,7 +1481,7 @@ ImmoDbApp
                     lResult.push(lKey);
                 }
             }
-
+            
             return lResult;
         }
 
@@ -1475,8 +1576,7 @@ ImmoDbApp
 
             return lPromise;
         }
-
-        
+       
 
         // EVENTS HANDLING
 
@@ -1530,12 +1630,22 @@ ImmoDbApp
 });
 
 ImmoDbApp
-.directive('immodbMap', function(){
+.directive('immodbMap', function( $immodbTemplate, $immodbUtils, $immodbDictionary){
     let dir_controller = 
     function($scope, $q, $immodbApi, $rootScope){
         $scope.ready = false;
+        $scope.is_visible = false;
+        $scope.zoom = 8;
+        $scope.is_loading_data = false;
         $scope.late_init = true;
         $scope.markers = [];
+        $scope.markerCluster = null;
+        $scope.bounds = null;
+        $scope.client = {
+            search_token : null
+        };
+
+        $scope.permalink = '';
 
         $scope.$onInit = function(){
             console.log('init', $scope);
@@ -1543,31 +1653,130 @@ ImmoDbApp
                 $scope.mapInit();
             }
             else{
-                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
-                    $scope.mapInit();
-                });
+                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
+                $scope.$on('immodb-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
             }
+
+            $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
         }
 
         $scope.mapInit = function(){
-            
-            let options = {
-                center: new google.maps.LatLng(40.7127837, -74.00594130000002),
-                zoom: 13,
-                disableDefaultUI: true    
-            }
-            
-            $scope.map = new google.maps.Map(
-                $scope.viewport_element, options
-            );
-            $scope.ready = true;
+            if($scope.ready == false){
+                
+                let options = {
+                    center: new google.maps.LatLng(45.6025503,-73.8469538),
+                    zoom: $scope.zoom,
+                    //disableDefaultUI: true    
+                }
+                
+                $scope.map = new google.maps.Map(
+                    $scope.viewport_element, options
+                );
 
+
+                $scope.ready = true;
+
+            }
+        }
+
+        $scope.setZoom = function($zoom){
+            $scope.map.setZoom($zoom);
+        }
+
+        /**
+         * Main entry function to get the list
+         * Will update the searchToken if required by client overrides
+         */
+        $scope.getList = function(){
+            if($scope.is_loading_data==false){
+                $scope.search($scope.getSearchToken());
+            }
+        }
+
+        /**
+         * Get the search token
+         * Request a new one if client has input some filters or sort of his own
+         */
+        $scope.getSearchToken = function(){
+            if($scope.client.search_token != null){
+                return $scope.client.search_token;
+            }
+            return $scope.configs.search_token;
+        }
+
+        $scope.onFilterTokenChanged = function($event, $newToken){
+            $scope.client.search_token = $newToken;
+            $scope.isReady().then(function(){
+                console.log('update list');
+                $scope.getList();
+            })
+        }
+        $scope.onSwitchToMap = function(){
+            $scope.mapInit();
+            console.log('map initialized');
+            if($scope.bounds){
+                console.log('fit to bounds', $scope.bounds);
+                window.setTimeout(function(){
+                    $scope.map.fitBounds($scope.bounds);
+                }, 250);
+            }
+            if($scope.markers.length==0){
+                $scope.getList();
+            }
+            $scope.is_visible = true;
+        }
+        $scope.onSwitchToList = function(){
+            $scope.is_visible = false;
+        }
+
+        /**
+         * Call the API and return the list 
+         * @param {string} $token Search token
+         */
+        $scope.search = function($token){
+            lParams = {'st': $token};
+            $scope.page_index = 0;
+            $scope.is_loading_data = true;
+            $immodbApi.api($scope.getEndpoint() + '/map_markers', lParams,{method:'GET'}).then(function($response){
+                $scope.list = $response.markers;
+                $scope.updateMarkerList()
+                console.log('marker list:', $scope.list);
+                $scope.is_loading_data = false;
+            })
+            
+        }
+        
+        /**
+         * Get the api endpoint matching the config type
+         */
+        $scope.getEndpoint = function(){
+            let lOrigin = $scope.getEndpointType();
+            return lOrigin.concat('/view/',$scope.configs.source,'/');
+        }
+
+        $scope.getEndpointType = function(){
+            let lResult = $scope.configs.type;
+            switch(lResult){
+                case 'listings':
+                    lResult = 'listing';break;
+                case 'brokers':
+                    lResult = 'broker';break;
+                case 'cities':
+                    lResult = 'city';break;
+            }
+            return lResult;
         }
 
         $scope.clear = function(){
-            if($scope.markers) $scope.markers.forEach(function($m){
-                $m.setMap(null);
-            });
+            if($scope.markers){
+                $scope.markers.forEach(function($m){
+                    $m.setMap(null);
+                });
+            }
+
+            if($scope.markerCluster != null){
+                $scope.markerCluster.clearMarkers();
+            }
             $scope.markers = [];
         }
 
@@ -1582,6 +1791,66 @@ ImmoDbApp
             }));
             $scope.map.setCenter($location);
         }
+
+        $scope.updateMarkerList = function(){
+            $scope.clear();
+            $scope.bounds = new google.maps.LatLngBounds();
+            
+            $scope.list.forEach(function($marker){
+                let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
+
+                $marker.marker = new ImmoDbMarker({
+			    	position: lngLat,
+			    	map: $scope.map,
+                    obj: $marker,
+			    	markerClass: ['map-marker-icon',$marker.category.replace(' ','_')],
+			    	onPinClick: $scope.pinClick
+                });
+                
+		    	$scope.markers.push($marker.marker);
+		    	$scope.bounds.extend($marker.marker.getPosition());
+            });
+
+            if($scope.list.length>1){
+		    	$scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers,
+                        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                
+                if($scope.is_visible == true){
+                    window.setTimeout(function(){
+                        $scope.map.fitBounds($scope.bounds);
+                    },250);
+                }
+		    }
+		    else{
+                $scope.map.setCenter($scope.list[0].marker.getPosition());
+                $scope.map.setZoom(12);
+            }
+            
+            console.log('Map markers updated');
+        }
+
+        $scope.pinClick = function($marker){
+            console.log('Marker clicked', $marker);
+
+            $immodbApi.api($scope.getEndpointType().concat('/',$marker.obj.id,'/',immodbApiSettings.locale)).then(function($response){
+                let lInfoWindowScope = $immodbUtils;
+                $immodbDictionary.source = $response.dictionary;
+                lInfoWindowScope.item = $response;
+
+                console.log(lInfoWindowScope);
+                $immodbTemplate.load('views/ang-templates/immodb-map-info-window.html', lInfoWindowScope).then(function($content){
+                    let infowindow = new google.maps.InfoWindow({
+                        content: $content
+                    });
+                    
+                    infowindow.open($scope.map, $marker);
+                });
+
+            });
+
+            
+        }
+
 
         $scope.isReady = function(){
             let lPromise = $q(function($resolve,$reject){
@@ -1608,6 +1877,118 @@ ImmoDbApp
                 });
             }
         });
+
+        $scope.$watch('zoom', function(){
+            if($scope.zoom != null){
+                $scope.isReady().then(function(){
+                    $scope.setZoom(Number($scope.zoom));
+                });
+            }
+        });
+
+
+        function ImmoDbMarker(options) {
+
+            // Initialize all properties.
+            this.latlng_ = options.position;
+            this.markerClass = options.markerClass;
+            this.onClick = options.onPinClick;
+            this.obj = options.obj;
+            // Define a property to hold the image's div. We'll
+            // actually create this div upon receipt of the onAdd()
+            // method so we'll leave it null for now.
+            this.div_ = null;
+            this.title = options.title;
+  
+            // Explicitly call setMap on this overlay.
+            this.setMap(options.map);
+        }
+        ImmoDbMarker.prototype = new google.maps.OverlayView();
+		(function($proto){
+			$proto.draw = function() {
+			  	var me = this;
+			    var div = this.div_;
+			    
+
+			    var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+			    if (point) {
+			      div.style.left = point.x + 'px';
+			      div.style.top = point.y + 'px';
+			    }
+			};
+			
+			$proto.onAdd = function() {
+				var me = this;
+				div = this.div_ = document.createElement('DIV');
+				div.style.border = "none";
+				div.style.position = "absolute";
+				div.style.paddingLeft = "0px";
+				div.style.cursor = 'pointer';
+                //you could/should do most of the above via styling the class added below
+                this.markerClass.forEach(function($c){
+                    div.classList.add($c.toLowerCase());
+                })
+								
+				google.maps.event.addDomListener(div, "click", function(event) {
+
+					if(typeof(me.onClick)=='function'){
+						me.onClick(me);
+					}
+					//google.maps.event.trigger(me, "click");
+				});
+
+				var panes = this.getPanes();
+				panes.overlayImage.appendChild(div);
+			};
+			
+			$proto.onRemove = function() {
+				if(this.div_ != null){
+					this.div_.parentNode.removeChild(this.div_);
+			  		this.div_ = null;
+				}
+			};
+
+			// Set the visibility to 'hidden' or 'visible'.
+			$proto.hide = function() {
+			  if (this.div_) {
+			    // The visibility property must be a string enclosed in quotes.
+			    this.div_.style.visibility = 'hidden';
+			  }
+			};
+
+			$proto.show = function() {
+			  if (this.div_) {
+			    this.div_.style.visibility = 'visible';
+			  }
+			};
+
+			$proto.toggle = function() {
+			  if (this.div_) {
+			    if (this.div_.style.visibility === 'hidden') {
+			      this.show();
+			    } else {
+			      this.hide();
+			    }
+			  }
+			};
+
+			$proto.getPosition = function(){
+				return this.latlng_;
+			}
+
+			// Detach the map from the DOM via toggleDOM().
+			// Note that if we later reattach the map, it will be visible again,
+			// because the containing <div> is recreated in the overlay's onAdd() method.
+			$proto.toggleDOM = function() {
+			  if (this.getMap()) {
+			    // Note: setMap(null) calls OverlayView.onRemove()
+			    this.setMap(null);
+			  } else {
+			    this.setMap(this.map_);
+			  }
+			};
+
+		})(ImmoDbMarker.prototype);
     };
 
 
@@ -1618,7 +1999,8 @@ ImmoDbApp
             alias: '@immodbAlias',
             class: '@class',
             configs: '=?immodbConfigs',
-            latlng: '=?latlng'
+            latlng: '=?latlng',
+            zoom: '@'
         },
         controllerAs: 'ctrl',
         template: '<div><div id="map-{{alias}}" class="viewport"></div></div>',
@@ -1665,12 +2047,7 @@ ImmoDbApp
         };
 
         $scope.init = function(){
-            $scope.index = 0;
-            // window.setInterval(function(){
-            //     $scope.next();
-            //     $scope.$digest();
-            // },4000);
-            
+            $scope.index = 0;            
         }
 
         $scope.next = function(){
@@ -2024,9 +2401,38 @@ ImmoDbApp
     };
 });
 
+
+
 /* ------------------------------- 
         FACTORIES
 -------------------------------- */
+ImmoDbApp
+.factory('$immodbTemplate', ["$http", "$q", "$interpolate", "$sce", 
+    function($http, $q, $interpolate, $sce){
+        let $scope = {};
+
+        $scope.load = function($path, $template_scope){
+            let templateUrl = $sce.getTrustedResourceUrl(immodbCtx.base_path + $path);
+            let lPromise = $q(function($resolve, $reject){
+                $http.get(templateUrl).then(function($response) {
+                    let lContent = $scope.interpolate($response.data, $template_scope);
+                    $resolve(lContent);
+                });
+            });
+
+            return lPromise;
+        }
+
+        $scope.interpolate = function($content,$template_scope){
+            return $interpolate($content)($template_scope)
+        }
+
+        return $scope;
+    }
+
+
+])
+
 ImmoDbApp
 .factory('$immodbApi', ["$http","$q", function($http,$q){
     let $scope = {};
@@ -2049,6 +2455,7 @@ ImmoDbApp
 
         return lPromise;
     }
+
 
     /**
      * Check wether the auth token is valid or not
@@ -2206,6 +2613,56 @@ ImmoDbApp
 
 
     $scope.source = null;
+    $scope.init = function($source){
+        $scope.source = $source;
+        //$scope.sortData();
+    }
+
+    $scope.sortData = function(){
+        for(let lGroup in $scope.source){
+            $scope.source[lGroup] = $scope.sortCollection($scope.source[lGroup]);
+        }
+    }
+
+    $scope.sortCollection = function($coll){
+        // turn collection into array
+        let lCollArray = $scope._toArray($coll);
+
+        // sort over caption
+        lCollArray.sort(function(a,b) {
+            if(a.__data.caption <= b.__data.caption){
+                return -1;
+            }
+            else{
+                return 1;
+            }
+        });
+        console.log('immodbDictionary array sorted', lCollArray);
+        
+        // turn array back to collection
+        let lResult = $scope._toObject(lCollArray);
+
+        console.log('immodbDictionary sorted collection', lResult);
+        return lResult;
+    }
+
+    $scope._toArray = function($object){
+        let lResult = [];
+        for(let $key in $object){
+            lResult.push({__key: $key.toString(), __data: $object[$key]});
+        }
+
+        return lResult;
+    }
+
+    $scope._toObject = function($array){
+        let lResult = {};
+        $array.forEach(function($e){
+            lResult[$e.__key] = $e.__data;
+        });
+
+        return lResult;
+    }
 
     /** 
      * Get the caption matching key and domain from the dictionary
@@ -2231,7 +2688,137 @@ ImmoDbApp
     }
 
     return $scope;
-})
+});
+
+ImmoDbApp
+.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate' , function($immodbDictionary,$immodbTemplate){
+    let $scope = {};
+
+    $scope.configs = null;
+
+    /** 
+     * Get the caption matching key and domain from the dictionary
+     * @param {string} $key Key code of the dictionary item
+     * @param {string} $domain Group key that (should) hold the item
+     * @return {string} Caption matched or the key in case the something's missing or went wrong
+     */
+    $scope.getCaption = function($key, $domain, $asAbbr){
+        return $immodbDictionary.getCaption($key,$domain,$asAbbr);
+    }
+
+    $scope.toArray = function($object){
+        let lResult = [];
+        if($object){
+            for(key in $object){
+                if(typeof $object[key] !== 'function'){
+                    lResult.push({'key' : key, 'value' : $object[key]});
+                }
+            }
+            console.log($object, 'to', lResult);
+        }
+        
+        return lResult;
+    }
+
+    $scope.formatPrice = function($item){
+        let lResult = [];
+        if($item.status=='SOLD'){
+            if($item.price.sell != undefined){
+                lResult.push('Sold'.translate());
+            }
+            else{
+                lResult.push('Leased'.translate());
+            }
+            return lResult.join('');
+        }
+        for(let $key in $item.price){
+            if(['sell','lease'].indexOf($key) >=0 ){
+                let lPart = [$item.price[$key].amount.formatPrice()];
+                if($item.price[$key].taxable){
+                    lPart[0] += '+tx';
+                }
+
+                if($item.price[$key].unit){
+                    lPart.push($scope.getCaption($item.price[$key].unit,'price_unit',true))
+                }
+
+                lResult.push(lPart.join('/'));
+            }
+        }
+        
+        let lSeperator = ' or '.translate();
+
+        return lResult.join(lSeperator);
+    }
+
+    $scope.getPermalink = function($item){
+        let lRoute = '';
+        $scope.item = $item;
+        immodbCtx.listing_routes.forEach(function($r){
+            if($r.lang==immodbCtx.locale){
+                lRoute=$r;
+            }
+        });
+
+        return $immodbTemplate.interpolate(lRoute.route, $scope);
+    }
+
+    $scope.getClassList = function($item){
+        let lResult = [];
+        
+        if($item.status=='SOLD'){
+            lResult.push('sold');
+        }
+
+        return lResult.join(' ');
+    }
+
+    $scope.getCity = function($item, $sanitize){
+        $sanitize = ($sanitize==undefined)?true:$sanitize;
+        let lResult = $scope.getCaption($item.location.city_code, 'city');
+
+        if($sanitize){
+            lResult = $scope.sanitize(lResult);
+        }
+
+        return lResult;
+    }
+
+    $scope.getRegion = function($item, $sanitize){
+        $sanitize = ($sanitize==undefined)?true:$sanitize;
+        let lResult =  $scope.getCaption($item.location.region_code, 'region');
+
+        if($sanitize){
+            lResult = $scope.sanitize(lResult);
+        }
+        
+        return lResult;
+    }
+
+    $scope.getTransaction = function($item, $sanitize){
+        $sanitize = ($sanitize==undefined)?false:$sanitize;
+
+        for(var $key in $item.price){
+            return $key;
+        }
+    }
+
+
+    $scope.sanitize = function($value){
+        if(!$value) return '-';
+
+        let lResult = $value.toLowerCase();
+        lResult = lResult.replace(/(\s|\+)/gm, '-');
+        lResult = lResult.replace(/('|"|\(|\))/gm, '');
+        lResult = lResult.replace(/(é|è|ë|ê)/gm, 'e');
+        lResult = lResult.replace(/(à|â|ä)/gm, 'a');
+        lResult = lResult.replace(/(ì|î|ï)/gm, 'i');
+        lResult = lResult.replace(/(ù|û|ü)/gm, 'u');
+        return lResult;
+    }
+
+    return $scope;
+}]);
 
 
 /* ------------------------------- 
@@ -2269,3 +2856,49 @@ ImmoDbApp
         return lResult;
     }
 })
+
+ImmoDbApp
+.filter('asArray', function(){
+    return function($object){
+        let lResult = [];
+        if($object){
+            for(key in $object){
+                if(typeof $object[key] !== 'function'){
+                    lResult.push({'key' : key, 'value' : $object[key]});
+                }
+            }
+            console.log($object, 'to', lResult);
+        }
+        
+        return lResult;
+    }
+});
+
+ImmoDbApp
+.filter('orderObjectBy', function(){
+    return function(input, attribute) {
+        
+        if (!angular.isObject(input)) return input;
+        var array = [];
+        for(var objectKey in input) {
+            input[objectKey].__$key = objectKey;
+            array.push(input[objectKey]);
+        }
+   
+        array.sort(function(a, b){
+            if(!isNaN(a[attribute])){
+                a = parseInt(a[attribute]);
+                b = parseInt(b[attribute]);
+                return a - b;
+            }
+            else if (a[attribute] <= b[attribute]){
+                return -1;
+            }
+            else{
+                return 1;
+            }
+        });
+
+        return array;
+    }
+   });

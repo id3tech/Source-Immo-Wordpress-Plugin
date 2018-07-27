@@ -25,7 +25,7 @@
         <?php
         // add map if the list is mappable
         if($configs->mappable){
-            echo('<immodb-map class="map-container" ng-show="display_mode==\'map\'" immodb-alias="' . $configs->alias . '"></immodb-map>');
+            echo('<immodb-map class="map-container" ng-show="display_mode==\'map\'" immodb-alias="' . $configs->alias . '"  immodb-configs="configs"></immodb-map>');
         }
         ?>
 

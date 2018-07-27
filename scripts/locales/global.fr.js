@@ -136,6 +136,8 @@ $locales.fr = {};$locales.fr.global =
     , "Pool" : "Piscine"
     , "Fireplace" : "Foyer"
     , "Garage" : "Garage"
+    , "Water front" : "Bord de l'eau"
+    , "Panoramic view" : "Vue panoramique"
     , "Caracteristics" : "Caractérisques"
     , "Building type" : "Type de propriété"
     , "Parkings" : "Stationnements"

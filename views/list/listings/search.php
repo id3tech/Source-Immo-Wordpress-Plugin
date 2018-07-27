@@ -4,13 +4,40 @@
             <input type="text" placeholder="<?php _e('Search a region, city, street',IMMODB) ?>"
                 ng-model="data.keyword" ng-keyup="buildSuggestions($event)" data-toggle="dropdown">
             <div class="dropdown-menu">
-                <label class="placeholder" ng-show="suggestions.length==0"><?php _e("Type something to begin your search",IMMODB) ?></label>
-                <div class="keyword-suggestion {{item.selected?'selected':''}}" ng-repeat="item in suggestions" ng-click="item.action()">
-                    {{item.label}}
-                </div>
+                <form>
+                    <div class="region-city-list" ng-show="suggestions.length==0">
+                        <div class="tabs tabs-left">
+                            <div class="regions tab-header">
+                                <div class="tab-item {{tab_region==item.__$key ? 'active' : ''}}" 
+                                    ng-repeat="item in dictionary.region | orderObjectBy: 'caption'" 
+                                    ng-click="changeRegionTab(item.__$key)">{{item.caption}}</div>
+                            </div>
+
+                            <div class="cities tab-content">
+                                <div class="layout-column">
+                                    <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.city | orderObjectBy: 'caption'"
+                                        ng-show="item.parent.trim()==tab_region"
+                                        ng-click="addFilter('location.city_code','in',getSelection(dictionary.city))">
+                                        <input type="checkbox"  ng-model="item.selected"> 
+                                        <div class="state p-success">
+                                            <i class="icon fal fa-check"></i>
+                                            <label>{{item.caption}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="keyword-suggestion {{item.selected?'selected':''}}" 
+                            ng-repeat="item in suggestions" ng-click="item.action()"
+                            data-toggle="dropdown">
+                        {{item.label}}
+                    </div>
+                </form>
             </div>
         </div>
-        <i class="geo-btn far fa-crosshairs {{hasFilter('location.position') ? 'active' : ''}}" ng-show="geolocation_available" ng-click="addGeoFilter()"></i>
+        <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" ng-show="geolocation_available" ng-click="addGeoFilter()"></i>
     </div>
 
     <div class="advanced">
@@ -45,30 +72,23 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <form>
-                    
-                    <div class="category layout-column">
-
-                        <h4><?php _e('Category',IMMODB) ?></h4>
-                        <div class="dropdown-divider"></div>
-                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.listing_category"
-                            ng-click="addFilter('category','in',getSelection(dictionary.listing_category))">
-                            <input type="checkbox" ng-model="item.selected"> 
-                            <div class="state p-success">
-                                <i class="icon fal fa-check"></i>
-                                <label>{{item.caption}}</label>
+                    <div class="tabs tabs-top">
+                        <div class="category tab-header">
+                            <div class="tab-item {{tab_category==key ? 'active' : ''}}" ng-repeat="(key,item) in dictionary.listing_category"
+                                ng-click="changeCategoryTab(key)">
+                                <i class="far fa-2x fa-fw fa-{{getCategoryIcon(key)}}"></i>
+                                <label>{{item.abbr}}</label>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="subcategory layout-column">
-                        <h4><?php _e('Subcategory',IMMODB) ?></h4>
-                        <div class="dropdown-divider"></div>
-                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.listing_subcategory"
-                            ng-click="addFilter('subcategory','in',getSelection(dictionary.listing_subcategory))">
-                            <input type="checkbox"  ng-model="item.selected"> 
-                            <div class="state p-success">
-                                <i class="icon fal fa-check"></i>
-                                <label>{{item.caption}}</label>
+                        <div class="subcategory tab-content layout-column">
+                            <div class="pretty p-icon p-pulse"  ng-repeat="item in dictionary.listing_subcategory | orderObjectBy: 'caption'"
+                                ng-show="item.parent==tab_category"
+                                ng-click="addFilter('subcategory','in',getSelection(dictionary.listing_subcategory))">
+                                <input type="checkbox"  ng-model="item.selected"> 
+                                <div class="state p-success">
+                                    <i class="icon fal fa-check"></i>
+                                    <label>{{item.caption}}</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -141,7 +161,7 @@
 
                         <div class="pretty p-icon p-pulse p-round"
                             ng-click="addFilter('attributes.PARKING','greater_or_equal_to','')">
-                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('attributes.PARKING') == null"> 
+                            <input type="radio" name="parking-count" ng-checked="getFilterValue('attributes.PARKING') == null"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label><?php _e('Any',IMMODB) ?></label>

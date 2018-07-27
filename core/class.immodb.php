@@ -176,13 +176,16 @@ class ImmoDB {
     // google map API library
     if($this->configs->map_api_key != ''){
       wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $this->configs->map_api_key . '&libraries=places', null, null, true );
+      wp_enqueue_script( 'google-map-cluster', 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', 'google-map', null, true );
+
+      
     }
 
     
     wp_add_inline_script( 'angular', 
                           'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .
                           'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
-                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '"};'
+                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . '};'
                         );
     
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );

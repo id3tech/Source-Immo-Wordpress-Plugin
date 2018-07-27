@@ -3,7 +3,8 @@
  * Standard list item view
  */
 ?>
-<article class="immodb-item <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}"  ng-repeat="item in list track by item.id" ng-cloak>
+<article class="immodb-item <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}"  
+    ng-repeat="item in list track by item.id" ng-cloak>
     <a href="/<?php echo(ImmoDB::current()->get_listing_permalink()) ?>">
         <div class="content">
             <div class="image"><img ng-src="{{item.photo_url}}" /></div>
