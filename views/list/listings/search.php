@@ -6,8 +6,12 @@
             <div class="dropdown-menu">
                 <form>
                     <div class="region-city-list" ng-show="suggestions.length==0">
+                        
+                        
+
                         <div class="tabs tabs-left">
-                            <div class="regions tab-header">
+                            <div class="regions tab-header with-title">
+                                <h4 class="title"><?php _e('Regions',IMMODB) ?></h4>
                                 <div class="tab-item {{tab_region==item.__$key ? 'active' : ''}}" 
                                     ng-repeat="item in dictionary.region | orderObjectBy: 'caption'" 
                                     ng-click="changeRegionTab(item.__$key)">{{item.caption}}</div>
@@ -15,6 +19,7 @@
 
                             <div class="cities tab-content">
                                 <div class="layout-column">
+                                    <h4><?php _e('Cities',IMMODB) ?></h4>
                                     <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.city | orderObjectBy: 'caption'"
                                         ng-show="item.parent.trim()==tab_region"
                                         ng-click="addFilter('location.city_code','in',getSelection(dictionary.city))">

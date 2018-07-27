@@ -45,6 +45,12 @@
   align-items: center;
 }
 
+.immodb .search-container h4 {
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0px;
+}
+
 .immodb .search-container .btn {
   width: 100%;
 }
@@ -56,6 +62,10 @@
 .immodb .search-container .tabs {
   display: grid;
   grid-template-areas: "header" "content";
+}
+
+.immodb .search-container .tabs .title {
+  margin-bottom: 10px;
 }
 
 .immodb .search-container .tabs .tab-header {
@@ -130,11 +140,11 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  background: #eee;
 }
 
 .immodb .search-container .tabs.tabs-left .tab-header .tab-item {
   text-align: left;
+  background: #eee;
   padding: 5px 10px;
 }
 
@@ -155,7 +165,7 @@
 }
 
 .immodb .search-container .tabs.tabs-left .tab-content {
-  padding: 10px;
+  padding: 0 10px;
   margin-left: 10px;
   max-height: 50vh;
   overflow-y: auto;
@@ -177,8 +187,9 @@
   padding: 20px;
 }
 
-.immodb .search-container .input form .tabs {
+.immodb .search-container .input form .region-city-list .tabs {
   width: 640px;
+  grid-area: tabs;
 }
 
 .immodb .search-container .input .geo-btn {
@@ -195,12 +206,6 @@
   grid-gap: 10px;
   align-items: center;
   grid-area: advanced;
-}
-
-.immodb .search-container .advanced h4 {
-  font-size: 20px;
-  font-weight: 400;
-  margin: 0px;
 }
 
 .immodb .search-container .advanced form {

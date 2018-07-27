@@ -50,6 +50,10 @@
         padding:5px 15px;
         position:relative;
         align-items:center;
+        h4{
+            font-size:20px;font-weight: 400;margin:0px;
+        }
+
         .btn{width:100%;}
         .dropdown-menu{box-shadow: rgba(#000,0.5) 0 15px 30px;}
 
@@ -59,12 +63,14 @@
                 "header"
                 "content"
                 ;
+            .title{
+                margin-bottom:10px;
+            }
             .tab-header{
                 grid-area: header;
                 display:flex;
                 flex-direction: row;
                 justify-content: space-between;
-                
                 .tab-item{
                     opacity:0.5;
                     position: relative;
@@ -119,9 +125,10 @@
                     flex-direction:column;
                     justify-content: flex-start;
                     align-items:stretch;
-                    background:#eee;
+                    
                     .tab-item{
                         text-align:left;
+                        background:#eee;
                         padding:5px 10px;
                         &:after{
                             width:3px;
@@ -137,7 +144,7 @@
                     }
                 }
                 .tab-content{
-                    padding:10px;margin-left:10px;
+                    padding:0 10px;margin-left:10px;
                     max-height:50vh;
                     overflow-y:auto;
                 }
@@ -155,7 +162,11 @@
             }
             form{
                 padding:20px;
-                .tabs{width:640px;}
+                .region-city-list{
+                    
+                    .tabs{width:640px;grid-area:tabs}
+                }
+                
             }
             .geo-btn{
                 cursor:pointer;
@@ -167,9 +178,7 @@
             display:grid;grid-gap:10px;
             align-items:center;
             grid-area: advanced;
-            h4{
-                font-size:20px;font-weight: 400;margin:0px;
-            }
+           
             form{
                 padding:20px;
                 display:grid;
