@@ -6,8 +6,11 @@ $global_container_attr = array();
 global $dictionary;
 
 $meta = ImmoDBApi::get_list_meta($configs);
+
+
 $dictionary = new ImmoDBDictionary($meta->dictionary);
-$resultView = new ImmoDBListingsResult(ImmoDBApi::get_data($configs));
+$data = ImmoDBApi::get_data($configs);
+$resultView = new ImmoDBListingsResult($data);
 
 
 ?>
@@ -22,8 +25,6 @@ $resultView = new ImmoDBListingsResult(ImmoDBApi::get_data($configs));
 
         echo('<div class="immodb-list">');
             
-            
-
             foreach ($resultView->listings as $item) {
                 ImmoDB::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->preset}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));

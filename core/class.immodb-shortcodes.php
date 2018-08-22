@@ -32,7 +32,7 @@ class ImmoDbShorcodes{
         echo('<immodb-search immodb-alias="'. $alias . '" class="search-container show-trigger" immodb-result-url="' . $resultUrl . '"></immodb-search>');
 
         echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-        ImmoDB::view('list/listings/search', array("configs" => $listConfig)); 
+        ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
         echo('</script>');
         echo('</div>');
         $lResult = ob_get_clean();
@@ -66,7 +66,7 @@ class ImmoDbShorcodes{
 
                 if($listConfig->searchable){ 
                     echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-                    ImmoDB::view('list/listings/search', array("configs" => $listConfig)); 
+                    ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
                     echo('</script>');
                 }
             }

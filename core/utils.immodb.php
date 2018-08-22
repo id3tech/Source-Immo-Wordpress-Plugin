@@ -115,7 +115,7 @@ class HttpCall{
   }
 
   public function with_oauth(string $credentials){
-    $this->request_options[CURLOPT_HTTPHEADER] = array('auth_token' => $credentials);
+    $this->request_options['CURLOPT_HTTPHEADER'] = array("auth_token: $credentials");
     return $this;
   }
 
@@ -128,16 +128,24 @@ class HttpCall{
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
-    $lCurlHandle = $this->_setup_curl();
+    $lCurlHandle = $this->_setup_curl(array_merge(array(
+      'CURLOPT_HTTPGET' => true,
+      'CURLINFO_HEADER_OUT' => true,
+    ),$this->request_options));
+    
     $lResult = curl_exec($lCurlHandle);
+    $information = curl_getinfo($lCurlHandle);
 
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
     } 
 
+    curl_close($lCurlHandle);
+
     if($as_json){
       return json_decode($lResult);
     }
+    
     return $lResult;
   }
 
@@ -149,11 +157,13 @@ class HttpCall{
   public function post(array $data=null){
 
     $lCurlHandle = $this->_setup_curl(array_merge(array(
-      CURLOPT_POST => true,
-      CURLOPT_POSTFIELDS => json_encode($data),
+      'CURLOPT_POST' => true,
+      'CURLOPT_POSTFIELDS' => json_encode($data),
+      'CURLOPT_VERBOSE'     => 1
     ), $this->request_options));
-
+    
     $lResult = curl_exec($lCurlHandle);
+    curl_close($lCurlHandle);
 
     return $lResult;
   }
@@ -165,16 +175,26 @@ class HttpCall{
   private function _setup_curl(array $options=null){
     $lCurlHandle = curl_init();
     curl_setopt($lCurlHandle, CURLOPT_URL, $this->endpoint);
-    curl_setopt($lCurlHandle, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($lCurlHandle, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($lCurlHandle, CURLOPT_CONNECTTIMEOUT_MS, self::TIMEOUT);
-
+    
     if($options){
       foreach ($options as $key => $value) {
-        curl_setopt($lCurlHandle, $key, $value);
+        curl_setopt($lCurlHandle, constant($key), $value);
       }
     }
 
     return $lCurlHandle;
+  }
+
+  private function _setup_curl_oauth($handle){
+
+    if($this->request_options[CURLOPT_HTTPHEADER]){
+      foreach($this->request_options[CURLOPT_HTTPHEADER] as $key => $value){
+        curl_setopt($handle, $key, $value);
+      }
+    }
+
   }
 
   private function _handle_error($curlHdl){

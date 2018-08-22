@@ -13,8 +13,7 @@
         <md-input-container>
             <label><?php _e('Source ImmoDB view',IMMODB) ?></label>
             <md-select ng-model="model.source">
-                <md-option value="default"><?php _e('Default view',IMMODB) ?></md-option>
-                <md-option ng-repeat="item in global_list.sources"></md-option>
+                <md-option ng-repeat="item in data_views" ng-value="item">{{item.name}}</md-option>
             </md-select>
         </md-input-container>
 

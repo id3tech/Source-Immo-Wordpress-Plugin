@@ -4,7 +4,7 @@
         <md-input-container>
             <label><?php _e('Default data view', IMMODB) ?></label>
             <md-select ng-model="configs.default_view">
-                <md-option ng-repeat="item in data_views" value="{{item}}">{{item}}</md-option>
+                <md-option ng-repeat="item in data_views" value="{{item}}">{{item.name}}</md-option>
             </md-select>
         </md-input-container>
     </div>

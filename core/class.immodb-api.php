@@ -18,7 +18,16 @@ class ImmoDBApi {
         'callback' => array( 'ImmoDBApi', 'get_access_token' ),
       )
     );
-    
+
+    // Acquire access token to make call to the immodb remote api
+    register_rest_route( 'immodb','/account',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+        'callback' => array( 'ImmoDBApi', 'get_account' ),
+      )
+    );
+
     // Acquire default data view
     register_rest_route( 'immodb','/data_view',
       array(
@@ -28,7 +37,7 @@ class ImmoDBApi {
       )
     );
 
-    // Acquire access token to make call to the immodb remote api
+    // Get WP page list
     register_rest_route( 'immodb','/pages',
       array(
         'methods' => WP_REST_Server::READABLE,
@@ -78,6 +87,14 @@ class ImmoDBApi {
             'description' => __( 'Alias identifier of the List object', IMMODB ),
           )
         )
+      ) // End GET
+    );
+
+    //Read config permalinks
+    register_rest_route( 'immodb','/permalinks',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => array( 'ImmoDBApi', 'get_configs_permalinks' )
       ) // End GET
     );
 
@@ -159,6 +176,15 @@ class ImmoDBApi {
     return $lToken->view_ids[0];
   }
 
+  
+  public static function get_configs_permalinks(){
+    $lResult = array(
+      'listings' => ImmoDB::current()->configs->listing_routes,
+      'brokers' => ImmoDB::current()->configs->broker_routes
+    );
+
+    return $lResult;
+  }
 
   /**
   * Get global configurations
@@ -211,13 +237,10 @@ class ImmoDBApi {
     $api_key = ImmoDB::current()->get_api_key();
     $lAccessToken = HttpCall::to('~','auth','get_token', $account_id, $api_key)->get(null, true);
 
-    if($list_config->source=='default'){
-      $list_config->source = $lAccessToken->view_ids[0];
-    }
-    $list_config->access_token = $lAccessToken->id;
+    $list_config->access_token = $lAccessToken->key;
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
-    $lResult = HttpCall::to('~',$list_config->getViewEndpoint(), $list_config->source, $lTwoLetterLocale)->get(null, true);
+    $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)->with_oauth($list_config->access_token)->get(null, true);
     
     return $lResult;
   }
@@ -225,22 +248,30 @@ class ImmoDBApi {
   public static function get_data(&$list_config){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
+
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
     if(!isset($list_config->access_token)){
       $lAccessToken = HttpCall::to('~','auth','get_token', $account_id, $api_key)->get(null, true);
-      if($list_config->source=='default'){
-        $list_config->source = $lAccessToken->view_ids[0];
-      }
-      $list_config->access_token = $lAccessToken->id;
+      $list_config->access_token = $lAccessToken->key;
     }
 
     $lFilters = array("st"=>urlencode($list_config->search_token));
     
-    $lResult = HttpCall::to('~', 'listing/view', $list_config->source,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
+    $lResult = HttpCall::to('~', 'listing/view', $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
     
     return $lResult;
   }
+
+  public static function get_account(){
+    $account_id = ImmoDB::current()->get_account_id();
+    $api_key = ImmoDB::current()->get_api_key();
+
+    $lAccessToken = HttpCall::to('~','auth','get_token', $account_id, $api_key)->get(null, true);
+    $lResult = HttpCall::to('~','account')->with_oauth($lAccessToken->key)->get(null, true);
+    return $lResult;
+  }
+  
 
   public static function send_message($message){
     
@@ -299,7 +330,7 @@ class ImmoDBListingsResult{
   public $metadata = null;
 
   public function __construct($data){
-    $this->listings = $data->listings;
+    $this->listings = $data->items;
     $this->metadata = $data->metadata;
   }
   

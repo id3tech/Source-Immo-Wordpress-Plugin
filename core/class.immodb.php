@@ -4,7 +4,7 @@ Start up class for ImmoDB
 */
 
 class ImmoDB {
-  const API_HOST = 'http://localhost:60071';
+  const API_HOST = 'https://source-immo-api-dev.azurewebsites.net';
 
   public $configs = null;
 
@@ -130,6 +130,30 @@ class ImmoDB {
 
       //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
     }
+
+    // add routes
+    foreach($this->configs->broker_routes as $route){
+      $ruleKey = array();
+      $routeParts = explode('/', $route->route);
+      $index = 0;
+      $matches = array();
+      foreach ($routeParts as $part) {
+        if(strpos($part,'{{')===false){
+          $ruleKey[] = $part;
+        }
+        else{
+          $ruleKey[] = '(.+)';
+          if($part=='{{item.ref_number}}'){
+            $matches[] = 'ref_number=$matches[' . $index . ']';
+          }
+        }
+        $index++;
+      }
+      $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=brokers&' . implode('&', $matches);
+
+      //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
+    }
+
     //Debug::force($this->configs->listing_routes, $newRules);
 
     return array_merge($newrules, $rules);
@@ -224,6 +248,11 @@ class ImmoDB {
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
     self::view('single/listings', array('ref_number'=>$ref_number));
+  }
+
+  function include_brokers_detail_template(){
+    $ref_number = get_query_var( 'ref_number' );
+    self::view('single/brokers', array('ref_number'=>$ref_number));
   }
 
 

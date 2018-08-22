@@ -107,7 +107,7 @@ ImmoDbApp
       });
       $scope.configs.lists = lNewlists;
 
-      $scope.show_toast('list removed');
+      $scope.show_toast('List removed');
     });
   }
 
@@ -145,7 +145,7 @@ ImmoDbApp
     if($params==null){
       $scope.model = {
         alias: 'New list'.translate(),
-        source :'default',
+        source :$scope.data_views[0],
         type: 'listings',
         sort: 'auto',
         sort_reverse : false,
@@ -170,6 +170,7 @@ ImmoDbApp
     $scope._original = $params;
   }
 
+  
 
   $scope.saveOrClose = function(){
     if($scope.hasChanged()){
@@ -347,9 +348,9 @@ ImmoDbApp
   }
 
   $scope.load_data_views = function(){
-    $scope.api('access_token').then(function($response){
+    $scope.api('account').then(function($response){
       console.log($response);
-      $scope.data_views = $response.view_ids;
+      $scope.data_views = $response.data_views;
     });
   }
 
@@ -401,12 +402,19 @@ ImmoDbApp
    * @param {string} $message 
    */
   $scope.show_toast = function($message){
-    $mdToast.show(
-      $mdToast.simple()
-        .textContent($message.translate())
-        .position('top right')
-        .hideDelay(3000)
-    );
+    try{
+      $mdToast.show(
+        $mdToast.simple()
+          .textContent($message.translate())
+          .position('top right')
+          .hideDelay(3000)
+      );
+    }
+    catch($ex){
+      console.log($ex);
+      console.log($message);
+    }
+    
   }
 
   /**
@@ -460,6 +468,7 @@ ImmoDbApp
             },
             // On fail
             function fail($error){
+              console.log('Fail on path', $path, 'with data' , $data , $error);
               $scope.show_toast($error);
             }
           )
@@ -467,7 +476,7 @@ ImmoDbApp
 
       return lPromise;
   }
-
+  
 
   /**
    * Copy some data into clipboard

@@ -318,7 +318,8 @@
         }
     }
     .next-page{
-        grid-area: next-page
+        grid-area: next-page;
+        place-self: center center;
     }
     .immodb-list-container{
         grid-area: list;
@@ -340,11 +341,12 @@
         display:grid;
         grid-gap: 20px;
         grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
-        justify-items:stretch;align-items: stretch;
+        place-items: stretch;
     }
     .immodb-item{
         $areas : 'ref-number' 'category' 'subcategory' 'price' 'city' 'image' 
-                    'description' 'address' 'region' 'state' 'country';
+                    'description' 'address' 'region' 'state' 'country' 
+                    'name' 'contact' 'title';
         @each $item in $areas {
             .#{$item} {
                 grid-area: #{$item};
@@ -394,6 +396,32 @@
                 place-self:stretch;
                 img{
                     object-fit: cover;
+                }
+            }
+        }
+    }
+    &.immodb-list-of-brokers{
+        .immodb-item{
+            .content{
+                .contact{
+                    .item{
+                        display:grid;
+                        grid-template-columns: 1fr 3fr;
+                        place-items:center start;
+                        .value{
+                            place-self:center end;
+                        }
+                    }
+                }
+                .listings-count{
+                    position: absolute;
+                    top:5px;right:5px;
+                    font-size:2em;
+                    width:50px;height:50px;line-height:50px;
+                    text-align:center;
+                    color:#fff;
+                    background-color:#333;
+                    border-radius:50%;
                 }
             }
         }
@@ -536,7 +564,7 @@
                 "header header header"
                 "list list list"
                 "footer footer footer"
-                ". next-page .";
+                "next-page next-page next-page";
             &.display-mode-map{
                 grid-template-areas:
                     "header header header"
@@ -550,6 +578,30 @@
             }
         }
 
+        &.immodb-list-of-brokers{
+            .immodb-item{
+                .content{
+                    grid-template-rows: 250px auto;
+                    grid-template-areas: 
+                        "image image image"
+                        "name name name"
+                        "title title title"
+                        "contact contact contact"
+                    ;
+                }
+            }
+            .search-container{
+                grid-template-columns: 2fr 1px;
+                &.show-trigger{
+                    grid-template-columns: 2fr 150px;
+                    .advanced{
+                        grid-template-areas: "trigger";
+                        .search-trigger{display:block;}
+                    }
+                }
+            }
+            
+        }
     }
 
 
@@ -589,8 +641,7 @@
                     'description' 'addendum' 'information_request'
                     'location' 'address' 'near' 'region' 'state' 'country'
                     'brokers' 'name' 'contact' 'phone' 'photo' 'tools'
-                    'mortgage-calculator'
-                    
+                    'mortgage-calculator' 'actions'
                     ;
             @each $item in $areas {
                 .#{$item} {
@@ -900,12 +951,14 @@
                     grid-template-areas: 
                         "photo name" 
                         "photo contact"
+                        "photo actions"
                     ;
                     background:rgba(#000,0.1);
                     padding:10px;
                     .photo{
-                        width:100px;height:100px;
+                        width:100px;height:100px;overflow:hidden;
                         border-radius:50%;background:#fff;
+                        img{object-fit:cover;}
                     }
                     .name{
                         font-size:1.25em;font-weight: 600;

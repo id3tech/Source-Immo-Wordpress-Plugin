@@ -7,7 +7,7 @@
         <div class="header" layout="row" layout-align="space-between start">
             <h3 class="md-headline" ng-click="edit(list)">
                 <span title="{{list.alias.length > 20 ? list.alias : ''}}">{{list.alias}}</span>
-                <sub>source: {{list.source}}</sub>
+                <sub>source: {{list.source.name}}</sub>
             </h3>
 
             <md-menu>
