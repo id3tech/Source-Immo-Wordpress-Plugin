@@ -1003,6 +1003,89 @@
         }
     }
 
+
+    &.broker-single{
+        > .content{
+            $areas : 'left-column' 'right-column';
+            @each $item in $areas {
+                .#{$item} {
+                    grid-area: #{$item};
+                }
+            }
+
+            display:none;
+            .name{
+                //font-size:3em;
+            }
+
+            grid-template-columns: 2fr 1fr;
+            grid-template-areas: "left-column right-column";
+            grid-gap:20px;
+
+            label.placeholder{
+                padding:20px 0;
+                opacity:0.5;
+                text-transform:uppercase;
+            }
+            .info{
+                $areas : 'head' 'bio' 'languages' 'expertises';
+                @each $item in $areas {
+                    .#{$item} {
+                        grid-area: #{$item};
+                    }
+                }
+
+                display: grid;
+                grid-gap:10px;
+                grid-template-columns: 2fr 1fr;
+                grid-template-areas: 
+                    "head head"
+                    "bio languages"
+                    "bio expertises"
+                    ;
+                .name{margin-bottom:0px;}
+                .license-title{
+                    font-size:1.3em;
+                    text-transform:uppercase;
+                    opacity: 0.75;
+                }
+                .languages, .expertises{
+                    .title{
+                        font-size:15px;
+                    }
+                }    
+            }
+            .picture{
+                border-bottom: solid 25px #ccc;
+            }
+            .contact{
+                display:grid;
+                grid-gap:10px;
+                background:#ececec;
+                padding:10px;
+                .phone-list{
+                    .item{font-size:1.5em;}
+                }
+                .actions{
+                    padding:10px;
+                    text-align:center;
+                }
+            }
+            .listing-list{
+                .list-container{
+                    display:grid;
+                    grid-gap:10px;
+                    grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+                }
+            }
+        }
+        &.loaded{
+            > .content{
+                display:grid;
+            }
+        }
+    }
+
     #information_request{
         $areas : 
                 'firstname' 'lastname' 'email' 

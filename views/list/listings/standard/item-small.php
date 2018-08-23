@@ -13,12 +13,9 @@ if(isset($configs)){
         <div class="content">
             <div class="image"><img ng-src="{{item.photo_url}}" /></div>
             <div class="price">{{formatPrice(item)}}</div>
-            <div class="ref_number">{{item.ref_number}}</div>
             <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
-            <div class="region">{{getCaption(item.location.region_code , 'region')}}</div>
             <div class="category">{{getCaption(item.category , 'listing_category')}}</div>
             <div class="subcategory">{{getCaption(item.subcategory , 'listing_subcategory')}}</div>
-            <div class="description">{{item.description}}</div>
         </div>
     </a>
 </article>

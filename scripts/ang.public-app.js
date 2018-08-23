@@ -243,6 +243,233 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     }
 });
 
+/**
+ * Broker Detail - Controller
+ */
+ImmoDbApp
+.controller('singleBrokerCtrl', 
+function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils){
+    // model data container - listing
+    $scope.model = null;
+    $scope.permalinks = null;
+
+    // ui - section toggles
+    $scope.sections = {
+        addendum : {opened:true},
+        building : {opened:false},
+        lot : {opened:false},
+        other: {opened: false},
+        in_exclusions:{opened:false}
+    }
+    // ui - media tabs selector
+    $scope.selected_media = 'pictures';
+    // calculator result
+    $scope.calculator_result = {};
+    // message model
+    $scope.message_model = {};
+
+    /**
+     * Initialize controller
+     * @param {string} $ref_number Listing reference key
+     */
+    $scope.init = function($ref_number){
+        if($ref_number != undefined){
+            console.log($ref_number);
+            $scope.fetchPrerequisites().then(function(){
+                $scope.loadSingleData($ref_number);
+            });
+            
+        }
+    }
+
+    $scope.fetchPrerequisites = function(){
+        let lPromise = $q(function($resolve, $reject){
+            if($scope.permalinks != null){
+                $resolve();
+            }
+            else{
+                $immodbApi.rest('permalinks').then(function($response){
+                    $scope.permalinks = $response;
+                    $resolve();
+                });
+            }
+        });
+
+        return lPromise;
+    }
+
+    /**
+     * Load listing data
+     * @param {string} $ref_number Listing reference key
+     */
+    $scope.loadSingleData = function($ref_number){
+        // Get the default view id for data source
+        $immodbApi.getDefaultDataView().then(function($view){
+            // Load listing data from api
+            console.log($view);
+            $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                $scope.model = $data;
+                // set dictionary source
+                $immodbDictionary.source = $data.dictionary;
+                // start preprocessing of data
+                $scope.preprocess();
+                // prepare message subject build from data
+                //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+                // print data to console for further informations
+                console.log($scope.model);
+            });
+        });
+    }
+
+    /**
+     * Preprocess data information to create shortcut, icon list and groups
+     */
+    $scope.preprocess = function(){
+        // set basic information from dictionary
+        $scope.model.license_type_caption = $scope.getCaption($scope.model.license_type,'broker_license_type');
+        $scope.model.languages            = 'N/A'.translate();
+        let lExpertises           = [];
+        $scope.model.listings.forEach(function($e,$i,$arr){
+            let lNewItem = $scope.getCaption($e.category, 'listing_category');
+            if(lExpertises.indexOf(lNewItem)<0){
+                lExpertises.push(lNewItem);
+            }
+        });
+        $scope.model.expertises = lExpertises.join(', ');
+        $scope.list = $scope.model.listings;
+
+        // office
+        $scope.model.office.location.country = $scope.getCaption($scope.model.office.location.country_code, 'country');
+        $scope.model.office.location.state     = $scope.getCaption($scope.model.office.location.state_code, 'state');
+        $scope.model.office.location.full_address = '{0} {1}, {2}'.format(
+                                                $scope.model.office.location.address.street_number,
+                                                $scope.model.office.location.address.street_name,
+                                                $scope.model.office.location.city
+                                            );
+
+        $scope.model.location = $scope.model.office.location;
+        // $scope.model.location.city      = $scope.getCaption($scope.model.location.city_code, 'city');
+        // $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
+        // $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
+        // $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
+        // $scope.model.category           = $scope.getCaption($scope.model.category, 'listing_category');
+        // $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory, 'listing_subcategory');
+        // $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
+        // $scope.model.location.full_address = '{0} {1}, {2}'.format(
+        //                                         $scope.model.location.address.street_number,
+        //                                         $scope.model.location.address.street_name,
+        //                                         $scope.model.location.city
+        //                                     );
+
+        // $scope.model.building.attributes = [];
+        // $scope.model.lot = {attributes : []};
+        // $scope.model.other = {attributes : []};
+        // $scope.model.important_flags = [];
+        // $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
+
+        // // from main unit
+        // let lMainUnit = $scope.model.units.find(function($u){return $u.category=='MAIN'});
+        // if(lMainUnit!=null){
+        //     if(lMainUnit.bedroom_count) $scope.model.important_flags.push({icon: 'bed', value: lMainUnit.bedroom_count, caption:'Bedroom'.translate()});
+        //     if(lMainUnit.bathroom_count) $scope.model.important_flags.push({icon: 'bath', value: lMainUnit.bathroom_count, caption: 'Bathroom'.translate()});
+        //     if(lMainUnit.waterroom_count) $scope.model.important_flags.push({icon: 'hand-holding-water', value: lMainUnit.waterroom_count, caption: 'Water room'.translate()});
+        // }
+
+        // // from attributes
+        // $scope.model.attributes.forEach(function($e){
+        //     $e.caption = $scope.getCaption($e.code, 'attribute');
+        //     $e.values.forEach(function($v){
+        //         $v.caption = $scope.getCaption($v.code,'attribute_value');
+        //         if($v.count){
+        //             $v.caption = $v.caption.concat(' ({0})'.format($v.count));
+        //         }
+        //         if($v.details){
+        //             $v.caption = $v.details;
+        //         }
+        //     });
+
+        //     // append to rightful domains
+        //     // Building
+        //     if(['CUPBOARD','WINDOWS',
+        //         'WINDOW TYPE','ROOFING','FOUNDATION',
+        //         'GARAGE','SIDING','BATHR./WASHR','BASEMENT'].includes($e.code)){
+        //         $scope.model.building.attributes.push($e);
+        //     }
+        //     // Lot
+        //     else if(['LANDSCAPING','DRIVEWAY','PARKING','POOL',
+        //              'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'].includes($e.code)){
+        //         $scope.model.lot.attributes.push($e);
+        //     }
+        //     // other
+        //     else if(['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'].includes($e.code)){
+        //         $scope.model.other.attributes.push($e);
+        //     }
+
+        //     if($e.code=='PARKING'){
+        //         let lParkingCount = 0;
+        //         $e.values.forEach(function($v){lParkingCount += $v.count;});
+        //         if(lParkingCount > 0) $scope.model.important_flags.push({icon: 'car', value: lParkingCount, caption: $e.caption});
+        //     }
+        //     if($e.code=='POOL'){
+        //         $scope.model.important_flags.push({icon: 'swimmer', value: 0, caption: $e.caption});
+        //     }
+        //     if($e.code=='HEART STOVE'){
+        //         $scope.model.important_flags.push({icon: 'fire', value: 0, caption: $e.caption});
+        //     }
+        // });
+
+        // // set brokers detail link
+        // let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
+        // $scope.model.brokers.forEach(function($e){
+        //     $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
+        // });
+    }
+
+    $scope.getPhoneIcon = function($key){
+        let lPhoneIcon = {
+            'mobile' : 'mobile',
+            'office' : 'building'
+        }
+
+        if(lPhoneIcon[$key] != undefined){
+            return lPhoneIcon[$key];
+        }
+        return 'phone';
+    }
+
+    /**
+     * Check if a section is opened
+     * @param {string} $section Section key
+     */
+    $scope.sectionOpened = function($section){
+        return $scope.sections[$section].opened;
+    }
+    /**
+     * Toggle section open/close
+     * @param {string} $section Section key
+     */
+    $scope.toggleSection = function($section){
+        $scope.sections[$section].opened = !$scope.sections[$section].opened;
+    }
+
+    /**
+     * Event handler for Mortgage Calculator onChange
+     * @param {number} $calculatorResult Result that comes out of the calculator
+     */
+    $scope.onMortgageChange = function($calculatorResult){
+        // save result
+        $scope.calculator_result = $calculatorResult;
+    }
+
+    /**
+     * Send message to broker via API
+     * TODO
+     */
+    $scope.sendMessage = function(){
+        console.log('message data:', $scope.message_model);
+    }
+});
+
 
 /* ------------------------------- 
         DIRECTIVES

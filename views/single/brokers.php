@@ -9,7 +9,7 @@ get_header();
 		<main id="main" class="site-main" role="main">
             <div ng-controller="singleBrokerCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
                 class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
-                <label class="placeholder"  ng-show="model==null"><?php _e('Loading property',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
+                <label class="placeholder"  ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
                 <div class="content">
             <?php 
                 $layout = ImmoDB::current()->configs->broker_layout;

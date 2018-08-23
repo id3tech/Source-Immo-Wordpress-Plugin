@@ -1319,6 +1319,94 @@
   display: grid;
 }
 
+.immodb.broker-single > .content {
+  display: none;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas: "left-column right-column";
+  grid-gap: 20px;
+}
+
+.immodb.broker-single > .content .left-column {
+  grid-area: left-column;
+}
+
+.immodb.broker-single > .content .right-column {
+  grid-area: right-column;
+}
+
+.immodb.broker-single > .content label.placeholder {
+  padding: 20px 0;
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.immodb.broker-single > .content .info {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas: "head head" "bio languages" "bio expertises";
+}
+
+.immodb.broker-single > .content .info .head {
+  grid-area: head;
+}
+
+.immodb.broker-single > .content .info .bio {
+  grid-area: bio;
+}
+
+.immodb.broker-single > .content .info .languages {
+  grid-area: languages;
+}
+
+.immodb.broker-single > .content .info .expertises {
+  grid-area: expertises;
+}
+
+.immodb.broker-single > .content .info .name {
+  margin-bottom: 0px;
+}
+
+.immodb.broker-single > .content .info .license-title {
+  font-size: 1.3em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.immodb.broker-single > .content .info .languages .title, .immodb.broker-single > .content .info .expertises .title {
+  font-size: 15px;
+}
+
+.immodb.broker-single > .content .picture {
+  border-bottom: solid 25px #ccc;
+}
+
+.immodb.broker-single > .content .contact {
+  display: grid;
+  grid-gap: 10px;
+  background: #ececec;
+  padding: 10px;
+}
+
+.immodb.broker-single > .content .contact .phone-list .item {
+  font-size: 1.5em;
+}
+
+.immodb.broker-single > .content .contact .actions {
+  padding: 10px;
+  text-align: center;
+}
+
+.immodb.broker-single > .content .listing-list .list-container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.immodb.broker-single.loaded > .content {
+  display: grid;
+}
+
 .immodb #information_request .firstname {
   grid-area: firstname;
 }

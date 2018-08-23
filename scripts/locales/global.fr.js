@@ -155,7 +155,7 @@ $locales.fr = {};$locales.fr.global =
     , "Building type" : "Type de propriété"
     , "Parkings" : "Stationnements"
     , "{0}+ parking spaces" : "{0}+ place de stationnements"
-    // Public - SINGLE
+    // Public - SINGLE LISTING
     , "for sell for " : "à vendre pour "
     , "for lease for " : "à louer pour "
     , "Sold" : "Vendu"
@@ -190,4 +190,14 @@ $locales.fr = {};$locales.fr.global =
     , "Included" : "Inclusions"
     , "Excluded" : "Exclusions"
     , "See {0}'s {1} other properties" : "Voir les {1} autres propriétés de {0}"
+    // PUBLIC - SINGLE BROKER
+    , "Languages" : "Langues"
+    , "Expertises" : "Spécialités"
+    , "N/A" : "N/D"
+    , "1 property" : "1 propriété"
+    , "{0} properties" : "{0} propriétés"
+    , "To contact {0}" : "Pour joindre {0}"
+    , "Send a message" : "Envoyer un message"
+    , "{0} did not compose a biography for the moment" : "{0} n'a pas composé de biographie pour l'instant"
+    , "{0} has no properties yet" : "{0} n'a aucune propriété pour l'instant"
 }

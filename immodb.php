@@ -15,7 +15,7 @@ define( 'IMMODB_MINIMUM_WP_VERSION', '4.0' );
 define( 'IMMODB_PLUGIN', __FILE__);
 define( 'IMMODB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define(	'IMMODB_PLUGIN_URL', str_replace(ABSPATH,'',IMMODB_PLUGIN_DIR));
-define( 'IMMODB_DEVMODE', false );
+define( 'IMMODB_DEVMODE', true );
 
 register_activation_hook( __FILE__, array( 'ImmoDB', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'ImmoDB', 'plugin_deactivation' ) );

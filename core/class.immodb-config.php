@@ -51,7 +51,8 @@ class ImmoDBConfig {
   public $default_view = null;
   public $listing_layout = 'standard';
   public $listing_layout_page = null;
-  
+  public $broker_layout = 'standard';
+  public $broker_layout_page = null;
 
   /**
    * Configuration constructor class
