@@ -18,22 +18,44 @@
   font-weight: 400;
 }
 
-.immodb .layout-row {
+.immodb .grid-layout-row {
   display: grid;
-  grid-auto-columns: 1fr;
-  grid-gap: 10px;
 }
 
-.immodb .layout-column {
+.immodb .grid-layout-column {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
   grid-gap: 10px;
 }
 
-.immodb .layout-column .dropdown-divider {
-  height: 5px;
-  margin: 0;
+.immodb .layout-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  align-items: center;
+}
+
+.immodb .layout-column {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+}
+
+.immodb .layout-space-between {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.immodb .layout-space-between-start {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.immodb .layout-space-between-end {
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .immodb .search-container {
@@ -420,90 +442,24 @@
   grid-area: list;
   display: grid;
   grid-gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  place-items: stretch;
+}
+
+.immodb .immodb-list > div {
+  display: grid;
   place-items: stretch;
 }
 
 .immodb .immodb-item {
-  max-width: 300px;
+  max-width: 360px;
   border: solid 1px #aaa;
   overflow: hidden;
   justify-self: stretch;
   transition: 0.25s;
 }
 
-.immodb .immodb-item .ref-number {
-  grid-area: ref-number;
-  color: inherit;
-}
-
-.immodb .immodb-item .category {
-  grid-area: category;
-  color: inherit;
-}
-
-.immodb .immodb-item .subcategory {
-  grid-area: subcategory;
-  color: inherit;
-}
-
-.immodb .immodb-item .price {
-  grid-area: price;
-  color: inherit;
-}
-
-.immodb .immodb-item .city {
-  grid-area: city;
-  color: inherit;
-}
-
-.immodb .immodb-item .image {
-  grid-area: image;
-  color: inherit;
-}
-
-.immodb .immodb-item .description {
-  grid-area: description;
-  color: inherit;
-}
-
-.immodb .immodb-item .address {
-  grid-area: address;
-  color: inherit;
-}
-
-.immodb .immodb-item .region {
-  grid-area: region;
-  color: inherit;
-}
-
-.immodb .immodb-item .state {
-  grid-area: state;
-  color: inherit;
-}
-
-.immodb .immodb-item .country {
-  grid-area: country;
-  color: inherit;
-}
-
-.immodb .immodb-item .name {
-  grid-area: name;
-  color: inherit;
-}
-
-.immodb .immodb-item .contact {
-  grid-area: contact;
-  color: inherit;
-}
-
-.immodb .immodb-item .title {
-  grid-area: title;
-  color: inherit;
-}
-
 .immodb .immodb-item.info-window {
-  max-width: 250px;
+  max-width: 340px;
   border: none;
 }
 
@@ -512,11 +468,11 @@
 }
 
 .immodb .immodb-item.sold {
-  background: #aaa;
+  background: #dedede;
 }
 
 .immodb .immodb-item.sold a {
-  color: #fff;
+  color: #333;
 }
 
 .immodb .immodb-item:hover {
@@ -527,45 +483,203 @@
   display: grid;
   position: relative;
   color: inherit;
-  padding: 10px;
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto 150px auto;
-  grid-template-areas: "price price price" "image image image" "city city region" "category category ref_number" "subcategory subcategory subcategory" "description description description";
+  place-items: stretch;
+  font-size: 1em;
 }
 
 .immodb .immodb-item .content .image {
   position: relative;
   overflow: hidden;
-  place-self: stretch;
 }
 
 .immodb .immodb-item .content .image img {
   object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
-.immodb.immodb-list-of-brokers .immodb-item .content .contact .item {
+.immodb .immodb-item.immodb-listing-item .ref-number {
+  grid-area: ref-number;
+}
+
+.immodb .immodb-item.immodb-listing-item .category {
+  grid-area: category;
+}
+
+.immodb .immodb-item.immodb-listing-item .subcategory {
+  grid-area: subcategory;
+}
+
+.immodb .immodb-item.immodb-listing-item .price {
+  grid-area: price;
+}
+
+.immodb .immodb-item.immodb-listing-item .city {
+  grid-area: city;
+}
+
+.immodb .immodb-item.immodb-listing-item .image {
+  grid-area: image;
+}
+
+.immodb .immodb-item.immodb-listing-item .description {
+  grid-area: description;
+}
+
+.immodb .immodb-item.immodb-listing-item .address {
+  grid-area: address;
+}
+
+.immodb .immodb-item.immodb-listing-item .region {
+  grid-area: region;
+}
+
+.immodb .immodb-item.immodb-listing-item .state {
+  grid-area: state;
+}
+
+.immodb .immodb-item.immodb-listing-item .country {
+  grid-area: country;
+}
+
+.immodb .immodb-item.immodb-listing-item .civic-address {
+  grid-area: civic-address;
+}
+
+.immodb .immodb-item.immodb-listing-item .content {
+  grid-gap: 0;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: auto auto 200px auto;
+  grid-template-areas: "civic-address civic-address" "city city" "image image" "price price" "category category" "subcategory ref-number" "description description";
+}
+
+.immodb .immodb-item.immodb-listing-item .civic-address, .immodb .immodb-item.immodb-listing-item .city {
+  background-color: #333;
+  color: #fff;
+}
+
+.immodb .immodb-item.immodb-listing-item .price {
+  text-align: center;
+  padding: 10px;
+  background: #dadada;
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.immodb .immodb-item.immodb-listing-item .city {
+  padding: 0 0 10px 10px;
+  font-size: 0.8em;
+}
+
+.immodb .immodb-item.immodb-listing-item .civic-address {
+  padding: 10px 0 0 10px;
+  text-transform: uppercase;
+}
+
+.immodb .immodb-item.immodb-listing-item .description {
+  padding: 10px;
+}
+
+.immodb .immodb-item.immodb-listing-item .region {
+  display: none;
+}
+
+.immodb .immodb-item.immodb-listing-item .ref-number {
+  text-align: right;
+  padding: 0px 10px 10px 0;
+  font-size: 0.8em;
+}
+
+.immodb .immodb-item.immodb-listing-item .ref-number::before {
+  content: "ULS:";
+}
+
+.immodb .immodb-item.immodb-listing-item .category {
+  font-size: 1.2em;
+  padding: 10px 10px 0 10px;
+}
+
+.immodb .immodb-item.immodb-listing-item .subcategory {
+  padding: 0 10px 10px 10px;
+}
+
+.immodb .immodb-item.immodb-broker-item .image {
+  grid-area: image;
+}
+
+.immodb .immodb-item.immodb-broker-item .name {
+  grid-area: name;
+}
+
+.immodb .immodb-item.immodb-broker-item .contact {
+  grid-area: contact;
+}
+
+.immodb .immodb-item.immodb-broker-item .title {
+  grid-area: title;
+}
+
+.immodb .immodb-item.immodb-broker-item .listings-count {
+  grid-area: listings-count;
+}
+
+.immodb .immodb-item.immodb-broker-item .content {
+  grid-gap: 0;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 320px auto;
+  grid-template-areas: "image image" "name name" "title title" "listings-count listings-count" "contact contact";
+}
+
+.immodb .immodb-item.immodb-broker-item .content .contact {
+  padding: 10px;
+}
+
+.immodb .immodb-item.immodb-broker-item .content .contact .item {
   display: grid;
   grid-template-columns: 1fr 3fr;
   place-items: center start;
 }
 
-.immodb.immodb-list-of-brokers .immodb-item .content .contact .item .value {
+.immodb .immodb-item.immodb-broker-item .content .contact .item .type {
+  opacity: 0.75;
+}
+
+.immodb .immodb-item.immodb-broker-item .content .contact .item .value {
   place-self: center end;
 }
 
-.immodb.immodb-list-of-brokers .immodb-item .content .listings-count {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  font-size: 2em;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  color: #fff;
+.immodb .immodb-item.immodb-broker-item .content .name {
   background-color: #333;
-  border-radius: 50%;
+  color: #fff;
+  padding: 10px 10px 0 10px;
+  font-size: 1.2em;
+  text-transform: uppercase;
+}
+
+.immodb .immodb-item.immodb-broker-item .content .title {
+  background-color: #333;
+  color: #fff;
+  font-size: 0.8em;
+  padding: 0 10px 10px 10px;
+}
+
+.immodb .immodb-item.immodb-broker-item .content .listings-count {
+  padding: 10px;
+  background: #dadada;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.immodb .immodb-item.immodb-broker-item .content .listings-count.no-listings {
+  opacity: 0.5;
+}
+
+.immodb.immodb-list-of-listings .immodb-list {
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+.immodb.immodb-list-of-brokers .immodb-list {
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
 }
 
 .immodb.standard-layout {
@@ -708,8 +822,8 @@
 }
 
 .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content {
-  grid-template-rows: 250px auto;
-  grid-template-areas: "image image image" "name name name" "title title title" "contact contact contact";
+  grid-template-rows: 320px auto;
+  grid-template-areas: "image image" "name name" "title title" "listings-count listings-count" "contact contact";
 }
 
 .immodb.standard-layout.immodb-list-of-brokers .search-container {
@@ -880,7 +994,15 @@
   grid-gap: 10px;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto;
-  grid-template-areas: "subcategory subcategory  subcategory price price price price"  "city city city city tools information_request information_request";
+  grid-template-areas: "subcategory subcategory subcategory price price price price"  "city city city city tools information_request information_request";
+}
+
+.immodb.listing-single .content .header.is-sold {
+  grid-template-areas: "subcategory subcategory subcategory price price price price"  "city city city city city tools tools";
+}
+
+.immodb.listing-single .content .header.is-sold .information_request {
+  display: none;
 }
 
 @media screen and (max-width: 640px) {
@@ -1319,10 +1441,19 @@
   display: grid;
 }
 
+.immodb.broker-single label.placeholder {
+  padding: 20px;
+  font-weight: 400;
+  opacity: 0.75;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .immodb.broker-single > .content {
   display: none;
   grid-template-columns: 2fr 1fr;
   grid-template-areas: "left-column right-column";
+  place-items: start;
   grid-gap: 20px;
 }
 
@@ -1338,6 +1469,11 @@
   padding: 20px 0;
   opacity: 0.5;
   text-transform: uppercase;
+}
+
+.immodb.broker-single > .content .left-column {
+  display: grid;
+  grid-gap: 20px;
 }
 
 .immodb.broker-single > .content .info {
@@ -1397,10 +1533,65 @@
   text-align: center;
 }
 
+.immodb.broker-single > .content .listing-list .search-input {
+  margin: 10px 0;
+  border: solid 1px #ccc;
+  padding: 5px 10px;
+  border-radius: 50px;
+}
+
+.immodb.broker-single > .content .listing-list .search-input input {
+  width: 250px;
+  outline: none;
+  border: none;
+}
+
+.immodb.broker-single > .content .listing-list .search-input input::placeholder {
+  color: #333;
+  opacity: 0.5;
+}
+
 .immodb.broker-single > .content .listing-list .list-container {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  place-items: stretch;
+}
+
+.immodb.broker-single > .content .listing-list .list-container > div {
+  display: grid;
+  place-items: stretch;
+  transition: 0.25s;
+}
+
+.immodb.broker-single > .content .office {
+  padding: 10px;
+}
+
+.immodb.broker-single > .content .office .content {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-areas: ". title" "icon address" "icon city" "icon country";
+}
+
+.immodb.broker-single > .content .office .content .icon {
+  grid-area: icon;
+}
+
+.immodb.broker-single > .content .office .content .title {
+  grid-area: title;
+}
+
+.immodb.broker-single > .content .office .content .address {
+  grid-area: address;
+}
+
+.immodb.broker-single > .content .office .content .city {
+  grid-area: city;
+}
+
+.immodb.broker-single > .content .office .content .country {
+  grid-area: country;
 }
 
 .immodb.broker-single.loaded > .content {

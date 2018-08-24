@@ -1,8 +1,8 @@
-<div class="header">
+<div class="header {{model.status=='SOLD'? 'is-sold':''}}">
     
     <div class="price">
         <div>{{model.long_price}}</div>
-        <div class="mortgage" ng-show="model.price.sell!=undefined"><?php _e('Estimated mortgage payments',IMMODB) ?>: <a href="#" ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</a></div>
+        <div class="mortgage" ng-show="model.status!='SOLD' && model.price.sell!=undefined"><?php _e('Estimated mortgage payments',IMMODB) ?>: <a href="#" ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</a></div>
     </div>
     <div class="subcategory">{{model.subcategory}}</div>
     <div class="city">{{model.location.city}}</div>
@@ -146,7 +146,7 @@
             </div>
         </div>
         
-        <div id="calculator" class="mortgage-calculator" ng-show="model.price.sell!=undefined">
+        <div id="calculator" class="mortgage-calculator" ng-show="model.status!='SOLD' && model.price.sell!=undefined">
             <div class="title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',IMMODB) ?></div>
             <immodb-calculator immodb-amount="model.price.sell.amount" on-change="onMortgageChange($result)" immodb-region="{{model.location.region_code}}"></immodb-calculator>
 

@@ -94,6 +94,7 @@ $locales.fr = {};$locales.fr.global =
     , "Load more" : "Charger plus"
     , "office" : "bureau"
     , "mobile" : "cell."
+    , "No property yet" : "Aucune propriété pour l'instant"
     // Public - SEARCH
     , "Search" : "Recherche"
     , "{0}+ bedrooms" : "{0}+ chambres"
@@ -191,6 +192,7 @@ $locales.fr = {};$locales.fr.global =
     , "Excluded" : "Exclusions"
     , "See {0}'s {1} other properties" : "Voir les {1} autres propriétés de {0}"
     // PUBLIC - SINGLE BROKER
+    , "Office" : "Bureau"
     , "Languages" : "Langues"
     , "Expertises" : "Spécialités"
     , "N/A" : "N/D"
@@ -198,6 +200,8 @@ $locales.fr = {};$locales.fr.global =
     , "{0} properties" : "{0} propriétés"
     , "To contact {0}" : "Pour joindre {0}"
     , "Send a message" : "Envoyer un message"
+    , "Use keywords to filter the list" : "Filtrez la liste par mots-clés"
     , "{0} did not compose a biography for the moment" : "{0} n'a pas composé de biographie pour l'instant"
     , "{0} has no properties yet" : "{0} n'a aucune propriété pour l'instant"
+    , "Loading broker" : "Chargement du courtier"
 }

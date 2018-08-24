@@ -13,10 +13,12 @@
 
         ?>
         <div class="immodb-list" ng-show="(list && list.length>0) && display_mode=='list'" on-bottom-reached="checkNextPage()">      
-        <?php 
-            ImmoDB::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
-        ?>
-            
+            <div ng-repeat="item in list track by item.id">
+            <?php 
+                ImmoDB::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
+            ?>
+            </div>
+
             <div class="next-page" ng-show="page_index>=2 && listMeta.next_token!=null">
                 <button type="button" class="btn load-next-page" ng-click="showNextPage()"><?php _e('Load more', IMMODB) ?></button>
             </div>

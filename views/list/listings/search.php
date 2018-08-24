@@ -18,7 +18,7 @@
                             </div>
 
                             <div class="cities tab-content">
-                                <div class="layout-column">
+                                <div class="grid-layout-column">
                                     <h4><?php _e('Cities',IMMODB) ?></h4>
                                     <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.city | orderObjectBy: 'caption'"
                                         ng-show="item.parent.trim()==tab_region"
@@ -64,7 +64,7 @@
                         </div>
 
                     </div>
-                    <div class="price-suggestions layout-column target-{{selected_price_input}}">
+                    <div class="price-suggestions grid-layout-column target-{{selected_price_input}}">
                         <div ng-repeat="item in priceSuggestions" class="item" ng-click="setPrice(item.value,$event)">{{item.label}}</div>
                     </div>
                 </form>
@@ -85,7 +85,7 @@
                                 <label>{{item.abbr}}</label>
                             </div>
                         </div>
-                        <div class="subcategory tab-content layout-column">
+                        <div class="subcategory tab-content grid-layout-column">
                             <div class="pretty p-icon p-pulse"  ng-repeat="item in dictionary.listing_subcategory | orderObjectBy: 'caption'"
                                 ng-show="item.parent==tab_category"
                                 ng-click="addFilter('subcategory','in',getSelection(dictionary.listing_subcategory))">
@@ -121,7 +121,7 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <form>
-                    <div class="bathrooms layout-column">
+                    <div class="bathrooms grid-layout-column">
                         <h4><?php _e('Bathrooms',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
 
@@ -145,7 +145,7 @@
                         
                     </div>
 
-                    <div class="age layout-column">
+                    <div class="age grid-layout-column">
                         <h4><?php _e('Online for',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
 
@@ -160,7 +160,7 @@
                         
                     </div>
 
-                    <div class="parkings layout-column">
+                    <div class="parkings grid-layout-column">
                         <h4><?php _e('Parkings',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
 
@@ -184,7 +184,7 @@
                         
                     </div>
 
-                    <div class="building_category layout-column">
+                    <div class="building_category grid-layout-column">
                         <h4><?php _e('Building type',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
                         <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.building_category"
@@ -198,7 +198,7 @@
                     </div>
 
 
-                    <div class="attribute layout-column">
+                    <div class="attribute grid-layout-column">
                         <h4><?php _e('Caracteristics',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
                         <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_attributes"
@@ -211,7 +211,7 @@
                         </div>
                     </div>
 
-                    <div class="transaction layout-column">
+                    <div class="transaction grid-layout-column">
                         <h4><?php _e('Filters',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
                         <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_states"

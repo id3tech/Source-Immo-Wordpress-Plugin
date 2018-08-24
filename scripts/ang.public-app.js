@@ -249,6 +249,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 ImmoDbApp
 .controller('singleBrokerCtrl', 
 function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils){
+    $scope.filter_keywords = '';
+
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -348,81 +350,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils)
                                             );
 
         $scope.model.location = $scope.model.office.location;
-        // $scope.model.location.city      = $scope.getCaption($scope.model.location.city_code, 'city');
-        // $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
-        // $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
-        // $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
-        // $scope.model.category           = $scope.getCaption($scope.model.category, 'listing_category');
-        // $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory, 'listing_subcategory');
-        // $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
-        // $scope.model.location.full_address = '{0} {1}, {2}'.format(
-        //                                         $scope.model.location.address.street_number,
-        //                                         $scope.model.location.address.street_name,
-        //                                         $scope.model.location.city
-        //                                     );
-
-        // $scope.model.building.attributes = [];
-        // $scope.model.lot = {attributes : []};
-        // $scope.model.other = {attributes : []};
-        // $scope.model.important_flags = [];
-        // $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
-
-        // // from main unit
-        // let lMainUnit = $scope.model.units.find(function($u){return $u.category=='MAIN'});
-        // if(lMainUnit!=null){
-        //     if(lMainUnit.bedroom_count) $scope.model.important_flags.push({icon: 'bed', value: lMainUnit.bedroom_count, caption:'Bedroom'.translate()});
-        //     if(lMainUnit.bathroom_count) $scope.model.important_flags.push({icon: 'bath', value: lMainUnit.bathroom_count, caption: 'Bathroom'.translate()});
-        //     if(lMainUnit.waterroom_count) $scope.model.important_flags.push({icon: 'hand-holding-water', value: lMainUnit.waterroom_count, caption: 'Water room'.translate()});
-        // }
-
-        // // from attributes
-        // $scope.model.attributes.forEach(function($e){
-        //     $e.caption = $scope.getCaption($e.code, 'attribute');
-        //     $e.values.forEach(function($v){
-        //         $v.caption = $scope.getCaption($v.code,'attribute_value');
-        //         if($v.count){
-        //             $v.caption = $v.caption.concat(' ({0})'.format($v.count));
-        //         }
-        //         if($v.details){
-        //             $v.caption = $v.details;
-        //         }
-        //     });
-
-        //     // append to rightful domains
-        //     // Building
-        //     if(['CUPBOARD','WINDOWS',
-        //         'WINDOW TYPE','ROOFING','FOUNDATION',
-        //         'GARAGE','SIDING','BATHR./WASHR','BASEMENT'].includes($e.code)){
-        //         $scope.model.building.attributes.push($e);
-        //     }
-        //     // Lot
-        //     else if(['LANDSCAPING','DRIVEWAY','PARKING','POOL',
-        //              'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'].includes($e.code)){
-        //         $scope.model.lot.attributes.push($e);
-        //     }
-        //     // other
-        //     else if(['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'].includes($e.code)){
-        //         $scope.model.other.attributes.push($e);
-        //     }
-
-        //     if($e.code=='PARKING'){
-        //         let lParkingCount = 0;
-        //         $e.values.forEach(function($v){lParkingCount += $v.count;});
-        //         if(lParkingCount > 0) $scope.model.important_flags.push({icon: 'car', value: lParkingCount, caption: $e.caption});
-        //     }
-        //     if($e.code=='POOL'){
-        //         $scope.model.important_flags.push({icon: 'swimmer', value: 0, caption: $e.caption});
-        //     }
-        //     if($e.code=='HEART STOVE'){
-        //         $scope.model.important_flags.push({icon: 'fire', value: 0, caption: $e.caption});
-        //     }
-        // });
-
-        // // set brokers detail link
-        // let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
-        // $scope.model.brokers.forEach(function($e){
-        //     $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
-        // });
+        $immodbUtils.compileListingList($scope.model.listings);        
     }
 
     $scope.getPhoneIcon = function($key){
@@ -435,6 +363,32 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils)
             return lPhoneIcon[$key];
         }
         return 'phone';
+    }
+
+    $scope.filterListings = function($listing){
+        
+        if($scope.filter_keywords==undefined || $scope.filter_keywords==''){
+            return true;
+        }
+
+        if($listing.description && $listing.description.toLowerCase().indexOf($scope.filter_keywords.toLowerCase())>=0){
+            console.log('found kw in description');
+            return true;
+        }
+        else if($listing.price.sell && $listing.price.sell.amount.toString().indexOf($scope.filter_keywords)>=0){
+            console.log('found kw in price sell');
+            return true;
+        }
+        else if($listing.price.rent && $listing.price.rent.amount.toString().indexOf($scope.filter_keywords)>=0){
+            console.log('found kw in price rent');
+            return true;
+        }
+        else if($listing.location.city.toLowerCase().indexOf($scope.filter_keywords.toLowerCase())>=0){
+            console.log('found kw in city');
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -611,7 +565,13 @@ ImmoDbApp
                 $scope.is_loading_data = true;
                 $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                     // set list/meta
-                    $scope.list = $response.items;
+                    if($scope.configs.type=='listings'){
+                        $scope.list = $immodbUtils.compileListingList($response.items);
+                    }
+                    else{
+                        $scope.list = $response.items;
+                    }
+                    
                     $scope.listMeta = $response.metadata;
                     // unlock
                     $scope.is_loading_data = false;
@@ -621,7 +581,7 @@ ImmoDbApp
                 })
                 
             }
-    
+
             /**
              * Check wether loading the next page of list is required or not
              */
@@ -1652,7 +1612,7 @@ ImmoDbApp
                 for(let $key in $scope.dictionary){
                     $scope.resetListSelections($scope.dictionary[$key]);
                 }
-                $scope.resetListSelections($scope.transaction_types);
+                $scope.resetListSelections($s);
     
                 // save filters to localStorage
                 $scope.clearState();
@@ -2887,6 +2847,19 @@ ImmoDbApp
     };
 });
 
+ImmoDbApp
+.directive('immodbContainer', function immodbContainer(){
+    return {
+        restrict: "E",
+        replace: true,
+        transclude: true,
+        scope:true,
+        template: '',
+        controller: function($element, $transclude) {
+            $element.append($transclude());
+        }
+    };
+})
 
 
 /* ------------------------------- 
@@ -3290,8 +3263,31 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         return $immodbTemplate.interpolate(lRoute.route, $scope);
     }
 
+    /**
+     * Take a string and process it into Angular binding
+     * @param {string} $text Source string to evaluate
+     * @param {object} $context Scope object used for interpolation
+     */
     $scope.evaluate = function($text, $context){
         return $interpolate($text)($context);
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of listing item
+     */
+    $scope.compileListingList = function($list){
+        $list.forEach(function($e){
+            $e.location.city = $scope.sanitize($scope.getCaption($e.location.city_code, 'city'));
+            $e.location.region = $scope.sanitize($scope.getCaption($e.location.region_code, 'region'));
+            $e.transaction = $scope.getTransaction($e,true);
+            $e.location.civic_address = '{0} {1}'.format(
+                                                        $e.location.address.street_number,
+                                                        $e.location.address.street_name
+                                                    );
+        });
+
+        return $list;
     }
 
     /**
@@ -3347,10 +3343,18 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
      */
     $scope.getTransaction = function($item, $sanitize){
         $sanitize = ($sanitize==undefined)?false:$sanitize;
-
+        let lResult = [];
         for(var $key in $item.price){
-            return $key;
+            if($key!='foreclosure'){
+                let lTrans = ('To ' + $key).translate();
+                if($sanitize){
+                    lTrans = $scope.sanitize(lTrans);
+                }
+                lResult.push(lTrans);
+            }
         }
+
+        return lResult.join(' ' + 'or'.translate() + ' ');
     }
 
     /**

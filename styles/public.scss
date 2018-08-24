@@ -21,19 +21,39 @@
 
     label{font-weight: 400;}
 
-    .layout-row{
+    .grid-layout-row{
         display:grid;
-        grid-auto-columns: 1fr;
+    }
+    .grid-layout-column{
+        display:grid;
+        grid-template-columns:1fr;
+        grid-template-rows:auto;
         grid-gap:10px;
     }
+
+    .layout-row{
+        display:flex;
+        justify-content: flex-start;
+        flex-direction: row;
+        align-items: center;
+    }
     .layout-column{
-        display:grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        grid-gap:10px;
-        .dropdown-divider{
-            height:5px;margin: 0;
-        }
+        display:flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        align-items: center;
+    }
+    .layout-space-between{
+        justify-content: space-between;
+        align-items: center;
+    }
+    .layout-space-between-start{
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .layout-space-between-end{
+        justify-content: space-between;
+        align-items: flex-end;
     }
 
     // ************************
@@ -340,22 +360,16 @@
         grid-area: list;
         display:grid;
         grid-gap: 20px;
-        grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
+        
         place-items: stretch;
+        > div{
+            display:grid;place-items:stretch;
+        }
     }
     .immodb-item{
-        $areas : 'ref-number' 'category' 'subcategory' 'price' 'city' 'image' 
-                    'description' 'address' 'region' 'state' 'country' 
-                    'name' 'contact' 'title';
-        @each $item in $areas {
-            .#{$item} {
-                grid-area: #{$item};
-                color:inherit;
-            }
-        }
-        max-width:300px;
+        max-width:360px;
         &.info-window{
-            max-width:250px;
+            max-width:340px;
             img{max-width:100%;}
             border:none;
         }
@@ -366,8 +380,8 @@
         justify-self: stretch;
         transition:0.25s;
         &.sold{
-            background:#aaa;
-            a{color:#fff;}
+            background:#dedede;
+            a{color:#333;}
         }
         &:hover{
             box-shadow:rgba(#000,0.5) 0 20px 30px;
@@ -377,53 +391,116 @@
             display:grid;
             position:relative;
             color:inherit;
-            padding:10px;
-            grid-gap: 10px;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: auto 150px auto;
-            grid-template-areas: 
-                "price price price"
-                "image image image"
-                "city city region"
-                "category category ref_number"
-                "subcategory subcategory subcategory"
-                "description description description"
-                ;
+            place-items:stretch;
+            font-size:1em;
             
             .image{
                 position:relative;
                 overflow:hidden;
-                place-self:stretch;
+                
                 img{
                     object-fit: cover;
+                    width:100%;
+                    height:100%;
                 }
             }
         }
-    }
-    &.immodb-list-of-brokers{
-        .immodb-item{
+
+        // LISTINGS 
+        &.immodb-listing-item{
+            @include gridAreas('ref-number','category','subcategory','price','city','image',
+                                'description','address','region','state','country','civic-address');
+
             .content{
+                grid-gap: 0;
+                grid-template-columns: 3fr 1fr;
+                grid-template-rows: auto auto 200px auto;
+                grid-template-areas: 
+                    "civic-address civic-address"
+                    "city city"
+                    "image image"
+                    "price price"
+                    "category category"
+                    "subcategory ref-number"
+                    "description description"
+                    ;
+            }
+            .civic-address,.city{background-color:#333;color:#fff;}
+            .price{text-align:center;padding:10px;background:#dadada;font-size:1.2em;font-weight:700;}
+            .city{padding:0 0 10px 10px;font-size:0.8em;}
+            .civic-address{padding:10px 0 0 10px;text-transform:uppercase;}
+            .description{padding:10px;}
+            .region{display:none;}
+            .ref-number{
+                text-align:right;padding:0px 10px 10px 0;font-size:0.8em;
+                &::before{content:"ULS:";}
+            }
+            .category{font-size:1.2em;padding:10px 10px 0 10px;}
+            .subcategory{padding:0 10px 10px 10px;}
+        }
+
+        // BROKERS
+        &.immodb-broker-item{
+            @include gridAreas('image','name','contact','title','listings-count');
+            .content{
+                grid-gap: 0;
+                grid-template-columns: 2fr 1fr;
+                grid-template-rows: 320px auto;
+                grid-template-areas: 
+                    "image image"
+                    "name name"
+                    "title title"
+                    "listings-count listings-count"
+                    "contact contact";
                 .contact{
+                    padding:10px;
                     .item{
                         display:grid;
                         grid-template-columns: 1fr 3fr;
                         place-items:center start;
+                        .type{
+                            opacity: 0.75;
+                        }
                         .value{
                             place-self:center end;
                         }
                     }
                 }
-                .listings-count{
-                    position: absolute;
-                    top:5px;right:5px;
-                    font-size:2em;
-                    width:50px;height:50px;line-height:50px;
-                    text-align:center;
-                    color:#fff;
+                .name{
                     background-color:#333;
-                    border-radius:50%;
+                    color:#fff;
+                    padding:10px 10px 0 10px;
+                    font-size:1.2em;
+                    text-transform: uppercase;
+                }
+                .title{
+                    background-color:#333;
+                    color:#fff;
+                    font-size:0.8em;
+                    padding:0 10px 10px 10px;
+                }
+                .listings-count{
+                    padding:10px;
+                    background:#dadada;
+                    text-transform: uppercase;
+                    text-align:center;
+                    &.no-listings{
+                        opacity:0.5;
+                    }
                 }
             }
+        }
+    }
+
+    &.immodb-list-of-listings{
+        .immodb-list{
+            grid-template-columns: repeat( auto-fit, minmax(340px, 1fr) );
+        }
+    }
+
+    &.immodb-list-of-brokers{
+        .immodb-list{
+            grid-template-columns: repeat( auto-fit, minmax(340px, 1fr) );
         }
     }
 
@@ -578,15 +655,19 @@
             }
         }
 
+        &.immodb-list-of-listings{
+            
+        }
         &.immodb-list-of-brokers{
             .immodb-item{
                 .content{
-                    grid-template-rows: 250px auto;
+                    grid-template-rows: 320px auto;
                     grid-template-areas: 
-                        "image image image"
-                        "name name name"
-                        "title title title"
-                        "contact contact contact"
+                        "image image"
+                        "name name"
+                        "title title"
+                        "listings-count listings-count"
+                        "contact contact";
                     ;
                 }
             }
@@ -636,18 +717,12 @@
         .content{
 
             display:none;
-            $areas : 'ref-number' 'subcategory' 'price' 'city' 'medias' 
-                    'header' 'summary' 'details' 'left' 'right' 'flags'
-                    'description' 'addendum' 'information_request'
-                    'location' 'address' 'near' 'region' 'state' 'country'
-                    'brokers' 'name' 'contact' 'phone' 'photo' 'tools'
-                    'mortgage-calculator' 'actions'
-                    ;
-            @each $item in $areas {
-                .#{$item} {
-                    grid-area: #{$item};
-                }
-            }
+            @include gridAreas('ref-number','subcategory','price','city','medias', 
+            'header','summary','details','left','right','flags',
+            'description','addendum','information_request',
+            'location','address','near','region','state','country',
+            'brokers','name','contact','phone','photo','tools',
+            'mortgage-calculator','actions');
 
             grid-gap: 20px;
             grid-template-columns: 2fr 1fr;
@@ -674,8 +749,15 @@
                 grid-template-columns: repeat(7, 1fr);
                 grid-template-rows: auto;
                 grid-template-areas: 
-                    "subcategory subcategory  subcategory price price price price" 
+                    "subcategory subcategory subcategory price price price price" 
                     "city city city city tools information_request information_request";
+
+                &.is-sold{
+                    grid-template-areas: 
+                        "subcategory subcategory subcategory price price price price" 
+                        "city city city city city tools tools";
+                    .information_request{display:none;}
+                }
                 @media screen and (max-width:640px){
                     grid-template-columns: 1fr;
                     justify-items:center;
@@ -687,6 +769,9 @@
                         "information_request"
                     ;
                 }
+                
+                
+
                 .information_request{
                     place-self: stretch;
                     text-align:center;
@@ -1005,21 +1090,17 @@
 
 
     &.broker-single{
+        label.placeholder{
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+        }
         > .content{
-            $areas : 'left-column' 'right-column';
-            @each $item in $areas {
-                .#{$item} {
-                    grid-area: #{$item};
-                }
-            }
+            @include gridAreas('left-column','right-column');
 
             display:none;
-            .name{
-                //font-size:3em;
-            }
-
+            
             grid-template-columns: 2fr 1fr;
             grid-template-areas: "left-column right-column";
+            place-items: start;
             grid-gap:20px;
 
             label.placeholder{
@@ -1027,13 +1108,14 @@
                 opacity:0.5;
                 text-transform:uppercase;
             }
+
+            .left-column{
+                display:grid;
+                grid-gap:20px;
+            }
+
             .info{
-                $areas : 'head' 'bio' 'languages' 'expertises';
-                @each $item in $areas {
-                    .#{$item} {
-                        grid-area: #{$item};
-                    }
-                }
+                @include gridAreas('head','bio','languages','expertises');
 
                 display: grid;
                 grid-gap:10px;
@@ -1071,11 +1153,47 @@
                     text-align:center;
                 }
             }
+
+            
+
             .listing-list{
+                
+                .search-input{
+                    margin:10px 0;
+                    border:solid 1px #ccc;
+                    padding:5px 10px;
+                    border-radius:50px;
+                    input{
+                        width:250px;outline:none;border:none;
+                        &::placeholder{
+                            color:#333;opacity:0.5;
+                        }
+                    }
+                }
                 .list-container{
                     display:grid;
                     grid-gap:10px;
-                    grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+                    grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
+                    place-items:stretch;
+                    > div{
+                        display:grid;place-items:stretch;
+                        transition:0.25s;
+                    }
+                }
+            }
+            .office{
+                padding:10px;
+                .content{
+                    @include gridAreas('icon','title','address','city','country');
+
+                    display:grid;
+                    grid-template-columns: 40px 1fr;
+                    grid-template-areas: 
+                        ". title"
+                        "icon address"
+                        "icon city"
+                        "icon country"
+                        ;
                 }
             }
         }

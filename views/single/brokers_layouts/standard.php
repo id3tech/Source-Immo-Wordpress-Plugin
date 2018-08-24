@@ -28,13 +28,22 @@
 
 
 
-    <div class="listing-list">
+    <div class="listing-list immodb-list-of-listings">
         <div ng-show="model.listings.length>0">
-            <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
+            <div class="layout-row layout-space-between">
+                <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
+
+                <div class="search-input">
+                    <input placeholder="{{'Use keywords to filter the list'.translate()}}" ng-model="filter_keywords" />
+                    <i class="far fa-search"></i>
+                </div>
+            </div>
             <div class="list-container">
-            <?php
-            ImmoDB::view("list/listings/standard/item-small");
-            ?>
+                <div ng-repeat="item in model.listings | filter : filterListings" ng-animate>
+                    <?php
+                    ImmoDB::view("list/listings/standard/item-small");
+                    ?>
+                </div>
             </div>
         </div>
         <label class="placeholder" ng-show="model.listings.length==0">{{'{0} has no properties yet'.translate().format(model.first_name)}}</label>
@@ -60,9 +69,12 @@
 
     <div class="office">
         <h3>{{'Office'.translate()}}</h3>
-        <div class="title">{{model.office.name}}</div>
-        <div class="address">{{model.office.location.address.street_number}} {{model.office.location.address.street_name}}</div>
-        <div class="city">{{model.office.location.city}}, {{model.office.location.state_code}}</div>
-        <div class="country">{{model.office.location.country}}</div>
+        <div class="content">
+            <div class="icon"><i class="fal fa-2x fa-map-marker-alt"></i></div>
+            <div class="title">{{model.office.name}}</div>
+            <div class="address">{{model.office.location.address.street_number}} {{model.office.location.address.street_name}}</div>
+            <div class="city">{{model.office.location.city}}, {{model.office.location.state_code}}</div>
+            <div class="country">{{model.office.location.country}}</div>
+        </div>
     </div>
 </div>

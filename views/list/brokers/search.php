@@ -15,7 +15,7 @@
                             </div>
 
                             <div class="cities tab-content">
-                                <div class="layout-column">
+                                <div class="grid-layout-column">
                                     <h4><?php _e('Cities',IMMODB) ?></h4>
                                     <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.city | orderObjectBy: 'caption'"
                                         ng-show="item.parent.trim()==tab_region"
