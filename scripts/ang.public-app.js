@@ -588,9 +588,11 @@ ImmoDbApp
              */
             $scope.checkNextPage = function(){
                 // page is under 2 and there's a token to load next page
-                if($scope.page_index<2 && $scope.listMeta.next_token){
-                    // load next page
-                    $scope.showNextPage();
+                if($scope.listMeta!=null){
+                    if($scope.page_index<2 && $scope.listMeta.next_token){
+                        // load next page
+                        $scope.showNextPage();
+                    }
                 }
             }
     
