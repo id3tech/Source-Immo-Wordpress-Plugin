@@ -19,11 +19,11 @@
             ?>
             </div>
 
-            <div class="next-page" ng-show="page_index>=2 && listMeta.next_token!=null">
+            
+        </div>
+        <div class="next-page" ng-show="page_index>=2 && listMeta.next_token!=null">
                 <button type="button" class="btn load-next-page" ng-click="showNextPage()"><?php _e('Load more', IMMODB) ?></button>
             </div>
-        </div>
-
         <?php
         // add map if the list is mappable
         if($configs->mappable){
