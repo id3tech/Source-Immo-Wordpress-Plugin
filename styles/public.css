@@ -18,6 +18,10 @@
   font-family: "Font Awesome 5 Pro" !important;
 }
 
+.immodb .btn {
+  border: none;
+}
+
 .immodb label {
   font-weight: 400;
 }
