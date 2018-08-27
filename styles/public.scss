@@ -18,7 +18,9 @@
             text-decoration:inherit;
         }
     }
-
+    .fal,.far,.fas{
+        font-family: "Font Awesome 5 Pro"!important;
+    }
     label{font-weight: 400;}
 
     .grid-layout-row{
@@ -393,7 +395,7 @@
             color:inherit;
             place-items:stretch;
             font-size:1em;
-            
+            padding:0px;
             .image{
                 position:relative;
                 overflow:hidden;
@@ -1053,6 +1055,7 @@
                     .contact{
                         align-self: start;
                         margin-bottom:10px;
+
                     }
                     .license{
                         grid-area: license;

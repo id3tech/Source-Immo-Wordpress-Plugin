@@ -14,6 +14,10 @@
   text-decoration: inherit;
 }
 
+.immodb .fal, .immodb .far, .immodb .fas {
+  font-family: "Font Awesome 5 Pro" !important;
+}
+
 .immodb label {
   font-weight: 400;
 }
@@ -485,6 +489,7 @@
   color: inherit;
   place-items: stretch;
   font-size: 1em;
+  padding: 0px;
 }
 
 .immodb .immodb-item .content .image {
