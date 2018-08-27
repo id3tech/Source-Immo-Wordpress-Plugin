@@ -21,7 +21,7 @@
 
             
         </div>
-        <div class="next-page" ng-show="page_index>=2 && listMeta.next_token!=null">
+        <div class="next-page" ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null">
                 <button type="button" class="btn load-next-page" ng-click="showNextPage()"><?php _e('Load more', IMMODB) ?></button>
             </div>
         <?php
