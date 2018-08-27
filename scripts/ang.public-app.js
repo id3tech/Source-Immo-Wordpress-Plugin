@@ -2925,7 +2925,15 @@ function $immodbApi($http,$q){
     $scope.tokenIsValid = function(){
         let lNow = new Date();
         // token is not defined
-        if($scope.auth_token==null){return false;}
+        if($scope.auth_token==null){
+            let lStoredToken = localStorage.getItem('immodb.auth_token');
+            if(lStoredToken != null){
+                $scope.auth_token = JSON.parse(lStoredToken);
+            }
+            else{
+                return false;
+            }
+        }
         // token is out of date
         if(Date.parse($scope.auth_token.expire_date) < lNow){
             return false;
@@ -2943,6 +2951,7 @@ function $immodbApi($http,$q){
             if(!$scope.tokenIsValid()){   
                 $scope.rest_call('access_token').then(function($reponse){
                     $scope.auth_token = $reponse;
+                    localStorage.setItem('immodb.auth_token', JSON.stringify($scope.auth_token));
                     $resolve()
                 })
             }
