@@ -63,12 +63,12 @@ class ImmoDBConfig {
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     $this->listing_routes  = array(
-      new ImmoDBRoute('fr','proprietes/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{ref_number}}'),
-      new ImmoDBRoute('en', 'listings/{{getRegion(item)}}/{{getCity(item)}}/{{getTransaction(item)}}/{{ref_number}}'),
+      new ImmoDBRoute('fr','proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{ref_number}}'),
+      new ImmoDBRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{ref_number}}'),
     );
     $this->broker_routes  = array(
-      new ImmoDBRoute('fr','courtiers/{{getRegion(item)}}/{{getCity(item)}}/{{ref_number}}'),
-      new ImmoDBRoute('en', 'brokers/{{getRegion(item)}}/{{getCity(item)}}/{{ref_number}}'),
+      new ImmoDBRoute('fr','courtiers/{{item.location.region}}/{{item.location.city}}/{{ref_number}}'),
+      new ImmoDBRoute('en', 'brokers/{{item.location.region}}/{{item.location.city}}/{{ref_number}}'),
     );
 
     $this->lists = array(
