@@ -88,7 +88,7 @@
                         <div class="subcategory tab-content grid-layout-column">
                             <div class="pretty p-icon p-pulse"  ng-repeat="item in dictionary.listing_subcategory | orderObjectBy: 'caption'"
                                 ng-show="item.parent==tab_category"
-                                ng-click="addFilter('subcategory','in',getSelection(dictionary.listing_subcategory))">
+                                ng-click="addFilter('subcategory_code','in',getSelection(dictionary.listing_subcategory))">
                                 <input type="checkbox"  ng-model="item.selected"> 
                                 <div class="state p-success">
                                     <i class="icon fal fa-check"></i>

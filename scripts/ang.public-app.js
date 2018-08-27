@@ -1310,11 +1310,11 @@ ImmoDbApp
 
             $scope.syncFiltersToUI = function(){
                 let lListSync = {
-                    "category" : "listing_category",
-                    "subcategory" : "listing_subcategory",
+                    "category_code" : "listing_category",
+                    "subcategory_code" : "listing_subcategory",
                     "location.city_code" : "city",
                     "location.region_code" : "region",
-                    "building.category" : "building_category"
+                    "building.category_code" : "building_category"
                 }
 
                 if($scope.filter_group!=null && $scope.filter_group.filters != null){
@@ -1453,11 +1453,11 @@ ImmoDbApp
                 let lResult = [];
                 let lListSync = {
                     // dictionary
-                    "category" : "listing_category",
-                    "subcategory" : "listing_subcategory",
+                    "category_code" : "listing_category",
+                    "subcategory_code" : "listing_subcategory",
                     "location.city_code" : "city",
                     "location.region_code" : "region",
-                    "building.category" : "building_category"
+                    "building.category_code" : "building_category"
                 }
                 // filters that as a label
                 if($group.filters != null){
@@ -2245,14 +2245,16 @@ ImmoDbApp
             $scope.clear();
             $scope.bounds = new google.maps.LatLngBounds();
             
+            console.log($scope.list[0]);
+
             $scope.list.forEach(function($marker){
                 let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
-
+                
                 $marker.marker = new ImmoDbMarker({
 			    	position: lngLat,
 			    	map: $scope.map,
                     obj: $marker,
-			    	markerClass: ['map-marker-icon',$marker.category.replace(' ','_')],
+			    	markerClass: ['map-marker-icon',$marker.category_code.replace(' ','_')],
 			    	onPinClick: $scope.pinClick
                 });
                 

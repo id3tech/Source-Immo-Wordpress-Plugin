@@ -495,7 +495,7 @@ class ImmoDBListingsResult{
     $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
     $item->transaction = $this->getTransaction($item);
     if(isset($item->subcategory_code)){
-      $item->subcategory = $dictionary->getCaption($item->subcategory_code , 'listing_category');
+      $item->subcategory = $dictionary->getCaption($item->subcategory_code , 'listing_subcategory');
     }
     else{
       $item->subcategory='';
