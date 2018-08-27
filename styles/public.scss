@@ -1411,3 +1411,17 @@
         .extra{grid-area:extra;}
     }
 }
+
+// enfold fixes
+#top{
+    .immodb{
+        &.listing-single,
+        &.broker-single{
+            max-width:1310px;
+            margin:0 auto;
+
+            .content{border:none;}
+        }
+    }
+    
+}

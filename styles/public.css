@@ -2223,3 +2223,12 @@
 .immodb-calculator .input-container .extra {
   grid-area: extra;
 }
+
+#top .immodb.listing-single, #top .immodb.broker-single {
+  max-width: 1310px;
+  margin: 0 auto;
+}
+
+#top .immodb.listing-single .content, #top .immodb.broker-single .content {
+  border: none;
+}
