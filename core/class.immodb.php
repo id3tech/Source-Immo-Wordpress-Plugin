@@ -179,9 +179,9 @@ class ImmoDB {
 
   
 
-/**
-  RENDERING
-*/
+  /**
+    RENDERING
+  */
 
   public function load_resources(){
     $lTwoLetterLocale = substr(get_locale(),0,2);
@@ -442,5 +442,174 @@ class ImmoDB {
     }
 
     
+  }
+}
+
+
+
+class ImmoDBDictionary{
+  public $entries = null;
+
+  public function __construct($entries){
+    $this->entries = $entries;
+  }
+
+  public function getCaption($key, $domain, $asAbbr=false){
+    $lResult = $key;
+
+    if(isset($this->entries) && $this->entries->{$domain}){
+        if(isset($this->entries->{$domain}->{$key})){
+            if($asAbbr){
+                $lResult = $this->entries->{$domain}->{$key}->abbr;
+            }
+            else{
+              
+                $lResult = $this->entries->{$domain}->{$key}->caption;
+            }
+        }
+    }
+    return $lResult;
+  }
+}
+
+class ImmoDBListingsResult{
+  public $listings = null;
+  public $metadata = null;
+
+  public function __construct($data){
+    $this->listings = $data->items;
+    $this->metadata = $data->metadata;
+
+    foreach ($this->listings as $item) {
+      $this->preprocess_item($item);
+    }
+  }
+  
+  
+  public function preprocess_item(&$item){
+    global $dictionary;
+
+    $item->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+    $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
+    $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
+    $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
+    $item->transaction = $this->getTransaction($item);
+    if(isset($item->subcategory_code)){
+      $item->subcategory = $dictionary->getCaption($item->subcategory_code , 'listing_category');
+    }
+    else{
+      $item->subcategory='';
+    }
+  }
+  
+  public static function formatPrice($price){
+    $lResult = array();
+
+    $priceFormat = __('${0}',IMMODB);
+
+    if(isset($price->sell)){
+      $lResult[] = StringPrototype::format($priceFormat, number_format($price->sell->amount,0,"."," "));
+    }
+
+    if(isset($price->lease)){
+      $lResult[] = StringPrototype::format($priceFormat,number_format($price->lease->amount,2,"."," "));
+    }
+
+    return implode(__(' or ',IMMODB), $lResult);
+  }
+
+  public static function buildPermalink($item, $format){
+    $lResult = $format;
+    $lAttrList = self::getAttributeValueList($item);
+    
+
+    foreach($lAttrList as $lAttr){
+      $lValue = $lAttr['value'];
+      
+      if(method_exists(get_called_class(),'get' . $lAttr['key'])){
+        $lValue = self::{'get' . $lAttr['key']}($item);
+      }
+
+      $lResult = str_replace(
+          array(
+            '{{' . $lAttr['key'] . '}}',
+            '{{item.' . $lAttr['key'] . '}}',
+            '{{get' . $lAttr['key'] . '(item)}}'
+          ), sanitize_title($lValue), $lResult);
+    }
+    
+    
+
+    return $lResult;
+  }
+
+
+  public static function getCity($item, $sanitize=true){
+    global $dictionary;
+    $lResult = $dictionary->getCaption($item->location->city_code, 'city');
+
+    if($sanitize){
+        $lResult = sanitize_title($lResult);
+    }
+
+    return $lResult;
+  }
+
+  public static function getRegion($item, $sanitize=true){
+    global $dictionary;
+    $lResult = $dictionary->getCaption($item->location->region_code, 'region');
+
+    if($sanitize){
+        $lResult = sanitize_title($lResult);
+    }
+
+    return $lResult;
+  }
+
+  public static function getTransaction($item, $sanitize=true){
+    $lResult = array();
+
+    foreach ($item->price as $key => $value) {
+      if(in_array($key, array('sell','lease'))){
+        $lResult[] = __('To ' . $key, IMMODB);
+      }
+    }
+
+    $lResult = implode(__(' or ',IMMODB),$lResult);
+
+    if($sanitize){
+        $lResult = sanitize_title($lResult);
+    }
+
+    return $lResult;
+  }
+
+
+
+  public static function getAttributeValueList($item, $prefix=null){
+    $lResult = array();
+    if(!is_array($item)){
+      $item = json_decode(json_encode($item),true);
+    }
+    foreach ($item as $key => $value) {
+      $attrKey = $key;
+      if($prefix!=null){
+        $attrKey = $prefix . '.' . $key;
+      }
+      if(is_array($item[$key])){
+        $lResult += self::getAttributeValueList($item[$key], $attrKey);
+      }
+      else{
+        $lResult[] = array('key' => $attrKey, 'value' => $item[$key]);
+      }
+    }
+
+    
+
+    $lResult[] = array('key' => 'Region', 'value' => '');
+    $lResult[] = array('key' => 'City', 'value' => '');
+    $lResult[] = array('key' => 'Transaction', 'value' => '');
+    
+    return $lResult;
   }
 }

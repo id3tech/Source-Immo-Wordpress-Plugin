@@ -26,8 +26,10 @@ $resultView = new ImmoDBListingsResult($data);
         echo('<div class="immodb-list">');
             
             foreach ($resultView->listings as $item) {
+                echo('<div>');
                 ImmoDB::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->preset}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
+                echo('</div>');
             }
         
         echo('</div>');

@@ -103,6 +103,8 @@ class ImmoDBConfig {
   public function save(){
     update_option('ImmoDBConfig', json_encode($this));
   }
+
+  
 }
 
 
