@@ -15,8 +15,8 @@ if(isset($configs)){
             <div class="civic-address">{{item.location.civic_address}}</div>
             <div class="price">{{formatPrice(item)}}</div>
             <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
-            <div class="category">{{getCaption(item.category , 'listing_category')}}</div>
-            <div class="subcategory">{{getCaption(item.subcategory , 'listing_subcategory')}}</div>
+            <div class="category">{{getCaption(item.category_code , 'listing_category')}}</div>
+            <div class="subcategory">{{getCaption(item.subcategory_code , 'listing_subcategory')}}</div>
         </div>
     </a>
 </article>

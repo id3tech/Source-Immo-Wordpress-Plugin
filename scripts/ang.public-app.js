@@ -137,8 +137,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
         $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
         $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
-        $scope.model.category           = $scope.getCaption($scope.model.category, 'listing_category');
-        $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory, 'listing_subcategory');
+        $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
+        $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
         $scope.model.location.full_address = '{0} {1}, {2}'.format(
                                                 $scope.model.location.address.street_number,
@@ -207,6 +207,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
         $scope.model.brokers.forEach(function($e){
             $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
+            $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
         });
     }
 
@@ -328,7 +329,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils)
      */
     $scope.preprocess = function(){
         // set basic information from dictionary
-        $scope.model.license_type_caption = $scope.getCaption($scope.model.license_type,'broker_license_type');
+        $scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
         $scope.model.languages            = 'N/A'.translate();
         let lExpertises           = [];
         $scope.model.listings.forEach(function($e,$i,$arr){
@@ -821,7 +822,7 @@ ImmoDbApp
             $scope.listing_states = {
                 sold: {
                     caption : 'Sold',
-                    filter : {field: 'status', operator: 'not_equal_to', value: 'AVAILABLE'}
+                    filter : {field: 'status_code', operator: 'not_equal_to', value: 'AVAILABLE'}
                 },
                 sell : {
                     caption: 'To sell', 
@@ -3220,7 +3221,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         $format = $format!=undefined ? $format : 'short';
 
         let lResult = [];
-        if($item.status=='SOLD'){
+        if($item.status_code=='SOLD'){
             if($item.price.sell != undefined){
                 lResult.push('Sold'.translate());
             }
@@ -3238,7 +3239,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
                 }
 
                 if($item.price[$key].unit){
-                    lPart.push($scope.getCaption($item.price[$key].unit,'price_unit',true))
+                    lPart.push($scope.getCaption($item.price[$key].unit_code,'price_unit',true))
                 }
 
                 if($format == 'long'){
@@ -3306,7 +3307,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
     $scope.getClassList = function($item){
         let lResult = [];
         if($item != null){
-            if($item.status=='SOLD'){
+            if($item.status_code=='SOLD'){
                 lResult.push('sold');
             }
         }

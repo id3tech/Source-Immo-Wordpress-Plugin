@@ -16,8 +16,8 @@ if(isset($configs)){
             <div class="ref-number">{{item.ref_number}}</div>
             <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
             <div class="region">{{getCaption(item.location.region_code , 'region')}}</div>
-            <div class="category">{{getCaption(item.category , 'listing_category')}}</div>
-            <div class="subcategory">{{getCaption(item.subcategory , 'listing_subcategory')}}</div>
+            <div class="category">{{getCaption(item.category_code , 'listing_category')}}</div>
+            <div class="subcategory">{{getCaption(item.subcategory_code , 'listing_subcategory')}}</div>
             <div class="description">{{item.description}}</div>
         </div>
     </a>

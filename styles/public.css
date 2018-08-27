@@ -1367,10 +1367,10 @@
 
 .immodb.listing-single .content .brokers .broker {
   display: grid;
-  grid-gap: 10px;
+  grid-gap: 0 10px;
   grid-template-columns: 100px 1fr;
   grid-template-rows: minmax(30px, auto) auto;
-  grid-template-areas: "photo name"  "photo contact" "photo actions";
+  grid-template-areas: "photo name"  "photo license"  "photo contact" "photo actions";
   background: rgba(0, 0, 0, 0.1);
   padding: 10px;
 }
@@ -1390,10 +1390,20 @@
 .immodb.listing-single .content .brokers .broker .name {
   font-size: 1.25em;
   font-weight: 600;
+  margin: 0px;
 }
 
 .immodb.listing-single .content .brokers .broker .contact {
   align-self: start;
+  margin-bottom: 10px;
+}
+
+.immodb.listing-single .content .brokers .broker .license {
+  grid-area: license;
+  text-transform: uppercase;
+  opacity: 0.6;
+  font-size: 0.8em;
+  margin-bottom: 10px;
 }
 
 .immodb.listing-single .content .mortgage-calculator {

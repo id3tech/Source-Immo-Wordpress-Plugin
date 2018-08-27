@@ -190,7 +190,7 @@ $locales.fr = {};$locales.fr.global =
     , "Request information for : {0} ({1})" : "Demande d'information pour : {0} ({1})"
     , "Included" : "Inclusions"
     , "Excluded" : "Exclusions"
-    , "See {0}'s {1} other properties" : "Voir les {1} autres propriétés de {0}"
+    , "{0} other properties" : "{0} autres propriétés"
     // PUBLIC - SINGLE BROKER
     , "Office" : "Bureau"
     , "Languages" : "Langues"

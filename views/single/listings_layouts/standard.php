@@ -137,11 +137,12 @@
             <div class="broker" ng-repeat="broker in model.brokers">
                 <div class="photo"><img src="{{broker.photo_url}}" /></div>
                 <div class="name">{{broker.first_name}} {{broker.last_name}}</div>
+                <div class="license">{{broker.license_type}}</div>
                 <div class="contact">
                     <div class="phone" ng-repeat="(key,phone) in broker.phones">{{key.translate()}} : {{phone}}</div>
                 </div>
                 <div class="actions">
-                    <a class="button" href="/{{broker.detail_link}}">{{'See {0}\'s {1} other properties'.translate().format(broker.first_name, broker.listings_count-1)}}</a>
+                    <a class="button" href="/{{broker.detail_link}}"><button type="button">{{'{0} other properties'.translate().format(broker.listings_count-1)}}</button></a>
                 </div>
             </div>
         </div>
