@@ -55,7 +55,7 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
  */
 ImmoDbApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils){
+function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -91,15 +91,12 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            if($scope.permalinks != null){
-                $resolve();
-            }
-            else{
-                $immodbApi.rest('permalinks').then(function($response){
-                    $scope.permalinks = $response;
-                    $resolve();
-                });
-            }
+            $immodbConfig.get().then(function($configs){
+                $resolve({
+                    brokers: $configs.broker_routes,
+                    listings: $configs.listing_routes
+                })
+            })
         });
 
         return lPromise;
@@ -111,20 +108,33 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
      */
     $scope.loadSingleData = function($ref_number){
         // Get the default view id for data source
-        $immodbApi.getDefaultDataView().then(function($view){
-            // Load listing data from api
-            console.log($view);
-            $immodbApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
-                $scope.model = $data;
-                // set dictionary source
-                $immodbDictionary.source = $data.dictionary;
-                // start preprocessing of data
-                $scope.preprocess();
-                // prepare message subject build from data
-                $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
-                // print data to console for further informations
-                console.log($scope.model);
-            });
+        let lPromise = $q(function($resolve,$reject){
+            if(typeof(immodbListingData)!='undefined'){
+                $resolve(immodbListingData);
+            }
+            else{
+                $immodbApi.getDefaultDataView().then(function($view){
+                    // Load listing data from api
+                    console.log($view);
+                    $immodbApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                        $resolve($data);
+                    });
+                });
+            }
+
+        });
+
+
+        lPromise.then(function($data){
+            $scope.model = $data;
+            // set dictionary source
+            $immodbDictionary.source = $data.dictionary;
+            // start preprocessing of data
+            $scope.preprocess();
+            // prepare message subject build from data
+            $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            // print data to console for further informations
+            console.log($scope.model);
         });
     }
 

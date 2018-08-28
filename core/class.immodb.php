@@ -248,7 +248,12 @@ class ImmoDB {
 
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
-    self::view('single/listings', array('ref_number'=>$ref_number));
+
+    // load data
+    $listing_data = ImmoDBApi::get_listing_data($ref_number);
+
+
+    self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data));
   }
 
   function include_brokers_detail_template(){

@@ -27,5 +27,9 @@ get_header();
         </main>
     </div>
 </div>
+
+<script type="text/javascript">
+var immodbListingData = JSON.parse(<?php echo(json_encode($data)); ?>);
+</script>
 <?php
 get_footer();
