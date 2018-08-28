@@ -1245,6 +1245,8 @@
 .immodb.listing-single .content .header .information_request button {
   width: 100%;
   display: block;
+  padding: 1em 2em;
+  border: none;
 }
 
 #top .immodb.listing-single .content .header .tools,
@@ -1256,7 +1258,9 @@
 #top .immodb.listing-single .content .header .tools button,
 .immodb.listing-single .content .header .tools button {
   background-color: #777;
+  color: #fff;
   padding: 1em 1em;
+  border: none;
 }
 
 #top .immodb.listing-single .content .header .tools button:hover,
@@ -1326,6 +1330,9 @@
   transition: 0.25s;
   outline: none;
   position: relative;
+  border: 0;
+  box-shadow: none;
+  padding: 1em 2em;
 }
 
 #top .immodb.listing-single .content .medias .tabs .tab:after,

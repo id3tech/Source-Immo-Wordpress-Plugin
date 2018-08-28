@@ -784,8 +784,9 @@
                 .information_request{
                     place-self: stretch;
                     text-align:center;
+                    
                     grid-column-span: 2;
-                    button{width:100%;display:block;}
+                    button{width:100%;display:block;padding:1em 2em;border:none;}
                 }
 
                 .tools{
@@ -793,7 +794,9 @@
                     grid-column-span: 2;
                     button{
                         background-color:#777;
+                        color:#fff;
                         padding:1em 1em;
+                        border:none;
                         &:hover{background-color:lighten(#777,15)}
                     } 
                     @media screen and (max-width:640px){
@@ -830,6 +833,9 @@
                         transition:0.25s;
                         outline:none;
                         position:relative;
+                        border:0;
+                        box-shadow:none;
+                        padding:1em 2em;
                         &:after{
                             content:"";
                             background:currentColor;

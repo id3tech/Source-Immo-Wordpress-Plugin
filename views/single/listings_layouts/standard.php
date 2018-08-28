@@ -8,13 +8,13 @@
     <div class="city">{{model.location.city}}</div>
 
     <div class="tools">
-        <button type="button"><i class="fal fa-share-alt"></i></button>
-        <button type="button"><i class="fal fa-print"></i></button>
-        <button type="button"><i class="fal fa-heart"></i></button>
+        <button type="button" class="avia-button"><i class="fal fa-share-alt"></i></button>
+        <button type="button" class="avia-button"><i class="fal fa-print"></i></button>
+        <button type="button" class="avia-button"><i class="fal fa-heart"></i></button>
     </div>
 
     <div class="information_request">
-        <button type="button" data-toggle="modal" data-target="#information_request"><i class="fal fa-info"></i> <?php _e('Information request',IMMODB) ?></button>
+        <button type="button" class="avia-button" data-toggle="modal" data-target="#information_request"><i class="fal fa-info"></i> <?php _e('Information request',IMMODB) ?></button>
     </div>
 </div>
 
@@ -142,7 +142,7 @@
                     <div class="phone" ng-repeat="(key,phone) in broker.phones">{{key.translate()}} : {{phone}}</div>
                 </div>
                 <div class="actions">
-                    <a class="button" href="/{{broker.detail_link}}"><button type="button">{{'{0} other properties'.translate().format(broker.listings_count-1)}}</button></a>
+                    <a class="button avia-button" href="/{{broker.detail_link}}"><button type="button">{{'{0} other properties'.translate().format(broker.listings_count-1)}}</button></a>
                 </div>
             </div>
         </div>
