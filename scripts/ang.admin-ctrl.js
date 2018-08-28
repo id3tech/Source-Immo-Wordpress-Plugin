@@ -264,9 +264,9 @@ ImmoDbApp
 
   $scope.validate = function(){
     // if there's a limit but under 100, turn off searchable and pageable flags
-    if($scope.model.limit.between(1, 100)){
-      $scope.model.searchable = false;
-    }
+    // if($scope.model.limit.between(1, 100)){
+    //   $scope.model.searchable = false;
+    // }
   }
 });
 

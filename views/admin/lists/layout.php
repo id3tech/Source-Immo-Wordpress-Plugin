@@ -17,7 +17,7 @@
         <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
             class="input-container" layout="row" layout-align="space-between center">
             <label><?php _e('Allow search',IMMODB) ?></label>
-            <md-checkbox ng-model="model.searchable" ng-disabled="model.limit.between(1,100)"></md-checkbox>
+            <md-checkbox ng-model="model.searchable"></md-checkbox>
         </div>
 
         <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
