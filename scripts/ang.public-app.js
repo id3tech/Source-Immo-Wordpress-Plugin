@@ -2899,6 +2899,8 @@ ImmoDbApp
 function $immodbApi($http,$q){
     let $scope = {};
     
+    $scope.configs = null;
+
     /**
      * API call gateway that renew token if needed
      * @param {string} $path Endpoint to the api call
@@ -2990,11 +2992,18 @@ function $immodbApi($http,$q){
      */
     $scope.getListConfigs = function($alias){
         let lPromise = $q(function($resolve, $reject){
-            $scope.rest_call('list_configs',{alias : $alias},{
-                method: 'GET'
-            }).then(function($response){
-                $resolve($response);
-            })
+            $scope.getConfigs().then(function($configs){
+                let lResult = null;
+                console.log($configs);
+                $configs.lists.some(function($e){
+                    if($e.alias == $alias){
+                        lResult = $e;
+                        return true;
+                    }
+                });
+
+                $resolve(lResult);
+            });
         });
 
         return lPromise;
@@ -3107,6 +3116,26 @@ function $immodbApi($http,$q){
                     console.log($error);
                 }
             )
+        });
+
+        return lPromise;
+    }
+
+    $scope.getConfigs = function(){
+        let lPromise = $q(function($resolve, $reject){
+            if($scope.configs!=null){
+                $resolve($scope.configs);
+            }
+            else{
+                $http.get(immodbCtx.config_path).then(function($response){
+                    if($response.status==200){
+                        $resolve($response.data);
+                    }
+                    else{
+                        $reject();
+                    }
+                });
+            }
         });
 
         return lPromise;

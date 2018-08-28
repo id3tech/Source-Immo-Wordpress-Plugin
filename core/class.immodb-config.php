@@ -102,6 +102,24 @@ class ImmoDBConfig {
 
   public function save(){
     update_option('ImmoDBConfig', json_encode($this));
+    // save to file system too
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_immodb';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    $filePointer = fopen($lConfigFilePath,'w');
+    fwrite($filePointer, json_encode($this->getSecuredVersion()));
+    fclose($filePointer);
+  }
+
+  public function getSecuredVersion(){
+    $lResult = clone $this;
+    $lResult->api_key = null;
+    $lResult->account_id = null;
+
+    return $lResult;
   }
 
   

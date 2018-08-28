@@ -205,11 +205,12 @@ class ImmoDB {
       
     }
 
-    
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath  = $lUploadDir['baseurl'] . '/_immodb/_configs.json';
     wp_add_inline_script( 'angular', 
                           'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .
                           'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
-                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . '};'
+                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . '};'
                         );
     
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
