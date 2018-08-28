@@ -473,9 +473,6 @@ ImmoDbApp
                 $immodbApi.getListConfigs($scope.alias).then(function($configs){
                     $scope.configs = $configs;
                     $immodbApi.renewToken().then(function(){
-                        if($scope.configs.source=='default'){
-                            $scope.configs.source = $immodbApi.auth_token.view_ids[0];
-                        }
                         $scope.start();
                     });
                 });
@@ -2016,14 +2013,7 @@ ImmoDbApp
                         console.log($scope.alias);
                         $immodbApi.getListConfigs($scope.alias).then(function($configs){
                             $scope.configs = $configs;
-                            $immodbApi.renewToken().then(function(){
-                                console.log('token is renewed')
-                                if($scope.configs.source=='default'){
-                                    $scope.configs.source = $immodbApi.auth_token.view_ids[0];
-                                }
-                                $resolve($scope.configs);
-                            });
-                            
+                            $resolve($scope.configs);
                         });
                     }
                     else{
@@ -2895,11 +2885,11 @@ function $immodbTemplate($http, $q, $interpolate, $sce){
 }]);
 
 ImmoDbApp
-.factory('$immodbApi', ["$http","$q", 
-function $immodbApi($http,$q){
+.factory('$immodbApi', ["$http","$q","$immodbConfig", 
+function $immodbApi($http,$q,$immodbConfig){
     let $scope = {};
     
-    $scope.configs = null;
+    $scope.viewMetas = {};
 
     /**
      * API call gateway that renew token if needed
@@ -2992,7 +2982,7 @@ function $immodbApi($http,$q){
      */
     $scope.getListConfigs = function($alias){
         let lPromise = $q(function($resolve, $reject){
-            $scope.getConfigs().then(function($configs){
+            $immodbConfig.get().then(function($configs){
                 let lResult = null;
                 console.log($configs);
                 $configs.lists.some(function($e){
@@ -3018,6 +3008,7 @@ function $immodbApi($http,$q){
      */
     $scope.getViewMeta = function($type, $view_id){
         let lOrigin = $type;
+        let lViewMetaKey = $type + '::' + $view_id;
         switch(lOrigin){
             case 'listings':
                 lOrigin = 'listing';break;
@@ -3028,7 +3019,34 @@ function $immodbApi($http,$q){
         }
         let lEndPoint = ''.concat('view/',$view_id,'/',immodbApiSettings.locale);
         
-        return $scope.api(lEndPoint);        
+        let lPromise = $q(function($resolve, $reject){
+            // View is defined, therefor loaded
+            if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==undefined){
+                $resolve($scope.viewMetas[lViewMetaKey]);
+            }
+            // View is currently loading, wait for data
+            else if ($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==true){
+                let fnWait = function(){
+                    if($scope.viewMetas[lViewMetaKey].loading==true){
+                        window.setTimeout(fnWait, 15);
+                    }
+                    else{
+                        $resolve($scope.viewMetas[lViewMetaKey]);
+                    }
+                }
+                fnWait();
+            }
+            else{
+                $scope.viewMetas[lViewMetaKey] = {loading:true};
+                $scope.api(lEndPoint).then(function($response){
+                    $scope.viewMetas[lViewMetaKey] = $response;
+                    $resolve($response);
+                });
+            }
+            
+        });
+
+        return lPromise;        
     }
         
         
@@ -3116,26 +3134,6 @@ function $immodbApi($http,$q){
                     console.log($error);
                 }
             )
-        });
-
-        return lPromise;
-    }
-
-    $scope.getConfigs = function(){
-        let lPromise = $q(function($resolve, $reject){
-            if($scope.configs!=null){
-                $resolve($scope.configs);
-            }
-            else{
-                $http.get(immodbCtx.config_path).then(function($response){
-                    if($response.status==200){
-                        $resolve($response.data);
-                    }
-                    else{
-                        $reject();
-                    }
-                });
-            }
         });
 
         return lPromise;
@@ -3464,6 +3462,65 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
 
     return $scope;
 }]);
+
+ImmoDbApp
+.factory('$immodbConfig',['$http','$q',
+function $immodbConfig($http, $q){
+    let $scope = {};
+
+    $scope._data = null;
+    $scope._loading = false;
+
+    $scope.init = function(){
+        $scope.get();
+    }
+
+    $scope.get = function(){
+        let lPromise = $q(function($resolve, $reject){
+            console.log('on get $scope._data:',$scope._data,'loading:',$scope._loading);
+            // in case the script is already loading, wait for data to load
+            if($scope._loading==true){
+                let fnWait = function(){
+                    if($scope._loading==true){
+                        window.setTimeout(fnWait, 50);
+                    }
+                    else{
+                        $resolve($scope._data);
+                    }
+                }
+                fnWait();
+            }
+            else{
+                if($scope._data!=null){
+                    $resolve($scope._data);
+                }
+                else{
+                    $scope._loading = true;
+                    $http.get(immodbCtx.config_path).then(function($response){
+                        if($response.status==200){
+                            $scope._data = $response.data;
+                            $scope._loading = false;
+    
+                            $resolve($scope._data);
+                        }
+                        else{
+                            $reject();
+                        }
+                    });
+                }
+            }
+            
+        });
+
+        return lPromise;
+    }
+
+    $scope.init();
+
+
+    return $scope;
+}
+])
 
 
 /* ------------------------------- 
