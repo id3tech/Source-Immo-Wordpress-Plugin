@@ -721,10 +721,17 @@
     &.listing-single{
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+            .fa-spinner-third{
+                display:block;
+                font-size:250px;
+                margin:15vh auto;
+                opacity:0.5;
+            }
         }
         .content{
 
-            display:none;
+            //display:none;
+            transition:0.25s;opacity:0;
             @include gridAreas('ref-number','subcategory','price','city','medias', 
             'header','summary','details','left','right','flags',
             'description','addendum','information_request',
@@ -1110,6 +1117,7 @@
         &.loaded{
             .content{
                 display:grid;
+                opacity:1;
             }
         }
     }

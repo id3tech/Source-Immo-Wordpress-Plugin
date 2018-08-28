@@ -9,7 +9,9 @@ get_header();
 		<main id="main" class="site-main" role="main">
             <div ng-controller="singleListingCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
                 class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
-                <label class="placeholder"  ng-show="model==null"><?php _e('Loading property',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
+                <label class="placeholder"  ng-show="model==null">
+                    <div><?php _e('Loading property',IMMODB) ?></div>
+                    <i class="fal fa-spinner-third fa-spin"></i></label>
                 <div class="content">
             <?php 
                 $layout = ImmoDB::current()->configs->listing_layout;

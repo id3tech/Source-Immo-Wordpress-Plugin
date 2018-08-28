@@ -1047,9 +1047,18 @@
   text-transform: uppercase;
 }
 
+#top .immodb.listing-single label.placeholder .fa-spinner-third,
+.immodb.listing-single label.placeholder .fa-spinner-third {
+  display: block;
+  font-size: 250px;
+  margin: 15vh auto;
+  opacity: 0.5;
+}
+
 #top .immodb.listing-single .content,
 .immodb.listing-single .content {
-  display: none;
+  transition: 0.25s;
+  opacity: 0;
   padding: 0px;
   grid-gap: 20px;
   grid-template-columns: 2fr 1fr;
@@ -1753,6 +1762,7 @@
 #top .immodb.listing-single.loaded .content,
 .immodb.listing-single.loaded .content {
   display: grid;
+  opacity: 1;
 }
 
 #top .immodb.broker-single label.placeholder,
