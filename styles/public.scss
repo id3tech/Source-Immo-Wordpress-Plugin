@@ -375,7 +375,7 @@
         }
     }
     .immodb-item{
-        max-width:360px;
+        //max-width:360px;
         &.info-window{
             max-width:340px;
             img{max-width:100%;}
@@ -1134,7 +1134,7 @@
             
             grid-template-columns: 2fr 1fr;
             grid-template-areas: "left-column right-column";
-            place-items: start;
+            place-items: start stretch;
             grid-gap:20px;
 
             label.placeholder{
