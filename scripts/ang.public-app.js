@@ -531,6 +531,7 @@ ImmoDbApp
              * @param {string} $newToken New search token
              */
             $scope.onFilterTokenChanged = function($event, $newToken){
+                console.log('Filter token changed')
                 $scope.client.search_token = $newToken; // save search token
                 // When ready, get data
                 $scope.isReady().then(function(){
@@ -570,24 +571,27 @@ ImmoDbApp
                 // reset page index
                 $scope.page_index = 0;  
                 // lock loading to prevent call overlaps
-                $scope.is_loading_data = true;
-                $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
-                    // set list/meta
-                    if($scope.configs.type=='listings'){
-                        $scope.list = $immodbUtils.compileListingList($response.items);
-                    }
-                    else{
-                        $scope.list = $response.items;
-                    }
-                    
-                    $scope.listMeta = $response.metadata;
-                    // unlock
-                    $scope.is_loading_data = false;
+                console.log("search called loading:", $scope.is_loading_data)
+                if($scope.is_loading_data == false){
+                    $scope.is_loading_data = true;
+                    console.log('search called api')
+                    $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
+                        // set list/meta
+                        if($scope.configs.type=='listings'){
+                            $scope.list = $immodbUtils.compileListingList($response.items);
+                        }
+                        else{
+                            $scope.list = $response.items;
+                        }
+                        
+                        $scope.listMeta = $response.metadata;
+                        // unlock
+                        $scope.is_loading_data = false;
 
-                    // print list to console for further information
-                    console.log($scope.list);
-                })
-                
+                        // print list to console for further information
+                        console.log($scope.list);
+                    })
+                }
             }
 
             /**
@@ -3073,10 +3077,7 @@ function $immodbApi($http,$q,$immodbConfig){
         $options = angular.merge({
             url     : immodbApiSettings.api_root + '/api/' + $path,
             method  : (typeof($data)=='undefined' || $data==null) ? 'GET' : 'POST',
-            data : $data,
-            headers : {
-                'auth_token' : ($scope.auth_token)?$scope.auth_token.key:''
-            }
+            data : $data
         }, $options);
 
 
@@ -3086,6 +3087,8 @@ function $immodbApi($http,$q,$immodbConfig){
                 $options.data = null;
             }
         }
+        if(typeof $options.params == 'undefined'){$options.params = {};}
+        $options.params.at = $scope.auth_token.key;
 
         // Setup promise object
         let lPromise = $q(function($resolve, $reject){
