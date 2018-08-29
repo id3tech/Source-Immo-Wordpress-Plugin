@@ -126,8 +126,8 @@
                         <div class="dropdown-divider"></div>
 
                         <div class="pretty p-icon p-pulse p-round"
-                            ng-click="addFilter('main_unit.bedroom_count','greater_or_equal_to','')">
-                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bedroom_count') == null"> 
+                            ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to','')">
+                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bathroom_count') == null"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label><?php _e('Any',IMMODB) ?></label>
@@ -135,8 +135,8 @@
                         </div>
 
                         <div class="pretty p-icon p-pulse p-round"  ng-repeat="item in bathroomSuggestions"
-                            ng-click="addFilter('main_unit.bedroom_count','greater_or_equal_to',item.value, item.caption)">
-                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bedroom_count') == item.value"> 
+                            ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to',item.value, item.caption)">
+                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bathroom_count') == item.value"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.label}}</label>

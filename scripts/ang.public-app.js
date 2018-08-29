@@ -1649,7 +1649,7 @@ ImmoDbApp
                 for(let $key in $scope.dictionary){
                     $scope.resetListSelections($scope.dictionary[$key]);
                 }
-                $scope.resetListSelections($s);
+                //$scope.resetListSelections($s);
     
                 // save filters to localStorage
                 $scope.clearState();
@@ -1757,8 +1757,19 @@ ImmoDbApp
                     $scope.filter_group.filter_groups.push(parentFilterGroup);
                 }
                 
-                $field.forEach(function($f){
-                    $scope.setFilter($f,$operator,$value,parentFilterGroup, $label);
+                $field.forEach(function($f,$index){
+                    let lValue = $value;
+                    if($value != null){
+                        if(typeof($value.push) == 'function'){
+                            if($value.length>$index){
+                                lValue = $value[$index];
+                            }
+                            else{
+                                lValue = null;
+                            }
+                        }
+                    }
+                    $scope.setFilter($f,$operator,lValue,parentFilterGroup, $label);
                 });
     
                 if(parentFilterGroup.filters==null){
