@@ -324,27 +324,34 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
      * @param {string} $ref_number broker reference key
      */
     $scope.loadSingleData = function($ref_number){
-        if(typeof(immodbBrokerData)!='undefined'){
-            $resolve(immodbBrokerData);
-        }
-        else{
-            // Get the default view id for data source
-            $immodbApi.getDefaultDataView().then(function($view){
-                // Load broker data from api
-                console.log($view);
-                $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
-                    $scope.model = $data;
-                    // set dictionary source
-                    $immodbDictionary.source = $data.dictionary;
-                    // start preprocessing of data
-                    $scope.preprocess();
-                    // prepare message subject build from data
-                    //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
-                    // print data to console for further informations
-                    console.log($scope.model);
+
+        let lPromise = $q(function($resolve,$reject){
+            if(typeof(immodbBrokerData)!='undefined'){
+                $resolve(immodbBrokerData);
+            }
+            else{
+                $immodbApi.getDefaultDataView().then(function($view){
+                    // Load broker data from api
+                    console.log($view);
+                    $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                        $resolve($data);
+                    });
                 });
-            });
-        }
+            }
+
+        });
+
+        lPromise.then(function($data){
+            $scope.model = $data;
+            // set dictionary source
+            $immodbDictionary.source = $data.dictionary;
+            // start preprocessing of data
+            $scope.preprocess();
+            // prepare message subject build from data
+            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            // print data to console for further informations
+            console.log($scope.model);
+        });
     }
 
     /**
