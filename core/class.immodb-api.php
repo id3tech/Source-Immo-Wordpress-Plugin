@@ -276,6 +276,20 @@ class ImmoDBApi {
     return $lResult;
   }
 
+  
+  public static function get_broker_data($id){
+    $account_id = ImmoDB::current()->get_account_id();
+    $api_key = ImmoDB::current()->get_api_key();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+
+    $lAccessToken = HttpCall::to('~','auth','get_token', $account_id, $api_key)->get(null, true);
+
+    $lResult = HttpCall::to('~', 'broker/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
+    
+    return $lResult;
+  }
+
   public static function get_account(){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
