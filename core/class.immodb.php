@@ -260,7 +260,11 @@ class ImmoDB {
 
   function include_brokers_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
-    self::view('single/brokers', array('ref_number'=>$ref_number));
+
+    // load data
+    $broker_data = ImmoDBApi::get_broker_data($ref_number);
+
+    self::view('single/brokers', array('ref_number'=>$ref_number, 'data' => $broker_data));
   }
 
 

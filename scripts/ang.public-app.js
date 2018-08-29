@@ -271,10 +271,10 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
  */
 ImmoDbApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils){
+function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig){
     $scope.filter_keywords = '';
 
-    // model data container - listing
+    // model data container - broker
     $scope.model = null;
     $scope.permalinks = null;
 
@@ -295,7 +295,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils)
 
     /**
      * Initialize controller
-     * @param {string} $ref_number Listing reference key
+     * @param {string} $ref_number broker reference key
      */
     $scope.init = function($ref_number){
         if($ref_number != undefined){
@@ -309,41 +309,42 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils)
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            if($scope.permalinks != null){
-                $resolve();
-            }
-            else{
-                $immodbApi.rest('permalinks').then(function($response){
-                    $scope.permalinks = $response;
-                    $resolve();
-                });
-            }
+            $immodbConfig.get().then(function($configs){
+                $resolve({
+                    brokers: $configs.broker_routes,
+                    listings: $configs.listing_routes
+                })
+            })
         });
-
         return lPromise;
     }
 
     /**
-     * Load listing data
-     * @param {string} $ref_number Listing reference key
+     * Load broker data
+     * @param {string} $ref_number broker reference key
      */
     $scope.loadSingleData = function($ref_number){
-        // Get the default view id for data source
-        $immodbApi.getDefaultDataView().then(function($view){
-            // Load listing data from api
-            console.log($view);
-            $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
-                $scope.model = $data;
-                // set dictionary source
-                $immodbDictionary.source = $data.dictionary;
-                // start preprocessing of data
-                $scope.preprocess();
-                // prepare message subject build from data
-                //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
-                // print data to console for further informations
-                console.log($scope.model);
+        if(typeof(immodbBrokerData)!='undefined'){
+            $resolve(immodbBrokerData);
+        }
+        else{
+            // Get the default view id for data source
+            $immodbApi.getDefaultDataView().then(function($view){
+                // Load broker data from api
+                console.log($view);
+                $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                    $scope.model = $data;
+                    // set dictionary source
+                    $immodbDictionary.source = $data.dictionary;
+                    // start preprocessing of data
+                    $scope.preprocess();
+                    // prepare message subject build from data
+                    //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+                    // print data to console for further informations
+                    console.log($scope.model);
+                });
             });
-        });
+        }
     }
 
     /**
@@ -2981,9 +2982,11 @@ function $immodbApi($http,$q,$immodbConfig){
         }
         // token is out of date
         if(Date.parse($scope.auth_token.expire_date) < lNow){
+            console.log('token is not valid');
             return false;
         }
         // everything's peachy
+        console.log('token is valid');
         return true;
     }
 
@@ -3010,15 +3013,9 @@ function $immodbApi($http,$q,$immodbConfig){
 
     $scope.getDefaultDataView = function(){
         let lPromise = $q(function($resolve, $reject){
-            $scope.call(null,null,{
-                url : immodbApiSettings.rest_root + 'immodb/data_view',
-                headers: {
-                    'X-WP-Nonce': immodbApiSettings.nonce
-                },
-            }).then(function($response){
-                $resolve(JSON.parse($response));
-            })
-        
+            $immodbConfig.get().then(function($config){
+                $resolve(JSON.parse($config.default_view));
+            });
         });
 
         return lPromise;
@@ -3503,6 +3500,23 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
                 return 1;
             }
         });
+
+        return lResult;
+    }
+
+    /**
+     * Return an object containing all query string data
+     */
+    $scope.search = function(){
+        let lResult = {};
+        let lSearch = location.search.replace('?','');
+        if(lSearch!=''){
+            let lQueryArr = lSearch.split('&');
+            lQueryArr.forEach(function($item){
+                lKeyValue = $item.split("=");
+                lResult[lKeyValue[0]] = lKeyValue[1];
+            });
+        }
 
         return lResult;
     }
