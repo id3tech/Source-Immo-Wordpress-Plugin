@@ -7,10 +7,22 @@ ImmoDbApp
 .controller('publicCtrl', 
 function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
     $scope.model = null;
+    $scope.broker_count = 0;
+    $scope.listing_count = 0;
 
     $scope.init = function(){
         
     }
+
+    // listingsUpdate
+    $scope.$on('immodb-listings-update', function($event, $list, $meta){    
+        $scope.listing_count = $meta.item_count;
+    });
+
+    // brokersUpdate
+    $scope.$on('immodb-brokers-update',function(ev, $list, $meta){
+        $scope.broker_count = $meta.item_count;
+    });
 
     /**
      * Shorthand to $immodbDictionary.getCaption
@@ -587,9 +599,13 @@ ImmoDbApp
                         $scope.listMeta = $response.metadata;
                         // unlock
                         $scope.is_loading_data = false;
+                        // broadcast new list
+                        console.log('Broadcasting list on','immodb-' + $scope.configs.type + '-update','...');
+                        $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                        $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
                         // print list to console for further information
-                        console.log($scope.list);
+                        console.log('The list',$scope.list);
                     })
                 }
             }
@@ -622,11 +638,18 @@ ImmoDbApp
                     // lock loading to prevent call overlaps
                     $scope.is_loading_data = true;
                     $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
-                        $scope.list = $scope.list.concat($response.items);
+                        let lNewItems = $response.items;
+                        if($scope.configs.type=='listings'){
+                            lNewItems = $immodbUtils.compileListingList(lNewItems);
+                        }
+
+                        $scope.list = $scope.list.concat(lNewItems);
                         
                         $scope.listMeta = $response.metadata;
                         // increment page index
                         $scope.page_index++;
+                        // broadcast new list
+                        $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                         // unlock
                         window.setTimeout(function(){
                             $scope.is_loading_data = false;
