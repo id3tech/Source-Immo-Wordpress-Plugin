@@ -284,8 +284,8 @@ class ImmoDB {
 
     // unless it's a view for admin configuration,
     // developper can override the path or layout
-    if(strpos('admin', $path) != 0){
-
+    if(strpos('admin', $path) === false){
+      
       // apply filter on $file to allow custom view path
       $file = apply_filters( 'immodb_view_path', $file, $path );
 

@@ -69,11 +69,14 @@ class ThemeOverrides {
   * @static
   */
   public static function search(string $file_path, $search_in = '', $fallback=false){
-    $theme_dir = get_template_directory();
-    $theme_plugin_dir = $theme_dir  . '/immodb';
+    
+    $theme_dir = get_stylesheet_directory();
+    $theme_plugin_dir = untrailingslashit($theme_dir)  . '/immodb';
     $theme_plugin_search_dir =  $theme_plugin_dir . '/' . $search_in;
+
     if(file_exists($theme_plugin_dir)){
-        $file_name = basename($file_path);
+        //$file_name = basename($file_path);
+        $file_name = str_replace(IMMODB_PLUGIN_DIR . 'views/', '',$file_path);        
         if(file_exists($theme_plugin_search_dir . '/' . $file_name)){
           return $theme_plugin_search_dir . '/' . $file_name;
         }
