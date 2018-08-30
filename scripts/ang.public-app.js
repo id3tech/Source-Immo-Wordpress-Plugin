@@ -508,6 +508,14 @@ ImmoDbApp
                 });
             
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
+
+                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
+                    $scope.display_mode = 'map';
+                });
+
+                $scope.$on('immodb-{0}-display-switch-list'.format($scope.alias), function(){
+                    $scope.display_mode = 'list';
+                });
             }
     
             /**
