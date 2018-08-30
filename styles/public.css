@@ -825,7 +825,7 @@
 
 #top .immodb.immodb-list-of-listings .immodb-list,
 .immodb.immodb-list-of-listings .immodb-list {
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 }
 
 #top .immodb.immodb-list-of-brokers .immodb-list,
