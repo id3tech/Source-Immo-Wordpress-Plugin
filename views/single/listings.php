@@ -12,7 +12,7 @@ get_header();
                 <label class="placeholder"  ng-show="model==null">
                     <div><?php _e('Loading property',IMMODB) ?></div>
                     <i class="fal fa-spinner-third fa-spin"></i></label>
-                <div class="content">
+                <div class="immodb-content">
             <?php 
                 $layout = ImmoDB::current()->configs->listing_layout;
                 if($layout=='custom_page'){

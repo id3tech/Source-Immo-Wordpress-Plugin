@@ -26,28 +26,9 @@
         </div>
     </div>
 
-
-
-    <div class="listing-list immodb-list-of-listings">
-        <div ng-show="model.listings.length>0">
-            <div class="layout-row layout-space-between">
-                <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
-
-                <div class="search-input">
-                    <input placeholder="{{'Use keywords to filter the list'.translate()}}" ng-model="filter_keywords" />
-                    <i class="far fa-search"></i>
-                </div>
-            </div>
-            <div class="list-container">
-                <div ng-repeat="item in model.listings | filter : filterListings" ng-animate>
-                    <?php
-                    ImmoDB::view("list/listings/standard/item-small");
-                    ?>
-                </div>
-            </div>
-        </div>
-        <label class="placeholder" ng-show="model.listings.length==0">{{'{0} has no properties yet'.translate().format(model.first_name)}}</label>
-    </div>
+    <?php
+    echo do_shortcode('[immodb_broker_listings]')
+    ?>
 </div>
 
 <div class="right-column">

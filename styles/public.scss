@@ -731,7 +731,7 @@
                 opacity:0.5;
             }
         }
-        .content{
+        .immodb-content{
 
             //display:none;
             transition:0.25s;opacity:0;
@@ -1118,7 +1118,7 @@
             }
         }
         &.loaded{
-            .content{
+            .immodb-content{
                 display:grid;
                 opacity:1;
             }
@@ -1130,7 +1130,7 @@
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
         }
-        > .content{
+        > .immodb-content{
             @include gridAreas('left-column','right-column');
 
             display:none;
@@ -1235,7 +1235,7 @@
             }
         }
         &.loaded{
-            > .content{
+            > .immodb-content{
                 display:grid;
             }
         }
