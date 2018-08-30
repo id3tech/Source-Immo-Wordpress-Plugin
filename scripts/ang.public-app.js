@@ -634,7 +634,9 @@ ImmoDbApp
             /**
              * Load next page datas and append it to the list
              */
-            $scope.showNextPage = function(){
+            $scope.showNextPage = function($reset){
+                $reset = typeof($reset)=='undefined'?false:$reset;
+
                 lParams = {
                     'st': $scope.listMeta.search_token, // set search token
                     'nt': $scope.listMeta.next_token    // set next page token
@@ -662,6 +664,10 @@ ImmoDbApp
                         window.setTimeout(function(){
                             $scope.is_loading_data = false;
                         },500);
+
+                        if($reset){
+                            $scope.page_index = 0;
+                        }
                     });
                 }
                 
