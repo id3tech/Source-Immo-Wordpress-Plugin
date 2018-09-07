@@ -12,21 +12,20 @@
                         <div class="tabs tabs-left">
                             <div class="regions tab-header with-title">
                                 <h4 class="title"><?php _e('Regions',IMMODB) ?></h4>
-                                <div class="tab-item {{tab_region==item.__$key ? 'active' : ''}}" 
+                                <div class="tab-item {{tab_region==item.__$obj_key ? 'active' : ''}}" 
                                     ng-repeat="item in dictionary.region | orderObjectBy: 'caption'" 
-                                    ng-click="changeRegionTab(item.__$key)">{{item.caption}}</div>
+                                    ng-click="changeRegionTab(item.__$obj_key)">{{item.caption}}</div>
                             </div>
 
                             <div class="cities tab-content">
                                 <div class="grid-layout-column">
                                     <h4><?php _e('Cities',IMMODB) ?></h4>
-                                    <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.city | orderObjectBy: 'caption'"
-                                        ng-show="item.parent.trim()==tab_region"
+                                    <div class="pretty p-icon p-pulse"  ng-repeat="city in city_list | filter: {'parent' : tab_region} | orderObjectBy: 'caption'"
                                         ng-click="addFilter('location.city_code','in',getSelection(dictionary.city))">
-                                        <input type="checkbox"  ng-model="item.selected"> 
+                                        <input type="checkbox"  ng-model="dictionary.city[city.__$obj_key].selected"> 
                                         <div class="state p-success">
                                             <i class="icon fal fa-check"></i>
-                                            <label>{{item.caption}}</label>
+                                            <label>{{city.caption}}</label>
                                         </div>
                                     </div>
                                 </div>
@@ -188,7 +187,7 @@
                         <h4><?php _e('Building type',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
                         <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.building_category"
-                            ng-click="addFilter('building.category','in',getSelection(dictionary.building_category))">
+                            ng-click="addFilter('building.category_code','in',getSelection(dictionary.building_category))">
                             <input type="checkbox" ng-model="item.selected"> 
                             <div class="state p-success">
                                 <i class="icon fal fa-check"></i>

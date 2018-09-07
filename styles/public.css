@@ -828,9 +828,23 @@
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 }
 
+@media screen and (max-width: 640px) {
+  #top .immodb.immodb-list-of-listings .immodb-list,
+  .immodb.immodb-list-of-listings .immodb-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
 #top .immodb.immodb-list-of-brokers .immodb-list,
 .immodb.immodb-list-of-brokers .immodb-list {
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb .dropdown-toggle,
+  .immodb .dropdown-toggle {
+    position: relative;
+  }
 }
 
 #top .immodb.standard-layout,
@@ -848,6 +862,14 @@
   grid-template-columns: 2fr 1fr;
   grid-template-rows: auto;
   grid-template-areas: "input advanced" "client_filters client_filters";
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.standard-layout .search-container,
+  .immodb.standard-layout .search-container {
+    grid-template-columns: 1fr;
+    grid-template-areas: "input" "advanced" "client_filters";
+  }
 }
 
 #top .immodb.standard-layout .search-container .input,
@@ -882,9 +904,17 @@
 
 #top .immodb.standard-layout .search-container .advanced,
 .immodb.standard-layout .search-container .advanced {
-  justify-content: flex-end;
   grid-template-columns: auto;
   grid-template-areas: "category price bedrooms more";
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.standard-layout .search-container .advanced,
+  .immodb.standard-layout .search-container .advanced {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: "category" "price" "bedrooms" "more";
+  }
 }
 
 #top .immodb.standard-layout .search-container.show-trigger .advanced,
@@ -993,9 +1023,19 @@
   grid-template-areas: "switch meta sort";
 }
 
+@media screen and (max-width: 640px) {
+  #top .immodb.standard-layout .immodb-list-container .immodb-list-header,
+  .immodb.standard-layout .immodb-list-container .immodb-list-header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "switch sort" "meta meta";
+    place-items: center start;
+  }
+}
+
 #top .immodb.standard-layout .immodb-list-container .immodb-list-header .sort-container,
 .immodb.standard-layout .immodb-list-container .immodb-list-header .sort-container {
-  justify-self: end;
+  grid-area: sort;
+  place-self: center end;
 }
 
 #top .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content,
@@ -1006,12 +1046,23 @@
 
 #top .immodb.standard-layout.immodb-list-of-brokers .search-container,
 .immodb.standard-layout.immodb-list-of-brokers .search-container {
-  grid-template-columns: 2fr 1px;
+  grid-template-columns: 1fr;
+  grid-template-areas: "input" "client_filters";
+}
+
+#top .immodb.standard-layout.immodb-list-of-brokers .search-container .search-trigger,
+.immodb.standard-layout.immodb-list-of-brokers .search-container .search-trigger {
+  display: none;
+}
+
+#top .immodb.standard-layout.immodb-list-of-brokers .search-container .advanced,
+.immodb.standard-layout.immodb-list-of-brokers .search-container .advanced {
+  display: none;
 }
 
 #top .immodb.standard-layout.immodb-list-of-brokers .search-container.show-trigger,
 .immodb.standard-layout.immodb-list-of-brokers .search-container.show-trigger {
-  grid-template-columns: 2fr 150px;
+  grid-template-columns: 1fr 150px;
 }
 
 #top .immodb.standard-layout.immodb-list-of-brokers .search-container.show-trigger .advanced,
@@ -1875,23 +1926,45 @@
   text-align: center;
 }
 
-#top .immodb.broker-single > .immodb-content .listing-list .search-input,
-.immodb.broker-single > .immodb-content .listing-list .search-input {
+#top .immodb.broker-single > .immodb-content .listing-list .list-header,
+.immodb.broker-single > .immodb-content .listing-list .list-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center start;
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.broker-single > .immodb-content .listing-list .list-header,
+  .immodb.broker-single > .immodb-content .listing-list .list-header {
+    grid-template-columns: 1fr;
+  }
+}
+
+#top .immodb.broker-single > .immodb-content .listing-list .list-header .search-input,
+.immodb.broker-single > .immodb-content .listing-list .list-header .search-input {
+  place-self: center end;
   margin: 10px 0;
   border: solid 1px #ccc;
   padding: 5px 10px;
   border-radius: 50px;
 }
 
-#top .immodb.broker-single > .immodb-content .listing-list .search-input input,
-.immodb.broker-single > .immodb-content .listing-list .search-input input {
+@media screen and (max-width: 640px) {
+  #top .immodb.broker-single > .immodb-content .listing-list .list-header .search-input,
+  .immodb.broker-single > .immodb-content .listing-list .list-header .search-input {
+    place-self: center stretch;
+  }
+}
+
+#top .immodb.broker-single > .immodb-content .listing-list .list-header .search-input input,
+.immodb.broker-single > .immodb-content .listing-list .list-header .search-input input {
   width: 250px;
   outline: none;
   border: none;
 }
 
-#top .immodb.broker-single > .immodb-content .listing-list .search-input input::placeholder,
-.immodb.broker-single > .immodb-content .listing-list .search-input input::placeholder {
+#top .immodb.broker-single > .immodb-content .listing-list .list-header .search-input input::placeholder,
+.immodb.broker-single > .immodb-content .listing-list .list-header .search-input input::placeholder {
   color: #333;
   opacity: 0.5;
 }
@@ -2112,7 +2185,10 @@
 }
 
 .immodb-image-slider .preview .btn.expand {
-  display: none;
+  border-radius: 0px;
+  padding: 20px;
+  right: 0px;
+  bottom: 0px;
 }
 
 .immodb-image-slider .controls {
@@ -2167,42 +2243,88 @@
   opacity: 1;
 }
 
-.immodb-image-slider.expanded {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  z-index: 99999;
-  background: rgba(0, 0, 0, 0.9);
-}
-
 .immodb-image-slider.expanded .viewport {
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .immodb-image-slider.expanded .viewport .trolley .item img {
   object-fit: contain;
 }
 
-.immodb-image-slider.expanded .preview:hover .trolley {
-  height: 120px;
+#top .immodb-searchbox,
+.immodb-searchbox {
+  position: relative;
 }
 
-.immodb-image-slider.expanded .preview:hover .trolley .item {
-  height: 120px;
-  opacity: 1;
+#top .immodb-searchbox .input,
+.immodb-searchbox .input {
+  position: relative;
 }
 
-.immodb-image-slider.expanded .preview:hover .trolley .item img {
-  opacity: 1;
+#top .immodb-searchbox .input input,
+.immodb-searchbox .input input {
+  padding: 10px;
+  padding-left: 40px;
+  outline: none;
 }
 
-.immodb-image-slider.expanded .controls {
+#top .immodb-searchbox .input .fal,
+.immodb-searchbox .input .fal {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+
+#top .immodb-searchbox.suggestion-list,
+.immodb-searchbox.suggestion-list {
+  position: absolute;
+  top: calc(100% - 2px);
+  width: 100%;
+  border: solid 1px #ccc;
+  border-top-style: none;
+  border-radius: 0 0 3px 3px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 5px;
+  overflow-y: auto;
+  transition: 0.25s;
+  padding: 0px;
+  max-height: 0px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999999999999;
+  background: #fff;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 15px 15px;
+}
+
+#top .immodb-searchbox.suggestion-list .keyword-suggestion,
+.immodb-searchbox.suggestion-list .keyword-suggestion {
+  padding: 10px;
+  transition: 0.25s;
+}
+
+#top .immodb-searchbox.suggestion-list .keyword-suggestion:hover,
+.immodb-searchbox.suggestion-list .keyword-suggestion:hover {
+  background: #dcdcdc;
+}
+
+#top .immodb-searchbox.suggestion-list .keyword-suggestion.selected,
+.immodb-searchbox.suggestion-list .keyword-suggestion.selected {
+  background: #666;
+  color: #fff;
+}
+
+#top .immodb-searchbox.suggestion-list.has-suggestions,
+.immodb-searchbox.suggestion-list.has-suggestions {
+  max-height: 80vh;
   opacity: 1;
+  pointer-events: auto;
+}
+
+#top .immodb-searchbox.has-suggestions .input input,
+.immodb-searchbox.has-suggestions .input input {
+  border: solid 1px #ccc;
 }
 
 .immodb-calculator {

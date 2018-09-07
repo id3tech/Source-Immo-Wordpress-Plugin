@@ -12,7 +12,7 @@
         <div class="trolley">
             <div class="item {{img.index == index?'selected':''}}" ng-click="set(img.index)" ng-repeat="img in pictures | range: index - 2 : index + 3"><img ng-src="{{img.url}}" alt="{{getCaption(img.category,'photo_category')}}" /></div>
         </div>
-        <div class="btn expand" ng-click="toggleExpand()"><i class="fal fa-expand-arrows"></i></div>
+        <div class="btn expand" ng-click="toggleFullscreen()"><i class="fal fa-expand-arrows"></i></div>
     </div>
     <div class="counter">{{pictures.length}} <i class="fal fa-images"></i></div>
 </div>

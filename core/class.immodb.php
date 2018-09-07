@@ -201,9 +201,11 @@ class ImmoDB {
     if($this->configs->map_api_key != ''){
       wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $this->configs->map_api_key . '&libraries=places', null, null, true );
       wp_enqueue_script( 'google-map-cluster', 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', 'google-map', null, true );
-
-      
     }
+    
+
+    wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('immodb-style'), "1", "all");
+	  wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
 
     $lUploadDir   = wp_upload_dir();
     $lConfigPath  = $lUploadDir['baseurl'] . '/_immodb/_configs.json';

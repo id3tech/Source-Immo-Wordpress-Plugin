@@ -11,12 +11,33 @@ class ImmoDbShorcodes{
         $hooks = array(
             'immodb',
             'immodb_search',
-            'immodb_broker_listings'
+            'immodb_searchbox',
+            // Broker - Sub shortcodes
+            'immodb_broker_listings',
+            // Listing - Sub shorcodes
+            'immodb_listing_part',
         );
 
         foreach ($hooks as $item) {
             add_shortcode( $item, array($this, 'sc_' . $item) );
         }
+    }
+
+    public function sc_immodb_searchbox($atts, $content=null){
+        extract( shortcode_atts(
+            array(
+                'alias' => 'default',
+                'placeholder' => 'Find a property from city, street, id, etc',
+                'on_enter' => '',
+                'result_page' => ''
+            ), $atts )
+        );
+
+        ob_start();
+        echo('<immodb-search-box alias="' . $alias . '" placeholder="'. $placeholder .'" on-enter="'. $on_enter .'" result-page="'. $result_page .'"></immodb-search-box>');
+        $lResult = ob_get_clean();
+
+        return $lResult;
     }
   
     public function sc_immodb_search($atts, $content=null){
@@ -78,12 +99,17 @@ class ImmoDbShorcodes{
         return $lResult;
     }
 
+    #region Broker - Sub shortcodes
+
+    /**
+     * Display broker listings
+     */
     public function sc_immodb_broker_listings($atts, $content=null){
         ob_start();
         ?>
         <div class="listing-list immodb-list-of-listings">
             <div ng-show="model.listings.length>0">
-                <div class="layout-row layout-space-between">
+                <div class="list-header">
                     <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
 
                     <div class="search-input">
@@ -106,4 +132,31 @@ class ImmoDbShorcodes{
 
         return $lResult;
     }
+    
+    #endregion
+
+    #region Listing - Sub shortcodes
+
+    public function sc_immodb_listing_part($atts, $content){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'part' => ''
+            ), $atts )
+        );
+
+        $lResult = '';
+        
+        if($part != ''){
+            ob_start();
+
+            ImmoDB::view('single/listings_layouts/subs/' . $part); 
+
+            $lResult = ob_get_clean();
+        }
+        
+        return $lResult;
+    }
+
+    #endregion
 }

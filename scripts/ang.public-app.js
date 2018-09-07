@@ -1,4 +1,4 @@
-var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize']);
+var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize','rzModule']);
 
 /**
  * Global - Controller
@@ -493,6 +493,7 @@ ImmoDbApp
             $scope.client = {
                 search_token : null
             }
+            $scope.city_list = [];
             
             /**
              * Initialize the controller
@@ -851,7 +852,7 @@ ImmoDbApp
             $scope.tab_category = 'RESIDENTIAL';
             $scope.tab_region = '';
             $scope.regions = [];
-            $scope.geolocation_available = navigator.geolocation!=undefined;
+            $scope.geolocation_available = navigator.geolocation!=undefined && window.location.protocol=='https:';
             $scope.sort_fields = [];
             $scope.selected_price_input = 'min';
             $scope.keyword = '';
@@ -859,6 +860,7 @@ ImmoDbApp
             $scope.bedroomSuggestions = [];
             $scope.bathroomSuggestions = [];
             $scope.parkingSuggestions = [];
+            $scope.garageSuggestions = [];
             $scope.filterHints = [];
             $scope.suggestions = [];
             $scope.query_text = null;
@@ -975,6 +977,8 @@ ImmoDbApp
                         // build hints
                         $scope.buildHints();
                     }
+
+                    $scope.$broadcast('search-is-ready');
                 });
             }
     
@@ -1068,9 +1072,11 @@ ImmoDbApp
                     // Bedrooms
                     $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i)});
                     // Bathrooms
-                    $scope.bathroomSuggestions.push({value:i, label: '{0}+'.format(i), caption: '{0}+ bathrooms'.translate().format(i)});
+                    $scope.bathroomSuggestions.push({value:i, label: '{0}+ bathrooms'.translate().format(i), caption: '{0}+ bathrooms'.translate().format(i)});
                     // Parking
-                    $scope.parkingSuggestions.push({value:i, label: '{0}+'.format(i), caption: '{0}+ parking spaces'.translate().format(i)});
+                    $scope.parkingSuggestions.push({value:i, label: '{0}+ parking spaces'.translate().format(i), caption: '{0}+ parking spaces'.translate().format(i)});
+                    // Parking
+                    $scope.garageSuggestions.push({value:i, label: '{0}+ garages'.translate().format(i), caption: '{0}+ garages'.translate().format(i)});
                 }
                 
             }
@@ -1334,7 +1340,8 @@ ImmoDbApp
                 else{
                     $scope.data[lInput + '_price'] = $value;
                 }
-                
+                console.log(lInput, 'price changed to', $value);
+
                 if($scope.selected_price_input=='min'){       
                     if($eventOrInput && (typeof $eventOrInput != 'string')){
                         // will keep the event bubbling up for "min" input
@@ -1345,6 +1352,13 @@ ImmoDbApp
                 }
             }  
             
+            $scope.setMinPrice = function($value){
+                $scope.setPrice($value,'min');
+            }
+            $scope.setMaxPrice = function($value){
+                $scope.setPrice($value,'max');
+            }
+
             /**
              * Set bedroom count filter from list item and tag it as selected
              * @param {object} $item List item 
@@ -1362,6 +1376,57 @@ ImmoDbApp
                     'greater_or_equal_to',$item.value, '{0}+ bedrooms'.translate().format($item.value),
                     function(){
                         $scope.setBedroomCount({value:''});
+                    }                
+                );
+            }
+
+            $scope.setGarageCount = function($item){
+                // reset other selected items
+                $scope.garageSuggestions.forEach(function($e){
+                    $e.selected = false;
+                });
+                // tag
+                $item.selected = true;
+                // add filter
+                $scope.addFilter(
+                    'attributes.PARKING_GARAGE',
+                    'greater_or_equal_to',$item.value, $item.caption,
+                    function(){
+                        $scope.setGarageCount({value:''});
+                    }                
+                );
+            }
+
+            $scope.setParkingCount = function($item){
+                // reset other selected items
+                $scope.parkingSuggestions.forEach(function($e){
+                    $e.selected = false;
+                });
+                // tag
+                $item.selected = true;
+                // add filter
+                $scope.addFilter(
+                    'attributes.PARKING',
+                    'greater_or_equal_to',$item.value, $item.caption,
+                    function(){
+                        $scope.setParkingCount({value:''});
+                    }                
+                );
+            }
+
+            $scope.setBathroomCount = function($item){
+                // reset other selected items
+                $scope.bathroomSuggestions.forEach(function($e){
+                    $e.selected = false;
+                });
+                // tag
+                $item.selected = true;
+                // add filter
+                $scope.addFilter(
+                    'main_unit.bathroom_count',
+                    'greater_or_equal_to',$item.value, $item.caption,
+                    function(){
+                        $scope.setBathroomCount({value:''});
                     }                
                 );
             }
@@ -1391,6 +1456,23 @@ ImmoDbApp
                         }
                     });
                 }
+
+                lListSync = {
+                    "main_unit.bedroom_count" : $scope.bedroomSuggestions,
+                    "main_unit.bathroom_count" : $scope.bathroomSuggestions,
+                    "attributes.PARKING" : $scope.parkingSuggestions,
+                    "attributes.PARKING_GARAGE" : $scope.garageSuggestions
+                }
+                for (const key in lListSync) {
+                    let lValue = $scope.getFilterValue(key);
+                    lListSync[key].some(function($e){
+                        if($e.value==lValue){
+                            $e.selected = true;
+                            return true;
+                        }
+                    });
+                }
+                
             }
 
             /**
@@ -2132,11 +2214,975 @@ ImmoDbApp
             $scope.$watch("dictionary", function(newValue, oldValue){
                 if($scope.dictionary!=undefined && $scope.dictionary.region!=undefined){
                     let lRegionList = $immodbUtils.toSortedArray($scope.dictionary.region);
-                    console.log('lRegionList',lRegionList);
                     $scope.tab_region = lRegionList[0].__$key;
                 }
+
+                if($scope.dictionary!=undefined && $scope.dictionary.city!=undefined){
+                    let lCityList = $immodbUtils.toArray($scope.dictionary.city);
+                    $scope.city_list = lCityList;
+                }
+
+                console.log('city_list', $scope.dictionary.city, $scope.city_list);
             });
         }
+    };
+});
+
+ImmoDbApp
+.directive('immodbSearchBox', function immodbSearchBox($compile){
+    return {
+        restrict: 'E',
+        replace: true,
+        required: '^immodbSearch',
+        scope: {
+            alias: '@',
+            placeholder: '@',
+            onTokenChange: '&onEnter',
+            result_page: '@resultPage'
+        },
+        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-searchbox.html',
+        link : function($scope,element, attrs){
+            $scope._suggestion_list_el =  element.find('.suggestion-list');
+            $scope._el = element[0];
+            // element.find('input').bind('focus', function(){
+            //     if($scope.data.keyword != ''){
+            //         $scope.buildSuggestions();
+            //     }
+            // });
+            angular.element('body').append($scope._suggestion_list_el);
+            
+            $scope.init();
+        },
+        controller: function($scope, $q, $immodbApi, $rootScope,$immodbDictionary, $immodbUtils){
+            $scope.configs = null;
+            $scope.suggestions = [];
+            $scope.is_ready = false;
+            $scope.keyword = '';
+            $scope.query_text = null;
+            $scope.sort_fields = [];
+
+            // search form data
+            $scope.data = {
+                keyword : '',
+                min_price: null,
+                max_price: null,
+                location: null
+            }
+            // search filters
+            $scope.filter_group = {
+                operator: 'and',
+                filters: null,
+                filter_groups: null
+            }
+
+            $scope.init = function(){
+                $scope.isReady().then(function(){
+                    $scope.data.keyword = $scope.loadState('search-keyword');
+                    angular.element($scope._el).find('input').bind('focus', function(){
+                        if($scope.data.keyword != null && $scope.data.keyword != ''){
+                            $scope.buildSuggestions();
+                            $scope.$apply();
+                        }
+                    });
+                    
+
+                    $scope.$broadcast('search-is-ready');
+
+                });
+            };
+
+            /**
+             * Wait for required data to be available
+             * @return {promise}
+             */
+            $scope.isReady = function(){
+                // check for dictionary and configs perequisits
+                if($scope.dictionary!=null && $scope.configs != null){
+                    $scope.is_ready = true; 
+                }
+                
+                // build promise
+                let lPromise = $q(function($resolve,$reject){
+                    if($scope.is_ready == false){
+                        // load configs
+                        $scope.getConfigs().then(function($configs){
+                            // load view meta
+                            $scope.configs = $configs;
+                            $immodbApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
+                                //$immodbDictionary.init($response.dictionary);
+                                $scope.dictionary = $response.dictionary; // save dictionary
+                                // directive is ready
+                                $scope.is_ready = true;
+                                $resolve();
+                            });
+                        });
+                    }
+                    else{
+                        $resolve();
+                    }
+                });
+                return lPromise;
+            }
+
+            $scope.getSuggestionPosition = function(){
+                if($scope._el==undefined){
+                    return '';
+                }
+                    
+                let lRect = $immodbUtils.absolutePosition($scope._el);
+                lRect.width = $scope._el.offsetWidth;
+                lRect.height = $scope._el.offsetHeight;
+                return 'top:{0}px;left:{1}px;width:{2}px;'.format(lRect.top + (lRect.height -2), lRect.left, lRect.width);
+            }
+            
+
+            /**
+             * Build suggestions from user typed keywords
+             * @param {*} $event 
+             */
+            $scope.buildSuggestions = function($event){
+                let lResult = [];
+                // bail on key code trap
+                if($event != undefined){
+                    if($scope.trapKeyCode($event.keyCode)) return false;
+                }
+
+                // When keyword is not empty
+                if($scope.data.keyword !=''){
+                    // When keyword is a Number
+                    if(!isNaN($scope.data.keyword)){
+                        let lValue = Number($scope.data.keyword);   // typecast
+                        let lPriceMin = Math.max(0, lValue/2);
+                        let lPriceMax = Math.min(1000000, lValue * 2);
+    
+                        lResult = [
+                            // first selected, suggestion for listing ID
+                            {selected:true, label : 'ID is "{0}"'.translate().format(lValue), action: function(){$scope.addFilter('ref_number','equal_to',lValue,'ID is "{0}"'.translate().format(lValue) )}},
+                        ];
+                        if($scope.configs.type == 'listings'){
+                            lResult = lResult.concat([
+                                // Price suggestions less than, more than, between A and B
+                                {label : 'Price is less than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMaxPrice(lValue);$scope.buildFilters();}},
+                                {label : 'Price is more than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMinPrice(lValue);$scope.buildFilters();}},
+                                {label : 'Price is between {0} and {1}'.translate().format(lPriceMin.formatPrice(), lPriceMax.formatPrice()), action: function(){
+                                    $scope.setMinPrice(lPriceMin);
+                                    $scope.setMaxPrice(lPriceMax);
+                                    $scope.buildFilters();
+                                }},
+                                // civic adress suggestion
+                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal_to',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
+                            ]);
+                        }
+                    }
+                    // When keyword is String
+                    else{
+                        // set keyword to lowercase
+                        let lValue = $scope.data.keyword.toLowerCase();
+                        // first selected for query_text
+                        if(lValue.split(' ').length>1){
+                            lResult = [$scope.getReverseSuggestions()];
+                        }
+                        else{
+                            lResult = [
+                                {selected:true, label : 'Contains "{0}"'.translate().format(lValue), 
+                                    action : function(){ 
+                                        $scope.query_text = lValue; 
+                                        $scope.buildFilters();  
+                                    } 
+                                }
+                            ];
+                            if($scope.configs.type == 'listings'){
+                                lResult.push({label : 'On "{0}" street'.translate().format(lValue), 
+                                                action : function(){  
+                                                    $scope.addFilter('location.address.street_name','contains',lValue, 'On "{0}" street'.translate().format(lValue));
+                                                    $scope.buildFilters(); 
+                                                } 
+                                            });
+                                // Add categories that match the keyword
+                                for($key in $scope.dictionary.listing_category){
+                                    let lElm = $scope.dictionary.listing_category[$key];
+                                    if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
+                                        lResult.push({label: '{0} (category)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('category','in',$scope.getSelection($scope.dictionary.listing_category));} }) 
+                                    }
+                                }
+                                // Add subcategories that match the keyword
+                                for($key in $scope.dictionary.listing_subcategory){
+                                    let lElm = $scope.dictionary.listing_subcategory[$key];
+                                    if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
+                                        lResult.push({label: '{0} (subcategory)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));} }) 
+                                    }
+                                }
+                                // Add regions that match the keyword
+                                for($key in $scope.dictionary.region){
+                                    let lElm = $scope.dictionary.region[$key];
+                                    if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
+                                        lResult.push({label: '{0} (region)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('location.region_code','in',$scope.getSelection($scope.dictionary.region));} }) 
+                                    }
+                                }
+                                // Add cities that match the keyword
+                                for($key in $scope.dictionary.city){
+                                    let lElm = $scope.dictionary.city[$key];
+                                    if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
+                                        lResult.push({label: '{0} (city)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));} }) 
+                                    }
+                                }
+                            }
+                            else if($scope.configs.type == 'brokers'){
+                                lResult.push({
+                                    label: 'Last name is "{0}"'.translate().format($scope.data.keyword), 
+                                    action: function(){ 
+                                        $scope.addFilter('last_name','equal_to',$scope.data.keyword, 'Last name is "{0}"'.translate().format($scope.data.keyword));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+                                lResult.push({
+                                    label: 'Last name starts with "{0}"'.translate().format(lValue), 
+                                    action: function(){ 
+                                        $scope.addFilter('last_name','starts_with',lValue, 'Last name starts with "{0}"'.translate().format(lValue));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+                                lResult.push({
+                                    label: 'Last name ends with "{0}"'.translate().format(lValue), 
+                                    action: function(){ 
+                                        $scope.addFilter('last_name','ends_with',lValue, 'Last name ends with "{0}"'.translate().format(lValue));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+    
+                                lResult.push({
+                                    label: 'First name is "{0}"'.translate().format($scope.data.keyword), 
+                                    action: function(){ 
+                                        $scope.addFilter('first_name','equal_to',$scope.data.keyword, 'First name is "{0}"'.translate().format($scope.data.keyword));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+                                lResult.push({
+                                    label: 'First name starts with "{0}"'.translate().format(lValue), 
+                                    action: function(){ 
+                                        $scope.addFilter('first_name','starts_with',lValue, 'First name starts with "{0}"'.translate().format(lValue));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+                                lResult.push({
+                                    label: 'First name ends with "{0}"'.translate().format(lValue), 
+                                    action: function(){ 
+                                        $scope.addFilter('first_name','ends_with',lValue, 'First name ends with "{0}"'.translate().format(lValue));
+                                        $scope.buildFilters(); 
+                                    } 
+                                });
+    
+                            }
+                        }
+                        
+                    }
+                }
+                $scope.suggestions = lResult;
+    
+            }
+
+            $scope.getReverseSuggestions = function(){
+                let lValue = $scope.data.keyword.toLowerCase();
+                let lValueList = lValue.split(' ');
+
+                let lLabelResults = [];
+                let lActionResults = [];
+
+                // Add subcategories that match the keyword
+                for($key in $scope.dictionary.listing_subcategory){
+                    let lElm = $scope.dictionary.listing_subcategory[$key];
+                    let lAdded = false;
+
+                    if(lValue.indexOf(lElm.caption.toLowerCase())>=0){
+                        lLabelResults.push(lElm.caption);
+                        lActionResults.push(function(){ 
+                            lElm.selected=true;  
+                            $scope.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));
+                        });
+                        lAdded = true;
+                    }
+                    else{
+                        lValueList.some(function($e){
+                            if(lElm.caption.toLowerCase().indexOf($e)>=0){
+                                lLabelResults.push(lElm.caption);
+                                lActionResults.push(function(){ 
+                                    lElm.selected=true;  
+                                    $scope.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));
+                                });
+                                lAdded = true;
+                                return true;
+                            }
+                        });
+
+                    }
+
+                    if(lAdded){
+                        break;
+                    }
+                }
+
+                let lTransactions = ['for sale', 'sale'];
+                lTransactions.some(function($e){
+                    if(lValue.indexOf($e)>=0){
+                        lLabelResults.push($e);
+                        lActionResults.push(function(){
+                            $scope.addFilter('price.sell.amount','greater_than',0);
+                        });
+                        
+                        return true;
+                    }
+                });
+                
+                lTransactions = ['for lease','lease'];
+                lTransactions.some(function($e){
+                    if(lValue.indexOf($e)>=0){
+                        lLabelResults.push($e);
+                        lActionResults.push(function(){
+                            $scope.addFilter('price.lease.amount','greater_than',0);
+                        });
+                        return true;
+                    }
+                });
+
+                // Add cities that match the keyword
+                for($key in $scope.dictionary.city){
+                    let lElm = $scope.dictionary.city[$key];
+                    let lAdded = false;
+
+                    if(lValue.indexOf(lElm.caption.toLowerCase())>=0){
+                        lLabelResults.push('in {0}'.translate().format(lElm.caption));
+                        lActionResults.push(function(){ 
+                            lElm.selected=true;  
+                            $scope.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));
+                        })
+                    }
+                    else{
+                        lValueList.some(function($e){
+                            if(lElm.caption.toLowerCase().indexOf($e)>=0){
+                                lLabelResults.push('in {0}'.translate().format(lElm.caption));
+                                lActionResults.push(function(){ 
+                                    lElm.selected=true;  
+                                    $scope.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));
+                                });
+                                lAdded = true;
+                                return true;
+                            }
+                        });
+                    }
+
+                    if(lAdded){
+                        break;
+                    }
+                }
+
+                console.log('reverse suggestions', lLabelResults.join(' '));
+
+                return {
+                    label: lLabelResults.join(' '),
+                    action: function(){
+                        lActionResult.forEach(function($lf){
+                            $lf();
+                        });
+                        $scope.buildFilters();
+                    }
+                }
+            }
+    
+            /**
+             * Check for arrow up/down and enter key-down trigger
+             * @param {int} $keyCode 
+             */
+            $scope.trapKeyCode = function($keyCode){
+                let lSelectedIndex = 0;
+                let lResult = false;
+                switch($keyCode){
+                    case 13: // on Enter, choose selection or first suggestion
+                        if($scope.data.keyword==''){       
+                            $scope.resetFilters();
+                        }
+                        else{
+                            
+                            let lPassthrough = $scope.suggestions.every(function($e,$i){
+                                console.log($i, $e.selected)
+                                if($e.selected===true){
+                                    $e.action();
+                                    lResult = true;
+                                    return false;
+                                }
+                                return true;
+                            });
+                            if(lPassthrough){
+                                $scope.suggestions[0].action();
+                                lResult = true;
+                            }
+                            $scope.saveState('search-keyword', $scope.data.keyword);
+                            $scope.suggestions = [];
+                        }
+
+                        break;
+                    case 38: // move selection up
+                        $scope.suggestions.every(function($e,$i){
+                            if($e.selected===true){
+                                lSelectedIndex = $i;
+                                delete $e.selected;
+                                return false;
+                            }
+                            return true;
+                        });
+                        lSelectedIndex = Math.max(lSelectedIndex-1,0);
+                        $scope.suggestions[lSelectedIndex].selected=true;
+                        lResult = true;
+                        break;
+                    case 40: // move selection down
+                        $scope.suggestions.every(function($e,$i){
+                            if($e.selected!=undefined && $e.selected===true){
+                                lSelectedIndex = $i;
+                                delete $e.selected;
+                                return false;
+                            }
+                            return true;
+                        });
+                        lSelectedIndex = Math.min(lSelectedIndex+1,$scope.suggestions.length-1);
+                        $scope.suggestions[lSelectedIndex].selected=true;
+                        lResult = true;
+                        break;
+                }
+                return lResult;
+            }
+
+
+            /**
+             * Return valid configuration settings
+             */
+            $scope.getConfigs = function(){
+                let lPromise = $q(function($resolve, $reject){
+                    if($scope.configs==null){
+                        console.log($scope.alias);
+                        $immodbApi.getListConfigs($scope.alias).then(function($configs){
+                            $scope.configs = $configs;
+                            $resolve($scope.configs);
+                        });
+                    }
+                    else{
+                        $resolve($scope.configs);
+                    }
+                });
+    
+                return lPromise;
+            }
+
+            // #region **** Filters Handling ****
+
+            /**
+             * Check wether there's any filter or not
+             * @return {boolean}
+             */
+            $scope.hasFilters = function(){
+                return $scope.filter_group.filter_groups != null || $scope.filter_group.filters != null || $scope.query_text!=null || $scope.data.location !=null;
+            }
+    
+            /**
+             * Check if a filter matches a name
+             * @param {string} $fieldname Name of the filter
+             * @return {boolean} 
+             */
+            $scope.hasFilter = function($fieldname){
+                if($scope.hasFilters()){
+                    let lFilter = $scope.getFilterByFieldName($fieldname);
+                    return lFilter != null;
+                }
+                else{
+                    return false;
+                }
+            }
+
+            /**
+             * Get the value stored in a filter
+             * @param {string} $fieldname Name of the filter
+             * @return {*} Return the value when found, null otherwise
+             */
+            $scope.getFilterValue = function($fieldname){
+                let lFilter = $scope.getFilterByFieldName($fieldname);
+                if(lFilter!=null){
+                    return lFilter.value;
+                }
+                return null;
+            }
+
+            
+            
+            /**
+             * Get a filter by the field name associated to it
+             * @param {string} $fieldname Name of the filter
+             * @return {*} Return the filter when found, null otherwise
+             */
+            $scope.getFilterByFieldName = function($fieldname){
+                let lResult = null;
+                if($scope.filter_group.filters != null){
+                    $scope.filter_group.filters.every(function($e){
+                        if($e.field == $fieldname){
+                            lResult = $e;
+                            return false;
+                        }
+                        return true;
+                    });
+                }
+    
+                return lResult;
+                
+            }
+
+            /**
+             * Add a filter to the list
+             * @param {*} $field Field name (or array of field name) on which the filter is applied
+             * @param {string} $operator Operand for the filter
+             * @param {*} $value Value to filter
+             * @param {*} $label Caption for the filter hint
+             * @param {*} $reverseFunc Function to remove the filter
+             */
+            $scope.addFilter = function($field,$operator,$value, $label, $reverseFunc){
+                // When field is and array
+                if(typeof($field.push)=='function'){
+                    $scope.addFilterGroup($field, $operator, $value, $label);
+                }
+                else{
+                    $scope.setFilter($field, $operator, $value, $scope.filter_group, $label,$reverseFunc);
+                }
+    
+                // save filters to localStorage
+                $scope.saveState();
+    
+                
+                $scope.buildFilters();
+            }
+    
+            /**
+             * Add a filter from an attribute
+             * @param {object} $attr 
+             */
+            $scope.addAttributeFilter = function($attr){
+                let lValue = $attr.selected ? true : '';
+    
+                $scope.addFilter(
+                    $attr.field, 
+                    'equal', 
+                    lValue, 
+                    $attr.caption.translate(),
+                    function(){
+                        console.log('reversin attr',$attr);
+                        $attr.selected=false;
+                        $scope.addFilter($attr.field,'equal','');
+                    }
+                );
+            }
+    
+    
+            $scope.addFilterGroup = function($field,$operator,$value, $label){
+                let lGroupName = $field.join('-') + '-' + $operator;
+                let parentFilterGroup = $scope.getFieldGroup(lGroupName,$scope.filter_group);
+                if(parentFilterGroup==null){
+                    parentFilterGroup = {
+                        operator: 'or',
+                        name: lGroupName,
+                        filters: null,
+                        filter_groups: null
+                    };
+                    if($scope.filter_group.filter_groups==null) $scope.filter_group.filter_groups = [];
+                    $scope.filter_group.filter_groups.push(parentFilterGroup);
+                }
+                
+                $field.forEach(function($f,$index){
+                    let lValue = $value;
+                    if($value != null){
+                        if(typeof($value.push) == 'function'){
+                            if($value.length>$index){
+                                lValue = $value[$index];
+                            }
+                            else{
+                                lValue = null;
+                            }
+                        }
+                    }
+                    $scope.setFilter($f,$operator,lValue,parentFilterGroup, $label);
+                });
+    
+                if(parentFilterGroup.filters==null){
+                    $scope.filter_group.filter_groups.every(function($g,$i){
+                        if($g.name==parentFilterGroup.name){
+                            $scope.filter_group.filter_groups.splice($i,1);
+                            return false;
+                        }
+                    });
+                }
+                if($scope.filter_group.filter_groups.length==0){
+                    $scope.filter_group.filter_groups = null;
+                }
+            };
+    
+            $scope.setFilter = function($field, $operator, $value, $group,$label,$reverseFunc){
+                if($group.filters == null){
+                    $group.filters = [];
+                }
+                
+                let lFilterIndex = 0;
+                let lNewFilter = {
+                    field: $field,
+                    operator: $operator,
+                    value: $value,
+                    label: $label,
+                    reverse: $reverseFunc || function(){
+                        $scope.addFilter($field,$operator, '')
+                    }
+                };
+    
+                for(lFilterIndex = 0; lFilterIndex < $group.filters.length; lFilterIndex++){
+                    if($group.filters[lFilterIndex].field == $field){
+                        break;
+                    }
+                }
+                
+                if($value==='' || $value==null){
+                    $scope.removeFilter(lFilterIndex, $group);
+                }
+                else if (typeof($value.push)=='function' && $value.length == 0){
+                    $scope.removeFilter(lFilterIndex, $group);
+                }
+                else{
+                    $scope.updateFilter(lNewFilter, lFilterIndex, $group);
+                }
+            }
+    
+            $scope.updateFilter = function($filter,$index, $group){
+                console.log('update filter', $filter );
+                $group.filters[$index] = $filter;
+            }
+    
+            $scope.removeFilter = function($index, $group){
+                console.log('remove filter', $index );
+                $group.filters.splice($index,1);
+                if($group.filters.length == 0){
+                    $group.filters=null;
+                }
+            }
+
+
+            $scope.getFieldGroup = function($groupName, $parent){
+                if($parent.name==$groupName){
+                    return $parent;
+                }
+                else{
+                    if($parent.filter_groups!=null){
+                        let lResult = null;
+                        $parent.filter_groups.every(function($g){
+                            lResult = $scope.getFieldGroup($groupName, $g);
+                            return lResult==null;
+                        });
+                        return lResult;
+                    }
+                }
+    
+                return null;
+            }
+    
+            //// FILTERS BUILDING
+            
+            /**
+            * Reset all filter to nothing
+            */
+            $scope.resetFilters = function(){
+                $scope.filter_group = {
+                    operator: 'and',
+                    filters: null,
+                    filter_groups: null
+                };
+                $scope.query_text = null;
+                $scope.data.min_price = null;
+                $scope.data.max_price = null;
+                $scope.data.location = null;
+    
+                for(let $key in $scope.dictionary){
+                    $scope.resetListSelections($scope.dictionary[$key]);
+                }
+                
+                // save filters to localStorage
+                $scope.clearState();
+                $scope.clearState('search-keyword')
+    
+                $scope.buildFilters();
+            }
+    
+            /**
+             * Remove all 'selected' attribute from list elements
+             * @param {object} $list List to reset
+             */
+            $scope.resetListSelections = function($list){
+                for(let $subkey in $list){
+                    delete $list[$subkey].selected;
+                }
+            }
+
+            /**
+             * Build the object to send as search parameters
+             */
+            $scope.buildFilters = function(){
+                let lResult = null;
+                let lPromise = $q(function($resolve, $reject){
+                    $scope.getConfigs().then(function($configs){
+                        if($configs.limit>0){
+                            lResult = {
+                                max_item_count : $configs.limit
+                            }
+                        }
+            
+                        if($configs.filter_group != null || $scope.hasFilters()){
+                            if(lResult==null) lResult = {};
+                            lResult.filter_group = {filters:[]};
+                            if($configs.filter_group != null){
+                                lResult.filter_group = angular.copy($configs.filter_group)
+                            }
+            
+                            if($scope.hasFilters()){
+                                lResult.filter_group.filter_groups.push($scope.filter_group);
+                            }
+                            
+                            lResult.filter_group = $scope.normalizeFilterGroup(lResult.filter_group);
+                        }
+            
+                        if($scope.sort_fields.length > 0){
+                            lResult.sort_fields = $scope.sort_fields;
+                        }
+                        else{
+                            lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
+                        }
+    
+                        if($scope.query_text != null){
+                            lResult.query_text = $scope.query_text;
+                        }
+    
+                        if($scope.data.location != null){
+                            lResult.proximity_filter = $scope.data.location;
+                        }
+    
+                        $scope.getSearchToken(lResult).then(function($token){
+                            if($token!=''){
+                                
+                                $scope.saveState('st', $token);
+    
+                                $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $token);
+
+                                if($scope.result_page!='' && $scope.result_page!=null){
+                                    window.location = $scope.result_page;
+                                }
+
+                                if($scope.onTokenChange!=undefined){
+                                    $scope.onTokenChange();
+                                }
+                                
+                                $resolve($token);
+                            }
+                            else{
+                                $reject();
+                            }
+                        })
+                    });
+                });
+    
+                return lPromise;
+            }
+    
+            $scope.navigate = function(){
+                if($scope.result_page!='' && $scope.result_page!=null){
+                    $scope.buildFilters().then(function($token){
+                        window.location = $scope.result_page;
+                    });
+                }
+            }
+    
+            /**
+             * Loop through object attributes and return a list of key that are marked as "selected"
+             * @param {object} $list 
+             */
+            $scope.getSelection = function($list){
+                let lResult = [];
+                for (let lKey in $list) {
+                    if($list[lKey].selected==true){
+                        lResult.push(lKey);
+                    }
+                }
+                
+                return lResult;
+            }
+    
+            /**
+             * Normalize values for all filters and sub group filters
+             * @param {object} $filter_group Group to be normalize
+             */
+            $scope.normalizeFilterGroup = function($filter_group){
+                if($filter_group.filters){
+                    $filter_group.filters.forEach(function($filter){
+                        // When in or not_in, value should be an array
+                        if(['in','not_in'].indexOf($filter.operator) >= 0){
+                            // if value is not an array, split it to one
+                            if(typeof($filter.value.split)=='function'){
+                                $filter.value = $filter.value.split(",");
+                            }
+                            
+                            // loop through values to fix type
+                            $filter.value.forEach(function($val){
+                                if(typeof($val) !== typeof(true)){
+                                    if(!isNaN($val)){
+                                        $val = Number($val)
+                                    }
+                                }
+                            });
+                        }
+                        else{
+                            // When value is a number, make it an authentic one
+                            if(typeof($filter.value) !== typeof(true)){
+    
+                                if(!isNaN($filter.value)){
+                                    $filter.value = Number($filter.value);
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                if($filter_group.filter_groups){
+                    // loop through sub group to apply normalization
+                    $filter_group.filter_groups.forEach(function($group){
+                        $scope.normalizeFilterGroup($group);
+                    });
+                }
+    
+                return $filter_group;
+            }
+
+            // #endregion
+    
+            // #region **** Price Handling ****
+
+            /**
+             * Set the price for the input
+             * @param {number} $value Price value to set
+             * @param {*} $eventOrInput Input(String) to force value for one of the input. Event(Event) to prevent bubble up propagation
+             */
+            $scope.setPrice = function($value, $eventOrInput){
+                let lInput = $scope.selected_price_input;
+                if(typeof $eventOrInput == 'string'){
+                    lInput = $eventOrInput;
+                }
+                
+                if($value == ''){
+                    // will remove filter for that price boundary
+                    $scope.data[lInput + '_price'] = undefined;
+                }
+                else{
+                    $scope.data[lInput + '_price'] = $value;
+                }
+                console.log(lInput, 'price changed to', $value);
+            }  
+            
+            $scope.setMinPrice = function($value){
+                $scope.setPrice($value,'min');
+            }
+            $scope.setMaxPrice = function($value){
+                $scope.setPrice($value,'max');
+            }
+
+            $scope.$watch("data.min_price", function(newValue, oldValue){
+                if(newValue != oldValue){
+                    console.log('min-price changed',newValue, oldValue);
+                    $scope.addFilter(['price.sell.amount','price.lease.amount'],'greater_or_equal_to',  $scope.data.min_price);
+                }
+            });
+            $scope.$watch("data.max_price", function(newValue, oldValue){
+                if(newValue != oldValue){
+                    console.log('max-price changed',newValue, oldValue);
+                    $scope.addFilter(['price.sell.amount','price.lease.amount'],'less_or_equal_to', $scope.data.max_price);
+                }
+            });
+
+            // #endregion
+
+            
+            $scope.saveState = function($item_key, $data){
+                
+                let lKey = 'immodb.' + $scope.alias + '.{0}';
+    
+                if($item_key == undefined){
+                    sessionStorage.setItem(lKey.format('filter_group'), JSON.stringify($scope.filter_group));
+                    sessionStorage.setItem(lKey.format('data'), JSON.stringify($scope.data));
+                }
+                else{
+                    let lValue = $data;
+                    if(typeof(lValue) == 'object'){
+                        lValue = JSON.stringify(lValue);
+                    }
+                    sessionStorage.setItem(lKey.format($item_key), JSON.stringify(lValue));
+                }
+                
+    
+            }
+            $scope.clearState = function($item_key){
+                let lKey = 'immodb.' + $scope.alias + '.{0}';
+    
+                if($item_key == undefined){
+                    sessionStorage.removeItem(lKey.format('filter_group'));
+                    sessionStorage.removeItem(lKey.format('data'));
+                    sessionStorage.removeItem(lKey.format('st'));
+                }
+                else{
+                    sessionStorage.removeItem(lKey.format($item_key));
+                }
+            }
+            $scope.loadState = function($item_key){
+                $key = 'immodb.' + $scope.alias + '.{0}';
+                if($item_key == undefined){
+                    let lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));
+                    let lSessionData = sessionStorage.getItem($key.format('data'));
+                    if(lSessionFilterGroup != null){
+                        $scope.filter_group = JSON.parse(lSessionFilterGroup);
+                    }
+                    if(lSessionData != null){
+                        let lData = JSON.parse(lSessionData);
+                        $scope.data.keyword = lData.keyword;
+                    }
+                    
+                }
+                else{
+                    return JSON.parse(sessionStorage.getItem($key.format($item_key)));
+                }
+            }
+
+            /**
+             * Get a new search token from the api
+             * @param {object} $filters 
+             * @return {object} Promise
+             */
+            $scope.getSearchToken = function($filters){
+                let lPromise =  $q(function($resolve, $reject){    
+                    if($filters != null){
+                        $immodbApi.api('utils/search_encode', $filters).then(function($response){
+                            $resolve($response);
+                        });
+                    }
+                    else{
+                        $resolve('');
+                    }
+                
+                });
+                return lPromise;
+            }
+ 
+
+        } // end controller
+
     };
 });
 
@@ -2602,6 +3648,46 @@ ImmoDbApp
                 $scope.init();
             }
         });
+
+        $scope.toggleFullscreen = function(){
+            if (
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
+              ) {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } 
+                else if (document.mozCancelFullScreen) {
+                  document.mozCancelFullScreen();
+                } 
+                else if (document.webkitExitFullscreen) {
+                  document.webkitExitFullscreen();
+                } 
+                else if (document.msExitFullscreen) {
+                  document.msExitFullscreen();
+                }
+
+                $scope.expand_mode = false;
+              } 
+              else {
+                if ($scope.$element.requestFullscreen) {
+                  $scope.$element.requestFullscreen();
+                } 
+                else if ($scope.$element.mozRequestFullScreen) {
+                  $scope.$element.mozRequestFullScreen();
+                } 
+                else if ($scope.$element.webkitRequestFullscreen) {
+                  $scope.$element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                } 
+                else if ($scope.$element.msRequestFullscreen) {
+                  $scope.$element.msRequestFullscreen();
+                }
+
+                $scope.expand_mode = true;
+              }
+        }
     };
 
     return {
@@ -3490,6 +4576,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         let lResult = [];
         for(let objectKey in $object) {
             $object[objectKey].__$key = objectKey;
+            $object[objectKey].__$obj_key = objectKey;
             lResult.push($object[objectKey]);
         }
         return lResult;
@@ -3541,6 +4628,38 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
 
         return lResult;
     }
+
+    $scope.absolutePosition = function(element) {
+        var top = 0, left = 0;
+        if(element != undefined){
+            do {
+                top += element.offsetTop  || 0;
+                left += element.offsetLeft || 0;
+                element = element.offsetParent;
+            } while(element);
+
+            let lHtmlElm = angular.element('html')[0];
+            let lGlobalTop = {
+                margin : Number(window.getComputedStyle(lHtmlElm, null).getPropertyValue('margin-top').replace('px','')),
+                padding: Number(window.getComputedStyle(lHtmlElm, null).getPropertyValue('padding-top').replace('px',''))
+            }
+            let lGlobalLeft = {
+                margin : Number(window.getComputedStyle(lHtmlElm, null).getPropertyValue('margin-left').replace('px','')),
+                padding: Number(window.getComputedStyle(lHtmlElm, null).getPropertyValue('padding-left').replace('px',''))
+            }
+            lGlobalOffsetTop = lGlobalTop.margin + lGlobalTop.padding;
+            lGlobalOffsetLeft = lGlobalLeft.margin + lGlobalLeft.padding;
+
+            top += lGlobalOffsetTop;
+            left += lGlobalOffsetLeft;
+            
+        }
+
+        return {
+            top: top,
+            left: left
+        };
+    };
 
     return $scope;
 }]);
