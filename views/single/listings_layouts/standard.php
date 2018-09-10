@@ -31,6 +31,8 @@
 
     <?php echo do_shortcode('[immodb_listing_part part="flags"]') ?>
 
+    <?php echo do_shortcode('[immodb_listing_part part="open_houses"]') ?>
+
 </div>
 
 <div class="details">

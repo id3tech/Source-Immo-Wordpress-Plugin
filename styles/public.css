@@ -1257,6 +1257,11 @@
   grid-area: actions;
 }
 
+#top .immodb.listing-single .immodb-content .open-houses,
+.immodb.listing-single .immodb-content .open-houses {
+  grid-area: open-houses;
+}
+
 @media screen and (max-width: 640px) {
   #top .immodb.listing-single .immodb-content,
   .immodb.listing-single .immodb-content {
@@ -1518,7 +1523,7 @@
   display: grid;
   grid-gap: 0px;
   grid-template-columns: 1fr 1fr;
-  grid-template-areas: "ref-number ref-number" "region state" "address address" "near near" "description description" "flags flags" "information_request information_request";
+  grid-template-areas: "ref-number ref-number" "region state" "address address" "near near" "open-houses open-houses" "description description" "flags flags" "information_request information_request";
 }
 
 #top .immodb.listing-single .immodb-content .summary .ref-number,
@@ -1554,29 +1559,29 @@
   border-top: solid 1px rgba(0, 0, 0, 0.25);
 }
 
-#top .immodb.listing-single .immodb-content .summary .flags,
-.immodb.listing-single .immodb-content .summary .flags {
+#top .immodb.listing-single .immodb-content .flags,
+.immodb.listing-single .immodb-content .flags {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
   grid-template-rows: auto;
   grid-gap: 20px;
 }
 
-#top .immodb.listing-single .immodb-content .summary .flags .flag,
-.immodb.listing-single .immodb-content .summary .flags .flag {
+#top .immodb.listing-single .immodb-content .flags .flag,
+.immodb.listing-single .immodb-content .flags .flag {
   position: relative;
 }
 
-#top .immodb.listing-single .immodb-content .summary .flags .flag i,
-.immodb.listing-single .immodb-content .summary .flags .flag i {
+#top .immodb.listing-single .immodb-content .flags .flag i,
+.immodb.listing-single .immodb-content .flags .flag i {
   font-size: 40px;
   text-align: center;
   color: #888;
   width: 100%;
 }
 
-#top .immodb.listing-single .immodb-content .summary .flags .flag em,
-.immodb.listing-single .immodb-content .summary .flags .flag em {
+#top .immodb.listing-single .immodb-content .flags .flag em,
+.immodb.listing-single .immodb-content .flags .flag em {
   font-size: 15px;
   font-style: normal;
   text-align: center;
@@ -1589,6 +1594,84 @@
   background: #333;
   color: #fff;
   border-radius: 50%;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses,
+.immodb.listing-single .immodb-content .open-houses {
+  background: #555;
+  border-radius: 3px;
+  color: #fff;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses h4,
+.immodb.listing-single .immodb-content .open-houses h4 {
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas: "date start end";
+  grid-gap: 10px;
+  place-items: end start;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date {
+  grid-area: date;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start {
+  grid-area: start;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end {
+  grid-area: end;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .day,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .day {
+  font-size: 0.75em;
+  font-style: italic;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .time-ago,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .time-ago {
+  font-size: 1.2em;
+  text-transform: uppercase;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start, #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start label, #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end label,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start label,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end label {
+  display: block;
+  font-size: 0.75em;
+  color: inherit;
+  margin: 0px;
+}
+
+#top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start div, #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end div,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .start div,
+.immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .end div {
+  display: inline-block;
+  padding: 5px 10px;
+  font-weight: 700;
+  background: #dedede;
+  color: #333;
+  border-radius: 3px;
 }
 
 #top .immodb.listing-single .immodb-content .details,

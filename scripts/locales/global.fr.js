@@ -199,6 +199,10 @@ $locales.fr = {};$locales.fr.global =
     , "Excluded" : "Exclusions"
     , "{0} other properties" : "{0} autres propriétés"
     , "Transfer taxes" : "Taxes de mutation"
+    , "dddd, MMMM Do" : "dddd Do MMMM"
+    , "h:mm a" : "HH[h]mm"
+    , "starting at" : "débutant"
+    , "ending at" : "terminant"
     // PUBLIC - SINGLE BROKER
     , "Office" : "Bureau"
     , "Languages" : "Langues"

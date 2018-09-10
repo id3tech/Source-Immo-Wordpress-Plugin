@@ -1,4 +1,8 @@
-var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize','rzModule']);
+var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize','rzModule','angularMoment']);
+
+ImmoDbApp.run(function(amMoment) {
+	amMoment.changeLocale(immodbCtx.locale);
+});
 
 /**
  * Global - Controller
@@ -11,7 +15,6 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
     $scope.listing_count = 0;
 
     $scope.init = function(){
-        
     }
 
     // listingsUpdate
@@ -74,7 +77,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
     // ui - section toggles
     $scope.sections = {
-        addendum : {opened:true},
+        addendum : {opened:false},
         building : {opened:false},
         lot : {opened:false},
         other: {opened: false},
@@ -94,7 +97,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     $scope.init = function($ref_number){
         if($ref_number != undefined){
             console.log($ref_number);
-            $scope.fetchPrerequisites().then(function(){
+            $scope.fetchPrerequisites().then(function($prerequisits){
+                $scope.permalinks = $prerequisits;
                 $scope.loadSingleData($ref_number);
             });
             
@@ -227,6 +231,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
         // set brokers detail link
         let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
+        
         $scope.model.brokers.forEach(function($e){
             $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
             $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
