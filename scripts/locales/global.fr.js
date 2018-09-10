@@ -203,6 +203,7 @@ $locales.fr = {};$locales.fr.global =
     , "h:mm a" : "HH[h]mm"
     , "starting at" : "débutant"
     , "ending at" : "terminant"
+    , "Virtual tour" : "Visite virtuelle"
     // PUBLIC - SINGLE BROKER
     , "Office" : "Bureau"
     , "Languages" : "Langues"

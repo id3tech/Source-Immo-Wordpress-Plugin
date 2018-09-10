@@ -1397,6 +1397,7 @@
   border: 0;
   box-shadow: none;
   padding: 1em 2em;
+  transition: 0.25s;
 }
 
 #top .immodb.listing-single .immodb-content .medias .tabs .tab:after,
@@ -1422,6 +1423,30 @@
   width: 100%;
 }
 
+#top .immodb.listing-single .immodb-content .medias .tabs .tab.videos,
+.immodb.listing-single .immodb-content .medias .tabs .tab.videos {
+  background: #333;
+  color: #fff;
+}
+
+#top .immodb.listing-single .immodb-content .medias .tabs .tab.videos.selected,
+.immodb.listing-single .immodb-content .medias .tabs .tab.videos.selected {
+  background: #fff;
+  color: #333;
+}
+
+#top .immodb.listing-single .immodb-content .medias .tabs .tab.virtual-tours,
+.immodb.listing-single .immodb-content .medias .tabs .tab.virtual-tours {
+  background: #333;
+  color: #fff;
+}
+
+#top .immodb.listing-single .immodb-content .medias .tabs .tab.virtual-tours.selected,
+.immodb.listing-single .immodb-content .medias .tabs .tab.virtual-tours.selected {
+  background: #fff;
+  color: #333;
+}
+
 #top .immodb.listing-single .immodb-content .medias > .viewport,
 .immodb.listing-single .immodb-content .medias > .viewport {
   position: relative;
@@ -1440,7 +1465,7 @@
   display: grid;
   grid-gap: 0;
   grid-template-rows: 100%;
-  grid-template-columns: repeat(4, 100%);
+  grid-template-columns: repeat(5, 100%);
   place-items: stretch;
   transition: 0.25s;
 }
@@ -1450,6 +1475,13 @@
   position: relative;
 }
 
+#top .immodb.listing-single .immodb-content .medias > .viewport > .trolley .tab-content iframe,
+.immodb.listing-single .immodb-content .medias > .viewport > .trolley .tab-content iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+
 #top .immodb.listing-single .immodb-content .medias > .viewport > .trolley .placeholder,
 .immodb.listing-single .immodb-content .medias > .viewport > .trolley .placeholder {
   position: absolute;
@@ -1457,6 +1489,8 @@
   opacity: 0.2;
   width: 100%;
   text-align: center;
+  transition: 0.25s;
+  pointer-events: none;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -1473,19 +1507,49 @@
   transform: translateX(0);
 }
 
+#top .immodb.listing-single .immodb-content .medias.select-pictures > .viewport > .trolley .placeholder,
+.immodb.listing-single .immodb-content .medias.select-pictures > .viewport > .trolley .placeholder {
+  opacity: 0;
+}
+
 #top .immodb.listing-single .immodb-content .medias.select-videos > .viewport > .trolley,
 .immodb.listing-single .immodb-content .medias.select-videos > .viewport > .trolley {
   transform: translateX(-100%);
 }
 
+#top .immodb.listing-single .immodb-content .medias.select-videos > .viewport > .trolley .placeholder,
+.immodb.listing-single .immodb-content .medias.select-videos > .viewport > .trolley .placeholder {
+  opacity: 0;
+}
+
+#top .immodb.listing-single .immodb-content .medias.select-virtual-tours > .viewport > .trolley,
+.immodb.listing-single .immodb-content .medias.select-virtual-tours > .viewport > .trolley {
+  transform: translateX(-200%);
+}
+
+#top .immodb.listing-single .immodb-content .medias.select-virtual-tours > .viewport > .trolley .placeholder,
+.immodb.listing-single .immodb-content .medias.select-virtual-tours > .viewport > .trolley .placeholder {
+  opacity: 0;
+}
+
 #top .immodb.listing-single .immodb-content .medias.select-streetview > .viewport > .trolley,
 .immodb.listing-single .immodb-content .medias.select-streetview > .viewport > .trolley {
-  transform: translateX(-200%);
+  transform: translateX(-300%);
+}
+
+#top .immodb.listing-single .immodb-content .medias.select-streetview > .viewport > .trolley .placeholder,
+.immodb.listing-single .immodb-content .medias.select-streetview > .viewport > .trolley .placeholder {
+  opacity: 0;
 }
 
 #top .immodb.listing-single .immodb-content .medias.select-map > .viewport > .trolley,
 .immodb.listing-single .immodb-content .medias.select-map > .viewport > .trolley {
-  transform: translateX(-300%);
+  transform: translateX(-400%);
+}
+
+#top .immodb.listing-single .immodb-content .medias.select-map > .viewport > .trolley .placeholder,
+.immodb.listing-single .immodb-content .medias.select-map > .viewport > .trolley .placeholder {
+  opacity: 0;
 }
 
 #top .immodb.listing-single .immodb-content .medias .viewport .video,

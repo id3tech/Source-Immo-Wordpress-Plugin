@@ -70,7 +70,7 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
  */
 ImmoDbApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig){
+function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -229,9 +229,21 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             }
         });
 
+        // trusted src
+        if($scope.model.virtual_tour != undefined){
+            $scope.model.virtual_tour.trusted_url = $sce.trustAsResourceUrl($scope.model.virtual_tour.url);
+        }
+        if($scope.model.video != undefined){
+            let lEmbedVideo = $scope.model.video.url;
+            if($scope.model.video.type=='youtube'){
+                lEmbedVideo = '//www.youtube.com/embed/{0}'.format($scope.model.video.id);
+            }
+
+            $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
+        }
+
         // set brokers detail link
         let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
-        
         $scope.model.brokers.forEach(function($e){
             $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
             $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
