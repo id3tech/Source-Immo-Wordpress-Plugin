@@ -3410,10 +3410,10 @@ ImmoDbApp
 
             $immodbApi.api($scope.getEndpointType().concat('/',$marker.obj.id,'/',immodbApiSettings.locale)).then(function($response){
                 let lInfoWindowScope = $immodbUtils;
+                lInfoWindowScope.compileListingItem($response);
                 $immodbDictionary.source = $response.dictionary;
                 lInfoWindowScope.item = $response;
-
-                console.log(lInfoWindowScope);
+                
                 $immodbTemplate.load('views/ang-templates/immodb-map-info-window.html', lInfoWindowScope).then(function($content){
                     let infowindow = new google.maps.InfoWindow({
                         content: $content
@@ -4487,16 +4487,20 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
      */
     $scope.compileListingList = function($list){
         $list.forEach(function($e){
-            $e.location.city = $scope.sanitize($scope.getCaption($e.location.city_code, 'city'));
-            $e.location.region = $scope.sanitize($scope.getCaption($e.location.region_code, 'region'));
-            $e.transaction = $scope.getTransaction($e,true);
-            $e.location.civic_address = '{0} {1}'.format(
-                                                        $e.location.address.street_number,
-                                                        $e.location.address.street_name
-                                                    );
+            $scope.compileListingItem($e);
         });
 
         return $list;
+    }
+
+    $scope.compileListingItem = function($item){
+        $item.location.city = $scope.sanitize($scope.getCaption($item.location.city_code, 'city'));
+            $item.location.region = $scope.sanitize($scope.getCaption($item.location.region_code, 'region'));
+            $item.transaction = $scope.getTransaction($item,true);
+            $item.location.civic_address = '{0} {1}'.format(
+                                                        $item.location.address.street_number,
+                                                        $item.location.address.street_name
+                                                    );
     }
 
     /**

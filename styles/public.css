@@ -1673,6 +1673,7 @@
 .immodb.listing-single .immodb-content .open-houses h4 {
   font-weight: 300;
   text-transform: uppercase;
+  color: inherit;
 }
 
 #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item,
