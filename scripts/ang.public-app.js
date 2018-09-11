@@ -4768,7 +4768,7 @@ function $immodbHooks($q){
 
     $scope.addAction = function($key, $func, $priority){
         let lNewAction = {key: $key, fn: $func};
-        if($priority == unedfined || $priority > $scope._actions.length - 1){
+        if($priority == undefined || $priority > $scope._actions.length - 1){
             $scope._actions.push(lNewAction);
         }
         else{
@@ -4778,7 +4778,7 @@ function $immodbHooks($q){
 
     $scope.addFilter = function($key, $func, $priority){
         let lNewFilter = {key: $key, fn: $func};
-        if($priority == unedfined || $priority > $scope._filters.length - 1){
+        if($priority == undefined || $priority > $scope._filters.length - 1){
             $scope._filters.push(lNewFilter);
         }
         else{
@@ -4808,14 +4808,14 @@ function $immodbHooks($q){
      * @param {string} $key 
      */
     $scope.filter = function($key, $default_value){
-        let lActions = [];
-        $scope._actions.forEach(function($f){
+        let lFilters = [];
+        $scope._filters.forEach(function($f){
             if($key == $f.key){
-                lActions.push($f);
+                lFilters.push($f);
             }
         });
 
-        lActions.forEach(function($f){
+        lFilters.forEach(function($f){
             $default_value = $f.fn($default_value);
         });
 
