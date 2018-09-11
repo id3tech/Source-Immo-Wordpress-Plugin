@@ -9,7 +9,7 @@ ImmoDbApp.run(function(amMoment) {
  */
 ImmoDbApp
 .controller('publicCtrl', 
-function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
+function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHooks){
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
@@ -19,12 +19,12 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils){
 
     // listingsUpdate
     $scope.$on('immodb-listings-update', function($event, $list, $meta){    
-        $scope.listing_count = $meta.item_count;
+        $scope.listing_count = $immodbHooks.filter('listing_count', $meta.item_count);
     });
 
     // brokersUpdate
     $scope.$on('immodb-brokers-update',function(ev, $list, $meta){
-        $scope.broker_count = $meta.item_count;
+        $scope.broker_count = $immodbHooks.filter('broker_count', $meta.item_count);
     });
 
     /**
@@ -166,12 +166,16 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
+        $scope.model.location.civic_address = '{0} {1}'.format(
+            $scope.model.location.address.street_number,
+            $scope.model.location.address.street_name
+        );
         $scope.model.location.full_address = '{0} {1}, {2}'.format(
                                                 $scope.model.location.address.street_number,
                                                 $scope.model.location.address.street_name,
                                                 $scope.model.location.city
                                             );
-
+        
         $scope.model.building.attributes = [];
         $scope.model.lot = {attributes : []};
         $scope.model.other = {attributes : []};
@@ -179,7 +183,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
 
         // from main unit
-        let lMainUnit = $scope.model.units.find(function($u){return $u.category=='MAIN'});
+        let lMainUnit = $scope.model.units.find(function($u){return $u.category_code=='MAIN'});
         if(lMainUnit!=null){
             if(lMainUnit.bedroom_count) $scope.model.important_flags.push({icon: 'bed', value: lMainUnit.bedroom_count, caption:'Bedroom'.translate()});
             if(lMainUnit.bathroom_count) $scope.model.important_flags.push({icon: 'bath', value: lMainUnit.bathroom_count, caption: 'Bathroom'.translate()});
@@ -624,6 +628,7 @@ ImmoDbApp
                     $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                         // set list/meta
                         if($scope.configs.type=='listings'){
+                            console.log('Compile listing list');
                             $scope.list = $immodbUtils.compileListingList($response.items);
                         }
                         else{
@@ -3410,10 +3415,12 @@ ImmoDbApp
 
             $immodbApi.api($scope.getEndpointType().concat('/',$marker.obj.id,'/',immodbApiSettings.locale)).then(function($response){
                 let lInfoWindowScope = $immodbUtils;
-                lInfoWindowScope.compileListingItem($response);
                 $immodbDictionary.source = $response.dictionary;
+
+                lInfoWindowScope.compileListingItem($response);
                 lInfoWindowScope.item = $response;
-                
+
+                console.log('lInfoWindowScope',lInfoWindowScope);
                 $immodbTemplate.load('views/ang-templates/immodb-map-info-window.html', lInfoWindowScope).then(function($content){
                     let infowindow = new google.maps.InfoWindow({
                         content: $content
@@ -4469,7 +4476,9 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
             }
         });
 
-        return $immodbTemplate.interpolate(lRoute.route, $scope);
+        let lResult = $immodbTemplate.interpolate(lRoute.route, $scope);
+
+        return $scope.sanitize(lResult);
     }
 
     /**
@@ -4494,13 +4503,17 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
     }
 
     $scope.compileListingItem = function($item){
-        $item.location.city = $scope.sanitize($scope.getCaption($item.location.city_code, 'city'));
-            $item.location.region = $scope.sanitize($scope.getCaption($item.location.region_code, 'region'));
-            $item.transaction = $scope.getTransaction($item,true);
+        if($item.category == undefined){
+            $item.location.city = $scope.getCaption($item.location.city_code, 'city');
+            $item.location.region = $scope.getCaption($item.location.region_code, 'region');
+            $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
+            $item.category = $scope.getCaption($item.category_code, 'listing_category');
+            $item.transaction = $scope.getTransaction($item);
             $item.location.civic_address = '{0} {1}'.format(
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
                                                     );
+        }
     }
 
     /**
@@ -4743,6 +4756,74 @@ function $immodbConfig($http, $q){
     return $scope;
 }
 ])
+
+ImmoDbApp
+.factory('$immodbHooks', ['$q', 
+function $immodbHooks($q){
+    let $scope = {};
+
+    $scope._actions = [];
+    $scope._filters = [];
+
+
+    $scope.addAction = function($key, $func, $priority){
+        let lNewAction = {key: $key, fn: $func};
+        if($priority == unedfined || $priority > $scope._actions.length - 1){
+            $scope._actions.push(lNewAction);
+        }
+        else{
+            $scope._actions.splice($priority, 0, lNewAction);
+        }
+    }
+
+    $scope.addFilter = function($key, $func, $priority){
+        let lNewFilter = {key: $key, fn: $func};
+        if($priority == unedfined || $priority > $scope._filters.length - 1){
+            $scope._filters.push(lNewFilter);
+        }
+        else{
+            $scope._filters.splice($priority, 0, lNewFilter);
+        }
+    }
+
+    /**
+     * Execute action hooked to the key
+     * @param {string} $key 
+     */
+    $scope.do = function($key, $params){
+        let lActions = [];
+        $scope._actions.each(function($a){
+            if($key == $a.key){
+                lActions.push($a);
+            }
+        });
+
+        lActions.forEach(function($a){
+            $a.fn($params);
+        });
+    }
+
+    /**
+     * Apply filter on value hooked to the key
+     * @param {string} $key 
+     */
+    $scope.filter = function($key, $default_value){
+        let lActions = [];
+        $scope._actions.each(function($f){
+            if($key == $f.key){
+                lActions.push($f);
+            }
+        });
+
+        lActions.forEach(function($f){
+            $default_value = $f.fn($default_value);
+        });
+
+        return $default_value;
+    }
+
+    return $scope;
+}]);
 
 
 /* ------------------------------- 
