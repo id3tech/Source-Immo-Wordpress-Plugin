@@ -14,10 +14,10 @@ if(isset($configs)){
             <div class="price">{{formatPrice(item)}}</div>
             <div class="civic-address">{{item.location.civic_address}}</div>
             <div class="ref-number">{{item.ref_number}}</div>
-            <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
-            <div class="region">{{getCaption(item.location.region_code , 'region')}}</div>
-            <div class="category">{{getCaption(item.category_code , 'listing_category')}}</div>
-            <div class="subcategory">{{getCaption(item.subcategory_code , 'listing_subcategory')}}</div>
+            <div class="city">{{item.location.city}}</div>
+            <div class="region">{{item.location.region}}</div>
+            <div class="category">{{item.category }}</div>
+            <div class="subcategory">{{item.subcategory}}</div>
             <div class="description">{{item.description}}</div>
         </div>
     </a>

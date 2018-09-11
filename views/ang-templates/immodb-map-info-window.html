@@ -4,10 +4,8 @@
         <div class="image"><img src="{{item.photos[0].url}}" /></div>
         <div class="price">{{formatPrice(item)}}</div>
         <div class="ref_number">{{item.ref_number}}</div>
-        <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
-        <div class="region">{{getCaption(item.location.region_code , 'region')}}</div>
-        <div class="category">{{getCaption(item.category , 'listing_category')}}</div>
-        <div class="subcategory">{{getCaption(item.subcategory , 'listing_subcategory')}}</div>
+        <div class="address">{{item.location.civic_address}}, {{item.location.city}}</div>
+        <div class="subcategory">{{item.subcategory}}</div>
         <div class="description">{{item.description}}</div>
     </div>
 </a>

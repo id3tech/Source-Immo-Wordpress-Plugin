@@ -14,9 +14,9 @@ if(isset($configs)){
             <div class="image"><img ng-src="{{item.photo_url}}" /></div>
             <div class="civic-address">{{item.location.civic_address}}</div>
             <div class="price">{{formatPrice(item)}}</div>
-            <div class="city">{{getCaption(item.location.city_code , 'city')}}</div>
-            <div class="category">{{getCaption(item.category_code , 'listing_category')}}</div>
-            <div class="subcategory">{{getCaption(item.subcategory_code , 'listing_subcategory')}}</div>
+            <div class="city">{{item.location.city}}</div>
+            <div class="category">{{item.category}}</div>
+            <div class="subcategory">{{item.subcategory}}</div>
         </div>
     </a>
 </article>
