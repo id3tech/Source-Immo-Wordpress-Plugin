@@ -562,13 +562,82 @@
 
 #top .immodb .immodb-item.info-window,
 .immodb .immodb-item.info-window {
-  max-width: 340px;
+  max-width: 250px;
   border: none;
 }
 
 #top .immodb .immodb-item.info-window img,
 .immodb .immodb-item.info-window img {
   max-width: 100%;
+}
+
+#top .immodb .immodb-item.info-window .content,
+.immodb .immodb-item.info-window .content {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto 180px auto;
+  grid-template-areas: "price ref_number" "image image" "subcategory subcategory" "address address";
+  place-items: center stretch;
+  grid-gap: 10px;
+}
+
+#top .immodb .immodb-item.info-window .content .image,
+.immodb .immodb-item.info-window .content .image {
+  grid-area: image;
+}
+
+#top .immodb .immodb-item.info-window .content .price,
+.immodb .immodb-item.info-window .content .price {
+  grid-area: price;
+}
+
+#top .immodb .immodb-item.info-window .content .ref_number,
+.immodb .immodb-item.info-window .content .ref_number {
+  grid-area: ref_number;
+}
+
+#top .immodb .immodb-item.info-window .content .category,
+.immodb .immodb-item.info-window .content .category {
+  grid-area: category;
+}
+
+#top .immodb .immodb-item.info-window .content .subcategory,
+.immodb .immodb-item.info-window .content .subcategory {
+  grid-area: subcategory;
+}
+
+#top .immodb .immodb-item.info-window .content .address,
+.immodb .immodb-item.info-window .content .address {
+  grid-area: address;
+}
+
+#top .immodb .immodb-item.info-window .content .price,
+.immodb .immodb-item.info-window .content .price {
+  font-size: 1.5em;
+}
+
+#top .immodb .immodb-item.info-window .content .image,
+.immodb .immodb-item.info-window .content .image {
+  height: 100%;
+  width: 100%;
+}
+
+#top .immodb .immodb-item.info-window .content .ref_number,
+.immodb .immodb-item.info-window .content .ref_number {
+  font-style: italic;
+  padding: 10px;
+  text-align: right;
+}
+
+#top .immodb .immodb-item.info-window .content .subcategory,
+.immodb .immodb-item.info-window .content .subcategory {
+  text-transform: uppercase;
+}
+
+#top .immodb .immodb-item.info-window .content .description,
+.immodb .immodb-item.info-window .content .description {
+  display: none;
 }
 
 #top .immodb .immodb-item.sold,
