@@ -4792,7 +4792,7 @@ function $immodbHooks($q){
      */
     $scope.do = function($key, $params){
         let lActions = [];
-        $scope._actions.each(function($a){
+        $scope._actions.forEach(function($a){
             if($key == $a.key){
                 lActions.push($a);
             }
@@ -4809,7 +4809,7 @@ function $immodbHooks($q){
      */
     $scope.filter = function($key, $default_value){
         let lActions = [];
-        $scope._actions.each(function($f){
+        $scope._actions.forEach(function($f){
             if($key == $f.key){
                 lActions.push($f);
             }
