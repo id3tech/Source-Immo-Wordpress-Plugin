@@ -1,12 +1,19 @@
 <div class="medias select-{{selected_media}}">
     <div class="tabs">
-        <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" ng-click="selected_media='pictures'"><?php _e('Pictures',IMMODB)?></button>
+        <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
+            ng-click="selected_media='pictures'">
+            <i class="fal fa-camera"></i> <span><?php _e('Pictures',IMMODB)?></span></button>
         <button type="button" class="tab videos {{selected_media=='videos'?'selected':''}}"
-            ng-show="model.video!=undefined" ng-click="selected_media='videos'"><?php _e('Video',IMMODB)?></button>
+            ng-show="model.video!=undefined" 
+            ng-click="selected_media='videos'">
+            <i class="fal fa-video"></i> <span><?php _e('Video',IMMODB)?></span></button>
         <button type="button" class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
-            ng-show="model.virtual_tour!=undefined" ng-click="selected_media='virtual-tours'"><?php _e('Virtual tour',IMMODB)?></button>
-        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" ng-click="selected_media='streetview'"><?php _e('Street view',IMMODB)?></button>
-        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" ng-click="selected_media='map'"><?php _e('Map',IMMODB)?></button>
+            ng-show="model.virtual_tour!=undefined" ng-click="selected_media='virtual-tours'">
+            <i class="fal fa-street-view"></i> <span><?php _e('Virtual tour',IMMODB)?></span></button>
+        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" ng-click="selected_media='streetview'">
+            <i class="fal fa-street-view"></i> <span><?php _e('Street view',IMMODB)?></span></button>
+        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" ng-click="selected_media='map'">
+            <i class="fal fa-map"></i> <span><?php _e('Map',IMMODB)?></span></button>
     </div>
     <div class="viewport">
         <div class="trolley">
@@ -23,6 +30,7 @@
             </div>
             <div class="tab-content streetview">
                 <label class="placeholder"><?php _e('Street view',IMMODB)?></label>
+                <immodb-streetview class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-streetview>
             </div>
             <div class="tab-content map">
                 <label class="placeholder"><?php _e('Map',IMMODB)?></label>

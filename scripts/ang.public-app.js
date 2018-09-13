@@ -70,7 +70,7 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
  */
 ImmoDbApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce){
+function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce, $immodbHooks){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -81,7 +81,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         building : {opened:false},
         lot : {opened:false},
         other: {opened: false},
-        in_exclusions:{opened:false}
+        in_exclusions:{opened:false},
+        rooms:{opened:false}
     }
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
@@ -149,6 +150,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $scope.preprocess();
             // prepare message subject build from data
             $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            $immodbHooks.do('listing-message-model-post-process',$scope.message_model);
             // print data to console for further informations
             console.log($scope.model);
         });
@@ -181,6 +183,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.other = {attributes : []};
         $scope.model.important_flags = [];
         $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
+        $scope.model.short_price = $immodbUtils.formatPrice($scope.model);
 
         // from main unit
         let lMainUnit = $scope.model.units.find(function($u){return $u.category_code=='MAIN'});
@@ -233,6 +236,23 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             }
         });
 
+        // units
+        $scope.model.units.forEach(function($u){
+            $u.category = $immodbDictionary.getCaption($u.category_code,'unit_category');
+            $u.flags = [];
+            $u.flags.push({icon: 'door-open', value: $u.room_count, caption: 'Rooms'.translate()});
+            $u.flags.push({icon: 'bed', value: $u.bedroom_count, caption: 'Bedrooms'.translate()});
+            $u.flags.push({icon: 'bath', value: $u.bathroom_count, caption: 'Bathrooms'.translate()});
+        });
+
+        // rooms
+        $scope.model.rooms.forEach(function($r){
+            $r.category = $immodbDictionary.getCaption($r.category_code,'room_category');
+            $r.level_category = $immodbDictionary.getCaption($r.level_category_code, 'level_category');
+            $r.short_dimension = $immodbUtils.formatDimension($r.dimension);
+            $r.flooring = $immodbDictionary.getCaption($r.flooring_code,'flooring');
+        });
+
         // trusted src
         if($scope.model.virtual_tour != undefined){
             $scope.model.virtual_tour.trusted_url = $sce.trustAsResourceUrl($scope.model.virtual_tour.url);
@@ -252,6 +272,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
             $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
         });
+
+        $immodbHooks.do('single-listing-preprocess', $scope.model);
     }
 
     /**
@@ -284,6 +306,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
      */
     $scope.sendMessage = function(){
         console.log('message data:', $scope.message_model);
+
+        $immodbHooks.do('single-listing-send-message', $scope.message_model);
     }
 });
 
@@ -468,6 +492,17 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
     }
 
     /**
+    * Shorthand to $immodbUtils.getClassList
+    * see $immodbUtils factory for details
+    * @param {object} $item Listing item data
+    */
+    $scope.getClassList = function($item){
+        let lResult = $immodbUtils.getClassList($item);
+        console.log('getClassList of', $item, lResult);
+        return lResult;
+    }
+
+    /**
      * Send message to broker via API
      * TODO
      */
@@ -619,33 +654,38 @@ ImmoDbApp
                 // set search token
                 lParams = {'st': $token}; 
                 // reset page index
-                $scope.page_index = 0;  
-                // lock loading to prevent call overlaps
-                console.log("search called loading:", $scope.is_loading_data)
-                if($scope.is_loading_data == false){
-                    $scope.is_loading_data = true;
-                    console.log('search called api')
-                    $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
-                        // set list/meta
-                        if($scope.configs.type=='listings'){
-                            console.log('Compile listing list');
-                            $scope.list = $immodbUtils.compileListingList($response.items);
-                        }
-                        else{
-                            $scope.list = $response.items;
-                        }
-                        
-                        $scope.listMeta = $response.metadata;
-                        // unlock
-                        $scope.is_loading_data = false;
-                        // broadcast new list
-                        console.log('Broadcasting list on','immodb-' + $scope.configs.type + '-update','...');
-                        $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-                        $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                $scope.page_index = 0;
+                // 
+                if(!$scope.loadListFromStorage($token)){
+                    // lock loading to prevent call overlaps
+                    console.log("search called loading:", $scope.is_loading_data)
+                    if($scope.is_loading_data == false){
+                        $scope.is_loading_data = true;
+                        console.log('search called api')
+                        $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
+                            // set list/meta
+                            if($scope.configs.type=='listings'){
+                                console.log('Compile listing list');
+                                $scope.list = $immodbUtils.compileListingList($response.items);
+                            }
+                            else{
+                                $scope.list = $response.items;
+                            }
+                            
+                            $scope.listMeta = $response.metadata;
+                            // unlock
+                            $scope.is_loading_data = false;
+                            // broadcast new list
+                            console.log('Broadcasting list on','immodb-' + $scope.configs.type + '-update','...');
+                            $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                            $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
-                        // print list to console for further information
-                        console.log('The list',$scope.list);
-                    })
+                            // print list to console for further information
+                            console.log('The list',$scope.list);
+
+                            $scope.saveListToStorage($token);
+                        })
+                    }
                 }
             }
 
@@ -653,6 +693,7 @@ ImmoDbApp
              * Check wether loading the next page of list is required or not
              */
             $scope.checkNextPage = function(){
+                console.log('checkNextPage',$scope.listMeta);
                 // page is under 2 and there's a token to load next page
                 if($scope.listMeta!=null){
                     if($scope.page_index<2 && $scope.listMeta.next_token){
@@ -699,11 +740,33 @@ ImmoDbApp
                         if($reset){
                             $scope.page_index = 0;
                         }
+
+                        $scope.saveListToStorage($scope.listMeta.search_token);
                     });
                 }
                 
             }
-    
+            
+            $scope.loadListFromStorage = function($token){
+                console.log('loading list from immodb.list.{0}'.format($token));
+                let lList = sessionStorage.getItem('immodb.list.{0}'.format($token));
+                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}'.format($token));
+                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}'.format($token));
+
+                if (lList != undefined){
+                    $scope.list = JSON.parse(lList);
+                    $scope.listMeta = JSON.parse(lListMeta);
+                    $scope.page_index = lPageIndex;
+                    return true;
+                }
+                return false;
+            }
+
+            $scope.saveListToStorage = function($token){
+                sessionStorage.setItem('immodb.list.{0}'.format($token), JSON.stringify($scope.list));
+                sessionStorage.setItem('immodb.listMeta.{0}'.format($token), JSON.stringify($scope.listMeta));
+                sessionStorage.setItem('immodb.pageIndex.{0}'.format($token), $scope.page_index);
+            }
     
             /**
              * Get the api endpoint matching the config type
@@ -916,11 +979,19 @@ ImmoDbApp
                 },
                 open_house : {
                     caption: 'Open house',
-                    filter : {field: 'price.sell.amount', operator: 'greater_than', value: 0}
+                    filter : {field: 'open_houses[*].end_date', operator: 'greater_or_equal_to', value: 'udf.now()'}
                 },
                 forclosure : {
                     caption: 'Foreclosure',
                     filter : {field: 'price.foreclosure', operator: 'equal', value: true}
+                },
+                virtual_tour : {
+                    caption: 'With virtual tour',
+                    filter : {field: 'virtual_tour_flag', operator: 'equal', value: true}
+                },
+                video : {
+                    caption: 'With video',
+                    filter : {field: 'video_flag', operator: 'equal', value: true}
                 }
             }
             // listing ages or timespan filters
@@ -983,12 +1054,7 @@ ImmoDbApp
                 // load state
                 $scope.loadState();
 
-                // load stored search token
-                let lStoredSearchToken = $scope.loadState('st');
-                if(lStoredSearchToken){
-                    // broadcast new search token
-                    $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
-                }
+                
                 // Wait for late initialization
                 $scope.isReady().then(function(){
                     // Sync UI with filters
@@ -1001,6 +1067,12 @@ ImmoDbApp
                     }
 
                     $scope.$broadcast('search-is-ready');
+                    // load stored search token
+                    let lStoredSearchToken = $scope.loadState('st');
+                    if(lStoredSearchToken && $scope.configs.search_token != lStoredSearchToken){
+                        // broadcast new search token
+                        $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
+                    }
                 });
             }
     
@@ -3209,6 +3281,108 @@ ImmoDbApp
 });
 
 ImmoDbApp
+.directive('immodbStreetview', function immodbStreetView( $immodbTemplate, $immodbUtils, $immodbDictionary){
+    let dir_controller = 
+    function($scope, $q, $immodbApi, $rootScope){
+        $scope.ready = false;
+        $scope.is_visible = false;
+        $scope.zoom = 14;
+        $scope.is_loading_data = false;
+        $scope.late_init = true;
+        $scope.markers = [];
+        $scope.markerCluster = null;
+        $scope.bounds = null;
+        $scope.client = {
+            search_token : null
+        };
+
+        $scope.permalink = '';
+
+        $scope.$onInit = function(){
+            console.log('init', $scope);
+            if($scope.ready == false){
+                let options = {
+                    center: new google.maps.LatLng(45.6025503,-73.8469538),
+                    zoom: $scope.zoom
+                    //disableDefaultUI: true    
+                }
+                
+                $scope.map = new google.maps.Map(
+                    $scope.map_element, options
+                );
+
+                $scope.ready = true;
+            }
+        }
+
+        $scope.setView = function($position){
+            console.log('engaging streetview');
+            let lPosition = new google.maps.LatLng($position.lat,$position.lng);
+            
+            $scope.panorama = new google.maps.StreetViewPanorama($scope.viewport_element, 
+                    {
+                        position: lPosition,
+                        pov: {
+                            heading: 34,
+                            pitch: 10
+                        }
+                    });
+            
+            $scope.map.setStreetView($scope.panorama);
+        }
+        
+
+        $scope.isReady = function(){
+            let lPromise = $q(function($resolve,$reject){
+                if($scope.ready==true){
+                    $resolve();
+                }
+                else{
+                    $scope.$watch('ready', function(){
+                        if($scope.ready==true){
+                            $resolve();
+                        }
+                    });
+                }
+            });
+
+            return lPromise;
+        }
+
+        $scope.$watch('latlng', function(){
+            if($scope.latlng != null && $scope.latlng.lat!=undefined){
+                console.log('latlng streetview', $scope.latlng);
+                $scope.isReady().then(function(){
+                    console.log('streetview is ready');
+                    $scope.setView($scope.latlng);
+                });
+            }
+        });
+    };
+
+
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            alias: '@immodbAlias',
+            class: '@class',
+            configs: '=?immodbConfigs',
+            latlng: '=?latlng',
+            zoom: '@'
+        },
+        controllerAs: 'ctrl',
+        template: '<div><div id="map-{{alias}}" class="map-viewport"></div><div id="pano-{{alias}}" class="viewport"></div></div>',
+        controller: dir_controller,
+        link: function($scope, element){
+            $scope.map_element = element.children()[0];
+            $scope.viewport_element = element.children()[1];
+            $scope.$onInit();
+        }
+    };
+});
+
+ImmoDbApp
 .directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary){
     let dir_controller = 
     function($scope, $q, $immodbApi, $rootScope){
@@ -3286,7 +3460,7 @@ ImmoDbApp
         $scope.onFilterTokenChanged = function($event, $newToken){
             $scope.client.search_token = $newToken;
             $scope.isReady().then(function(){
-                console.log('update list');
+                console.log('update list from token changed');
                 $scope.getList();
             })
         }
@@ -4463,6 +4637,14 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         return lResult.join(lSeperator);
     }
 
+    $scope.formatDimension = function($dimension){
+        let lResult = '';
+        let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
+
+        lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+        return lResult;
+    }
+
     /**
      * Get permalink of the listing item
      * @param {object} $item Listing data object
@@ -4525,6 +4707,24 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         if($item != null){
             if($item.status_code=='SOLD'){
                 lResult.push('sold');
+            }
+            let lHasFlags = false;
+            if($item.video_flag){
+                lHasFlags = true;
+                lResult.push('has-video');
+            }
+
+            if($item.virtual_tour_flag){
+                lHasFlags = true;
+                lResult.push('has-virtual-tour');
+            }
+
+            if(lHasFlags){
+                lResult.push('has-flags');
+            }
+
+            if($item.open_houses != undefined && $item.open_houses.length>0){
+                lResult.push('has-open-house')
             }
         }
         return lResult.join(' ');
