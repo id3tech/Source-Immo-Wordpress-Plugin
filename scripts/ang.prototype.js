@@ -7,8 +7,8 @@ if(typeof String.format === 'undefined'){
             if(arguments[i] != null){
                 lArgValue = arguments[i].toString();
             }
-            
-            lResult = lResult.replace('{' + i.toString() + '}', lArgValue)
+            let lRegExp = new RegExp('\\{' + i.toString() + '\\}', 'g');
+            lResult = lResult.replace(lRegExp, lArgValue)
         }
         return lResult;
     }
@@ -22,6 +22,29 @@ if(typeof Number.formatPrice === 'undefined' ){
         $currency = ($currency==undefined)?'':$currency;
         let lResult = lValue.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
         lResult = '${0}'.translate().format(lResult);
+        return lResult;
+    }
+
+}
+
+if(typeof Number.formatRank === 'undefined' ){
+
+    Number.prototype.formatRank = function(){
+        let lValue = this;
+        let lFormat = '{0}th';
+        switch(lValue % 10){
+            case 1:
+                lFormat = '{0}st';
+                break;
+            case 2:
+                lFormat = '{0}nd';
+                break;
+            case 3:
+                lFormat = '{0}rd';
+                break;
+        }
+        
+        lResult = lFormat.translate().format(lValue);
         return lResult;
     }
 
