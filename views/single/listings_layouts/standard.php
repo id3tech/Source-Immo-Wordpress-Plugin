@@ -38,6 +38,8 @@
 <div class="details">
     <div class="left">
         <?php echo do_shortcode('[immodb_listing_part part="addendum"]') ?>
+
+        <?php echo do_shortcode('[immodb_listing_part part="rooms"]') ?>
         
         <?php echo do_shortcode('[immodb_listing_part part="building_specs"]') ?>
 
