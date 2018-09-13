@@ -1,4 +1,4 @@
-<div class="form">
+<div class="info-request form">
     <div class="firstname input-container">
         <label><?php _e('First name', IMMODB) ?></label>
         <div class="input">
