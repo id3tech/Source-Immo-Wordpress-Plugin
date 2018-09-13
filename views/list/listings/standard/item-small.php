@@ -17,6 +17,15 @@ if(isset($configs)){
             <div class="city">{{item.location.city}}</div>
             <div class="category">{{item.category}}</div>
             <div class="subcategory">{{item.subcategory}}</div>
+            <div class="flags">
+                <i class="video far fa-video"></i>
+                <i class="virtual-tour far fa-street-view"></i>
+            </div>
+            <div class="open-houses">
+                <div class="open-house-item">
+                    <i class="fal fa-calendar-alt"></i> {{'Open house'.translate()}} <span am-time-ago="item.open_houses[0].start_date"></span>
+                </div>
+            </div>
         </div>
     </a>
 </article>

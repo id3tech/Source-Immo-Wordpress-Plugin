@@ -738,12 +738,54 @@
   grid-area: civic-address;
 }
 
+#top .immodb .immodb-item.immodb-listing-item .open-houses,
+.immodb .immodb-item.immodb-listing-item .open-houses {
+  grid-area: open-houses;
+}
+
+#top .immodb .immodb-item.immodb-listing-item .flags,
+.immodb .immodb-item.immodb-listing-item .flags {
+  grid-area: flags;
+}
+
 #top .immodb .immodb-item.immodb-listing-item .content,
 .immodb .immodb-item.immodb-listing-item .content {
   grid-gap: 0;
   grid-template-columns: 3fr 1fr;
   grid-template-rows: auto auto 200px auto;
-  grid-template-areas: "civic-address civic-address" "city city" "image image" "price price" "category category" "subcategory ref-number" "description description";
+  grid-template-areas: "civic-address civic-address" "city city" "image image" "price price" "open-houses open-houses" "category category" "subcategory ref-number" "description description";
+}
+
+#top .immodb .immodb-item.immodb-listing-item .open-houses,
+.immodb .immodb-item.immodb-listing-item .open-houses {
+  display: none;
+  padding: 10px;
+  text-align: center;
+  color: #fff;
+  background-color: #000;
+}
+
+#top .immodb .immodb-item.immodb-listing-item .flags,
+.immodb .immodb-item.immodb-listing-item .flags {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  grid-gap: 10px;
+}
+
+#top .immodb .immodb-item.immodb-listing-item .flags .far,
+.immodb .immodb-item.immodb-listing-item .flags .far {
+  display: none;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  border-radius: 50%;
+  text-align: center;
+  background-color: #ff9900;
+  color: #fff;
 }
 
 #top .immodb .immodb-item.immodb-listing-item .civic-address, #top .immodb .immodb-item.immodb-listing-item .city,
@@ -805,6 +847,26 @@
 #top .immodb .immodb-item.immodb-listing-item .subcategory,
 .immodb .immodb-item.immodb-listing-item .subcategory {
   padding: 0 10px 10px 10px;
+}
+
+#top .immodb .immodb-item.immodb-listing-item.has-open-house .open-houses,
+.immodb .immodb-item.immodb-listing-item.has-open-house .open-houses {
+  display: block;
+}
+
+#top .immodb .immodb-item.immodb-listing-item.has-flags .flags,
+.immodb .immodb-item.immodb-listing-item.has-flags .flags {
+  display: block;
+}
+
+#top .immodb .immodb-item.immodb-listing-item.has-virtual-tour .flags .virtual-tour,
+.immodb .immodb-item.immodb-listing-item.has-virtual-tour .flags .virtual-tour {
+  display: block;
+}
+
+#top .immodb .immodb-item.immodb-listing-item.has-video .flags .video,
+.immodb .immodb-item.immodb-listing-item.has-video .flags .video {
+  display: block;
 }
 
 #top .immodb .immodb-item.immodb-broker-item .image,
@@ -1331,7 +1393,7 @@
   grid-area: open-houses;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 1100px) {
   #top .immodb.listing-single .immodb-content,
   .immodb.listing-single .immodb-content {
     grid-template-columns: 1fr;
@@ -1358,7 +1420,7 @@
   display: none;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 1100px) {
   #top .immodb.listing-single .immodb-content .header,
   .immodb.listing-single .immodb-content .header {
     grid-template-columns: 1fr;
@@ -1455,6 +1517,14 @@
   place-self: stretch;
 }
 
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .immodb-content .medias .tabs,
+  .immodb.listing-single .immodb-content .medias .tabs {
+    margin: 0 auto;
+    width: 75%;
+  }
+}
+
 #top .immodb.listing-single .immodb-content .medias .tabs .tab,
 .immodb.listing-single .immodb-content .medias .tabs .tab {
   background: none;
@@ -1480,6 +1550,13 @@
   left: 50%;
   transform: translateX(-50%);
   transition: 0.25s;
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .immodb-content .medias .tabs .tab span,
+  .immodb.listing-single .immodb-content .medias .tabs .tab span {
+    display: none;
+  }
 }
 
 #top .immodb.listing-single .immodb-content .medias .tabs .tab.selected,
@@ -1629,6 +1706,21 @@
 #top .immodb.listing-single .immodb-content .medias .viewport .streetview,
 .immodb.listing-single .immodb-content .medias .viewport .streetview {
   background: #A0E3FA;
+}
+
+#top .immodb.listing-single .immodb-content .medias .viewport .streetview .detail-streetview,
+.immodb.listing-single .immodb-content .medias .viewport .streetview .detail-streetview {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+#top .immodb.listing-single .immodb-content .medias .viewport .streetview .detail-streetview .viewport,
+.immodb.listing-single .immodb-content .medias .viewport .streetview .detail-streetview .viewport {
+  width: 100%;
+  height: 100%;
 }
 
 #top .immodb.listing-single .immodb-content .medias .viewport .map,
@@ -2024,6 +2116,94 @@
   font-size: 1.75em;
   display: block;
   font-style: normal;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .flags,
+.immodb.listing-single .immodb-content .rooms .unit-list .flags {
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 50px;
+  margin: 10px auto;
+  width: 33%;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .flags .flag .fal,
+.immodb.listing-single .immodb-content .rooms .unit-list .flags .flag .fal {
+  font-size: 1.4em;
+  text-align: left;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list {
+  border-top: dashed 1px #e2e2e2;
+  padding-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  grid-gap: 10px;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item {
+  display: grid;
+  grid-template-columns: 1fr auto 100px;
+  grid-template-rows: auto;
+  grid-gap: 0px 10px;
+  grid-template-areas: "type type level" "infos infos area";
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .type,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .type {
+  grid-area: type;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .level,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .level {
+  grid-area: level;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .area,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .area {
+  grid-area: area;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos {
+  grid-area: infos;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .type,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .type {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .level,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .level {
+  text-transform: uppercase;
+  place-self: center end;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .area,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .area {
+  place-self: center end;
+  font-style: italic;
+  padding: 0 5px;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos {
+  font-style: italic;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos .flooring,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos .flooring {
+  display: inline-block;
+  padding-right: 0px;
+}
+
+#top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos span:nth-child(2):before,
+.immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos span:nth-child(2):before {
+  content: ", ";
 }
 
 #top .immodb.listing-single.loaded .immodb-content,
