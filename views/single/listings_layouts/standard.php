@@ -60,6 +60,7 @@
     </div>
 </div>
 
+<?php echo do_shortcode('[immodb_listing_part part="list_navigation"]') ?>
 
 <?php echo do_shortcode('[immodb_listing_part part="info_request_modal"]') ?>
 

@@ -2759,6 +2759,169 @@
   grid-area: extra;
 }
 
+.immodb-listing-navigation {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto;
+  grid-gap: 0px;
+  grid-template-areas: "previous . next";
+  transition: 0.25s;
+  pointer-events: none;
+}
+
+.immodb-listing-navigation .previous {
+  grid-area: previous;
+}
+
+.immodb-listing-navigation .next {
+  grid-area: next;
+}
+
+.immodb-listing-navigation .item {
+  width: 250px;
+  transition: 0.25s;
+  pointer-events: auto;
+}
+
+.immodb-listing-navigation .item .content {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 120px auto;
+  grid-gap: 0px;
+  grid-template-areas: "civic-address" "photo" "price" "city" "subcategory";
+  padding: 10px;
+}
+
+.immodb-listing-navigation .item .content .photo {
+  grid-area: photo;
+}
+
+.immodb-listing-navigation .item .content .price {
+  grid-area: price;
+}
+
+.immodb-listing-navigation .item .content .civic-address {
+  grid-area: civic-address;
+}
+
+.immodb-listing-navigation .item .content .city {
+  grid-area: city;
+}
+
+.immodb-listing-navigation .item .content .category {
+  grid-area: category;
+}
+
+.immodb-listing-navigation .item .content .subcategory {
+  grid-area: subcategory;
+}
+
+.immodb-listing-navigation .item .content .category {
+  display: none;
+}
+
+.immodb-listing-navigation .item .content .photo {
+  overflow: hidden;
+  position: relative;
+}
+
+.immodb-listing-navigation .item .content .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.immodb-listing-navigation .item .content .photo:before {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  opacity: 0;
+  transition: 0.25s;
+  z-index: 8;
+}
+
+.immodb-listing-navigation .item .content .photo:after {
+  content: "\f062";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  font-family: "Font Awesome 5 Pro";
+  transition: 0.25s;
+  font-weight: 300;
+  font-size: 36px;
+  color: #fff;
+  z-index: 9;
+}
+
+.immodb-listing-navigation .item .content .price {
+  text-align: center;
+  font-weight: 700;
+}
+
+.immodb-listing-navigation .item .content .civic-address {
+  background: #333;
+  color: #fff;
+  padding: 5px;
+}
+
+.immodb-listing-navigation .item .content:hover .photo:before {
+  opacity: 0.65;
+}
+
+.immodb-listing-navigation .item.previous .content:hover .photo:after {
+  transform: translate(-50%, -50%) rotate(-90deg);
+  opacity: 1;
+}
+
+.immodb-listing-navigation .item.next .content:hover .photo:after {
+  transform: translate(-50%, -50%) rotate(90deg);
+  opacity: 1;
+}
+
+.immodb-listing-navigation.display-fixed {
+  position: fixed;
+  width: calc(100vw - 20px);
+  height: 100vh;
+  top: 0px;
+  left: 0px;
+}
+
+.immodb-listing-navigation.display-fixed .item {
+  position: relative;
+  opacity: 0;
+}
+
+.immodb-listing-navigation.display-fixed .item .content {
+  background: #fdfdfd;
+  border: solid 1px #ccc;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: 0.25s;
+}
+
+.immodb-listing-navigation.display-fixed .item .content:hover {
+  box-shadow: rgba(0, 0, 0, 0.5) 0 10px 20px;
+}
+
+.immodb-listing-navigation.display-fixed .item.previous {
+  left: 0px;
+}
+
+.immodb-listing-navigation.display-fixed .item.next {
+  right: 0px;
+}
+
+.immodb-listing-navigation.display-fixed .item:hover {
+  opacity: 1;
+}
+
 #top .immodb.listing-single, #top .immodb.broker-single {
   max-width: 1310px;
   margin: 0 auto;

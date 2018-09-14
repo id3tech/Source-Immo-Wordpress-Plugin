@@ -1,0 +1,1 @@
+<immodb-listing-navigation immodb-current="model.id" immodb-display="fixed"></immodb-listing-navigation>

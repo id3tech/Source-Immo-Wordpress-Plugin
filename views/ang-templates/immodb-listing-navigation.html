@@ -1,0 +1,27 @@
+<div class="immodb-listing-navigation display-{{display}}">
+    <div class="item previous" ng-show="previous!=null">
+        <a href="/{{previous.permalink}}">
+            <div class="content">
+                <div class="photo"><img src="{{previous.photo_url}}"></div>
+                <div class="civic-address">{{previous.location.civic_address}}</div>
+                <div class="price">{{previous.short_price}}</div>
+                <div class="city">{{previous.location.city}}</div>
+                <div class="category">{{previous.category}}</div>
+                <div class="subcategory">{{previous.subcategory}}</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="item next" ng-show="next!=null">
+        <a href="/{{next.permalink}}">
+            <div class="content">
+                <div class="photo"><img src="{{next.photo_url}}"></div>
+                <div class="civic-address">{{next.location.civic_address}}</div>
+                <div class="price">{{next.short_price}}</div>
+                <div class="city">{{next.location.city}}</div>
+                <div class="category">{{next.category}}</div>
+                <div class="subcategory">{{next.subcategory}}</div>
+            </div>
+        </a>
+    </div>
+</div>

@@ -766,6 +766,7 @@ ImmoDbApp
                 sessionStorage.setItem('immodb.list.{0}'.format($token), JSON.stringify($scope.list));
                 sessionStorage.setItem('immodb.listMeta.{0}'.format($token), JSON.stringify($scope.listMeta));
                 sessionStorage.setItem('immodb.pageIndex.{0}'.format($token), $scope.page_index);
+                sessionStorage.setItem('immodb.current.token', $token);
             }
     
             /**
@@ -4208,7 +4209,73 @@ ImmoDbApp
             $element.append($transclude());
         }
     };
-})
+});
+
+ImmoDbApp
+.directive('immodbListingNavigation', ['$q',function immodbListingNavigation(){
+    return {
+        restrict: "E",
+        replace: true,
+        transclude: true,
+        scope:{
+            current : '=immodbCurrent',
+            display : '@immodbDisplay'
+        },
+        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-listing-navigation.html',
+        link: function($scope, element, attr){
+            $scope.init();
+        },
+        controller: function($scope, $rootScope) {
+            $scope.list = [];
+            $scope.previous = null;
+            $scope.next = null;
+
+            $scope.init = function(){
+                
+            }
+
+            $scope.$watch('current',function($new,$old){
+                if($new != null){
+                    $scope.getNextAndPrevious();
+                }
+            })
+
+            $scope.loadList = function(){
+                let lToken = sessionStorage.getItem('immodb.current.token')
+                let lList = sessionStorage.getItem('immodb.list.{0}'.format(lToken));
+                if(lList !=undefined){
+                    $scope.list = JSON.parse(lList);
+                }
+                else{
+                    $scope.list = [];
+                }
+            }
+
+            $scope.getNextAndPrevious = function(){
+                $scope.loadList();
+                let lCurrentIndex = 0;
+
+                $scope.list.some(function($e,$index){
+                    if($e.id == $scope.current){
+                        lCurrentIndex = $index;
+                        return true;
+                    }
+                });
+
+                console.log('getNextAndPrevious',$scope.current, lCurrentIndex);
+
+                if(lCurrentIndex>0){
+                    $scope.previous = $scope.list[lCurrentIndex-1];
+                    console.log('previous', $scope.previous);
+                }
+                if(lCurrentIndex < $scope.list.length-1){
+                    $scope.next = $scope.list[lCurrentIndex+1];
+                    console.log('next', $scope.next);
+                }
+            }
+        }
+    };
+}]);
 
 
 /* ------------------------------- 
@@ -4691,6 +4758,8 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
             $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
             $item.category = $scope.getCaption($item.category_code, 'listing_category');
             $item.transaction = $scope.getTransaction($item);
+            $item.permalink = $scope.getPermalink($item);
+            $item.short_price = $scope.formatPrice($item);
             $item.location.civic_address = '{0} {1}'.format(
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
