@@ -254,15 +254,32 @@ class ImmoDB {
 
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
-    
+    global $permalink, $post,$listing_data;
+
     // load data
-    $listing_data = ImmoDBApi::get_listing_data($ref_number);
+    $listing_data = json_decode(ImmoDBApi::get_listing_data($ref_number));
 
     // hook to sharing tools
     $share_tool = new ImmoDbSharing($listing_data);
     $share_tool->addListingHook();
+    
+    $permalink = $share_tool->getPermalink();
+    
 
-    self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data));
+
+    $post->permalink = $permalink;
+
+    // add hook for permalink
+    add_filter('the_permalink', function($url){
+      global $permalink;
+      return $permalink;
+    });
+    add_action('the_post', function($post_object){
+      global $permalink;
+      $post_object->permalink = $permalink;
+    });
+
+    self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));
   }
 
   function include_brokers_detail_template(){
@@ -469,20 +486,18 @@ class ImmoDbSharing{
 
   private $object = null;
 
-  public function __construct($source){
+  public function __construct(&$source){
     if($source != null){
-      $this->object = json_decode($source);
+      $this->object = $source;
     }
     //Debug::write($this->object);
   }
 
   public function addListingHook(){
-    global $dictionary;
     
-    $listingWrapper = new ImmoDBListingsResult();
-    $dictionary = new ImmoDBDictionary($this->object->dictionary);
-    $listingWrapper->preprocess_item($this->object);
-    $this->object->permalink = $listingWrapper->buildPermalink($this->object, ImmoDB::current()->get_listing_permalink());
+    
+    $this->listingPreprocess();
+
     //Yoast
     add_filter('wpseo_title', array($this, 'listingTitle'), 10,1);
     add_filter('wpseo_metadesc', array($this,'listingDesc'), 10,1);
@@ -512,12 +527,22 @@ class ImmoDbSharing{
 
   public function listingUrl($url){
     if($this->object != null){
-      $url = "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; //$this->object->permalink;
+      $url = $this->object->permalink;
     } 
     return $url;
   }
 
+  public function listingPreprocess(){
+    global $dictionary;
+    $listingWrapper = new ImmoDBListingsResult();
+    $dictionary = new ImmoDBDictionary($this->object->dictionary);
+    $listingWrapper->preprocess_item($this->object);
+    $this->object->permalink = $listingWrapper->buildPermalink($this->object, ImmoDB::current()->get_listing_permalink());
+  }
 
+  public function getPermalink(){
+    return $this->object->permalink;
+  }
 }
 
 
@@ -565,10 +590,22 @@ class ImmoDBListingsResult{
   public function preprocess_item(&$item){
     global $dictionary;
 
-    $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+    if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
+      $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+    }
+    else{
+      $item->location->civic_address = '';
+    }
+    
     $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
     $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
-    $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
+    if($item->location->civic_address != ''){
+      $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
+    }
+    else{
+      $item->location->full_address = $item->location->city;
+    }
+    
 
     $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
     $item->transaction = $this->getTransaction($item);
@@ -621,7 +658,7 @@ class ImmoDBListingsResult{
     
     
 
-    return $lResult;
+    return '/'. $lResult;
   }
 
 

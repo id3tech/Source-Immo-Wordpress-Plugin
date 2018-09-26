@@ -169,15 +169,27 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
-        $scope.model.location.civic_address = '{0} {1}'.format(
-            $scope.model.location.address.street_number,
-            $scope.model.location.address.street_name
-        );
-        $scope.model.location.full_address = '{0} {1}, {2}'.format(
-                                                $scope.model.location.address.street_number,
-                                                $scope.model.location.address.street_name,
-                                                $scope.model.location.city
-                                            );
+        if($scope.model.location.address.street_number!=''){
+            $scope.model.location.civic_address = '{0} {1}'.format(
+                $scope.model.location.address.street_number,
+                $scope.model.location.address.street_name
+            );
+        }
+        else{
+            $scope.model.location.civic_address = '';
+        }
+
+        if($scope.model.location.civic_address != ''){
+            $scope.model.location.full_address = '{0} {1}, {2}'.format(
+                $scope.model.location.address.street_number,
+                $scope.model.location.address.street_name,
+                $scope.model.location.city
+            );
+        }
+        else{
+            $scope.model.location.full_address = $scope.model.location.city;
+        }
+        
         
         $scope.model.building.attributes = [];
         $scope.model.lot = {attributes : []};
@@ -3918,9 +3930,9 @@ ImmoDbApp
         }
 
         $scope.next = function(){
-            
+            console.log($scope.index, '/', $scope.pictures.length-1);
             let lNewIndex = $scope.index+1;
-            if(lNewIndex ==  $scope.pictures.length-1){
+            if(lNewIndex >=  $scope.pictures.length-1){
                 lNewIndex= 0;
             }
             $scope.set(lNewIndex);
@@ -5327,6 +5339,6 @@ ImmoDbApp
 ImmoDbApp
 .filter('formatDimension', ['$immodbUtils', function dimensionFilter($immodbUtils){
     return function($value){
-        $immodbUtils.formatDimension($value);
+        return $immodbUtils.formatDimension($value);
     }
 }]);

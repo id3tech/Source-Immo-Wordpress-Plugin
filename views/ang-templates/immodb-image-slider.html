@@ -4,7 +4,7 @@
             <div class="item" ng-repeat="img in pictures"><img ng-src="{{img.url}}" alt="{{getCaption(img.category,'photo_category')}}" /></div>
         </div>
     </div>
-    <div class="controls">
+    <div class="controls" ng-show="pictures.length > 1">
         <div class="btn next" ng-click="next()"><i class="fal fa-fw fa-2x fa-angle-right"></i></div>
         <div class="btn previous" ng-click="previous()"><i class="fal fa-fw fa-2x fa-angle-left"></i></div>
     </div>

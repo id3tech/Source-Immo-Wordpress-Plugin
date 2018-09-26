@@ -2,7 +2,7 @@
     <div class="title" ng-click="toggleSection('rooms')"><div><?php _e('Rooms',IMMODB) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
     <div class="content">
         <div class="unit-list" ng-repeat="unit in model.units">
-            <h4 class="title" ng-show="model.units.length>1">{{unit.category}}</h4>
+            <h4 class="title" ng-show="model.units.length>1">{{'{0} unit'.translate().format(unit.category)}}</h4>
             <div class="flags">
                 <div class="flag" ng-repeat="flag in unit.flags" title="{{flag.caption}}">
                     <i class="fal fa-{{flag.icon}}"></i>

@@ -4,6 +4,12 @@
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="content spec-grid">
+        <div class="special-box" ng-show="hasDimension(model.land.dimension)">
+            <div class="dimension" ng-show="hasDimension(model.land.dimension)">
+                <label>{{'Dimension'.translate()}}</label>
+                <div class="value">{{model.land.dimension | formatDimension}}</div>
+            </div>
+        </div>
         <div class="spec" ng-repeat="spec in model.lot.attributes">
             <label>{{spec.caption}}</label>
             <div><span ng-repeat="value in spec.values">{{value.caption}}</span></div>

@@ -1,5 +1,5 @@
 <article class="immodb-item immodb-listing-item immodb-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?>">
-    <a href="/<?php echo(ImmoDBListingsResult::buildPermalink($item, ImmoDB::current()->get_listing_permalink())) ?>">
+    <a href="<?php echo(ImmoDBListingsResult::buildPermalink($item, ImmoDB::current()->get_listing_permalink())) ?>">
         <div class="content">
             <div class="image"><img src="<?php echo($item->photo_url);?>" /></div>
             <div class="price"><?php echo(ImmoDBListingsResult::formatPrice($item->price));?></div>
