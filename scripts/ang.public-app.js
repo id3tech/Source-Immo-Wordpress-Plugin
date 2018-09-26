@@ -82,7 +82,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         lot : {opened:false},
         other: {opened: false},
         in_exclusions:{opened:false},
-        rooms:{opened:false}
+        rooms:{opened:false},
+        expenses: {opened:false}
     }
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
@@ -240,9 +241,9 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.units.forEach(function($u){
             $u.category = $immodbDictionary.getCaption($u.category_code,'unit_category');
             $u.flags = [];
-            $u.flags.push({icon: 'door-open', value: $u.room_count, caption: 'Rooms'.translate()});
-            $u.flags.push({icon: 'bed', value: $u.bedroom_count, caption: 'Bedrooms'.translate()});
-            $u.flags.push({icon: 'bath', value: $u.bathroom_count, caption: 'Bathrooms'.translate()});
+            if($u.room_count) $u.flags.push({icon: 'door-open', value: $u.room_count, caption: 'Rooms'.translate()});
+            if($u.bedroom_count) $u.flags.push({icon: 'bed', value: $u.bedroom_count, caption: 'Bedrooms'.translate()});
+            if($u.bathroom_count) $u.flags.push({icon: 'bath', value: $u.bathroom_count, caption: 'Bathrooms'.translate()});
         });
 
         // rooms
@@ -308,6 +309,10 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         console.log('message data:', $scope.message_model);
 
         $immodbHooks.do('single-listing-send-message', $scope.message_model);
+    }
+
+    $scope.hasDimension = function($dimension){
+        return $immodbUtils.hasDimension($dimension);
     }
 });
 
@@ -616,10 +621,16 @@ ImmoDbApp
              * @param {string} $newToken New search token
              */
             $scope.onFilterTokenChanged = function($event, $newToken){
-                console.log('Filter token changed')
+                console.log('Filter token changed');
+
                 $scope.client.search_token = $newToken; // save search token
                 // When ready, get data
                 $scope.isReady().then(function(){
+                    // clear list stored in session
+                    if($scope.getLatestSearchToken() != $newToken){
+                        sessionStorage.removeItem('immodb.list.{0}'.format($scope.configs.type));
+                    }
+                    
                     $scope.getList();
                 })
             }
@@ -656,7 +667,7 @@ ImmoDbApp
                 // reset page index
                 $scope.page_index = 0;
                 // 
-                if(!$scope.loadListFromStorage($token)){
+                if(!$scope.loadListFromStorage($scope.configs.type)){
                     // lock loading to prevent call overlaps
                     console.log("search called loading:", $scope.is_loading_data)
                     if($scope.is_loading_data == false){
@@ -669,7 +680,7 @@ ImmoDbApp
                                 $scope.list = $immodbUtils.compileListingList($response.items);
                             }
                             else{
-                                $scope.list = $response.items;
+                                $scope.list = $immodbUtils.compileBrokerList($response.items);
                             }
                             
                             $scope.listMeta = $response.metadata;
@@ -683,9 +694,17 @@ ImmoDbApp
                             // print list to console for further information
                             console.log('The list',$scope.list);
 
-                            $scope.saveListToStorage($token);
-                        })
+                            $scope.saveListToStorage($scope.configs.type);
+
+                            // save latest search token
+                            $scope.saveLatestSearchToken($token);
+
+                        });
                     }
+                }
+                else{
+                    $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                    $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                 }
             }
 
@@ -724,6 +743,9 @@ ImmoDbApp
                         if($scope.configs.type=='listings'){
                             lNewItems = $immodbUtils.compileListingList(lNewItems);
                         }
+                        else{
+                            lNewItems = $immodbUtils.compileBrokerList(lNewItems);
+                        }
 
                         $scope.list = $scope.list.concat(lNewItems);
                         
@@ -741,17 +763,17 @@ ImmoDbApp
                             $scope.page_index = 0;
                         }
 
-                        $scope.saveListToStorage($scope.listMeta.search_token);
+                        $scope.saveListToStorage($scope.configs.type);
                     });
                 }
                 
             }
             
-            $scope.loadListFromStorage = function($token){
-                console.log('loading list from immodb.list.{0}'.format($token));
-                let lList = sessionStorage.getItem('immodb.list.{0}'.format($token));
-                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}'.format($token));
-                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}'.format($token));
+            $scope.loadListFromStorage = function($type){
+                console.log('loading list from immodb.list.{0}'.format($type));
+                let lList = sessionStorage.getItem('immodb.list.{0}'.format($type));
+                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}'.format($type));
+                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}'.format($type));
 
                 if (lList != undefined){
                     $scope.list = JSON.parse(lList);
@@ -762,11 +784,18 @@ ImmoDbApp
                 return false;
             }
 
-            $scope.saveListToStorage = function($token){
-                sessionStorage.setItem('immodb.list.{0}'.format($token), JSON.stringify($scope.list));
-                sessionStorage.setItem('immodb.listMeta.{0}'.format($token), JSON.stringify($scope.listMeta));
-                sessionStorage.setItem('immodb.pageIndex.{0}'.format($token), $scope.page_index);
-                sessionStorage.setItem('immodb.current.token', $token);
+            $scope.saveListToStorage = function($type){
+                sessionStorage.setItem('immodb.list.{0}'.format($type), JSON.stringify($scope.list));
+                sessionStorage.setItem('immodb.listMeta.{0}'.format($type), JSON.stringify($scope.listMeta));
+                sessionStorage.setItem('immodb.pageIndex.{0}'.format($type), $scope.page_index);
+            }
+
+            $scope.getLatestSearchToken = function(){
+                return sessionStorage.getItem('immodb.latestSearchToken');
+            }
+
+            $scope.saveLatestSearchToken = function($token){
+                sessionStorage.setItem('immodb.latestSearchToken', $token);
             }
     
             /**
@@ -998,17 +1027,32 @@ ImmoDbApp
             // listing ages or timespan filters
             $scope.listing_ages = [
                 {
-                    selected:true,
                     caption : 'No limit'.translate(),
                     filter : {field: 'contract.start_date', operator: 'greater_than', value: ''}
+                },
+                {
+                    caption: '24 hours'.translate(), 
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-1).toJSON()}
+                },
+                {
+                    caption: '48 hours'.translate(), 
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-2).toJSON()}
                 },
                 {
                     caption: '7 days'.translate(), 
                     filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-7).toJSON()}
                 },
                 {
+                    caption: '2 weeks'.translate(), 
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-14).toJSON()}
+                },
+                {
                     caption: '1 month'.translate(),
                     filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addMonths(-1).toJSON()}
+                },
+                {
+                    caption: '3 months'.translate(),
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addMonths(-3).toJSON()}
                 },
                 {
                     caption: '6 months'.translate(),
@@ -1194,8 +1238,12 @@ ImmoDbApp
                         let lPriceMax = Math.min(1000000, lValue * 2);
     
                         lResult = [
-                            // first selected, suggestion for listing ID
-                            {selected:true, label : 'ID is "{0}"'.translate().format(lValue), action: function(){$scope.addFilter('ref_number','equal_to',lValue,'ID is "{0}"'.translate().format(lValue) )}},
+                            {selected:true, label : 'Contains "{0}"'.translate().format(lValue), 
+                                action : function(){ 
+                                    $scope.query_text = lValue; 
+                                    $scope.buildFilters();  
+                                } 
+                            }
                         ];
                         if($scope.configs.type == 'listings'){
                             lResult = lResult.concat([
@@ -1207,7 +1255,7 @@ ImmoDbApp
                                     $scope.setMaxPrice(lPriceMax);
                                 }},
                                 // civic adress suggestion
-                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal_to',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
+                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
                             ]);
                         }
                     }
@@ -1815,15 +1863,26 @@ ImmoDbApp
              * @param {string} $fieldname Name of the filter
              * @return {*} Return the filter when found, null otherwise
              */
-            $scope.getFilterByFieldName = function($fieldname){
+            $scope.getFilterByFieldName = function($fieldname, $group){
                 let lResult = null;
-                if($scope.filter_group.filters != null){
-                    $scope.filter_group.filters.every(function($e){
+                $group = (typeof $group == 'undefined') ? $scope.filter_group : $group;
+
+                if($group.filters != null){
+                    $group.filters.some(function($e){
                         if($e.field == $fieldname){
                             lResult = $e;
-                            return false;
+                            return true;
                         }
-                        return true;
+                    });
+                }
+
+                if(lResult == null && $group.filter_groups != null){
+                    $group.filter_groups.some(function($group){
+                        let lGroupResult = $scope.getFilterByFieldName($fieldname, $group);
+                        if(lGroupResult != null){
+                            lResult = lGroupResult;
+                            return true;
+                        }
                     });
                 }
     
@@ -1848,13 +1907,20 @@ ImmoDbApp
                 for(let $key in $scope.dictionary){
                     $scope.resetListSelections($scope.dictionary[$key]);
                 }
-                //$scope.resetListSelections($s);
+
+                $scope.resetListSelections($scope.listing_attributes);
+                $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
     
                 // save filters to localStorage
                 $scope.clearState();
     
                 $scope.buildHints();
                 $scope.buildFilters();
+
+                $scope.$broadcast('immodb-reset-filter');
             }
     
             /**
@@ -1928,7 +1994,7 @@ ImmoDbApp
                 }
                 else{
                     navigator.geolocation.getCurrentPosition(function($position){
-                        console.log($position);
+                        //console.log($position);
                         $scope.data.location = {
                             latitude: $position.coords.latitude,
                             longitude: $position.coords.longitude,
@@ -2018,12 +2084,12 @@ ImmoDbApp
             }
     
             $scope.updateFilter = function($filter,$index, $group){
-                console.log('update filter', $filter );
+                //console.log('update filter', $filter );
                 $group.filters[$index] = $filter;
             }
     
             $scope.removeFilter = function($index, $group){
-                console.log('remove filter', $index );
+                //console.log('remove filter', $index );
                 $group.filters.splice($index,1);
                 if($group.filters.length == 0){
                     $group.filters=null;
@@ -2034,9 +2100,11 @@ ImmoDbApp
                 
                 let lKey = 'immodb.' + $scope.alias + '.{0}';
     
-                if($item_key == undefined){
+                if(typeof($item_key) == 'undefined'){
+                    
                     sessionStorage.setItem(lKey.format('filter_group'), JSON.stringify($scope.filter_group));
                     sessionStorage.setItem(lKey.format('data'), JSON.stringify($scope.data));
+
                 }
                 else{
                     let lValue = $data;
@@ -2050,7 +2118,7 @@ ImmoDbApp
             }
             $scope.clearState = function($item_key){
                 let lKey = 'immodb.' + $scope.alias + '.{0}';
-    
+                console.log('clearState',lKey.format('filter_group'));
                 if($item_key == undefined){
                     sessionStorage.removeItem(lKey.format('filter_group'));
                     sessionStorage.removeItem(lKey.format('data'));
@@ -2257,7 +2325,7 @@ ImmoDbApp
             $scope.getConfigs = function(){
                 let lPromise = $q(function($resolve, $reject){
                     if($scope.configs==null){
-                        console.log($scope.alias);
+                        //console.log($scope.alias);
                         $immodbApi.getListConfigs($scope.alias).then(function($configs){
                             $scope.configs = $configs;
                             $resolve($scope.configs);
@@ -2280,7 +2348,7 @@ ImmoDbApp
              */
             $scope.onSortDataChanged = function($event, $newSortData){
                 $scope.sort_fields = [$newSortData];
-                console.log('sort field changed', $newSortData);
+                //console.log('sort field changed', $newSortData);
                 $scope.buildFilters();
             }
     
@@ -2293,14 +2361,14 @@ ImmoDbApp
     
             $scope.$watch("data.min_price", function(newValue, oldValue){
                 if(newValue != oldValue){
-                    console.log('min-price changed',newValue, oldValue);
+                    //console.log('min-price changed',newValue, oldValue);
                     $scope.addFilter(['price.sell.amount','price.lease.amount'],'greater_or_equal_to',  $scope.data.min_price);
                     $scope.updatePriceSuggestions();
                 }
             });
             $scope.$watch("data.max_price", function(newValue, oldValue){
                 if(newValue != oldValue){
-                    console.log('max-price changed',newValue, oldValue);
+                    //console.log('max-price changed',newValue, oldValue);
                     $scope.addFilter(['price.sell.amount','price.lease.amount'],'less_or_equal_to', $scope.data.max_price);
                     $scope.updatePriceSuggestions();
                 }
@@ -2317,7 +2385,7 @@ ImmoDbApp
                     $scope.city_list = lCityList;
                 }
 
-                console.log('city_list', $scope.dictionary.city, $scope.city_list);
+                //console.log('city_list', $scope.dictionary.city, $scope.city_list);
             });
         }
     };
@@ -2339,11 +2407,6 @@ ImmoDbApp
         link : function($scope,element, attrs){
             $scope._suggestion_list_el =  element.find('.suggestion-list');
             $scope._el = element[0];
-            // element.find('input').bind('focus', function(){
-            //     if($scope.data.keyword != ''){
-            //         $scope.buildSuggestions();
-            //     }
-            // });
             angular.element('body').append($scope._suggestion_list_el);
             
             $scope.init();
@@ -2373,15 +2436,35 @@ ImmoDbApp
             $scope.init = function(){
                 $scope.isReady().then(function(){
                     $scope.data.keyword = $scope.loadState('search-keyword');
-                    angular.element($scope._el).find('input').bind('focus', function(){
+                    let lInput = angular.element($scope._el).find('input');
+
+                    lInput.bind('focus', function(){
                         if($scope.data.keyword != null && $scope.data.keyword != ''){
                             $scope.buildSuggestions();
                             $scope.$apply();
                         }
+                    })
+                    lInput.bind('blur', function(){
+                        window.setTimeout(function(){
+                            $scope.suggestions = [];
+                            $scope.$apply();    
+                        },500);
+                        
                     });
                     
 
                     $scope.$broadcast('search-is-ready');
+
+                    $scope.$on('immodb-reset-filter', function(){
+                        //console.log('reset filters');
+                        $scope.data = {
+                            keyword : '',
+                            min_price: null,
+                            max_price: null,
+                            location: null
+                        }
+                        $scope.saveState('search-keyword', $scope.data.keyword);
+                    });
 
                 });
             };
@@ -2451,8 +2534,12 @@ ImmoDbApp
                         let lPriceMax = Math.min(1000000, lValue * 2);
     
                         lResult = [
-                            // first selected, suggestion for listing ID
-                            {selected:true, label : 'ID is "{0}"'.translate().format(lValue), action: function(){$scope.addFilter('ref_number','equal_to',lValue,'ID is "{0}"'.translate().format(lValue) )}},
+                            {selected:true, label : 'Contains "{0}"'.translate().format(lValue), 
+                                action : function(){ 
+                                    $scope.query_text = lValue; 
+                                    $scope.buildFilters();  
+                                } 
+                            }
                         ];
                         if($scope.configs.type == 'listings'){
                             lResult = lResult.concat([
@@ -2465,7 +2552,7 @@ ImmoDbApp
                                     $scope.buildFilters();
                                 }},
                                 // civic adress suggestion
-                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal_to',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
+                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.addFilter('location.address.street_number','equal',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
                             ]);
                         }
                     }
@@ -2675,7 +2762,7 @@ ImmoDbApp
                     }
                 }
 
-                console.log('reverse suggestions', lLabelResults.join(' '));
+                //console.log('reverse suggestions', lLabelResults.join(' '));
 
                 return {
                     label: lLabelResults.join(' '),
@@ -2687,6 +2774,12 @@ ImmoDbApp
                     }
                 }
             }
+
+            $scope.doActionFor = function($item){
+                $scope.suggestions = [];
+                console.log('item clicked');
+                $item.action();
+            }
     
             /**
              * Check for arrow up/down and enter key-down trigger
@@ -2695,7 +2788,17 @@ ImmoDbApp
             $scope.trapKeyCode = function($keyCode){
                 let lSelectedIndex = 0;
                 let lResult = false;
+                //console.log('kc',$keyCode);
                 switch($keyCode){
+                    case 27:
+                        //console.log('escape');
+                        $scope.suggestions = [];
+                        
+                        //$scope.$digest();
+                        lResult = true;
+                        //$scope.resetFilters();
+
+                        break;
                     case 13: // on Enter, choose selection or first suggestion
                         if($scope.data.keyword==''){       
                             $scope.resetFilters();
@@ -2703,7 +2806,7 @@ ImmoDbApp
                         else{
                             
                             let lPassthrough = $scope.suggestions.every(function($e,$i){
-                                console.log($i, $e.selected)
+                                //console.log($i, $e.selected)
                                 if($e.selected===true){
                                     $e.action();
                                     lResult = true;
@@ -2757,7 +2860,7 @@ ImmoDbApp
             $scope.getConfigs = function(){
                 let lPromise = $q(function($resolve, $reject){
                     if($scope.configs==null){
-                        console.log($scope.alias);
+                        //console.log($scope.alias);
                         $immodbApi.getListConfigs($scope.alias).then(function($configs){
                             $scope.configs = $configs;
                             $resolve($scope.configs);
@@ -2869,7 +2972,7 @@ ImmoDbApp
                     lValue, 
                     $attr.caption.translate(),
                     function(){
-                        console.log('reversin attr',$attr);
+                        //console.log('reversin attr',$attr);
                         $attr.selected=false;
                         $scope.addFilter($attr.field,'equal','');
                     }
@@ -2953,12 +3056,12 @@ ImmoDbApp
             }
     
             $scope.updateFilter = function($filter,$index, $group){
-                console.log('update filter', $filter );
+                //console.log('update filter', $filter );
                 $group.filters[$index] = $filter;
             }
     
             $scope.removeFilter = function($index, $group){
-                console.log('remove filter', $index );
+                //console.log('remove filter', $index );
                 $group.filters.splice($index,1);
                 if($group.filters.length == 0){
                     $group.filters=null;
@@ -3003,7 +3106,13 @@ ImmoDbApp
                 for(let $key in $scope.dictionary){
                     $scope.resetListSelections($scope.dictionary[$key]);
                 }
-                
+
+                $scope.resetListSelections($scope.listing_attributes);
+                $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
+
                 // save filters to localStorage
                 $scope.clearState();
                 $scope.clearState('search-keyword')
@@ -3180,7 +3289,7 @@ ImmoDbApp
                 else{
                     $scope.data[lInput + '_price'] = $value;
                 }
-                console.log(lInput, 'price changed to', $value);
+                //console.log(lInput, 'price changed to', $value);
             }  
             
             $scope.setMinPrice = function($value){
@@ -3192,13 +3301,13 @@ ImmoDbApp
 
             $scope.$watch("data.min_price", function(newValue, oldValue){
                 if(newValue != oldValue){
-                    console.log('min-price changed',newValue, oldValue);
+                    //console.log('min-price changed',newValue, oldValue);
                     $scope.addFilter(['price.sell.amount','price.lease.amount'],'greater_or_equal_to',  $scope.data.min_price);
                 }
             });
             $scope.$watch("data.max_price", function(newValue, oldValue){
                 if(newValue != oldValue){
-                    console.log('max-price changed',newValue, oldValue);
+                    //console.log('max-price changed',newValue, oldValue);
                     $scope.addFilter(['price.sell.amount','price.lease.amount'],'less_or_equal_to', $scope.data.max_price);
                 }
             });
@@ -3300,7 +3409,7 @@ ImmoDbApp
         $scope.permalink = '';
 
         $scope.$onInit = function(){
-            console.log('init', $scope);
+            //console.log('init', $scope);
             if($scope.ready == false){
                 let options = {
                     center: new google.maps.LatLng(45.6025503,-73.8469538),
@@ -3317,7 +3426,7 @@ ImmoDbApp
         }
 
         $scope.setView = function($position){
-            console.log('engaging streetview');
+            //console.log('engaging streetview');
             let lPosition = new google.maps.LatLng($position.lat,$position.lng);
             
             $scope.panorama = new google.maps.StreetViewPanorama($scope.viewport_element, 
@@ -3352,9 +3461,9 @@ ImmoDbApp
 
         $scope.$watch('latlng', function(){
             if($scope.latlng != null && $scope.latlng.lat!=undefined){
-                console.log('latlng streetview', $scope.latlng);
+                //console.log('latlng streetview', $scope.latlng);
                 $scope.isReady().then(function(){
-                    console.log('streetview is ready');
+                    //console.log('streetview is ready');
                     $scope.setView($scope.latlng);
                 });
             }
@@ -3402,7 +3511,7 @@ ImmoDbApp
         $scope.permalink = '';
 
         $scope.$onInit = function(){
-            console.log('init', $scope);
+            //console.log('init', $scope);
             if($scope.latlng!=null){
                 $scope.mapInit();
             }
@@ -3461,15 +3570,15 @@ ImmoDbApp
         $scope.onFilterTokenChanged = function($event, $newToken){
             $scope.client.search_token = $newToken;
             $scope.isReady().then(function(){
-                console.log('update list from token changed');
+                //console.log('update list from token changed');
                 $scope.getList();
             })
         }
         $scope.onSwitchToMap = function(){
             $scope.mapInit();
-            console.log('map initialized');
+            //console.log('map initialized');
             if($scope.bounds){
-                console.log('fit to bounds', $scope.bounds);
+                //console.log('fit to bounds', $scope.bounds);
                 window.setTimeout(function(){
                     $scope.map.fitBounds($scope.bounds);
                 }, 250);
@@ -4241,8 +4350,7 @@ ImmoDbApp
             })
 
             $scope.loadList = function(){
-                let lToken = sessionStorage.getItem('immodb.current.token')
-                let lList = sessionStorage.getItem('immodb.list.{0}'.format(lToken));
+                let lList = sessionStorage.getItem('immodb.list.listings');
                 if(lList !=undefined){
                     $scope.list = JSON.parse(lList);
                 }
@@ -4706,9 +4814,26 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
 
     $scope.formatDimension = function($dimension){
         let lResult = '';
-        let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
+        if($dimension != undefined){
+            
+            let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
 
-        lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+            lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+            
+        }
+        return lResult;
+    }
+
+    $scope.hasDimension = function($dimension){
+        let lResult = false;
+        if($dimension != undefined){
+            if($dimension.width != undefined){
+                if($dimension.length != undefined){
+                    return true;
+                }
+            }
+            
+        }
         return lResult;
     }
 
@@ -4716,10 +4841,12 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
      * Get permalink of the listing item
      * @param {object} $item Listing data object
      */
-    $scope.getPermalink = function($item){
+    $scope.getPermalink = function($item, $type){
         let lRoute = '';
+        $type = (typeof $type=='undefined') ? 'listing' : $type;
         $scope.item = $item;
-        immodbCtx.listing_routes.forEach(function($r){
+        
+        immodbCtx[$type + '_routes'].forEach(function($r){
             if($r.lang==immodbCtx.locale){
                 lRoute=$r;
             }
@@ -4764,6 +4891,25 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
                                                     );
+        }
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of broker item
+     */
+    $scope.compileBrokerList = function($list){
+        $list.forEach(function($e){
+            $scope.compileBrokerItem($e);
+        });
+
+        return $list;
+    }
+
+    $scope.compileBrokerItem = function($item){
+        if($item.permalink == undefined){
+            $item.license_type = $immodbDictionary.getCaption($item.license_type_code, 'broker_license_type');
+            $item.permalink = $scope.getPermalink($item,'broker');
         }
     }
 
@@ -4857,7 +5003,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
      * @param {string} $value Text to be sanitize
      */
     $scope.sanitize = function($value){
-        if(!$value) return '-';
+        if(typeof $value == 'undefined') return '-';
 
         let lResult = $value.toLowerCase();
         lResult = lResult.replace(/(\s|\+)/gm, '-');
@@ -4866,6 +5012,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         lResult = lResult.replace(/(à|â|ä)/gm, 'a');
         lResult = lResult.replace(/(ì|î|ï)/gm, 'i');
         lResult = lResult.replace(/(ù|û|ü)/gm, 'u');
+        lResult = lResult.replace(/(ò|ô|ö)/gm, 'o');
         return lResult;
     }
 
@@ -5175,4 +5322,11 @@ ImmoDbApp
 
         return array;
     }
-   });
+});
+
+ImmoDbApp
+.filter('formatDimension', ['$immodbUtils', function dimensionFilter($immodbUtils){
+    return function($value){
+        $immodbUtils.formatDimension($value);
+    }
+}]);

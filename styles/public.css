@@ -1211,7 +1211,21 @@
   grid-template-columns: 120px 1fr 60px 60px;
   grid-template-rows: auto;
   grid-gap: 20px;
-  grid-template-areas: "list list list list" "meta meta meta meta";
+  grid-template-areas: "list list list list" "meta meta meta meta" "empty empty empty empty";
+}
+
+#top .immodb.direct-layout label.placeholder,
+.immodb.direct-layout label.placeholder {
+  padding: 20px;
+  font-weight: 400;
+  opacity: 0.75;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#top .immodb.direct-layout .immodb-list-empty,
+.immodb.direct-layout .immodb-list-empty {
+  grid-area: empty;
 }
 
 #top .immodb.direct-layout .list-meta .list-count,
@@ -1861,6 +1875,15 @@
   grid-area: end;
 }
 
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item,
+  .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "date date" "start end";
+    place-items: center;
+  }
+}
+
 #top .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .day,
 .immodb.listing-single .immodb-content .open-houses .open-house-list .open-house-item .date .day {
   font-size: 0.75em;
@@ -2145,7 +2168,7 @@
 #top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item,
 .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item {
   display: grid;
-  grid-template-columns: 1fr auto 100px;
+  grid-template-columns: 1fr auto;
   grid-template-rows: auto;
   grid-gap: 0px 10px;
   grid-template-areas: "type type level" "infos infos area";
@@ -2204,6 +2227,18 @@
 #top .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos span:nth-child(2):before,
 .immodb.listing-single .immodb-content .rooms .unit-list .room-list .room-item .infos span:nth-child(2):before {
   content: ", ";
+}
+
+#top .immodb.listing-single .immodb-content .expenses .label-value,
+.immodb.listing-single .immodb-content .expenses .label-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#top .immodb.listing-single .immodb-content .expenses .label-value .value,
+.immodb.listing-single .immodb-content .expenses .label-value .value {
+  font-weight: 700;
 }
 
 #top .immodb.listing-single.loaded .immodb-content,
@@ -2699,6 +2734,7 @@
 .immodb-searchbox.suggestion-list .keyword-suggestion {
   padding: 10px;
   transition: 0.25s;
+  cursor: pointer;
 }
 
 #top .immodb-searchbox.suggestion-list .keyword-suggestion:hover,

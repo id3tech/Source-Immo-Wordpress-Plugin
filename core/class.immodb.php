@@ -214,7 +214,7 @@ class ImmoDB {
     wp_add_inline_script( 'angular', 
                           'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .
                           'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
-                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . '};'
+                          'var immodbCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . '};'
                         );
     
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
@@ -254,10 +254,13 @@ class ImmoDB {
 
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
-
+    
     // load data
     $listing_data = ImmoDBApi::get_listing_data($ref_number);
 
+    // hook to sharing tools
+    $share_tool = new ImmoDbSharing($listing_data);
+    $share_tool->addListingHook();
 
     self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data));
   }
@@ -360,6 +363,7 @@ class ImmoDB {
       if (0 === strpos(bin2hex($locale_str), 'efbbbf')) $locale_str = substr($locale_str, 3);
 
       $this->locales = json_decode($locale_str, true);
+      $this->locales = apply_filters('immodb-initialize-locale', $this->locales);
     }
   }
 
@@ -461,6 +465,60 @@ class ImmoDB {
   }
 }
 
+class ImmoDbSharing{
+
+  private $object = null;
+
+  public function __construct($source){
+    if($source != null){
+      $this->object = json_decode($source);
+    }
+    //Debug::write($this->object);
+  }
+
+  public function addListingHook(){
+    global $dictionary;
+    
+    $listingWrapper = new ImmoDBListingsResult();
+    $dictionary = new ImmoDBDictionary($this->object->dictionary);
+    $listingWrapper->preprocess_item($this->object);
+    $this->object->permalink = $listingWrapper->buildPermalink($this->object, ImmoDB::current()->get_listing_permalink());
+    //Yoast
+    add_filter('wpseo_title', array($this, 'listingTitle'), 10,1);
+    add_filter('wpseo_metadesc', array($this,'listingDesc'), 10,1);
+    add_filter('wpseo_opengraph_image', array($this, 'listingImage'), 10,1);
+    add_filter('wpseo_canonical',array($this,'listingUrl'),10,1);
+  }
+  public function listingTitle($title){
+    if($this->object != null){
+      $title = $this->object->subcategory . ' ' . $this->object->location->full_address;
+    }
+    return $title;
+  }
+
+  public function listingDesc($desc){
+    if($this->object != null){
+      $desc = $this->object->description;
+    }
+    return $desc;
+  }
+
+  public function listingImage($image_path){
+    if($this->object != null){
+      $image_path = $this->object->photos[0]->url;
+    } 
+    return $image_path;
+  }
+
+  public function listingUrl($url){
+    if($this->object != null){
+      $url = "//" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; //$this->object->permalink;
+    } 
+    return $url;
+  }
+
+
+}
 
 
 class ImmoDBDictionary{
@@ -492,12 +550,14 @@ class ImmoDBListingsResult{
   public $listings = null;
   public $metadata = null;
 
-  public function __construct($data){
-    $this->listings = $data->items;
-    $this->metadata = $data->metadata;
+  public function __construct($data=null){
+    if($data!=null){
+      $this->listings = $data->items;
+      $this->metadata = $data->metadata;
 
-    foreach ($this->listings as $item) {
-      $this->preprocess_item($item);
+      foreach ($this->listings as $item) {
+        $this->preprocess_item($item);
+      }
     }
   }
   
@@ -505,9 +565,11 @@ class ImmoDBListingsResult{
   public function preprocess_item(&$item){
     global $dictionary;
 
-    $item->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+    $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
     $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
     $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
+    $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
+
     $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
     $item->transaction = $this->getTransaction($item);
     if(isset($item->subcategory_code)){
@@ -536,12 +598,14 @@ class ImmoDBListingsResult{
 
   public static function buildPermalink($item, $format){
     $lResult = $format;
+    //Debug::write(json_decode(json_encode($item),true));
     $lAttrList = self::getAttributeValueList($item);
     
-
+    //Debug::write($lAttrList);
+    
     foreach($lAttrList as $lAttr){
       $lValue = $lAttr['value'];
-      
+
       if(method_exists(get_called_class(),'get' . $lAttr['key'])){
         $lValue = self::{'get' . $lAttr['key']}($item);
       }
@@ -552,6 +616,7 @@ class ImmoDBListingsResult{
             '{{item.' . $lAttr['key'] . '}}',
             '{{get' . $lAttr['key'] . '(item)}}'
           ), sanitize_title($lValue), $lResult);
+      
     }
     
     
@@ -609,23 +674,25 @@ class ImmoDBListingsResult{
     }
     foreach ($item as $key => $value) {
       $attrKey = $key;
+      if($attrKey == 'dictionary'){
+        continue;
+      }
+
       if($prefix!=null){
         $attrKey = $prefix . '.' . $key;
       }
       if(is_array($item[$key])){
-        $lResult += self::getAttributeValueList($item[$key], $attrKey);
+        //Debug::write($attrKey . ' is array');
+        $lSubAttrs = self::getAttributeValueList($item[$key], $attrKey);
+        foreach ($lSubAttrs as $attr) {
+          array_push($lResult, $attr);
+        }
       }
       else{
         $lResult[] = array('key' => $attrKey, 'value' => $item[$key]);
       }
     }
 
-    
-
-    $lResult[] = array('key' => 'Region', 'value' => '');
-    $lResult[] = array('key' => 'City', 'value' => '');
-    $lResult[] = array('key' => 'Transaction', 'value' => '');
-    
     return $lResult;
   }
 }

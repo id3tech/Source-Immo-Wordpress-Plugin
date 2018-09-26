@@ -10,6 +10,11 @@ if(typeof String.format === 'undefined'){
             let lRegExp = new RegExp('\\{' + i.toString() + '\\}', 'g');
             lResult = lResult.replace(lRegExp, lArgValue)
         }
+
+        // clear any format tag left
+        let lRegExp = /\{\d+\}/g;
+        lResult = lResult.replace(lRegExp,'');
+
         return lResult;
     }
 }
@@ -98,6 +103,12 @@ if(typeof Date.addMonths === 'undefined'){
     
     Date.prototype.round = function(){
         let lResult = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+        return lResult;
+    }
+
+    Date.prototype.addHours = function($value){
+        let lResult = new Date(this.getTime());
+        lResult.setTime(lResult.getTime() + ($value *60*60*1000));
         return lResult;
     }
 

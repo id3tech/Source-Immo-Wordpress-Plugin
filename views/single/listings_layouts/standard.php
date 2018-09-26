@@ -41,6 +41,8 @@
 
         <?php echo do_shortcode('[immodb_listing_part part="rooms"]') ?>
         
+        <?php echo do_shortcode('[immodb_listing_part part="expenses"]') ?>
+
         <?php echo do_shortcode('[immodb_listing_part part="building_specs"]') ?>
 
         <?php echo do_shortcode('[immodb_listing_part part="lot_specs"]') ?>

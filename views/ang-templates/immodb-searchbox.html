@@ -9,7 +9,7 @@
             style="{{getSuggestionPosition()}}">
         
         <div class="keyword-suggestion {{item.selected?'selected':''}}" 
-                ng-repeat="item in suggestions" ng-click="item.action()">
+                ng-repeat="item in suggestions" ng-click="doActionFor(item)">
             {{item.label}}
         </div>
         

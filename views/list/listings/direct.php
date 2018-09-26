@@ -35,9 +35,9 @@ $resultView = new ImmoDBListingsResult($data);
         echo('</div>');
     }
     else{
-        echo('<div class="immodb-placeholder immodb-list-empty">');
-        _e('The list is empty', IMMODB);
-        echo('</div>');
+        echo('<label class="placeholder immodb-list-empty">');
+        _e('No property to display', IMMODB);
+        echo('</label>');
     }
     ?>
 </div>
