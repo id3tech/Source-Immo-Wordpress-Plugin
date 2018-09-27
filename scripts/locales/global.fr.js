@@ -31,6 +31,7 @@ $locales.fr = {};$locales.fr.global =
     , "API key" : "Clé d'API"
     , "Account ID" : "Identifiant de compte"
     , "Map API key" : "Clé d'API de la carte"
+    , "Others" : "Autres"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"

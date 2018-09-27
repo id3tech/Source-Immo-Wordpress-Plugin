@@ -41,13 +41,37 @@ body.wp-admin #immodb-app .config-grid-block {
   grid-gap: 10px;
 }
 
+body.wp-admin #immodb-app .config-grid-block h2 {
+  margin: 10px;
+}
+
 body.wp-admin #immodb-app .config-grid-block .block-content {
-  padding: 20px;
+  padding: 10px;
+}
+
+body.wp-admin #immodb-app .config-grid-block .block-content h4 {
+  margin: 10px 0 0 0;
+  padding: 0;
+}
+
+body.wp-admin #immodb-app .config-grid-block .block-content.layout-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-rows: auto;
+  grid-gap: 10px;
+  place-items: start stretch;
+}
+
+body.wp-admin #immodb-app .config-grid-block .block-content.layout-container .layout-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 10px;
+  place-items: start stretch;
 }
 
 body.wp-admin #immodb-app .general-settings .route-item {
   display: grid;
-  grid-template-columns: 100px 1fr 20px;
+  grid-template-columns: 100px 1fr 50px;
   align-items: center;
   grid-gap: 10px;
 }

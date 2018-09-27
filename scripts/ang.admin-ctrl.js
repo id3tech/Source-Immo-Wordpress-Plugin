@@ -7,13 +7,25 @@ ImmoDbApp
 
   console.log('configs controller loaded');
 
-  $scope.route_elements = {
-      '{{id}}' : 'ID',
-      '{{transaction}}' : 'Transaction type',
-      '{{location.region}}' : 'Region',
-      '{{location.city}}' : 'City',
-      '{{location.street}}' : 'Street',
-      '{{location.civic_address}}' : 'Civic address'
+  $scope.route_listing_elements = {
+      '{{item.ref_number}}' : 'ID',
+      '{{item.transaction}}' : 'Transaction type',
+      '{{item.location.region}}' : 'Region',
+      '{{item.location.city}}' : 'City',
+      '{{item.location.street}}' : 'Street',
+      '{{item.location.civic_address}}' : 'Civic address'
+  }
+
+  $scope.route_broker_elements = {
+    '{{item.ref_number}}' : 'ID',
+    '{{item.first_name}}' : 'First name',
+    '{{item.last_name}}' : 'Last name'
+  }
+
+  $scope.route_city_elements = {
+    '{{item.ref_number}}' : 'ID',
+    '{{item.location.region}}' : 'Region',
+    '{{item.name}}' : 'Name'
   }
 
 
@@ -342,8 +354,11 @@ ImmoDbApp
   }
 
   $scope.load_wp_pages = function(){
-    $scope.api('pages').then(function($response){
-      $scope.wp_pages = $response;
+    $scope.api('pages',{lang: 'fr'},{method : 'GET'}).then(function($response){
+      $scope.wp_pages.fr = $response;
+    });
+    $scope.api('pages',{lang: 'en'},{method : 'GET'}).then(function($response){
+      $scope.wp_pages.en = $response;
     });
   }
 
@@ -447,12 +462,18 @@ ImmoDbApp
   $scope.api = function($path, $data, $options){
       $options = angular.merge({
         url     : wpApiSettings.root + 'immodb/' + $path,
-        method  : typeof($data)=='undefined' ? 'GET' : 'POST',
-        data : $data,
+        method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
         headers: {
            'X-WP-Nonce': wpApiSettings.nonce
          },
       }, $options);
+
+      if($options.method=='GET'){
+        $options.params = $data;
+      }
+      else{
+        $options.data = $data;
+      }
 
       // Setup promise object
       let lPromise = $q(function($resolve, $reject){

@@ -48,11 +48,19 @@ class ImmoDBConfig {
   */
   public $broker_routes = array();
 
+  /**
+  * City details route path configuration
+  * @var ArrayImmoDBRoute
+  */
+  public $city_routes = array();
+
   public $default_view = null;
-  public $listing_layout = 'standard';
-  public $listing_layout_page = null;
-  public $broker_layout = 'standard';
-  public $broker_layout_page = null;
+  public $listing_layouts = array();
+  //public $listing_layout = 'standard';
+  //public $listing_layout_page = null;
+  public $broker_layouts = array();
+  //public $broker_layout = 'standard';
+  //public $broker_layout_page = null;
 
   /**
    * Configuration constructor class
@@ -62,6 +70,8 @@ class ImmoDBConfig {
     // set defaut DEMO value
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
+
+    // init routes
     $this->listing_routes  = array(
       new ImmoDBRoute('fr','proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'),
       new ImmoDBRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'),
@@ -69,6 +79,20 @@ class ImmoDBConfig {
     $this->broker_routes  = array(
       new ImmoDBRoute('fr','courtiers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}'),
       new ImmoDBRoute('en', 'brokers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}'),
+    );
+    $this->city_routes  = array(
+      new ImmoDBRoute('fr','villes/{{item.location.region}}/{{item.name}}'),
+      new ImmoDBRoute('en', 'cities/{{item.location.region}}/{{item.name}}'),
+    );
+
+    // init layouts
+    $this->listing_layouts = array(
+      new ImmoDBLayout('fr','standard'),
+      new ImmoDBLayout('en','standard')
+    );
+    $this->broker_layouts = array(
+      new ImmoDBLayout('fr','standard'),
+      new ImmoDBLayout('en','standard')
     );
 
     $this->lists = array(
@@ -137,6 +161,17 @@ class ImmoDBRoute{
   }
 }
 
+class ImmoDBLayout{
+  public $lang = '';
+  public $type = 'standard';
+  public $page = null;
+
+  public function __construct($lang='', $type=''){
+    $this->lang = $lang;
+    $this->type = $type;
+  }
+}
+
 class ImmoDBList {
   public $source = 'default';
   public $alias = 'default';
@@ -181,11 +216,6 @@ class ImmoDBList {
   }
 }
 
-class ImmoDBLayout {
-  public $preset = 'standard';
-  public $scope_class = '';
-  public $custom = null;
-}
 
 class ImmoDBFilterGroup {
   public $operator = 'and';

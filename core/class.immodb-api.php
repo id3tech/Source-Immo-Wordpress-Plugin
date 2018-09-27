@@ -43,6 +43,13 @@ class ImmoDBApi {
         'methods' => WP_REST_Server::READABLE,
         //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
         'callback' => array( 'ImmoDBApi', 'get_pages' ),
+        'args' => array(
+          'lang' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Page language filter', IMMODB ),
+          )
+        )
       )
     );
 
@@ -119,7 +126,16 @@ class ImmoDBApi {
     );
   }
 
-  public static function get_pages(){
+  public static function get_pages($request){
+    // change language
+    global $sitepress;
+    $lang = $request->get_param('lang');
+
+    if($sitepress){
+      $sitepress->switch_lang( $lang, true );
+    }
+    
+    
     $args = array(
       'sort_order' => 'asc',
       'sort_column' => 'post_title',
@@ -135,9 +151,23 @@ class ImmoDBApi {
       'number' => '',
       'offset' => 0,
       'post_type' => 'page',
-      'post_status' => 'publish'
+      'post_status' => 'publish',
+      'suppress_filters' => false
     ); 
-    $pages = get_pages($args); 
+
+    // query
+    $posts = new WP_Query( array(
+        'post_type' => 'page',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'sort_order' => 'asc',
+      'sort_column' => 'post_title',
+        'hierarchical' => 1,
+        'suppress_filters' => false
+    ) );
+
+    $pages = $posts->posts;
+    //$pages = get_pages($args); 
 
     return $pages;
   }

@@ -3,8 +3,8 @@ $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
 get_header();
-$layout = ImmoDB::current()->configs->broker_layout;
-if($layout=='custom_page'){
+$layout = ImmoDB::current()->get_detail_layout('broker');
+if($layout->type =='custom_page'){
     // load page content
     ?>
     <div ng-controller="singleBrokerCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
@@ -12,7 +12,7 @@ if($layout=='custom_page'){
         <label class="placeholder"  ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
         <div class="immodb-content">
         <?php
-        $lPost = get_post(ImmoDB::current()->configs->broker_layout_page);
+        $lPost = get_post($layout->page);
         ob_start();
         echo(do_shortcode($lPost->post_content));
         $lPageContent = ob_get_clean();
@@ -31,7 +31,7 @@ else{?>
                     <label class="placeholder"  ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
                     <div class="immodb-content">
                     <?php 
-                        ImmoDB::view('single/brokers_layouts/' . $layout);
+                        ImmoDB::view('single/brokers_layouts/' . $layout->type);
                     ?>
                     </div>
                 </div>

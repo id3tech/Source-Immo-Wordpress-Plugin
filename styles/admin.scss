@@ -34,15 +34,30 @@ body.wp-admin{
       display:grid;
       grid-template-columns: 1fr 5fr;
       grid-gap: 10px;
+      h2{margin:10px;}
       .block-content{
-        padding:20px;
+        padding:10px;
+        h4{margin:10px 0 0 0;padding:0;}
+        &.layout-container{
+          display:grid;
+          grid-template-columns: repeat(auto-fit,minmax(350px,1fr));
+          grid-template-rows:auto;
+          grid-gap:10px;
+          place-items: start stretch;
+          .layout-item{
+            display:grid;
+            grid-template-columns: 1fr;
+            grid-gap:10px;
+            place-items: start stretch;
+          }
+        }
       }
     }
 
     .general-settings{
       .route-item{
         display:grid;
-        grid-template-columns: 100px 1fr 20px;
+        grid-template-columns: 100px 1fr 50px;
         align-items: center;
         grid-gap: 10px;
         md-input-container{

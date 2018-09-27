@@ -31,10 +31,12 @@ class ImmoDB {
     $this->register_filters(array(
       // add route rules
       'query_vars' => 'update_routes_query_var',
-      'rewrite_rules_array' => 'update_routes'
+      'rewrite_rules_array' => 'update_routes',
+      'locale' => 'detect_locale'
     ));
     $this->register_actions(array(
-      'template_redirect'
+      'template_redirect',
+      'after_setup_theme' => 'detect_locale'
     ));
 
     if (!is_admin() ){
@@ -96,6 +98,22 @@ class ImmoDB {
       }
     }
 
+    return $lResult;
+  }
+
+  /**
+   * @param string $type Type of the layout
+   */
+  function get_detail_layout($type){
+    $locale = substr(get_locale(),0,2);
+    $layout_list = $this->configs->{$type . '_layouts'};
+
+    $lResult = $layout_list[0];
+    foreach ($layout_list as $layout) {
+      if($locale == $layout->lang){
+        $lResult = $layout;
+      }
+    }
     return $lResult;
   }
 
@@ -174,7 +192,23 @@ class ImmoDB {
       $type = get_query_var( 'type' );
       add_filter( 'template_include', array($this, 'include_' . $type . '_detail_template'));
     }
-	}
+  }
+  
+  function detect_locale($locale){
+    $request_locale = get_query_var( 'lang' );
+    //Debug::write($request_locale);
+    if($request_locale){
+      
+      global $sitepress;
+      if($sitepress){
+        $sitepress->switch_lang($request_locale);
+      }
+      $locale = $request_locale . '_CA';
+    }
+    
+
+    return $locale;
+  }
 
 
   
@@ -256,6 +290,8 @@ class ImmoDB {
     $ref_number = get_query_var( 'ref_number' );
     global $permalink, $post,$listing_data;
 
+    do_action('immodb_listing_detail_begin');
+
     // load data
     $listing_data = json_decode(ImmoDBApi::get_listing_data($ref_number));
 
@@ -264,8 +300,6 @@ class ImmoDB {
     $share_tool->addListingHook();
     
     $permalink = $share_tool->getPermalink();
-    
-
 
     $post->permalink = $permalink;
 
@@ -286,10 +320,11 @@ class ImmoDB {
     $ref_number = get_query_var( 'ref_number' );
 
     // load data
-    $broker_data = ImmoDBApi::get_broker_data($ref_number);
+    $broker_data = json_decode(ImmoDBApi::get_broker_data($ref_number));
 
     self::view('single/brokers', array('ref_number'=>$ref_number, 'data' => $broker_data));
   }
+
 
 
   /**
@@ -423,6 +458,7 @@ class ImmoDB {
   /**
   * Get a singleton of the class
   * @static
+  * @return ImmoDB
   */
   public static function current() {
     if(self::$current_instance==null){

@@ -783,9 +783,9 @@ ImmoDbApp
             
             $scope.loadListFromStorage = function($type){
                 console.log('loading list from immodb.list.{0}'.format($type));
-                let lList = sessionStorage.getItem('immodb.list.{0}'.format($type));
-                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}'.format($type));
-                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}'.format($type));
+                let lList = sessionStorage.getItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale));
+                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale));
+                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale));
 
                 if (lList != undefined){
                     $scope.list = JSON.parse(lList);
@@ -796,10 +796,15 @@ ImmoDbApp
                 return false;
             }
 
+            /**
+             * Save list to storage
+             * @param {string} $type Type of the list
+             */
             $scope.saveListToStorage = function($type){
-                sessionStorage.setItem('immodb.list.{0}'.format($type), JSON.stringify($scope.list));
-                sessionStorage.setItem('immodb.listMeta.{0}'.format($type), JSON.stringify($scope.listMeta));
-                sessionStorage.setItem('immodb.pageIndex.{0}'.format($type), $scope.page_index);
+
+                sessionStorage.setItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.list));
+                sessionStorage.setItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.listMeta));
+                sessionStorage.setItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale), $scope.page_index);
             }
 
             $scope.getLatestSearchToken = function(){

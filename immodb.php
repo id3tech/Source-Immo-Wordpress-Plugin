@@ -33,3 +33,5 @@ if ( is_admin() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 	require_once( IMMODB_PLUGIN_DIR . '/core/class.immodb-admin.php' );
 	add_action( 'init', array( 'ImmoDBAdmin', 'init' ) );
 }
+
+load_default_textdomain();
