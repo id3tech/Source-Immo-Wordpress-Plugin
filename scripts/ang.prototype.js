@@ -58,6 +58,68 @@ if(typeof Number.formatRank === 'undefined' ){
 
 
 if(typeof String.translate === 'undefined'){
+    var $locales = {};
+    (function locales($scope){
+        $scope.supported_languages = ['fr','en'];
+        $scope._current_lang_ = '';
+        $scope.file_path = '';
+
+        $scope.init = function($used_language){
+            // create language containers
+            $scope.supported_languages.forEach(function($l){
+                $scope[$l] = {};
+            });
+
+            $scope._current_lang_ = $used_language;
+        }
+
+        $scope.load = function($files,$domain){
+            if(typeof $files.push == 'undefined'){
+                $files = [$files];
+            }
+
+            if(typeof $domain == 'undefined'){
+                $domain = 'global';
+            }
+
+
+            $files.forEach(function($f){
+                $scope.loadJSON($f, function($response){
+                    $scope[$scope._current_lang_][$domain] = $scope.merge_data($scope[$scope._current_lang_][$domain], $response);
+                });
+            });
+        }
+
+
+        $scope.merge_data = function(obj1,obj2){
+            var obj3 = {};
+            for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+            for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+            return obj3;
+        }
+
+        $scope.loadJSON = function(filePath, success, error){
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function()
+            {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        if (success)
+                            // var lData = '';
+                            // eval('lData = ' + xhr.responseText);
+                            // success(lData);
+                            success(JSON.parse(xhr.responseText));
+                } else {
+                    if (error)
+                        error(xhr);
+                    }
+                }
+            };
+            xhr.open("GET", filePath, true);
+            xhr.send();
+        }
+    })($locales);
+
     /**
      * Translate string using $locales datasheet
      * @param {string} $domain Optional. Domain in which to search for localized string
@@ -68,12 +130,18 @@ if(typeof String.translate === 'undefined'){
             $domain = (typeof ($domain) == 'undefined') ? 'global' : $domain;
             $lang = (typeof ($lang) == 'undefined') ? $locales._current_lang_ : $lang;
             $key = this.toString();
-            
             if ($lang in $locales) {
                 if ($domain in $locales[$lang]) {
                     if ($key in $locales[$lang][$domain]) {
                         return $locales[$lang][$domain][$key];
                     }
+                }
+                else if ($key in $locales[$lang]){
+                    //console.log($key, 'found in ',$locales[$lang])
+                    return $locales[$lang][$key];
+                }
+                else{
+                    //console.log('"',$key,'" not found in', $locales[$lang]);
                 }
             }
         }

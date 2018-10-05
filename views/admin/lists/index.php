@@ -19,7 +19,7 @@
 
         <md-input-container>
             <label><?php _e('List of',IMMODB) ?></label>
-            <md-select ng-model="model.type">
+            <md-select ng-model="model.type" ng-change="reset_default_value()">
                 <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>

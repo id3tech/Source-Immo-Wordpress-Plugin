@@ -21,9 +21,12 @@
 
             
         </div>
-        <div class="next-page" ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null">
-                <button type="button" class="btn load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
-            </div>
+        <div class="next-page" ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
+            <button type="button" class="btn load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
+        </div>
+        
+        <immodb-loading immodb-label="Loading results" ng-show="is_loading_data"></immodb-loading>
+        
         <?php
         // add map if the list is mappable
         if($configs->mappable){

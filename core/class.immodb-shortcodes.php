@@ -15,7 +15,7 @@ class ImmoDbShorcodes{
             // Broker - Sub shortcodes
             'immodb_broker_listings',
             // Listing - Sub shorcodes
-            'immodb_listing_part',
+            'immodb_listing_part'
         );
 
         foreach ($hooks as $item) {
@@ -78,17 +78,17 @@ class ImmoDbShorcodes{
             $global_container_attr = array();
 
             if(in_array($listConfig->list_layout->preset, array('direct'))){
-                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
+                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
                 echo('<immodb-list immodb-alias="' . $alias . '" immodb-class="' . implode(' ' , $global_container_classes) . '" ></immodb-list>');
                 echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
-                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig));
+                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
                 echo('</script>');
 
                 if($listConfig->searchable){ 
                     echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-                    ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
+                    ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig, "sc_atts" => $atts)); 
                     echo('</script>');
                 }
             }

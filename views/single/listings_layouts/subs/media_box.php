@@ -1,18 +1,18 @@
-<div class="medias select-{{selected_media}}">
+<div class="medias select-{{selected_media}}" ng-controller="immodbMediaBoxCtrl" ng-init="init()">
     <div class="tabs">
         <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
-            ng-click="selected_media='pictures'">
+            ng-click="selectMedia('pictures')">
             <i class="fal fa-camera"></i> <span><?php _e('Pictures',IMMODB)?></span></button>
         <button type="button" class="tab videos {{selected_media=='videos'?'selected':''}}"
             ng-show="model.video!=undefined" 
-            ng-click="selected_media='videos'">
+            ng-click="selectMedia('videos')">
             <i class="fal fa-video"></i> <span><?php _e('Video',IMMODB)?></span></button>
         <button type="button" class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
-            ng-show="model.virtual_tour!=undefined" ng-click="selected_media='virtual-tours'">
+            ng-show="model.virtual_tour!=undefined" ng-click="selectMedia('virtual-tours')">
             <i class="fal fa-street-view"></i> <span><?php _e('Virtual tour',IMMODB)?></span></button>
-        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" ng-click="selected_media='streetview'">
+        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" ng-click="selectMedia('streetview')">
             <i class="fal fa-street-view"></i> <span><?php _e('Street view',IMMODB)?></span></button>
-        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" ng-click="selected_media='map'">
+        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" ng-click="selectMedia('map')">
             <i class="fal fa-map"></i> <span><?php _e('Map',IMMODB)?></span></button>
     </div>
     <div class="viewport">
@@ -22,7 +22,7 @@
             </div>
             <div class="tab-content videos">
                 <label class="placeholder"><?php _e('Videos',IMMODB)?></label>
-                <iframe ng-src="{{model.video.trusted_url}}" width="100%" height="100%"></iframe>
+                <iframe id="video-player" ng-src="{{model.video.trusted_url}}" width="100%" height="100%"></iframe>
             </div>
             <div class="tab-content virtual-tours">
                 <label class="placeholder"><?php _e('Virtual tour',IMMODB)?></label>

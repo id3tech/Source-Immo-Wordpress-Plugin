@@ -777,6 +777,9 @@ $tablet : 'max-width: 1100px';
                 }
                 .sort-container{grid-area:sort;place-self: center end;}
             }
+            .immodb-loading{
+                grid-area: next-page;
+            }
         }
 
         &.immodb-list-of-listings{
@@ -1360,7 +1363,9 @@ $tablet : 'max-width: 1100px';
                     }
                 }
             }
-
+            .in-exclusions{
+                label{font-weight: 700;}
+            }
             .rooms{
                 .unit-list{
                     .flags{
@@ -1887,6 +1892,10 @@ $tablet : 'max-width: 1100px';
             }
         }
     }
+}
+
+.immodb-loading{
+    text-align:center;
 }
 
 // enfold fixes

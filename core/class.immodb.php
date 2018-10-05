@@ -4,7 +4,7 @@ Start up class for ImmoDB
 */
 
 class ImmoDB {
-  const API_HOST = 'https://source-immo-api-dev.azurewebsites.net';
+  const API_HOST = 'https://api-v1.source.immo';
 
   public $configs = null;
 
@@ -77,8 +77,10 @@ class ImmoDB {
     return '';
   }
 
-  public function get_listing_permalink(){
-    $locale = substr(get_locale(),0,2);
+  public function get_listing_permalink($locale=null){
+    if($locale==null){
+      $locale = substr(get_locale(),0,2);
+    }
     $lResult = $this->configs->listing_routes[0]->route;
     foreach($this->configs->listing_routes as $item){
       if($item->lang == $locale){
@@ -89,8 +91,11 @@ class ImmoDB {
     return  $lResult;
   }
 
-  public function get_broker_permalink(){
-    $locale = substr(get_locale(),0,2);
+  public function get_broker_permalink($locale=null){
+    if($locale==null){
+      $locale = substr(get_locale(),0,2);
+    }
+
     $lResult = $this->configs->broker_routes[0]->route;
     foreach($this->configs->broker_routes as $item){
       if($item->lang == $locale){
@@ -222,7 +227,7 @@ class ImmoDB {
     
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', IMMODB_PLUGIN) );
     wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
-    wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN) );
+    wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN), null, filemtime(IMMODB_PLUGIN_DIR . '/styles/public.min.css') );
     
     wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, null, true );
     wp_enqueue_script( 'angular-sanitize', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js', 'angular', null, true );
@@ -243,26 +248,35 @@ class ImmoDB {
     wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('immodb-style'), "1", "all");
 	  wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
 
+    wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
     $lUploadDir   = wp_upload_dir();
     $lConfigPath  = $lUploadDir['baseurl'] . '/_immodb/_configs.json';
-    wp_add_inline_script( 'angular', 
-                          'var $locales={_current_lang_:"' . $lTwoLetterLocale . '"};' .
+    
+    wp_add_inline_script( 'immodb-prototype', 
+                          //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', IMMODB_PLUGIN) . '");' .
+                          '$locales.init("' . $lTwoLetterLocale . '");' .
                           'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
                           'var immodbCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . '};'
                         );
-    
-    wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
-    wp_enqueue_script( 'immodb-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', IMMODB_PLUGIN), null, null, true );
+    if($lTwoLetterLocale!='en'){
+      wp_enqueue_script('immodb-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', IMMODB_PLUGIN), 
+                null, 
+                filemtime(IMMODB_PLUGIN_DIR . '/scripts/locales/global.'. $lTwoLetterLocale .'.js'), true );
+    }
+    do_action("immodb-append-locales");
+
     if(IMMODB_DEVMODE){
-      wp_register_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.js', IMMODB_PLUGIN), array('angular', 'angular-sanitize','immodb-prototype','immodb-locales'), null, true );
+      wp_register_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.js', IMMODB_PLUGIN), 
+              array('angular', 'angular-sanitize','immodb-prototype'), 
+              filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.public-app.js'), true );
 
     }
     else{
-      wp_register_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.min.js', IMMODB_PLUGIN), array('angular', 'angular-sanitize','immodb-prototype','immodb-locales'), null, true );
+      wp_register_script( 'immodb-public-app', plugins_url('/scripts/ang.public-app.min.js', IMMODB_PLUGIN), 
+            array('angular', 'angular-sanitize','immodb-prototype'), 
+            filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.public-app.min.js'), true );
     }
-    wp_enqueue_script('immodb-public-app');
-    
-    
+    wp_enqueue_script('immodb-public-app'); 
   }
 
   public function body_class($classes){
@@ -293,11 +307,12 @@ class ImmoDB {
     do_action('immodb_listing_detail_begin');
 
     // load data
+    global $listing_data;
     $listing_data = json_decode(ImmoDBApi::get_listing_data($ref_number));
 
     // hook to sharing tools
     $share_tool = new ImmoDbSharing($listing_data);
-    $share_tool->addListingHook();
+    $share_tool->addHook('listing');
     
     $permalink = $share_tool->getPermalink();
 
@@ -313,14 +328,36 @@ class ImmoDB {
       $post_object->permalink = $permalink;
     });
 
+    
     self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));
   }
 
   function include_brokers_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
+    global $broker_data;
+    
+    do_action('immodb_broker_detail_begin');
 
     // load data
     $broker_data = json_decode(ImmoDBApi::get_broker_data($ref_number));
+
+    // hook to sharing tools
+    $share_tool = new ImmoDbSharing($broker_data);
+    $share_tool->addHook('broker');
+    
+    $permalink = $share_tool->getPermalink();
+
+    $post->permalink = $permalink;
+
+    // add hook for permalink
+    add_filter('the_permalink', function($url){
+      global $permalink;
+      return $permalink;
+    });
+    add_action('the_post', function($post_object){
+      global $permalink;
+      $post_object->permalink = $permalink;
+    });
 
     self::view('single/brokers', array('ref_number'=>$ref_number, 'data' => $broker_data));
   }
@@ -403,20 +440,28 @@ class ImmoDB {
   */
   public function load_locales(){
     $locale = substr(get_locale(),0,2);
-    $locale_file_path = IMMODB_PLUGIN_DIR . '/scripts/locales/global.' . $locale . '.js';
-    if(file_exists($locale_file_path)){
-      $locale_str = file_get_contents($locale_file_path);
-      
-      // remove first line
-      $locale_str = preg_replace('/^.+\n/', '', $locale_str);
-      // remove comment lines
-      $locale_str = preg_replace('/.+\/\/.+/m', '', $locale_str);
-
-      if (0 === strpos(bin2hex($locale_str), 'efbbbf')) $locale_str = substr($locale_str, 3);
-
-      $this->locales = json_decode($locale_str, true);
-      $this->locales = apply_filters('immodb-initialize-locale', $this->locales);
+    $locale_file_paths = apply_filters('immodb-locale-file-paths',array(IMMODB_PLUGIN_DIR . 'scripts/locales/global.' . $locale . '.js'));
+    
+    $this->locales = array();
+    
+    foreach ($locale_file_paths as $file_path) {
+      if(file_exists($file_path)){
+        $locale_str = file_get_contents($file_path);
+        
+        // remove first line
+        $locale_str = preg_replace('/^.+\n/', '', $locale_str);
+        // remove comment lines
+        $locale_str = preg_replace('/.+\/\/.+/m', '', $locale_str);
+        
+        if (0 === strpos(bin2hex($locale_str), 'efbbbf')) $locale_str = substr($locale_str, 3);
+        if(substr($locale_str,-1) == ')'){
+          $locale_str = substr($locale_str,0,strlen($locale_str)-2);
+        }
+        $this->locales = array_merge($this->locales, json_decode($locale_str, true));
+        $this->locales = apply_filters('immodb-initialize-locale', $this->locales);
+      }
     }
+    
   }
 
   public function translate($translated_text, $text, $domain){
@@ -425,12 +470,12 @@ class ImmoDB {
       
       $locale = substr(get_locale(),0,2);
       
+      if($translated_text)
+
       // this is most likely not translated
       if($translated_text == $text && $locale != 'en'){
-        
 
         if(isset($this->locales[$text])){
-         
           $translated_text = $this->locales[$text];
         }
       }
@@ -521,6 +566,10 @@ class ImmoDB {
 class ImmoDbSharing{
 
   private $object = null;
+  private $title = null;
+  private $description = null;
+  private $image = null;
+  private $link = null;
 
   public function __construct(&$source){
     if($source != null){
@@ -529,43 +578,55 @@ class ImmoDbSharing{
     //Debug::write($this->object);
   }
 
-  public function addListingHook(){
-    
-    
-    $this->listingPreprocess();
 
+  public function addHook($type){
+    $this->{$type . 'Preprocess'}();
     //Yoast
-    add_filter('wpseo_title', array($this, 'listingTitle'), 10,1);
-    add_filter('wpseo_metadesc', array($this,'listingDesc'), 10,1);
-    add_filter('wpseo_opengraph_image', array($this, 'listingImage'), 10,1);
-    add_filter('wpseo_canonical',array($this,'listingUrl'),10,1);
+    add_filter('wpseo_title', array($this, 'title'), 10,1);
+    add_filter('wpseo_metadesc', array($this,'desc'), 10,1);
+    add_filter('wpseo_opengraph_image', array($this, 'image'), 10,1);
+    add_filter('wpseo_canonical',array($this,'url'),10,1);
   }
-  public function listingTitle($title){
-    if($this->object != null){
-      $title = $this->object->subcategory . ' ' . $this->object->location->full_address;
+
+  public function title($title){
+    if($this->title != null){
+      $title = $this->title;
     }
     return $title;
   }
 
-  public function listingDesc($desc){
-    if($this->object != null){
-      $desc = $this->object->description;
+  public function desc($desc){
+    if($this->desc != null){
+      $desc = $this->desc;
     }
     return $desc;
   }
 
-  public function listingImage($image_path){
-    if($this->object != null){
-      $image_path = $this->object->photos[0]->url;
+  public function image($image_path){
+    if($this->image != null){
+      $image_path = $this->image;
     } 
     return $image_path;
   }
 
-  public function listingUrl($url){
-    if($this->object != null){
-      $url = $this->object->permalink;
+  public function url($url){
+    if($this->url != null){
+      $url = $this->url;
     } 
     return $url;
+  }
+
+  public function brokerPreprocess(){
+    global $dictionary;
+    $objectWrapper = new ImmoDBBrokersResult();
+    $dictionary = new ImmoDBDictionary($this->object->dictionary);
+    $objectWrapper->preprocess_item($this->object);
+    $this->object->permalink = $objectWrapper->buildPermalink($this->object, ImmoDB::current()->get_broker_permalink());
+
+    $this->title = $this->object->first_name . ' ' . $this->object->last_name;
+    $this->desc = $this->object->license_type;
+    $this->image = $this->object->photo->url;
+    $this->url = $this->object->permalink;
   }
 
   public function listingPreprocess(){
@@ -574,6 +635,11 @@ class ImmoDbSharing{
     $dictionary = new ImmoDBDictionary($this->object->dictionary);
     $listingWrapper->preprocess_item($this->object);
     $this->object->permalink = $listingWrapper->buildPermalink($this->object, ImmoDB::current()->get_listing_permalink());
+
+    $this->title = $this->object->subcategory . ' ' . $this->object->location->full_address;
+    $this->desc = isset($this->object->description) ? $this->object->description : '';
+    $this->image = $this->object->photos[0]->url;
+    $this->url = $this->object->permalink;
   }
 
   public function getPermalink(){
@@ -607,7 +673,53 @@ class ImmoDBDictionary{
   }
 }
 
-class ImmoDBListingsResult{
+class ImmoDBBrokersResult extends ImmoDBAbstractResult {
+  public $brokers = null;
+  public $metadata = null;
+
+  public function __construct($data=null){
+    if($data!=null){
+      $this->brokers = $data->items;
+      $this->metadata = $data->metadata;
+
+      foreach ($this->brokers as $item) {
+        $this->preprocess_item($item);
+      }
+    }
+  }
+
+  public function preprocess_item(&$item){
+    global $dictionary;
+
+    if(isset($item->license_type_code)){
+      $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
+    }
+  }
+}
+
+class ImmoDBCitiesResult extends ImmoDBAbstractResult {
+  public $cities = null;
+  public $metadata = null;
+
+  public function __construct($data=null){
+    
+    if($data!=null){
+      $this->cities = $data->items;
+      $this->metadata = $data->metadata;
+
+      foreach ($this->cities as $item) {
+        $this->preprocess_item($item);
+      }
+    }
+  }
+
+  public function preprocess_item(&$item){
+    global $dictionary;
+  }
+}
+
+
+class ImmoDBListingsResult extends ImmoDBAbstractResult {
   public $listings = null;
   public $metadata = null;
 
@@ -651,6 +763,7 @@ class ImmoDBListingsResult{
     else{
       $item->subcategory='';
     }
+
   }
   
   public static function formatPrice($price){
@@ -667,34 +780,6 @@ class ImmoDBListingsResult{
     }
 
     return implode(__(' or ',IMMODB), $lResult);
-  }
-
-  public static function buildPermalink($item, $format){
-    $lResult = $format;
-    //Debug::write(json_decode(json_encode($item),true));
-    $lAttrList = self::getAttributeValueList($item);
-    
-    //Debug::write($lAttrList);
-    
-    foreach($lAttrList as $lAttr){
-      $lValue = $lAttr['value'];
-
-      if(method_exists(get_called_class(),'get' . $lAttr['key'])){
-        $lValue = self::{'get' . $lAttr['key']}($item);
-      }
-
-      $lResult = str_replace(
-          array(
-            '{{' . $lAttr['key'] . '}}',
-            '{{item.' . $lAttr['key'] . '}}',
-            '{{get' . $lAttr['key'] . '(item)}}'
-          ), sanitize_title($lValue), $lResult);
-      
-    }
-    
-    
-
-    return '/'. $lResult;
   }
 
 
@@ -738,7 +823,9 @@ class ImmoDBListingsResult{
     return $lResult;
   }
 
+}
 
+class ImmoDBAbstractResult{
 
   public static function getAttributeValueList($item, $prefix=null){
     $lResult = array();
@@ -768,4 +855,27 @@ class ImmoDBListingsResult{
 
     return $lResult;
   }
+
+  public static function buildPermalink($item, $format){
+    $lResult = $format;
+    //Debug::write(json_decode(json_encode($item),true));
+    $lAttrList = self::getAttributeValueList($item);
+    
+    //Debug::write($lAttrList);
+    
+    foreach($lAttrList as $lAttr){
+      $lValue = $lAttr['value'];
+
+      $lResult = str_replace(
+          array(
+            '{{' . $lAttr['key'] . '}}',
+            '{{item.' . $lAttr['key'] . '}}',
+            '{{get' . $lAttr['key'] . '(item)}}'
+          ), sanitize_title($lValue), $lResult);
+      
+    }
+    
+    return '/'. str_replace(' ','-',$lResult);
+  }
+
 }

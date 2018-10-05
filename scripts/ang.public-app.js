@@ -152,6 +152,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             // prepare message subject build from data
             $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
             $immodbHooks.do('listing-message-model-post-process',$scope.message_model);
+
+            $immodbHooks.do('listing-ready',$scope.model);
             // print data to console for further informations
             console.log($scope.model);
         });
@@ -192,7 +194,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         
         
         $scope.model.building.attributes = [];
-        $scope.model.lot = {attributes : []};
+        $scope.model.land.attributes = [];
         $scope.model.other = {attributes : []};
         $scope.model.important_flags = [];
         $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
@@ -229,7 +231,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             // Lot
             else if(['LANDSCAPING','DRIVEWAY','PARKING','POOL',
                      'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'].includes($e.code)){
-                $scope.model.lot.attributes.push($e);
+                $scope.model.land.attributes.push($e);
             }
             // other
             else if(['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'].includes($e.code)){
@@ -273,7 +275,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         if($scope.model.video != undefined){
             let lEmbedVideo = $scope.model.video.url;
             if($scope.model.video.type=='youtube'){
-                lEmbedVideo = '//www.youtube.com/embed/{0}'.format($scope.model.video.id);
+                lEmbedVideo = '//www.youtube.com/embed/{0}?rel=0&showinfo=0&enablejsapi=1&origin=*'.format($scope.model.video.id);
             }
 
             $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
@@ -327,6 +329,103 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         return $immodbUtils.hasDimension($dimension);
     }
 });
+
+ImmoDbApp
+.controller('immodbMediaBoxCtrl',
+function immodbMediaBoxCtrl ($scope){
+    $scope.selected_media = 'pictures';
+    $scope.video_player = null;
+
+    $scope.init = function(){
+    }
+
+    $scope.selectMedia = function($media){
+        $scope.selected_media = $media;
+        if($media!='video'){
+            $scope.callPlayer('video-player','stopVideo');
+        }
+    }
+
+    $scope.callPlayer = function(frame_id, func, args) {
+        if (window.jQuery && frame_id instanceof jQuery) frame_id = frame_id.get(0).id;
+        var iframe = document.getElementById(frame_id);
+        if (iframe && iframe.tagName.toUpperCase() != 'IFRAME') {
+            iframe = iframe.getElementsByTagName('iframe')[0];
+        }
+    
+        // When the player is not ready yet, add the event to a queue
+        // Each frame_id is associated with an own queue.
+        // Each queue has three possible states:
+        //  undefined = uninitialised / array = queue / 0 = ready
+        if (!$scope.callPlayer.queue) $scope.callPlayer.queue = {};
+        var queue = $scope.callPlayer.queue[frame_id],
+            domReady = document.readyState == 'complete';
+    
+        if (domReady && !iframe) {
+            // DOM is ready and iframe does not exist. Log a message
+            window.console && console.log('$scope.callPlayer: Frame not found; id=' + frame_id);
+            if (queue) clearInterval(queue.poller);
+        } else if (func === 'listening') {
+            // Sending the "listener" message to the frame, to request status updates
+            if (iframe && iframe.contentWindow) {
+                func = '{"event":"listening","id":' + JSON.stringify(''+frame_id) + '}';
+                iframe.contentWindow.postMessage(func, '*');
+            }
+        } else if (!domReady ||
+                   iframe && (!iframe.contentWindow || queue && !queue.ready) ||
+                   (!queue || !queue.ready) && typeof func === 'function') {
+            if (!queue) queue = $scope.callPlayer.queue[frame_id] = [];
+            queue.push([func, args]);
+            if (!('poller' in queue)) {
+                // keep polling until the document and frame is ready
+                queue.poller = setInterval(function() {
+                    $scope.callPlayer(frame_id, 'listening');
+                }, 250);
+                // Add a global "message" event listener, to catch status updates:
+                messageEvent(1, function runOnceReady(e) {
+                    if (!iframe) {
+                        iframe = document.getElementById(frame_id);
+                        if (!iframe) return;
+                        if (iframe.tagName.toUpperCase() != 'IFRAME') {
+                            iframe = iframe.getElementsByTagName('iframe')[0];
+                            if (!iframe) return;
+                        }
+                    }
+                    if (e.source === iframe.contentWindow) {
+                        // Assume that the player is ready if we receive a
+                        // message from the iframe
+                        clearInterval(queue.poller);
+                        queue.ready = true;
+                        messageEvent(0, runOnceReady);
+                        // .. and release the queue:
+                        while (tmp = queue.shift()) {
+                            $scope.callPlayer(frame_id, tmp[0], tmp[1]);
+                        }
+                    }
+                }, false);
+            }
+        } else if (iframe && iframe.contentWindow) {
+            // When a function is supplied, just call it (like "onYouTubePlayerReady")
+            if (func.call) return func();
+            // Frame exists, send message
+            iframe.contentWindow.postMessage(JSON.stringify({
+                "event": "command",
+                "func": func,
+                "args": args || [],
+                "id": frame_id
+            }), "*");
+        }
+        /* IE8 does not support addEventListener... */
+        function messageEvent(add, listener) {
+            var w3 = add ? window.addEventListener : window.removeEventListener;
+            w3 ?
+                w3('message', listener, !1)
+            :
+                (add ? window.attachEvent : window.detachEvent)('onmessage', listener);
+        }
+    }
+})
+
 
 /**
  * Broker Detail - Controller
@@ -572,23 +671,32 @@ ImmoDbApp
              * Initialize the controller
              */
             $scope.init = function(){
-                console.log('initializing list for ' + $scope.alias);
-                
-                $immodbApi.getListConfigs($scope.alias).then(function($configs){
-                    $scope.configs = $configs;
-                    $immodbApi.renewToken().then(function(){
-                        $scope.start();
-                    });
-                });
-            
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
-
+                
                 $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
                     $scope.display_mode = 'map';
                 });
 
                 $scope.$on('immodb-{0}-display-switch-list'.format($scope.alias), function(){
                     $scope.display_mode = 'list';
+                });
+
+                $scope.$on('auth_token_refresh', function(){
+                    sessionStorage.removeItem('immodb.list.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
+                    sessionStorage.removeItem('immodb.listMeta.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
+                    sessionStorage.removeItem('immodb.pageIndex.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
+                });
+
+                $immodbApi.getListConfigs($scope.alias).then(function($configs){
+                    $scope.configs = $configs;
+                    let lClientSearchToken = sessionStorage.getItem("immodb.{0}.st".format($scope.configs.alias));
+                    if(lClientSearchToken!=undefined){
+                        $scope.client.search_token = lClientSearchToken;
+                    }
+
+                    $immodbApi.renewToken().then(function(){
+                        $scope.start();
+                    });
                 });
             }
     
@@ -622,6 +730,7 @@ ImmoDbApp
              */
             $scope.getSearchToken = function(){
                 if($scope.client.search_token != null){
+                    console.log('return client st', $scope.client.search_token)
                     return $scope.client.search_token;
                 }
                 return $scope.configs.search_token;
@@ -633,14 +742,13 @@ ImmoDbApp
              * @param {string} $newToken New search token
              */
             $scope.onFilterTokenChanged = function($event, $newToken){
-                console.log('Filter token changed');
-
                 $scope.client.search_token = $newToken; // save search token
                 // When ready, get data
                 $scope.isReady().then(function(){
                     // clear list stored in session
                     if($scope.getLatestSearchToken() != $newToken){
-                        sessionStorage.removeItem('immodb.list.{0}'.format($scope.configs.type));
+                        sessionStorage.removeItem('immodb.latestSearchToken.{0}'.format(immodbCtx.locale));
+                        sessionStorage.removeItem('immodb.list.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
                     }
                     
                     $scope.getList();
@@ -668,6 +776,14 @@ ImmoDbApp
                 });
             }
     
+            $scope.setLoadingState = function($is_loading){
+                $scope.is_loading_data = $is_loading;
+                try{
+                    $scope.$digest();
+                }
+                catch(error){}
+
+            }
     
             /**
              * Call the API and return the list 
@@ -681,14 +797,14 @@ ImmoDbApp
                 // 
                 if(!$scope.loadListFromStorage($scope.configs.type)){
                     // lock loading to prevent call overlaps
-                    console.log("search called loading:", $scope.is_loading_data)
                     if($scope.is_loading_data == false){
-                        $scope.is_loading_data = true;
-                        console.log('search called api')
+                        $scope.setLoadingState(true);
+                        
+                        
+
                         $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                             // set list/meta
                             if($scope.configs.type=='listings'){
-                                console.log('Compile listing list');
                                 $scope.list = $immodbUtils.compileListingList($response.items);
                             }
                             else{
@@ -697,15 +813,12 @@ ImmoDbApp
                             
                             $scope.listMeta = $response.metadata;
                             // unlock
-                            $scope.is_loading_data = false;
+                            $scope.setLoadingState(false);
                             // broadcast new list
-                            console.log('Broadcasting list on','immodb-' + $scope.configs.type + '-update','...');
                             $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                             $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
                             // print list to console for further information
-                            console.log('The list',$scope.list);
-
                             $scope.saveListToStorage($scope.configs.type);
 
                             // save latest search token
@@ -724,7 +837,6 @@ ImmoDbApp
              * Check wether loading the next page of list is required or not
              */
             $scope.checkNextPage = function(){
-                console.log('checkNextPage',$scope.listMeta);
                 // page is under 2 and there's a token to load next page
                 if($scope.listMeta!=null){
                     if($scope.page_index<2 && $scope.listMeta.next_token){
@@ -745,11 +857,10 @@ ImmoDbApp
                     'nt': $scope.listMeta.next_token    // set next page token
                 };
 
-                console.log($scope.is_loading_data, 'loading page', $scope.page_index+1);
                 if(!$scope.is_loading_data){
                     console.log
                     // lock loading to prevent call overlaps
-                    $scope.is_loading_data = true;
+                    $scope.setLoadingState(true);
                     $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                         let lNewItems = $response.items;
                         if($scope.configs.type=='listings'){
@@ -768,7 +879,7 @@ ImmoDbApp
                         $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                         // unlock
                         window.setTimeout(function(){
-                            $scope.is_loading_data = false;
+                            $scope.setLoadingState(false);
                         },500);
 
                         if($reset){
@@ -782,11 +893,22 @@ ImmoDbApp
             }
             
             $scope.loadListFromStorage = function($type){
-                console.log('loading list from immodb.list.{0}'.format($type));
+                let lListDate = sessionStorage.getItem('immodb.list.date.{0}.{1}'.format($type,immodbCtx.locale));
+                if(lListDate==undefined){
+                    return false;
+                }
+                else{
+                    lListDate = new Date(Date.parse(lListDate));
+                    let lNow = moment();
+                    if(lNow.diff(lListDate,'minutes')>10){
+                        return false;
+                    }
+                }
+
                 let lList = sessionStorage.getItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale));
                 let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale));
                 let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale));
-
+                
                 if (lList != undefined){
                     $scope.list = JSON.parse(lList);
                     $scope.listMeta = JSON.parse(lListMeta);
@@ -801,18 +923,17 @@ ImmoDbApp
              * @param {string} $type Type of the list
              */
             $scope.saveListToStorage = function($type){
-
                 sessionStorage.setItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.list));
                 sessionStorage.setItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.listMeta));
                 sessionStorage.setItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale), $scope.page_index);
             }
 
             $scope.getLatestSearchToken = function(){
-                return sessionStorage.getItem('immodb.latestSearchToken');
+                return sessionStorage.getItem('immodb.latestSearchToken.{0}'.format(immodbCtx.locale));
             }
 
             $scope.saveLatestSearchToken = function($token){
-                sessionStorage.setItem('immodb.latestSearchToken', $token);
+                sessionStorage.setItem('immodb.latestSearchToken.{0}'.format(immodbCtx.locale), $token);
             }
     
             /**
@@ -979,6 +1100,8 @@ ImmoDbApp
         },
         controller: function($scope, $q, $immodbApi, $rootScope,$immodbDictionary, $immodbUtils){
             let lToday = new Date().round();    // save today
+            let lNow = new Date();
+
             // init default values        
             $scope.is_ready = false;    
             $scope.tab_category = 'RESIDENTIAL';
@@ -1049,11 +1172,11 @@ ImmoDbApp
                 },
                 {
                     caption: '24 hours'.translate(), 
-                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-1).toJSON()}
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lNow.addDays(-1).toJSON()}
                 },
                 {
                     caption: '48 hours'.translate(), 
-                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addDays(-2).toJSON()}
+                    filter : {field: 'contract.start_date', operator: 'greater_than', value: lNow.addDays(-2).toJSON()}
                 },
                 {
                     caption: '7 days'.translate(), 
@@ -1131,9 +1254,9 @@ ImmoDbApp
                     $scope.$broadcast('search-is-ready');
                     // load stored search token
                     let lStoredSearchToken = $scope.loadState('st');
-                    if(lStoredSearchToken && $scope.configs.search_token != lStoredSearchToken){
+                    if(lStoredSearchToken && ($scope.configs.search_token != lStoredSearchToken)){
                         // broadcast new search token
-                        $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
+                        //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
                     }
                 });
             }
@@ -1680,7 +1803,16 @@ ImmoDbApp
                 );
             }
 
-
+            $scope.hasChild = function($parent_key, $list){
+                for($key in $list){
+                    let lData = $list[$key];
+                    if(lData.parent==$parent_key){
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
     
             /* ----------------------
             
@@ -2128,7 +2260,7 @@ ImmoDbApp
                     if(typeof(lValue) == 'object'){
                         lValue = JSON.stringify(lValue);
                     }
-                    sessionStorage.setItem(lKey.format($item_key), JSON.stringify(lValue));
+                    sessionStorage.setItem(lKey.format($item_key), lValue);
                 }
                 
     
@@ -2164,7 +2296,13 @@ ImmoDbApp
                     
                 }
                 else{
-                    return JSON.parse(sessionStorage.getItem($key.format($item_key)));
+                    let lResult = sessionStorage.getItem($key.format($item_key));
+                    try {
+                        lResult = JSON.parse(lResult);
+                    } catch (error) {
+                        
+                    }
+                    return lResult;
                 }
             }
     
@@ -2452,7 +2590,8 @@ ImmoDbApp
 
             $scope.init = function(){
                 $scope.isReady().then(function(){
-                    $scope.data.keyword = $scope.loadState('search-keyword');
+                    $scope.loadState();
+                    
                     let lInput = angular.element($scope._el).find('input');
 
                     lInput.bind('focus', function(){
@@ -2586,6 +2725,7 @@ ImmoDbApp
                                 {selected:true, label : 'Contains "{0}"'.translate().format(lValue), 
                                     action : function(){ 
                                         $scope.query_text = lValue; 
+                                        $scope.saveState();
                                         $scope.buildFilters();  
                                     } 
                                 }
@@ -3345,7 +3485,7 @@ ImmoDbApp
                     if(typeof(lValue) == 'object'){
                         lValue = JSON.stringify(lValue);
                     }
-                    sessionStorage.setItem(lKey.format($item_key), JSON.stringify(lValue));
+                    sessionStorage.setItem(lKey.format($item_key), lValue);
                 }
                 
     
@@ -3377,7 +3517,13 @@ ImmoDbApp
                     
                 }
                 else{
-                    return JSON.parse(sessionStorage.getItem($key.format($item_key)));
+                    let lResult = sessionStorage.getItem($key.format($item_key));
+                    try {
+                        lResult = JSON.parse(lResult);
+                    } catch (error) {
+                        
+                    }
+                    return lResult;
                 }
             }
 
@@ -3703,7 +3849,7 @@ ImmoDbApp
                     },250);
                 }
 		    }
-		    else{
+		    else if ($scope.list.length>0){
                 $scope.map.setCenter($scope.list[0].marker.getPosition());
                 $scope.map.setZoom(12);
             }
@@ -4367,7 +4513,7 @@ ImmoDbApp
             })
 
             $scope.loadList = function(){
-                let lList = sessionStorage.getItem('immodb.list.listings');
+                let lList = sessionStorage.getItem('immodb.list.listings.{0}'.format(immodbCtx.locale));
                 if(lList !=undefined){
                     $scope.list = JSON.parse(lList);
                 }
@@ -4402,6 +4548,21 @@ ImmoDbApp
     };
 }]);
 
+ImmoDbApp
+.directive('immodbLoading', [function immodbLoading(){
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            label: '@immodbLabel'
+        },
+        template: '<div class="immodb-loading"><i class="fal fa-spinner fa-spin"></i> {{label.translate()}}</div>',
+        controller: function($scope){
+            
+        }
+    }
+}]);
+
 
 /* ------------------------------- 
         FACTORIES
@@ -4431,8 +4592,8 @@ function $immodbTemplate($http, $q, $interpolate, $sce){
 }]);
 
 ImmoDbApp
-.factory('$immodbApi', ["$http","$q","$immodbConfig", 
-function $immodbApi($http,$q,$immodbConfig){
+.factory('$immodbApi', ["$http","$q","$immodbConfig","$rootScope", 
+function $immodbApi($http,$q,$immodbConfig,$rootScope){
     let $scope = {};
     
     $scope.viewMetas = {};
@@ -4469,8 +4630,8 @@ function $immodbApi($http,$q,$immodbConfig){
         let lNow = new Date();
         // token is not defined
         if($scope.auth_token==null){
-            let lStoredToken = localStorage.getItem('immodb.auth_token');
-            if(lStoredToken != null){
+            let lStoredToken = sessionStorage.getItem('immodb.auth_token');
+            if(lStoredToken != null && lStoredToken != ''){
                 $scope.auth_token = JSON.parse(lStoredToken);
             }
             else{
@@ -4478,12 +4639,13 @@ function $immodbApi($http,$q,$immodbConfig){
             }
         }
         // token is out of date
-        if(Date.parse($scope.auth_token.expire_date) < lNow){
-            console.log('token is not valid');
+        let lExpireDate = new Date(Date.parse($scope.auth_token.expire_date));
+        if(lExpireDate < lNow){
+            //console.log('token is not valid');
             return false;
         }
         // everything's peachy
-        console.log('token is valid');
+        //console.log('token is valid expires', lExpireDate, 'and now is', lNow, 'so',(lExpireDate < lNow) );
         return true;
     }
 
@@ -4494,11 +4656,17 @@ function $immodbApi($http,$q,$immodbConfig){
     $scope.renewToken = function(){
         let lPromise = $q(function($resolve, $reject){
             if(!$scope.tokenIsValid()){   
-                $scope.rest_call('access_token').then(function($reponse){
-                    $scope.auth_token = $reponse;
-                    localStorage.setItem('immodb.auth_token', JSON.stringify($scope.auth_token));
-                    $resolve()
-                })
+                $scope.rest_call('access_token').then(function($response){
+                    if($response != ''){
+                        $scope.auth_token = $response;
+                        $rootScope.$broadcast('auth_token_refresh');
+                        sessionStorage.setItem('immodb.auth_token', JSON.stringify($scope.auth_token));
+                        $resolve()
+                    }
+                    else{
+                        $reject();                        
+                    }
+                });
             }
             else{
                 $resolve();
@@ -4833,9 +5001,15 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
         let lResult = '';
         if($dimension != undefined){
             
-            let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
-
-            lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+            if(typeof $dimension.width != 'undefined'){
+                let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
+                lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+            }
+            else if (typeof $dimension.area != undefined){
+                let lUnit = $immodbDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
+                lResult = '{0}{1}'.format($dimension.area, lUnit);
+            }
+            
             
         }
         return lResult;
@@ -4848,6 +5022,9 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
                 if($dimension.length != undefined){
                     return true;
                 }
+            }
+            if($dimension.area != undefined){
+                return true;
             }
             
         }

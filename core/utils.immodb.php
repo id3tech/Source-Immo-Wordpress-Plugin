@@ -91,6 +91,54 @@ class ThemeOverrides {
   }
 }
 
+class Moment {
+  public static function time_ago($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    //Debug::write($ago);
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+    if($diff->h > 12){
+      $diff->d += 1;
+    }
+    $string = array(
+        'y' => 'year',
+        'm' => 'month',
+        'w' => 'week',
+        'd' => 'day',
+        'h' => 'hour',
+        'i' => 'minute',
+        's' => 'second',
+    );
+
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $label = __($v,IMMODB) . ($diff->$k > 1 ? 's' : '');
+
+            $v = $diff->$k . ' ' . str_replace('ss','s', $label);
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    if($string){
+      if($diff->invert==0){
+        return __('in', IMMODB) . ' ' . implode(', ', $string);
+      }
+      else{
+        return implode(', ', $string) . ' ago';
+      }
+    }
+    else{
+      return 'just now';
+    }
+
+    
+  }
+}
+
 /**
  * Utility class for Http calls
  */
@@ -109,7 +157,6 @@ class HttpCall{
 
     $lInstance->endpoint = implode($endpoint_parts, '/');
     $lInstance->endpoint = str_replace('~', ImmoDB::API_HOST . '/api', $lInstance->endpoint);
-
     return $lInstance;
   }
 
@@ -138,7 +185,6 @@ class HttpCall{
     
     $lResult = curl_exec($lCurlHandle);
     $information = curl_getinfo($lCurlHandle);
-
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
     } 

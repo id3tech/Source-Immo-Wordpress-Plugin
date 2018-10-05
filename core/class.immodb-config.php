@@ -208,7 +208,7 @@ class ImmoDBList {
   public function getViewEndpoint(){
     $lTypedPaths = array(
       'listings' => 'listing',
-      'cities' => 'city',
+      'cities' => 'location/city',
       'brokers' => 'broker',
     );
     

@@ -4,7 +4,7 @@
         <md-input-container>
             <label><?php _e('Model',IMMODB) ?></label>
             <md-select ng-model="model.list_layout.preset">
-                <md-option ng-repeat="item in global_list.list_layouts" ng-value="item.name">{{item.label.translate()}}</md-option>
+                <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
        
@@ -56,7 +56,7 @@
         <md-input-container>
             <label><?php _e('Model',IMMODB) ?></label>
             <md-select ng-model="model.list_item_layout.preset">
-                <md-option ng-repeat="item in global_list.list_item_layouts" ng-value="item.name">{{item.label.translate()}}</md-option>
+                <md-option ng-repeat="item in global_list.list_item_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
         

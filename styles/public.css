@@ -1169,6 +1169,11 @@
   place-self: center end;
 }
 
+#top .immodb.standard-layout .immodb-list-container .immodb-loading,
+.immodb.standard-layout .immodb-list-container .immodb-loading {
+  grid-area: next-page;
+}
+
 #top .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content,
 .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content {
   grid-template-rows: 320px auto;
@@ -2173,6 +2178,11 @@
   font-style: normal;
 }
 
+#top .immodb.listing-single .immodb-content .in-exclusions label,
+.immodb.listing-single .immodb-content .in-exclusions label {
+  font-weight: 700;
+}
+
 #top .immodb.listing-single .immodb-content .rooms .unit-list .flags,
 .immodb.listing-single .immodb-content .rooms .unit-list .flags {
   grid-template-columns: repeat(3, 1fr);
@@ -2988,6 +2998,10 @@
 
 .immodb-listing-navigation.display-fixed .item:hover {
   opacity: 1;
+}
+
+.immodb-loading {
+  text-align: center;
 }
 
 #top .immodb.listing-single, #top .immodb.broker-single {

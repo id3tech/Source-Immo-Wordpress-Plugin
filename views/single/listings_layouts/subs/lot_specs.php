@@ -10,7 +10,7 @@
                 <div class="value">{{model.land.dimension | formatDimension}}</div>
             </div>
         </div>
-        <div class="spec" ng-repeat="spec in model.lot.attributes">
+        <div class="spec" ng-repeat="spec in model.land.attributes">
             <label>{{spec.caption}}</label>
             <div><span ng-repeat="value in spec.values">{{value.caption}}</span></div>
         </div>

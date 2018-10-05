@@ -19,6 +19,9 @@ ImmoDbApp
 ImmoDbApp
 .filter('isIn', function(){
     return function($needle, $stack){
+        if($needle==null || $needle==undefined){
+            return false;
+        }
         return $stack.indexOf($needle)>=0;
     }
 });

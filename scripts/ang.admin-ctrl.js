@@ -145,7 +145,6 @@ ImmoDbApp
 
   $scope.model = {};
   $scope._original = null;
-  
 
   $scope.actions = [
     {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
@@ -158,21 +157,10 @@ ImmoDbApp
       $scope.model = {
         alias: 'New list'.translate(),
         source :$scope.data_views[0],
-        type: 'listings',
-        sort: 'auto',
-        sort_reverse : false,
-        limit: 0,
-        searchable:true,
-        sortable:true,
-        mappable: true,
-        list_layout : { preset: 'standard', scope_class : '', custom:null},
-        list_item_layout : { preset: 'standard', scope_class : '', custom:null},
-        filter_group : {
-          filters : [],
-          filter_groups: [],
-          operator:'and'
-        }
+        type: 'listings'
       }
+
+      $scope.reset_default_value();
     }
     else{
       $scope.model = angular.copy($params);
@@ -182,6 +170,36 @@ ImmoDbApp
     $scope._original = $params;
   }
 
+  $scope.reset_default_value = function(){
+    $scope.model = angular.merge($scope.model,{
+      sort: 'auto',
+        sort_reverse : false,
+        limit: 0,
+        searchable:true,
+        sortable:true,
+        mappable: true,
+        filter_group : {
+          filters : [],
+          filter_groups: [],
+          operator:'and'
+        }
+    });
+
+    switch($scope.model.type){
+      case "listings":
+      case "brokers":
+        $scope.model = angular.merge($scope.model, {
+          list_layout : { preset: 'standard', scope_class : '', custom:null},
+          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
+        });
+        break;
+      case "cities":
+        $scope.model = angular.merge($scope.model, {
+          list_layout : { preset: 'direct', scope_class : '', custom:null},
+          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
+        });
+    }
+  }
   
 
   $scope.saveOrClose = function(){
@@ -300,18 +318,36 @@ ImmoDbApp
       {key: 'brokers', label: 'Brokers'},
       {key: 'cities', label: 'Cities'}
     ],
-    list_layouts:[
-      {name: 'standard', label: 'Standard'},
-      {name: 'map', label: 'Map'},
-      {name: 'direct', label: 'Direct render'},
-      {name: 'custom', label: 'Custom'}
-    ],
-    list_item_layouts:[
-      {name: 'standard', label: 'Standard'},
-      {name: 'reduced', label: 'Reduced'},
-      {name: 'minimal', label: 'Minimal'},
-      {name: 'custom', label: 'Custom'}
-    ],
+    list_layouts:{
+      listings: [
+        {name: 'standard', label: 'Standard'},
+        {name: 'map', label: 'Map'},
+        {name: 'direct', label: 'Direct render'}
+      ],
+      brokers: [
+        {name: 'standard', label: 'Standard'},
+        {name: 'map', label: 'Map'},
+        {name: 'direct', label: 'Direct render'}
+      ],
+      cities: [
+        {name: 'direct', label: 'Direct render'}
+      ]
+    },
+    list_item_layouts:{
+      listings: [
+        {name: 'standard', label: 'Standard'},
+        {name: 'reduced', label: 'Reduced'},
+        {name: 'minimal', label: 'Minimal'}
+      ],
+      brokers : [
+        {name: 'standard', label: 'Standard'},
+        {name: 'reduced', label: 'Reduced'},
+        {name: 'minimal', label: 'Minimal'}
+      ],
+      cities: [
+        {name: 'standard', label: 'Standard'}
+      ]
+    },
     detail_layouts:[
       {name: 'standard', label: 'Standard'},
       {name: 'custom_page', label : 'Custom layout from page'}
