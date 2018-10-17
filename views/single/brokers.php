@@ -3,6 +3,11 @@ $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
 get_header();
+
+
+ImmoDB::view('single/brokers_layouts/_schema',array('model' => $data));
+
+
 $layout = ImmoDB::current()->get_detail_layout('broker');
 if($layout->type =='custom_page'){
     // load page content

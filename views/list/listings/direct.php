@@ -9,7 +9,7 @@ $meta = ImmoDBApi::get_list_meta($configs);
 
 
 $dictionary = new ImmoDBDictionary($meta->dictionary);
-$data = ImmoDBApi::get_data($configs);
+$data = ImmoDBApi::get_data($configs, $sc_atts);
 $resultView = new ImmoDBListingsResult($data);
 
 

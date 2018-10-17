@@ -6,7 +6,7 @@
     <div class="content spec-grid">
         <div class="special-box" ng-show="hasDimension(model.land.dimension)">
             <div class="dimension" ng-show="hasDimension(model.land.dimension)">
-                <label>{{'Dimension'.translate()}}</label>
+                <label>{{'Dimensions'.translate()}}</label>
                 <div class="value">{{model.land.dimension | formatDimension}}</div>
             </div>
         </div>

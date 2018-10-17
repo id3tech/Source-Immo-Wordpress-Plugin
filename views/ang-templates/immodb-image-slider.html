@@ -1,7 +1,10 @@
 <div class="immodb-image-slider {{expand_mode?'expanded' : ''}}">
     <div class="viewport"> 
         <div class="trolley" style="transform:translateX(-{{index * 100}}%);grid-gap:{{gap}}px;grid-template-columns: repeat({{pictures.length-1}},100%);">
-            <div class="item" ng-repeat="img in pictures"><img ng-src="{{img.url}}" alt="{{getCaption(img.category,'photo_category')}}" /></div>
+            <div class="item" ng-repeat="img in pictures">
+                <img ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
+                <div class="caption">{{getImageCaption(img)}}</div>
+            </div>
         </div>
     </div>
     <div class="controls" ng-show="pictures.length > 1">

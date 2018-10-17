@@ -1,4 +1,4 @@
-<div id="calculator" class="mortgage-calculator" ng-show="model.status!='SOLD' && model.price.sell!=undefined">
+<div id="calculator" class="mortgage-calculator" ng-show="model.status_code!='SOLD' && model.price.sell!=undefined">
     <div class="title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',IMMODB) ?></div>
     <immodb-calculator immodb-amount="model.price.sell.amount" on-change="onMortgageChange($result)" immodb-region="{{model.location.region_code}}"></immodb-calculator>
 

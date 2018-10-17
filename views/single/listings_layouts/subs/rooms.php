@@ -10,11 +10,17 @@
                 </div>
             </div>
             <div class="room-list">
+                <div class="room-item list-header">
+                    <div class="type"></div>
+                    <div class="level"><?php _e('Level',IMMODB) ?></div>
+                    <div class="floor"><?php _e('Flooring',IMMODB) ?></div>
+                </div>
                 <div class="room-item" ng-repeat="room in model.rooms | filter : {'unit_sequence' : unit.sequence}">
                     <div class="type">{{room.category}}</div>
                     <div class="level">{{room.level!=undefined ? room.level.formatRank() : ''}} {{room.level_category}}</div>
                     <div class="area">{{room.short_dimension}}</div>
-                    <div class="infos"><span ng-if="room.flooring_code!='OTHER'" class="flooring">{{'Flooring : {0}'.translate().format(room.flooring)}}</span><span>{{room.details}}</span></div>
+                    <div class="floor">{{room.flooring}}</div>
+                    <div class="infos">{{room.details}}</div>
                 </div>
             </div>
         </div>

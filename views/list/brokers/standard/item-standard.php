@@ -3,8 +3,10 @@
  * Standard list item view
  */
 ?>
-<article class="immodb-item immodb-broker-item immodb-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}"  ng-cloak>
-    <a href="/<?php echo(ImmoDB::current()->get_broker_permalink()) ?>">
+<article class="immodb-item immodb-broker-item immodb-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}" 
+    ng-cloak
+    >
+    <a href="{{item.permalink}}">
         <div class="content">
             <div class="image"><img ng-src="{{item.photo_url}}" /></div>
             <div class="name"><span class="first-name">{{item.first_name}}</span> <span class="last-name">{{item.last_name}}</span></div>

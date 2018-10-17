@@ -265,7 +265,10 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $r.category = $immodbDictionary.getCaption($r.category_code,'room_category');
             $r.level_category = $immodbDictionary.getCaption($r.level_category_code, 'level_category');
             $r.short_dimension = $immodbUtils.formatDimension($r.dimension);
-            $r.flooring = $immodbDictionary.getCaption($r.flooring_code,'flooring');
+            let lRoomInfos = [];
+            if($r.flooring_code!='OTHER'){
+                $r.flooring = $immodbDictionary.getCaption($r.flooring_code,'flooring');
+            }
         });
 
         // trusted src
@@ -614,7 +617,6 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
     */
     $scope.getClassList = function($item){
         let lResult = $immodbUtils.getClassList($item);
-        console.log('getClassList of', $item, lResult);
         return lResult;
     }
 
@@ -794,6 +796,9 @@ ImmoDbApp
                 lParams = {'st': $token}; 
                 // reset page index
                 $scope.page_index = 0;
+                if($scope.display_mode!='list'){
+                    return;
+                }
                 // 
                 if(!$scope.loadListFromStorage($scope.configs.type)){
                     // lock loading to prevent call overlaps
@@ -837,6 +842,10 @@ ImmoDbApp
              * Check wether loading the next page of list is required or not
              */
             $scope.checkNextPage = function(){
+                if($scope.display_mode!='list'){
+                    return;
+                }
+
                 // page is under 2 and there's a token to load next page
                 if($scope.listMeta!=null){
                     if($scope.page_index<2 && $scope.listMeta.next_token){
@@ -2664,8 +2673,10 @@ ImmoDbApp
                 }
                     
                 let lRect = $immodbUtils.absolutePosition($scope._el);
-                lRect.width = $scope._el.offsetWidth;
+                lRect.width = Math.min($scope._el.offsetWidth, window.innerWidth);
                 lRect.height = $scope._el.offsetHeight;
+
+                
                 return 'top:{0}px;left:{1}px;width:{2}px;'.format(lRect.top + (lRect.height -2), lRect.left, lRect.width);
             }
             
@@ -3656,7 +3667,7 @@ ImmoDbApp
 });
 
 ImmoDbApp
-.directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary){
+.directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary,$immodbHooks){
     let dir_controller = 
     function($scope, $q, $immodbApi, $rootScope){
         $scope.ready = false;
@@ -3840,8 +3851,31 @@ ImmoDbApp
             });
 
             if($scope.list.length>1){
-		    	$scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers,
-                        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
+                let lClustererOptions = {
+                    //cssClass : 'immodbMarkerCluster',
+                    gridSize: 80,
+                    styles: [{
+                        url: lImagePath + '1.png',
+                        height: 53,
+                        width: 54,
+                        anchor: [0, 0]
+                      }, {
+                        url: lImagePath + '2.png',
+                        height: 56,
+                        width: 55,
+                        anchor: [0, 0]
+                      }, {
+                        url: lImagePath + '3.png',
+                        width: 66,
+                        height: 65,
+                        anchor: [0, 0]
+                      }]
+                };
+
+                lClustererOptions = $immodbHooks.filter('marker_cluster_options',lClustererOptions);
+
+		    	$scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
                 
                 if($scope.is_visible == true){
                     window.setTimeout(function(){
@@ -4069,7 +4103,7 @@ ImmoDbApp
 
 ImmoDbApp
 .directive('immodbImageSlider', function immodbImageSlider(){
-    let dir_controller = function immodbImageSliderCtrl ($scope, $q,$immodbApi,$rootScope) {
+    let dir_controller = function immodbImageSliderCtrl ($scope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbHooks) {
         $scope.expand_mode = false;
 
         $scope.position = {
@@ -4158,6 +4192,22 @@ ImmoDbApp
 
                 $scope.expand_mode = true;
               }
+        }
+
+        $scope.getImageAlt = function($img){
+            let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+
+            lResult = $immodbHooks.filter('listing-picture-alt', lResult, $img);
+
+            return lResult;
+        }
+
+        $scope.getImageCaption = function($img){
+            let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+
+            lResult = $immodbHooks.filter('listing-picture-caption', lResult, $img);
+
+            return lResult;
         }
     };
 
@@ -4936,8 +4986,8 @@ function $immodbDictionary(){
 });
 
 ImmoDbApp
-.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , 
-function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
+.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , '$sce',
+function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
     let $scope = {};
 
     $scope.configs = null;
@@ -5007,10 +5057,9 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate){
             }
             else if (typeof $dimension.area != undefined){
                 let lUnit = $immodbDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
-                lResult = '{0}{1}'.format($dimension.area, lUnit);
+                //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
+                lResult = '{0} {1}'.format($dimension.area, lUnit);
             }
-            
-            
         }
         return lResult;
     }
@@ -5417,7 +5466,7 @@ function $immodbHooks($q){
      * Apply filter on value hooked to the key
      * @param {string} $key 
      */
-    $scope.filter = function($key, $default_value){
+    $scope.filter = function($key, $default_value, $otherParams){
         let lFilters = [];
         $scope._filters.forEach(function($f){
             if($key == $f.key){
@@ -5426,7 +5475,7 @@ function $immodbHooks($q){
         });
 
         lFilters.forEach(function($f){
-            $default_value = $f.fn($default_value);
+            $default_value = $f.fn($default_value,$otherParams);
         });
 
         return $default_value;

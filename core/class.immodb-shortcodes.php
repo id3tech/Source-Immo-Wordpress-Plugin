@@ -66,14 +66,25 @@ class ImmoDbShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'alias' => 'default'
+                'alias' => 'default',
+                'layout' => null,
+                'show_list_meta' => null
             ), $atts )
         );
 
         ob_start();
         $listConfig = ImmoDB::current()->get_list_configs($alias);
         
+        
+
         if($listConfig != null){
+            if($layout != null){
+                $listConfig->list_layout->preset = 'direct';
+            }
+            if($show_list_meta != null){
+                $listConfig->show_list_meta = $show_list_meta=="true";
+            }
+
             $global_container_classes = array('immodb', 'standard-layout', "immodb-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
             $global_container_attr = array();
 

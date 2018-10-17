@@ -3,6 +3,9 @@ $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
 get_header();
+
+ImmoDB::view('single/listings_layouts/_schema',array('model' => $data));
+
 ?>
 <div class="wrap">
 	<div id="primary" class="content-area">

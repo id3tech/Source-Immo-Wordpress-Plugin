@@ -8,10 +8,10 @@ if(isset($configs)){
 }
 ?>
 <article class="immodb-item immodb-listing-item immodb-small-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
-    ng-cloak>
+    data-ng-cloak>
     <a href="/<?php echo(ImmoDB::current()->get_listing_permalink()) ?>">
         <div class="content">
-            <div class="image"><img ng-src="{{item.photo_url}}" /></div>
+            <div class="image"><img data-ng-src="{{item.photo_url}}" /></div>
             <div class="civic-address">{{item.location.civic_address}}</div>
             <div class="price">{{formatPrice(item)}}</div>
             <div class="city">{{item.location.city}}</div>
@@ -23,7 +23,7 @@ if(isset($configs)){
             </div>
             <div class="open-houses">
                 <div class="open-house-item">
-                    <i class="fal fa-calendar-alt"></i> {{'Open house'.translate()}} <span am-time-ago="item.open_houses[0].start_date"></span>
+                    <i class="fal fa-calendar-alt"></i> {{'Open house'.translate()}} <span data-am-time-ago="item.open_houses[0].start_date"></span>
                 </div>
             </div>
         </div>

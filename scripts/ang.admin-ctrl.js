@@ -23,7 +23,7 @@ ImmoDbApp
   }
 
   $scope.route_city_elements = {
-    '{{item.ref_number}}' : 'ID',
+    '{{item.code}}' : 'ID',
     '{{item.location.region}}' : 'Region',
     '{{item.name}}' : 'Name'
   }

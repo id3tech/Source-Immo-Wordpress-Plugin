@@ -1,7 +1,7 @@
 
     <?php 
     if($configs->searchable){ 
-        echo('<immodb-search immodb-alias="'. $configs->alias . '" immodb-configs="configs" immodb-dictionary="dictionary" class="search-container"></immodb-search>');
+        echo('<immodb-search data-immodb-alias="'. $configs->alias . '" data-immodb-configs="configs" data-immodb-dictionary="dictionary" class="search-container"></immodb-search>');
     }
     ?>
 
@@ -12,7 +12,7 @@
                         ));
 
         ?>
-        <div class="immodb-list" ng-show="(list && list.length>0) && display_mode=='list'" on-bottom-reached="checkNextPage()">      
+        <div class="immodb-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
             <div ng-repeat="item in list track by item.id">
             <?php 
                 ImmoDB::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
@@ -21,16 +21,16 @@
 
             
         </div>
-        <div class="next-page" ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
+        <div class="next-page" data-ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
             <button type="button" class="btn load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
         </div>
         
-        <immodb-loading immodb-label="Loading results" ng-show="is_loading_data"></immodb-loading>
+        <immodb-loading data-immodb-label="Loading results" data-ng-show="is_loading_data"></immodb-loading>
         
         <?php
         // add map if the list is mappable
         if($configs->mappable){
-            echo('<immodb-map class="map-container" ng-show="display_mode==\'map\'" immodb-alias="' . $configs->alias . '"  immodb-configs="configs"></immodb-map>');
+            echo('<immodb-map class="map-container" data-ng-show="display_mode==\'map\'" data-immodb-alias="' . $configs->alias . '"  data-immodb-configs="configs"></immodb-map>');
         }
         ?>
 

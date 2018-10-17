@@ -10,6 +10,7 @@ $meta = ImmoDBApi::get_list_meta($configs);
 $dictionary = new ImmoDBDictionary($meta->dictionary);
 $data = ImmoDBApi::get_data($configs, $sc_atts);
 $resultView = new ImmoDBCitiesResult($data);
+
 ?>
 <div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
     <?php

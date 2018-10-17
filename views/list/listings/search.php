@@ -2,10 +2,10 @@
         <i class="far fa-search"></i>
         <div class="dropdown">
             <input type="text" placeholder="<?php _e('Search a region, city, street',IMMODB) ?>"
-                ng-model="data.keyword" ng-keyup="buildSuggestions($event)" data-toggle="dropdown">
+                data-data-ng-model="data.keyword" data-ng-keyup="buildSuggestions($event)" data-toggle="dropdown">
             <div class="dropdown-menu">
                 <form>
-                    <div class="region-city-list" ng-show="suggestions.length==0">
+                    <div class="region-city-list" data-ng-show="suggestions.length==0">
                         
                         
 
@@ -13,16 +13,16 @@
                             <div class="regions tab-header with-title">
                                 <h4 class="title"><?php _e('Regions',IMMODB) ?></h4>
                                 <div class="tab-item {{tab_region==item.__$obj_key ? 'active' : ''}}" 
-                                    ng-repeat="item in dictionary.region | orderObjectBy: 'caption'" 
-                                    ng-click="changeRegionTab(item.__$obj_key)">{{item.caption}}</div>
+                                    data-ng-repeat="item in dictionary.region | orderObjectBy: 'caption'" 
+                                    data-ng-click="changeRegionTab(item.__$obj_key)">{{item.caption}}</div>
                             </div>
 
                             <div class="cities tab-content">
                                 <div class="grid-layout-column">
                                     <h4><?php _e('Cities',IMMODB) ?></h4>
-                                    <div class="pretty p-icon p-pulse"  ng-repeat="city in city_list | filter: {'parent' : tab_region} | orderObjectBy: 'caption'"
-                                        ng-click="addFilter('location.city_code','in',getSelection(dictionary.city))">
-                                        <input type="checkbox"  ng-model="dictionary.city[city.__$obj_key].selected"> 
+                                    <div class="pretty p-icon p-pulse"  data-ng-repeat="city in city_list | filter: {'parent' : tab_region} | orderObjectBy: 'caption'"
+                                        data-ng-click="addFilter('location.city_code','in',getSelection(dictionary.city))">
+                                        <input type="checkbox"  data-data-ng-model="dictionary.city[city.__$obj_key].selected"> 
                                         <div class="state p-success">
                                             <i class="icon fal fa-check"></i>
                                             <label>{{city.caption}}</label>
@@ -34,14 +34,14 @@
                     </div>
 
                     <div class="keyword-suggestion {{item.selected?'selected':''}}" 
-                            ng-repeat="item in suggestions" ng-click="item.action()"
+                        data-ng-repeat="item in suggestions" data-ng-click="item.action()"
                             data-toggle="dropdown">
                         {{item.label}}
                     </div>
                 </form>
             </div>
         </div>
-        <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" ng-show="geolocation_available" ng-click="addGeoFilter()"></i>
+        <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="addGeoFilter()"></i>
     </div>
 
     <div class="advanced">
@@ -53,18 +53,18 @@
                 <form>
                     <div class="price-inputs">
                         <div class="min">
-                            <input type="number" min="0" ng-model="data.min_price" ng-click="selectPriceInput('min')" >
+                            <input type="number" min="0" data-ng-model="data.min_price" data-ng-click="selectPriceInput('min')" >
                         </div>
                         
                         <i class="fal fa-2x fa-arrows-h"></i>
 
                         <div class="max">
-                            <input type="number" min="{{data.min_price}}" ng-model="data.max_price" ng-click="selectPriceInput('max')">
+                            <input type="number" min="{{data.min_price}}" data-ng-model="data.max_price" data-ng-click="selectPriceInput('max')">
                         </div>
 
                     </div>
                     <div class="price-suggestions grid-layout-column target-{{selected_price_input}}">
-                        <div ng-repeat="item in priceSuggestions" class="item" ng-click="setPrice(item.value,$event)">{{item.label}}</div>
+                        <div data-ng-repeat="item in priceSuggestions" class="item" data-ng-click="setPrice(item.value,$event)">{{item.label}}</div>
                     </div>
                 </form>
             </div>
@@ -78,17 +78,17 @@
                 <form>
                     <div class="tabs tabs-top">
                         <div class="category tab-header">
-                            <div class="tab-item {{tab_category==key ? 'active' : ''}}" ng-repeat="(key,item) in dictionary.listing_category"
-                                ng-click="changeCategoryTab(key)">
+                            <div class="tab-item {{tab_category==key ? 'active' : ''}}" data-ng-repeat="(key,item) in dictionary.listing_category"
+                                data-ng-click="changeCategoryTab(key)">
                                 <i class="far fa-2x fa-fw fa-{{getCategoryIcon(key)}}"></i>
                                 <label>{{item.abbr}}</label>
                             </div>
                         </div>
                         <div class="subcategory tab-content grid-layout-column">
-                            <div class="pretty p-icon p-pulse"  ng-repeat="item in dictionary.listing_subcategory | orderObjectBy: 'caption'"
+                            <div class="pretty p-icon p-pulse"  data-ng-repeat="item in dictionary.listing_subcategory | orderObjectBy: 'caption'"
                                 ng-show="item.parent==tab_category"
-                                ng-click="addFilter('subcategory_code','in',getSelection(dictionary.listing_subcategory))">
-                                <input type="checkbox"  ng-model="item.selected"> 
+                                data-ng-click="addFilter('subcategory_code','in',getSelection(dictionary.listing_subcategory))">
+                                <input type="checkbox"  data-ng-model="item.selected"> 
                                 <div class="state p-success">
                                     <i class="icon fal fa-check"></i>
                                     <label>{{item.caption}}</label>
@@ -106,10 +106,10 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 
-                <div class="menu-item {{item.selected?'selected':''}}" ng-repeat="item in bedroomSuggestions"
-                     ng-click="setBedroomCount(item)">{{item.label}}</div>
+                <div class="menu-item {{item.selected?'selected':''}}" data-ng-repeat="item in bedroomSuggestions"
+                     data-ng-click="setBedroomCount(item)">{{item.label}}</div>
                 <div class="dropdown-divider"></div>
-                <div class="menu-item" ng-click="setBedroomCount({value:''})"><?php _e('Any',IMMODB) ?></div>
+                <div class="menu-item" data-ng-click="setBedroomCount({value:''})"><?php _e('Any',IMMODB) ?></div>
                 
             </div>
         </div>
@@ -125,17 +125,17 @@
                         <div class="dropdown-divider"></div>
 
                         <div class="pretty p-icon p-pulse p-round"
-                            ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to','')">
-                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bathroom_count') == null"> 
+                            data-ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to','')">
+                            <input type="radio" name="bathrooms-count" data-ng-checked="getFilterValue('main_unit.bathroom_count') == null"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label><?php _e('Any',IMMODB) ?></label>
                             </div>
                         </div>
 
-                        <div class="pretty p-icon p-pulse p-round"  ng-repeat="item in bathroomSuggestions"
-                            ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to',item.value, item.caption)">
-                            <input type="radio" name="bathrooms-count" ng-checked="getFilterValue('main_unit.bathroom_count') == item.value"> 
+                        <div class="pretty p-icon p-pulse p-round"  data-ng-repeat="item in bathroomSuggestions"
+                            data-ng-click="addFilter('main_unit.bathroom_count','greater_or_equal_to',item.value, item.caption)">
+                            <input type="radio" name="bathrooms-count" data-ng-checked="getFilterValue('main_unit.bathroom_count') == item.value"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.label}}</label>
@@ -148,9 +148,9 @@
                         <h4><?php _e('Online for',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
 
-                        <div class="pretty p-icon p-pulse p-round"  ng-repeat="item in listing_ages"
-                            ng-click="addFilter(item.filter.field,item.filter.operator,item.filter.value, 'Online for {0}'.translate().format(item.caption))">
-                            <input type="radio" name="listing-age" ng-checked="getFilterValue('contract.start_date') == item.filter.value"> 
+                        <div class="pretty p-icon p-pulse p-round"  data-ng-repeat="item in listing_ages"
+                            data-ng-click="addFilter(item.filter.field,item.filter.operator,item.filter.value, 'Online for {0}'.translate().format(item.caption))">
+                            <input type="radio" name="listing-age" data-ng-checked="getFilterValue('contract.start_date') == item.filter.value"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.caption}}</label>
@@ -164,17 +164,17 @@
                         <div class="dropdown-divider"></div>
 
                         <div class="pretty p-icon p-pulse p-round"
-                            ng-click="addFilter('attributes.PARKING','greater_or_equal_to','')">
-                            <input type="radio" name="parking-count" ng-checked="getFilterValue('attributes.PARKING') == null"> 
+                            data-ng-click="addFilter('attributes.PARKING','greater_or_equal_to','')">
+                            <input type="radio" name="parking-count" data-ng-checked="getFilterValue('attributes.PARKING') == null"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label><?php _e('Any',IMMODB) ?></label>
                             </div>
                         </div>
 
-                        <div class="pretty p-icon p-pulse p-round"  ng-repeat="item in parkingSuggestions"
-                            ng-click="addFilter('attributes.PARKING','greater_or_equal_to',item.value, item.caption)">
-                            <input type="radio" name="parking-count" ng-checked="getFilterValue('attributes.PARKING') == item.value"> 
+                        <div class="pretty p-icon p-pulse p-round"  data-ng-repeat="item in parkingSuggestions"
+                            data-ng-click="addFilter('attributes.PARKING','greater_or_equal_to',item.value, item.caption)">
+                            <input type="radio" name="parking-count" data-ng-checked="getFilterValue('attributes.PARKING') == item.value"> 
                             <div class="state">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.label}}</label>
@@ -186,9 +186,9 @@
                     <div class="building_category grid-layout-column">
                         <h4><?php _e('Building type',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
-                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in dictionary.building_category"
-                            ng-click="addFilter('building.category_code','in',getSelection(dictionary.building_category))">
-                            <input type="checkbox" ng-model="item.selected"> 
+                        <div class="pretty p-icon p-pulse"  data-ng-repeat="(key,item) in dictionary.building_category"
+                            data-ng-click="addFilter('building.category_code','in',getSelection(dictionary.building_category))">
+                            <input type="checkbox" data-ng-model="item.selected"> 
                             <div class="state p-success">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.caption}}</label>
@@ -200,9 +200,9 @@
                     <div class="attribute grid-layout-column">
                         <h4><?php _e('Caracteristics',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
-                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_attributes"
-                            ng-click="addAttributeFilter(item)">
-                            <input type="checkbox" ng-model="item.selected"> 
+                        <div class="pretty p-icon p-pulse"  data-ng-repeat="(key,item) in listing_attributes"
+                            data-ng-click="addAttributeFilter(item)">
+                            <input type="checkbox" data-ng-model="item.selected"> 
                             <div class="state p-success">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.caption.translate()}}</label>
@@ -213,9 +213,9 @@
                     <div class="transaction grid-layout-column">
                         <h4><?php _e('Filters',IMMODB) ?></h4>
                         <div class="dropdown-divider"></div>
-                        <div class="pretty p-icon p-pulse"  ng-repeat="(key,item) in listing_states"
-                            ng-click="setState(item)">
-                            <input type="checkbox" ng-model="item.selected"> 
+                        <div class="pretty p-icon p-pulse"  data-ng-repeat="(key,item) in listing_states"
+                            data-ng-click="setState(item)">
+                            <input type="checkbox" data-ng-model="item.selected"> 
                             <div class="state p-success">
                                 <i class="icon fal fa-check"></i>
                                 <label>{{item.caption.translate()}}</label>
@@ -228,14 +228,14 @@
         </div>
 
         <div class="search-trigger">
-            <button type="button" class="btn" ng-click="navigate()"><?php _e('Search', IMMODB) ?></button>
+            <button type="button" class="btn" data-ng-click="navigate()"><?php _e('Search', IMMODB) ?></button>
         </div>
     </div>
 
     <div class="client-filters" ng-show="hasFilters()">
         <div class="label"><?php _e('Selected filters', IMMODB) ?></div>
         <div class="list">
-            <div class="item" ng-repeat="item in filterHints">{{item.label}} <i class="fal fa-times" ng-click="item.reverse()"></i></div>
+            <div class="item" data-ng-repeat="item in filterHints">{{item.label}} <i class="fal fa-times" data-ng-click="item.reverse()"></i></div>
         </div>
-        <div class="reset"><button type="button" class="btn" ng-click="resetFilters()"><?php _e('Reset', IMMODB) ?></button></div>
+        <div class="reset"><button type="button" class="btn" data-ng-click="resetFilters()"><?php _e('Reset', IMMODB) ?></button></div>
     </div>

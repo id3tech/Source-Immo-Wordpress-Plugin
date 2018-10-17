@@ -336,35 +336,36 @@ class ImmoDBApi {
     $lFilters = array("st"=>urlencode($list_config->search_token));
     
     if($atts != null && count($atts)>1){
-      $params = shortcode_atts(array(), $atts );
-
+      $params = $atts; //shortcode_atts(array(), $atts );
+      
       $lFilters = array("st"=>urlencode(self::get_search_token($params,$list_config)));
+      
     }
     
     $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
-    
+    // In case the limit is 0 (infinite), we should load data until there's no more "next page"
+    if($list_config->limit==0){
+      //Debug::write($lResult);
+      $data_list = $lResult->items;
+      $roundTrip = 0;
+      while (isset($lResult->metadata->next_token) && $roundTrip < 5) {
+        $lFilters = array('nt'=>urlencode($lResult->metadata->next_token));
+
+        $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
+        $data_list = array_merge($data_list,$lResult->items);
+        $roundTrip++;
+      }
+      
+      $lResult->items = $data_list;
+    }
     return $lResult;
   }
 
-  public static function get_listing_data($id){
-    
-    
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
-
-    $lAccessToken = self::get_access_token();
-
-    $lResult = HttpCall::to('~', 'listing/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
-    
-    return $lResult;
-  }
-
+  
   public static function get_search_token($params,$default){
     $filters = self::build_filters($params,$default);
-
-    $lResult = HttpCall::to('~', 'utils/search_encode/')->post($filters);
+    
+    $lResult = HttpCall::to('~', 'utils/search_encode/')->post($filters,true);
     return $lResult;
   }
 
@@ -376,6 +377,7 @@ class ImmoDBApi {
       "shuffle" => false,
       "max_item_count" => $default->limit,
     );
+    
 
     if(isset($default->sort) && $default->sort != ''){
       $lResult["sort_fields"] = array(
@@ -397,14 +399,18 @@ class ImmoDBApi {
     if(isset($params['shuffle'])){
       $lResult["shuffle"] = $params['shuffle'];
     }
+
+    if($lResult['max_item_count']==0){
+      unset($lResult['max_item_count']);
+    }
     
     $filters = array();
     foreach ($params as $key => $value) {
-      if(!in_array($key,array("alias","query","limit","sort_by", "shuffle"))){
+      if(!in_array($key,array("layout","show_list_meta","alias","query","limit","sort_by", "shuffle"))){
         if(strpos($key,'_op') === false){
-          $operator = (isset($params[$key . '_op']))? $params[$key . '_op'] : "equals";
+          $operator = (isset($params[$key . '_op']))? $params[$key . '_op'] : "equal_to";
           $filters[] = array(
-            "field" => $key,
+            "field" => str_replace("__",".",$key),
             "operator" => $operator,
             "value" => $value
           );
@@ -420,7 +426,23 @@ class ImmoDBApi {
     
     return $lResult;
   }
-  
+
+
+  public static function get_listing_data($id){
+    
+    
+    $account_id = ImmoDB::current()->get_account_id();
+    $api_key = ImmoDB::current()->get_api_key();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+
+    $lAccessToken = self::get_access_token();
+
+    $lResult = HttpCall::to('~', 'listing/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
+    
+    return $lResult;
+  }
+
   public static function get_broker_data($id){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
@@ -430,6 +452,37 @@ class ImmoDBApi {
     $lAccessToken = self::get_access_token();
 
     $lResult = HttpCall::to('~', 'broker/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
+    
+    return $lResult;
+  }
+  
+  public static function get_city_listings_data($id){
+    $account_id = ImmoDB::current()->get_account_id();
+    $api_key = ImmoDB::current()->get_api_key();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+
+    $lAccessToken = self::get_access_token();
+    
+    $lFilters = array("st"=>urlencode(self::get_search_token(
+                      array('location__city_code'=>$id),
+                      (object) array('limit' => 0)
+                )));
+    
+    $lResult = HttpCall::to('~', 'listing/view', $view_id,  $lTwoLetterLocale,'items')->with_oauth($lAccessToken->key)->get($lFilters, true);
+    
+    $data_list = $lResult->items;
+    $roundTrip = 0;
+    while (isset($lResult->metadata->next_token) && $roundTrip < 5) {
+      $lFilters = array('st'=>$lResult->metadata->search_token,'nt'=>urlencode($lResult->metadata->next_token));
+
+      $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
+      $data_list = array_merge($data_list,$lResult->items);
+      $roundTrip++;
+    }
+    
+    $lResult->items = $data_list;
+
     
     return $lResult;
   }

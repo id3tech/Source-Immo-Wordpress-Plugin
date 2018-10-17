@@ -585,6 +585,31 @@ $tablet : 'max-width: 1100px';
                 }
             }
         }
+
+        &.immodb-city-item{
+            display:grid;
+            border: 5px solid #ccc;
+            place-items:stretch;
+            font-size:16px;
+            a{@include gridLayout('1fr','auto',0px);place-items:stretch;}
+            .content{
+                place-items: stretch;
+                @include gridLayout('1fr','1fr auto auto',5px);
+                grid-template-areas: "name" "region"  "listings-count" ;
+                @include gridAreas('name','code','region-code','listings-count','region');
+
+                .region-code,.code{
+                    display:none;
+                }
+                .name,.region,.listings-count{padding:5px 10px;text-align:center;}
+                .region{font-size:0.75em;opacity:0.6;}
+                .name{place-self:center;}
+                .listings-count{
+                    background:#333;color:#fff;
+                    label{color:inherit;margin:0 0 0 5px;}
+                }
+            }
+        }
     }
 
     &.immodb-list-of-listings{
@@ -599,6 +624,12 @@ $tablet : 'max-width: 1100px';
     &.immodb-list-of-brokers{
         .immodb-list{
             grid-template-columns: repeat( auto-fill, minmax(340px, 1fr) );
+        }
+    }
+
+    &.immodb-list-of-cities{
+        .immodb-list{
+            grid-template-columns: repeat( auto-fill, minmax(180px, 1fr) );
         }
     }
 
@@ -916,8 +947,6 @@ $tablet : 'max-width: 1100px';
                         "information_request"
                     ;
                 }
-                
-                
 
                 .information_request{
                     place-self: stretch;
@@ -1374,7 +1403,18 @@ $tablet : 'max-width: 1100px';
                         margin:10px auto;
                         width:33%;
                         .flag{
-                            .fal{font-size:1.4em;text-align:left;}
+                            .fal{
+                                font-size:1.4em;text-align:left;
+                            }
+                        }
+                        @media screen and ($phone){
+                            .flag{
+                                .fal{
+                                    font-size:35px;
+                                }
+                            }
+                            width:100%;
+                            place-items: end center;
                         }
                     }
 
@@ -1384,14 +1424,25 @@ $tablet : 'max-width: 1100px';
                         @include gridLayout('1fr','auto',10px);
 
                         .room-item{
-                            @include gridLayout('1fr auto','auto',0px 10px);
-                            @include gridAreas('type','level','area','infos');
+                            &.list-header{
+                                border-bottom:solid 1px #cccc;
+                                > *{font-size:0.8em;font-style:italic;opacity:0.5;padding-right:5px;}
+                                @media screen and ($phone){
+                                    display:none;
+                                }
+                            }
+                            @include gridLayout('1fr auto 200px','auto',0px 10px);
+                            @include gridAreas('type','level','floor','area','infos');
                             grid-template-areas:
-                                "type type level"
+                                "type floor level"
                                 "infos infos area"
                                 ;
+                            @media screen and ($phone){
+                                grid-template-columns: 1fr 1fr;
+                                grid-template-areas: "type type" "floor level" "infos area";
+                            }
                             .type{font-weight: 700;text-transform: uppercase;}
-                            .level{text-transform: uppercase;place-self:center end;}
+                            .level{place-self:center end;}
                             .area{place-self:center end;font-style:italic;padding: 0 5px;}
                             .infos{
                                 font-style:italic;
@@ -1609,7 +1660,14 @@ $tablet : 'max-width: 1100px';
             transition:0.25s;
             .item{
                 height:100%;
+                position:relative;
                 img{object-fit: cover;width: 100%;height:100%;}
+                .caption{
+                    position: absolute;
+                    top:0px;left:0px;color:#fff;
+                    padding:10px;font-size:1.2em;
+                    text-shadow: rgba(#000,0.75) 1px 1px 2px;
+                }
             }
         }
     }

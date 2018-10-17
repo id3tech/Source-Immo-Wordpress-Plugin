@@ -143,7 +143,7 @@ class Moment {
  * Utility class for Http calls
  */
 class HttpCall{
-  const TIMEOUT = 800;
+  const TIMEOUT = 10000;
   public $endpoint = '';
   public $request_options = array();
 
@@ -185,6 +185,7 @@ class HttpCall{
     
     $lResult = curl_exec($lCurlHandle);
     $information = curl_getinfo($lCurlHandle);
+    
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
     } 
@@ -203,16 +204,24 @@ class HttpCall{
   * @param data : associative array of data to pass through
   * @return string : result of the call
   */
-  public function post(array $data=null){
-
+  public function post(array $data=null, $as_json = false){
+    $data_string = json_encode($data);
     $lCurlHandle = $this->_setup_curl(array_merge(array(
       'CURLOPT_POST' => true,
-      'CURLOPT_POSTFIELDS' => json_encode($data),
+      'CURLOPT_HTTPHEADER' => array(                                                                          
+        'Content-Type: application/json',                                                                                
+        'Content-Length: ' . strlen($data_string)                                                                       
+      ),
+      'CURLOPT_POSTFIELDS' => $data_string,
       'CURLOPT_VERBOSE'     => 1
     ), $this->request_options));
     
     $lResult = curl_exec($lCurlHandle);
     curl_close($lCurlHandle);
+    
+    if($as_json){
+      return json_decode($lResult);
+    }
 
     return $lResult;
   }
@@ -247,7 +256,7 @@ class HttpCall{
   }
 
   private function _handle_error($curlHdl){
-    Debug::write(curl_error($curlHdl));
+    //Debug::write(curl_error($curlHdl));
   }
 
 }

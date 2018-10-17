@@ -1,6 +1,6 @@
 <div class="brokers">
     <div class="broker" ng-repeat="broker in model.brokers">
-        <div class="photo"><img src="{{broker.photo_url}}" /></div>
+        <div class="photo"><img ng-src="{{broker.photo_url}}" /></div>
         <div class="name">{{broker.first_name}} {{broker.last_name}}</div>
         <div class="license">{{broker.license_type}}</div>
         <div class="contact">

@@ -5,13 +5,13 @@
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="content spec-grid">
-        <div class="special-box">
-            <div class="built-year">
+        <div class="special-box" ng-show="model.building.construction_year!=undefined && hasDimension(model.building.dimension)" >
+            <div class="built-year" ng-show="model.building.construction_year!=undefined">
                 <label>{{'Contruction year'.translate()}}</label>
                 <div class="value">{{model.building.construction_year}}</div>
             </div>
             <div class="dimension" ng-show="hasDimension(model.building.dimension)">
-                <label>{{'Dimension'.translate()}}</label>
+                <label>{{'Dimensions'.translate()}}</label>
                 <div class="value">{{model.building.dimension | formatDimension}}</div>
             </div>
         </div>
