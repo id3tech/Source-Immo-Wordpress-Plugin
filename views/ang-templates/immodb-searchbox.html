@@ -2,14 +2,14 @@
     <div class="input">
         <i class="fal fa-search"></i>
         <input type="text" placeholder="{{placeholder.translate()}}"
-            ng-model="data.keyword" ng-keyup="buildSuggestions($event)">
+            data-ng-model="data.keyword" data-ng-keyup="buildSuggestions($event)">
     </div>
 
     <div class="immodb-searchbox suggestion-list {{suggestions.length>0 ? 'has-suggestions':''}}" 
             style="{{getSuggestionPosition()}}">
         
         <div class="keyword-suggestion {{item.selected?'selected':''}}" 
-                ng-repeat="item in suggestions" ng-click="doActionFor(item)">
+                data-ng-repeat="item in suggestions" data-ng-click="doActionFor(item)">
             {{item.label}}
         </div>
         

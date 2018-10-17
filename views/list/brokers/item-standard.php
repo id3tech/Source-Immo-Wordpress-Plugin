@@ -4,5 +4,5 @@
  */
 ?>
 <div class="listing-item">
-    <div class=""><img src="{{item.picture}}" /></div>
+    <div class=""><img data-ng-src="{{item.picture}}" /></div>
 </div>

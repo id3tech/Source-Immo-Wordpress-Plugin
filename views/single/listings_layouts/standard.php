@@ -2,7 +2,7 @@
     
     <div class="price">
         <div>{{model.long_price}}</div>
-        <div class="mortgage" ng-show="model.status!='SOLD' && model.price.sell!=undefined"><?php _e('Estimated mortgage payments',IMMODB) ?>: <a href="#" ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</a></div>
+        <div class="mortgage" data-ng-show="model.status!='SOLD' && model.price.sell!=undefined"><?php _e('Estimated mortgage payments',IMMODB) ?>: <a href="#" data-ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</a></div>
     </div>
     <div class="subcategory">{{model.subcategory}}</div>
     <div class="city">{{model.location.city}}</div>
@@ -20,9 +20,9 @@
 
 <div class="summary">
     <div class="ref-number">{{model.ref_number}}</div>
-    <div class="address" ng-show="model.location.full_address!=undefined">{{model.location.full_address}}</div>
-    <div class="near" ng-show="model.location.details!=undefined">{{model.location.details}}</div>
-    <div class="city" ng-show="model.location.address==undefined">{{model.location.city}}</div>
+    <div class="address" data-ng-show="model.location.full_address!=undefined">{{model.location.full_address}}</div>
+    <div class="near" data-ng-show="model.location.details!=undefined">{{model.location.details}}</div>
+    <div class="city" data-ng-show="model.location.address==undefined">{{model.location.city}}</div>
     <div class="region">{{model.location.region}}</div>
     <div class="state">{{model.location.state}}</div>
     

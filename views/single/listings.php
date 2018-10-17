@@ -10,9 +10,9 @@ ImmoDB::view('single/listings_layouts/_schema',array('model' => $data));
 <div class="wrap">
 	<div id="primary" class="content-area">
 		<main id="main" class="site-main" role="main">
-            <div ng-controller="singleListingCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
+            <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                 class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
-                <label class="placeholder"  ng-show="model==null">
+                <label class="placeholder"  data-ng-show="model==null">
                     <div><?php _e('Loading property',IMMODB) ?></div>
                     <i class="fal fa-spinner-third fa-spin"></i></label>
                 <div class="immodb-content">

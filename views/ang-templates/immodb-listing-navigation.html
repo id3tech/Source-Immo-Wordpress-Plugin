@@ -1,8 +1,8 @@
 <div class="immodb-listing-navigation display-{{display}}">
-    <div class="item previous" ng-show="previous!=null">
+    <div class="item previous" data-ng-show="previous!=null">
         <a href="/{{previous.permalink}}">
             <div class="content">
-                <div class="photo"><img src="{{previous.photo_url}}"></div>
+                <div class="photo"><img data-ng-src="{{previous.photo_url}}"></div>
                 <div class="civic-address">{{previous.location.civic_address}}</div>
                 <div class="price">{{previous.short_price}}</div>
                 <div class="city">{{previous.location.city}}</div>
@@ -12,10 +12,10 @@
         </a>
     </div>
 
-    <div class="item next" ng-show="next!=null">
+    <div class="item next" data-ng-show="next!=null">
         <a href="/{{next.permalink}}">
             <div class="content">
-                <div class="photo"><img src="{{next.photo_url}}"></div>
+                <div class="photo"><img data-ng-src="{{next.photo_url}}"></div>
                 <div class="civic-address">{{next.location.civic_address}}</div>
                 <div class="price">{{next.short_price}}</div>
                 <div class="city">{{next.location.city}}</div>

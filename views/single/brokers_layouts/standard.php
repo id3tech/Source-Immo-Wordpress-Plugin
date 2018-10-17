@@ -11,8 +11,8 @@
         </div>
 
         <div class="bio">
-            <label class="placeholder" ng-show="model.bio==undefined">{{'{0} did not compose a biography for the moment'.translate().format(model.first_name)}}</label>
-            <div ng-html="model.bio"></div>
+            <label class="placeholder" data-ng-show="model.bio==undefined">{{'{0} did not compose a biography for the moment'.translate().format(model.first_name)}}</label>
+            <div data-ng-html="model.bio"></div>
         </div>
 
         <div class="languages">
@@ -39,7 +39,7 @@
     <div class="contact">
         <h3>{{'To contact {0}'.translate().format(model.first_name)}}</h3>
         <div class="phone-list">
-            <div class="item" ng-repeat="(key,phone) in model.phones">
+            <div class="item" data-ng-repeat="(key,phone) in model.phones">
                 <i class="fal fa-fw fa-{{getPhoneIcon(key)}}"></i> {{phone}}
             </div>
         </div>

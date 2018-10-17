@@ -5095,7 +5095,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
             }
         });
 
-        let lResult = $immodbTemplate.interpolate(lRoute.route, $scope);
+        let lResult = '/' + $immodbTemplate.interpolate(lRoute.route, $scope);
 
         return $scope.sanitize(lResult);
     }

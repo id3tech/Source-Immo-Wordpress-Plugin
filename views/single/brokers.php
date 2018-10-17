@@ -12,9 +12,9 @@ $layout = ImmoDB::current()->get_detail_layout('broker');
 if($layout->type =='custom_page'){
     // load page content
     ?>
-    <div ng-controller="singleBrokerCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
+    <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                 class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
-        <label class="placeholder"  ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
+        <label class="placeholder"  data-ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
         <div class="immodb-content">
         <?php
         $lPost = get_post($layout->page);
@@ -31,9 +31,9 @@ else{?>
     <div class="wrap">
         <div id="primary" class="content-area">
             <main id="main" class="site-main" role="main">
-                <div ng-controller="singleBrokerCtrl" ng-init="init('<?php echo($ref_number) ?>')" 
+                <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                     class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
-                    <label class="placeholder"  ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
+                    <label class="placeholder"  data-ng-show="model==null"><?php _e('Loading broker',IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
                     <div class="immodb-content">
                     <?php 
                         ImmoDB::view('single/brokers_layouts/' . $layout->type);

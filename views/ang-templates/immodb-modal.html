@@ -8,11 +8,11 @@
                 </button>
             </div>
             
-            <div class="modal-body" ng-transclude></div>
+            <div class="modal-body" data-ng-transclude></div>
     
             <div class="modal-footer">
-                <button type="button" ng-show="options.close_label!=null" data-dismiss="modal">{{options.close_label.translate()}}</button>
-                <button type="button" ng-click="closeWithValue()" data-dismiss="modal">{{options.ok_label.translate()}}</button>
+                <button type="button" data-ng-show="options.close_label!=null" data-dismiss="modal">{{options.close_label.translate()}}</button>
+                <button type="button" data-ng-click="closeWithValue()" data-dismiss="modal">{{options.ok_label.translate()}}</button>
             </div>
         </div>
     </div>
