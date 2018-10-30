@@ -1,7 +1,7 @@
 <div class="immodb-item info-window">
-<a href="/{{getPermalink(item)}}">
+<a href="{{getPermalink(item)}}">
     <div class="content">
-        <div class="image"><img data-ng-src="{{item.photos[0].url}}" /></div>
+        <div class="image"><img src="{{item.photos[0].url}}" /></div>
         <div class="price">{{formatPrice(item)}}</div>
         <div class="ref_number">{{item.ref_number}}</div>
         <div class="address">{{item.location.civic_address}}, {{item.location.city}}</div>

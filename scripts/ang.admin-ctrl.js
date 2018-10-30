@@ -163,7 +163,12 @@ ImmoDbApp
       $scope.reset_default_value();
     }
     else{
+
       $scope.model = angular.copy($params);
+      if($scope.model.source != null){
+        $scope.model.$$source_id =  $scope.model.source.id;
+      }
+      
       $scope.validate();
     }
 
@@ -201,9 +206,15 @@ ImmoDbApp
     }
   }
   
+  $scope.updateSource = function(){
+    $scope.model.source = $scope.data_views.find(function($e){return($e.id==$scope.model.$$source_id)});
+
+  }
 
   $scope.saveOrClose = function(){
     if($scope.hasChanged()){
+      delete $scope.model.$$source_id;
+
       $scope.renewSearchToken().then(function($searchToken){
         $scope.model.search_token = $searchToken;
         $scope.return($scope.model);
@@ -248,6 +259,8 @@ ImmoDbApp
         lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
       }
 
+      lResult.shuffle = $scope.model.shuffle;
+      
       if($scope.model.filter_group != null){
         if(lResult==null) lResult = {};
 
@@ -573,6 +586,8 @@ ImmoDbApp
       for (const key in $objA) {
 
         if(key == '$$hashKey') continue;
+        if(key.indexOf('$$') == 0) continue;
+
         if($objA[key]!=null && $objB[key]!=null){
           if ( (typeof($objA[key])!='undefined') && (typeof($objB[key])!='undefined') ) {
             //console.log('checking array', key,typeof($objA[key]));

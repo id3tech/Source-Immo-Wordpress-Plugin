@@ -86,7 +86,10 @@ $locales.fr = {};$locales.fr.global =
     , "Show list metadatas" : "Afficher les métadonnées de la liste"
     , "List removed" : "Liste supprimée"
     , "Save completed" : "Sauvegarde complétée"
+    , "Shuffle first page" : "Mélanger la première page"
+    , "Shuffle first {0} elements" : "Mélanger les {0} premiers éléments"
     , "Configuration reset to demo mode" : "La configuration a été remise en mode démo"
+    , "Result page" : "Page de résultat"
     // Operators
     , "and" : "et"
     , "or"  : "ou"
@@ -186,9 +189,10 @@ $locales.fr = {};$locales.fr.global =
     , "With video" : "Avec vidéo"
     , "{0}+ parking spaces" : "{0} places de stationnement +"
     , "{0}+ garages" : "{0} garages +"
+    , "Toggle all" : "Basculer tous"
     // Public - SINGLE LISTING
     , "Sorry, this property listing could not be found." : "Désolé, cette propriété est introuvable"
-    , "It's possible that this property no longer exists or the link you used to access this page is invalid." : "Il est possible que la propriété n'existe plus ou le lien que vous avez utilisé pour accéder cette page soit invalide."
+    , "It's possible that this property no longer exists or the link you used to access this page is invalid." : "Il est possible que la propriété n'existe plus ou le lien que vous avez utilisé pour accéder cette à page soit invalide."
     , "Loading listing" : "Chargement de la propriété"
     , "for sell for " : "à vendre pour "
     , "for lease for " : "à louer pour "
@@ -244,7 +248,7 @@ $locales.fr = {};$locales.fr.global =
     , "Land assessment ({0})" : "Évaluation du terrain ({0})"
     // PUBLIC - SINGLE BROKER
     , "Sorry, this broker could not be found." : "Désolé, ce courtier est introuvable."
-    , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder cette page soit invalide."
+    , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder à cette page soit invalide."
     , "Office" : "Bureau"
     , "Languages" : "Langues"
     , "Expertises" : "Spécialités"
@@ -257,4 +261,5 @@ $locales.fr = {};$locales.fr.global =
     , "{0} did not compose a biography for the moment" : "{0} n'a pas composé de biographie pour l'instant"
     , "{0} has no properties yet" : "{0} n'a aucune propriété pour l'instant"
     , "Loading broker" : "Chargement du courtier"
+    , "Photo of {0}" : "Photo de {0}"
 }

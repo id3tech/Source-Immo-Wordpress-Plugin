@@ -65,6 +65,7 @@ if(typeof String.translate === 'undefined'){
         $scope.file_path = '';
 
         $scope.init = function($used_language){
+            console.log('translate support', $used_language);
             // create language containers
             $scope.supported_languages.forEach(function($l){
                 $scope[$l] = {};
@@ -133,6 +134,7 @@ if(typeof String.translate === 'undefined'){
             if ($lang in $locales) {
                 if ($domain in $locales[$lang]) {
                     if ($key in $locales[$lang][$domain]) {
+                        //console.log($key, 'found in ',$locales[$lang][$domain])
                         return $locales[$lang][$domain][$key];
                     }
                 }

@@ -363,6 +363,7 @@ $tablet : 'max-width: 1100px';
     .next-page{
         grid-area: next-page;
         place-self: center center;
+        text-align: center;
     }
     .immodb-list-container{
         grid-area: list;

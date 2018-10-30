@@ -517,6 +517,7 @@
 .immodb .next-page {
   grid-area: next-page;
   place-self: center center;
+  text-align: center;
 }
 
 #top .immodb .immodb-list-container,

@@ -22,11 +22,11 @@
             </div>
             <div class="tab-content videos">
                 <label class="placeholder"><?php _e('Videos',IMMODB)?></label>
-                <iframe id="video-player" data-ng-src="{{model.video.trusted_url}}" width="100%" height="100%"></iframe>
+                <iframe id="video-player" data-ng-src="{{model.video.trusted_url}}" allowFullscreen="1" ></iframe>
             </div>
             <div class="tab-content virtual-tours">
                 <label class="placeholder"><?php _e('Virtual tour',IMMODB)?></label>
-                <iframe data-ng-src="{{model.virtual_tour.trusted_url}}" width="100%" height="100%"></iframe>
+                <iframe data-ng-src="{{model.virtual_tour.trusted_url}}"></iframe>
             </div>
             <div class="tab-content streetview">
                 <label class="placeholder"><?php _e('Street view',IMMODB)?></label>

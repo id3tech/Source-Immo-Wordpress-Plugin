@@ -12,8 +12,8 @@
 
         <md-input-container>
             <label><?php _e('Source ImmoDB view',IMMODB) ?></label>
-            <md-select ng-model="model.source">
-                <md-option ng-repeat="item in data_views" ng-value="item">{{item.name}}</md-option>
+            <md-select ng-model="model.$$source_id" ng-change="updateSource()">
+                <md-option ng-repeat="item in data_views" value="{{item.id}}">{{item.name}}</md-option>
             </md-select>
         </md-input-container>
 
@@ -29,7 +29,11 @@
             <input ng-model="model.sort" placeholder="ex.: location.city" />
             <md-icon ng-click="switchSortReverse()" class="fal {{model.sort_reverse? 'fa-sort-amount-down' : 'fa-sort-amount-up'}}"></md-icon>
         </md-input-container>  
-
+        
+        <div layout="row" layout-align="space-between center">
+            <label>{{(model.limit > 0 ? "Shuffle first {0} elements" : "Shuffle first page").translate().format(model.limit)}}</label>
+            <md-switch ng-model="model.shuffle"></md-switch>
+        </div>  
 
         <md-input-container>
             <label><?php _e('Limit the number of displayed elements',IMMODB) ?></label>

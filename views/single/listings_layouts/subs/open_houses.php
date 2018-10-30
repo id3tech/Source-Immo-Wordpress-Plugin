@@ -3,7 +3,7 @@
     <div class="open-house-list">
         <div class="open-house-item" data-ng-repeat="item in model.open_houses">
             <div class="date">
-                <div class="time-ago" am-time-ago="item.start_date"></div>
+                <div class="time-ago" data-am-time-ago="item.start_date"></div>
                 <div class="day">{{item.start_date  | amDateFormat:'dddd, MMMM Do'.translate()}}</div>
             </div>
 

@@ -1,5 +1,9 @@
 <?php 
 $lTwoLetterLocale = substr(get_locale(),0,2);
+if($lTwoLetterLocale == ''){
+  $lTwoLetterLocal = 'fr';
+}
+
 ?>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css">
 
@@ -37,13 +41,10 @@ $lTwoLetterLocale = substr(get_locale(),0,2);
   <!-- Angular Material Library -->
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js"></script>
 
-  <script type="text/javascript">
-  var $locales = {
-    _current_lang_ : '<?php echo($lTwoLetterLocale); ?>',
-    <?php echo($lTwoLetterLocale); ?> : {}
-  }
-  </script>
   <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script type="text/javascript">
+  $locales.init('<?php echo($lTwoLetterLocale); ?>');
+  </script>
   <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , IMMODB_PLUGIN ) ?>"></script>
   
   <script src="<?php echo plugins_url( 'scripts/ang.admin-app.js' , IMMODB_PLUGIN ) ?>"></script>

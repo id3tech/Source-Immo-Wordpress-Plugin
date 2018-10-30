@@ -187,6 +187,7 @@ class ImmoDBList {
   public $list_layout = null;
   public $list_item_layout = 'standard';
   public $browse_mode = null;
+  public $shuffle = false;
 
   public function __construct(){
     $this->list_layout = new ImmoDBLayout();

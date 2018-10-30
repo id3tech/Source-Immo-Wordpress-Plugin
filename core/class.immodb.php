@@ -904,6 +904,10 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
       $brokerData = new ImmoDBBrokersResult();
       $brokerData->preprocess_item($broker);
     }
+
+    foreach($item->photos as $photo){
+      $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
+    }
   }
   
   public static function formatPrice($price){
@@ -1056,13 +1060,33 @@ class BaseDataSchema{
   public function __construct($type,BaseSchemaInfos $infos ){
     $this->_schema['@type'] = $type;
     $this->_schema['name'] = $infos->name;
-    $this->_schema['image'] = $infos->image;
+    
     $this->_schema['description'] = $infos->description;
+
+    if(is_array($infos->image)){
+      $this->_schema['image'] = $infos->image[0]->url;
+    }
+    else{
+      $this->_schema['image'] = $infos->image;
+    }
 
     $this->_schema_basic_info = $infos;
   }
 
   public function addOffer($type,$price,$currency, $location ){
+    $mainImage = $this->_schema_basic_info->image;
+    if(is_array($this->_schema_basic_info->image)){
+      $mainImage = $this->_schema_basic_info->image[0]->url;
+      $images = array();
+      foreach ($this->_schema_basic_info->image as $image) {
+        $images[] = array(
+          "@type" => "ImageObject",
+          "contentUrl" => $image->url,
+          "name"  => $image->category . ' ' . $this->_schema_basic_info->name,
+        );
+      }
+    }
+
     $this->_schema['offers'] = array(
       array(
         '@type' => 'Offer',
@@ -1071,13 +1095,15 @@ class BaseDataSchema{
         'category' => array(
           '@type' => $type,
           'name' => $this->_schema_basic_info->name,
-          'image' => $this->_schema_basic_info->image,
+          'image' => $mainImage,
+          'photo' => $images,
           'description' => $this->_schema_basic_info->description,
           'address' => array(
             '@type' => 'PostalAddress',
             'streetAddress' => $location->civic_address,
             'addressLocality' => $location->city
           ),
+
           'geo' => array(
             '@type' => 'GeoCoordinates',
             'latitude' => $location->latitude,
@@ -1170,7 +1196,7 @@ class BrokerSchema extends BaseDataSchema{
 
 class ListingSchema extends BaseDataSchema{
   public function __construct($listing){
-    $basicInfos = new BaseSchemaInfos($listing->subcategory . ' ' . $listing->transaction, $listing->photos[0]->url, $listing->description);
+    $basicInfos = new BaseSchemaInfos($listing->subcategory . ' ' . $listing->transaction, $listing->photos, $listing->description);
     parent::__construct('Product',$basicInfos);
 
     $this->addOffer('Residence',$listing->price->sell->amount,$listing->price->sell->currency, $listing->location);
@@ -1183,7 +1209,6 @@ class ListingOpenHouseSchema extends BaseDataSchema{
     parent::__construct('Event',$basicInfos);
 
     $this->addLocation('Place',$listing->location);
-
     $interval = date_diff(date_create($open_house->start_date), date_create($open_house->end_date));
     $startDate = is_date($open_house->start_date) ? $open_house->start_date : strtotime($open_house->start_date);
     $endDate = is_date($open_house->end_date) ? $open_house->end_date : strtotime($open_house->end_date);
