@@ -1,33 +1,27 @@
 <div class="input">
+    <div class="by-keywords">
         <i class="far fa-search"></i>
-        <div class="dropdown">
-            <input type="text" placeholder="<?php _e('Search a name, region, city',IMMODB) ?>"
-                data-ng-model="data.keyword" data-ng-keyup="buildSuggestions($event)" data-toggle="dropdown">
-            <div class="dropdown-menu" ng-show="suggestions.length>0">
-                <form>
-                    <div class="keyword-suggestion {{item.selected?'selected':''}}" 
-                            data-ng-repeat="item in suggestions" data-ng-click="item.action()"
-                            data-toggle="dropdown">
-                        {{item.label}}
-                    </div>
-                </form>
+    
+        <input type="text" placeholder="<?php _e('Search a first name or last name',IMMODB) ?>"
+            data-ng-model="data.keyword" data-ng-keyup="lateCall(searchForKeyword)">
+    </div>
+    <div class="by-letters">
+        <i class="far fa-bookmark"></i>
+
+        <div class="letter-list">
+            <div class="letter {{getFilterValue('first_name') == letter ? 'active' : ''}}" ng-repeat="letter in alphaList" ng-click="addFilter('first_name','starts_with',letter)">
+                {{letter.toUpperCase()}}
             </div>
         </div>
-        <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="addGeoFilter()"></i>
     </div>
 
-    <div class="advanced">
-        
+    <button class="button clear-button" ng-show="hasFilters()" ng-click="resetFilters()">
+        <i class="far fa-times"></i>
+    </button>
+</div>
 
-        <div class="search-trigger">
-            <button type="button" class="btn" data-ng-click="navigate()"><?php _e('Search', IMMODB) ?></button>
-        </div>
+<div class="advanced">
+    <div class="search-trigger">
+        <button type="button" class="btn" data-ng-click="navigate()"><?php _e('Search', IMMODB) ?></button>
     </div>
-
-    <div class="client-filters" data-ng-show="hasFilters()">
-        <div class="label"><?php _e('Selected filters', IMMODB) ?></div>
-        <div class="list">
-            <div class="item" data-ng-repeat="item in filterHints">{{item.label}} <i class="fal fa-times" data-ng-click="item.reverse()"></i></div>
-        </div>
-        <div class="reset"><button type="button" class="btn" data-ng-click="resetFilters()"><?php _e('Reset', IMMODB) ?></button></div>
-    </div>
+</div>

@@ -189,8 +189,16 @@ class ImmoDB {
           
         }
       }
-      $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
 
+      if(count($ruleKey)>0){
+        $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
+
+        array_splice($ruleKey, 1,3,'print');
+        if(count($ruleKey)>0){
+          $matches = array('ref_number=$matches[1]');
+          $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=print&' . implode('&', $matches);
+        }
+      }
       //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
     }
 
@@ -210,10 +218,11 @@ class ImmoDB {
           if($part=='{{item.ref_number}}'){
             $matches[] = 'ref_number=$matches[' . $index . ']';
           }
-        }
-        
+        }  
       }
+
       $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=brokers&' . implode('&', $matches);
+//      $newrules['^' . implode('/',$ruleKey) . '/print/?'] = 'index.php?lang='. $route->lang .'&type=brokers&mode=print&' . implode('&', $matches);
     }
 
     // add routes
@@ -250,6 +259,7 @@ class ImmoDB {
     $vars[] = "location_city";
     $vars[] = "type"; 
     $vars[] = "lang";
+    $vars[] = "mode";
 
     return $vars;
   }
@@ -259,7 +269,14 @@ class ImmoDB {
     $ref_number = get_query_var( 'ref_number' );
 		if ( $ref_number ) {
       $type = get_query_var( 'type' );
-      add_filter( 'template_include', array($this, 'include_' . $type . '_detail_template'));
+      $mode = get_query_var( 'mode' );
+      if($mode == 'print'){
+        $mode = '_print';
+      }
+      else{
+        $mode = '_detail_template';
+      }
+      add_filter( 'template_include', array($this, 'include_' . $type . $mode));
     }
   }
   
@@ -292,15 +309,15 @@ class ImmoDB {
     $lTwoLetterLocale = substr(get_locale(),0,2);
     
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', IMMODB_PLUGIN) );
-    wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
+    //wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
     wp_enqueue_style( 'immodb-style', plugins_url('/styles/public.min.css', IMMODB_PLUGIN), null, filemtime(IMMODB_PLUGIN_DIR . '/styles/public.min.css') );
     
     wp_enqueue_script( 'angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js', null, null, true );
     wp_enqueue_script( 'angular-sanitize', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js', 'angular', null, true );
     wp_enqueue_script( 'moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js',null, null, true);
     wp_enqueue_script( 'angular-moment', 'https://cdnjs.cloudflare.com/ajax/libs/angular-moment/1.3.0/angular-moment.min.js', array('angular','moment'), null, true);
-    wp_enqueue_script( 'bootstrap-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', null, null, true );
-    wp_enqueue_script( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', 'bootstrap-popper', null, true );
+    //wp_enqueue_script( 'bootstrap-popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', null, null, true );
+    //wp_enqueue_script( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', 'bootstrap-popper', null, true );
     wp_enqueue_script( 'material', 'https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js', 'angular', null, true );
     // swipe-touch handling library
     wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
@@ -311,8 +328,8 @@ class ImmoDB {
     }
     
 
-    wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('immodb-style'), "1", "all");
-	  wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
+    // wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('immodb-style'), "1", "all");
+	  // wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
 
     wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
     $lUploadDir   = wp_upload_dir();
@@ -403,6 +420,42 @@ class ImmoDB {
       self::view('single/listings_404', array());
     }
   }
+  function include_listings_print(){
+    $ref_number = get_query_var( 'ref_number' );
+   
+    // load data
+    $model = json_decode(ImmoDBApi::get_listing_data($ref_number));
+    if($model != null){
+      global $dictionary;
+      $listingWrapper = new ImmoDBListingsResult();
+      $dictionary = new ImmoDBDictionary($model->dictionary);
+      $listingWrapper->preprocess_item($model);
+      $listingWrapper->extendedPreprocess($model);
+
+      $model->permalink = ImmoDBListingsResult::buildPermalink($model, ImmoDB::current()->get_listing_permalink());
+
+      add_action('wp_enqueue_scripts', function(){
+        wp_dequeue_style('avia-grid');
+        wp_dequeue_style('avia-base');
+        wp_deregister_style('avia-grid');
+        wp_deregister_style('avia-base');
+      }, 20 );
+      
+      wp_enqueue_style('listing-print', IMMODB_PLUGIN_URL . 'styles/print.min.css', null, filemtime(IMMODB_PLUGIN_DIR . '/styles/print.min.css'));
+      do_action('immodb_listing_print_begin');
+
+      $filePath = self::file('single/listings_print');
+      if($filePath != null){
+        include $filePath;
+      }
+      
+    }
+    else{
+      header('http/1.0 404 not found');
+
+      self::view('single/listings_404', array());
+    }
+  }
   
 
   function include_brokers_detail_template(){
@@ -479,6 +532,38 @@ class ImmoDB {
 
     //   self::view('single/cities_404', array());
     // }
+  }
+
+  /**
+   * Return the file path of the view or code fragment
+   * 
+   * The function will look into the active theme for a file override before falling back
+   * to the default plugin file. 
+   * @param string $path The path, relative to the view folder, of the file to render
+   * @param array $args Associative array of parameters to pass through to the view
+   */
+  public static function file(string $path ){
+   
+		load_plugin_textdomain( 'immodb' );
+
+		$file = IMMODB_PLUGIN_DIR . 'views/'. $path . '.php';
+
+    // unless it's a view for admin configuration,
+    // developper can override the path or layout
+    if(strpos('admin', $path) === false){
+      
+      // apply filter on $file to allow custom view path
+      $file = apply_filters( 'immodb_view_path', $file, $path );
+
+      // finally, check if the view has been overwritten in the template folder
+      $file = ThemeOverrides::search($file, 'views');
+    }
+
+    if(file_exists($file)){
+  		return $file;
+    }
+
+    return null;
   }
 
 
@@ -877,6 +962,9 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
       $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
     }
+    else if(isset($item->location->address->street_name) && $item->location->address->street_name != ''){
+      $item->location->civic_address = $item->location->address->street_name;
+    }
     else{
       $item->location->civic_address = '';
     }
@@ -899,15 +987,88 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     else{
       $item->subcategory='';
     }
+    $item->price_text = self::formatPrice($item->price);
 
     foreach($item->brokers as $broker){
       $brokerData = new ImmoDBBrokersResult();
       $brokerData->preprocess_item($broker);
     }
-
+    
     foreach($item->photos as $photo){
       $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
     }
+  }
+
+  public function extendedPreprocess(&$item){
+    global $dictionary;
+
+    $item->important_flags = array();
+    
+    // from units
+    foreach($item->units as $unit){
+      $unit->category = $dictionary->getCaption($unit->category_code , 'unit_category');
+      if($unit->category_code=='MAIN'){
+        if(isset($unit->bedroom_count)){ $item->important_flags[] = array('icon' => 'bed', 'value' => $unit->bedroom_count, 'caption' => __('Bedroom',IMMODB));}
+        if(isset($unit->bathroom_count)){ $item->important_flags[] = array('icon' => 'bath', 'value' => $unit->bathroom_count, 'caption' => __('Bathroom',IMMODB));}
+        if(isset($unit->waterroom_count)){ $item->important_flags[] = array('icon' => 'hand-holding-water', 'value' => $unit->waterroom_count, 'caption' => __('Water room',IMMODB));}
+      }
+    }
+
+    // Attributes
+    foreach($item->attributes as &$attr){
+      $attr->caption = $dictionary->getCaption($attr->code , 'attribute');
+      foreach($attr->values as &$val){
+        $val->caption =  $dictionary->getCaption($val->code , 'attribute_value');
+        if(isset($val->count)){
+          $val->caption = $val->caption . StringPrototype::format('({0})', $val->count);
+        }
+        if(isset($val->details)){
+          $val->caption = $val->details;
+        }
+      }
+
+      // build attributes groups
+      if(in_array($attr->code,array('CUPBOARD','WINDOWS',
+            'WINDOW TYPE','ROOFING','FOUNDATION',
+            'GARAGE','SIDING','BATHR./WASHR','BASEMENT'))){
+        $item->building->attributes[] = $attr;
+      }
+
+      if(in_array($attr->code,array('LANDSCAPING','DRIVEWAY','PARKING','POOL',
+            'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'))){
+        $item->land->attributes[] = $attr;
+      }
+
+      if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'))){
+        $item->other->attributes[] = $attr;
+      }
+
+      if($attr->code=='PARKING'){
+          $lParkingCount = 0;
+          foreach($attr->values as $v){
+            $lParkingCount += $v->count;
+          }
+          if($lParkingCount > 0){
+            $item->important_flags[] = array('icon'=> 'car', 'value' => $lParkingCount, 'caption' => $attr->caption);
+          }
+      }
+
+      if($attr->code=='POOL'){
+        $item->important_flags[] = array('icon'=> 'swimmer', 'value'=> 0, 'caption' => $attr->caption);
+      }
+
+      if ($attr->code=='HEART STOVE'){
+        $item->important_flags[] = array('icon'=> 'fire', 'value'=> 0, 'caption' => $attr->caption);
+      }
+    }
+
+    foreach($item->rooms as &$room){
+      $room->category = $dictionary->getCaption($room->category_code , 'room_category');
+      $room->flooring = $dictionary->getCaption($room->flooring_code , 'flooring');
+      $room->level_category = $dictionary->getCaption($room->level_category_code , 'level_category');
+      $room->short_dimension = self::formatDimension($room->dimension);
+    }
+
   }
   
   public static function formatPrice($price){
@@ -956,6 +1117,40 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
 
     return $lResult;
   }
+
+  public static function formatDimension($dimension){
+    $lResult = '';
+    if(isset($dimension) && $dimension != null){
+        global $dictionary;
+        if(isset($dimension->width)){
+            $lUnit = $dictionary->getCaption($dimension->unit_code,'dimension_unit',true);
+            $lResult = StringPrototype::format('{0}{2} x {1}{2}', $dimension->width,$dimension->length, $lUnit);
+        }
+        else if (isset($dimension->area)){
+            $lUnit = $dictionary->getCaption($dimension->area_unit_code,'dimension_unit',true);
+            //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
+            $lResult = StringPrototype::format('{0} {1}',$dimension->area, $lUnit);
+        }
+    }
+    return $lResult;
+  }
+
+  public static function hasDimension($dimension){
+    $lResult = false;
+    if(isset($dimension) && $dimension != null){
+        if(isset($dimension->width)){
+            if(isset($dimension->length)){
+                return true;
+            }
+        }
+        if(isset($dimension->area)){
+            return true;
+        }
+        
+    }
+    return $lResult;
+  }
+
 
 }
 

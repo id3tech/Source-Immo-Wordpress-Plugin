@@ -44,7 +44,7 @@
             </div>
         </div>
         <div class="actions">
-            <button type="button"><i class="fal fa-envelope"></i> <?php _e('Send a message',IMMODB) ?></button>
+            <button type="button" class="button"><i class="fal fa-envelope"></i> <?php _e('Send a message',IMMODB) ?></button>
         </div>
     </div>
 

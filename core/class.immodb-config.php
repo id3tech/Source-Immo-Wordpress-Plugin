@@ -31,6 +31,18 @@ class ImmoDBConfig {
   public $default_currency = 'CAD';
 
   /**
+   * Mode of processing. Use DEV when building configuration or testing stuff, PROD otherwise
+   * @var string
+   */
+  public $mode = 'PROD';
+
+  /**
+   * Email address to send form information
+   * @var string
+   */
+  public $form_recipient = '';
+
+  /**
   * List configuration
   * @var ArrayImmoDBView
   */
@@ -164,6 +176,7 @@ class ImmoDBRoute{
 class ImmoDBLayout{
   public $lang = '';
   public $type = 'standard';
+  public $scope_class = '';
   public $page = null;
 
   public function __construct($lang='', $type=''){

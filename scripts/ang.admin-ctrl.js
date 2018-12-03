@@ -247,6 +247,7 @@ ImmoDbApp
 
   $scope.buildFilters = function(){
       let lResult = null;
+      
 
       if($scope.model.limit>0){
           lResult = {
@@ -259,7 +260,11 @@ ImmoDbApp
         lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
       }
 
-      lResult.shuffle = $scope.model.shuffle;
+      if($scope.model.shuffle){
+        if(lResult==null) lResult = {};
+        lResult.shuffle = $scope.model.shuffle;
+      }
+      
       
       if($scope.model.filter_group != null){
         if(lResult==null) lResult = {};
@@ -349,7 +354,7 @@ ImmoDbApp
     list_item_layouts:{
       listings: [
         {name: 'standard', label: 'Standard'},
-        {name: 'reduced', label: 'Reduced'},
+        {name: 'small', label: 'Reduced'},
         {name: 'minimal', label: 'Minimal'}
       ],
       brokers : [

@@ -8,9 +8,9 @@
     <div class="city">{{model.location.city}}</div>
 
     <div class="tools">
-        <button type="button" class="avia-button"><i class="fal fa-share-alt"></i></button>
-        <button type="button" class="avia-button"><i class="fal fa-print"></i></button>
-        <button type="button" class="avia-button"><i class="fal fa-heart"></i></button>
+        <button type="button" class="button"><i class="fal fa-share-alt"></i></button>
+        <button type="button" class="button" ng-click="print()"><i class="fal fa-print"></i></button>
+        <button type="button" class="button {{favorites.isFavorite(model.id) ? 'active' : ''}}" ng-click="favorites.toggle(model.id)"><i class="{{favorites.isFavorite(model.id) ? 'fas' : 'fal'}} fa-heart"></i></button>
     </div>
 
     <?php echo do_shortcode('[immodb_listing_part part="info_request_button"]') ?>

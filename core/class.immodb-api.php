@@ -114,7 +114,7 @@ class ImmoDBApi {
           //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
           'callback' => array( 'ImmoDBApi', 'send_message' ),
           'args' => array(
-            'message' => array(
+            'params' => array(
               'required' => true,
               'type' => 'MessageData',
               'description' => __( 'Message information', IMMODB ),
@@ -497,9 +497,57 @@ class ImmoDBApi {
     return $lResult;
   }
   
-
-  public static function send_message($message){
+  /**
+   * Send an email message 
+   */
+  public static function send_message($request){
+    $params = json_decode(json_encode($request->get_param('params')));
+    $data = $params->data;
+    $metadata = $params->metadata;
+    $type = $params->type;
+    $destination = ''; // implode(',',$params->destination);
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $random_hash = sha1($metadata->ref_number);
     
+    $configs = ImmoDB::current()->configs;
+    if($configs->mode == 'DEV'){
+      $destination = $configs->form_recipient;
+    }
+
+    $labels = array(
+      'firstname' => __('First name',IMMODB),
+      'lastname' => __('Last name',IMMODB),
+      'email' => __('Email',IMMODB),
+      'phone' => __('Phone',IMMODB),
+      'subject' => __('Subject',IMMODB),
+      'message' => __('Message',IMMODB)
+    );
+
+    $messageData = array();
+    foreach ($data as $key => $value) {
+      $messageData[] = array(
+        'label' => $labels[$key],
+        'value' => $value
+      );
+    }
+
+
+    // build email
+    ob_start();
+    ImmoDB::view('messages/' . $type . '.' . $lTwoLetterLocale, array('random_hash'=>$random_hash,'data'=>$messageData, 'metadata' => $metadata));
+    $email_body = ob_get_contents();
+    ob_end_clean();
+
+
+    // send email to destination
+    $headers = implode("\r\n", array(
+      'From: no-reply@' . $_SERVER['HTTP_HOST'],
+      'FromName: Your website',
+      'Content-Type: multipart/alternative; boundary="PHP-alt-' .$random_hash. '"'
+    ));
+    $lResult = mail($destination,$data->subject,$email_body,$headers);
+
+    return $lResult;
   }
 
   /*

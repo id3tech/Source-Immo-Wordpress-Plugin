@@ -16,12 +16,7 @@
                 {{(item.listings_count==0 ? 'No property yet' : item.listings_count==1 ? '1 property' : '{0} properties').translate().format(item.listings_count)}}
             </div>
             <div class="contact">
-                <div class="item" data-ng-show="item.email!=null">
-                    <span class="type">{{'Email'.translate()}}</span> <span class="value">{{item.email}}</span>
-                </div>
-                <div class="item" data-ng-repeat="(key,phone) in item.phones">
-                    <span class="type">{{key.translate()}}</span> <span class="value">{{phone}}</span>
-                </div>
+                <div class="phone">{{item.phones.cell || item.phones.office}}</div>
             </div>
         </div>
     </a>

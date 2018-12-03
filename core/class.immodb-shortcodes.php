@@ -85,6 +85,7 @@ class ImmoDbShorcodes{
                 $listConfig->show_list_meta = $show_list_meta=="true";
             }
 
+            
             $global_container_classes = array('immodb', 'standard-layout', "immodb-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
             $global_container_attr = array();
 

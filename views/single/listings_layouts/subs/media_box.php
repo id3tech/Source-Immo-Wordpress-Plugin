@@ -2,7 +2,7 @@
     <div class="tabs">
         <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
             data-ng-click="selectMedia('pictures')">
-            <i class="fal fa-camera"></i> <span><?php _e('Pictures',IMMODB)?></span></button>
+            <i class="fal fa-camera"></i> <span><?php _e('Pictures',IMMODB)?> ({{model.photos.length}})</span></button>
         <button type="button" class="tab videos {{selected_media=='videos'?'selected':''}}"
             data-ng-show="model.video!=undefined" 
             data-ng-click="selectMedia('videos')">

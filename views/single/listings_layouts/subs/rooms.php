@@ -3,13 +3,19 @@
     <div class="content">
         <div class="unit-list" data-ng-repeat="unit in model.units">
             <h4 class="title" data-ng-show="model.units.length>1">{{'{0} unit'.translate().format(unit.category)}}</h4>
-            <div class="flags">
+            
+            <div class="flags" data-ng-show="model.units.length>1"
+                style="grid-template-columns:1fr repeat({{unit.flags.length}},auto);">
+                <div class="spacer"></div>
                 <div class="flag" data-ng-repeat="flag in unit.flags" title="{{flag.caption}}">
-                    <i class="fal fa-{{flag.icon}}"></i>
+                    
                     <em>{{flag.value}}</em>
+                    <label>{{flag.caption}}</label>
                 </div>
             </div>
-            <div class="room-list">
+
+            <div class="room-list"
+                ng-show="(model.rooms | filter : {'unit_sequence' : unit.sequence}).length > 0">
                 <div class="room-item list-header">
                     <div class="type"></div>
                     <div class="level"><?php _e('Level',IMMODB) ?></div>

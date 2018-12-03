@@ -21,5 +21,12 @@
       <?php ImmoDB::view('admin/configs/details') ?>
     </md-tab-body>
   </md-tab>
+
+  <md-tab>
+    <md-tab-label><?php _e('Advanced',IMMODB)?></md-tab-label>
+    <md-tab-body class="md-padding">
+      <?php ImmoDB::view('admin/configs/advanced') ?>
+    </md-tab-body>
+  </md-tab>
 </md-tabs>
 

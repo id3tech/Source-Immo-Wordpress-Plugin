@@ -11,20 +11,20 @@
         <label>
             <div>{{'Down payment'.translate()}}</div>
             <div class="alt-method">
-                <div class="pretty p-icon p-round p-jelly"
+                <div class="pretty p-icon p-round p-pulse"
                     data-ng-click="changeDownpaymentMethod('percent')">
                     <input type="radio" name="downpayment_method" data-ng-checked="data.downpayment_method=='percent'" > 
                     <div class="state">
-                        <i class="icon fal fa-check"></i>
+                        <i class="icon far fa-check"></i>
                         <label>%</label>
                     </div>
                 </div>
 
-                <div class="pretty p-icon p-round p-jelly"
+                <div class="pretty p-icon p-round p-pulse"
                     data-ng-click="changeDownpaymentMethod('cash')">
                     <input type="radio" name="downpayment_method" data-ng-checked="data.downpayment_method=='cash'"> 
                     <div class="state">
-                        <i class="icon fal fa-check"></i>
+                        <i class="icon far fa-check"></i>
                         <label>$</label>
                     </div>
                 </div>
@@ -55,11 +55,11 @@
     <div class="input-container">
         <label>{{'Payments'.translate()}}</label>
 
-        <div class="input dropdown">
-            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="input immodb-dropdown">
+            <button class="button" type="button">
                 {{frequencies[data.frequency].translate()}}
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <div class="immodb-dropdown-panel" aria-labelledby="dropdownMenuButton">
                 <div class="dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
             </div>
         </div>
