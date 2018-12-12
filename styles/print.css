@@ -318,8 +318,8 @@ html.print body .page-layout {
 html.print body .page-layout h1 {
   position: relative;
   margin: 0in 0;
-  padding: 0.05in 0.25in;
   text-align: right;
+  padding: 0.05in 0in;
 }
 
 html.print body .page-layout h1::before {
@@ -334,11 +334,15 @@ html.print body .page-layout h1::before {
   background-color: var(--highlight);
 }
 
+html.print body .page-layout > h1 {
+  padding: 0.05in 0.25in;
+}
+
 html.print body .page-layout h2 {
   position: relative;
   margin: 0in 0;
-  padding: 0.05in 0.25in;
   text-align: right;
+  padding: 0.05in 0in;
 }
 
 html.print body .page-layout h2::before {
@@ -353,11 +357,15 @@ html.print body .page-layout h2::before {
   background-color: var(--highlight);
 }
 
+html.print body .page-layout > h2 {
+  padding: 0.05in 0.25in;
+}
+
 html.print body .page-layout h3 {
   position: relative;
   margin: 0in 0;
-  padding: 0.05in 0.25in;
   text-align: right;
+  padding: 0.05in 0in;
 }
 
 html.print body .page-layout h3::before {
@@ -372,11 +380,15 @@ html.print body .page-layout h3::before {
   background-color: var(--highlight);
 }
 
+html.print body .page-layout > h3 {
+  padding: 0.05in 0.25in;
+}
+
 html.print body .page-layout h4 {
   position: relative;
   margin: 0in 0;
-  padding: 0.05in 0.25in;
   text-align: right;
+  padding: 0.05in 0in;
 }
 
 html.print body .page-layout h4::before {
@@ -391,11 +403,15 @@ html.print body .page-layout h4::before {
   background-color: var(--highlight);
 }
 
+html.print body .page-layout > h4 {
+  padding: 0.05in 0.25in;
+}
+
 html.print body .page-layout h5 {
   position: relative;
   margin: 0in 0;
-  padding: 0.05in 0.25in;
   text-align: right;
+  padding: 0.05in 0in;
 }
 
 html.print body .page-layout h5::before {
@@ -410,8 +426,35 @@ html.print body .page-layout h5::before {
   background-color: var(--highlight);
 }
 
+html.print body .page-layout > h5 {
+  padding: 0.05in 0.25in;
+}
+
 html.print body .grid-layout {
   display: grid;
+}
+
+html.print body .notepad {
+  position: relative;
+  overflow: hidden;
+}
+
+html.print body .notepad .handwrite-zone {
+  opacity: 0.25;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: -webkit-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -webkit-linear-gradient(var(--text-color) 1px, transparent 0);
+  background-image: -moz-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -moz-linear-gradient(var(--text-color) 1px, transparent 0);
+  background-image: -o-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -o-linear-gradient(var(--text-color) 1px, transparent 0);
+  background-image: -ms-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -ms-linear-gradient(var(--text-color) 1px, transparent 0);
+  -webkit-background-size: 100% 2em;
+  -moz-background-size: 100% 2em;
+  /* In a perfect world... */
+  background-image: linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), linear-gradient(var(--text-color) 1px, transparent 0);
+  background-size: 100% 2em;
 }
 
 html.print.listings .ref_number::before {
@@ -461,17 +504,25 @@ html.print.listings page.front-page .information {
   background-color: var(--background-color);
   text-align: right;
   grid-template-columns: 2.5in 1fr;
-  grid-template-rows: 350px auto;
+  grid-template-rows: 3.5in auto;
   gap: 0 0.25in;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in;
 }
 
 html.print.listings page.front-page .information .main-picture {
   grid-column: 1 / span 2;
+  height: 3.5in;
   overflow: hidden;
+  background-color: red;
+  position: relative;
 }
 
 html.print.listings page.front-page .information .main-picture img {
-  object-fit: cover;
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 html.print.listings page.front-page .information .transaction {
@@ -562,10 +613,96 @@ html.print.listings page.details .panel.icon-ribbon .item {
   text-align: center;
 }
 
+html.print.listings page.details .panel .area {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  place-items: center end;
+  margin-bottom: 0.1in;
+}
+
+html.print.listings page.details .panel .area label {
+  text-transform: uppercase;
+  margin: 0;
+}
+
+html.print.listings page.details .panel .area .value {
+  margin-right: 0.25in;
+  font-weight: 700;
+}
+
 html.print.listings page.details .panel .spec-grid {
   display: grid;
   grid-gap: 0.01in;
   grid-template-columns: repeat(2, 1fr);
+}
+
+html.print.listings page.details-part2 .page-background::after {
+  background-color: var(--background-color);
+  opacity: 0.75;
+}
+
+html.print.listings page.details-part2 .panel.map {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0.25in;
+  place-items: stretch;
+}
+
+html.print.listings page.details-part2 .panel.map .static-map {
+  width: 4in;
+  height: 4in;
+}
+
+html.print.listings page.details-part2 .panel.map .notepad .handwrite-zone {
+  top: 0.5in;
+  right: 0in;
+}
+
+html.print.listings page.details-part2 .in-ex,
+html.print.listings page.details-part2 .financial {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0.25in;
+}
+
+html.print.listings page.details-part2 .in-ex .list,
+html.print.listings page.details-part2 .financial .list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0.25in;
+}
+
+html.print.listings page.details-part2 .in-ex .assessment, html.print.listings page.details-part2 .in-ex .expense,
+html.print.listings page.details-part2 .financial .assessment,
+html.print.listings page.details-part2 .financial .expense {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "value" "label";
+  place-items: center;
+}
+
+html.print.listings page.details-part2 .in-ex .assessment label, html.print.listings page.details-part2 .in-ex .expense label,
+html.print.listings page.details-part2 .financial .assessment label,
+html.print.listings page.details-part2 .financial .expense label {
+  grid-area: label;
+  margin: 0;
+  font-weight: 400;
+}
+
+html.print.listings page.details-part2 .in-ex .assessment .value, html.print.listings page.details-part2 .in-ex .expense .value,
+html.print.listings page.details-part2 .financial .assessment .value,
+html.print.listings page.details-part2 .financial .expense .value {
+  grid-area: value;
+  font-size: 1.3rem;
+}
+
+html.print.listings page.rooms::after {
+  width: 0.05in;
+  height: 10.25in;
+  top: 0.25in;
+  background: red;
+  position: absolute;
+  left: 0px;
 }
 
 html.print.listings page.rooms .room-list {
@@ -575,7 +712,7 @@ html.print.listings page.rooms .room-list {
 
 html.print.listings page.rooms .room-list .room-item {
   display: grid;
-  grid-template-columns: 1fr 1in 1in 1.5in 1.5in;
+  grid-template-columns: 1fr 1in 1in 1.5in 2.5in;
 }
 
 html.print.listings page.rooms .room-list .room-item > div {
@@ -600,6 +737,46 @@ html.print.listings page.rooms .room-list .room-item.list-header {
 
 html.print.listings page.rooms .room-list .room-item.list-header > div {
   padding: 0;
+}
+
+html.print.listings page.rooms .unit {
+  position: relative;
+}
+
+html.print.listings page.rooms .unit .space-taken {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 0.01in;
+  background-color: red;
+}
+
+html.print.listings page.rooms .unit .summary-data {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background: var(--small-contrast-color);
+  color: var(--small-contrast-text-color);
+  border-radius: var(--element-border-radius);
+}
+
+html.print.listings page.rooms .unit .summary-data .flag {
+  text-align: center;
+  padding: 0.1in;
+}
+
+html.print.listings page.rooms .unit .summary-data .flag:not(:last-child) {
+  border-right: solid 0.01in var(--element-border-color);
+}
+
+html.print.listings page.rooms .unit .summary-data .flag em {
+  font-size: 1.75rem;
+  font-style: normal;
+}
+
+html.print.listings page.rooms .unit .summary-data .flag label {
+  font-weight: 400;
 }
 
 html.print.listings page.photos .photo-list {
@@ -633,10 +810,15 @@ html.print.listings page.photos .photo-list .item label {
   margin-bottom: 0px;
 }
 
+html.print.listings page.last-page .brokers {
+  width: 4.25in;
+}
+
 html.print.listings page.last-page .broker-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   grid-gap: 0.1in;
+  place-items: stretch;
 }
 
 html.print.listings page.last-page .broker-list .broker {
@@ -651,6 +833,7 @@ html.print.listings page.last-page .broker-list .broker {
 }
 
 html.print.listings page.last-page .broker-list .broker .infos {
+  width: 100%;
   padding: 0.1in;
 }
 
@@ -658,7 +841,6 @@ html.print.listings page.last-page .broker-list .broker .photo {
   width: 1in;
   height: 1.4in;
   grid-column: 1;
-  grid-row: 1 / span 3;
 }
 
 html.print.listings page.last-page .broker-list .broker .photo img {
@@ -669,11 +851,12 @@ html.print.listings page.last-page .broker-list .broker .photo img {
 
 html.print.listings page.last-page .broker-list .broker .name {
   font-family: var(--title-font);
-  font-size: 1.5em;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 html.print.listings page.last-page .broker-list .broker .license {
-  font-size: 0.8em;
+  font-size: 0.8rem;
 }
 
 html.print.listings page.last-page .broker-list .broker .contact .phone {
@@ -684,7 +867,7 @@ html.print.listings page.last-page .broker-list .broker .contact .phone {
 }
 
 html.print.listings page.last-page .broker-list .broker .contact .phone span {
-  font-size: 0.8em;
+  font-size: 0.8rem;
 }
 
 html.print.listings page.last-page .broker-list .broker .contact .phone span::after {
@@ -692,9 +875,18 @@ html.print.listings page.last-page .broker-list .broker .contact .phone span::af
 }
 
 html.print.listings page.last-page .broker-list .broker .contact .phone em {
-  font-size: 1.2em;
+  font-size: 1.15rem;
   font-style: normal;
   place-self: end;
+}
+
+html.print.listings page.last-page .notepad {
+  width: 4.125in;
+}
+
+html.print.listings page.last-page .notepad .handwrite-zone {
+  top: 1in;
+  right: 0.25in;
 }
 
 html.print.listings page.annex .page-layout {

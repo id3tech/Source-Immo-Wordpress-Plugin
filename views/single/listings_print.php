@@ -32,7 +32,6 @@
         <page class="details">
             
             
-            <div class="page-background blur-10"><img src="<?php echo($model->photos[1]->source_url) ?>"></div>
             <div class="page-layout">
 
                 <?php ImmoDB::view('single/listings_layouts/print/icon_ribbon', array('model'=>$model))?>
@@ -45,9 +44,23 @@
 
                 <?php ImmoDB::view('single/listings_layouts/print/land', array('model'=>$model))?>
 
-                <?php ImmoDB::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
-                <?php ImmoDB::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+            </div>
+            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+        </page>
 
+        <page class="details-part2">
+            
+            
+            <div class="page-layout">
+                <div class="in-ex">
+                    <?php ImmoDB::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
+                    <?php ImmoDB::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+                </div>
+
+                <?php ImmoDB::view('single/listings_layouts/print/financial', array('model'=>$model))?>
+                
+                <?php ImmoDB::view('single/listings_layouts/print/map', array('model'=>$model))?>                
             </div>
             <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
             <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
@@ -55,17 +68,7 @@
 
         <?php 
         if(isset($model->rooms)){
-        ?>
-        <page class="rooms">
-            <div class="page-layout">
-            <?php ImmoDB::view('single/listings_layouts/print/rooms', array('model'=>$model))?>
-            </div>
-
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
-            
-        </page>
-        <?php
+            ImmoDB::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }
         ?>
 
@@ -111,7 +114,7 @@
 
         <page class="last-page">
             <div class="page-layout">
-                <div class="panel overlay dock-top brokers">
+                <div class="panel overlay dock-left brokers">
                     <h3><?php _e('Presented by',IMMODB) ?></h3>
                     <div class="broker-list">
                         
@@ -122,6 +125,13 @@
                     ?>
                     </div>
 
+                    
+                </div>
+
+                <div class="panel overlay dock-right notepad">
+                        <h3><?php _e('Personnal note',IMMODB) ?></h3>
+                        <div class="handwrite-zone">
+                        </div>
                     
                 </div>
             </div>
@@ -166,7 +176,11 @@
         ?>
 
         <script type="text/javascript">
-            //window.print();
+        window.setTimeout(function(){
+            window.print();
+            window.close();
+        },1000)
+            
         </script>
 
         

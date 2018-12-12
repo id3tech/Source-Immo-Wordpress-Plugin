@@ -14,6 +14,7 @@ class ImmoDbShorcodes{
             'immodb_searchbox',
             // Broker - Sub shortcodes
             'immodb_broker_listings',
+            'immodb_broker_part',
             // Listing - Sub shorcodes
             'immodb_listing_part'
         );
@@ -142,6 +143,27 @@ class ImmoDbShorcodes{
         <?php
         $lResult = ob_get_clean();
 
+        return $lResult;
+    }
+
+    public function sc_immodb_broker_part($atts, $content){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'part' => ''
+            ), $atts )
+        );
+
+        $lResult = '';
+        
+        if($part != ''){
+            ob_start();
+
+            ImmoDB::view('single/brokers_layouts/subs/' . $part); 
+
+            $lResult = ob_get_clean();
+        }
+        
         return $lResult;
     }
     

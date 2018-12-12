@@ -47,7 +47,7 @@ else{?>
 }
 ?>
 <script type="text/javascript">
-var immodbBrokerData = JSON.parse(<?php echo(json_encode($data)); ?>);
+var immodbBrokerData = <?php echo(json_encode($data)); ?>;
 </script>
 <?php
 get_footer();

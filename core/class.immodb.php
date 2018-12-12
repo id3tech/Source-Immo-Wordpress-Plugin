@@ -433,6 +433,7 @@ class ImmoDB {
       $listingWrapper->extendedPreprocess($model);
 
       $model->permalink = ImmoDBListingsResult::buildPermalink($model, ImmoDB::current()->get_listing_permalink());
+      $model->tiny_url = ImmoDBTools::get_tiny_url('http://' . $_SERVER['HTTP_HOST'] . $model->permalink);
 
       add_action('wp_enqueue_scripts', function(){
         wp_dequeue_style('avia-grid');
@@ -467,8 +468,6 @@ class ImmoDB {
     if($broker_data != null){
       do_action('immodb_broker_detail_begin');
 
-      
-
       // hook to sharing tools
       $share_tool = new ImmoDbSharing($broker_data);
       $share_tool->addHook('broker');
@@ -499,7 +498,7 @@ class ImmoDB {
     $ref_number = get_query_var( 'ref_number' );
     // global $permalink, $post,$city_data;
 
-    // // load data
+    // load data
     // global $city_data;
     // $city_data = ImmoDBApi::get_city_listings_data($ref_number);
     // $city_data = new ImmoDBListingsResult($city_data);
@@ -891,7 +890,7 @@ class ImmoDBBrokersResult extends ImmoDBAbstractResult {
         $item->permalink = self::buildPermalink($item, ImmoDB::current()->get_broker_permalink());
       }
 
-      self::validatePagePermalinks($this->brokers);
+      self::validatePagePermalinks($this->brokers, 'broker');
     }
   }
 
@@ -901,6 +900,40 @@ class ImmoDBBrokersResult extends ImmoDBAbstractResult {
     $item->fullname = $item->first_name . ' ' . $item->last_name;
     if(isset($item->license_type_code)){
       $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
+    }
+
+    // cities
+    if(isset($item->listings)){
+      $cityList = array();
+      $cityListCode = array();
+
+      foreach ($item->listings as $listing) {
+        if(isset($listing->location->city_code)){
+          if(!in_array($listing->location->city_code,  $cityListCode)){
+            $cityListCode[] = $listing->location->city_code;
+            $cityList[] = (object) array(
+              'ref_number' => $listing->location->city_code,
+              'code' => $listing->location->city_code,
+              'name' => isset($listing->location->city) ? $listing->location->city : $dictionary->getCaption($listing->location->city_code , 'city'),
+              'region_code' => $listing->location->region_code,
+              'country_code' => $listing->location->country_code,
+              'state_code' => $listing->location->state_code,
+              'listing_count' => 1
+            );
+          }
+          else{
+            $index = array_search($listing->location->city_code, $cityListCode);
+            $cityList[$index]->listing_count += 1;
+          }
+        }
+      }
+
+      $cityListData = (object) array();
+      $cityListData->items = $cityList;
+      $cityListData->metadata = $this->metadata;
+
+      $citiesResult = new ImmoDBCitiesResult($cityListData);
+      $item->cities = $citiesResult->cities;
     }
   }
 }
@@ -920,7 +953,7 @@ class ImmoDBCitiesResult extends ImmoDBAbstractResult {
         $this->preprocess_item($item);
       }
       
-      self::validatePagePermalinks($this->cities);
+      self::validatePagePermalinks($this->cities, 'city');
     }
   }
 
@@ -951,7 +984,7 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
         $item->permalink = self::buildPermalink($item, ImmoDB::current()->get_listing_permalink());
       }
 
-      self::validatePagePermalinks($this->listings);
+      self::validatePagePermalinks($this->listings,'listing');
     }
   }
   
@@ -988,14 +1021,17 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
       $item->subcategory='';
     }
     $item->price_text = self::formatPrice($item->price);
-
-    foreach($item->brokers as $broker){
-      $brokerData = new ImmoDBBrokersResult();
-      $brokerData->preprocess_item($broker);
+    if(isset($item->brokers)){
+      foreach($item->brokers as $broker){
+        $brokerData = new ImmoDBBrokersResult();
+        $brokerData->preprocess_item($broker);
+      }
     }
-    
-    foreach($item->photos as $photo){
-      $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
+
+    if(isset($item->photos)){
+      foreach($item->photos as $photo){
+        $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
+      }
     }
   }
 
@@ -1039,6 +1075,21 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
         $item->land->attributes[] = $attr;
       }
 
+      $item->building->short_dimension = self::formatDimension($item->building->dimension);
+      if(isset($item->building->assessment)){
+        $item->building->assessment->amount_text = self::formatPrice($item->building->assessment->amount);
+      }
+
+      $item->land->short_dimension = self::formatDimension($item->land->dimension);
+      if(isset($item->land->assessment)){
+        $item->land->assessment->amount_text = self::formatPrice($item->land->assessment->amount);
+      }
+
+      if(isset($item->assessment)){
+        $item->assessment->amount_text = self::formatPrice($item->assessment->amount);
+      }
+
+
       if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'))){
         $item->other->attributes[] = $attr;
       }
@@ -1065,16 +1116,38 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     foreach($item->rooms as &$room){
       $room->category = $dictionary->getCaption($room->category_code , 'room_category');
       $room->flooring = $dictionary->getCaption($room->flooring_code , 'flooring');
-      $room->level_category = $dictionary->getCaption($room->level_category_code , 'level_category');
+      $room->level_category = (isset($room->level_category_code)) ? $dictionary->getCaption($room->level_category_code , 'level_category') : '';
       $room->short_dimension = self::formatDimension($room->dimension);
     }
 
+    foreach($item->units as &$unit){
+      $unit->flags = array();
+      if(isset($unit->room_count)){
+        $unit->flags[] = array('caption' => __('Rooms',IMMODB), 'value' => $unit->room_count);
+      }
+
+      if(isset($unit->bedroom_count)){
+        $unit->flags[] = array('caption' => __('Bedrooms',IMMODB), 'value' => $unit->bedroom_count);
+      }
+
+      if(isset($unit->bathroom_count)){
+        $unit->flags[] = array('caption' => __('Bathrooms',IMMODB), 'value' => $unit->bathroom_count);
+      }
+    }
+
+    foreach($item->expenses as &$expense){
+      $expense->type = $dictionary->getCaption($expense->type_code , 'expense_type');
+      $expense->amount_text = self::formatPrice($expense->amount);
+    }
   }
   
   public static function formatPrice($price){
     $lResult = array();
 
     $priceFormat = __('${0}',IMMODB);
+    if(is_numeric($price)){
+      return StringPrototype::format($priceFormat, number_format($price,0,"."," "));
+    }
 
     if(isset($price->sell)){
       $lResult[] = StringPrototype::format($priceFormat, number_format($price->sell->amount,0,"."," "));
@@ -1122,14 +1195,28 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     $lResult = '';
     if(isset($dimension) && $dimension != null){
         global $dictionary;
-        if(isset($dimension->width)){
-            $lUnit = $dictionary->getCaption($dimension->unit_code,'dimension_unit',true);
-            $lResult = StringPrototype::format('{0}{2} x {1}{2}', $dimension->width,$dimension->length, $lUnit);
+        $lResultPart = array();
+
+        if (isset($dimension->area)){
+          $lUnit = $dictionary->getCaption($dimension->area_unit_code,'dimension_unit',true);
+          //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
+          $lResultPart[] = StringPrototype::format('{0} {1}',$dimension->area, $lUnit);
         }
-        else if (isset($dimension->area)){
-            $lUnit = $dictionary->getCaption($dimension->area_unit_code,'dimension_unit',true);
-            //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
-            $lResult = StringPrototype::format('{0} {1}',$dimension->area, $lUnit);
+        
+        if(isset($dimension->width)){
+          
+            $lUnit = $dictionary->getCaption($dimension->unit_code,'dimension_unit',true);
+            $lSize = array();
+            $lSize[] = isset($dimension->width) ? StringPrototype::format('{0}{1}', $dimension->width, $lUnit) : __('NA',IMMODB);
+            $lSize[] = isset($dimension->length) ? StringPrototype::format('{0}{1}', $dimension->length, $lUnit) : __('NA',IMMODB);
+
+            $lResultPart[] = implode(' x ', $lSize);
+        }
+        if(count($lResultPart) > 1){
+          $lResult = StringPrototype::format('{0} ({1})', $lResultPart[0], $lResultPart[1]);
+        }
+        else{
+          $lResult = $lResultPart[0];
         }
     }
     return $lResult;
@@ -1206,7 +1293,7 @@ class ImmoDBAbstractResult{
     return '/'. str_replace(' ','-',$lResult);
   }
 
-  public static function validatePagePermalinks($list){
+  public static function validatePagePermalinks($list, $type){
     // query
     $posts = new WP_Query( array(
         'post_type' => 'page',
@@ -1226,11 +1313,23 @@ class ImmoDBAbstractResult{
         if(isset($item->permalink) && strpos($item->permalink, $pagePermalink)!== false){
           // remove item permalink 'ID'
           $lId = (isset($item->ref_number))?$item->ref_number: $item->code;
-          $lItemLink = str_replace($lId,'',$item->permalink);
+          $customPageLink = '';
+          switch ($type){
+            case 'city':
+              $customPageLink = str_replace($lId,'',$item->permalink);
+              break;
+            case 'broker':
+              $customPageLink = str_replace('/' . $lId,'-' . $lId,$item->permalink);
+              break;
+            case 'listing':
+              break;
+          }
+
+          //$lItemLink = str_replace($lId,'',$item->permalink);
           
-          if($pagePermalink == $lItemLink){
+          if($pagePermalink == $customPageLink){
             $item->has_custom_page = true;
-            $item->permalink = $lItemLink;
+            $item->permalink = $customPageLink;
           }          
         }
       }

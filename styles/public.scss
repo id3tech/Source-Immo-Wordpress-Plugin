@@ -2033,6 +2033,8 @@ $gt-laptop : 'min-width: 1100px';
                     grid-column: 1 / span 2;
                 }
             }
+
+           
         }
         &.loaded{
             .immodb-content{
@@ -2040,8 +2042,9 @@ $gt-laptop : 'min-width: 1100px';
                 opacity:1;
             }
         }
-    }
 
+        
+    }
 
     &.broker-single{
         label.placeholder{
@@ -2115,6 +2118,7 @@ $gt-laptop : 'min-width: 1100px';
                     display:grid;
                     grid-template-columns: 1fr 1fr;
                     place-items:center start;
+
                     @media screen and ($phone){
                         grid-template-columns: 1fr;
                     }
@@ -2124,13 +2128,13 @@ $gt-laptop : 'min-width: 1100px';
                             place-self: center stretch;
                         }
                         margin:10px 0;
-                        border:solid 1px #ccc;
+                        border:var(--element-border);
                         padding:5px 10px;
-                        border-radius:50px;
+                        border-radius:var(--element-border-radius);
                         input{
                             width:250px;outline:none;border:none;
                             &::placeholder{
-                                color:#333;opacity:0.5;
+                                color:var(--text-color);opacity:0.5;
                             }
                         }
                     }
@@ -2162,6 +2166,15 @@ $gt-laptop : 'min-width: 1100px';
                         ;
                 }
             }
+            .cities{
+                padding:10px;
+                .city{
+                    display:inline-block;
+                    padding: 10px;margin:5px;
+                    border: var(--element-border);
+                    border-radius: var(--element-border-radius);
+                }
+            }
         }
         &.loaded{
             > .immodb-content{
@@ -2169,33 +2182,8 @@ $gt-laptop : 'min-width: 1100px';
             }
         }
     }
-
-    #information_request{
-        $areas : 
-                'firstname' 'lastname' 'email' 
-                'phone' 'subject' 'message'
-                ;
-            @each $item in $areas {
-                .#{$item} {
-                    grid-area: #{$item};
-                }
-            }
-        
-        .modal-body{
-            .form{
-                display:grid;
-                grid-template-columns: 1fr 1fr;
-                grid-gap: 20px;
-                grid-template-areas: 
-                        "firstname lastname"
-                        "phone email"
-                        "subject subject"
-                        "message message"
-                    ;
-            }
-        }
-    }
 }
+
 
 #top .immodb-dropdown,
 .immodb-dropdown{
@@ -2347,6 +2335,55 @@ body.immodb-modal-open{
         .immodb-modal-dialog{
             transform:translate(-50%,-50%);
             box-shadow: rgba(#000,0.75) 5px 5px 30px;
+        }
+    }
+
+    
+    &#share-page{
+        .media-list{
+            display:grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
+            grid-gap:10px;
+            .share-item{
+                outline:none;
+                padding:10px;
+                text-align:center;
+                transition:0.25s;
+                border-radius:var(--element-border-radius);
+                cursor:pointer;
+                .fab{font-size:2.5rem;}
+                &:hover{
+                    background: var(--button-hover-bg-color);
+                    color:var(--button-hover-text-color);
+                    
+                }
+            }
+        }
+    }
+
+    &#information_request{
+        $areas : 
+                'firstname' 'lastname' 'email' 
+                'phone' 'subject' 'message'
+                ;
+            @each $item in $areas {
+                .#{$item} {
+                    grid-area: #{$item};
+                }
+            }
+        
+        .modal-body{
+            .form{
+                display:grid;
+                grid-template-columns: 1fr 1fr;
+                grid-gap: 20px;
+                grid-template-areas: 
+                        "firstname lastname"
+                        "phone email"
+                        "subject subject"
+                        "message message"
+                    ;
+            }
         }
     }
 }
@@ -2515,7 +2552,7 @@ body.immodb-modal-open{
                 opacity:0.75;
                 transition:0.25s;
             }
-            .fal{
+            .fal,.far,.fas{
                 position: absolute;top:50%;left:50%;transform:translate(-50%,-50%);
                 color:var(--button-text-color);
                 transition:0.25s;
@@ -2524,7 +2561,7 @@ body.immodb-modal-open{
                 &::before{
                     background-color:var(--button-hover-bg-color);
                 }
-                .fal{
+                .fal,.far,.fas{
                     color:var(--button-hover-text-color);
                 }
             }
@@ -2549,7 +2586,7 @@ body.immodb-modal-open{
                 opacity:0.75;
                 transition:0.25s;
             }
-            .fal{
+            .fal,.far,.fas{
                 position: absolute;top:50%;left:50%;transform:translate(-50%,-50%);
                 color:var(--button-text-color);
                 transition:0.25s;
@@ -2558,7 +2595,7 @@ body.immodb-modal-open{
                 &::before{
                     background-color:var(--button-hover-bg-color);
                 }
-                .fal{
+                .fal,.far,.fas{
                     color:var(--button-hover-text-color);
                 }
             }

@@ -16,17 +16,17 @@ ImmoDB::view('single/listings_layouts/_schema',array('model' => $data));
                     <div><?php _e('Loading property',IMMODB) ?></div>
                     <i class="fal fa-spinner-third fa-spin"></i></label>
                 <div class="immodb-content">
-            <?php 
-                $layout = ImmoDB::current()->get_detail_layout('listing');
-                if($layout->type=='custom_page'){
-                    // load page content
-                    $lPost = get_post($layout->page);
-                    echo(do_shortcode($lPost->post_content));
-                }
-                else{
-                    ImmoDB::view('single/listings_layouts/' . $layout->type);
-                }
-            ?>
+                <?php 
+                    $layout = ImmoDB::current()->get_detail_layout('listing');
+                    if($layout->type=='custom_page'){
+                        // load page content
+                        $lPost = get_post($layout->page);
+                        echo(do_shortcode($lPost->post_content));
+                    }
+                    else{
+                        ImmoDB::view('single/listings_layouts/' . $layout->type);
+                    }
+                ?>
                 </div>
             </div>
         </main>

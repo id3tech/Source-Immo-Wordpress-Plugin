@@ -3420,9 +3420,9 @@
 .immodb.broker-single > .immodb-content .listing-list .list-header .search-input {
   place-self: center end;
   margin: 10px 0;
-  border: solid 1px #ccc;
+  border: var(--element-border);
   padding: 5px 10px;
-  border-radius: 50px;
+  border-radius: var(--element-border-radius);
 }
 
 @media screen and (max-width: 640px) {
@@ -3441,7 +3441,7 @@
 
 #top .immodb.broker-single > .immodb-content .listing-list .list-header .search-input input::placeholder,
 .immodb.broker-single > .immodb-content .listing-list .list-header .search-input input::placeholder {
-  color: #333;
+  color: var(--text-color);
   opacity: 0.5;
 }
 
@@ -3497,47 +3497,23 @@
   grid-area: country;
 }
 
+#top .immodb.broker-single > .immodb-content .cities,
+.immodb.broker-single > .immodb-content .cities {
+  padding: 10px;
+}
+
+#top .immodb.broker-single > .immodb-content .cities .city,
+.immodb.broker-single > .immodb-content .cities .city {
+  display: inline-block;
+  padding: 10px;
+  margin: 5px;
+  border: var(--element-border);
+  border-radius: var(--element-border-radius);
+}
+
 #top .immodb.broker-single.loaded > .immodb-content,
 .immodb.broker-single.loaded > .immodb-content {
   display: grid;
-}
-
-#top .immodb #information_request .firstname,
-.immodb #information_request .firstname {
-  grid-area: firstname;
-}
-
-#top .immodb #information_request .lastname,
-.immodb #information_request .lastname {
-  grid-area: lastname;
-}
-
-#top .immodb #information_request .email,
-.immodb #information_request .email {
-  grid-area: email;
-}
-
-#top .immodb #information_request .phone,
-.immodb #information_request .phone {
-  grid-area: phone;
-}
-
-#top .immodb #information_request .subject,
-.immodb #information_request .subject {
-  grid-area: subject;
-}
-
-#top .immodb #information_request .message,
-.immodb #information_request .message {
-  grid-area: message;
-}
-
-#top .immodb #information_request .modal-body .form,
-.immodb #information_request .modal-body .form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 20px;
-  grid-template-areas: "firstname lastname" "phone email" "subject subject" "message message";
 }
 
 #top .immodb-dropdown,
@@ -3751,6 +3727,72 @@ body.immodb-modal-open #wpadminbar {
 .immodb-modal.opened .immodb-modal-dialog {
   transform: translate(-50%, -50%);
   box-shadow: rgba(0, 0, 0, 0.75) 5px 5px 30px;
+}
+
+#top .immodb-modal#share-page .media-list,
+.immodb-modal#share-page .media-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-gap: 10px;
+}
+
+#top .immodb-modal#share-page .media-list .share-item,
+.immodb-modal#share-page .media-list .share-item {
+  outline: none;
+  padding: 10px;
+  text-align: center;
+  transition: 0.25s;
+  border-radius: var(--element-border-radius);
+  cursor: pointer;
+}
+
+#top .immodb-modal#share-page .media-list .share-item .fab,
+.immodb-modal#share-page .media-list .share-item .fab {
+  font-size: 2.5rem;
+}
+
+#top .immodb-modal#share-page .media-list .share-item:hover,
+.immodb-modal#share-page .media-list .share-item:hover {
+  background: var(--button-hover-bg-color);
+  color: var(--button-hover-text-color);
+}
+
+#top .immodb-modal#information_request .firstname,
+.immodb-modal#information_request .firstname {
+  grid-area: firstname;
+}
+
+#top .immodb-modal#information_request .lastname,
+.immodb-modal#information_request .lastname {
+  grid-area: lastname;
+}
+
+#top .immodb-modal#information_request .email,
+.immodb-modal#information_request .email {
+  grid-area: email;
+}
+
+#top .immodb-modal#information_request .phone,
+.immodb-modal#information_request .phone {
+  grid-area: phone;
+}
+
+#top .immodb-modal#information_request .subject,
+.immodb-modal#information_request .subject {
+  grid-area: subject;
+}
+
+#top .immodb-modal#information_request .message,
+.immodb-modal#information_request .message {
+  grid-area: message;
+}
+
+#top .immodb-modal#information_request .modal-body .form,
+.immodb-modal#information_request .modal-body .form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  grid-template-areas: "firstname lastname" "phone email" "subject subject" "message message";
 }
 
 #top .immodb-image-slider,
@@ -4007,8 +4049,10 @@ body.immodb-modal-open #wpadminbar {
   transition: 0.25s;
 }
 
-#top .immodb-image-slider .navigation-controls .btn .fal,
-.immodb-image-slider .navigation-controls .btn .fal {
+#top .immodb-image-slider .navigation-controls .btn .fal, #top .immodb-image-slider .navigation-controls .btn .far, #top .immodb-image-slider .navigation-controls .btn .fas,
+.immodb-image-slider .navigation-controls .btn .fal,
+.immodb-image-slider .navigation-controls .btn .far,
+.immodb-image-slider .navigation-controls .btn .fas {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -4022,8 +4066,10 @@ body.immodb-modal-open #wpadminbar {
   background-color: var(--button-hover-bg-color);
 }
 
-#top .immodb-image-slider .navigation-controls .btn:hover .fal,
-.immodb-image-slider .navigation-controls .btn:hover .fal {
+#top .immodb-image-slider .navigation-controls .btn:hover .fal, #top .immodb-image-slider .navigation-controls .btn:hover .far, #top .immodb-image-slider .navigation-controls .btn:hover .fas,
+.immodb-image-slider .navigation-controls .btn:hover .fal,
+.immodb-image-slider .navigation-controls .btn:hover .far,
+.immodb-image-slider .navigation-controls .btn:hover .fas {
   color: var(--button-hover-text-color);
 }
 
@@ -4072,8 +4118,10 @@ body.immodb-modal-open #wpadminbar {
   transition: 0.25s;
 }
 
-#top .immodb-image-slider .controls .btn .fal,
-.immodb-image-slider .controls .btn .fal {
+#top .immodb-image-slider .controls .btn .fal, #top .immodb-image-slider .controls .btn .far, #top .immodb-image-slider .controls .btn .fas,
+.immodb-image-slider .controls .btn .fal,
+.immodb-image-slider .controls .btn .far,
+.immodb-image-slider .controls .btn .fas {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -4087,8 +4135,10 @@ body.immodb-modal-open #wpadminbar {
   background-color: var(--button-hover-bg-color);
 }
 
-#top .immodb-image-slider .controls .btn:hover .fal,
-.immodb-image-slider .controls .btn:hover .fal {
+#top .immodb-image-slider .controls .btn:hover .fal, #top .immodb-image-slider .controls .btn:hover .far, #top .immodb-image-slider .controls .btn:hover .fas,
+.immodb-image-slider .controls .btn:hover .fal,
+.immodb-image-slider .controls .btn:hover .far,
+.immodb-image-slider .controls .btn:hover .fas {
   color: var(--button-hover-text-color);
 }
 

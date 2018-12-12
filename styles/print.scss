@@ -154,10 +154,11 @@ html.print{
             left:0;
             width:100%;
             @for $i from 1 through 5{
+                
                 h#{$i}{
                     position:relative;
-                    margin:0in 0;padding:0.05in 0.25in;
-                    text-align:right;
+                    margin:0in 0;
+                    text-align:right;padding:0.05in 0in;
                     &::before{
                        content:"";
                        position:absolute;top:50%;transform:translate(-100%, -50%);
@@ -165,6 +166,9 @@ html.print{
                        height:0.02in;border-radius:var(--element-border-radius);
                        background-color:var(--highlight);
                     }
+                }
+                > h#{$i}{
+                    padding:0.05in 0.25in;
                 }
             }
         }
@@ -175,6 +179,35 @@ html.print{
             display:grid;
         }
 
+        .notepad{
+            position:relative;
+            overflow:hidden;
+            .handwrite-zone{
+                opacity:0.25;
+                position: absolute;
+                top:0;left:0;bottom:0;right:0;
+                background-image: 
+                    -webkit-linear-gradient(0deg, transparent 5em, rgba(255,0,0,.2) 0, transparent 5.1em),
+                    -webkit-linear-gradient(var(--text-color) 1px, transparent 0);
+                background-image: 
+                    -moz-linear-gradient(0deg, transparent 5em, rgba(255,0,0,.2) 0, transparent 5.1em),
+                    -moz-linear-gradient(var(--text-color) 1px, transparent 0);
+                background-image: 
+                    -o-linear-gradient(0deg, transparent 5em, rgba(255,0,0,.2) 0, transparent 5.1em), 
+                    -o-linear-gradient(var(--text-color) 1px, transparent 0);
+                background-image: 
+                    -ms-linear-gradient(0deg, transparent 5em, rgba(255,0,0,.2) 0, transparent 5.1em), 
+                    -ms-linear-gradient(var(--text-color) 1px, transparent 0);
+                -webkit-background-size: 100% 2em;
+                -moz-background-size: 100% 2em;
+
+                /* In a perfect world... */
+                background-image: 
+                    linear-gradient(0deg, transparent 5em, rgba(255,0,0,.2) 0, transparent 5.1em), 
+                    linear-gradient(var(--text-color) 1px, transparent 0);
+                background-size: 100% 2em;
+            }
+        }
     }
     
     &.listings{
@@ -225,12 +258,15 @@ html.print{
                     background-color:var(--background-color);
                     text-align:right;
                     grid-template-columns: 2.5in 1fr;
-                    grid-template-rows: 350px auto;
+                    grid-template-rows: 3.5in auto;
                     gap:0 0.25in;
+                    box-shadow: rgba(#000,0.5) 0 0 0.25in;
                     .main-picture{
                         grid-column: 1 / span 2;
-                        overflow:hidden;
-                        img{object-fit: cover;}
+                        height:3.5in;
+                        overflow:hidden;background-color:red;
+                        position:relative;
+                        img{width:100%;min-height:100%;position: absolute;top:0;left:0;}
                     }
                     .transaction{text-transform:uppercase;}
                     .address{
@@ -302,7 +338,14 @@ html.print{
                             text-align:center;
                         }
                     }
-
+                    .area{
+                        display:grid;
+                        grid-template-columns: auto 1fr;
+                        place-items: center end;
+                        margin-bottom:0.1in;
+                        label{text-transform:uppercase;margin:0;}
+                        .value{margin-right:0.25in;font-weight: 700;}
+                    }
                     .spec-grid{
                         display:grid;
                         grid-gap:0.01in;
@@ -312,13 +355,81 @@ html.print{
                 
 
             }
+
+            &.details-part2{
+                .page-background{
+                    &::after{
+                        background-color:var(--background-color);
+                        opacity:0.75;
+                    }
+                }
+
+                .panel{
+                    
+                    &.map{
+                        display:grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-gap:0.25in;
+                        place-items:stretch;
+                        .static-map{
+                            width:4in;
+                            height:4in;
+                        }
+
+                        .notepad{
+                            
+                            .handwrite-zone{
+                                top:0.5in;
+                                right:0in;
+                               // width:4in;
+                               // height:3.5in;
+                            }
+                        }
+                    }
+                }
+                .in-ex,
+                .financial{
+                    display:grid;
+                    grid-template-columns: 1fr 1fr;
+                    grid-gap:0.25in;
+                    .list{
+                        display:grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-gap:0.25in;
+                    }
+                    .assessment,.expense{
+                        display:grid;
+                        grid-template-columns: 1fr;
+                        grid-template-areas: "value" "label";
+                        place-items:center;
+                        label{
+                            grid-area:label;
+                            margin:0;
+                            font-weight: 400;
+                        }
+                        .value{
+                            grid-area:value;
+                            font-size:1.3rem;
+                        }
+                    }
+                }
+            }
             &.rooms{
+                &::after{
+                    //content:"";
+                    width:0.05in;
+                    height:10.25in;
+                    top:0.25in;
+                    background:red;
+                    position: absolute;
+                    left:0px;
+                }
                 .room-list{
                     display:grid;
                     grid-template-columns:1fr;
                     .room-item{
                         display:grid;
-                        grid-template-columns: 1fr 1in 1in 1.5in 1.5in;
+                        grid-template-columns: 1fr 1in 1in 1.5in 2.5in;
                         > div{
                             padding:0.1in 0.1in 0.1in 0;
                             &:first-child{
@@ -338,6 +449,37 @@ html.print{
                         }
                     }
                 }
+
+                .unit{
+                    position:relative;
+                    .space-taken{
+                        position: absolute;
+                        top:0px;left:0px;width:0.01in;background-color:red;
+                    }
+                    .summary-data{
+                        display:flex;
+                        flex-direction:row;
+                        justify-content: center;
+                        align-items: center;
+                        background:var(--small-contrast-color);
+                        color:var(--small-contrast-text-color);
+                        border-radius: var(--element-border-radius);
+                        .flag{
+                            text-align:center;
+                            padding:0.1in;
+                            &:not(:last-child){
+                                border-right:solid 0.01in var(--element-border-color);
+                            }
+                            em{
+                                font-size:1.75rem;font-style:normal;
+                            }
+                            label{
+                                font-weight: 400;
+                            }
+                        }
+                    }
+                }
+                
             }
             &.photos{
                 .photo-list{
@@ -367,12 +509,15 @@ html.print{
                 }
             }
             &.last-page{
-
+                .brokers{
+                    width:4.25in;
+                }
                 .broker-list{
                     display:grid;
-                    grid-template-columns:1fr 1fr;
+                    grid-template-columns:1fr;
                     
                     grid-gap:0.1in;
+                    place-items:stretch;
                     .broker{
                         background-color:var(--background-color);
                         display:grid;
@@ -383,17 +528,18 @@ html.print{
                         border-radius:var(--element-border-radius);
                         grid-gap:0.1in;
                         .infos{
+                            width:100%;
                             padding:0.1in;
                         }
                         .photo{
                             width:1in;height:1.4in;
                             grid-column:1;
-                            grid-row:1 / span 3;
+                            
                             img{object-fit: cover;width:100%;height:100%;}
                         }
 
-                        .name{font-family: var(--title-font);font-size:1.5em;}
-                        .license{font-size:0.8em;}
+                        .name{font-family: var(--title-font);font-size:1.25rem;font-weight: 700;}
+                        .license{font-size:0.8rem;}
                         .contact{
                             
                             .phone{
@@ -402,19 +548,27 @@ html.print{
                                 place-items:end start;
                                 border-bottom:solid 0.01in var(--element-border-color);
                                 span{
-                                    font-size:0.8em;
+                                    font-size:0.8rem;
                                     &::after{
                                         content:" ";
                                     }
                                 }
                                 em{
-                                    font-size:1.2em;
+                                    font-size:1.15rem;
                                     font-style:normal;
                                     place-self:end;
                                 }
                             }
                             
                         }
+                    }
+                }
+
+                .notepad{
+                    width:4.125in;
+                    .handwrite-zone{
+                        top:1in;
+                        right:0.25in;
                     }
                 }
             }

@@ -191,14 +191,14 @@ class ImmoDBApi {
     }
 
     // check if the token is stored in transient
-    $lResult = get_transient('immodb_temp_auth_token');
+    $lResult = get_transient('immodb_temp_auth_token' . $api_key);
     
     if($lResult == '' || !self::token_is_valid($lResult)){
       // get access token from ImmoDb remote api
       $lResult = HttpCall::to('~','auth','get_token',$account_id,$api_key)->get();
       $lDiff = self::get_token_timelapse(json_decode($lResult));
 
-      set_transient('immodb_temp_auth_token', $lResult, $lDiff * MINUTE_IN_SECONDS);
+      set_transient('immodb_temp_auth_token' . $api_key, $lResult, $lDiff * MINUTE_IN_SECONDS);
       //Debug::write($lResult);
     }   
 
@@ -427,10 +427,10 @@ class ImmoDBApi {
     return $lResult;
   }
 
-
+  /**
+   * Get the listing data
+   */
   public static function get_listing_data($id){
-    
-    
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
@@ -443,6 +443,9 @@ class ImmoDBApi {
     return $lResult;
   }
 
+  /**
+   * Get the broker data
+   */
   public static function get_broker_data($id){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
@@ -456,6 +459,9 @@ class ImmoDBApi {
     return $lResult;
   }
   
+  /**
+   * Get the city listings data
+   */
   public static function get_city_listings_data($id){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
@@ -483,10 +489,12 @@ class ImmoDBApi {
     
     $lResult->items = $data_list;
 
-    
     return $lResult;
   }
 
+  /**
+   * Get account information
+   */
   public static function get_account(){
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
@@ -503,11 +511,12 @@ class ImmoDBApi {
   public static function send_message($request){
     $params = json_decode(json_encode($request->get_param('params')));
     $data = $params->data;
-    $metadata = $params->metadata;
+    $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
     $destination = ''; // implode(',',$params->destination);
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $random_hash = sha1($metadata->ref_number);
+    $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
+    $random_hash = sha1($hash_seed);
     
     $configs = ImmoDB::current()->configs;
     if($configs->mode == 'DEV'){

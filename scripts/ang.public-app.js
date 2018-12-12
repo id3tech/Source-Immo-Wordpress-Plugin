@@ -83,7 +83,7 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
  */
 ImmoDbApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce, $immodbHooks,$immodbFavorites){
+function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce, $immodbHooks,$immodbFavorites,$immodbShare){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -176,6 +176,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $immodbHooks.do('listing-message-model-post-process',$scope.message_model);
 
             $immodbHooks.do('listing-ready',$scope.model);
+
+            $immodbHooks.addFilter('immodb.share.data',$scope.setShareData);
             // print data to console for further informations
             console.log($scope.model);
         });
@@ -314,11 +316,16 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         // set brokers detail link
         let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
         $scope.model.brokers.forEach(function($e){
-            $e.detail_link = $immodbUtils.evaluate(lRoute.route,{item:$e});
+            $e.detail_link = $immodbUtils.sanitize($immodbUtils.evaluate(lRoute.route,{item:$e}));
             $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
         });
 
         $immodbHooks.do('single-listing-preprocess', $scope.model);
+    }
+
+    $scope.setShareData = function($data){
+        $data.description = $scope.model.description;
+        return $data;
     }
 
     /**
@@ -391,6 +398,10 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
     $scope.hasDimension = function($dimension){
         return $immodbUtils.hasDimension($dimension);
+    }
+
+    $scope.shareTo = function($social_media){
+        $immodbShare.execute($social_media);
     }
 });
 
@@ -496,8 +507,9 @@ function immodbMediaBoxCtrl ($scope){
  */
 ImmoDbApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig){
+function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig,$immodbHooks){
     $scope.filter_keywords = '';
+    $scope.message_model = {};
 
     // model data container - broker
     $scope.model = null;
@@ -585,13 +597,14 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
     $scope.preprocess = function(){
         // set basic information from dictionary
         $scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
-        $scope.model.languages            = 'N/A'.translate();
+        $scope.model.languages    = 'N/A'.translate();
         let lExpertises           = [];
         $scope.model.listings.forEach(function($e,$i,$arr){
-            let lNewItem = $scope.getCaption($e.category, 'listing_category');
+            let lNewItem = $scope.getCaption($e.category_code, 'listing_category');
             if(lExpertises.indexOf(lNewItem)<0){
                 lExpertises.push(lNewItem);
             }
+    
         });
         $scope.model.expertises = lExpertises.join(', ');
         $scope.list = $scope.model.listings;
@@ -606,7 +619,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
                                             );
 
         $scope.model.location = $scope.model.office.location;
-        $immodbUtils.compileListingList($scope.model.listings);        
+        $immodbUtils.compileListingList($scope.model.listings);           
     }
 
     $scope.getPhoneIcon = function($key){
@@ -683,10 +696,39 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
 
     /**
      * Send message to broker via API
-     * TODO
      */
     $scope.sendMessage = function(){
         console.log('message data:', $scope.message_model);
+        sessionStorage.setItem('user_infos',JSON.stringify({
+            firstname: $scope.message_model.firstname,
+            lastname: $scope.message_model.lastname,
+            phone: $scope.message_model.phone,
+            email: $scope.message_model.email
+        }));
+
+        let lSent = $immodbHooks.do('single-broker-send-message', $scope.message_model);
+
+        if(lSent!==true){
+            let lDestEmails = $scope.model.email;
+            lDestEmails = $immodbHooks.filter('single-broker-message-emails', lDestEmails, $scope.model);
+            
+            lMessage = {
+                type: 'broker_message',
+                destination: lDestEmails,
+                data: $scope.message_model
+            }
+
+            $immodbApi.rest('message', {params:lMessage}).then(function($response){
+                $scope.request_sent = true;
+            })
+        }
+    }
+
+    /**
+     * Send message to broker via API
+     */
+    $scope.validateMessage = function(){
+        
     }
 });
 
@@ -2251,12 +2293,13 @@ ImmoDbApp
                     filters: null,
                     filter_groups: null
                 };
+
                 $scope.query_text = null;
                 $scope.data.keyword = '';
                 $scope.data.min_price = null;
                 $scope.data.max_price = null;
                 $scope.data.location = null;
-    
+                
                 for(let $key in $scope.dictionary){
                     $scope.resetListSelections($scope.dictionary[$key]);
                 }
@@ -2367,8 +2410,40 @@ ImmoDbApp
                         lSaveAndBuild();
                     });
                 }
-    
+            }
+
+            $scope.sendMessage = function(){
+                console.log('message data:', $scope.message_model);
+                sessionStorage.setItem('user_infos',JSON.stringify({
+                    firstname: $scope.message_model.firstname,
+                    lastname: $scope.message_model.lastname,
+                    phone: $scope.message_model.phone,
+                    email: $scope.message_model.email
+                }));
+
+                let lSent = $immodbHooks.do('single-listing-send-message', $scope.message_model);
                 
+                console.log(lSent);
+
+                if(lSent!==true){
+                    let lDestEmails = $scope.model.brokers.map($e => $e.email);
+                    lDestEmails = $immodbHooks.filter('single-listing-message-emails', lDestEmails, $scope.model.brokers);
+                    
+                    lMessage = {
+                        type: 'information_request',
+                        metadata: {
+                            id : $scope.model.id,
+                            ref_number : $scope.model.ref_number,
+                            address : $scope.model.location.civic_address
+                        },
+                        destination: lDestEmails,
+                        data: $scope.message_model
+                    }
+
+                    $immodbApi.rest('message', {params:lMessage}).then(function($response){
+                        $scope.request_sent = true;
+                    })
+                }
             }
     
             $scope.addFilterGroup = function($field,$operator,$value, $label){
@@ -4757,22 +4832,20 @@ ImmoDbApp
     let dir_controller = function immodbModalCtrl($scope, $q,$immodbApi,$rootScope) {
 
         $scope.options = {
-            close_label : 'Close',
+            close_label : null,
             ok_label: 'OK'
         }
 
         console.log('listening to "show-' + $scope.modal_id + '" trigger');
-            $scope.$on('show-' + $scope.modal_id, function(){
-                console.log('show modal trigger received');
-                $scope.open();
-            });
+        $scope.$on('show-' + $scope.modal_id, function(){
+            console.log('show modal trigger received');
+            $scope.open();
+        });
 
         $scope.init = function(){
             if($scope.model==null){
                 $scope.model = {};
-            }
-
-            
+            }            
         }
 
         $scope.cancelEvent = function($event){
@@ -5811,6 +5884,15 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
         },500);
     }
 
+    $scope.appendToUrlQuery = function($url, $key, $value){
+        let lDataPrefix = '?';
+        if($url.indexOf('?') >=0){
+            lDataPrefix = '&';
+        }
+
+        return $url + lDataPrefix + $key + '=' + $value;
+    }
+
     return $scope;
 }]);
 
@@ -5977,6 +6059,66 @@ ImmoDbApp
 
     return $scope;
 }])
+
+ImmoDbApp
+.factory('$immodbShare', ['$q','$immodbHooks','$immodbUtils', 
+function immodbShare($q,$immodbHooks,$immodbUtils){
+    let $scope = {};
+
+    $scope.data = {
+        url : null,
+        url_timed : null,
+        text : null,
+        media :null, 
+        title: null
+    }
+    
+    $scope.init = function(){
+        $scope.data.url = window.location.href;
+        $scope.data.title = document.title;
+        $scope.data.description = document.description;
+        
+        console.log('share data', $scope.data);
+    }
+
+    $scope.execute = function($dest){
+        let lShareUrl = $scope.get_destination_format($dest);
+        
+        if($scope.data.url == null){
+            return false;
+        }
+
+        $scope.data = $immodbHooks.filter('immodb.share.data',$scope.data);
+
+        if($scope.data.url != null && $scope.data.url_timed==null){   
+            $scope.data.url_timed = $immodbUtils.appendToUrlQuery($scope.data.url, 't', moment().valueOf());
+        }
+
+        for($key in $scope.data){
+            lShareUrl = lShareUrl.replace('[' + $key + ']', escape($scope.data[$key]));
+        }
+
+
+        window.open(lShareUrl);
+    }
+
+    $scope.get_destination_format = function($dest){
+        let lFormats = {
+            'facebook' : 'https://www.facebook.com/sharer/sharer.php?u=[url_timed]',
+            'twitter' : 'https://twitter.com/intent/tweet?text=[title]&url=[url]',
+            'pinterest' : 'http://pinterest.com/pin/create/button/?url=[url]&media=[media]&description=[title]',
+            'googleplus' : 'https://plus.google.com/share?url=[url]',
+            'linkedin' : 'https://www.linkedin.com/shareArticle?summary=&ro=false&title=[title]&mini=true&url=[url]&source=',
+            'email' : 'mailto:?subject=[title]&body=[url]&v=3'
+        }
+
+        return lFormats[$dest];
+    }
+
+    $scope.init();
+
+    return $scope;
+}]);
 
 /* ------------------------------- 
         FILTERS
