@@ -13,9 +13,11 @@ class ImmoDbShorcodes{
             'immodb_search',
             'immodb_searchbox',
             // Broker - Sub shortcodes
+            'immodb_broker',
             'immodb_broker_listings',
             'immodb_broker_part',
             // Listing - Sub shorcodes
+            'immodb_listing',
             'immodb_listing_part'
         );
 
@@ -113,6 +115,40 @@ class ImmoDbShorcodes{
     }
 
     #region Broker - Sub shortcodes
+    public function sc_immodb_broker($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => ''
+            ), $atts )
+        );
+        
+        $data = json_decode(ImmoDBApi::get_broker_data($ref_number));
+        if($data != null){
+            global $dictionary;
+            $brokerWrapper = new ImmoDBBrokersResult();
+            $dictionary = new ImmoDBDictionary($data->dictionary);
+            $brokerWrapper->preprocess_item($data);
+        }
+        
+        ob_start();
+        ?>
+        <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+                class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
+        <?php
+        echo(do_shortcode($content));
+        ?>
+
+        </div>
+        <script type="text/javascript">
+        var immodbBrokerData = <?php 
+            echo(json_encode($data)); 
+        ?>;
+        </script>
+        <?php
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
 
     /**
      * Display broker listings
@@ -170,6 +206,43 @@ class ImmoDbShorcodes{
     #endregion
 
     #region Listing - Sub shortcodes
+
+    public function sc_immodb_listing($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => ''
+            ), $atts )
+        );
+        
+        $listing_data = json_decode(ImmoDBApi::get_listing_data($ref_number));
+        if($listing_data != null){
+            global $dictionary;
+            $listingWrapper = new ImmoDBListingsResult();
+            $dictionary = new ImmoDBDictionary($listing_data->dictionary);
+            $listingWrapper->preprocess_item($listing_data);
+            $listingWrapper->extendedPreprocess($listing_data);
+        }
+        
+        ob_start();
+        ImmoDB::view('single/listings_layouts/_schema',array('model' => $listing_data));
+        ?>
+        <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+                class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
+        <?php
+        echo(do_shortcode($content));
+        ?>
+
+        </div>
+        <script type="text/javascript">
+        var immodbListingData = <?php 
+            echo(json_encode($listing_data)); 
+        ?>;
+        </script>
+        <?php
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
 
     public function sc_immodb_listing_part($atts, $content){
         // Extract attributes to local variables

@@ -313,13 +313,6 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
         }
 
-        // set brokers detail link
-        let lRoute = $scope.permalinks.brokers.find(function($r){ return $r.lang==immodbCtx.locale});
-        $scope.model.brokers.forEach(function($e){
-            $e.detail_link = $immodbUtils.sanitize($immodbUtils.evaluate(lRoute.route,{item:$e}));
-            $e.license_type = $scope.getCaption($e.license_type_code, 'broker_license_type');
-        });
-
         $immodbHooks.do('single-listing-preprocess', $scope.model);
     }
 
@@ -816,11 +809,14 @@ ImmoDbApp
                 $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
                     // init dictionary
                     $immodbDictionary.init($response.dictionary);
+                    $immodbApi.rest_call('pages',{lang: 'fr'},{method:'GET'}).then(function($site_page_list){
+                        $immodbUtils.page_list = $site_page_list;
+                        $scope.dictionary = $response.dictionary;
+                        $scope.is_ready = true;
+                        // load data
+                        $scope.getList();
+                    });
                     
-                    $scope.dictionary = $response.dictionary;
-                    $scope.is_ready = true;
-                    // load data
-                    $scope.getList();
                 });
             }
     
@@ -5508,6 +5504,7 @@ ImmoDbApp
 .factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , '$sce',
 function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
     let $scope = {};
+    $scope.page_list = [];
 
     $scope.configs = null;
 
@@ -5605,6 +5602,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
      */
     $scope.getPermalink = function($item, $type){
         let lRoute = '';
+
         $type = (typeof $type=='undefined') ? 'listing' : $type;
         $scope.item = $item;
         
@@ -5614,9 +5612,29 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
             }
         });
 
-        let lResult = '/' + $immodbTemplate.interpolate(lRoute.route, $scope);
+        let lResult = $scope.sanitize('/' + $immodbTemplate.interpolate(lRoute.route, $scope));
 
-        return $scope.sanitize(lResult);
+        // search in page_permalink first
+        $scope.page_list.some(function($p){
+            let lCustomPage = '';
+            switch($type){
+                case 'broker':
+                    lCustomPage= lResult.replace('/' + $item.ref_number, '-' + $item.ref_number);
+                    break;
+                case 'listing':
+                    let lRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
+                    lCustomPage= lResult.replace(lRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
+                    console.log('custom page', lCustomPage);
+                    break;
+            }
+
+            if(lCustomPage != '' && lCustomPage == $p.permalink){
+                lResult = lCustomPage;
+                return true;
+            }
+        })
+
+        return lResult;
     }
 
     /**
@@ -5647,12 +5665,14 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
             $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
             $item.category = $scope.getCaption($item.category_code, 'listing_category');
             $item.transaction = $scope.getTransaction($item);
-            $item.permalink = $scope.getPermalink($item);
+            
             $item.short_price = $scope.formatPrice($item);
             $item.location.civic_address = '{0} {1}'.format(
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
                                                     );
+                
+            $item.permalink = $scope.getPermalink($item);
         }
     }
 

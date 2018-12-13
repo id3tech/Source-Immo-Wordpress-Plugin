@@ -1022,10 +1022,12 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     }
     $item->price_text = self::formatPrice($item->price);
     if(isset($item->brokers)){
-      foreach($item->brokers as $broker){
-        $brokerData = new ImmoDBBrokersResult();
-        $brokerData->preprocess_item($broker);
-      }
+      $data = (object) array();
+      $data->items = $item->brokers;
+      $data->metadata = $this->metadata;
+      $brokerDatas = new ImmoDBBrokersResult($data);
+
+      $item->brokers = $brokerDatas->brokers;
     }
 
     if(isset($item->photos)){
@@ -1215,7 +1217,7 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
         if(count($lResultPart) > 1){
           $lResult = StringPrototype::format('{0} ({1})', $lResultPart[0], $lResultPart[1]);
         }
-        else{
+        else if(count($lResultPart)>0){
           $lResult = $lResultPart[0];
         }
     }
@@ -1305,12 +1307,14 @@ class ImmoDBAbstractResult{
         'suppress_filters' => false
     ) );
     $pages = $posts->posts;
+     
 
     foreach ($pages as $page) {
-      $pagePermalink = str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page));
-
+      $pagePermalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
+      if($pagePermalink == '') continue;
+      
       foreach ($list as $item) {
-        if(isset($item->permalink) && strpos($item->permalink, $pagePermalink)!== false){
+        if(isset($item->permalink)){
           // remove item permalink 'ID'
           $lId = (isset($item->ref_number))?$item->ref_number: $item->code;
           $customPageLink = '';
@@ -1320,6 +1324,7 @@ class ImmoDBAbstractResult{
               break;
             case 'broker':
               $customPageLink = str_replace('/' . $lId,'-' . $lId,$item->permalink);
+              $item->custom_page_link = $customPageLink;
               break;
             case 'listing':
               break;
@@ -1330,7 +1335,7 @@ class ImmoDBAbstractResult{
           if($pagePermalink == $customPageLink){
             $item->has_custom_page = true;
             $item->permalink = $customPageLink;
-          }          
+          }
         }
       }
     }

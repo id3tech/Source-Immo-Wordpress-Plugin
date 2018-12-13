@@ -167,6 +167,9 @@ class ImmoDBApi {
     ) );
 
     $pages = $posts->posts;
+    foreach ($pages as &$page) {
+      $page->permalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
+    }
     //$pages = get_pages($args); 
 
     return $pages;
