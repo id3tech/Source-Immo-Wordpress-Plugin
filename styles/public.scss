@@ -2079,7 +2079,6 @@ $gt-laptop : 'min-width: 1100px';
             grid-template-columns: 2fr 1fr;
             grid-template-areas: 
                 "head head"
-                "bio languages"
                 "bio expertises"
                 ;
             .name{margin-bottom:0px;}
@@ -2092,7 +2091,9 @@ $gt-laptop : 'min-width: 1100px';
                 .title{
                     font-size:15px;
                 }
-            }    
+            } 
+            // Remove next line when "Language" becomes available
+            .languages{display:none;}   
         }
         .picture{
             border-bottom: solid 25px #ccc;
@@ -2351,7 +2352,8 @@ body.immodb-modal-open{
                 transition:0.25s;
                 border-radius:var(--element-border-radius);
                 cursor:pointer;
-                .fab{font-size:2.5rem;}
+                .fab,.far,.fas,.fal{font-size:2.5rem;}
+                label{display:block;}
                 &:hover{
                     background: var(--button-hover-bg-color);
                     color:var(--button-hover-text-color);
@@ -2899,6 +2901,24 @@ body.immodb-modal-open{
             margin:0 auto;
 
             .content{border:none;}
+        }
+    }
+
+    .immodb-list-of-listings,.immodb-list-of-brokers{
+        a{
+            position:initial !important;
+        
+            .image-overlay{
+                display:none !important;
+                left:2px !important;
+                top:2px !important;
+                width:calc(100% - 4px) !important;
+                height:calc(100% - 4px) !important;
+                //border-radius:var(--element-border-radius);
+                overflow: hidden;
+                position: absolute;
+                background:var(--highlight);
+            }
         }
     }
     

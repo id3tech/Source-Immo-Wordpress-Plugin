@@ -831,18 +831,33 @@ class ImmoDbSharing{
 
   public function seo_metas(){
     $this->set_meta("description", $this->desc());
+
+    $this->set_meta("name", $this->title(),'itemprop');
+    $this->set_meta("description", $this->desc(),'itemprop');
+    $this->set_meta("image", $this->image(),'itemprop');
     
-    $this->set_og_meta("title", $this->title());
-    $this->set_og_meta("description", $this->desc());
-    $this->set_og_meta("url", $this->url());
-    $this->set_og_meta("image", $this->image());
+    $this->set_social_meta("card","summary_large_image",array('twitter'));
+    $this->set_social_meta("title", $this->title(),array('og','twitter'));
+    $this->set_social_meta("description", $this->desc(),array('og','twitter'));
+    $this->set_social_meta("url", $this->url(),array('og','twitter'));
+    $this->set_social_meta("type", 'website',array('og','twitter'));
+    $this->set_social_meta("image", $this->image(),array('og','twitter'));
   }
 
-  public function set_meta($key, $value){
-    echo('<meta name="' . $key . '" content="' . $value . '"></meta>');
+  public function set_meta($key, $value,$metakey='name'){
+    echo('<meta '. $metakey .'="' . $key . '" content="' . $value . '"></meta>');
   }
-  public function set_og_meta($key, $value){
-    echo('<meta property="og:' . $key . '" content="' . $value . '"></meta>');
+
+  public function set_social_meta($key, $value, $prefixes){
+    $metaKeyNames = array(
+      'og' => 'property',
+      'twitter' => 'name',
+    );
+
+    foreach ($prefixes as $prefix) {
+      
+      echo('<meta '. $metaKeyNames[$prefix] . '="' . $prefix . ':' . $key . '" content="' . $value . '"></meta>');  
+    }
   }
 
   public function brokerPreprocess(){
@@ -855,7 +870,7 @@ class ImmoDbSharing{
     $this->title = $this->object->first_name . ' ' . $this->object->last_name;
     $this->desc = $this->object->license_type;
     $this->image = $this->object->photo->url;
-    $this->url = $this->object->permalink;
+    $this->url = '/' . $this->object->permalink;
   }
 
   public function listingPreprocess(){
@@ -867,8 +882,8 @@ class ImmoDbSharing{
 
     $this->title = $this->object->subcategory . ' ' . $this->object->location->full_address;
     $this->desc = isset($this->object->description) ? $this->object->description : '';
-    $this->image = $this->object->photos[0]->url;
-    $this->url = $this->object->permalink;
+    $this->image = $this->object->photos[0]->source_url;
+    $this->url = '/' . $this->object->permalink;
   }
 
   public function getPermalink(){

@@ -146,7 +146,6 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             else{
                 $immodbApi.getDefaultDataView().then(function($view){
                     // Load listing data from api
-                    console.log($view);
                     $immodbApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
@@ -168,15 +167,16 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             let lUserInfo = sessionStorage.getItem('user_infos');
             if(typeof(lUserInfo) != 'undefined'){
                 lUserInfo = JSON.parse(lUserInfo);
-                $scope.message_model.firstname = lUserInfo.firstname;
-                $scope.message_model.lastname = lUserInfo.lastname;
-                $scope.message_model.phone = lUserInfo.phone;
-                $scope.message_model.email = lUserInfo.email;
+                if(lUserInfo != null){
+                    $scope.message_model.firstname = lUserInfo.firstname;
+                    $scope.message_model.lastname = lUserInfo.lastname;
+                    $scope.message_model.phone = lUserInfo.phone;
+                    $scope.message_model.email = lUserInfo.email;
+                }
             }
             $immodbHooks.do('listing-message-model-post-process',$scope.message_model);
 
             $immodbHooks.do('listing-ready',$scope.model);
-
             $immodbHooks.addFilter('immodb.share.data',$scope.setShareData);
             // print data to console for further informations
             console.log($scope.model);
@@ -318,6 +318,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
     $scope.setShareData = function($data){
         $data.description = $scope.model.description;
+        $data.media = $scope.model.photos[0].source_url;
+        console.log('set share data',$data);
         return $data;
     }
 
@@ -5996,6 +5998,7 @@ function $immodbHooks($q){
 
     $scope.addFilter = function($key, $func, $priority){
         let lNewFilter = {key: $key, fn: $func};
+        
         if($priority == undefined || $priority > $scope._filters.length - 1){
             $scope._filters.push(lNewFilter);
         }
@@ -6032,7 +6035,7 @@ function $immodbHooks($q){
                 lFilters.push($f);
             }
         });
-
+        //console.log('filters', lFilters,'from', $scope._filters);
         lFilters.forEach(function($f){
             $default_value = $f.fn($default_value,$otherParams);
         });
@@ -6097,8 +6100,6 @@ function immodbShare($q,$immodbHooks,$immodbUtils){
         $scope.data.url = window.location.href;
         $scope.data.title = document.title;
         $scope.data.description = document.description;
-        
-        console.log('share data', $scope.data);
     }
 
     $scope.execute = function($dest){
@@ -6109,7 +6110,6 @@ function immodbShare($q,$immodbHooks,$immodbUtils){
         }
 
         $scope.data = $immodbHooks.filter('immodb.share.data',$scope.data);
-
         if($scope.data.url != null && $scope.data.url_timed==null){   
             $scope.data.url_timed = $immodbUtils.appendToUrlQuery($scope.data.url, 't', moment().valueOf());
         }
@@ -6123,12 +6123,13 @@ function immodbShare($q,$immodbHooks,$immodbUtils){
     }
 
     $scope.get_destination_format = function($dest){
+        
         let lFormats = {
             'facebook' : 'https://www.facebook.com/sharer/sharer.php?u=[url_timed]',
-            'twitter' : 'https://twitter.com/intent/tweet?text=[title]&url=[url]',
+            'twitter' : 'https://twitter.com/intent/tweet?url=[url]',
             'pinterest' : 'http://pinterest.com/pin/create/button/?url=[url]&media=[media]&description=[title]',
             'googleplus' : 'https://plus.google.com/share?url=[url]',
-            'linkedin' : 'https://www.linkedin.com/shareArticle?summary=&ro=false&title=[title]&mini=true&url=[url]&source=',
+            'linkedin' : 'https://www.linkedin.com/sharing/share-offsite/?url=[url]',
             'email' : 'mailto:?subject=[title]&body=[url]&v=3'
         }
 

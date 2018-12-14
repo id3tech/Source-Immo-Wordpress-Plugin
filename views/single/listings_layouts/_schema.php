@@ -9,7 +9,7 @@ if(isset($model->open_houses) && count($model->open_houses) > 0){
     }
 }
 
-foreach ($model->brokers as $broker) {
-    $brokerSchema = new BrokerSchema($broker);
-    echo($brokerSchema->toJson());
-}
+// foreach ($model->brokers as $broker) {
+//     $brokerSchema = new BrokerSchema($broker);
+//     echo($brokerSchema->toJson());
+// }

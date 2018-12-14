@@ -3337,7 +3337,7 @@
   display: grid;
   grid-gap: 10px;
   grid-template-columns: 2fr 1fr;
-  grid-template-areas: "head head" "bio languages" "bio expertises";
+  grid-template-areas: "head head" "bio expertises";
 }
 
 #top .immodb.broker-single .info .head,
@@ -3376,6 +3376,11 @@
 .immodb.broker-single .info .languages .title,
 .immodb.broker-single .info .expertises .title {
   font-size: 15px;
+}
+
+#top .immodb.broker-single .info .languages,
+.immodb.broker-single .info .languages {
+  display: none;
 }
 
 #top .immodb.broker-single .picture,
@@ -3746,9 +3751,17 @@ body.immodb-modal-open #wpadminbar {
   cursor: pointer;
 }
 
-#top .immodb-modal#share-page .media-list .share-item .fab,
-.immodb-modal#share-page .media-list .share-item .fab {
+#top .immodb-modal#share-page .media-list .share-item .fab, #top .immodb-modal#share-page .media-list .share-item .far, #top .immodb-modal#share-page .media-list .share-item .fas, #top .immodb-modal#share-page .media-list .share-item .fal,
+.immodb-modal#share-page .media-list .share-item .fab,
+.immodb-modal#share-page .media-list .share-item .far,
+.immodb-modal#share-page .media-list .share-item .fas,
+.immodb-modal#share-page .media-list .share-item .fal {
   font-size: 2.5rem;
+}
+
+#top .immodb-modal#share-page .media-list .share-item label,
+.immodb-modal#share-page .media-list .share-item label {
+  display: block;
 }
 
 #top .immodb-modal#share-page .media-list .share-item:hover,
@@ -4591,4 +4604,19 @@ body.immodb-modal-open #wpadminbar {
 
 #top .immodb.listing-single .content, #top .immodb.broker-single .content {
   border: none;
+}
+
+#top .immodb-list-of-listings a, #top .immodb-list-of-brokers a {
+  position: initial !important;
+}
+
+#top .immodb-list-of-listings a .image-overlay, #top .immodb-list-of-brokers a .image-overlay {
+  display: none !important;
+  left: 2px !important;
+  top: 2px !important;
+  width: calc(100% - 4px) !important;
+  height: calc(100% - 4px) !important;
+  overflow: hidden;
+  position: absolute;
+  background: var(--highlight);
 }
