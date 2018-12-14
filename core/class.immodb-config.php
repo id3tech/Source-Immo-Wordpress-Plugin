@@ -74,6 +74,8 @@ class ImmoDBConfig {
   //public $broker_layout = 'standard';
   //public $broker_layout_page = null;
 
+  public $enable_custom_page = false;
+
   /**
    * Configuration constructor class
    */
@@ -171,6 +173,7 @@ class ImmoDBRoute{
     $this->lang = $lang;
     $this->route = $route;
   }
+
 }
 
 class ImmoDBLayout{

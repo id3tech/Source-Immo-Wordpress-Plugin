@@ -51,6 +51,7 @@ $locales.fr = {};$locales.fr.global =
     , "Development (recommanded for configuration or testing step)" : "Développement (recommandé lors de l'étape de configuration ou de test)"
     , "Production" : "Production"
     , "Form recipient" : "Destinataire de formulaire"
+    , "Enable custom page overrides" : "Permettre le surclassement par page personnalisée"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"
@@ -95,6 +96,15 @@ $locales.fr = {};$locales.fr.global =
     , "Shuffle first {0} elements" : "Mélanger les {0} premiers éléments"
     , "Configuration reset to demo mode" : "La configuration a été remise en mode démo"
     , "Result page" : "Page de résultat"
+    , "Search token" : "Jeton de recherche"
+    , "Last name" : "Nom de famille"
+    , "First name" : "Prénom"
+    , "Number of listings" : "Nombre de propriétés"
+    , "Inscription date" : "Date d'inscription"
+    , "Price" : "Prix"
+    , "City" : "Ville"
+    , "Name" : "Nom"
+    , "Region": "Région"
     // Operators
     , "and" : "et"
     , "or"  : "ou"

@@ -113,6 +113,7 @@ body.wp-admin #immodb-app .list-list .list-item .header {
   background: #2196F3;
   color: #fff;
   border-radius: 5px 5px 0 0;
+  cursor: pointer;
 }
 
 body.wp-admin #immodb-app .list-list .list-item .header .md-headline {

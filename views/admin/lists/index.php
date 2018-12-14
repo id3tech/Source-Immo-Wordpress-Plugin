@@ -26,7 +26,10 @@
 
         <md-input-container>
             <label><?php _e('Sort by',IMMODB) ?></label>
-            <input ng-model="model.sort" placeholder="ex.: location.city" />
+            <md-select ng-model="model.sort">
+                <md-option ng-repeat="elm in global_list.list_ordering_field[model.type]" ng-value="elm.name">{{elm.label.translate()}}</md-option>
+            </md-select>
+            
             <md-icon ng-click="switchSortReverse()" class="fal {{model.sort_reverse? 'fa-sort-amount-down' : 'fa-sort-amount-up'}}"></md-icon>
         </md-input-container>  
         

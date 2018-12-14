@@ -4,14 +4,14 @@
 <div class="list-list" ng-controller="listCollectionCtrl" ng-init="init()">
 
     <div class="list-item" ng-repeat="list in configs.lists">
-        <div class="header" layout="row" layout-align="space-between start">
-            <h3 class="md-headline" ng-click="edit(list)">
+        <div class="header" layout="row" layout-align="space-between start"  ng-click="edit(list)">
+            <h3 class="md-headline">
                 <span title="{{list.alias.length > 20 ? list.alias : ''}}">{{list.alias}}</span>
                 <sub>source: {{list.source.name}}</sub>
             </h3>
 
             <md-menu>
-                <md-button class="md-icon-button" ng-click="$mdOpenMenu()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
+                <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
                 <md-menu-content>
                     <md-menu-item>
                         <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-code"></md-icon> <?php _e('Copy shortcode',IMMODB) ?></md-button>

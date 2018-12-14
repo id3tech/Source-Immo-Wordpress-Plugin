@@ -369,7 +369,23 @@ ImmoDbApp
     detail_layouts:[
       {name: 'standard', label: 'Standard'},
       {name: 'custom_page', label : 'Custom layout from page'}
-    ]
+    ],
+    list_ordering_field:{
+      listings : [
+        {name: 'contract.start_date', label: 'Inscription date'},
+        {name: 'price.sell.amount, price.rental.amount', label: 'Price'},
+        {name: 'location.city_code', label: 'City'},
+      ],
+      brokers: [
+        {name: 'first_name', label: 'First name'},
+        {name: 'last_name', label: 'Last name'},
+        {name: 'listing_count', label: 'Number of listings'},
+      ],
+      cities: [
+        {name: 'name', label: 'Name'},
+        {name: 'region_code', label: 'Region'},
+      ]
+    }
   }
 
   $rootScope.current_page = 'home'

@@ -5,6 +5,8 @@
     <h2 class="md-headline"><?php _e('Permalinks',IMMODB)?></h2>
 
     <div class="block-content" layout="column" layout-align="start stretch">
+      <md-checkbox ng-model="configs.enable_custom_page"><?php _e('Enable custom page overrides',IMMODB) ?></md-checkbox>
+      
       <div class="route-item headers">
         <div><?php _e('Language',IMMODB)?></div>
         <div><?php _e('Route',IMMODB)?></div>

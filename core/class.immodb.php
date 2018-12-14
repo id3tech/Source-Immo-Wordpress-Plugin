@@ -40,6 +40,8 @@ class ImmoDB {
     ));
 
     if (!is_admin() ){
+      $this->apply_routes();
+
       $this->register_filters(array(
         'language_attributes' => 'set_html_attributes',
         'body_class' => 'body_class',
@@ -158,6 +160,13 @@ class ImmoDB {
       return $lPrefetch[0];
     }
     return null;
+  }
+
+  public function apply_routes(){
+    $routes = $this->update_routes(array());
+    foreach ($routes as $key => $value) {
+      add_rewrite_rule($key, $value);
+    }
   }
 
   /**
@@ -1338,6 +1347,10 @@ class ImmoDBAbstractResult{
   }
 
   public static function validatePagePermalinks($list, $type){
+    if(!ImmoDB::current()->configs->enable_custom_page){
+      return;
+    }
+    
     // query
     $posts = new WP_Query( array(
         'post_type' => 'page',

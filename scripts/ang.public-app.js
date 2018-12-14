@@ -5503,8 +5503,8 @@ function $immodbDictionary(){
 });
 
 ImmoDbApp
-.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , '$sce',
-function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
+.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , '$sce', '$immodbConfig',
+function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$immodbConfig){
     let $scope = {};
     $scope.page_list = [];
 
@@ -5602,7 +5602,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
      * Get permalink of the listing item
      * @param {object} $item Listing data object
      */
-    $scope.getPermalink = function($item, $type){
+    $scope.getPermalink = function($item, $type, $configs){
         let lRoute = '';
 
         $type = (typeof $type=='undefined') ? 'listing' : $type;
@@ -5615,27 +5615,29 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
         });
 
         let lResult = $scope.sanitize('/' + $immodbTemplate.interpolate(lRoute.route, $scope));
+        
+        // check if permalink overrides is allowed
+        if($immodbConfig._data.enable_custom_page){  
+            // search in page_permalink first
+            $scope.page_list.some(function($p){
+                let lCustomPage = '';
+                switch($type){
+                    case 'broker':
+                        lCustomPage= lResult.replace('/' + $item.ref_number, '-' + $item.ref_number);
+                        break;
+                    case 'listing':
+                        let lRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
+                        lCustomPage= lResult.replace(lRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
+                        console.log('custom page', lCustomPage);
+                        break;
+                }
 
-        // search in page_permalink first
-        $scope.page_list.some(function($p){
-            let lCustomPage = '';
-            switch($type){
-                case 'broker':
-                    lCustomPage= lResult.replace('/' + $item.ref_number, '-' + $item.ref_number);
-                    break;
-                case 'listing':
-                    let lRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
-                    lCustomPage= lResult.replace(lRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
-                    console.log('custom page', lCustomPage);
-                    break;
-            }
-
-            if(lCustomPage != '' && lCustomPage == $p.permalink){
-                lResult = lCustomPage;
-                return true;
-            }
-        })
-
+                if(lCustomPage != '' && lCustomPage == $p.permalink){
+                    lResult = lCustomPage;
+                    return true;
+                }
+            });
+        }
         return lResult;
     }
 
@@ -5653,6 +5655,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
      * @param {array} $list Array of listing item
      */
     $scope.compileListingList = function($list){
+        
         $list.forEach(function($e){
             $scope.compileListingItem($e);
         });
@@ -5661,6 +5664,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce){
     }
 
     $scope.compileListingItem = function($item){
+        
         if($item.category == undefined){
             $item.location.city = $scope.getCaption($item.location.city_code, 'city');
             $item.location.region = $scope.getCaption($item.location.region_code, 'region');
