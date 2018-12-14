@@ -783,6 +783,10 @@ class ImmoDbSharing{
 
   public function addHook($type){
     $this->{$type . 'Preprocess'}();
+
+    add_filter('document_title_parts', array($this, 'override_title'),10);
+    add_filter('wp_head', array($this,'seo_metas'),10,1);
+
     //Yoast
     add_filter('wpseo_title', array($this, 'title'), 10,1);
     add_filter('wpseo_metadesc', array($this,'desc'), 10,1);
@@ -790,32 +794,55 @@ class ImmoDbSharing{
     add_filter('wpseo_canonical',array($this,'url'),10,1);
   }
 
-  public function title($title){
+  public function override_title($title){
+    if($this->title != null){
+      array_unshift($title,$this->title);
+    }
+    return $title;
+  }
+
+  public function title($title='',$sep=''){
     if($this->title != null){
       $title = $this->title;
     }
     return $title;
   }
 
-  public function desc($desc){
+  public function desc($desc=''){
     if($this->desc != null){
       $desc = $this->desc;
     }
     return $desc;
   }
 
-  public function image($image_path){
+  public function image($image_path=''){
     if($this->image != null){
       $image_path = $this->image;
     } 
     return $image_path;
   }
 
-  public function url($url){
+  public function url($url=''){
     if($this->url != null){
       $url = $this->url;
     } 
     return $url;
+  }
+
+  public function seo_metas(){
+    $this->set_meta("description", $this->desc());
+    
+    $this->set_og_meta("title", $this->title());
+    $this->set_og_meta("description", $this->desc());
+    $this->set_og_meta("url", $this->url());
+    $this->set_og_meta("image", $this->image());
+  }
+
+  public function set_meta($key, $value){
+    echo('<meta name="' . $key . '" content="' . $value . '"></meta>');
+  }
+  public function set_og_meta($key, $value){
+    echo('<meta property="og:' . $key . '" content="' . $value . '"></meta>');
   }
 
   public function brokerPreprocess(){
