@@ -52,6 +52,7 @@ $locales.fr = {};$locales.fr.global =
     , "Production" : "Production"
     , "Form recipient" : "Destinataire de formulaire"
     , "Enable custom page overrides" : "Permettre le surclassement par page personnalisée"
+    , "Clear access token cache" : "Vider la cache du jeton d'accès"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"
@@ -303,6 +304,10 @@ $locales.fr = {};$locales.fr.global =
     , "{0} has no properties yet" : "{0} n'a aucune propriété pour l'instant"
     , "Loading broker" : "Chargement du courtier"
     , "Photo of {0}" : "Photo de {0}"
+    , "Read more" : "Lire plus"
+    , "Read less" : "Lire moins"
+    // PUBLIC - SINGLE CITY
+    , "Listings in {0}" : "Propriétés de {0}"
     // LIST NAVIGATION
     , "Previous" : "Précédant"
     , "Next" : "Suivant"

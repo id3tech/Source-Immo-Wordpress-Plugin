@@ -26,6 +26,10 @@
   --button-alt-hover-text-color: #fff;
   --listing-item-sold-bg-color: #ff8800;
   --listing-item-sold-text-color: #fff;
+  --listing-item-column-width: 340px;
+  --listing-item-picture-ratio: 0.66;
+  --broker-item-column-width: 280px;
+  --broker-item-picture-ratio: 1.5;
 }
 
 #top .immodb,
@@ -1446,7 +1450,7 @@
 .immodb .immodb-item.immodb-listing-item .content {
   grid-gap: 0;
   grid-template-columns: 3fr 1fr;
-  grid-template-rows: auto auto 200px auto;
+  grid-template-rows: auto auto calc(var(--listing-item-column-width) *  var(--listing-item-picture-ratio)) auto;
   grid-template-areas: "civic-address civic-address" "city city" "image image" "price price" "open-houses open-houses" "category category" "subcategory ref-number" "description description";
 }
 
@@ -1729,19 +1733,19 @@
 
 #top .immodb.immodb-list-of-listings .immodb-list,
 .immodb.immodb-list-of-listings .immodb-list {
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--listing-item-column-width), 1fr));
 }
 
 @media screen and (max-width: 768px) {
   #top .immodb.immodb-list-of-listings .immodb-list,
   .immodb.immodb-list-of-listings .immodb-list {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--listing-item-column-width) * 0.6), 1fr));
   }
 }
 
 #top .immodb.immodb-list-of-brokers .immodb-list,
 .immodb.immodb-list-of-brokers .immodb-list {
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--broker-item-column-width), 1fr));
 }
 
 #top .immodb.immodb-list-of-cities .immodb-list,
@@ -1762,6 +1766,103 @@
   grid-template-rows: auto;
   grid-gap: 20px;
   grid-template-areas: "search search search" "list list list";
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item {
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .city, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .price, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .category, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .description,
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .name, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .title, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .city,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .price,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .category,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .description,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .name,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .title,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone {
+  position: relative;
+  color: transparent;
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .price::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .category::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .description::before,
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count::before, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .price::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .category::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .description::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count::before,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone::before {
+  display: none;
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .price::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .category::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .description::after,
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .price::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .category::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .subcategory::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .ref-number::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .description::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .listings-count::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .phone::after {
+  content: "";
+  opacity: 0.10;
+  background-color: var(--text-color);
+  border-radius: 20px;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::after, #top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .city::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .civic-address::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .name::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .title::after {
+  background-color: var(--high-contrast-text-color);
+}
+
+#top .immodb.standard-layout .immodb-list-of-ghost .immodb-item .image::after,
+.immodb.standard-layout .immodb-list-of-ghost .immodb-item .image::after {
+  content: "\f03e";
+  font-family: 'Font Awesome 5 pro';
+  font-size: 80px;
+  color: var(--text-color);
+  opacity: 0.10;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 2s infinite ease-in-out;
 }
 
 #top .immodb.standard-layout .search-container,
@@ -1976,7 +2077,7 @@
 
 #top .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content,
 .immodb.standard-layout.immodb-list-of-brokers .immodb-item .content {
-  grid-template-rows: 300px auto;
+  grid-template-rows: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio)) auto;
   grid-template-areas: "image image" "name name" "title title" "listings-count listings-count" "contact contact";
 }
 
@@ -3335,7 +3436,7 @@
 #top .immodb.broker-single .info,
 .immodb.broker-single .info {
   display: grid;
-  grid-gap: 10px;
+  grid-gap: 20px;
   grid-template-columns: 2fr 1fr;
   grid-template-areas: "head head" "bio expertises";
 }
@@ -3381,6 +3482,33 @@
 #top .immodb.broker-single .info .languages,
 .immodb.broker-single .info .languages {
   display: none;
+}
+
+#top .immodb.broker-single .info .bio .button,
+.immodb.broker-single .info .bio .button {
+  display: none;
+}
+
+#top .immodb.broker-single .info .bio p:first-child,
+.immodb.broker-single .info .bio p:first-child {
+  margin-top: 0px;
+}
+
+#top .immodb.broker-single .info .bio.long .text,
+.immodb.broker-single .info .bio.long .text {
+  max-height: calc(4 * 1.55em);
+  transition: 0.25s;
+  overflow: hidden;
+}
+
+#top .immodb.broker-single .info .bio.long.expanded .text,
+.immodb.broker-single .info .bio.long.expanded .text {
+  max-height: 2000px;
+}
+
+#top .immodb.broker-single .info .bio.long .button,
+.immodb.broker-single .info .bio.long .button {
+  display: initial;
 }
 
 #top .immodb.broker-single .picture,
@@ -4277,9 +4405,22 @@ body.immodb-modal-open #wpadminbar {
   pointer-events: auto;
 }
 
-#top .immodb-searchbox.has-suggestions .input input,
-.immodb-searchbox.has-suggestions .input input {
-  border: solid 1px #ccc;
+#top .immodb-searchbox .clear-button,
+.immodb-searchbox .clear-button {
+  position: absolute;
+  cursor: pointer;
+  transition: 0.25s;
+  opacity: 0;
+  pointer-events: none;
+  top: 50%;
+  right: 0px;
+  transform: translateY(-50%);
+}
+
+#top .immodb-searchbox.has-input .clear-button,
+.immodb-searchbox.has-input .clear-button {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 #top .immodb-calculator,

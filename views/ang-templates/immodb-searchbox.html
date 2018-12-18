@@ -1,8 +1,9 @@
-<div class="immodb-searchbox {{suggestions.length>0 ? 'has-suggestions':''}}">
+<div class="immodb-searchbox {{data.keyword != '' ? 'has-input' : ''}} {{suggestions.length>0 ? 'has-suggestions':''}}">
     <div class="input">
         <i class="fal fa-search"></i>
         <input type="text" placeholder="{{placeholder.translate()}}"
             data-ng-model="data.keyword" data-ng-keyup="buildSuggestions($event)">
+        <i class="clear-button far fa-times" ng-click="resetFilters()"></i>
     </div>
 
     <div class="immodb-searchbox suggestion-list {{suggestions.length>0 ? 'has-suggestions':''}}" 

@@ -2,9 +2,13 @@
 /*
 Start up class for ImmoDB
 */
+if(!defined('IMMODB_API_HOST')){
+  define('IMMODB_API_HOST', 'https://api-v1.source.immo');
+}
 
 class ImmoDB {
-  const API_HOST = 'https://api-v1.source.immo';
+  
+  
 
   public $configs = null;
 
@@ -347,7 +351,7 @@ class ImmoDB {
     wp_add_inline_script( 'immodb-prototype', 
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', IMMODB_PLUGIN) . '");' .
                           '$locales.init("' . $lTwoLetterLocale . '");' .
-                          'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . self::API_HOST . '"};' .
+                          'var immodbApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . IMMODB_API_HOST . '"};' .
                           'var immodbCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', IMMODB_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . '};'
                         );
     if($lTwoLetterLocale!='en'){
@@ -509,11 +513,10 @@ class ImmoDB {
 
     // load data
     // global $city_data;
-    // $city_data = ImmoDBApi::get_city_listings_data($ref_number);
+    $city_data = ImmoDBApi::get_city_data($ref_number);
     // $city_data = new ImmoDBListingsResult($city_data);
-    // Debug::write($city_data);
-
-    //if($city_data != null){
+    
+    if($city_data != null){
       do_action('immodb_listing_detail_begin');
       // hook to sharing tools
       //$share_tool = new ImmoDbSharing($city_data);
@@ -533,13 +536,13 @@ class ImmoDB {
       //   $post_object->permalink = $permalink;
       // });
 
-      self::view('single/cities', array('ref_number'=>$ref_number, 'data' => null, 'permalink' => null));      
-    //}
-    // else{
-    //   header('http/1.0 404 not found');
+      self::view('single/cities', array('ref_number'=>$ref_number, 'data' => $city_data->items[0], 'permalink' => null));      
+    }
+    else{
+       header('http/1.0 404 not found');
 
-    //   self::view('single/cities_404', array());
-    // }
+       self::view('single/cities_404', array());
+    }
   }
 
   /**
@@ -799,8 +802,13 @@ class ImmoDbSharing{
     //Yoast
     add_filter('wpseo_title', array($this, 'title'), 10,1);
     add_filter('wpseo_metadesc', array($this,'desc'), 10,1);
-    add_filter('wpseo_opengraph_image', array($this, 'image'), 10,1);
+    add_filter('wpseo_image', array($this, 'image'), 10,1);
     add_filter('wpseo_canonical',array($this,'url'),10,1);
+    add_filter('wpseo_opengraph_title', array($this, 'title'), 10,1);
+    add_filter('wpseo_opengraph_desc', array($this,'desc'), 10,1);
+    add_filter('wpseo_opengraph_image', array($this, 'image'), 10,1);
+    add_filter('wpseo_opengraph_url',array($this,'url'),10,1);
+    add_filter('wpseo_twitter_image', array($this, 'image'), 10,1);
   }
 
   public function override_title($title){
@@ -1346,11 +1354,12 @@ class ImmoDBAbstractResult{
     return '/'. str_replace(' ','-',$lResult);
   }
 
-  public static function validatePagePermalinks($list, $type){
+  public static function validatePagePermalinks($list, $type = 'city'){
     if(!ImmoDB::current()->configs->enable_custom_page){
       return;
     }
-    
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+
     // query
     $posts = new WP_Query( array(
         'post_type' => 'page',
@@ -1362,7 +1371,7 @@ class ImmoDBAbstractResult{
         'suppress_filters' => false
     ) );
     $pages = $posts->posts;
-     
+    
 
     foreach ($pages as $page) {
       $pagePermalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
@@ -1384,12 +1393,17 @@ class ImmoDBAbstractResult{
             case 'listing':
               break;
           }
+          $customPageLink = rtrim($customPageLink,'/');
 
-          //$lItemLink = str_replace($lId,'',$item->permalink);
-          
           if($pagePermalink == $customPageLink){
             $item->has_custom_page = true;
             $item->permalink = $customPageLink;
+          }
+          else{
+            if($pagePermalink == '/' .$lTwoLetterLocale . $customPageLink){
+              $item->has_custom_page = true;
+              $item->permalink = '/'. $lTwoLetterLocale . $customPageLink;
+            }
           }
         }
       }
@@ -1550,6 +1564,8 @@ class BrokerSchema extends BaseDataSchema{
 
 class ListingSchema extends BaseDataSchema{
   public function __construct($listing){
+    if(!isset($listing->description)) $listing->description = '';
+
     $basicInfos = new BaseSchemaInfos($listing->subcategory . ' ' . $listing->transaction, $listing->photos, $listing->description);
     parent::__construct('Product',$basicInfos);
 

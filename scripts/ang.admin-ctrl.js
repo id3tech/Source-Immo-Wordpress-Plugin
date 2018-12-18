@@ -74,6 +74,12 @@ ImmoDbApp
     }
     return lResult;
   }
+
+  $scope.clearAccessToken = function(){
+    $scope.api('access_token',null, {method:'PATCH'}).then(function($response){
+      $scope.show_toast('Access token cleared');
+    });
+  }
 });
 
 
@@ -391,7 +397,7 @@ ImmoDbApp
   $rootScope.current_page = 'home'
   $scope.pages = {
     'home': {label: 'Home'.translate(), style: ''},
-    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-90vw);'},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(calc(-100vw + 180px));'},
   }
   
   $scope.data_views = [];
@@ -424,10 +430,10 @@ ImmoDbApp
   }
 
   $scope.load_wp_pages = function(){
-    $scope.api('pages',{lang: 'fr'},{method : 'GET'}).then(function($response){
+    $scope.api('pages',{locale: 'fr'},{method : 'GET'}).then(function($response){
       $scope.wp_pages.fr = $response;
     });
-    $scope.api('pages',{lang: 'en'},{method : 'GET'}).then(function($response){
+    $scope.api('pages',{locale: 'en'},{method : 'GET'}).then(function($response){
       $scope.wp_pages.en = $response;
     });
   }

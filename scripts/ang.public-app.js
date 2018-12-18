@@ -774,6 +774,25 @@ ImmoDbApp
              * Initialize the controller
              */
             $scope.init = function(){
+                $scope.ghost_list = [];
+                for(let $i = 0;$i<12; $i++){
+                    $scope.ghost_list.push({
+                        location :{city:'City',civic_address: '00 address'},
+                        price: {sell:{amount:0}},
+                        category: 'Category',
+                        subcategory: 'Subcategory',
+                        ref_number: 'XXXXXX',
+                        first_name: 'First name',
+                        last_name: 'Last name',
+                        license_type : 'License type',
+                        listing_count: 0,
+                        phones:{cell:'555-555-5555'},
+                        description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.'
+                        
+                    });
+                }
+                
+
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
                 
                 $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
@@ -807,18 +826,27 @@ ImmoDbApp
              * Start the loading process
              */
             $scope.start = function(){
+                //return;
                 // Prepare Api
                 $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
                     // init dictionary
                     $immodbDictionary.init($response.dictionary);
-                    $immodbApi.rest_call('pages',{lang: 'fr'},{method:'GET'}).then(function($site_page_list){
-                        $immodbUtils.page_list = $site_page_list;
+                    if($scope.configs.enable_custom_page){
+                        $immodbApi.rest_call('pages',{locale: immodbCtx.locale},{method:'GET'}).then(function($site_page_list){
+                            $immodbUtils.page_list = $site_page_list;
+                            $scope.dictionary = $response.dictionary;
+                            $scope.is_ready = true;
+                            // load data
+                            $scope.getList();
+                        });
+                    }
+                    else{
+                        $immodbUtils.page_list = [];
                         $scope.dictionary = $response.dictionary;
                         $scope.is_ready = true;
                         // load data
                         $scope.getList();
-                    });
-                    
+                    }
                 });
             }
     
@@ -917,8 +945,6 @@ ImmoDbApp
                     if($scope.is_loading_data == false){
                         $scope.setLoadingState(true);
                         
-                        
-
                         $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                             // set list/meta
                             if($scope.configs.type=='listings'){
@@ -927,6 +953,7 @@ ImmoDbApp
                             else{
                                 $scope.list = $immodbUtils.compileBrokerList($response.items);
                             }
+                            $scope.ghost_list = [];
                             
                             $scope.listMeta = $response.metadata;
                             // unlock
@@ -1386,6 +1413,16 @@ ImmoDbApp
                         // broadcast new search token
                         //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
                     }
+                    $scope.$on($scope.alias + 'filterUpdate', function(){
+                        console.log('filter updated');
+                        $scope.syncFiltersToUI();
+
+                        // check if there's filters stored
+                        if($scope.hasFilters()){
+                            // build hints
+                            $scope.buildHints();
+                        }
+                    });
                 });
             }
     
@@ -3307,17 +3344,18 @@ function immodbSearchBox($compile,$immodbUtils){
                     case 13: // on Enter, choose selection or first suggestion
                         if($scope.data.keyword==''){       
                             $scope.resetFilters();
+                            
                         }
                         else{
                             
-                            let lPassthrough = $scope.suggestions.every(function($e,$i){
+                            let lPassthrough = $scope.suggestions.some(function($e,$i){
                                 //console.log($i, $e.selected)
                                 if($e.selected===true){
                                     $e.action();
+                                    
                                     lResult = true;
-                                    return false;
+                                    return true;
                                 }
-                                return true;
                             });
                             if(lPassthrough){
                                 $scope.suggestions[0].action();
@@ -3597,6 +3635,7 @@ function immodbSearchBox($compile,$immodbUtils){
             * Reset all filter to nothing
             */
             $scope.resetFilters = function(){
+                $scope.data.keyword = '';
                 $scope.filter_group = {
                     operator: 'and',
                     filters: null,
@@ -3612,10 +3651,10 @@ function immodbSearchBox($compile,$immodbUtils){
                 }
 
                 $scope.resetListSelections($scope.listing_attributes);
-                $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
+                if($scope.bedroomSuggestions != undefined) $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
+                if($scope.bathroomSuggestions != undefined) $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
+                if($scope.parkingSuggestions != undefined) $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
+                if($scope.garageSuggestions != undefined) $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
 
                 // save filters to localStorage
                 $scope.clearState();
@@ -3690,6 +3729,8 @@ function immodbSearchBox($compile,$immodbUtils){
                                 if($scope.onTokenChange!=undefined){
                                     $scope.onTokenChange();
                                 }
+
+                                //$rootScope.$broadcast($scope.alias + 'filterUpdate');
                                 
                                 $resolve($token);
                             }
@@ -5628,7 +5669,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
                     case 'listing':
                         let lRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
                         lCustomPage= lResult.replace(lRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
-                        console.log('custom page', lCustomPage);
+                        
                         break;
                 }
 
@@ -6226,6 +6267,33 @@ ImmoDbApp
         return array;
     }
 });
+
+ImmoDbApp
+.filter('textToHtml', [function(){
+    return function($value){
+        if($value == null || $value == undefined) return '';
+        // check if the string is already html
+        const tagRegex = /<[^>]+>/gm;
+        $matches = tagRegex.exec($value);
+        if($matches!=null && $matches.length > 0){
+            return $value;
+        }
+
+        let lReplacements = [
+            {match: /(\n+)/gm, by: '</p><p>', wrap_by: 'p'},
+            {match: /(\n)/g, by: '<br />'},
+        ];
+
+        lReplacements.forEach(function($e){
+            $value = $value.replace($e.match, $e.by);
+            if($e.wrap_by != undefined){
+                $value = '<' + $e.wrap_by + '>' + $value + '</' + $e.wrap_by + '>';
+            }
+        })
+
+        return $value;
+    }
+}])
 
 ImmoDbApp
 .filter('formatDimension', ['$immodbUtils', function dimensionFilter($immodbUtils){

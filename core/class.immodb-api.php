@@ -11,11 +11,18 @@ class ImmoDBApi {
   */
   public static function init() {
     // Acquire access token to make call to the immodb remote api
-    register_rest_route( 'immodb','/access_token',
-      array(
-        'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'get_access_token' ),
+    register_rest_route( 'immodb','/access_token',array(
+        array(
+          'methods' => WP_REST_Server::READABLE,
+          //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+          'callback' => array( 'ImmoDBApi', 'get_access_token' ),
+        ), // End GET
+
+        array(
+          'methods' => WP_REST_Server::EDITABLE,
+          'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+          'callback' => array( 'ImmoDBApi', 'clear_access_token' ),
+        ), // End PATCH
       )
     );
 
@@ -44,7 +51,7 @@ class ImmoDBApi {
         //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
         'callback' => array( 'ImmoDBApi', 'get_pages' ),
         'args' => array(
-          'lang' => array(
+          'locale' => array(
             'required' => true,
             'type' => 'String',
             'description' => __( 'Page language filter', IMMODB ),
@@ -213,6 +220,13 @@ class ImmoDBApi {
     }
     
     return json_decode($lResult);
+  }
+
+  public static function clear_access_token(){
+    $api_key = ImmoDB::current()->get_api_key();
+    delete_transient('immodb_temp_auth_token' . $api_key);
+
+    return true;
   }
 
   private static function get_token_timelapse($token){
@@ -440,8 +454,8 @@ class ImmoDBApi {
     $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
 
     $lAccessToken = self::get_access_token();
-
-    $lResult = HttpCall::to('~', 'listing/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
+    
+    $lResult = HttpCall::to('~', 'listing/view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)->with_oauth($lAccessToken->key)->get();
     
     return $lResult;
   }
@@ -462,6 +476,26 @@ class ImmoDBApi {
     return $lResult;
   }
   
+
+  /**
+   * Get the listing data
+   */
+  public static function get_city_data($id){
+    $account_id = ImmoDB::current()->get_account_id();
+    $api_key = ImmoDB::current()->get_api_key();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $lFilters = array("st"=>urlencode(self::get_search_token(
+          array('code'=>$id),
+          (object) array('limit' => 0)
+    )));
+    $lAccessToken = self::get_access_token();
+    
+    $lResult = HttpCall::to('~', 'location/city/view',$view_id,$lTwoLetterLocale,'items/')->with_oauth($lAccessToken->key)->get($lFilters,true);
+    
+    return $lResult;
+  }
+
   /**
    * Get the city listings data
    */

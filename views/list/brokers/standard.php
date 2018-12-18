@@ -19,6 +19,15 @@
             </div>
             
         </div>
+
+        <div class="immodb-list immodb-list-of-ghost" data-ng-show="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
+            <div ng-repeat="item in ghost_list">
+            <?php 
+                ImmoDB::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
+            ?>
+            </div>
+        </div>
+
         <div class="next-page" data-ng-show="page_index>=2 && listMeta.next_token!=null && !is_loading_data">
             <button type="button" class="btn load-next-page" data-ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
         </div>

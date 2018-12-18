@@ -31,7 +31,7 @@ body.wp-admin #immodb-app .page-viewport {
 
 body.wp-admin #immodb-app .page-viewport .page-container {
   display: grid;
-  grid-template-columns: 90vw 90vw;
+  grid-template-columns: calc(100vw - 180px) calc(100vw - 180px);
   transition: 0.5s;
 }
 

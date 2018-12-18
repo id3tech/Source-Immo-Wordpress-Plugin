@@ -52,6 +52,21 @@ class StringPrototype{
     }
     return $result;
   }
+
+  public static function unsanitize($value){
+    $lWords = explode('-',$value);
+    foreach ($lWords as &$word) {
+      if(in_array($word,array(
+          'in','the','a','at',
+          'de'
+          ))) continue;
+      if($word != 'i' && strlen($word)==1) continue;
+
+      $word = ucfirst($word);
+    }
+    
+    return implode('-',$lWords);
+  }
 }
 
 
@@ -172,7 +187,9 @@ class HttpCall{
     $lInstance = new HttpCall();
 
     $lInstance->endpoint = implode($endpoint_parts, '/');
-    $lInstance->endpoint = str_replace('~', ImmoDB::API_HOST . '/api', $lInstance->endpoint);
+    $lInstance->endpoint = str_replace('~', IMMODB_API_HOST . '/api', $lInstance->endpoint);
+
+    
     return $lInstance;
   }
 
@@ -194,6 +211,7 @@ class HttpCall{
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
+    
     $lCurlHandle = $this->_setup_curl(array_merge(array(
       'CURLOPT_HTTPGET' => true,
       'CURLINFO_HEADER_OUT' => true,
