@@ -2,7 +2,9 @@
 
     <div class="search-box">
         
-        <immodb-search-box alias="<?php echo $configs->alias ?>" placeholder="<?php _e('Search a region, city, street',IMMODB) ?>"></immodb-search-box>
+        <immodb-search-box 
+                alias="<?php echo $configs->alias ?>" 
+                placeholder="<?php _e('Search a region, city, street',IMMODB) ?>"></immodb-search-box>
         
         <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="addGeoFilter()"></i>
     </div>
@@ -27,7 +29,6 @@
 
 
     <!-- Cities -->
-    
     <div class="filter-panel cities-panel {{isExpanded('cities')}}">
         <button class="panel-trigger {{isExpanded('cities')}} {{filterPanelHasFilters('location') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', IMMODB) ?></button>
         <div class="filter-panel-content">

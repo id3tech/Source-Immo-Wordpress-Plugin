@@ -1388,7 +1388,21 @@ ImmoDbApp
             $scope.init = function(){
                 // bind events
                 $rootScope.$on($scope.alias + 'SortDataChanged', $scope.onSortDataChanged);
-    
+                $scope.$on($scope.alias + 'filterUpdate', function(){
+                    console.log('filter updated');
+                    $scope.loadState();
+                    $scope.syncFiltersToUI();
+
+                    // check if there's filters stored
+                    if($scope.hasFilters()){
+                        // build hints
+                        $scope.buildHints();
+                    }
+                    else{
+                        console.log('No filter found');
+                    }
+                });
+
                 // prebuild suggestions
                 $scope.buildDropdownSuggestions();
                 // load state
@@ -1413,17 +1427,9 @@ ImmoDbApp
                         // broadcast new search token
                         //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
                     }
-                    $scope.$on($scope.alias + 'filterUpdate', function(){
-                        console.log('filter updated');
-                        $scope.syncFiltersToUI();
-
-                        // check if there's filters stored
-                        if($scope.hasFilters()){
-                            // build hints
-                            $scope.buildHints();
-                        }
-                    });
                 });
+
+                
             }
     
             /**
@@ -3487,6 +3493,10 @@ function immodbSearchBox($compile,$immodbUtils){
              * @param {*} $reverseFunc Function to remove the filter
              */
             $scope.addFilter = function($field,$operator,$value, $label, $reverseFunc){
+                if(typeof $scope.$parent.addFilter == 'function'){
+                    $scope.$parent.addFilter($field,$operator,$value,$label,$reverseFunc);
+                    return;
+                }
                 // When field is and array
                 if(typeof($field.push)=='function'){
                     $scope.addFilterGroup($field, $operator, $value, $label);
@@ -3727,10 +3737,12 @@ function immodbSearchBox($compile,$immodbUtils){
                                 }
 
                                 if($scope.onTokenChange!=undefined){
+                                    console.log('calling onTokenChange function',$scope.onTokenChange);
                                     $scope.onTokenChange();
                                 }
-
-                                //$rootScope.$broadcast($scope.alias + 'filterUpdate');
+                                else{
+                                    $rootScope.$broadcast($scope.alias + 'filterUpdate');
+                                }
                                 
                                 $resolve($token);
                             }
@@ -5121,7 +5133,7 @@ ImmoDbApp
 
 
 ImmoDbApp
-.directive('immodbRadio',[function immodbCheckbox(){
+.directive('immodbRadio',[function immodbRadio(){
     return {
         retrict: 'E',
         transclude:true,
