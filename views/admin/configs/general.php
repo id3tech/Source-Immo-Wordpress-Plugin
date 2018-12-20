@@ -16,7 +16,6 @@
 
     <div class="block-content" layout="column" layout-align="start stretch">
       
-      
       <div class="route-item headers">
         <div><?php _e('Language',IMMODB)?></div>
         <div><?php _e('Route',IMMODB)?></div>

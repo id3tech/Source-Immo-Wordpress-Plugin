@@ -55,6 +55,11 @@ class ImmoDBApi {
             'required' => true,
             'type' => 'String',
             'description' => __( 'Page language filter', IMMODB ),
+          ),
+          'type' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Type for permalink', IMMODB ),
           )
         )
       )
@@ -137,30 +142,20 @@ class ImmoDBApi {
     // change language
     global $sitepress;
     $lang = $request->get_param('lang');
+    $type = $request->get_param('type');
 
     if($sitepress){
       $sitepress->switch_lang( $lang, true );
     }
-    
-    
-    $args = array(
-      'sort_order' => 'asc',
-      'sort_column' => 'post_title',
-      'hierarchical' => 1,
-      'exclude' => '',
-      'include' => '',
-      'meta_key' => '',
-      'meta_value' => '',
-      'authors' => '',
-      'child_of' => 0,
-      'parent' => -1,
-      'exclude_tree' => '',
-      'number' => '',
-      'offset' => 0,
-      'post_type' => 'page',
-      'post_status' => 'publish',
-      'suppress_filters' => false
-    ); 
+    $lTypePermalink = ImmoDB::current()->get_permalink($type);
+    $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
+    //Debug::write($lTypePermalink);
+
+    // add_filter('posts_where', function ($where) use ($lTypePermalink) {
+    //   remove_filter('posts_where',function(){},11);
+    //   global $wpdb;
+    //   return $where.' AND '.$wpdb->posts.'.post_name LIKE "' . $lTypePermalink . '%"';
+    // },11);
 
     // query
     $posts = new WP_Query( array(
@@ -168,18 +163,22 @@ class ImmoDBApi {
         'posts_per_page' => -1,
         'post_status' => 'publish',
         'sort_order' => 'asc',
-      'sort_column' => 'post_title',
+        'sort_column' => 'post_title',
         'hierarchical' => 1,
         'suppress_filters' => false
     ) );
 
     $pages = $posts->posts;
+    $lResult = array();
     foreach ($pages as &$page) {
-      $page->permalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
+      $lPermalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
+      if(trim($lPermalink,'/') != trim($lTypePermalink,'/') && strpos($lPermalink, $lTypePermalink)!==false){
+        $page->permalink = $lPermalink;
+        $lResult[] = $page;
+      }
     }
-    //$pages = get_pages($args); 
-
-    return $pages;
+    
+    return $lResult;
   }
 
 

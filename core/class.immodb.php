@@ -76,9 +76,20 @@ class ImmoDB {
   }
 
   public function get_permalink($type){
+    $lTypeConvertion = array(
+      'brokers' => 'broker',
+      'listings' => 'listing',
+      'cities' => 'city'
+    );
+
+    if(isset($lTypeConvertion[$type])){
+      $type = $lTypeConvertion[$type];
+    }
+
     if(method_exists($this, "get_{$type}_permalink")){
       return $this->{'get_' . $type . '_permalink'}();
     }
+
     
     return '';
   }
@@ -1358,18 +1369,23 @@ class ImmoDBAbstractResult{
     if(!ImmoDB::current()->configs->enable_custom_page){
       return;
     }
+    $lTypePermalink = ImmoDB::current()->get_permalink($type);
+    $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
+
     $lTwoLetterLocale = substr(get_locale(),0,2);
+    // query args
+    $lQueryArgs = array(
+      'post_type' => 'page',
+      'posts_per_page' => -1,
+      'post_status' => 'publish',
+      'sort_order' => 'asc',
+      'sort_column' => 'post_title',
+      'hierarchical' => 1,
+      'suppress_filters' => false
+    );
 
     // query
-    $posts = new WP_Query( array(
-        'post_type' => 'page',
-        'posts_per_page' => -1,
-        'post_status' => 'publish',
-        'sort_order' => 'asc',
-        'sort_column' => 'post_title',
-        'hierarchical' => 1,
-        'suppress_filters' => false
-    ) );
+    $posts = new WP_Query( $lQueryArgs );
     $pages = $posts->posts;
     
 

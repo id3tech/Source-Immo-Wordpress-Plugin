@@ -739,7 +739,8 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
  * @param {string} class CSS class to add to template
  */
 ImmoDbApp
-.directive('immodbList', ['$immodbFavorites', function immodbList(){
+.directive('immodbList', ['$immodbFavorites', '$immodbConfig',
+function immodbList(){
     return {
         restrict: 'E',
         scope: {
@@ -751,7 +752,7 @@ ImmoDbApp
         link : function($scope){
             $scope.init();
         },
-        controller: function ($scope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbUtils,$immodbFavorites) {
+        controller: function ($scope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbUtils,$immodbFavorites,$immodbConfig) {
             $scope.configs = null;
             $scope.list = [];
             $scope.page = 1;
@@ -827,26 +828,28 @@ ImmoDbApp
              */
             $scope.start = function(){
                 //return;
-                // Prepare Api
-                $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
-                    // init dictionary
-                    $immodbDictionary.init($response.dictionary);
-                    if($scope.configs.enable_custom_page){
-                        $immodbApi.rest_call('pages',{locale: immodbCtx.locale},{method:'GET'}).then(function($site_page_list){
-                            $immodbUtils.page_list = $site_page_list;
+                $immodbConfig.get().then(function($global_configs){
+                    // Prepare Api
+                    $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
+                        // init dictionary
+                        $immodbDictionary.init($response.dictionary);
+                        if($global_configs.enable_custom_page){
+                            $immodbApi.rest_call('pages',{locale: immodbCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
+                                $immodbUtils.page_list = $site_page_list;
+                                $scope.dictionary = $response.dictionary;
+                                $scope.is_ready = true;
+                                // load data
+                                $scope.getList();
+                            });
+                        }
+                        else{
+                            $immodbUtils.page_list = [];
                             $scope.dictionary = $response.dictionary;
                             $scope.is_ready = true;
                             // load data
                             $scope.getList();
-                        });
-                    }
-                    else{
-                        $immodbUtils.page_list = [];
-                        $scope.dictionary = $response.dictionary;
-                        $scope.is_ready = true;
-                        // load data
-                        $scope.getList();
-                    }
+                        }
+                    });
                 });
             }
     
@@ -6104,7 +6107,7 @@ function $immodbHooks($q){
 }]);
 
 ImmoDbApp
-.factory('$immodbFavorites', ['$q', function($q){
+.factory('$immodbFavorites', ['$q', function $immodbFavorites($q){
     let $scope = {}
     
     $scope.favorites = [];
@@ -6281,7 +6284,7 @@ ImmoDbApp
 });
 
 ImmoDbApp
-.filter('textToHtml', [function(){
+.filter('textToHtml', [function textToHtml(){
     return function($value){
         if($value == null || $value == undefined) return '';
         // check if the string is already html
