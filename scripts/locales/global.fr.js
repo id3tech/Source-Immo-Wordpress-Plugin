@@ -53,6 +53,7 @@ $locales.fr = {};$locales.fr.global =
     , "Form recipient" : "Destinataire de formulaire"
     , "Enable custom page overrides" : "Permettre le surclassement par page personnalisée"
     , "Clear access token cache" : "Vider la cache du jeton d'accès"
+    , "Do you want to save the changes you've made?" : "Voulez-vous sauvegardez la modification ?"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"

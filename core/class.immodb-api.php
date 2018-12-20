@@ -297,6 +297,9 @@ class ImmoDBApi {
     ImmoDB::current()->configs->parse($config_value);
     ImmoDB::current()->configs->save();
 
+    // delete access token cache
+    self::clear_access_token();
+
     return self::get_configs();
   }
 

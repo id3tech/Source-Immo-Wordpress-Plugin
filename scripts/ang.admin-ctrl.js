@@ -112,6 +112,9 @@ ImmoDbApp
         }
       }
       
+      $scope.confirm("Do you want to save the changes you've made?").then(function(){
+        $scope.$emit('save-request');
+      });
     });
   }
 
@@ -408,6 +411,10 @@ ImmoDbApp
     $scope.load_configs();
     $scope.load_wp_pages();
     $scope.load_data_views();
+
+    $scope.$on('save-request', function(){
+      $scope.save_configs();
+    });
   }
 
   $scope.load_configs = function(){
@@ -471,6 +478,8 @@ ImmoDbApp
    * @return {promise}
    */
   $scope.confirm = function($title, $message, $options){
+    $message = typeof($message) == 'undefined' ? '' : $message;
+
     $options = angular.merge({
       ev: null,
       ok: 'OK',
