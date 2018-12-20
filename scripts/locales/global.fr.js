@@ -52,7 +52,7 @@ $locales.fr = {};$locales.fr.global =
     , "Production" : "Production"
     , "Form recipient" : "Destinataire de formulaire"
     , "Enable custom page overrides" : "Permettre le surclassement par page personnalisée"
-    , "Clear access token cache" : "Vider la cache du jeton d'accès"
+    , "Clear access token" : "Supprimer le jeton d'accès"
     , "Do you want to save the changes you've made?" : "Voulez-vous sauvegardez la modification ?"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"

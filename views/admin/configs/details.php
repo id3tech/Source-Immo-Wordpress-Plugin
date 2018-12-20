@@ -1,14 +1,4 @@
-<div class="config-grid-block">
-    <h2 class="md-headline"><?php _e('Data source',IMMODB)?></h2>
-    <div class="block-content" layout="column" layout-align="start stretch" layout-padding>
-        <md-input-container>
-            <label><?php _e('Default data view', IMMODB) ?></label>
-            <md-select ng-model="configs.default_view">
-                <md-option ng-repeat="item in data_views" value="{{item}}">{{item.name}} ({{item.id}})</md-option>
-            </md-select>
-        </md-input-container>
-    </div>
-</div>
+
 
 <div class="config-grid-block">
     <h2 class="md-headline"><?php _e('Listings',IMMODB)?></h2>

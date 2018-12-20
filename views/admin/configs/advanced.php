@@ -1,10 +1,25 @@
 <div class="advanced-settings">
     <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Information',IMMODB)?></h2>
+
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <h4><i class="fas fa-server"></i> <?php _e('API Host',IMMODB)?></h4>
+            <div><?php echo(IMMODB_API_HOST)?></div>
+        </div>
+    </div>
+
+    <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Cache',IMMODB)?></h2>
+
+        <div class="block-content">
+            <md-button ng-click="clearAccessToken()"><?php _e('Clear access token',IMMODB) ?></md-button>
+        </div>
+    </div>
+
+    <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Authentication',IMMODB)?></h2>
         <div class="block-content">
-            <div><i class="fas fa-server"></i> <?php echo(IMMODB_API_HOST)?></div>
-
-            <div layout="row" layout-align="start center" layout-padding>
+            <div layout="row" layout-align="start center">
                 <md-input-container flex>
                     <label><?php _e('API key',IMMODB)?></label>
                     <input ng-model="configs.api_key" required />
@@ -21,7 +36,7 @@
                 </md-input-container>
             </div>
 
-            <md-button ng-click="clearAccessToken()"><?php _e('Clear access token cache',IMMODB) ?></md-button>
+            
             
         </div>
         
@@ -30,7 +45,7 @@
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Mode',IMMODB)?></h2>
         <div class="block-content">
-            <div layout="row" layout-align="start center" layout-padding>
+            <div layout="row" layout-align="start center">
                 <md-input-container flex>
                     <label><?php _e('Deployment stage',IMMODB)?></label>
                     <md-select ng-model="configs.mode">
@@ -40,7 +55,7 @@
                 </md-input-container>
             </div>
 
-            <div layout="row" layout-align="start center" layout-padding ng-show="configs.mode=='DEV'">
+            <div layout="row" layout-align="start center" ng-show="configs.mode=='DEV'">
                 <md-input-container flex>
                     <label><?php _e('Form recipient',IMMODB) ?></label>
                     <input ng-model="configs.form_recipient" />
