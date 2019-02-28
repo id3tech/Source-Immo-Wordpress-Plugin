@@ -1,4 +1,3 @@
-
 /**
  * Main Configuration Controller
  */
@@ -152,6 +151,7 @@ ImmoDbApp
 .controller('listEditCtrl', function($scope, $rootScope,$q){
   BasePageController('listEdit', $scope,$rootScope);
 
+  
   $scope.model = {};
   $scope._original = null;
 
@@ -287,12 +287,14 @@ ImmoDbApp
       if($filter_group.filters){
           $filter_group.filters.forEach(function($filter){
               if(['in','not_in'].indexOf($filter.operator) >= 0){
-                  $filter.value = $filter.value.split(",");
-                  $filter.value.forEach(function($val){
-                      if(!isNaN($val)){
-                          $val = Number($val)
-                      }
-                  });
+                  if(typeof $filter.value.push == 'undefined'){
+                    $filter.value = $filter.value.split(",");
+                    $filter.value.forEach(function($val){
+                        if(!isNaN($val)){
+                            $val = Number($val)
+                        }
+                    });
+                  }
               }
               else{
                   if(!isNaN($filter.value)){
@@ -331,7 +333,7 @@ ImmoDbApp
  * MAIN ROOT CONTROLLER
  */
 ImmoDbApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$immodbApi,$immodbList,$immodbUI){
   $scope.configs = {};
   $scope.lang_codes = {
     fr: 'Français',
@@ -411,6 +413,7 @@ ImmoDbApp
     $scope.load_configs();
     $scope.load_wp_pages();
     $scope.load_data_views();
+    $immodbList.init();
 
     $scope.$on('save-request', function(){
       $scope.save_configs();
@@ -437,10 +440,10 @@ ImmoDbApp
   }
 
   $scope.load_wp_pages = function(){
-    $scope.api('pages',{locale: 'fr'},{method : 'GET'}).then(function($response){
+    $scope.api('pages',{locale: 'fr', type: ''},{method : 'GET'}).then(function($response){
       $scope.wp_pages.fr = $response;
     });
-    $scope.api('pages',{locale: 'en'},{method : 'GET'}).then(function($response){
+    $scope.api('pages',{locale: 'en', type: ''},{method : 'GET'}).then(function($response){
       $scope.wp_pages.en = $response;
     });
   }
@@ -478,23 +481,7 @@ ImmoDbApp
    * @return {promise}
    */
   $scope.confirm = function($title, $message, $options){
-    $message = typeof($message) == 'undefined' ? '' : $message;
-
-    $options = angular.merge({
-      ev: null,
-      ok: 'OK',
-      cancel: 'Cancel'
-    }, $options);
-    // Appending dialog to document.body to cover sidenav in docs app
-    var confirm = $mdDialog.confirm()
-          .title($title.translate())
-          .textContent($message.translate())
-          .targetEvent($options.ev)
-          .ok($options.ok.translate())
-          .cancel($options.cancel.translate());
-
-    confirm._options.parent = angular.element(document.body);
-    return $mdDialog.show(confirm);
+    return $immodbUI.confirm($title,$message, $options)
   }
 
   /**
@@ -502,19 +489,7 @@ ImmoDbApp
    * @param {string} $message 
    */
   $scope.show_toast = function($message){
-    try{
-      $mdToast.show(
-        $mdToast.simple()
-          .textContent($message.translate())
-          .position('top right')
-          .hideDelay(3000)
-      );
-    }
-    catch($ex){
-      console.log($ex);
-      console.log($message);
-    }
-    
+    $immodbUI.show_toast($message);
   }
 
   /**
@@ -523,16 +498,7 @@ ImmoDbApp
    * @param {*} $params 
    */
   $scope.dialog = function($dialog_id, $params){
-    let lPromise = $q(function($resolve, $reject){
-      $rootScope.$broadcast(
-          'on-' + $dialog_id,     // broadcast event
-          $params,                 // dialog parameters
-          function($result){      // callback handler
-            $resolve($result);
-          });
-    });
-
-    return lPromise;
+    return $immodbUI.dialog($dialog_id, $params);
   }
 
 
@@ -545,42 +511,7 @@ ImmoDbApp
    * @return {promise} Promise object
    */
   $scope.api = function($path, $data, $options){
-      $options = angular.merge({
-        url     : wpApiSettings.root + 'immodb/' + $path,
-        method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
-        headers: {
-           'X-WP-Nonce': wpApiSettings.nonce
-         },
-      }, $options);
-
-      if($options.method=='GET'){
-        $options.params = $data;
-      }
-      else{
-        $options.data = $data;
-      }
-
-      // Setup promise object
-      let lPromise = $q(function($resolve, $reject){
-          $http($options).then(
-            // On success
-            function success($result){
-              if($result.status=='200'){
-                $resolve($result.data);
-              }
-              else{
-                $reject(null);
-              }
-            },
-            // On fail
-            function fail($error){
-              console.log('Fail on path', $path, 'with data' , $data , $error);
-              $scope.show_toast($error);
-            }
-          )
-      });
-
-      return lPromise;
+      return $immodbApi.rest($path,$data,$options);
   }
   
 
@@ -677,25 +608,152 @@ ImmoDbApp
 
 /* DIRECTIVES */
 ImmoDbApp
-.directive('immodbFilterGroup', function(){
+.directive('immodbRouteBox', function immodbRouteBox($immodbUtils, $immodbList,$immodbUI){
+  return {
+    restrict : 'E',
+    scope : {
+      route : '=',
+      removeHandler : '&onRemove',
+      list : '=',
+      type: '@'
+    },
+    templateUrl : wpApiSettings.base_path + '/views/ang-templates/immodb-route-box.html',
+    replace: true,
+    link: function($scope, $elm, $attr){
+      $scope.init();
+    },
+    controller: function($scope){
+      $scope.lang_codes = {
+        fr: 'Français',
+        en: 'English',
+        es: 'Español'
+      }
+
+      $scope.route_listing_elements = {
+        '{{item.ref_number}}' : 'ID',
+        '{{item.transaction}}' : 'Transaction type',
+        '{{item.location.region}}' : 'Region',
+        '{{item.location.city}}' : 'City',
+        '{{item.location.street}}' : 'Street',
+        '{{item.location.civic_address}}' : 'Address'
+      }
+    
+      $scope.route_broker_elements = {
+        '{{item.ref_number}}' : 'ID',
+        '{{item.first_name}}' : 'First name',
+        '{{item.last_name}}' : 'Last name'
+      }
+    
+      $scope.route_city_elements = {
+        '{{item.ref_number}}' : 'ID',
+        '{{item.location.region}}' : 'Region',
+        '{{item.name}}' : 'Name'
+      }
+
+      $scope.route_default = {
+        listing : {
+          fr : 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
+          en : 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
+          es : 'casas/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'
+        },
+        broker : {
+          fr : 'courtiers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}',
+          en : 'brokers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}',
+          es : 'agentes/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}'
+        },
+        city : {
+          fr : 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
+          en : 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
+          es : 'ciudades/{{item.location.region}}/{{item.name}}/{{item.ref_number}}'
+        }
+      }
+
+      $scope.route_elements = {};
+      
+      $scope.init = function(){
+        $scope.route_elements = $scope['route_' + $scope.type + '_elements'];
+        
+      }
+
+      $scope.hasMinRouteCount = function(){
+        if($scope.list == null || $scope.list == undefined) return true;
+        if($scope.list.length <= 1) return true;
+
+        return false;
+      }
+
+      $scope.langIsUsed = function($lang){
+        if($scope.list == null || $scope.list == undefined) return true;
+        return $scope.list.some($e => $e.lang == $lang);
+      }
+
+      $scope.elementIsUsed = function($elm){
+        if($scope.route.route == '') return false;
+        
+        return $scope.route.route.indexOf($elm)>=0;
+      }
+
+      $scope.elementUseCount = function(){
+        let lResult = 0;
+        if($scope.route_elements == null || $scope.route_elements==undefined) return 0;
+        let lRouteElms = $immodbUtils.toKeyArray($scope.route_elements);
+        lRouteElms.forEach(function($e){
+          if($scope.route.route.indexOf($e) >= 0){
+            lResult++;
+          }
+        });
+
+        return lResult;
+      }
+
+      $scope.reset = function(){
+        $scope.route.route = $scope.route_default[$scope.type][$scope.route.lang];
+      }
+
+      $scope.elementAvailable = function(){
+        if ($scope.route_elements == null || $scope.route_elements==undefined) return 0;
+        let lRouteElms = $immodbUtils.toKeyArray($scope.route_elements);
+        let lResult = lRouteElms.length - $scope.elementUseCount();
+        return lResult;
+      }
+
+      $scope.remove = function(){
+        let fnRemove = function(){
+          $scope.list.forEach(function($e, $i){
+            if($e == $scope.route){
+              $scope.list.splice($i,1);
+              return;
+            }
+          });
+        }
+        if($scope.route.route == ''){
+          fnRemove();
+        }
+        else{
+          $immodbUI.confirm('Are you sure you want to remove this route?').then(function(){
+            fnRemove();
+          });
+        } 
+      }
+
+
+
+      $scope.addRouteElement = function($key){
+        $scope.route.route += $key;
+      }
+    },
+  }
+});
+
+ImmoDbApp
+.directive('immodbFilterGroup', function immodbFilterGroup(){
   let dir_controller = function ($scope,$rootScope) {
     $scope.filter_group_operators = {
       'and' : 'And',
       'or'  : 'Or'
     }
   
-    $scope.filter_operators = {
-      'equal'    : 'Equal to',
-      'not_equal'   : 'Different of',
-      'less_than'    : 'Less than',
-      'less_or_equal_to'    : 'Less or equals to',
-      'greater_than'    : 'Greater than',
-      'greater_or_equal_to'    : 'Greater or equals to',
-      'in'        : 'One of',
-      'not_in'     : 'Not one of',
-      'like'  : 'Contains',
-      'not_like'    : 'Does not contains'
-    };
+    
     
     $scope.$watch("model", function(){
       $scope.init();
@@ -757,8 +815,413 @@ ImmoDbApp
     template: '<div ng-include="\'filter-group\'" class="immodb-filter-group group-operator-{{model.operator}}"></div>',
     controller: dir_controller
   };
+});
+
+ImmoDbApp
+.directive('immodbFilterItem', function immodbFilterItem($immodbUtils, $immodbList){
+  return {
+    restrict : 'E',
+    scope : {
+      filter : '=ngModel',
+      removeHandler : '&onRemove'
+    },
+    templateUrl : wpApiSettings.base_path + '/views/ang-templates/immodb-filter-item.html',
+    replace: true,
+    link: function($scope, $elm, $attr){
+      $scope.init();
+    },
+    controller: function($scope){
+      $scope.value_choices = [];
+      $scope.selected_key =  'price.sell.amount';
+      $scope.selected_filter_key = null;
+
+      $scope.filter_key_list = [
+        {value: 'price.sell.amount'         , label: 'Selling price', value_type: 'number', op_out: ['like','not_like']},
+        {value: 'price.lease.amount'         , label: 'Leasing price', value_type: 'number', op_out: ['like','not_like']},
+        {value: 'location.country_code'     , label: 'Country', value_type: 'list', choices: 'getCountryList', op_in: ['in','not_in']},
+        {value: 'location.state_code'       , label: 'State/Province', value_type: 'list', choices: 'getStateList', op_in: ['in','not_in']},
+        {value: 'location.region_code'      , label: 'Region', value_type: 'list', choices: 'getRegionList', op_in: ['in','not_in']},
+        {value: 'location.city_code'        , label: 'City', value_type: 'list', choices: 'getCityList', op_in: ['in','not_in']},
+        {value: 'category_code'             , label: 'Category', value_type: 'list', choices: 'getCategoryList', op_in: ['in','not_in']},
+        {value: 'subcategory_code'          , label: 'Subcategory', value_type: 'list', choices: 'getSubcategoryList', op_in: ['in','not_in']},
+        {value: 'open_houses[0].end_date'   , label: 'Open house date', value_type: 'text', choices: 'udf.now():Now'},
+        {value: 'main_unit.bedroom_count'   , label: 'Bedroom count', value_type: 'number', op_out: ['like','not_like']},
+        {value: 'main_unit.bathroom_count'  , label: 'Bathroom count', value_type: 'number', op_out: ['like','not_like']},
+        {value: 'attributes.PARKING'        , label: 'Parking count', value_type: 'number', op_out: ['like','not_like']},
+        {value: 'attributes.GARAGE'         , label: 'Garage', value_type: 'bool', op_in: ['equal','not_equal']},
+        {value: 'attributes.POOL'           , label: 'Pool', value_type: 'bool', op_in: ['equal','not_equal']},
+        {value: 'status_code'               , label: 'Status', value_type: 'list', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['in','not_in']},
+      ];
+
+      $scope.filter_operators = [
+        {key: 'equal'               , value : 'Equal to'},
+        {key: 'not_equal'           , value: 'Different of'},
+        {key: 'less_than'           , value: 'Less than'},
+        {key: 'less_or_equal_to'    , value: 'Less or equals to'},
+        {key: 'greater_than'        , value: 'Greater than'},
+        {key: 'greater_or_equal_to' , value: 'Greater or equals to'},
+        {key: 'in'                  , value: 'One of'},
+        {key: 'not_in'              , value: 'Not one of'},
+        {key: 'like'                , value: 'Contains'},
+        {key: 'not_like'            , value: 'Does not contains'}
+      ];
+
+      $scope.init = function(){
+        $scope.selected_key = $scope.filter.field;
+        $scope.selected_filter_key = $scope.filter_key_list.find($e => $e.value == $scope.selected_key);
+        $scope.updateFilterChoices();
+      }
+
+      $scope.remove = function(){
+        if($scope.removeHandler != undefined){
+          $scope.removeHandler();
+        }
+      }
+
+      $scope.filterFieldChanged = function(){
+        $scope.filter.field=$scope.selected_key;
+        $scope.value_choices = [];
+        $scope.filter.value = '';
+        $scope.selected_filter_key = $scope.filter_key_list.find($e => $e.value == $scope.selected_key);
+        $scope.updateFilterChoices();
+      }
+
+      $scope.updateFilterChoices = function(){
+        if($scope.selected_filter_key.value_type == 'list'){
+          console.log('list from ', $scope.selected_filter_key.choices);
+
+          if(typeof($immodbList[$scope.selected_filter_key.choices]) == 'function'){
+            console.log($scope.selected_filter_key.choices, 'found');
+            $scope.value_choices = $immodbList[$scope.selected_filter_key.choices]();
+            console.log($scope.selected_filter_key.choices, $scope.value_choices);
+          }
+          else{
+            $scope.value_choices = $immodbUtils.stringToOptionList($scope.selected_filter_key.choices);
+          }
+        }
+      }
+
+      $scope.formatFilterValueList = function(){
+        if($scope.filter.value != null){
+          if(typeof $scope.filter.value.push == 'function'){
+            if($scope.filter.value.length==1){
+              return '1 item selected'.translate()
+            }
+            return '{0} items selected'.translate().format($scope.filter.value.length);
+          }
+        }
+
+        return $scope.filter.value;
+      }
+
+      $scope.operatorFilterByField = function($item){
+          if($item == null) return false;
+
+          if($scope.selected_key.op_in != undefined){
+            return $scope.selected_key.op_in.indexOf($item.key) >= 0;
+          }
+          else if ($scope.selected_key.op_out != undefined){
+            return !($scope.selected_key.op_out.indexOf($item.key) >= 0);
+          }
+
+
+          return true;
+      }
+
+    }
+  }
+  
 })
 
+
+/* SERVICES */
+ImmoDbApp
+.factory('$immodbUtils', [
+function $immodbUtils(){
+  let $scope = {};
+
+  $scope.stringToOptionList = function($source){
+    if($source == null || $source == undefined) return null;
+    if($source.indexOf('|') < 0) return [$source];
+
+    let lKeyValues = $source.split("|");
+    let lResult = [];
+    lKeyValues.forEach(function($e){
+      let lItemArr = $e.split(":");
+      let lItem = {
+        key : lItemArr[0],
+        label : lItemArr.length > 1 ? lItemArr[1] : lItemArr[0]
+      };
+
+      lResult.push(lItem);
+    });
+
+    return lResult;
+  }
+
+  $scope.toArray = function($source){
+    let lResult = [];
+    for($key in $source){
+      if(typeof $source[$key] != 'function'){
+        lResult.push($source[$key]);
+      }
+    }
+    return lResult;
+  }
+
+  $scope.toKeyArray = function($source){
+    let lResult = [];
+    for($key in $source){
+      if(typeof $source[$key] != 'function'){
+        lResult.push($key);
+      }
+    }
+    return lResult;
+  }
+
+  $scope.toKeyValueArray = function($source){
+    let lResult = [];
+    for($key in $source){
+      if(typeof $source[$key] != 'function'){
+        lResult.push({key: $key, value: $source[$key]});
+      }
+    }
+    return lResult;
+  }
+
+  return $scope;
+}]);
+
+
+ImmoDbApp
+.factory('$immodbList', [
+  '$immodbApi',
+  function $immodbList($immodbApi){
+    let $scope ={};
+    $scope.dictionary = null;
+
+    $scope.init = function($view_id){
+      $scope.fetchDictionary($view_id);
+    }
+
+    $scope.fetchDictionary = function($view_id){
+      $immodbApi.rest('dictionary').then(function($response){
+        $scope.dictionary = $response;
+      });
+    }
+
+    $scope.getCountryList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.country);
+    }
+
+    $scope.getStateList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.state);
+    }
+
+    $scope.getRegionList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.region);
+    }
+
+    $scope.getCityList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.city);
+    }
+
+    $scope.getCategoryList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.listing_category);
+    }
+
+    $scope.getSubcategoryList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.listing_subcategory);
+    }
+
+    $scope.getBuildingCategoryList = function(){
+      console.log($scope.dictionary);
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.building_category);
+    }
+
+    $scope.toArray = function($source){
+      let lResult = [];
+      for($key in $source){
+        lResult.push({key : $key, label: $source[$key].caption});
+      }
+
+      console.log('toArray:', lResult);
+      return lResult;
+    }
+
+    return $scope;
+  }
+]);
+
+ImmoDbApp
+.factory('$immodbApi', [
+  '$http','$q',
+  function $immodbApi($http,$q){
+    $scope = {};
+
+    $scope.rest = function($path, $data, $options){
+      $options = angular.merge({
+        url     : wpApiSettings.root + 'immodb/' + $path,
+        method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
+        headers: {
+           'X-WP-Nonce': wpApiSettings.nonce
+         },
+      }, $options);
+
+      if($options.method=='GET'){
+        $options.params = $data;
+      }
+      else{
+        $options.data = $data;
+      }
+
+      // Setup promise object
+      let lPromise = $q(function($resolve, $reject){
+          $http($options).then(
+            // On success
+            function success($result){
+              if($result.status=='200'){
+                $resolve($result.data);
+              }
+              else{
+                $reject(null);
+              }
+            },
+            // On fail
+            function fail($error){
+              console.log('Fail on path', $path, 'with data' , $data , $error);
+              $scope.show_toast($error);
+            }
+          )
+      });
+
+      return lPromise;
+    }
+
+    $scope.call = function($path, $data, $options){
+      $path = (typeof $path.push == 'function') ? $path.join('/') : $path;
+      $options = angular.merge({
+        url     : wpApiSettings.api_root + '/api/' + $path,
+        method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
+      }, $options);
+
+      if($options.method=='GET'){
+        $options.params = $data;
+      }
+      else{
+        $options.data = $data;
+      }
+
+      let lPromise = $q(function($resolve,$reject){
+        $http($options).then(
+          function onSuccess($response){
+            if($response.status == '200'){
+              $resolve($response.data);
+            }
+            else{
+              $reject(null);
+            }
+          },
+          function onFail($error){
+            console.log('Fail on path', $path, 'with data' , $data , $error);
+            $reject($error);
+          }
+        )
+      });
+
+      return lPromise;
+    }
+
+    return $scope;
+  }
+])
+
+
+ImmoDbApp
+.factory('$immodbUI',['$mdDialog','$mdToast', function $immodbUI($mdDialog,$mdToast){
+  $scope = {};
+
+  /**
+   * Display a confirmation box
+   * @param {string} $title Main confirm message
+   * @param {string} $message Optional. Additionnal information to help understand the main message. Default : empty
+   * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
+   * @return {promise}
+   */
+  $scope.confirm = function($title, $message, $options){
+    $message = typeof($message) == 'undefined' ? '' : $message;
+
+    $options = angular.merge({
+      ev: null,
+      ok: 'OK',
+      cancel: 'Cancel'
+    }, $options);
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.confirm()
+          .title($title.translate())
+          .textContent($message.translate())
+          .targetEvent($options.ev)
+          .ok($options.ok.translate())
+          .cancel($options.cancel.translate());
+
+    confirm._options.parent = angular.element(document.body);
+    return $mdDialog.show(confirm);
+  }
+
+  /**
+   * Display a notification toast in the top right of the screen
+   * @param {string} $message 
+   */
+  $scope.show_toast = function($message){
+    try{
+      $mdToast.show(
+        $mdToast.simple()
+          .textContent($message.translate())
+          .position('top right')
+          .hideDelay(3000)
+      );
+    }
+    catch($ex){
+      console.log($ex);
+      console.log($message);
+    }
+    
+  }
+
+  /**
+   * Call a dialog to open
+   * @param {string} $dialog_id 
+   * @param {*} $params 
+   */
+  $scope.dialog = function($dialog_id, $params){
+    let lPromise = $q(function($resolve, $reject){
+      $rootScope.$broadcast(
+          'on-' + $dialog_id,     // broadcast event
+          $params,                 // dialog parameters
+          function($result){      // callback handler
+            $resolve($result);
+          });
+    });
+
+    return lPromise;
+  }
+
+
+  return $scope;
+}]);
 
 
 /**
@@ -864,3 +1327,4 @@ function BasePageController($pageId, $scope, $rootScope){
 
   return $scope;
 }
+

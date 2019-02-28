@@ -87,16 +87,16 @@ class ImmoDBConfig {
 
     // init routes
     $this->listing_routes  = array(
-      new ImmoDBRoute('fr','proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'),
-      new ImmoDBRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'),
+      new ImmoDBRoute('fr','proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','propriete/{{item.ref_number}}/'),
+      new ImmoDBRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','listing/{{item.ref_number}}/'),
     );
     $this->broker_routes  = array(
-      new ImmoDBRoute('fr','courtiers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}'),
-      new ImmoDBRoute('en', 'brokers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}'),
+      new ImmoDBRoute('fr','courtiers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}/','courtier/{{item.ref_number}}/'),
+      new ImmoDBRoute('en', 'brokers/{{item.location.region}}/{{item.location.city}}/{{item.ref_number}}/','broker/{{item.ref_number}}/'),
     );
     $this->city_routes  = array(
-      new ImmoDBRoute('fr','villes/{{item.location.region}}/{{item.name}}'),
-      new ImmoDBRoute('en', 'cities/{{item.location.region}}/{{item.name}}'),
+      new ImmoDBRoute('fr','villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
+      new ImmoDBRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
     );
 
     // init layouts
@@ -125,6 +125,7 @@ class ImmoDBConfig {
     $savedConfigs = get_option('ImmoDBConfig');
     if($savedConfigs){
       $instance->parse(json_decode($savedConfigs));
+      $instance->normalizeRoutes();
     }
 
     return $instance;
@@ -139,6 +140,8 @@ class ImmoDBConfig {
   }
 
   public function save(){
+    $this->normalizeRoutes();
+
     update_option('ImmoDBConfig', json_encode($this));
     // save to file system too
     $lUploadDir   = wp_upload_dir();
@@ -160,6 +163,27 @@ class ImmoDBConfig {
     return $lResult;
   }
 
+  public function normalizeRoutes(){
+    $structure = get_option( 'permalink_structure' );
+    $structureEndsWithSlash = str_endswith($structure,'/');
+    
+    $this->normalizeRouteGroup($this->listing_routes, $structureEndsWithSlash);
+    $this->normalizeRouteGroup($this->broker_routes, $structureEndsWithSlash);
+    $this->normalizeRouteGroup($this->city_routes, $structureEndsWithSlash);
+  }
+
+  public function normalizeRouteGroup($group, $structureEndsWithSlash){
+    foreach ($group as $item) {
+      $routeEndsWithSlash = str_endswith($item->route, '/');
+      $shortcutEndsWithSlash = str_endswith($item->shortcut, '/');
+
+      if($structureEndsWithSlash && !$routeEndsWithSlash) $item->route = $item->route . '/';
+      if(!$structureEndsWithSlash && $routeEndsWithSlash) $item->route = rtrim($item->route,'/');
+
+      if($structureEndsWithSlash && !$shortcutEndsWithSlash) $item->shortcut = $item->shortcut . '/';
+      if(!$structureEndsWithSlash && $shortcutEndsWithSlash) $item->shortcut = rtrim($item->shortcut,'/');
+    }
+  }
   
 }
 
@@ -169,11 +193,11 @@ class ImmoDBRoute{
   public $lang = '';
   public $route = '';
 
-  public function __construct($lang='', $route=''){
+  public function __construct($lang='', $route='', $shortcut=''){
     $this->lang = $lang;
     $this->route = $route;
+    $this->shortcut = $shortcut;
   }
-
 }
 
 class ImmoDBLayout{

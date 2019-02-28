@@ -96,7 +96,11 @@ class ImmoDbShorcodes{
                 ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
+
+                $listData = ImmoDBApi::get_data($listConfig);
+
                 echo('<immodb-list immodb-alias="' . $alias . '" immodb-class="' . implode(' ' , $global_container_classes) . '" ></immodb-list>');
+                echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
                 echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
                 ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
                 echo('</script>');

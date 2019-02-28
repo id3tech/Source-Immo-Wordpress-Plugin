@@ -35,6 +35,15 @@ class ImmoDBApi {
       )
     );
 
+    // Get the default dictionary
+    register_rest_route( 'immodb','/dictionary',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+        'callback' => array( 'ImmoDBApi', 'get_dictionary' ),
+      )
+    );
+
     // Acquire default data view
     register_rest_route( 'immodb','/data_view',
       array(
@@ -141,22 +150,19 @@ class ImmoDBApi {
   public static function get_pages($request){
     // change language
     global $sitepress;
-    $lang = $request->get_param('lang');
+    $lang = $request->get_param('locale');
     $type = $request->get_param('type');
 
     if($sitepress){
       $sitepress->switch_lang( $lang, true );
     }
-    $lTypePermalink = ImmoDB::current()->get_permalink($type);
-    $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
-    //Debug::write($lTypePermalink);
 
-    // add_filter('posts_where', function ($where) use ($lTypePermalink) {
-    //   remove_filter('posts_where',function(){},11);
-    //   global $wpdb;
-    //   return $where.' AND '.$wpdb->posts.'.post_name LIKE "' . $lTypePermalink . '%"';
-    // },11);
-
+    $lTypePermalink = null;
+    if($type != null){
+      $lTypePermalink = ImmoDB::current()->get_permalink($type);
+      $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
+    }
+    
     // query
     $posts = new WP_Query( array(
         'post_type' => 'page',
@@ -172,8 +178,9 @@ class ImmoDBApi {
     $lResult = array();
     foreach ($pages as &$page) {
       $lPermalink = rtrim(str_replace(array('http://','https://',$_SERVER['HTTP_HOST']), '' ,get_permalink($page)),'/');
-      if(trim($lPermalink,'/') != trim($lTypePermalink,'/') && strpos($lPermalink, $lTypePermalink)!==false){
-        $page->permalink = $lPermalink;
+      $page->permalink = $lPermalink;
+
+      if($lTypePermalink==null || ( trim($lPermalink,'/') != trim($lTypePermalink,'/') && strpos($lPermalink, $lTypePermalink)!==false) ){
         $lResult[] = $page;
       }
     }
@@ -315,6 +322,17 @@ class ImmoDBApi {
     return self::get_configs();
   }
 
+  public static function get_dictionary($request){
+    $viewId = json_decode(ImmoDB::current()->configs->default_view)->id;
+
+    $lAccessToken = self::get_access_token();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+
+    $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)->with_oauth($lAccessToken->key)->get(null, true);
+
+    return $lResult->dictionary;
+  }
+
   /**
    * Get a unique list configuration
    * @param request Request object give to the WP_REST service
@@ -358,20 +376,20 @@ class ImmoDBApi {
       $params = $atts; //shortcode_atts(array(), $atts );
       
       $lFilters = array("st"=>urlencode(self::get_search_token($params,$list_config)));
-      
     }
-    
+    $st = $lFilters["st"];
+
     $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
     // In case the limit is 0 (infinite), we should load data until there's no more "next page"
     if($list_config->limit==0){
-      //Debug::write($lResult);
       $data_list = $lResult->items;
       $roundTrip = 0;
-      while (isset($lResult->metadata->next_token) && $roundTrip < 5) {
-        $lFilters = array('nt'=>urlencode($lResult->metadata->next_token));
+      while (isset($lResult->metadata->next_token) && $roundTrip < 6) {
+        $lFilters = array('st'=> $st, 'nt'=>urlencode($lResult->metadata->next_token));
 
         $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')->with_oauth($list_config->access_token)->get($lFilters, true);
         $data_list = array_merge($data_list,$lResult->items);
+
         $roundTrip++;
       }
       

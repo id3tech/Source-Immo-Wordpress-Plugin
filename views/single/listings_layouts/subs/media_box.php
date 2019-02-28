@@ -26,7 +26,7 @@
             </div>
             <div class="tab-content virtual-tours">
                 <label class="placeholder"><?php _e('Virtual tour',IMMODB)?></label>
-                <iframe data-ng-src="{{model.virtual_tour.trusted_url}}"></iframe>
+                <iframe data-ng-src="{{model.virtual_tour.trusted_url}}" allowFullscreen="1"></iframe>
             </div>
             <div class="tab-content streetview">
                 <label class="placeholder"><?php _e('Street view',IMMODB)?></label>

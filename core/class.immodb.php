@@ -54,8 +54,14 @@ class ImmoDB {
       $this->register_actions(array(
         'wp_enqueue_scripts' => 'load_resources',
       ));
+
+      add_action('wp_ajax_abc_ajax', array($this,'validate_file_version'),1);
+      add_action('wp_ajax_admin_abc_ajax', array($this,'validate_file_version'), 1);
     }
   }
+
+
+  
 
   public function get_account_id() {
     return $this->configs->account_id;
@@ -194,87 +200,85 @@ class ImmoDB {
 
     // add routes
     foreach($this->configs->listing_routes as $route){
-      $ruleKey = array();
-      $routeParts = explode('/', $route->route);
-      $index = 0;
-      $matches = array();
-      foreach ($routeParts as $part) {
-        if(strpos($part,'{{')===false){
-          $ruleKey[] = $part;
-        }
-        else{
-          $index++;
-          $ruleKey[] = '(.+)';
-          $partKey = str_replace('.','_', str_replace(array('{{','}}','item.'),'', $part));
-          $matches[] = $partKey . '=$matches[' . $index . ']';
-          // if($part=='{{item.ref_number}}'){
-          //   $matches[] = 'ref_number=$matches[' . $index . ']';
-          // }
-          
-        }
-      }
+      $ruleKey=array();$matches=array();
+      $this->getRulesAndMatches($route->route,$ruleKey,$matches);
 
       if(count($ruleKey)>0){
-        $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
+        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
 
         array_splice($ruleKey, 1,3,'print');
         if(count($ruleKey)>0){
           $matches = array('ref_number=$matches[1]');
-          $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=print&' . implode('&', $matches);
+          $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=print&' . implode('&', $matches);
         }
       }
+
+      // shortcut
+      if(!str_null_or_empty($route->shortcut)){
+        $ruleKey=array();$matches=array();
+        $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
+        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=shortcut&' . implode('&', $matches);  
+      }
+      
       //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
     }
 
     // add routes
     foreach($this->configs->broker_routes as $route){
-      $ruleKey = array();
-      $routeParts = explode('/', $route->route);
-      $index = 0;
-      $matches = array();
-      foreach ($routeParts as $part) {
-        if(strpos($part,'{{')===false){
-          $ruleKey[] = $part;
-        }
-        else{
-          $index++;
-          $ruleKey[] = '(.+)';
-          if($part=='{{item.ref_number}}'){
-            $matches[] = 'ref_number=$matches[' . $index . ']';
-          }
-        }  
-      }
+      $ruleKey=array();$matches=array();
+      $this->getRulesAndMatches($route->route,$ruleKey,$matches);
+      
 
-      $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=brokers&' . implode('&', $matches);
-//      $newrules['^' . implode('/',$ruleKey) . '/print/?'] = 'index.php?lang='. $route->lang .'&type=brokers&mode=print&' . implode('&', $matches);
+      $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=brokers&' . implode('&', $matches);
+
+      // shortcut
+      if(!str_null_or_empty($route->shortcut)){
+        $ruleKey=array();$matches=array();
+        $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
+        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=brokers&mode=shortcut&' . implode('&', $matches);  
+      }
     }
 
     // add routes
     foreach($this->configs->city_routes as $route){
-      $ruleKey = array();
-      $routeParts = explode('/', $route->route);
-      $index = 0;
-      $matches = array();
-      foreach ($routeParts as $part) {
-        if(strpos($part,'{{')===false){
-          $ruleKey[] = $part;
-        }
-        else{
-          $index++;
-          $ruleKey[] = '(.+)';
-          if($part=='{{item.ref_number}}'){
-            $matches[] = 'ref_number=$matches[' . $index . ']';
-          }
-          
-        }
-        
+      $ruleKey=array();$matches=array();
+      $this->getRulesAndMatches($route->route,$ruleKey,$matches);
+
+      $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=cities&' . implode('&', $matches);
+
+      // shortcut
+      if(!str_null_or_empty($route->shortcut)){
+        $ruleKey=array();$matches=array();
+        $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
+        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=cities&mode=shortcut&' . implode('&', $matches);  
       }
-      $newrules['^' . implode('/',$ruleKey) . '/?'] = 'index.php?lang='. $route->lang .'&type=cities&' . implode('&', $matches);
     }
 
-    //Debug::force($this->configs->listing_routes, $newRules);
-
     return array_merge($newrules, $rules);
+  }
+
+  public function getRulesAndMatches($route, &$rules=null, &$matches=null){
+    $rules = array();
+    $matches = array();
+
+    $routeParts = explode('/', $route);
+    $index = 0;
+    foreach ($routeParts as $part) {
+      if(strpos($part,'{{')===false){
+        $rules[] = $part;
+      }
+      else{
+        $index++;
+        $rules[] = '(.+)';
+        $partKey = str_replace('.','_', str_replace(array('{{','}}','item.'),'', $part));
+        $matches[] = $partKey . '=$matches[' . $index . ']';
+      }
+    }
+
+    return array(
+      'rules' => array(),
+      'matches' => array()
+    );
   }
 
   public function update_routes_query_var($vars){
@@ -294,13 +298,19 @@ class ImmoDB {
 		if ( $ref_number ) {
       $type = get_query_var( 'type' );
       $mode = get_query_var( 'mode' );
-      if($mode == 'print'){
-        $mode = '_print';
+      if($mode == 'shortcut'){
+        // redirect to long
+        $this->{'redirect_' . $type}($ref_number);
       }
       else{
-        $mode = '_detail_template';
+        if($mode == 'print'){
+          $mode = '_print';
+        }
+        else{
+          $mode = '_detail_template';
+        }
+        add_filter( 'template_include', array($this, 'include_' . $type . $mode));
       }
-      add_filter( 'template_include', array($this, 'include_' . $type . $mode));
     }
   }
   
@@ -317,6 +327,50 @@ class ImmoDB {
     }
     
     return $locale;
+  }
+
+  function redirect_listings($ref_number){
+    // load data
+    $model = json_decode(ImmoDBApi::get_listing_data($ref_number));
+    if($model != null){
+      global $dictionary;
+      $listingWrapper = new ImmoDBListingsResult();
+      $dictionary = new ImmoDBDictionary($model->dictionary);
+      $listingWrapper->preprocess_item($model);
+
+      $model->permalink = ImmoDBListingsResult::buildPermalink($model, ImmoDB::current()->get_listing_permalink());
+      wp_redirect($model->permalink);
+    }
+  }
+
+  function redirect_brokers($ref_number){
+    // load data
+    $model = json_decode(ImmoDBApi::get_broker_data($ref_number));
+    if($model != null){
+      global $dictionary;
+      $listingWrapper = new ImmoDBBrokersResult();
+      $dictionary = new ImmoDBDictionary($model->dictionary);
+      $listingWrapper->preprocess_item($model);
+
+      $model->permalink = ImmoDBBrokersResult::buildPermalink($model, ImmoDB::current()->get_broker_permalink());
+      wp_redirect($model->permalink);
+    }
+  }
+
+  function redirect_cities($ref_number){
+    // load data
+    debug::write(ImmoDBApi::get_city_data($ref_number));
+    $model = ImmoDBApi::get_city_data($ref_number)->items[0];
+    if($model != null){
+      
+      global $dictionary;
+      $listingWrapper = new ImmoDBCitiesResult();
+      $dictionary = new ImmoDBDictionary($model->dictionary);
+      $listingWrapper->preprocess_item($model);
+
+      $model->permalink = ImmoDBCitiesResult::buildPermalink($model, ImmoDB::current()->get_city_permalink());
+      wp_redirect($model->permalink);
+    }
   }
 
 
@@ -355,9 +409,14 @@ class ImmoDB {
     // wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('immodb-style'), "1", "all");
 	  // wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
 
-    wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, null, true );
+    wp_enqueue_script( 'immodb-prototype', plugins_url('/scripts/ang.prototype.js', IMMODB_PLUGIN), null, 
+                            filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.prototype.js'), true );
+
     $lUploadDir   = wp_upload_dir();
-    $lConfigPath  = str_replace('http://','//',$lUploadDir['baseurl'] . '/_immodb/_configs.json');
+    $lConfigFilePath = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_immodb/_configs.json');
+    $lConfigVersion = filemtime(str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFilePath));
+    $lConfigPath  = $lConfigFilePath . '?v=' . $lConfigVersion;
+
     
     wp_add_inline_script( 'immodb-prototype', 
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', IMMODB_PLUGIN) . '");' .
@@ -384,6 +443,34 @@ class ImmoDB {
             filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.public-app.min.js'), true );
     }
     wp_enqueue_script('immodb-public-app'); 
+  }
+
+  
+  public function validate_file_version(){
+    header('Content-Type: application/javascript');
+    $lPublicAppVersion = filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.public-app.js');
+    echo('test');
+    ?>
+    if(jQuery){
+      let lMustReload = false;
+      jQuery('script').forEach(function($i,$e){
+        let lSrc = $e.attr('src');
+        const lVersionRx = /ver=(\d*)&?/g;
+
+        if(lSrc.indexOf('ang.public-app') >= 0){
+          let lVersion = lVersionRx.exec(lSrc)[1];
+          
+          if(lVersion == undefined) lMustReload = true;
+          if(lVersion != '<?php echo($lPublicAppVersion) ?>') lMustReload = true;
+        }
+      });
+
+      if(lMustReload){
+        window.location.reload(true);
+      }
+    }
+    <?php
+    die();
   }
 
   public function body_class($classes){
@@ -434,14 +521,17 @@ class ImmoDB {
         $post_object->permalink = $permalink;
       });
 
+      // Add hook to data
+      $listing_data = apply_filters(hook_from_key('listing','single'), $listing_data);
       
       self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));
-      
+      die();
     }
     else{
       header('http/1.0 404 not found');
 
       self::view('single/listings_404', array());
+      die();
     }
   }
   function include_listings_print(){
@@ -450,6 +540,7 @@ class ImmoDB {
     // load data
     $model = json_decode(ImmoDBApi::get_listing_data($ref_number));
     if($model != null){
+      header('http/1.0 200 found');
       global $dictionary;
       $listingWrapper = new ImmoDBListingsResult();
       $dictionary = new ImmoDBDictionary($model->dictionary);
@@ -473,12 +564,13 @@ class ImmoDB {
       if($filePath != null){
         include $filePath;
       }
-      
+      die();
     }
     else{
       header('http/1.0 404 not found');
 
       self::view('single/listings_404', array());
+      die();
     }
   }
   
@@ -490,6 +582,7 @@ class ImmoDB {
     $broker_data = json_decode(ImmoDBApi::get_broker_data($ref_number));
 
     if($broker_data != null){
+      header('http/1.0 200 found');
       do_action('immodb_broker_detail_begin');
 
       // hook to sharing tools
@@ -510,11 +603,15 @@ class ImmoDB {
         $post_object->permalink = $permalink;
       });
 
+      $broker_data = apply_filters(hook_from_key('broker','single'), $broker_data);
+
       self::view('single/brokers', array('ref_number'=>$ref_number, 'data' => $broker_data));
+      die();
     }
     else{
       header('http/1.0 404 not found');
       self::view('single/brokers_404', array());
+      die();
     }
   }
 
@@ -528,6 +625,7 @@ class ImmoDB {
     // $city_data = new ImmoDBListingsResult($city_data);
     
     if($city_data != null){
+      header('http/1.0 200 found');
       do_action('immodb_listing_detail_begin');
       // hook to sharing tools
       //$share_tool = new ImmoDbSharing($city_data);
@@ -547,12 +645,15 @@ class ImmoDB {
       //   $post_object->permalink = $permalink;
       // });
 
+      $city_data = apply_filters(hook_from_key('city','single'), $city_data);
       self::view('single/cities', array('ref_number'=>$ref_number, 'data' => $city_data->items[0], 'permalink' => null));      
+      die();
     }
     else{
        header('http/1.0 404 not found');
 
        self::view('single/cities_404', array());
+       die();
     }
   }
 
@@ -840,6 +941,9 @@ class ImmoDbSharing{
     if($this->desc != null){
       $desc = $this->desc;
     }
+    else if ($desc==''){
+      $desc = $this->title;
+    }
     return $desc;
   }
 
@@ -1090,7 +1194,18 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
     else{
       $item->subcategory='';
     }
-    $item->price_text = self::formatPrice($item->price);
+    if($item->status_code == 'SOLD'){
+      if(isset($item->price->sell)) {
+        $item->price_text = __('Sold', IMMODB);
+      }
+      else{
+        $item->price_text = __('Leased', IMMODB);
+      }
+    }
+    else{
+      $item->price_text = self::formatPrice($item->price);
+    }
+    
     if(isset($item->brokers)){
       $data = (object) array();
       $data->items = $item->brokers;
@@ -1149,16 +1264,48 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
 
       $item->building->short_dimension = self::formatDimension($item->building->dimension);
       if(isset($item->building->assessment)){
-        $item->building->assessment->amount_text = self::formatPrice($item->building->assessment->amount);
+        if(isset($item->building->assessment->amount)){
+          $item->building->assessment->amount_text = self::formatPrice($item->building->assessment->amount);
+        }
+        else{
+          $item->building->assessment->amount_text = 'NA';
+        }
+      }
+      else{
+        $item->building->assessment = (object) array(
+          'amount_text' => 'NA',
+          'year' => '-'
+        );
       }
 
       $item->land->short_dimension = self::formatDimension($item->land->dimension);
       if(isset($item->land->assessment)){
-        $item->land->assessment->amount_text = self::formatPrice($item->land->assessment->amount);
+        if(isset($item->land->assessment->amount)){
+          $item->land->assessment->amount_text = self::formatPrice($item->land->assessment->amount);
+        }
+        else{
+          $item->land->assessment->amount_text = 'NA';
+        }
+      }
+      else{
+        $item->land->assessment = (object) array(
+          'amount_text' => 'NA'
+        );
       }
 
       if(isset($item->assessment)){
-        $item->assessment->amount_text = self::formatPrice($item->assessment->amount);
+        if(isset($item->assessment->amount)){
+          $item->assessment->amount_text = self::formatPrice($item->assessment->amount);
+        }
+        else{
+          $item->assessment->amount_text = 'NA';
+        }
+        
+      }
+      else{
+        $item->assessment = (object) array(
+          'amount_text' => 'NA'
+        );
       }
 
 
@@ -1231,7 +1378,6 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
 
     return implode(__(' or ',IMMODB), $lResult);
   }
-
 
   public static function getCity($item){
     global $dictionary;
@@ -1585,7 +1731,12 @@ class ListingSchema extends BaseDataSchema{
     $basicInfos = new BaseSchemaInfos($listing->subcategory . ' ' . $listing->transaction, $listing->photos, $listing->description);
     parent::__construct('Product',$basicInfos);
 
-    $this->addOffer('Residence',$listing->price->sell->amount,$listing->price->sell->currency, $listing->location);
+    if(isset($listing->price->sell)){
+      $this->addOffer('Residence',$listing->price->sell->amount,$listing->price->sell->currency, $listing->location);
+    }
+    else{
+      $this->addOffer('Residence',$listing->price->lease->amount,$listing->price->lease->currency, $listing->location);
+    }
   }
 }
 
@@ -1616,4 +1767,25 @@ class ListingOpenHouseSchema extends BaseDataSchema{
     }
   }
 }
+#endregion
+
+
+#region WPML FILTER
+add_action('immodb_listing_detail_begin', function(){
+	add_filter( 'WPML_filter_link', function($lang_url, $lang){
+		global $listing_data;
+		$permalink_format = ImmoDB::current()->get_listing_permalink($lang['code']);
+		$permalink = ImmoDBListingsResult::buildPermalink($listing_data, $permalink_format);
+		return $permalink;
+	  }, 10, 2 );
+}, 5,0);
+
+add_action('immodb_broker_detail_begin', function(){
+	add_filter( 'WPML_filter_link', function($lang_url, $lang){
+		global $broker_data;
+		$permalink_format = ImmoDB::current()->get_broker_permalink($lang['code']);
+		$permalink = ImmoDBBrokersResult::buildPermalink($broker_data, $permalink_format);
+		return $permalink;
+	  }, 10, 2 );
+}, 5,0);
 #endregion

@@ -29,7 +29,13 @@ if($lTwoLetterLocale == ''){
   </div>
 
   <script type="text/javascript">
-    var wpApiSettings={api_root: '<?php echo IMMODB_API_HOST ?>', root:'<?php echo esc_url_raw( rest_url() ) ?>', nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'};
+    var wpApiSettings={
+        locale: '<?php echo $lTwoLetterLocale ?>',
+        base_path: '<?php echo IMMODB_PLUGIN_URL ?>', 
+        api_root: '<?php echo IMMODB_API_HOST ?>', 
+        root:'<?php echo esc_url_raw( rest_url() ) ?>', 
+        nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'
+      };
   </script>
   <!-- Angular Material requires Angular.js Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>

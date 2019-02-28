@@ -57,6 +57,7 @@ if(typeof Number.formatRank === 'undefined' ){
 
 
 
+
 if(typeof String.translate === 'undefined'){
     var $locales = {};
     (function locales($scope){

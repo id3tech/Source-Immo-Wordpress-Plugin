@@ -1,0 +1,37 @@
+<div class="immodb-route-box">
+    <md-input-container>
+      <md-select ng-model="route.lang">
+        <md-option ng-repeat="(key, value) in lang_codes" 
+            ng-show="!langIsUsed(key)" value="{{key}}">{{value}}</option>
+      </md-select>
+    </md-input-container>
+    <md-input-container>
+      <input ng-model="route.route" />
+    </md-input-container>
+    <md-input-container>
+      <input ng-model="route.shortcut" />
+    </md-input-container>
+
+    <md-button class="md-icon-button" 
+        title="{{'Remove this route'.translate()}}"
+        ng-disabled="hasMinRouteCount()" ng-click="remove()">
+        <md-icon class="fal fa-times"></md-icon>
+    </md-button>
+    <md-button class="md-icon-button" 
+        title="{{'Reset to default'.translate()}}"
+        ng-click="reset()">
+        <md-icon class="fal fa-sync"></md-icon>
+    </md-button>
+    <md-menu>
+      <md-button class="md-icon-button" 
+        ng-disabled="elementAvailable()==0"
+        ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-h"></i></md-button>
+      <md-menu-content>
+        <md-menu-item ng-repeat="(key, value) in route_elements"
+            ng-show="!elementIsUsed(key)">
+          <md-button ng-click="addRouteElement(key)"><md-icon class="fal fa-plus"></md-icon> {{value.translate()}}</md-button>
+        </md-menu-item>
+        
+      </md-menu-content>
+    </md-menu>
+  </div>

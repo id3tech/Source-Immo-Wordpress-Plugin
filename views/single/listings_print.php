@@ -67,7 +67,7 @@
         </page>
 
         <?php 
-        if(isset($model->rooms)){
+        if(isset($model->rooms) && count($model->rooms) > 0){
             ImmoDB::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }
         ?>
@@ -88,7 +88,14 @@
             <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
             
             <div class="page-layout">
-                <h3><?php echo StringPrototype::format(__("Property's photos ({0}/{1})",IMMODB),$i+1, count($photoGroups)) ?></h3>
+                <h3><?php 
+                    if(count($photoGroups) > 1){
+                        echo StringPrototype::format(__("Property's photos ({0}/{1})",IMMODB),$i+1, count($photoGroups));
+                    }
+                    else{
+                        _e("Property's photos",IMMODB);
+                    }
+                ?></h3>
                 <div class="photo-list">
                     <?php
                     foreach ($photoGroups[$i] as $photo) {
@@ -129,7 +136,7 @@
                 </div>
 
                 <div class="panel overlay dock-right notepad">
-                        <h3><?php _e('Personnal note',IMMODB) ?></h3>
+                        <h3><?php _e('Personnal notes',IMMODB) ?></h3>
                         <div class="handwrite-zone">
                         </div>
                     
@@ -141,7 +148,7 @@
         </page>
 
         <?php 
-        if(isset($model->addendum) && $model->addendum != ''){
+        if(isset($model->addendum) && $model->addendum != '' && (strlen($model->addendum)>620)){
         ?>
         <page class="annex">
             <div class="page-layout">
@@ -178,7 +185,7 @@
         <script type="text/javascript">
         window.setTimeout(function(){
             window.print();
-            window.close();
+            //window.close();
         },1000)
             
         </script>

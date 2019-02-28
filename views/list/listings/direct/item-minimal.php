@@ -11,7 +11,7 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
             <div class="image"><img src="<?php echo($item->photo_url);?>" itemprop="image" /></div>
-            <div class="price"><?php echo(ImmoDBListingsResult::formatPrice($item->price));?></div>
+            <div class="price"><?php echo($item->price_text);?></div>
             <div class="civic-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
             <div class="ref_number"><?php echo($item->ref_number);?></div>
             <div class="city" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>

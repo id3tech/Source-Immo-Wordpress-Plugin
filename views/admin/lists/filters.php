@@ -13,33 +13,15 @@
         </div>
         <div>
             <div class="filters"  ng-repeat="filter in model.filters">
-                <div class="grid-row">
-                    <md-input-container>
-                        <label></label>
-                        <input ng-model="filter.field" placeholder="ex.: price.transaction" />
-                    </md-input-container>  
-
-                    <md-input-container>
-                        <md-select ng-model="filter.operator">
-                            <md-option ng-repeat="(key, value) in filter_operators" value="{{key}}">{{value.translate()}}</option>
-                        </md-select>
-                    </md-input-container>
-
-                    <md-input-container>
-                        <input ng-model="filter.value" />
-                    </md-input-container>
-
-                    <div>
-                        <md-button ng-click="removeFromList(filter, model, 'filters')" class="md-icon-button"><md-icon class="fal fa-times"></md-icon></md-button>
-                    </div>
-                </div>
+                <immodb-filter-item class="grid-row" ng-model="filter" on-remove="removeFromList(filter, model, 'filters')"></immodb-filter-item>
 
                 <div class="filter-operator">{{model.operator.translate()}}</div>
             </div>
 
             <div class="subgroups" ng-repeat="group in model.filter_groups">
+                
                 <immodb-filter-group ng-model="group" ng-parent="model"></immodb-filter-group>
-
+                
                 <div class="filter-operator">{{model.operator.translate()}}</div>
             </div>
         </div>

@@ -20,6 +20,10 @@
             
         </div>
 
+        <label 
+            ng-show="list != null && list.length == 0"
+            class="no-result placeholder"><?php _e("There's no real estate broker matching your search criteria",IMMODB) ?></label>
+    
         <div class="immodb-list immodb-list-of-ghost" data-ng-show="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
             <div ng-repeat="item in ghost_list">
             <?php 

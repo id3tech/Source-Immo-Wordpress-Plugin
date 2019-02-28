@@ -1,5 +1,6 @@
 body.wp-admin {
   /* Grid and rows basics */
+  /* Directives */
   /* Dialog Styles */
   /* Material Overrides */
 }
@@ -69,30 +70,19 @@ body.wp-admin #immodb-app .config-grid-block .block-content.layout-container .la
   place-items: start stretch;
 }
 
-body.wp-admin #immodb-app .general-settings .route-item {
-  display: grid;
-  grid-template-columns: 100px 1fr 50px;
-  align-items: center;
-  grid-gap: 10px;
-}
-
-body.wp-admin #immodb-app .general-settings .route-item md-input-container {
-  margin: 0px;
-}
-
-body.wp-admin #immodb-app .general-settings .route-item md-input-container .md-errors-spacer {
-  display: none;
-}
-
-body.wp-admin #immodb-app .general-settings .route-item.headers {
+body.wp-admin #immodb-app .general-settings .immodb-route-box.headers {
   border-bottom: solid 1px #1E88E5;
 }
 
-body.wp-admin #immodb-app .general-settings .route-item.headers div {
+body.wp-admin #immodb-app .general-settings .immodb-route-box.headers div {
   font-size: 13px;
   text-transform: uppercase;
   color: #1E88E5;
   opacity: 0.75;
+}
+
+body.wp-admin #immodb-app .general-settings .immodb-route-box.headers .empty {
+  width: 50px;
 }
 
 body.wp-admin #immodb-app .list-list {
@@ -281,6 +271,25 @@ body.wp-admin .grid-row.header div {
   text-transform: uppercase;
   color: #1E88E5;
   opacity: 0.75;
+}
+
+body.wp-admin #immodb-app .immodb-filter-item .value md-input-container {
+  width: 100%;
+}
+
+body.wp-admin #immodb-app .immodb-route-box {
+  display: grid;
+  grid-template-columns: 100px 2fr  1fr auto auto auto;
+  align-items: center;
+  grid-gap: 10px;
+}
+
+body.wp-admin #immodb-app .immodb-route-box md-input-container {
+  margin: 0px;
+}
+
+body.wp-admin #immodb-app .immodb-route-box md-input-container .md-errors-spacer {
+  display: none;
 }
 
 body.wp-admin label.placeholder {

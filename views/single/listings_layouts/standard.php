@@ -26,8 +26,17 @@
     <div class="region">{{model.location.region}}</div>
     <div class="state">{{model.location.state}}</div>
     
-
     <div class="description">{{model.description}}</div>
+    <div class="attachments" ng-show="model.attachments.length>0">
+        <div ng-repeat="item in model.attachments"
+                class="attachment {{item.file_extension | sanitize}}"
+            >
+            <a href="{{item.url}}" target="_blank">
+                <i class="far"></i>
+                <span class="attachment-name">{{item.description}}</span>
+            </a>
+        </div>
+    </div>
 
     <?php echo do_shortcode('[immodb_listing_part part="flags"]') ?>
 

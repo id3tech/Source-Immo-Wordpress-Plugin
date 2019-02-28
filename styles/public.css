@@ -1892,7 +1892,9 @@
 
 #top .immodb.standard-layout .search-container .search-box,
 .immodb.standard-layout .search-container .search-box {
+  display: grid;
   grid-template-columns: 1fr auto;
+  place-items: center stretch;
 }
 
 #top .immodb.standard-layout .search-container .search-box label.placeholder,
@@ -2194,6 +2196,27 @@
   display: block;
 }
 
+#top .immodb.standard-layout.immodb-list-of-brokers .no-result,
+.immodb.standard-layout.immodb-list-of-brokers .no-result {
+  grid-column: 1 / span 3;
+}
+
+@media screen and (max-width: 768px) {
+  #top .immodb.standard-layout.immodb-list-of-brokers .no-result,
+  .immodb.standard-layout.immodb-list-of-brokers .no-result {
+    grid-column: 1;
+  }
+}
+
+#top .immodb.standard-layout.immodb-list-of-brokers label.placeholder,
+.immodb.standard-layout.immodb-list-of-brokers label.placeholder {
+  padding: 20px;
+  font-weight: 400;
+  opacity: 0.5;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 #top .immodb.direct-layout,
 .immodb.direct-layout {
   grid-template-columns: 120px 1fr 60px 60px;
@@ -2393,6 +2416,11 @@
 #top .immodb.listing-single .immodb-content .open-houses,
 .immodb.listing-single .immodb-content .open-houses {
   grid-area: open-houses;
+}
+
+#top .immodb.listing-single .immodb-content .attachments,
+.immodb.listing-single .immodb-content .attachments {
+  grid-area: attachments;
 }
 
 @media screen and (max-width: 768px) {
@@ -2779,7 +2807,7 @@
   display: grid;
   grid-gap: 0px;
   grid-template-columns: 1fr 1fr;
-  grid-template-areas: "ref-number ref-number" "region state" "address address" "near near" "open-houses open-houses" "description description" "flags flags" "information_request information_request";
+  grid-template-areas: "ref-number ref-number" "region state" "address address" "near near" "open-houses open-houses" "description description" "attachments attachments" "flags flags" "information_request information_request";
 }
 
 #top .immodb.listing-single .summary .ref-number,
@@ -2815,12 +2843,81 @@
   border-top: solid 1px rgba(0, 0, 0, 0.25);
 }
 
+#top .immodb.listing-single .summary .attachments,
+.immodb.listing-single .summary .attachments {
+  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-flow: wrap;
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .summary .attachments,
+  .immodb.listing-single .summary .attachments {
+    flex-direction: column;
+  }
+}
+
+#top .immodb.listing-single .summary .attachments .attachment a,
+.immodb.listing-single .summary .attachments .attachment a {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .summary .attachments .attachment a,
+  .immodb.listing-single .summary .attachments .attachment a {
+    place-items: center start;
+    grid-template-columns: auto 1fr;
+  }
+}
+
+#top .immodb.listing-single .summary .attachments .attachment i,
+.immodb.listing-single .summary .attachments .attachment i {
+  font-size: 3rem;
+  color: var(--highlight);
+}
+
+@media screen and (max-width: 640px) {
+  #top .immodb.listing-single .summary .attachments .attachment i,
+  .immodb.listing-single .summary .attachments .attachment i {
+    margin-right: 10px;
+    font-size: 1.7rem;
+  }
+}
+
+#top .immodb.listing-single .summary .attachments .attachment .far::before,
+.immodb.listing-single .summary .attachments .attachment .far::before {
+  content: "\f15b";
+}
+
+#top .immodb.listing-single .summary .attachments .attachment.pdf .far::before,
+.immodb.listing-single .summary .attachments .attachment.pdf .far::before {
+  content: "\f1c1";
+}
+
+#top .immodb.listing-single .summary .attachments .attachment.doc .far::before, #top .immodb.listing-single .summary .attachments .attachment.docx .far::before,
+.immodb.listing-single .summary .attachments .attachment.doc .far::before,
+.immodb.listing-single .summary .attachments .attachment.docx .far::before {
+  content: "\f1c2";
+}
+
+#top .immodb.listing-single .summary .attachments .attachment.xls .far::before, #top .immodb.listing-single .summary .attachments .attachment.xlsx .far::before,
+.immodb.listing-single .summary .attachments .attachment.xls .far::before,
+.immodb.listing-single .summary .attachments .attachment.xlsx .far::before {
+  content: "\f1c3";
+}
+
 #top .immodb.listing-single .flags,
 .immodb.listing-single .flags {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
   grid-template-rows: auto;
   grid-gap: 20px;
+  padding: 20px 0;
 }
 
 #top .immodb.listing-single .flags .flag,
@@ -3092,7 +3189,7 @@
 
 #top .immodb.listing-single .addendum .content,
 .immodb.listing-single .addendum .content {
-  white-space: pre;
+  white-space: pre-wrap;
 }
 
 #top .immodb.listing-single .brokers,
@@ -3438,7 +3535,7 @@
   display: grid;
   grid-gap: 20px;
   grid-template-columns: 2fr 1fr;
-  grid-template-areas: "head head" "bio expertises";
+  grid-template-areas: "head head" "bio bio";
 }
 
 #top .immodb.broker-single .info .head,
@@ -3479,8 +3576,9 @@
   font-size: 15px;
 }
 
-#top .immodb.broker-single .info .languages,
-.immodb.broker-single .info .languages {
+#top .immodb.broker-single .info .languages, #top .immodb.broker-single .info .expertises,
+.immodb.broker-single .info .languages,
+.immodb.broker-single .info .expertises {
   display: none;
 }
 
@@ -3642,6 +3740,13 @@
   margin: 5px;
   border: var(--element-border);
   border-radius: var(--element-border-radius);
+  transition: 0.25s;
+}
+
+#top .immodb.broker-single .cities .city:hover,
+.immodb.broker-single .cities .city:hover {
+  background: var(--button-alt-bg-color);
+  color: var(--button-alt-text-color);
 }
 
 #top .immodb.broker-single.loaded > .immodb-content,
@@ -4047,7 +4152,7 @@ body.immodb-modal-open #wpadminbar {
   top: 0px;
   left: 0px;
   width: 100%;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   grid-template-rows: 120px;
   grid-gap: 10px;
   place-items: stretch;
@@ -4413,7 +4518,7 @@ body.immodb-modal-open #wpadminbar {
   opacity: 0;
   pointer-events: none;
   top: 50%;
-  right: 0px;
+  right: 10px;
   transform: translateY(-50%);
 }
 
@@ -4736,11 +4841,6 @@ body.immodb-modal-open #wpadminbar {
 #top .immodb-loading,
 .immodb-loading {
   text-align: center;
-}
-
-#top .immodb.listing-single, #top .immodb.broker-single {
-  max-width: 1310px;
-  margin: 0 auto;
 }
 
 #top .immodb.listing-single .content, #top .immodb.broker-single .content {

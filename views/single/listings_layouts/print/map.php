@@ -7,7 +7,7 @@ if(isset(ImmoDB::current()->configs->map_api_key) && (ImmoDB::current()->configs
     <div class="panel overlay dock-bottom map">
         <img class="static-map" src="<?php echo $map_endpoint ?>" />
         <div class="notepad">
-            <h4><?php _e('Note on how to go there',IMMODB) ?></h4>
+            <h4><?php _e('Note how to go there',IMMODB) ?></h4>
             <div class="handwrite-zone">
             </div>
         </div>

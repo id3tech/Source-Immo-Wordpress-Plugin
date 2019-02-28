@@ -9,7 +9,8 @@
         </div>
         <div class="transfer-taxes">
             <label><?php _e('Transfer taxes',IMMODB) ?></label>
-            <div class="value"><em>{{calculator_result.transfer_tax.formatPrice()}}</em></div>
+            <div class="value"><em>{{calculator_result.transfer_tax.formatPrice()}}*</em></div>
+            <div class="notice">*<?php _e('This amount is displayed for information only. The calculation of the transfer tax is based on the basic calculations generally in effect in Québec. This amount may vary depending on the city. Consult your real estate broker for the exact amount.',IMMODB)?></div>
         </div>
     </div>
 </div>

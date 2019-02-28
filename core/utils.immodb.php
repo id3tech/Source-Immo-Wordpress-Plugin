@@ -69,6 +69,41 @@ class StringPrototype{
   }
 }
 
+if(!function_exists('str_null_or_empty')){
+  function str_null_or_empty($val){
+    if($val == null) return true;
+    if(is_array($val)) return (count($val)==0);
+    if($val == '') return true;
+
+    return false;
+  }
+}
+
+if(!function_exists('hook_from_key')){
+  function hook_from_key(...$keys){
+    array_unshift($keys, IMMODB);
+    return implode('_',$keys);
+  }
+}
+
+if(!function_exists('str_startswith')){
+  function str_startswith($haystack, $needle){
+      $length = strlen($needle);
+      return (substr($haystack, 0, $length) === $needle);
+  }
+}
+
+if(!function_exists('str_endswith')){
+  function str_endswith($haystack, $needle){
+      $length = strlen($needle);
+      if ($length == 0) {
+          return true;
+      }
+
+      return (substr($haystack, -$length) === $needle);
+  }
+}
+
 
 class ImmodbTools {
 
@@ -84,6 +119,7 @@ class ImmodbTools {
   }
 
 }
+
 
 
 /**

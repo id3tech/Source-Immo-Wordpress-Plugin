@@ -27,7 +27,7 @@
             </div>
         </div>
         <div class="next-page" data-ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
-            <button type="button" class="btn load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
+            <button type="button" class="button load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', IMMODB) ?></button>
         </div>
         
         <immodb-loading data-immodb-label="Loading results" data-ng-show="is_loading_data"></immodb-loading>

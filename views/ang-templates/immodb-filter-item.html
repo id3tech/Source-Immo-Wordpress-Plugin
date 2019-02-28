@@ -1,0 +1,38 @@
+<div class="immodb-filter-item">
+    <md-input-container>
+        <md-select ng-model="selected_key" ng-change="filterFieldChanged()">
+            <md-option ng-repeat="item in filter_key_list" value="{{item.value}}" >{{item.label.translate()}}</option>
+        </md-select>
+    </md-input-container>  
+
+    <md-input-container>
+        
+        <md-select ng-model="filter.operator">
+            <md-option ng-repeat="item in filter_operators | filter : operatorFilterByField" value="{{item.key}}">{{item.value.translate()}}</option>
+        </md-select>
+
+    </md-input-container>
+
+    <div class="value">
+        <md-input-container ng-show="['text','number'].indexOf(selected_filter_key.value_type) >= 0">
+            <input ng-model="filter.value" />
+        </md-input-container>
+
+        <md-input-container ng-show="selected_filter_key.value_type=='bool'">
+            <md-select ng-model="filter.value">
+                <md-option value="true">{{'Yes'.translate()}}</md-option>
+                <md-option value="false">{{'No'.translate()}}</md-option>
+            </md-select>
+        </md-input-container>
+
+        <md-input-container ng-show="selected_filter_key.value_type=='list'">
+            <md-select ng-model="filter.value" multiple md-selected-text="formatFilterValueList()">
+                <md-option ng-repeat="item in value_choices" value="{{item.key}}">{{item.label.translate()}}</md-option>
+            </md-select>
+        </md-input-container>   
+    </div>
+
+    <div>
+        <md-button ng-click="remove()" class="md-icon-button"><md-icon class="fal fa-times"></md-icon></md-button>
+    </div>
+</div>
