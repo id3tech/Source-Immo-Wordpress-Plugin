@@ -471,6 +471,9 @@ class ImmoDBApi {
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
+    
+    if(!isset(ImmoDB::current()->configs->default_view)) return '';
+
     $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
 
     $lAccessToken = self::get_access_token();
