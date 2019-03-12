@@ -1435,7 +1435,13 @@ $laptop : 1100px;
                             }
                         }
                     }
-
+                    @include media($phone){
+                        grid-template-columns: 1fr;
+                        grid-template-areas: "alpha" "keywords";
+                        .by-letters{
+                            .fa-bookmark{place-self: start center;padding:5px 0;}
+                        }
+                    }
                     .clear-button{
                         padding:5px;margin:0px;
                     }
