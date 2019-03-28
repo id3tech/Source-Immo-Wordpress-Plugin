@@ -46,15 +46,17 @@ class ImmoDbShorcodes{
     public function sc_immodb_search($atts, $content=null){
         extract( shortcode_atts(
             array(
-                'alias' => 'default'
+                'alias' => 'default',
+                'result_page' => null,
+                'standalone' => false,
             ), $atts )
         );
 
         ob_start();
         $listConfig = ImmoDB::current()->get_list_configs($alias);
-        $resultUrl = get_the_permalink( $listConfig->result_page );
+        $resultUrl = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
         echo('<div class="immodb standard-layout">');
-        echo('<immodb-search immodb-alias="'. $alias . '" class="search-container show-trigger" immodb-result-url="' . $resultUrl . '"></immodb-search>');
+        echo('<immodb-search immodb-alias="'. $alias . '" class="search-container" immodb-result-url="' . $resultUrl . '" immodb-standalone="' . $standalone . '"></immodb-search>');
 
         echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
         ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 

@@ -1199,7 +1199,7 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
         $item->price_text = __('Sold', IMMODB);
       }
       else{
-        $item->price_text = __('Leased', IMMODB);
+        $item->price_text = __('Rented', IMMODB);
       }
     }
     else{
@@ -1397,10 +1397,14 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
 
   public static function getTransaction($item){
     $lResult = array();
+    $keysToLabels = array(
+      'sell' => 'For sale',
+      'lease' => 'For rent'
+    );
 
     foreach ($item->price as $key => $value) {
       if(in_array($key, array('sell','lease'))){
-        $lResult[] = __('To ' . $key, IMMODB);
+        $lResult[] = __($keysToLabels[$key], IMMODB);
       }
     }
 

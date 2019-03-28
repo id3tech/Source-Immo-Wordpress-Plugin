@@ -1,4 +1,4 @@
-<div class="immodb-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}}">
+<div class="immodb-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
     <div class="viewport"> 
         <div class="trolley" style="transform:translateX(-{{index * 100}}%);grid-gap:{{gap}}px;grid-template-columns: repeat({{pictures.length}},100%);">
             <div class="item" data-ng-repeat="img in pictures">
@@ -21,7 +21,7 @@
         <div class="btn previous" data-ng-click="previous()"><i class="fal fa-fw fa-2x fa-angle-left"></i></div>
     </div>
     <div class="controls">
-        <div class="btn picture-grid" data-ng-click="togglePictureGrid()"><i class="fal fa-th"></i></div>
-        <div class="btn expand" data-ng-click="toggleFullscreen()"><i class="fas fa-expand-wide"></i></div>
+        <div class="btn picture-grid" data-ng-click="togglePictureGrid()"><i class="fas fa-th"></i> <label>{{'All pictures'.translate()}}</label></div>
+        <div class="btn expand" data-ng-click="toggleFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>
     </div>
 </div>

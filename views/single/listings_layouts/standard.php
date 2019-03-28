@@ -18,6 +18,7 @@
 
 <?php echo do_shortcode('[immodb_listing_part part="media_box"]') ?>
 
+
 <div class="summary">
     <div class="ref-number">{{model.ref_number}}</div>
     <div class="address" data-ng-show="model.location.full_address!=undefined">{{model.location.full_address}}</div>

@@ -1,0 +1,14 @@
+<div class="immodb-thumbnails-slider">
+    <div class="list-trolley" style="--item-count: {{list.length}};--trolley-offset:{{getTrolleyOffset()}}">
+        <div class="item {{$index == selectedIndex ? 'selected' : ''}}" data-ng-repeat="img in list" 
+            data-ng-click="select(img)">
+            <img data-ng-src="{{img.url}}" />
+            <i class="fal fa-eye"></i>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <i class="scroll-left fal fa-angle-left" data-ng-click="previous()"></i>
+        <i class="scroll-right fal fa-angle-right" data-ng-click="next()"></i>
+    </div>
+</div>

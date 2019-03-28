@@ -197,8 +197,8 @@ $locales.fr = {};$locales.fr.global =
     , "From Z to A" : "De Z à A"
     , "Most to least listings" : "Plus de propriétés en premier"
     , "Least to most listings" : "Moins de propriétés en premier"
-    , "To sell" : "À vendre"
-    , "To lease" : "À louer"
+    , "For sale" : "À vendre"
+    , "For rent" : "À louer"
     , "Recently added" : "Nouveauté"
     , "Open house" : "Visite libre"
     , "Category" : "Catégorie"
@@ -247,7 +247,7 @@ $locales.fr = {};$locales.fr.global =
     , "for sell for " : "à vendre pour "
     , "for lease for " : "à louer pour "
     , "Sold" : "Vendu"
-    , "Leased" : "Loué"
+    , "Rented" : "Loué"
     , "Pictures" : "Photos"
     , "Videos" : "Vidéos"
     , "Bedroom" : "Chambre"
@@ -343,4 +343,7 @@ $locales.fr = {};$locales.fr.global =
     // LIST NAVIGATION
     , "Previous" : "Précédant"
     , "Next" : "Suivant"
+    // IMAGE BOX
+    , "All pictures" : "Toutes les images"
+    , "Fullscreen" : "Plein écran"
 }

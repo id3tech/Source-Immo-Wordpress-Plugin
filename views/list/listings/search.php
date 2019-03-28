@@ -21,7 +21,7 @@
         <button class="more {{isExpanded('others')}} {{filterPanelHasFilters('other') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', IMMODB) ?></button>
     
         <div class="search-trigger">
-            <button type="button" class="btn" data-ng-click="buildAndGo()"><?php _e('Search', IMMODB) ?></button>
+            <button type="button" class="trigger-button button" data-ng-click="showResultPage()"><?php _e('Search', IMMODB) ?></button>
         </div>
 
         

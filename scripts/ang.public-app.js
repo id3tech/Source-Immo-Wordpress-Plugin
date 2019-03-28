@@ -400,102 +400,6 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     }
 });
 
-ImmoDbApp
-.controller('immodbMediaBoxCtrl',
-function immodbMediaBoxCtrl ($scope){
-    $scope.selected_media = 'pictures';
-    $scope.video_player = null;
-
-    $scope.init = function(){
-    }
-
-    $scope.selectMedia = function($media){
-        $scope.selected_media = $media;
-        if($media!='video'){
-            $scope.callPlayer('video-player','stopVideo');
-        }
-    }
-
-    $scope.callPlayer = function(frame_id, func, args) {
-        if (window.jQuery && frame_id instanceof jQuery) frame_id = frame_id.get(0).id;
-        var iframe = document.getElementById(frame_id);
-        if (iframe && iframe.tagName.toUpperCase() != 'IFRAME') {
-            iframe = iframe.getElementsByTagName('iframe')[0];
-        }
-    
-        // When the player is not ready yet, add the event to a queue
-        // Each frame_id is associated with an own queue.
-        // Each queue has three possible states:
-        //  undefined = uninitialised / array = queue / 0 = ready
-        if (!$scope.callPlayer.queue) $scope.callPlayer.queue = {};
-        var queue = $scope.callPlayer.queue[frame_id],
-            domReady = document.readyState == 'complete';
-    
-        if (domReady && !iframe) {
-            // DOM is ready and iframe does not exist. Log a message
-            window.console && console.log('$scope.callPlayer: Frame not found; id=' + frame_id);
-            if (queue) clearInterval(queue.poller);
-        } else if (func === 'listening') {
-            // Sending the "listener" message to the frame, to request status updates
-            if (iframe && iframe.contentWindow) {
-                func = '{"event":"listening","id":' + JSON.stringify(''+frame_id) + '}';
-                iframe.contentWindow.postMessage(func, '*');
-            }
-        } else if (!domReady ||
-                   iframe && (!iframe.contentWindow || queue && !queue.ready) ||
-                   (!queue || !queue.ready) && typeof func === 'function') {
-            if (!queue) queue = $scope.callPlayer.queue[frame_id] = [];
-            queue.push([func, args]);
-            if (!('poller' in queue)) {
-                // keep polling until the document and frame is ready
-                queue.poller = setInterval(function() {
-                    $scope.callPlayer(frame_id, 'listening');
-                }, 250);
-                // Add a global "message" event listener, to catch status updates:
-                messageEvent(1, function runOnceReady(e) {
-                    if (!iframe) {
-                        iframe = document.getElementById(frame_id);
-                        if (!iframe) return;
-                        if (iframe.tagName.toUpperCase() != 'IFRAME') {
-                            iframe = iframe.getElementsByTagName('iframe')[0];
-                            if (!iframe) return;
-                        }
-                    }
-                    if (e.source === iframe.contentWindow) {
-                        // Assume that the player is ready if we receive a
-                        // message from the iframe
-                        clearInterval(queue.poller);
-                        queue.ready = true;
-                        messageEvent(0, runOnceReady);
-                        // .. and release the queue:
-                        while (tmp = queue.shift()) {
-                            $scope.callPlayer(frame_id, tmp[0], tmp[1]);
-                        }
-                    }
-                }, false);
-            }
-        } else if (iframe && iframe.contentWindow) {
-            // When a function is supplied, just call it (like "onYouTubePlayerReady")
-            if (func.call) return func();
-            // Frame exists, send message
-            iframe.contentWindow.postMessage(JSON.stringify({
-                "event": "command",
-                "func": func,
-                "args": args || [],
-                "id": frame_id
-            }), "*");
-        }
-        /* IE8 does not support addEventListener... */
-        function messageEvent(add, listener) {
-            var w3 = add ? window.addEventListener : window.removeEventListener;
-            w3 ?
-                w3('message', listener, !1)
-            :
-                (add ? window.attachEvent : window.detachEvent)('onmessage', listener);
-        }
-    }
-})
-
 
 /**
  * Broker Detail - Controller
@@ -1296,14 +1200,19 @@ ImmoDbApp
             class: '@class',
             configs: '=?immodbConfigs',
             dictionary: '=?immodbDictionary',
-            result_url: "@immodbResultUrl"
+            result_url: "@immodbResultUrl",
+            standalone: "@immodbStandalone"
         },
         controllerAs: 'ctrl',
-        template: '<div ng-include="\'immodb-search-for-\' + alias"></div>',
-        link : function($scope){
-           $scope.init();
+        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}" ng-include="\'immodb-search-for-\' + alias"></div>',
+        link : function($scope, $element, $attrs){
+            $scope.standalone = $scope.standalone =='true';
+
+            $scope.init();
         },
-        controller: function($scope, $q, $immodbApi, $rootScope,$immodbDictionary, $immodbUtils,  $immodbFilters){
+        controller: function($scope, $q, $immodbApi, $rootScope,
+                                $immodbDictionary, $immodbUtils,  $immodbFilters,
+                                $immodbHooks){
             let lToday = new Date().round();    // save today
             let lNow = new Date();
 
@@ -1349,11 +1258,11 @@ ImmoDbApp
                     filter : {field: 'status_code', operator: 'not_equal_to', value: 'AVAILABLE'}
                 },
                 sell : {
-                    caption: 'To sell', 
+                    caption: 'For sale', 
                     filter : {field: 'price.sell.amount', operator: 'greater_than', value: 0}
                 },
                 lease : {
-                    caption: 'To lease',
+                    caption: 'For rent',
                     filter : {field: 'price.lease.amount', operator: 'greater_than', value: 0}
                 },
                 open_house : {
@@ -1467,7 +1376,10 @@ ImmoDbApp
 
                     $immodbFilters.with($scope.alias, function($filter){
                         $scope.filter = $filter;
-                        $filter.result_url = $scope.result_url;
+                        if(!$scope.standalone){
+                            $filter.result_url = $scope.result_url;
+                        }
+
                         $filter.loadState();
                         lfSyncFilter($filter);
 
@@ -1530,6 +1442,10 @@ ImmoDbApp
                     }
                 });
                 return lPromise;
+            }
+
+            $scope.showResultPage = function(){
+                window.location = $scope.result_url;
             }
             
             /* ----------------------
@@ -1823,15 +1739,21 @@ ImmoDbApp
             $scope._priceChangeDebounce = null;
             $scope.updatePrice = function(){
                 if($scope._priceChangeDebounce != null) window.clearTimeout($scope._priceChangeDebounce);
+                const lPriceStep = $immodbHooks.filter('search-price-step', 10000);
+                const lPriceMaxBoundary = $immodbHooks.filter('search-max-price-boundary', 1000000);
 
-                lMinPrice = Math.round(($scope.priceRange[0] * 100) * 10000);
-                lMaxPrice = Math.round(($scope.priceRange[2] * 100) * 10000);
-                if(lMaxPrice != 0) lMaxPrice = 1000000 - lMaxPrice;
+                lMinPrice = Math.round(($scope.priceRange[0] * 100) * lPriceStep);
+                lMaxPrice = Math.round(($scope.priceRange[2] * 100) * lPriceStep);
+                if(lMaxPrice != 0) lMaxPrice = lPriceMaxBoundary - lMaxPrice;
                 
                 $scope._priceChangeDebounce = window.setTimeout(function(){
                     
                     $scope.setPriceFromRange([lMinPrice, lMaxPrice]);
                 },100);
+            }
+            $scope.resetPriceRange = function(){
+                $scope.priceRange = [0,1,0];
+                $scope.updatePrice();
             }
 
             /**
@@ -2107,8 +2029,11 @@ ImmoDbApp
                     }
 
                     //console.log('filter data',$filter.data);
+                    const lPriceStep = $immodbHooks.filter('search-price-step', 10000);
+                    const lPriceMaxBoundary = $immodbHooks.filter('search-max-price-boundary', 1000000);
+
                     if($filter.data.min_price != null){
-                        $scope.priceRange[0] = ($filter.data.min_price / 10000) / 100;
+                        $scope.priceRange[0] = ($filter.data.min_price / lPriceStep) / 100;
                     }
 
                     if($filter.data.max_price != null){
@@ -2116,11 +2041,11 @@ ImmoDbApp
                             $scope.priceRange[2] = 0;
                         }
                         else{
-                            $scope.priceRange[2] = ( (1000000 - $filter.data.max_price) / 10000 ) / 100;
+                            $scope.priceRange[2] = ( (lPriceMaxBoundary - $filter.data.max_price) / lPriceStep ) / 100;
                         }
                     }
                     $scope.priceRange[1] = 1 - $scope.priceRange[0] - $scope.priceRange[2];
-
+                    $immodbHooks.do('sync-filters-to-ui', $filter);
                 })
                 
 
@@ -2375,9 +2300,13 @@ ImmoDbApp
                 $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.priceRange = [0,1,0];
+                
+                $immodbHooks.do('filter-reset');
 
                 $scope.filter.resetFilters();
                 
+                
+
                 //$scope.$broadcast('immodb-reset-filter');
                 $scope.getConfigs().then(function($configs){
                     //console.log('Reset filter to', $configs.search_token);
@@ -2870,7 +2799,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                         }
                     });
                     
-                    lTransactions = ['for lease','lease'];
+                    lTransactions = ['for rent','rent'];
                     lTransactions.some(function($e){
                         if(lValue.indexOf($e)>=0){
                             lLabelResults.push($e);
@@ -3618,7 +3547,7 @@ ImmoDbApp
 
 ImmoDbApp
 .directive('immodbImageSlider', function immodbImageSlider(){
-    let dir_controller = function immodbImageSliderCtrl ($scope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbHooks) {
+    let dir_controller = function immodbImageSliderCtrl ($scope,$rootScope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbHooks) {
         $scope.expand_mode = false;
         $scope.picture_grid_mode = false;
 
@@ -3627,7 +3556,12 @@ ImmoDbApp
         };
 
         $scope.init = function(){
-            $scope.index = 0;            
+            $scope.index = 0;   
+            
+            $scope.$on('thumbnails-slider-select', function($event, $picture){
+                const lIndex = $scope.pictures.findIndex($e => $e.url == $picture.url);
+                $scope.set(lIndex,false);
+            })
         }
 
         $scope.next = function(){
@@ -3648,12 +3582,20 @@ ImmoDbApp
             $scope.set(lNewIndex);
         }
 
-        $scope.set = function($index){
+        $scope.set = function($index, $triggerEvents){
+            $triggerEvents = typeof $triggerEvents == 'undefined' ? true : $triggerEvents;
             $scope.index = $index;
             $scope.picture_grid_mode =false;
+            
+            if($triggerEvents){
+                const lItem = $scope.pictures[$index];
+                $rootScope.$broadcast('mediabox-picture-select', lItem);
+            }
+
             try{
                 $scope.$digest();
             }catch($e){}
+
         }
 
         $scope.toggleExpand = function(){
@@ -3738,7 +3680,8 @@ ImmoDbApp
             pictures: '=immodbPictures',
             dictionary: '=?immodbDictionary',
             gap: '@immodbGap',
-            index: '=?immodbIndex'
+            index: '=?immodbIndex',
+            showGrid: '=immodbShowPictureGrid'
         },
         controllerAs: 'ctrl',
         replace:true,
@@ -3748,6 +3691,7 @@ ImmoDbApp
             scope.$element = element[0];
             var mc = new Hammer(element[0]);
             let lPanHndl = null;
+            console.log('image-slider showGrid', scope.showGrid);
             // let the pan gesture support all directions.
             // this will block the vertical scrolling on a touch-device while on the element
             mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
@@ -3766,6 +3710,8 @@ ImmoDbApp
                     
                 
             });
+
+            scope.init();
         }
     };
 });
@@ -4214,11 +4160,16 @@ ImmoDbApp
                 }
                 
 
-                angular.element(document).bind('click', function(){
-                   lElm.removeClass('expanded');
+                angular.element(document).on('click', function(){
+                   $rootScope.$broadcast('close-dropdown', null);
                 });
+                
+                jQuery(lElm).parents('.modal-body').on('click', function(){
+                    $rootScope.$broadcast('close-dropdown', null);
+                })
 
-                lElm.find('.button').bind('click', function($event){
+                lElm.find('.button').on('click', function($event){
+                    
                     $rootScope.$broadcast('close-dropdown', lElm);
 
                     lElm.addClass('expanded');
@@ -4534,6 +4485,269 @@ ImmoDbApp
         },
     }
 })
+
+ImmoDbApp
+.directive('immodbMediabox',[
+function immodbMediabox(){
+    return {
+        restrict : 'E',
+        scope : {
+            model: '=siModel',
+            defaultTab: '@siDefaultTab',
+            tabs: '=siTabs',
+            pictureListDisplay: '@siPictureListAs'
+        },
+        link: function ($scope,$elm, $attrs){
+            $scope.init();
+        },
+        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-mediabox.html?v=2',
+        replace: true,
+        controller : function($scope){
+            $scope.selected_media = $scope.defaultTab || 'pictures';
+            $scope.video_player = null;
+        
+            $scope.init = function(){
+                const cFirstTab = $scope.tabs ? $scope.tabs[0] : 'pictures';
+                $scope.selected_media = $scope.defaultTab || cFirstTab;
+            }
+        
+            $scope.tabIsAvailable = function($name){
+                if(!$scope.tabs) return true;
+
+                return $scope.tabs.some($t => $t == $name);
+            }
+
+            $scope.selectMedia = function($media){
+                $scope.selected_media = $media;
+                if($media!='video'){
+                    $scope.callPlayer('video-player','stopVideo');
+                }
+            }
+        
+            $scope.callPlayer = function(frame_id, func, args) {
+                if (window.jQuery && frame_id instanceof jQuery) frame_id = frame_id.get(0).id;
+                var iframe = document.getElementById(frame_id);
+                if (iframe && iframe.tagName.toUpperCase() != 'IFRAME') {
+                    iframe = iframe.getElementsByTagName('iframe')[0];
+                }
+            
+                // When the player is not ready yet, add the event to a queue
+                // Each frame_id is associated with an own queue.
+                // Each queue has three possible states:
+                //  undefined = uninitialised / array = queue / 0 = ready
+                if (!$scope.callPlayer.queue) $scope.callPlayer.queue = {};
+                var queue = $scope.callPlayer.queue[frame_id],
+                    domReady = document.readyState == 'complete';
+            
+                if (domReady && !iframe) {
+                    // DOM is ready and iframe does not exist. Log a message
+                    window.console && console.log('$scope.callPlayer: Frame not found; id=' + frame_id);
+                    if (queue) clearInterval(queue.poller);
+                } else if (func === 'listening') {
+                    // Sending the "listener" message to the frame, to request status updates
+                    if (iframe && iframe.contentWindow) {
+                        func = '{"event":"listening","id":' + JSON.stringify(''+frame_id) + '}';
+                        iframe.contentWindow.postMessage(func, '*');
+                    }
+                } else if (!domReady ||
+                           iframe && (!iframe.contentWindow || queue && !queue.ready) ||
+                           (!queue || !queue.ready) && typeof func === 'function') {
+                    if (!queue) queue = $scope.callPlayer.queue[frame_id] = [];
+                    queue.push([func, args]);
+                    if (!('poller' in queue)) {
+                        // keep polling until the document and frame is ready
+                        queue.poller = setInterval(function() {
+                            $scope.callPlayer(frame_id, 'listening');
+                        }, 250);
+                        // Add a global "message" event listener, to catch status updates:
+                        messageEvent(1, function runOnceReady(e) {
+                            if (!iframe) {
+                                iframe = document.getElementById(frame_id);
+                                if (!iframe) return;
+                                if (iframe.tagName.toUpperCase() != 'IFRAME') {
+                                    iframe = iframe.getElementsByTagName('iframe')[0];
+                                    if (!iframe) return;
+                                }
+                            }
+                            if (e.source === iframe.contentWindow) {
+                                // Assume that the player is ready if we receive a
+                                // message from the iframe
+                                clearInterval(queue.poller);
+                                queue.ready = true;
+                                messageEvent(0, runOnceReady);
+                                // .. and release the queue:
+                                while (tmp = queue.shift()) {
+                                    $scope.callPlayer(frame_id, tmp[0], tmp[1]);
+                                }
+                            }
+                        }, false);
+                    }
+                } else if (iframe && iframe.contentWindow) {
+                    // When a function is supplied, just call it (like "onYouTubePlayerReady")
+                    if (func.call) return func();
+                    // Frame exists, send message
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        "event": "command",
+                        "func": func,
+                        "args": args || [],
+                        "id": frame_id
+                    }), "*");
+                }
+                /* IE8 does not support addEventListener... */
+                function messageEvent(add, listener) {
+                    var w3 = add ? window.addEventListener : window.removeEventListener;
+                    w3 ?
+                        w3('message', listener, !1)
+                    :
+                        (add ? window.attachEvent : window.detachEvent)('onmessage', listener);
+                }
+            }
+        }
+    }
+ 
+}]);
+
+ImmoDbApp
+.directive('immodbThumbnailsSlider',[ '$timeout',
+    function immodbThumbnailsSlider($timeout){
+        return {
+            restrict: 'E',
+            templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-thumbnails-slider.html',
+            replace: true,
+            scope: {
+                list: '=siList'
+            },
+            link : function($scope, $element, $attr){
+                $scope.init($element);
+            },
+            controller: function($scope, $rootScope){
+                $scope.selectedIndex = 0;
+                $scope.trolleyOffset = 0;
+                $scope._element = null;
+
+                $scope.init = function($element){
+                    $scope._element = $element;
+
+                    // listen to MediaBox Picture events
+                    $scope.$on('mediabox-picture-next', function(){
+                        $scope.next();
+                    });
+
+                    $scope.$on('mediabox-picture-next', function(){
+                        $scope.previous();
+                    });
+
+                    $scope.$on('mediabox-picture-select', function($event, $picture){
+                        $scope.select($picture);
+                        $scope.trolleyOffset = $scope.getTrolleyIndexFromSelection($scope.selectedIndex);
+                    });
+                }
+
+
+                $scope.next = function(){
+                    let lOffsetValue = $scope.trolleyOffset+1;
+                    const { 
+                        controlWidth,
+                        pictureWidth
+                    } = $scope.getComponentsWidth();
+
+                    console.log('click next');
+
+                    if(! $scope.hasViewablePicture(lOffsetValue, $scope.list.length, controlWidth, pictureWidth)){
+                        lOffsetValue = $scope.trolleyOffset;
+                    }
+
+
+                    $scope.trolleyOffset = lOffsetValue;
+                }
+
+                $scope.previous = function(){
+                    let lOffsetValue = $scope.trolleyOffset > 0 ? $scope.trolleyOffset-1 : 0;
+                    $scope.trolleyOffset = lOffsetValue;
+
+                    console.log('click previous');
+                }
+
+                $scope.hasViewablePicture = function($trolleyOffset, $pictureCount, $controlWidth, $pictureWidth){
+                    if($controlWidth < $pictureWidth) return false;
+                    if($pictureCount == 0) return false;
+                    if($trolleyOffset == 0) return true;
+                
+                    const lPicturePerPage = Math.floor($controlWidth / $pictureWidth);
+                    const lCurrentPictureIndex = $trolleyOffset * lPicturePerPage;
+                    
+                    if(lCurrentPictureIndex > $pictureCount) return false;
+                
+                    return true;
+                }
+
+                $scope.getTrolleyOffset = function(){
+                    if($scope.trolleyOffset == 0) return 0;
+    
+                    let lResult = 0;
+
+                    const { 
+                        controlWidth,
+                        pictureWidth
+                    } = $scope.getComponentsWidth();
+
+                    const lPicturePerPage = Math.floor(controlWidth / pictureWidth);
+                    const indexOfFirstPicture = $scope.trolleyOffset * lPicturePerPage;
+
+                    lResult = -1 * indexOfFirstPicture *  pictureWidth;
+                    return lResult.toString() + 'px';
+                }
+
+                $scope.getTrolleyIndexFromSelection = function($selectedIndex){
+                    if($selectedIndex == 0) return 0;
+                    const { 
+                        controlWidth,
+                        pictureWidth
+                    } = $scope.getComponentsWidth();
+                    
+                    const lPicturePerPage = Math.floor(controlWidth / pictureWidth);
+                    if(($selectedIndex + 1) <= lPicturePerPage) return 0;
+                    
+                    return Math.floor($selectedIndex / lPicturePerPage);
+                }
+
+                $scope.getComponentsWidth = function(){
+                    const ljqElement = jQuery($scope._element);
+                    return {
+                        controlWidth : ljqElement.width(),
+                        pictureWidth : ljqElement.find('.item').eq(0).outerWidth()
+                    }
+                }
+
+                $scope.select = function($picture, $triggerEvents){
+                    $triggerEvents = typeof  $triggerEvents == 'undefined' ? true : $triggerEvents;
+
+                    $scope.selectedIndex = $scope.list.findIndex($e => $e.url == $picture.url);
+                    console.log('click on picture')
+                    if($triggerEvents){
+                        $rootScope.$broadcast('thumbnails-slider-select', $scope.list[$scope.selectedIndex]);
+                    }
+                }
+
+                $scope.getImageAlt = function($img){
+                    let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+        
+                    lResult = $immodbHooks.filter('listing-picture-alt', lResult, $img);
+        
+                    return lResult;
+                }
+        
+                $scope.getImageCaption = function($img){
+                    let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+        
+                    lResult = $immodbHooks.filter('listing-picture-caption', lResult, $img);
+        
+                    return lResult;
+                }
+            }
+        }
+    }
+])
 
 /* ------------------------------- 
         FACTORIES
@@ -4938,7 +5152,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
                 lResult.push('Sold'.translate());
             }
             else{
-                lResult.push('Leased'.translate());
+                lResult.push('Rented'.translate());
             }
             return lResult.join('');
         }
@@ -5641,7 +5855,8 @@ ImmoDbApp
          * Check wether there's any filter or not
          * @return {boolean}
          */
-        $fm.hasFilters = function(){
+        $fm.hasFilters = function($customCheck){
+            
             if($fm.filter_group.filter_groups != null) return true;
             if($fm.filter_group.filters != null) return true;
             if($fm.query_text != null) return true;
@@ -5650,6 +5865,7 @@ ImmoDbApp
             if($fm.data.min_price != null) return true;
             if($fm.data.max_price != null) return true;
 
+            
             return false;
         }
 
@@ -6061,12 +6277,15 @@ ImmoDbApp
                         
                         lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
                     }
-        
+                    
                     if($fm.sort_fields.length > 0){
                         lResult.sort_fields = $fm.sort_fields;
                     }
-                    else{
+                    else if($configs.sort != 'auto'){
                         lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
+                    }
+                    else{
+                        lResult.sort_fields = null;
                     }
 
                     if($fm.query_text != null){
@@ -6276,7 +6495,8 @@ ImmoDbApp
          */
         $fm.getSearchToken = function($filters){
             //console.log('getSearchToken', $filters);
-
+            $fm.normalize($filters.filter_group);
+            
             let lPromise =  $q(function($resolve, $reject){    
                 if($filters != null){
                     $immodbApi.api('utils/search_encode', $filters).then(function($response){
@@ -6289,6 +6509,23 @@ ImmoDbApp
             
             });
             return lPromise;
+        }
+
+        $fm.normalize = function($filterGroup){
+            const lNewGroup = [];
+            $filterGroup.filter_groups.forEach( ($f,$i) => {
+                if($f.filter_groups != null){
+                    $fm.normalize($f);
+                }
+                if($f.filter_groups != null){
+                    lNewGroup.push($f);
+                }
+                else if ($f.filters != null){
+                    lNewGroup.push($f);
+                }
+            });
+
+            $filterGroup.filter_groups = lNewGroup;
         }
 
         $fm.getConfigs = function(){

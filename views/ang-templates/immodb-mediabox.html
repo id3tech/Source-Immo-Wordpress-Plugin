@@ -1,0 +1,53 @@
+<div class="medias select-{{selected_media}}">
+    <div class="tabs">
+        <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
+            data-ng-show="tabIsAvailable('pictures')"
+            data-ng-click="selectMedia('pictures')">
+            <i class="fal fa-camera"></i> <span>{{'Pictures'.translate()}} ({{model.photos.length}})</span></button>
+        <button type="button" class="tab videos {{selected_media=='videos'?'selected':''}}"
+            data-ng-show="tabIsAvailable('video') && model.video!=undefined" 
+            data-ng-click="selectMedia('videos')">
+            <i class="fal fa-video"></i> <span>{{'Video'.translate()}}</span></button>
+        <button type="button" class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
+            data-ng-show="tabIsAvailable('virtual-tours') && model.virtual_tour!=undefined" 
+            data-ng-click="selectMedia('virtual-tours')">
+            <i class="fal fa-street-view"></i> <span>{{'Virtual tour'.translate()}}</span></button>
+        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" 
+            data-ng-show="tabIsAvailable('streetview')"
+            data-ng-click="selectMedia('streetview')">
+            <i class="fal fa-street-view"></i> <span>{{'Street view'.translate()}}</span></button>
+        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" 
+            data-ng-show="tabIsAvailable('map')"
+            data-ng-click="selectMedia('map')">
+            <i class="fal fa-map"></i> <span>{{'Map'.translate()}}</span></button>
+    </div>
+    <div class="viewport">
+        <div class="trolley">
+            <div class="tab-content picture-gallery"
+                >
+                <immodb-image-slider data-ng-if="tabIsAvailable('pictures')" data-immodb-pictures="model.photos" data-immodb-gap="0" data-immodb-show-picture-grid="pictureListDisplay!='thumbnails'"></immodb-image-slider>
+                <immodb-thumbnails-slider si-list="model.photos" ng-show="pictureListDisplay=='thumbnails'"></immodb-thumbnails-slider>
+            </div>
+            <div class="tab-content videos"
+                >
+                <label class="placeholder">{{'Video'.translate()}}</label>
+                <iframe data-ng-if="tabIsAvailable('video')" id="video-player" data-ng-src="{{model.video.trusted_url}}" allowFullscreen="1" ></iframe>
+            </div>
+            <div class="tab-content virtual-tours"
+                >
+                <label class="placeholder">{{'Virtual tour'.translate()}}</label>
+                <iframe data-ng-if="tabIsAvailable('virtual-tours')" data-ng-src="{{model.virtual_tour.trusted_url}}" allowFullscreen="1"></iframe>
+            </div>
+            <div class="tab-content streetview"
+                >
+                <label class="placeholder">{{'Street view'.translate()}}</label>
+                <immodb-streetview data-ng-if="tabIsAvailable('streetview')" class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-streetview>
+            </div>
+            <div class="tab-content map"
+                >
+                <label class="placeholder">{{'Map'.translate()}}</label>
+                <immodb-map data-ng-if="tabIsAvailable('map')" class="detail-map" zoom="14" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-map>
+            </div>
+        </div>
+    </div>
+</div>
