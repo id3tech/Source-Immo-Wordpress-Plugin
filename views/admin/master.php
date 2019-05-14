@@ -9,12 +9,25 @@ if($lTwoLetterLocale == ''){
 
 <div id="immodb-app" ng-app="ImmoDb" ng-controller="mainCtrl" ng-init="init()">
   <div layout="row" layout-align="space-between center">
-    <h1 class="md-display-1">Immo DB <span class="version">v.<?php echo IMMODB_VERSION?></span></h1>
-
-
-    <div layout="row" layout-align="end center" ng-show="current_page=='home'">
-      <md-button class="md-raised md-primary md-icon-button" ng-click="save_configs()" title="<?php _e('Save', IMMODB)?>"><i class="fal fa-save fa-lg"></i></md-button>
-      <md-button class="md-icon-button" ng-click="reset_configs()"><i class="fal fa-undo fa-lg" title="<?php _e('Reset to demo settings', IMMODB)?>"></i></md-button>
+    <h1 class="md-display-1">Source.Immo Plugin <span class="version">v.<?php echo IMMODB_VERSION?></span></h1>
+    
+    
+    <div layout="row" layout-align="end center" ng-show="configs.registered && current_page=='home'">
+      <md-menu  ng-cloak>
+        <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-ellipsis-v"></md-icon></md-button>
+        <md-menu-content>
+          <md-menu-item>
+            <md-button class="" ng-click="save_configs()"><i class="fal fa-save"></i> <?php _e('Save settings', IMMODB)?></md-button>
+          </md-menu-item>
+          <md-menu-item>
+          <md-button ng-click="clearAccessToken()"><i class="fal fa-eraser"></i> <?php _e('Clear access token',IMMODB) ?></md-button>
+          </md-menu-item>
+          <md-menu-item>
+            <md-button class="" ng-click="reset_configs()"><i class="fal fa-undo"></i> <?php _e('Reset to demo settings', IMMODB)?></md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+      
     </div>
 
   </div>

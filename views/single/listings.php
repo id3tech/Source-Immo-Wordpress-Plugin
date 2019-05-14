@@ -1,38 +1,33 @@
 <?php
 $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
+$layout = ImmoDB::current()->get_detail_layout('listing');
 
 get_header();
 
 ImmoDB::view('single/listings_layouts/_schema',array('model' => $data));
 
+$contentClass = ($layout->type == 'custom_page') ? "immodb-custom-content" : "immodb-content";
 ?>
-<div class="wrap">
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main" role="main">
-            <div class="container">
-            <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
-                <label class="placeholder"  data-ng-show="model==null">
-                    <div><?php _e('Loading property',IMMODB) ?></div>
-                    <i class="fal fa-spinner-third fa-spin"></i></label>
-                <div class="immodb-content">
-                <?php 
-                    $layout = ImmoDB::current()->get_detail_layout('listing');
-                    if($layout->type=='custom_page'){
-                        // load page content
-                        $lPost = get_post($layout->page);
-                        echo(do_shortcode($lPost->post_content));
-                    }
-                    else{
-                        ImmoDB::view('single/listings_layouts/' . $layout->type);
-                    }
-                ?>
-                </div>
-            </div>
-                </div>
-        </main>
-    </div>
+
+<div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+    class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
+
+    <?php 
+        $layout = ImmoDB::current()->get_detail_layout('listing');
+        if($layout->type=='custom_page'){
+            // load page content
+            do_action('immodb_render_page',$layout->page);
+        }
+        else{
+            immodb_start_of_template("Loading listing");
+
+            ImmoDB::view('single/listings_layouts/' . $layout->type);
+            
+            immodb_end_of_template();
+        }
+    ?>
+    
 </div>
 
 <script type="text/javascript">

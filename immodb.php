@@ -11,7 +11,7 @@ Text Domain: immodb
 */
 define( 'IMMODB_NAME', 'ImmoDB');
 define( 'IMMODB', 'immodb' );
-define( 'IMMODB_VERSION', '0.0.1' );
+define( 'IMMODB_VERSION', '0.1.0' );
 define( 'IMMODB_MINIMUM_WP_VERSION', '4.0' );
 define( 'IMMODB_PLUGIN', __FILE__);
 define( 'IMMODB_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );

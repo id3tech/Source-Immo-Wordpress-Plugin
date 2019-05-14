@@ -25,7 +25,13 @@ if(typeof Number.formatPrice === 'undefined' ){
         let lValue = this;
         lValue = Math.round(lValue * 100) / 100;
         $currency = ($currency==undefined)?'':$currency;
-        let lResult = lValue.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1 ');
+        $separator = {
+            fr : ' ',
+            en : ','
+        };
+
+
+        let lResult = lValue.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + $separator[$locales._current_lang_]);
         lResult = '${0}'.translate().format(lResult);
         return lResult;
     }

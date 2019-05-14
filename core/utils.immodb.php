@@ -67,6 +67,16 @@ class StringPrototype{
     
     return implode('-',$lWords);
   }
+
+  public static function toJsVariableName($value){
+    $result = str_replace(
+      array(' ','-',''),
+      '',
+      $value
+    );
+
+    return $result;
+  }
 }
 
 if(!function_exists('str_null_or_empty')){
@@ -104,6 +114,41 @@ if(!function_exists('str_endswith')){
   }
 }
 
+function si_view_id($viewData){
+  if(is_string($viewData)){
+    $jViewData = json_decode($viewData);
+    if(json_last_error() == JSON_ERROR_NONE){
+      return $jViewData->id;
+    }
+    else{
+      return $viewData;
+    }
+  }
+  
+  if(is_object($viewData)){
+    return $viewData->id;
+  }
+}
+
+function immodb_start_of_template($loading_text='Loading'){
+  ?>
+  <div class="wrap">
+    <div id="primary" class="content-area">
+        <main id="main" class="site-main" role="main">
+            <div class="container">
+        
+            <label class="placeholder"  data-ng-show="model==null"><?php _e($loading_text,IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
+            <div class="immodb-content"  ng-cloak>
+  <?php
+}
+function immodb_end_of_template(){
+  ?>
+            </div>
+        </main>
+    </div>
+  </div>
+  <?php
+}
 
 class ImmodbTools {
 
@@ -222,7 +267,7 @@ class HttpCall{
   public static function to(string ...$endpoint_parts){
     $lInstance = new HttpCall();
 
-    $lInstance->endpoint = implode($endpoint_parts, '/');
+    $lInstance->endpoint = implode('/',$endpoint_parts);
     $lInstance->endpoint = str_replace('~', IMMODB_API_HOST . '/api', $lInstance->endpoint);
 
     
@@ -261,7 +306,7 @@ class HttpCall{
     } 
 
     curl_close($lCurlHandle);
-
+    
     if($as_json){
       return json_decode($lResult);
     }
@@ -326,7 +371,7 @@ class HttpCall{
   }
 
   private function _handle_error($curlHdl){
-    //Debug::write(curl_error($curlHdl));
+    Debug::write(curl_error($curlHdl));
   }
 
 }

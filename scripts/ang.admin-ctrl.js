@@ -79,6 +79,7 @@ ImmoDbApp
       $scope.show_toast('Access token cleared');
     });
   }
+
 });
 
 
@@ -111,9 +112,9 @@ ImmoDbApp
         }
       }
       
-      $scope.confirm("Do you want to save the changes you've made?").then(function(){
+      //$scope.confirm("Do you want to save the changes you've made?").then(function(){
         $scope.$emit('save-request');
-      });
+      //});
     });
   }
 
@@ -333,7 +334,7 @@ ImmoDbApp
  * MAIN ROOT CONTROLLER
  */
 ImmoDbApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$immodbApi,$immodbList,$immodbUI){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$immodbApi,$immodbList,$immodbUI){
   $scope.configs = {};
   $scope.lang_codes = {
     fr: 'Français',
@@ -399,30 +400,53 @@ ImmoDbApp
     }
   }
 
+  $scope.registration_steps = [
+    {name: 'Linked account'},
+    {name: 'API key'},
+    {name: 'Data view'},
+    {name: 'Integration'}
+  ]
+
   $rootScope.current_page = 'home'
   $scope.pages = {
     'home': {label: 'Home'.translate(), style: ''},
     'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(calc(-100vw + 180px));'},
   }
   
+  $scope.configuration_step = 0;
+  $scope.credentials = null;
   $scope.data_views = [];
   $scope.wp_pages = [];
-
+  $scope.login_infos = {
+    email: '',
+    password: ''
+  }
 
   $scope.init = function(){
-    $scope.load_configs();
-    $scope.load_wp_pages();
-    $scope.load_data_views();
-    $immodbList.init();
-
+    $scope.load_configs().then(_ => {
+      $q.all([
+        $scope.load_wp_pages(),
+        $scope.load_data_views()
+      ]).then(_ => {
+        $immodbList.init();
+      })
+    });
+    
     $scope.$on('save-request', function(){
       $scope.save_configs();
     });
   }
 
   $scope.load_configs = function(){
-    $scope.api('configs').then(function($response){
-      $scope.configs = $response;
+    return $q(function($resolve, $reject){
+      $scope.api('configs').then(function($response){
+        $scope.configs = $response;
+
+        if(typeof $scope.configs.default_view.id != 'undefined'){$scope.configs.default_view = $scope.configs.default_view.id;}
+        if($scope.configs.default_view.indexOf('{"id":') >=0){$scope.configs.default_view = JSON.parse($scope.configs.default_view).id;}
+        
+        $resolve();
+      });
     });
   }
 
@@ -433,27 +457,238 @@ ImmoDbApp
     });
   }
 
-  $scope.save_configs = function(){
-    $scope.api('configs',{settings: $scope.configs}).then(function($response){
-      $scope.show_toast('Save completed');
+  $scope.save_configs = function($silent){
+    $silent = (typeof $silent == 'undefined') ? false : $silent;
+    return $q(function($resolve, $reject){
+      $scope.api('configs',{settings: $scope.configs}).then(function($response){
+        if(!$silent){
+          $scope.show_toast('Save completed');
+        }
+        $resolve();
+      });
     });
   }
 
   $scope.load_wp_pages = function(){
-    $scope.api('pages',{locale: 'fr', type: ''},{method : 'GET'}).then(function($response){
-      $scope.wp_pages.fr = $response;
-    });
-    $scope.api('pages',{locale: 'en', type: ''},{method : 'GET'}).then(function($response){
-      $scope.wp_pages.en = $response;
+    return $q(function($resolve, $reject){
+
+      $q.all([
+        $scope.api('pages',{locale: 'fr', type: ''},{method : 'GET'}),
+        $scope.api('pages',{locale: 'en', type: ''},{method : 'GET'})
+      ])
+      .then($results => {
+        $scope.wp_pages.fr = $results[0];
+        $scope.wp_pages.en = $results[1];
+
+        $resolve($scope.wp_pages);
+      })
+      .catch($err => {console.error($err)})
     });
   }
 
   $scope.load_data_views = function(){
-    $scope.api('account').then(function($response){
-      console.log($response);
-      $scope.data_views = $response.data_views;
+    return $q(function($resolve, $reject){
+      $scope.api('account').then(function($response){
+        if($response == null) return;
+
+        $scope.data_views = $response.data_views;
+        $resolve($response.data_views);
+      });
     });
   }
+
+
+  $scope.signin = function(){
+    $scope.portalApi('auth/login', $scope.login_infos).then($response => {
+      if([10,20].includes($response.statusCode)){
+        $scope.show_toast($response.message);
+        return;
+      }
+
+      $scope.credentials = $response;
+      $scope.configs.account_id = null;
+      $scope.configs.api_key = null;
+
+      const lRegistrationSequence = [
+        $scope.selectAccount,
+        $scope.selectApiKey,
+        $scope.selectDefaultView,
+        $scope.setDisplayPages
+      ];
+
+      lRegistrationSequence.reduce(
+        ($previous, $current) => {
+          return $previous.then(_ => {
+            return $current()
+          })
+        },
+        Promise.resolve()
+      ).then($result => {
+        
+        $scope.configs.registered = true;
+        $scope.show_toast('Configuration completed')
+        $scope.save_configs().then(_ => {
+          $scope.configuration_step = 0;
+        });
+      });
+    });
+  }
+
+  $scope.selectAccount = function(){
+    return $q(function($resolve, $reject){
+      console.log('Account selection');
+      $scope.configuration_step += 1;
+      $scope.portalApi('linked_account/list').then($response => {
+        $response.items.forEach($e => {
+          $e.clickHandler = function(){
+            console.log('selected account', $e);
+            $scope.portal_account_id = $e.id; 
+            $resolve();
+          } 
+        });
+        $scope.accounts = $response;
+      });
+    });
+  }
+
+    
+
+
+  $scope.selectApiKey = function(){
+    return $q(function($resolve, $reject){
+      console.log('Api Key selection');
+      $scope.configuration_step += 1;
+      
+      $scope.portalApi('api_key/list').then($response => {
+        if($response.items.length == 1){
+          $scope.configs.account_id = $response.items[0].accountId;
+          $scope.configs.api_key=$response.items[0].id;
+          $scope.save_configs(true).then(_ => {
+            $resolve();
+          });
+        }
+        else{
+          $response.items.forEach($e => {
+            $e.clickHandler = function(){
+              $scope.configs.account_id = $e.accountId;
+              $scope.configs.api_key=$e.id;
+              
+              $scope.save_configs(true).then(_ => {
+                $resolve();
+              });
+            } 
+          });
+          $scope.api_keys = $response;
+        }
+
+      });
+    });
+  }
+
+  $scope.selectDefaultView = function(){
+    return $q(function($resolve, $reject){
+      console.log('Default view selection');
+      $scope.configuration_step += 1;
+
+      $scope.load_data_views().then($views => {
+        console.log('views',$views);
+
+        if($views.length == 1){
+          $scope.configs.default_view=$views[0].id; 
+          $scope.updateListsView();
+          $resolve();
+        }
+        else{
+          $views.forEach($e => {
+            $e.clickHandler = function(){
+              $scope.configs.default_view=$e.id; 
+              $scope.updateListsView();
+              $resolve();
+            } 
+          });
+        }
+      });
+    });
+  }
+
+  $scope.setDisplayPages = function(){
+    $scope.configuration_step += 1;
+    $scope.default_listing_page = 'NEW';
+    $scope.default_broker_page = 'NEW';
+
+
+
+    return $q(function($resolve, $reject){
+      
+      $scope.load_wp_pages().then($pages => {
+        //$timeout(_ => {
+          $pages.fr.forEach($p => {
+            console.log($p.post_title);
+            if('propriétés' == $p.post_title.toLowerCase()) $scope.default_listing_page = $p.ID;
+            if('courtiers' == $p.post_title.toLowerCase()) $scope.default_broker_page = $p.ID;
+          });  
+        //})
+        
+
+        $scope.applyShortCodeHandler = function(){
+          $q.all(
+            $scope.applyListingShortCode(),
+            $scope.applyBrokerShortCode()
+          ).then($result => {
+            $resolve();
+          })
+        }
+      });
+    });
+  }
+
+  $scope.applyListingShortCode = function(){
+    return $q(function($resolve, $reject){
+      $scope.api('page',{page_id: $scope.default_listing_page, title: 'Propriétés', content:'[immodb alias="listings"]'}).then($result => {
+        $resolve();
+      });
+    })
+  }
+
+  $scope.applyBrokerShortCode = function(){
+    return $q(function($resolve, $reject){
+      $scope.api('page',{page_id: $scope.default_broker_page, title: 'Courtiers',content:'[immodb alias="brokers"]'}).then($result => {
+        $resolve();
+      });
+    })
+  }
+
+  $scope.updateListsView = function(){
+    $scope.configs.lists.forEach($e => {
+      if($e.source == ''){
+        $e.source = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
+        $e.search_token = '';
+      }
+    });
+
+    console.log('config lists', $scope.configs.lists);
+  }
+
+  $scope.initListSearchToken = function(){
+    let lFilters = null;
+            
+    let lPromise =  $q(function($resolve, $reject){
+        if(lFilters != null){
+            $scope.api('', lFilters,{
+              url: wpApiSettings.api_root + '/api/utils/search_encode'
+            }).then(function($response){
+                $resolve($response);
+            });
+        }
+        else{
+            $resolve('');
+        }
+        
+    });
+
+    return lPromise;
+  }
+
 
   /*
   * UI
@@ -512,6 +747,45 @@ ImmoDbApp
    */
   $scope.api = function($path, $data, $options){
       return $immodbApi.rest($path,$data,$options);
+  }
+
+  $scope.portalApi = function($path, $data, $options){
+    const lOptions = Object.assign({
+      method: 'POST'
+    }, $options);
+
+    lOptions.url = 'https://portal-api.source.immo/api/' + $path;
+
+    if($data != null){
+      if(lOptions.method=='POST'){
+        lOptions.data = $data;
+      }
+      else{
+        lOptions.params = $path;
+      }
+    }
+
+    if($scope.credentials != null){
+      if(!lOptions.params) lOptions.params = {};
+      
+      lOptions.params.at = $scope.credentials.authTokenKey;
+
+      if($scope.portal_account_id != null){
+        lOptions.params.la = $scope.portal_account_id;
+      }
+    }
+    
+
+    return $q(($resolve,$reject) => {
+      $http(lOptions).then($response => {
+        //$scope.dialog('signin', null);
+        if($response.status==200){
+          $resolve($response.data);
+        }
+      })
+      .catch($err => { console.log($path, 'call failed', $err) });
+    })
+    
   }
   
 
@@ -605,6 +879,14 @@ ImmoDbApp
 
 });
 
+/* DIALOGS */
+ImmoDbApp
+.controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog){
+  BaseDialogController('signin',$scope, $rootScope, $mdDialog);
+
+
+})
+
 
 /* DIRECTIVES */
 ImmoDbApp
@@ -615,7 +897,8 @@ ImmoDbApp
       route : '=',
       removeHandler : '&onRemove',
       list : '=',
-      type: '@'
+      type: '@',
+      changeHandler: '&siChange'
     },
     templateUrl : wpApiSettings.base_path + '/views/ang-templates/immodb-route-box.html',
     replace: true,
@@ -736,6 +1019,11 @@ ImmoDbApp
         } 
       }
 
+      $scope.update = function(){
+        if(typeof $scope.changeHandler == 'function'){
+          $scope.changeHandler({route : $scope.route});
+        }
+      }
 
 
       $scope.addRouteElement = function($key){
@@ -931,7 +1219,22 @@ ImmoDbApp
     }
   }
   
-})
+});
+
+ImmoDbApp
+.directive('siOnEnter', ['$parse', function siOnEnter($parse){
+  return {
+    restrict: 'A',
+    link: function($scope,$element, $attr){
+      $element.on('keyup', function($event){
+        if($event.keyCode==13){
+          const lHandler = $parse($attr.siOnEnter);
+          lHandler($scope, {$event: $event});
+        }
+      });
+    }
+  }
+}]);
 
 
 /* SERVICES */
@@ -1005,6 +1308,8 @@ ImmoDbApp
     }
 
     $scope.fetchDictionary = function($view_id){
+      if($view_id == null) return;
+
       $immodbApi.rest('dictionary').then(function($response){
         $scope.dictionary = $response;
       });
@@ -1151,7 +1456,7 @@ ImmoDbApp
 
 
 ImmoDbApp
-.factory('$immodbUI',['$mdDialog','$mdToast', function $immodbUI($mdDialog,$mdToast){
+.factory('$immodbUI',['$mdDialog','$mdToast','$q','$rootScope', function $immodbUI($mdDialog,$mdToast,$q,$rootScope){
   $scope = {};
 
   /**

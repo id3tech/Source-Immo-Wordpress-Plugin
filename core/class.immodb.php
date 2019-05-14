@@ -9,6 +9,7 @@ if(!defined('IMMODB_API_HOST')){
 class ImmoDB {
   
   
+  public $page_template_rendered = false;
 
   public $configs = null;
 
@@ -57,6 +58,8 @@ class ImmoDB {
 
       add_action('wp_ajax_abc_ajax', array($this,'validate_file_version'),1);
       add_action('wp_ajax_admin_abc_ajax', array($this,'validate_file_version'), 1);
+
+      add_action('immodb_render_page', array($this, 'render_page'),10,2);
     }
   }
 
@@ -657,6 +660,28 @@ class ImmoDB {
     }
   }
 
+  public function render_page($post_id, $load_text){
+    if($this->page_template_rendered) return;
+    
+    immodb_end_of_template($load_text);
+
+    $lPost = get_post($post_id);
+    echo(do_shortcode($lPost->post_content));
+  
+    immodb_end_of_template();
+  }
+
+  public static function staticDataController($configs, $data){
+    $alias = StringPrototype::toJsVariableName($configs->alias);
+    echo('<script id="static-data-for-' . $alias . '">');
+    echo('if(typeof $statics == "undefined"){$statics = {};}');
+    echo('$statics.' . $alias . ' = {};');
+    echo('$statics.' . $alias . '.configs = ' . json_encode($configs) . ';');
+    echo('$statics.' . $alias . '.data = ' . json_encode($data) . ';');
+    echo('</script>');
+    echo('<div ng-controller="staticDataCtrl" ng-init="init(\'' . $alias . '\')"></div>');
+  }
+
   /**
    * Return the file path of the view or code fragment
    * 
@@ -761,6 +786,19 @@ class ImmoDB {
     self::view('admin/dialog.ui',$args);
   }
 
+  /**
+   MODULES
+   */
+  public function load_modules(){
+    $theme = wp_get_theme();
+
+    // enfold
+    if ( 'Enfold' == $theme->name || 'Enfold' == $theme->parent_theme ) {
+      include IMMODB_PLUGIN_DIR . 'modules/enfold/functions.php';
+    }
+
+  }
+
   /** 
    TRANSLATION
   */
@@ -821,7 +859,9 @@ class ImmoDB {
   public static function init() {
 		if ( ! self::$initiated ) {
       self::$initiated = true;
-			self::current()->init_hooks();
+      self::current()->load_modules();
+      self::current()->init_hooks();
+      
 		}
 	}
   private static $initiated = false;
@@ -1362,18 +1402,20 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
   
   public static function formatPrice($price){
     $lResult = array();
+    $locale = substr(get_locale(),0,2);
+    $thousand_separator = ($locale == 'fr') ? ' ' : ',';
 
     $priceFormat = __('${0}',IMMODB);
     if(is_numeric($price)){
-      return StringPrototype::format($priceFormat, number_format($price,0,"."," "));
+      return StringPrototype::format($priceFormat, number_format($price,0,".", $thousand_separator));
     }
 
     if(isset($price->sell)){
-      $lResult[] = StringPrototype::format($priceFormat, number_format($price->sell->amount,0,"."," "));
+      $lResult[] = StringPrototype::format($priceFormat, number_format($price->sell->amount,0,".", $thousand_separator));
     }
 
     if(isset($price->lease)){
-      $lResult[] = StringPrototype::format($priceFormat,number_format($price->lease->amount,2,"."," "));
+      $lResult[] = StringPrototype::format($priceFormat,number_format($price->lease->amount,2,".", $thousand_separator));
     }
 
     return implode(__(' or ',IMMODB), $lResult);

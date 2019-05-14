@@ -16,13 +16,15 @@ $resultView = new ImmoDBListingsResult($data);
 ?>
 <div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
     <?php
+    ImmoDB::staticDataController($configs, $resultView->listings);
+
+    
     if(is_array($resultView->listings) && !empty($resultView->listings)){
         if($configs->show_list_meta==true){
             ImmoDB::view("list/{$configs->type}/direct/list-meta",
                 array("configs" => $configs, "global_meta" => $meta, "result"=> $resultView));
         }
         
-
         echo('<div class="immodb-list">');
             
             foreach ($resultView->listings as $item) {

@@ -74,6 +74,32 @@ class ImmoDBApi {
       )
     );
 
+    register_rest_route( 'immodb','/page',
+      array(
+        'methods' => WP_REST_Server::EDITABLE,
+        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
+        'callback' => array( 'ImmoDBApi', 'update_page' ),
+        'args' => array(
+          'page_id' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Page ID', IMMODB ),
+          ),
+          'title' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Page title', IMMODB ),
+          ),
+          'content' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'New content of the page', IMMODB ),
+          )
+        )
+      )
+    );
+
+
     //Read/Write configs
     register_rest_route( 'immodb','/configs',array(
         array(
@@ -147,6 +173,31 @@ class ImmoDBApi {
     );
   }
 
+
+  public static function update_page($request){
+    global $sitepress;
+    $page_id = $request->get_param('page_id');
+    $title = $request->get_param('title');
+    $content = $request->get_param('content');
+
+    if($page_id == 'NEW'){
+      $my_post = array(
+        'post_title'    => $title,
+        'post_content'  => $content,
+        'post_status'   => 'publish'
+      );
+     
+      wp_insert_post( $my_post );
+    }
+    else{
+      wp_update_post(array(
+        'ID'            => $page_id,
+        'post_content'  => $content
+      ));
+    }
+  }
+
+
   public static function get_pages($request){
     // change language
     global $sitepress;
@@ -215,7 +266,6 @@ class ImmoDBApi {
       $lDiff = self::get_token_timelapse(json_decode($lResult));
 
       set_transient('immodb_temp_auth_token' . $api_key, $lResult, $lDiff * MINUTE_IN_SECONDS);
-      //Debug::write($lResult);
     }   
 
 
@@ -237,20 +287,23 @@ class ImmoDBApi {
 
   private static function get_token_timelapse($token){
     $lDiff = 0;
+    $lResult = 0;
+
     if($token != null){
       $token->expire_date = date_create($token->expire_date);
       $lNow = new DateTime();
       $lDiff = date_diff($lNow, $token->expire_date);
-    }
-    $lResult = 0;
-    $lResult += $lDiff->s / 60;
-    $lResult += $lDiff->i;
-    $lResult += $lDiff->h * 60;
-    $lResult += $lDiff->days * 24 * 60;
-    if($lDiff->invert){
-      $lResult = -1 * $lResult;
-    }
 
+      $lResult += $lDiff->s / 60;
+      $lResult += $lDiff->i;
+      $lResult += $lDiff->h * 60;
+      $lResult += $lDiff->days * 24 * 60;
+      if($lDiff->invert){
+        $lResult = -1 * $lResult;
+      }
+
+    }
+   
     return $lResult;
   }
   private static function token_is_valid($token){
@@ -268,11 +321,11 @@ class ImmoDBApi {
 
   public static function get_data_view(){
     if(ImmoDB::current()->configs->default_view != null){
-      return ImmoDB::current()->configs->default_view;
+      return si_view_id(ImmoDB::current()->configs->default_view);
     }
-
+    
     $lToken = self::get_access_token();
-    return $lToken->view_ids[0];
+    return si_view_id($lToken->view_ids[0]);
   }
 
   
@@ -323,7 +376,7 @@ class ImmoDBApi {
   }
 
   public static function get_dictionary($request){
-    $viewId = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $viewId = si_view_id(ImmoDB::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
     $lTwoLetterLocale = substr(get_locale(),0,2);
@@ -474,7 +527,7 @@ class ImmoDBApi {
     
     if(!isset(ImmoDB::current()->configs->default_view)) return '';
 
-    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
     
@@ -490,7 +543,7 @@ class ImmoDBApi {
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
 
@@ -507,7 +560,7 @@ class ImmoDBApi {
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
     $lFilters = array("st"=>urlencode(self::get_search_token(
           array('code'=>$id),
           (object) array('limit' => 0)
@@ -526,7 +579,7 @@ class ImmoDBApi {
     $account_id = ImmoDB::current()->get_account_id();
     $api_key = ImmoDB::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = json_decode(ImmoDB::current()->configs->default_view)->id;
+    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
     
@@ -560,8 +613,14 @@ class ImmoDBApi {
     $api_key = ImmoDB::current()->get_api_key();
     
 
+    $lResult = null;
+    
     $lAccessToken = self::get_access_token();
-    $lResult = HttpCall::to('~','account')->with_oauth($lAccessToken->key)->get(null, true);
+    
+    if(is_object($lAccessToken) && $lAccessToken->key != null){
+      $lResult = HttpCall::to('~','account')->with_oauth($lAccessToken->key)->get(null, true);
+    }
+    
     return $lResult;
   }
   

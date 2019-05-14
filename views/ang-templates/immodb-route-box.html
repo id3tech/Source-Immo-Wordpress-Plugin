@@ -1,15 +1,15 @@
 <div class="immodb-route-box">
     <md-input-container>
-      <md-select ng-model="route.lang">
-        <md-option ng-repeat="(key, value) in lang_codes" 
+      <md-select ng-model="route.lang"   ng-change="update()">
+        <md-option ng-repeat="(key, value) in lang_codes"
             ng-show="!langIsUsed(key)" value="{{key}}">{{value}}</option>
       </md-select>
     </md-input-container>
     <md-input-container>
-      <input ng-model="route.route" />
+      <input ng-model="route.route" ng-model-options="{updateOn: 'blur'}" ng-change="update()" />
     </md-input-container>
     <md-input-container>
-      <input ng-model="route.shortcut" />
+      <input ng-model="route.shortcut" ng-model-options="{updateOn: 'blur'}" ng-change="update()" />
     </md-input-container>
 
     <md-button class="md-icon-button" 

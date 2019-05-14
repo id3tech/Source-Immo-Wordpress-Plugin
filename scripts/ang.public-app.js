@@ -13,6 +13,9 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
+    $scope.statics = {
+        isNullOrEmpty: $value => $value==null || $value == '' || $value.length == 0
+    };
 
     $scope.init = function(){
     }
@@ -26,6 +29,32 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
     $scope.$on('immodb-brokers-update',function(ev, $list, $meta){
         $scope.broker_count = $immodbHooks.filter('broker_count', $meta.item_count);
     });
+
+    // Static data
+    $scope.$on('immodb-static-data', function($event, $configs, $data){
+        
+        $scope.addStatic($configs.alias, $data);
+
+        console.log($scope.statics);
+    });
+
+    $scope.addStatic = function($alias, $data){
+        const lStatic = {
+            _data: $data
+        };
+
+        const lVarName = $immodbUtils.sanitize($alias,true);
+        const lSanitizedName = $immodbUtils.sanitize($alias);
+
+        lStatic.getClasses = function(){
+            const lClasses = [];
+            if(lStatic._data == null || lStatic._data == '' || lStatic._data.length ==0) lClasses.push('empty');
+
+            return lClasses.map($e => lSanitizedName + '-' + $e).join(' ');
+        }
+
+        $scope.statics[lVarName] = lStatic;
+    }
 
     /**
      * Shorthand to $immodbDictionary.getCaption
@@ -77,6 +106,20 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
 
 });
 
+/**
+ * Static Data - Controller
+ */
+ImmoDbApp
+.controller('staticDataCtrl', 
+function staticDataCtrl($scope, $rootScope,$immodbDictionary, $immodbUtils,$immodbHooks){
+    $scope.init = function($alias){
+        const $configs = $statics[$alias].configs;
+        const $data = $statics[$alias].data;
+        
+        console.log($configs, $data);
+        $scope.$emit('immodb-static-data', $configs, $data);
+    }
+})
 
 /**
  * Listing Detail - Controller
@@ -3008,6 +3051,7 @@ ImmoDbApp
     function($scope, $q, $immodbApi, $rootScope){
         $scope.ready = false;
         $scope.is_visible = false;
+        $scope.positioned = false;
         $scope.zoom = 14;
         $scope.is_loading_data = false;
         $scope.late_init = true;
@@ -3019,29 +3063,50 @@ ImmoDbApp
         };
 
         $scope.permalink = '';
+        
 
         $scope.$onInit = function(){
-            //console.log('init', $scope);
-            if( typeof(google) == 'undefined'){
-                return;
-            }
-            if($scope.ready == false){
-                let options = {
-                    center: new google.maps.LatLng(45.6025503,-73.8469538),
-                    zoom: $scope.zoom
-                    //disableDefaultUI: true    
-                }
-                
-                $scope.map = new google.maps.Map(
-                    $scope.map_element, options
-                );
 
-                $scope.ready = true;
-            }
+            $scope.$on('immodb-display-streetview', $scope.display);
+   
+        }
+
+        $scope.mapInit = function(){
+            return $q(function($resolve,$reject){
+                if($scope.ready == false){
+                    let options = {
+                        center: new google.maps.LatLng(45.6025503,-73.8469538),
+                        zoom: $scope.zoom
+                        //disableDefaultUI: true    
+                    }
+                    
+                    $scope.map = new google.maps.Map(
+                        $scope.map_element, options
+                    );
+    
+                    $scope.ready = true;
+                    $resolve();
+                }
+                else{
+                    $resolve();
+                }
+            });
+        }
+
+        $scope.display = function(){
+            if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
+
+            if($scope.latlng == null){$scope.registerWatch();return;}
+
+            $scope.mapInit().then(_ => {
+                $scope.setView($scope.latlng);
+            });
         }
 
         $scope.setView = function($position){
-            //console.log('engaging streetview');
+            if($scope.positioned == true) return;
+
+            console.log('engaging streetview');
             let lPosition = new google.maps.LatLng($position.lat,$position.lng);
             
             $scope.panorama = new google.maps.StreetViewPanorama($scope.viewport_element, 
@@ -3054,6 +3119,8 @@ ImmoDbApp
                     });
             
             $scope.map.setStreetView($scope.panorama);
+
+            $scope.positioned = true;
         }
         
 
@@ -3074,15 +3141,14 @@ ImmoDbApp
             return lPromise;
         }
 
-        $scope.$watch('latlng', function(){
-            if($scope.latlng != null && $scope.latlng.lat!=undefined){
-                //console.log('latlng streetview', $scope.latlng);
-                $scope.isReady().then(function(){
-                    //console.log('streetview is ready');
-                    $scope.setView($scope.latlng);
-                });
-            }
-        });
+        $scope.registerWatch = function(){
+            $scope.$watch('latlng', function(){
+                if($scope.latlng != null && $scope.latlng.lat!=undefined){
+                    $scope.display();
+                }
+            });
+        }
+        
     };
 
 
@@ -3108,8 +3174,8 @@ ImmoDbApp
 });
 
 ImmoDbApp
-.directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary,$immodbHooks){
-    let dir_controller = 
+.directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary,$immodbHooks,$immodbConfig){
+    const dir_controller = 
     function($scope, $q, $immodbApi, $rootScope){
         $scope.ready = false;
         $scope.is_visible = false;
@@ -3126,9 +3192,10 @@ ImmoDbApp
         $scope.permalink = '';
 
         $scope.$onInit = function(){
-            //console.log('init', $scope);
+            console.log('init map listeners',$scope.latlng);
             if($scope.latlng!=null){
-                $scope.mapInit();
+                $scope.$on('immodb-display-map', $scope.display);
+                //$scope.mapInit();
             }
             else{
                 $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
@@ -3138,26 +3205,54 @@ ImmoDbApp
             $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
         }
 
+        $scope.display = function(){
+            console.log('map is starting');
+            $scope.mapInit();
+        }
+
         $scope.mapInit = function(){
-            if($scope.ready == false){
-                
-                let options = {
-                    center: new google.maps.LatLng(45.6025503,-73.8469538),
-                    zoom: $scope.zoom,
-                    //disableDefaultUI: true    
-                }
-                
-                $scope.map = new google.maps.Map(
-                    $scope.viewport_element, options
-                );
+            if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
 
+            return $q(function($resolve, $reject){   
+                $immodbConfig.get().then($config => {
+                    if($scope.ready == false){
+                        //console.log('Map init', $config, $scope.zoom);
+                        
+                        let options = {
+                            center: new google.maps.LatLng(45.6025503,-73.8469538),
+                            zoom: Number($scope.zoom),
+                            //disableDefaultUI: true    
+                        }
 
-                $scope.ready = true;
+                        if($config.map_style){
+                            try {
+                                const lParsedMapStyle = JSON.parse($config.map_style);
+                                if(lParsedMapStyle) options.styles = lParsedMapStyle;    
+                            } catch (error) {
+                                
+                            }
+                            
+                        }
+                        
+                        console.log('map options', options);
 
-            }
+                        $scope.map = new google.maps.Map(
+                            $scope.viewport_element, options
+                        );
+
+                        $scope.ready = true;
+                        $resolve();
+                    }
+                    else{
+                        $resolve();
+                    }
+                });  
+            })
         }
 
         $scope.setZoom = function($zoom){
+            if(isNaN($zoom)) return;
+
             $scope.map.setZoom($zoom);
         }
 
@@ -3190,20 +3285,21 @@ ImmoDbApp
             })
         }
         $scope.onSwitchToMap = function(){
-            $scope.mapInit();
-            //console.log('map initialized');
-            if($scope.bounds){
-                //console.log('fit to bounds', $scope.bounds);
-                window.setTimeout(function(){
-                    $scope.map.fitBounds($scope.bounds);
-                }, 250);
-            }
-            if($scope.markers.length==0){
-                $scope.getList();
-            }
-            $scope.is_visible = true;
+            $scope.mapInit().then(_ =>{
+                if($scope.bounds){
+                    //console.log('fit to bounds', $scope.bounds);
+                    window.setTimeout(function(){
+                        $scope.map.fitBounds($scope.bounds);
+                    }, 250);
+                }
+                if($scope.markers.length==0){
+                    $scope.getList();
+                }
+                $scope.is_visible = true;
+            });
         }
         $scope.onSwitchToList = function(){
+            
             $scope.is_visible = false;
         }
 
@@ -3358,6 +3454,7 @@ ImmoDbApp
         }
 
 
+
         $scope.isReady = function(){
             let lPromise = $q(function($resolve,$reject){
                 if($scope.ready==true){
@@ -3370,6 +3467,7 @@ ImmoDbApp
                         }
                     });
                 }
+            
             });
 
             return lPromise;
@@ -4505,10 +4603,13 @@ function immodbMediabox(){
         controller : function($scope){
             $scope.selected_media = $scope.defaultTab || 'pictures';
             $scope.video_player = null;
-        
+            $scope._initialized = false;
+
             $scope.init = function(){
                 const cFirstTab = $scope.tabs ? $scope.tabs[0] : 'pictures';
-                $scope.selected_media = $scope.defaultTab || cFirstTab;
+                $scope.selectMedia($scope.defaultTab || cFirstTab);
+
+                $scope._initialized = true;
             }
         
             $scope.tabIsAvailable = function($name){
@@ -4519,7 +4620,20 @@ function immodbMediabox(){
 
             $scope.selectMedia = function($media){
                 $scope.selected_media = $media;
-                if($media!='video'){
+                
+                const lTrigger = 'immodb-display-' + $media;
+                console.log('triggering', lTrigger);
+
+                if($scope._initialized){
+                    $scope.$broadcast(lTrigger);
+                }
+                else{
+                    window.setTimeout(_ => {
+                        $scope.$broadcast(lTrigger);
+                    },1000);
+                }
+                
+                if($scope._initialized && $media!='video'){
                     $scope.callPlayer('video-player','stopVideo');
                 }
             }
@@ -5228,13 +5342,23 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
         let lRoute = '';
 
         $type = (typeof $type=='undefined') ? 'listing' : $type;
-        $scope.item = $item;
+        $scope.item = angular.copy($item);
         
         immodbCtx[$type + '_routes'].forEach(function($r){
             if($r.lang==immodbCtx.locale){
                 lRoute=$r;
             }
         });
+
+        let lMandatoryLocationData = ['country','province','region','city'];
+        
+        if($scope.item.location){
+            lMandatoryLocationData.forEach($d => {
+                if(typeof $scope.item.location[$d] == 'undefined'){
+                    $scope.item.location[$d] = ('other ' + $d).translate();
+                }
+            })
+        }
 
         let lResult = $scope.sanitize('/' + $immodbTemplate.interpolate(lRoute.route, $scope));
         
@@ -5330,6 +5454,18 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
     $scope.getClassList = function($item){
         let lResult = [];
         if($item != null){
+            if($item.ref_number){
+                lResult.push('ref-' + $item.ref_number);
+            }
+
+            if($item.license){
+                lResult.push('license-' + $item.license.toLowerCase());
+            }
+
+            if($item.license_type_code){
+                lResult.push('license-type-' + $scope.sanitize($item.license_type_code));
+            }
+
             if($item.status_code=='SOLD'){
                 lResult.push('sold');
             }
@@ -5412,8 +5548,9 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
      * Remove or replace any special character
      * @param {string} $value Text to be sanitize
      */
-    $scope.sanitize = function($value){
+    $scope.sanitize = function($value, $useCamelCase){
         if(typeof $value == 'undefined') return '-';
+        $useCamelCase = typeof $useCamelCase == 'undefined' ? false: $useCamelCase;
 
         let lResult = $value.toLowerCase();
         lResult = lResult.replace(/(\s|\+)/gm, '-');
@@ -5424,6 +5561,13 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
         lResult = lResult.replace(/(ù|û|ü)/gm, 'u');
         lResult = lResult.replace(/(ò|ô|ö)/gm, 'o');
         lResult = lResult.replace(/\./gm, '');
+
+        if($useCamelCase){
+            lResult = lResult.split('-').map(($e,$i) => { 
+                if($i==0) return $e;
+                return $e[0].toUpperCase() + $e.substr(1);
+            }).join('');
+        }
 
         return lResult;
     }

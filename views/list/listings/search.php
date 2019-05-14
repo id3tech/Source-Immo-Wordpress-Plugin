@@ -234,28 +234,28 @@
             <div class="building_category grid-layout-column">
                 <h4><?php _e('Building type',IMMODB) ?></h4>
                 <div class="dropdown-divider"></div>
-                <div class="pretty p-icon p-pulse"  data-ng-repeat="(key,item) in dictionary.building_category"
-                    data-ng-click="filter.addFilter('building.category_code','in',filter.getSelection(dictionary.building_category))">
-                    <input type="checkbox" data-ng-model="item.selected"> 
-                    <div class="state">
-                        <i class="icon fas fa-check"></i>
-                        <label>{{item.caption}}</label>
-                    </div>
-                </div>
+
+                <immodb-checkbox
+                    data-ng-repeat="(key,item) in dictionary.building_category"
+                    data-ng-click="filter.addFilter('building.category_code','in',filter.getSelection(dictionary.building_category))"
+                    data-ng-model="item.selected"
+                    data-label="{{item.caption.translate()}}"
+                    ></immodb-checkbox>
             </div>
 
 
             <div class="attribute grid-layout-column">
                 <h4><?php _e('Caracteristics',IMMODB) ?></h4>
                 <div class="dropdown-divider"></div>
-                <div class="pretty p-icon p-pulse"  data-ng-repeat="(key,item) in listing_attributes"
-                    data-ng-click="filter.addAttributeFilter(item)">
-                    <input type="checkbox" data-ng-model="item.selected"> 
-                    <div class="state">
-                        <i class="icon fas fa-check"></i>
-                        <label>{{item.caption.translate()}}</label>
-                    </div>
-                </div>
+                
+                <immodb-checkbox
+                    data-ng-repeat="(key,item) in listing_attributes"
+                    data-ng-click="filter.addAttributeFilter(item)"
+                    data-ng-model="item.selected"
+                    data-label="{{item.caption.translate()}}"
+                    ></immodb-checkbox>
+
+               
             </div>
 
             <div class="transaction grid-layout-column">
