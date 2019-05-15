@@ -9,6 +9,18 @@ class ImmoDBConfig {
   */
 
   /**
+   * App ID
+   * @var string
+   */
+  public $app_id = '';
+
+  /**
+   * App version
+   * @var string
+   */
+  public $app_version = '';
+
+  /**
    * API Key
    * @var string
    */
@@ -93,10 +105,14 @@ class ImmoDBConfig {
    * Configuration constructor class
    */
   public function __construct(){
+    // read only
+    $this->app_id         = IMMODB_APP_ID;
+    $this->app_version    = IMMODB_VERSION;
 
     // set defaut DEMO value
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
+    
     $this->registered     = false;
 
     $this->supported_locales = ['fr','en'];
@@ -140,6 +156,8 @@ class ImmoDBConfig {
     if($savedConfigs){
       $instance->parse(json_decode($savedConfigs));
       $instance->normalizeRoutes();
+
+      $instance->saveConfigFile();
     }
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
@@ -159,6 +177,10 @@ class ImmoDBConfig {
     $this->normalizeRoutes();
 
     update_option('ImmoDBConfig', json_encode($this));
+    $this->saveConfigFile();
+  }
+
+  public function saveConfigFile(){
     // save to file system too
     $lUploadDir   = wp_upload_dir();
     $lConfigPath = $lUploadDir['basedir'] . '/_immodb';
@@ -171,10 +193,11 @@ class ImmoDBConfig {
     fclose($filePointer);
   }
 
+
   public function getSecuredVersion(){
     $lResult = clone $this;
-    $lResult->api_key = null;
-    $lResult->account_id = null;
+    //$lResult->api_key = null;
+    //$lResult->account_id = null;
 
     return $lResult;
   }

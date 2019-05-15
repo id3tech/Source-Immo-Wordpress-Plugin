@@ -283,6 +283,18 @@ class HttpCall{
     return $this;
   }
 
+  public function with_credentials(string $account_id, string $api_key, string $app_id, string $app_version){
+    $this->request_options['CURLOPT_HTTPHEADER'] = array(
+      "x-si-account: $account_id",
+      "x-si-api: $api_key",
+      "x-si-appId: $app_id",
+      "x-si-appVersion: $app_version"
+    );
+
+
+    return $this;
+  }
+
   /**
   * Send a GET request to the endpoint
   * @param params : associative array of parameters to add to the query
@@ -292,14 +304,19 @@ class HttpCall{
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
-    
-    $lCurlHandle = $this->_setup_curl(array_merge(array(
-      'CURLOPT_HTTPGET' => true,
-      'CURLINFO_HEADER_OUT' => true,
-    ),$this->request_options));
+    $queryOptions = array_merge(
+      array(
+        'CURLOPT_HTTPGET' => true,
+        'CURLINFO_HEADER_OUT' => true,
+        'CURLOPT_USERAGENT' => $this->_getServerSideUA(),
+      ),
+      $this->request_options
+    );
+
+    $lCurlHandle = $this->_setup_curl( $queryOptions );
     
     $lResult = curl_exec($lCurlHandle);
-    $information = curl_getinfo($lCurlHandle);
+    //$information = curl_getinfo($lCurlHandle);
     
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
@@ -323,6 +340,7 @@ class HttpCall{
     $data_string = json_encode($data);
     $lCurlHandle = $this->_setup_curl(array_merge(array(
       'CURLOPT_POST' => true,
+      'CURLOPT_USERAGENT' => $this->_getServerSideUA(),
       'CURLOPT_HTTPHEADER' => array(                                                                          
         'Content-Type: application/json',                                                                                
         'Content-Length: ' . strlen($data_string)                                                                       
@@ -368,6 +386,25 @@ class HttpCall{
       }
     }
 
+  }
+
+  private function _getServerSideUA(){
+    $curlInfos    = curl_version();
+
+    $phpVersion = phpversion();
+    $sys        = PHP_OS . ' ' . $curlInfos['host'];
+    $wordpress  = get_bloginfo( 'version' );
+    $theme      = wp_get_theme()->get( 'Name' );
+    $curlver    = $curlInfos['version'];
+
+    $parts = array(
+      "PHP $phpVersion",
+      "($sys)",
+      "Wordpress $wordpress / $theme",
+      "cURL $curlver"
+    );
+
+    return implode(', ', $parts);
   }
 
   private function _handle_error($curlHdl){

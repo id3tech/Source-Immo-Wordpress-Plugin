@@ -11,12 +11,13 @@ Text Domain: immodb
 */
 define( 'IMMODB_NAME', 'ImmoDB');
 define( 'IMMODB', 'immodb' );
+define( 'IMMODB_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');
 define( 'IMMODB_VERSION', '0.1.0' );
 define( 'IMMODB_MINIMUM_WP_VERSION', '4.0' );
 define( 'IMMODB_PLUGIN', __FILE__);
 define( 'IMMODB_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );
 define(	'IMMODB_PLUGIN_URL', '/' . str_replace(str_replace('\\', '/',ABSPATH),'',IMMODB_PLUGIN_DIR));
-define( 'IMMODB_DEVMODE', true );
+define( 'IMMODB_DEVMODE', false );
 
 register_activation_hook( __FILE__, array( 'ImmoDB', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'ImmoDB', 'plugin_deactivation' ) );
