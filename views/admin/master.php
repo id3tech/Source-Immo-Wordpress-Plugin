@@ -66,7 +66,6 @@ if($lTwoLetterLocale == ''){
   </script>
   <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , IMMODB_PLUGIN ) ?>"></script>
   
-  <script src="<?php echo plugins_url( 'scripts/ang.admin-app.js' , IMMODB_PLUGIN ) ?>"></script>
-  <script src="<?php echo plugins_url( 'scripts/ang.admin-ctrl.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , IMMODB_PLUGIN ) ?>"></script>
 
 </div>

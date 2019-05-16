@@ -452,7 +452,6 @@ class ImmoDB {
   public function validate_file_version(){
     header('Content-Type: application/javascript');
     $lPublicAppVersion = filemtime(IMMODB_PLUGIN_DIR . '/scripts/ang.public-app.js');
-    echo('test');
     ?>
     if(jQuery){
       let lMustReload = false;
