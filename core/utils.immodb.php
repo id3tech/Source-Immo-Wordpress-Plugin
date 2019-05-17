@@ -113,6 +113,11 @@ if(!function_exists('str_endswith')){
       return (substr($haystack, -$length) === $needle);
   }
 }
+if(!function_exists('num_has_decimal')){
+  function num_has_decimal( $val ){
+      return is_numeric( $val ) && floor( $val ) != $val;
+  }
+}
 
 function si_view_id($viewData){
   if(is_string($viewData)){
@@ -267,8 +272,11 @@ class HttpCall{
   public static function to(string ...$endpoint_parts){
     $lInstance = new HttpCall();
 
+    $apiHost = apply_filters('immodb-api-host', IMMODB_API_HOST);
+    $normHost = rtrim($apiHost,"/");
+
     $lInstance->endpoint = implode('/',$endpoint_parts);
-    $lInstance->endpoint = str_replace('~', IMMODB_API_HOST . '/api', $lInstance->endpoint);
+    $lInstance->endpoint = str_replace('~', $normHost . '/api', $lInstance->endpoint);
 
     
     return $lInstance;
@@ -317,11 +325,11 @@ class HttpCall{
     
     $lResult = curl_exec($lCurlHandle);
     //$information = curl_getinfo($lCurlHandle);
+    //print_r($information);
     
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
     } 
-
     curl_close($lCurlHandle);
     
     if($as_json){

@@ -7,9 +7,13 @@ if($lTwoLetterLocale == ''){
 ?>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css">
 
-<div id="immodb-app" ng-app="ImmoDb" ng-controller="mainCtrl" ng-init="init()">
-  <div layout="row" layout-align="space-between center">
-    <h1 class="md-display-1">Source.Immo Plugin <span class="version">v.<?php echo IMMODB_VERSION?></span></h1>
+<div id="immodb-app" ng-app="ImmoDb" ng-controller="mainCtrl" ng-init="init()"
+  class="{{isInitializing() ? 'warming-up' : 'ready'}}">
+  <div class="app-header" layout="row" layout-align="space-between center">
+    <h1 class="md-display-1">
+      <si-svg class="logo" src="~/styles/assets/logo.svg"></si-svg>
+      Source.Immo<span class="version">v.<?php echo IMMODB_VERSION?></span>
+    </h1>
     
     
     <div layout="row" layout-align="end center" ng-show="configs.registered && current_page=='home'">
@@ -30,6 +34,15 @@ if($lTwoLetterLocale == ''){
       
     </div>
 
+  </div>
+
+  <div class="loading-screen">
+    <div class="loading-anim">
+      <si-svg src="~/styles/assets/logo-anim.svg"></si-svg>
+    </div>
+    <div class="loaded-components">
+      <div class="comp-item" ng-repeat="item in loaded_components"><i class="fal fa-{{item}}"></i></div>
+    </div>
   </div>
 
   <div class="page-viewport">

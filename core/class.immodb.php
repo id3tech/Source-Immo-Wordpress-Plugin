@@ -1409,12 +1409,30 @@ class ImmoDBListingsResult extends ImmoDBAbstractResult {
       return StringPrototype::format($priceFormat, number_format($price,0,".", $thousand_separator));
     }
 
-    if(isset($price->sell)){
-      $lResult[] = StringPrototype::format($priceFormat, number_format($price->sell->amount,0,".", $thousand_separator));
-    }
+    global $dictionary;
 
-    if(isset($price->lease)){
-      $lResult[] = StringPrototype::format($priceFormat,number_format($price->lease->amount,2,".", $thousand_separator));
+    foreach ($price as $key => $item) {
+      if(in_array($key, array('sell','lease'))){
+        $parts = array();
+        if(is_numeric($item->amount)){
+          $decimalCount = (num_has_decimal($item->amount)) ? 2 : 0;
+          $parts[] =  StringPrototype::format($priceFormat, number_format($item->amount,$decimalCount,".", $thousand_separator));
+
+          if($item->taxable){
+              $parts[0] = $parts[0] . '+tx';
+          }
+
+          if($item->unit_code){
+            $parts[] = $dictionary->getCaption($item->unit_code,'price_unit',true);
+          }
+
+          if($item->period_code){
+            $parts[] = $dictionary->getCaption($item->period_code,'price_period');
+          }
+
+          $lResult[] = implode(' / ', $parts);
+        }
+      }
     }
 
     return implode(__(' or ',IMMODB), $lResult);

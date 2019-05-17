@@ -332,6 +332,147 @@ ImmoDbApp
 });
 
 ImmoDbApp
+.directive('siSvg', ['$parse','$compile', function siSvg($parse,$compile){
+  return {
+    restrict: 'E',
+    scope: {
+      src: '@'
+    },
+    link: function($scope, $element, $attrs){
+      if ($element.html() != ''){
+          $scope.src = $element.html();
+          $element.html('');
+      }
+
+      $scope.init($element);
+    }, 
+    controller: function($scope){
+      $scope.elm = null;
+            
+            $scope.init = function($element){
+                $scope.elm = $element;
+            }
+
+            $scope.$watch('src', function($new, $old){
+                if($new == null) return;
+                if($old == null) return;
+                
+                $scope.render();
+            });
+
+            $scope.render = function(){
+                const lTemplate = '<ng-include src="getSvgPath()"></ng-include>'
+                let elementContent = $compile(lTemplate)($scope);
+                $scope.elm.append(elementContent);   
+            }
+
+            $scope.getSvgPath = function(){
+              let lPath = $scope.src;
+              if(lPath.indexOf("~")==0){
+                // replace ~ by plugin path
+                lPath = lPath.replace("~", wpApiSettings.base_path);
+              }
+
+              return lPath;
+            }
+    }
+  }
+}])
+
+ImmoDbApp
+.directive('faIcon', ['$parse','$compile', function faIcon($parse,$compile){
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            icon : '@',
+            iconStyle: '@?',
+            size:'@',
+            useSvg: '@',
+        },
+        link: function($scope, $element, $attrs){
+            if(!$attrs.iconStyle) $scope.iconStyle = 'fal';
+            if(!$attrs.size) $scope.size = '1x';
+            
+            if(typeof $attrs.icon == 'string' && $attrs.icon.indexOf('[')>=0){
+                let lIconParse = $parse($attrs.icon);
+                $scope.icon = lIconParse($scope);
+            }
+            else if ($element.html() != ''){
+                $scope.icon = $element.html();
+                $element.html('');
+            }
+
+            $scope.init($element);
+            //return lTemplate;
+        }, 
+        controller : function($scope){
+            $scope.elm = null;
+            
+            $scope.init = function($element){
+                $scope.elm = $element;
+            }
+
+            $scope.$watch('icon', function($new, $old){
+                if($new == null) return;
+                if($old == null) return;
+                
+                //if($new != $old){
+                    if(typeof $new == 'string' && $new.indexOf('[')>=0){
+                        let lIconParse = $parse($new);
+                        $scope.icon = lIconParse($scope);
+                    }
+
+                
+                    $scope.render();
+                //}
+            })
+
+            $scope.resetElement = function(){
+                let lElm = $scope.elm[0];
+                let lClassToRemove = [];
+                for(let i=0; i< lElm.classList.length; i++){
+                    if(lElm.classList.item(i).indexOf('fa-')>=0){
+                        lClassToRemove.push(lElm.classList.item(i));
+                    }
+                }
+
+                lElm.classList.remove.apply(lElm.classList, lClassToRemove);
+
+                $scope.elm.html('');
+            }
+
+            $scope.render = function(){
+                let lTemplate = '';
+                $scope.resetElement();
+                
+                if($scope.useSvg){
+                    lTemplate = '<ng-include src="getIconPath()"></ng-include>'
+                    let elementContent = $compile(lTemplate)($scope);
+                    $scope.elm.append(elementContent);
+                }
+                else{
+                    if(Array.isArray($scope.icon)){
+                        $scope.elm.addClass('fa-stack');
+                        $scope.icon.forEach(function($e, $i){
+                            lTemplate = '<i class="fal fa-' + $e + ' fa-stack-1x"></i>';
+                            $scope.elm.append(lTemplate);
+                        });
+                    }
+                    else{
+                        $scope.elm.clearClass
+                        $scope.elm.addClass($scope.iconStyle);
+                        $scope.elm.addClass('fa-' + $scope.icon);
+                        $scope.elm.addClass('fa-' + $scope.size);
+                    }
+                }
+            }
+        }
+    }
+}]);
+
+
+ImmoDbApp
 .directive('siOnEnter', ['$parse', function siOnEnter($parse){
   return {
     restrict: 'A',

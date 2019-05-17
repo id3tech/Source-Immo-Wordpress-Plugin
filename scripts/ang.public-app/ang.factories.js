@@ -204,8 +204,10 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
      * @return {promise} Promise object
      */
     $scope.call = function($path, $data, $options){
+        const lApiRoot = immodbApiSettings.api_root.replace(/\/+$/,'');
+
         $options = angular.merge({
-            url     : immodbApiSettings.api_root + '/api/' + $path,
+            url     : lApiRoot + '/api/' + $path,
             method  : (typeof($data)=='undefined' || $data==null) ? 'GET' : 'POST',
             data : $data
         }, $options);
@@ -1491,6 +1493,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
                 $fm.trigger('update');
 
                 $fm.getConfigs().then(function($configs){
+                    //$fm.trigger('filterTokenChanged');
                     if($configs.search_token!=''){
                         $fm.trigger('filterTokenChanged');
                         //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $configs.search_token);
@@ -1570,16 +1573,17 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
                         lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
                     }
                     
-                    if($fm.sort_fields.length > 0){
-                        lResult.sort_fields = $fm.sort_fields;
+                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter($f => $f.field!='').length > 0){
+                        lResult.sort_fields = $fm.sort_fields.filter($f => $f.field!='');
                     }
-                    else if($configs.sort != 'auto'){
+                    else if($configs.sort != 'auto' && $configs.sort != ''){
                         lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
                     }
                     else{
                         lResult.sort_fields = null;
                     }
 
+                    
                     if($fm.query_text != null){
                         lResult.query_text = $fm.query_text;
                         lResult.filter_group = null;
@@ -1588,7 +1592,8 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
                     if($fm.data.location != null){
                         lResult.proximity_filter = $fm.data.location;
                     }
-                    console.log('getting new token');
+                    console.log('getting new token', lResult);
+
                     $fm.getSearchToken(lResult).then(function($token){
                         console.log('new token acquired',$token);
                         if($token!=''){
@@ -1787,6 +1792,9 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
          */
         $fm.getSearchToken = function($filters){
             //console.log('getSearchToken', $filters);
+            // $filters.sort_fields = $filters.sort_fields.filter($sf => $sf.field!='');
+            // if($filters.sort_fields.length == 0) delete $filters.sort_fields;
+
             $fm.normalize($filters.filter_group);
             
             let lPromise =  $q(function($resolve, $reject){    

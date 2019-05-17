@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="1450px" height="1360px" viewBox="0 0 1447.912 1362.462" style="enable-background:new 0 0 1447.912 1362.462;"
+	 xml:space="preserve">
+	 
+	<g id="Logo">
+		
+		<g id="anim-bottom"  transform="translate(0,-270)" style="opacity:0">
+			<polygon style="fill:#4391CF;" points="1334.854,754.65 1259.141,803.661 1290.241,893.013 762.307,1235.282 224.626,971.798 
+				331.208,902.841 240.281,858.283 48.487,981.94 768.025,1334.545 1394.706,928.878 		"/>
+			
+		</g>
+		
+		<g id="anim-middle" transform="translate(0,-271)" style="opacity:0">
+			<polygon style="fill:#27B5CA;" points="1333.859,484.987 1258.146,533.998 1289.872,623.7 761.939,965.968 224.258,702.484 
+				332.868,633.011 241.94,588.453 48.118,712.626 767.657,1065.231 1394.337,659.565" />
+			
+		</g>
+
+		<g id="anim-top">
+			<path style="fill:#67C8C5;" d="M1419.487,269.883l-29.428-83.858l-52.882,34.738l-65.244-181.091H675.311L48.708,441.912
+				l719.538,352.605l626.68-405.666l-31.198-85.115L1419.487,269.883z M762.528,695.254L224.848,431.77l474.435-304.559l510.555-3.104
+				l80.624,228.879L762.528,695.254z"/>
+			
+		</g>
+	</g>
+
+
+	<animateTransform  xlink:href="#anim-top"
+					id="top-in"
+					attributeName="transform" 
+					type="translate"
+           			from="0,500" to="0,0" dur="1s" repeatCount="1" />
+	<animate  xlink:href="#anim-top"
+					begin="top-in.begin + 0s"
+					attributeType="CSS" attributeName="opacity" 
+           			from="0" to="1" dur="0.5s" repeatCount="1" />
+
+
+	<animateTransform  xlink:href="#anim-middle"
+					id="middle-in"
+					attributeName="transform" 
+					type="translate" 
+					begin="top-in.end + 0s"
+					fill="freeze" 
+           			from="0,-271" to="0,0" 
+					values="0,-271; 0,0; 0,0; 0,-271"
+    				keyTimes="0; 0.15; 0.85; 1"
+					dur="2s" repeatCount="indefinite" />
+	<animate xlink:href="#anim-middle"
+					id="middle-opacity-in"
+					begin="top-in.end + 0s"
+					fill="freeze" 
+					attributeType="CSS" attributeName="opacity" 
+           			from="0" to="1" 
+					values="0; 1; 1; 0"
+    				keyTimes="0; 0.15; 0.75; 1"
+					dur="2s" repeatCount="indefinite" />
+
+	<animateTransform  xlink:href="#anim-bottom"
+					id="bottom-in"
+					attributeName="transform" 
+					type="translate" 
+					begin="middle-in.begin + 0.25s;"
+					fill="freeze" 
+           			from="0,-270" 
+					to="0,0" dur="2s"
+					values="0,-270; 0,0; 0,0; 0,-270; 0,-270"
+    				keyTimes="0; 0.15; 0.45; 0.85; 1"
+					repeatCount="indefinite" />
+	<animate xlink:href="#anim-bottom"
+					id="bottom-opacity-in"
+					begin="middle-in.begin + 0.25s"
+					fill="freeze" 
+					attributeType="CSS" attributeName="opacity" 
+           			from="0" to="1" 
+					values="0; 1; 1; 0; 0"
+    				keyTimes="0; 0.15; 0.45; 0.75; 1"
+					dur="2s" repeatCount="indefinite" />
+</svg>

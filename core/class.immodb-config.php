@@ -142,8 +142,12 @@ class ImmoDBConfig {
     );
 
     $listingList = new ImmoDBList();
+    $listingList->sort = 'contract.start_date';
+    $listingList->sort_reverse = true;
+    $listingList->limit = 30;
+    
     $brokerList = new ImmoDBList('','brokers','brokers','last_name');
-
+    
     $this->lists = array(
       $listingList,$brokerList
     );

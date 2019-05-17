@@ -335,6 +335,9 @@ ImmoDbApp
  */
 ImmoDbApp
 .controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$immodbApi,$immodbList,$immodbUI){
+  $scope._status = 'initializing';
+  $scope.loaded_components = [];
+
   $scope.configs = {};
   $scope.lang_codes = {
     fr: 'Français',
@@ -429,6 +432,8 @@ ImmoDbApp
         $scope.load_data_views()
       ]).then(_ => {
         $immodbList.init();
+
+        $scope._status = 'ready';
       })
     });
     
@@ -469,6 +474,10 @@ ImmoDbApp
     });
   }
 
+  $scope.isInitializing = function(){
+    return $scope._status == 'initializing';
+  }
+
   $scope.load_wp_pages = function(){
     return $q(function($resolve, $reject){
 
@@ -480,6 +489,7 @@ ImmoDbApp
         $scope.wp_pages.fr = $results[0];
         $scope.wp_pages.en = $results[1];
 
+        $scope.loaded_components.push('file');
         $resolve($scope.wp_pages);
       })
       .catch($err => {console.error($err)})
@@ -492,6 +502,7 @@ ImmoDbApp
         if($response == null) return;
 
         $scope.data_views = $response.data_views;
+        $scope.loaded_components.push('list');
         $resolve($response.data_views);
       });
     });
@@ -532,6 +543,10 @@ ImmoDbApp
         });
       });
     });
+  }
+
+  $scope.signout = function(){
+    $scope.reset_configs();
   }
 
   $scope.selectAccount = function(){

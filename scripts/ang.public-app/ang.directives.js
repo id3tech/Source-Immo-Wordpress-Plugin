@@ -133,13 +133,22 @@ function immodbList(){
                 // search for data with search token
                 if(lSearchToken == $scope.configs.search_token && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
                     console.log('loading from preloaded data');
-                    let lItems = $preloadDatas[$scope.configs.alias].items;
-                    if($scope.configs.type=='listings'){
-                        $scope.list = $immodbUtils.compileListingList(lItems);
+                    const lItems = $preloadDatas[$scope.configs.alias].items;
+
+                    if(typeof $scope._preloadedList == 'undefined'){
+                        console.log('compile list');
+                        if($scope.configs.type=='listings'){
+                            $scope._preloadedList = $immodbUtils.compileListingList(lItems);
+                        }
+                        else{
+                            $scope._preloadedList = $immodbUtils.compileBrokerList(lItems);
+                        }
+                        console.log('compile done');
                     }
-                    else{
-                        $scope.list = $immodbUtils.compileBrokerList(lItems);
-                    }
+                    
+                    $scope.list = $scope._preloadedList;
+                    console.log('preloaded data applied',$scope.list.length);
+                    
                     $scope.ghost_list = [];
 
                     $scope.listMeta = $preloadDatas[$scope.configs.alias].metadata;
@@ -599,11 +608,11 @@ ImmoDbApp
                 },
                 sell : {
                     caption: 'For sale', 
-                    filter : {field: 'price.sell.amount', operator: 'greater_than', value: 0}
+                    filter : {field: 'for_sale_flag', operator: 'equal', value: true}
                 },
                 lease : {
                     caption: 'For rent',
-                    filter : {field: 'price.lease.amount', operator: 'greater_than', value: 0}
+                    filter : {field: 'for_rent_flag', operator: 'equal', value: true}
                 },
                 open_house : {
                     caption: 'Open house',
