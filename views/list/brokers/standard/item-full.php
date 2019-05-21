@@ -3,7 +3,7 @@
  * Standard list item view
  */
 ?>
-<article class="immodb-item immodb-broker-item immodb-full-item-layout 
+<article class="si-item si-broker-item si-full-item-layout 
                     <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}" 
         data-ng-cloak
     >

@@ -1,6 +1,6 @@
 /* DIRECTIVES */
-ImmoDbApp
-.directive('immodbRouteBox', function immodbRouteBox($immodbUtils, $immodbList,$immodbUI){
+siApp
+.directive('siRouteBox', function siRouteBox($siUtils, $siList,$siUI){
   return {
     restrict : 'E',
     scope : {
@@ -10,7 +10,7 @@ ImmoDbApp
       type: '@',
       changeHandler: '&siChange'
     },
-    templateUrl : wpApiSettings.base_path + '/views/ang-templates/immodb-route-box.html',
+    templateUrl : wpApiSettings.base_path + '/views/ang-templates/si-route-box.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -89,7 +89,7 @@ ImmoDbApp
       $scope.elementUseCount = function(){
         let lResult = 0;
         if($scope.route_elements == null || $scope.route_elements==undefined) return 0;
-        let lRouteElms = $immodbUtils.toKeyArray($scope.route_elements);
+        let lRouteElms = $siUtils.toKeyArray($scope.route_elements);
         lRouteElms.forEach(function($e){
           if($scope.route.route.indexOf($e) >= 0){
             lResult++;
@@ -105,7 +105,7 @@ ImmoDbApp
 
       $scope.elementAvailable = function(){
         if ($scope.route_elements == null || $scope.route_elements==undefined) return 0;
-        let lRouteElms = $immodbUtils.toKeyArray($scope.route_elements);
+        let lRouteElms = $siUtils.toKeyArray($scope.route_elements);
         let lResult = lRouteElms.length - $scope.elementUseCount();
         return lResult;
       }
@@ -123,7 +123,7 @@ ImmoDbApp
           fnRemove();
         }
         else{
-          $immodbUI.confirm('Are you sure you want to remove this route?').then(function(){
+          $siUI.confirm('Are you sure you want to remove this route?').then(function(){
             fnRemove();
           });
         } 
@@ -143,8 +143,8 @@ ImmoDbApp
   }
 });
 
-ImmoDbApp
-.directive('immodbFilterGroup', function immodbFilterGroup(){
+siApp
+.directive('siFilterGroup', function siFilterGroup(){
   let dir_controller = function ($scope,$rootScope) {
     $scope.filter_group_operators = {
       'and' : 'And',
@@ -210,20 +210,20 @@ ImmoDbApp
         parent: '=ngParent'
     },
     controllerAs: 'ctrl',
-    template: '<div ng-include="\'filter-group\'" class="immodb-filter-group group-operator-{{model.operator}}"></div>',
+    template: '<div ng-include="\'filter-group\'" class="si-filter-group group-operator-{{model.operator}}"></div>',
     controller: dir_controller
   };
 });
 
-ImmoDbApp
-.directive('immodbFilterItem', function immodbFilterItem($immodbUtils, $immodbList){
+siApp
+.directive('siFilterItem', function siFilterItem($siUtils, $siList){
   return {
     restrict : 'E',
     scope : {
       filter : '=ngModel',
       removeHandler : '&onRemove'
     },
-    templateUrl : wpApiSettings.base_path + '/views/ang-templates/immodb-filter-item.html',
+    templateUrl : wpApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -288,13 +288,13 @@ ImmoDbApp
         if($scope.selected_filter_key.value_type == 'list'){
           console.log('list from ', $scope.selected_filter_key.choices);
 
-          if(typeof($immodbList[$scope.selected_filter_key.choices]) == 'function'){
+          if(typeof($siList[$scope.selected_filter_key.choices]) == 'function'){
             console.log($scope.selected_filter_key.choices, 'found');
-            $scope.value_choices = $immodbList[$scope.selected_filter_key.choices]();
+            $scope.value_choices = $siList[$scope.selected_filter_key.choices]();
             console.log($scope.selected_filter_key.choices, $scope.value_choices);
           }
           else{
-            $scope.value_choices = $immodbUtils.stringToOptionList($scope.selected_filter_key.choices);
+            $scope.value_choices = $siUtils.stringToOptionList($scope.selected_filter_key.choices);
           }
         }
       }
@@ -331,7 +331,7 @@ ImmoDbApp
   
 });
 
-ImmoDbApp
+siApp
 .directive('siSvg', ['$parse','$compile', function siSvg($parse,$compile){
   return {
     restrict: 'E',
@@ -379,7 +379,7 @@ ImmoDbApp
   }
 }])
 
-ImmoDbApp
+siApp
 .directive('faIcon', ['$parse','$compile', function faIcon($parse,$compile){
     return {
         restrict: 'E',
@@ -472,7 +472,7 @@ ImmoDbApp
 }]);
 
 
-ImmoDbApp
+siApp
 .directive('siOnEnter', ['$parse', function siOnEnter($parse){
   return {
     restrict: 'A',

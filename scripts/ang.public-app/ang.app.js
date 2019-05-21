@@ -1,5 +1,5 @@
-var ImmoDbApp = angular.module('ImmoDb', ['ngSanitize','angularMoment']);
+var siApp = angular.module('siApplication', ['ngSanitize','angularMoment']);
 
-ImmoDbApp.run(function(amMoment) {
-	amMoment.changeLocale(immodbCtx.locale);
+siApp.run(function(amMoment) {
+	amMoment.changeLocale(siCtx.locale);
 });

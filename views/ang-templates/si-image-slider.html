@@ -1,4 +1,4 @@
-<div class="immodb-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
+<div class="si-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
     <div class="viewport"> 
         <div class="trolley" style="transform:translateX(-{{index * 100}}%);grid-gap:{{gap}}px;grid-template-columns: repeat({{pictures.length}},100%);">
             <div class="item" data-ng-repeat="img in pictures">

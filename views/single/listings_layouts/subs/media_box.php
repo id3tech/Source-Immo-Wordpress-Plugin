@@ -1,1 +1,1 @@
-<immodb-mediabox si-model="model"></immodb-mediabox>
+<si-mediabox si-model="model"></si-mediabox>

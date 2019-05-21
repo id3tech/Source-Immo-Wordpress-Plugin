@@ -25,8 +25,8 @@
         <div class="trolley">
             <div class="tab-content picture-gallery"
                 >
-                <immodb-image-slider data-ng-if="tabIsAvailable('pictures')" data-immodb-pictures="model.photos" data-immodb-gap="0" data-immodb-show-picture-grid="pictureListDisplay!='thumbnails'"></immodb-image-slider>
-                <immodb-thumbnails-slider si-list="model.photos" ng-show="pictureListDisplay=='thumbnails'"></immodb-thumbnails-slider>
+                <si-image-slider data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'"></si-image-slider>
+                <si-thumbnails-slider si-list="model.photos" ng-show="pictureListDisplay=='thumbnails'"></si-thumbnails-slider>
             </div>
             <div class="tab-content videos"
                 >
@@ -41,12 +41,12 @@
             <div class="tab-content streetview"
                 >
                 <label class="placeholder">{{'Street view'.translate()}}</label>
-                <immodb-streetview data-ng-if="tabIsAvailable('streetview')" class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-streetview>
+                <si-streetview data-ng-if="tabIsAvailable('streetview')" class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-streetview>
             </div>
             <div class="tab-content map"
                 >
                 <label class="placeholder">{{'Map'.translate()}}</label>
-                <immodb-map data-ng-if="tabIsAvailable('map')" class="detail-map" zoom="14" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></immodb-map>
+                <si-map data-ng-if="tabIsAvailable('map')" class="detail-map" zoom="14" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-map>
             </div>
         </div>
     </div>

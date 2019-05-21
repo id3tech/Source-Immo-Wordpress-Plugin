@@ -1,7 +1,7 @@
 /**
  * Main Configuration Controller
  */
-ImmoDbApp
+siApp
 .controller('homeCtrl', function($scope, $rootScope){
 
   console.log('configs controller loaded');
@@ -89,7 +89,7 @@ ImmoDbApp
  */
 
  // List
-ImmoDbApp
+siApp
 .controller('listCollectionCtrl', function($scope, $rootScope){
   $scope.init = function(){
 
@@ -133,7 +133,7 @@ ImmoDbApp
   }
 
   $scope.getListShortcode = function($list){
-    return '[immodb alias="' + $list.alias + '"]';
+    return '[si alias="' + $list.alias + '"]';
   }
 
   $scope.countFilters = function($list){
@@ -148,7 +148,7 @@ ImmoDbApp
 });
 
 // Edit
-ImmoDbApp
+siApp
 .controller('listEditCtrl', function($scope, $rootScope,$q){
   BasePageController('listEdit', $scope,$rootScope);
 
@@ -333,8 +333,8 @@ ImmoDbApp
 /**
  * MAIN ROOT CONTROLLER
  */
-ImmoDbApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$immodbApi,$immodbList,$immodbUI){
+siApp
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
 
@@ -430,9 +430,18 @@ ImmoDbApp
       $q.all([
         $scope.load_wp_pages(),
         $scope.load_data_views()
-      ]).then(_ => {
-        $immodbList.init();
+      ])
+      .then(
+        _ => {
+          $siList.init();
 
+          $scope._status = 'ready';
+        },
+        _ => {
+          $scope._status = 'ready';
+        }
+      )
+      .catch($err => {
         $scope._status = 'ready';
       })
     });
@@ -446,6 +455,12 @@ ImmoDbApp
     return $q(function($resolve, $reject){
       $scope.api('configs').then(function($response){
         $scope.configs = $response;
+        
+        if($scope.configs.default_view == null){
+          $scope.reset_configs();
+          $resolve();
+          return;
+        }
 
         if(typeof $scope.configs.default_view.id != 'undefined'){$scope.configs.default_view = $scope.configs.default_view.id;}
         if($scope.configs.default_view.indexOf('{"id":') >=0){$scope.configs.default_view = JSON.parse($scope.configs.default_view).id;}
@@ -499,7 +514,10 @@ ImmoDbApp
   $scope.load_data_views = function(){
     return $q(function($resolve, $reject){
       $scope.api('account').then(function($response){
-        if($response == null) return;
+        if($response == null) {
+          $resolve();
+          return;
+        }
 
         $scope.data_views = $response.data_views;
         $scope.loaded_components.push('list');
@@ -659,7 +677,7 @@ ImmoDbApp
 
   $scope.applyListingShortCode = function(){
     return $q(function($resolve, $reject){
-      $scope.api('page',{page_id: $scope.default_listing_page, title: 'Propriétés', content:'[immodb alias="listings"]'}).then($result => {
+      $scope.api('page',{page_id: $scope.default_listing_page, title: 'Propriétés', content:'[si alias="listings"]'}).then($result => {
         $resolve();
       });
     })
@@ -667,7 +685,7 @@ ImmoDbApp
 
   $scope.applyBrokerShortCode = function(){
     return $q(function($resolve, $reject){
-      $scope.api('page',{page_id: $scope.default_broker_page, title: 'Courtiers',content:'[immodb alias="brokers"]'}).then($result => {
+      $scope.api('page',{page_id: $scope.default_broker_page, title: 'Courtiers',content:'[si alias="brokers"]'}).then($result => {
         $resolve();
       });
     })
@@ -731,7 +749,7 @@ ImmoDbApp
    * @return {promise}
    */
   $scope.confirm = function($title, $message, $options){
-    return $immodbUI.confirm($title,$message, $options)
+    return $siUI.confirm($title,$message, $options)
   }
 
   /**
@@ -739,7 +757,7 @@ ImmoDbApp
    * @param {string} $message 
    */
   $scope.show_toast = function($message){
-    $immodbUI.show_toast($message);
+    $siUI.show_toast($message);
   }
 
   /**
@@ -748,7 +766,7 @@ ImmoDbApp
    * @param {*} $params 
    */
   $scope.dialog = function($dialog_id, $params){
-    return $immodbUI.dialog($dialog_id, $params);
+    return $siUI.dialog($dialog_id, $params);
   }
 
 
@@ -761,7 +779,7 @@ ImmoDbApp
    * @return {promise} Promise object
    */
   $scope.api = function($path, $data, $options){
-      return $immodbApi.rest($path,$data,$options);
+      return $siApi.rest($path,$data,$options);
   }
 
   $scope.portalApi = function($path, $data, $options){
@@ -895,7 +913,7 @@ ImmoDbApp
 });
 
 /* DIALOGS */
-ImmoDbApp
+siApp
 .controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog){
   BaseDialogController('signin',$scope, $rootScope, $mdDialog);
 

@@ -1,4 +1,4 @@
-ImmoDbApp
+siApp
 .filter('isIn', function(){
     return function($needle, $stack){
         if($needle==null || $needle==undefined){
@@ -8,7 +8,7 @@ ImmoDbApp
     }
 });
 
-ImmoDbApp
+siApp
 .filter('truncate', function(){
     return function($source, $limit){
         let lResult = $source;

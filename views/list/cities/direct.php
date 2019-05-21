@@ -1,37 +1,37 @@
 <?php
-$global_container_classes = array('immodb', 'direct-layout', "immodb-list-of-{$configs->type}",$configs->list_layout->scope_class);
+$global_container_classes = array('si', 'direct-layout', "si-list-of-{$configs->type}",$configs->list_layout->scope_class);
 $global_container_attr = array();
 
 global $dictionary;
 
-$meta = ImmoDBApi::get_list_meta($configs);
+$meta = SourceImmoApi::get_list_meta($configs);
 
 
-$dictionary = new ImmoDBDictionary($meta->dictionary);
-$data = ImmoDBApi::get_data($configs, $sc_atts);
-$resultView = new ImmoDBCitiesResult($data);
+$dictionary = new SourceImmoDictionary($meta->dictionary);
+$data = SourceImmoApi::get_data($configs, $sc_atts);
+$resultView = new SourceImmoCitiesResult($data);
 
 ?>
 <div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
     <?php
     if(is_array($resultView->cities) && !empty($resultView->cities)){
         if($configs->show_list_meta==true){
-            ImmoDB::view("list/{$configs->type}/direct/list-meta",
+            SourceImmo::view("list/{$configs->type}/direct/list-meta",
                 array("configs" => $configs, "global_meta" => $meta, "result"=> $resultView));
         }
 
-        echo('<div class="immodb-list">');
+        echo('<div class="si-list">');
             foreach ($resultView->cities as $item) {
                 echo('<div>');
-                ImmoDB::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->preset}", 
+                SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->preset}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
                 echo('</div>');
             }
         echo('</div>');
     }
     else{
-        echo('<label class="placeholder immodb-list-empty">');
-        _e('No city to display', IMMODB);
+        echo('<label class="placeholder si-list-empty">');
+        _e('No city to display', SI);
         echo('</label>');
     }
     ?>

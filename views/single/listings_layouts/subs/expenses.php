@@ -1,5 +1,5 @@
 <div class="expenses section {{sectionOpened('expenses')?'opened':''}}" >
-    <div class="title" data-ng-click="toggleSection('expenses')"><div><?php _e('Expenses and assessments',IMMODB) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
+    <div class="title" data-ng-click="toggleSection('expenses')"><div><?php _e('Expenses and assessments',SI) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
     <div class="content">
 
         <div class="label-value building-assessment">

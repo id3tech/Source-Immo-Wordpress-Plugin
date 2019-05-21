@@ -1,6 +1,6 @@
 <div class="lot-specs section {{sectionOpened('lot')?'opened':''}}">
     <div class="title" data-ng-click="toggleSection('lot')">
-        <div><?php _e('Lot and exterior',IMMODB) ?></div>
+        <div><?php _e('Lot and exterior',SI) ?></div>
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="content spec-grid">

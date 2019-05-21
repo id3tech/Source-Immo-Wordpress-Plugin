@@ -1,7 +1,7 @@
 
 <div class="infos">
-    <h2><?php   _e('Your accounts', IMMODB) ?></h2>
-    <p><?php    _e('Select one of these account as the source for your real estate data',IMMODB) ?></p>
+    <h2><?php   _e('Your accounts', SI) ?></h2>
+    <p><?php    _e('Select one of these account as the source for your real estate data',SI) ?></p>
 </div>
 
 <div class="account-list">

@@ -1,8 +1,8 @@
 <div class="layouts">
     <div class="layout" layout="column">
-        <h4><?php _e('List',IMMODB) ?></h4>
+        <h4><?php _e('List',SI) ?></h4>
         <md-input-container>
-            <label><?php _e('Model',IMMODB) ?></label>
+            <label><?php _e('Model',SI) ?></label>
             <md-select ng-model="model.list_layout.preset">
                 <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
             </md-select>
@@ -10,19 +10,19 @@
        
         
         <md-input-container >
-            <label><?php _e('Element class',IMMODB) ?></label>
+            <label><?php _e('Element class',SI) ?></label>
             <input ng-model="model.list_layout.scope_class" />
         </md-input-container>
 
         <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
             class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow search',IMMODB) ?></label>
+            <label><?php _e('Allow search',SI) ?></label>
             <md-checkbox ng-model="model.searchable"></md-checkbox>
         </div>
 
         <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
             class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Result page',IMMODB) ?></label>
+            <label><?php _e('Result page',SI) ?></label>
             <md-select ng-model="model.result_page">
                 <md-option ng-repeat="item in wp_pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
             </md-select>
@@ -30,43 +30,43 @@
 
         <div ng-show="model.list_layout.preset | isIn : ['standard']" 
             class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow sort',IMMODB) ?></label>
+            <label><?php _e('Allow sort',SI) ?></label>
             <md-checkbox ng-model="model.sortable"></md-checkbox>
         </div>
 
         <div ng-show="model.list_layout.preset | isIn : ['standard']" 
             class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow map switch',IMMODB) ?></label>
+            <label><?php _e('Allow map switch',SI) ?></label>
             <md-checkbox ng-model="model.mappable"></md-checkbox>
         </div>
         
         <div ng-show="model.list_layout.preset | isIn : ['standard','direct']" 
             class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Show list metadatas',IMMODB) ?></label>
+            <label><?php _e('Show list metadatas',SI) ?></label>
             <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
         </div>
 
         <div class="custom {{ (model.list_layout.preset=='custom') ? 'editable' : '' }}">
-            <immodb-layout-edit ng-model="model.list_custom_layout"></immodb-layout-edit>
+            <si-layout-edit ng-model="model.list_custom_layout"></si-layout-edit>
         </div>
     </div>
 
     <div class="layout" layout="column">
-        <h4><?php _e('List items',IMMODB) ?></h4>
+        <h4><?php _e('List items',SI) ?></h4>
         <md-input-container>
-            <label><?php _e('Model',IMMODB) ?></label>
+            <label><?php _e('Model',SI) ?></label>
             <md-select ng-model="model.list_item_layout.preset">
                 <md-option ng-repeat="item in global_list.list_item_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
         
         <md-input-container ng-show="model.list_item_layout.preset!='custom'">
-            <label><?php _e('Element class',IMMODB) ?></label>
+            <label><?php _e('Element class',SI) ?></label>
             <input ng-model="model.list_item_layout.scope_class" />
         </md-input-container>
 
         <div class="custom {{ (model.list_item_layout.preset=='custom') ? 'editable' : '' }}">
-            <immodb-layout-edit ng-model="model.list_item_custom_layout"></immodb-layout-edit>
+            <si-layout-edit ng-model="model.list_item_custom_layout"></si-layout-edit>
         </div>
     </div>
 </div>

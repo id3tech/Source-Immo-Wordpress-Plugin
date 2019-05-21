@@ -14,11 +14,11 @@
                 <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
                 <md-menu-content>
                     <md-menu-item>
-                        <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-code"></md-icon> <?php _e('Copy shortcode',IMMODB) ?></md-button>
+                        <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-code"></md-icon> <?php _e('Copy shortcode',SI) ?></md-button>
                     </md-menu-item>
                     <md-divider></md-divider>
                     <md-menu-item>
-                        <md-button ng-disabled="configs.lists.length==1" ng-click="remove(list)"><md-icon class="fal fa-times"></md-icon> <?php _e('Delete',IMMODB) ?></md-button>
+                        <md-button ng-disabled="configs.lists.length==1" ng-click="remove(list)"><md-icon class="fal fa-times"></md-icon> <?php _e('Delete',SI) ?></md-button>
                     </md-menu-item>
                 </md-menu-content>
             </md-menu>

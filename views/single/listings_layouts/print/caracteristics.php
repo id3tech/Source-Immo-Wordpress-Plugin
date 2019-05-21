@@ -2,7 +2,7 @@
 if(isset($model->other->attributes)){
 ?>
 <div class="panel other-specs">
-    <h3><?php _e('Characteristics',IMMODB) ?></h3>
+    <h3><?php _e('Characteristics',SI) ?></h3>
     <div class="content spec-grid">
         <?php 
         foreach ($model->other->attributes as $spec) {

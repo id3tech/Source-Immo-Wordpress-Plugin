@@ -1,15 +1,15 @@
-<div class="immodb-list-header">
+<div class="si-list-header">
 <?php
 
 if($configs->show_list_meta){
-    ImmoDB::view("list/listings/standard/list-meta",
+    SourceImmo::view("list/listings/standard/list-meta",
         array("configs" => $configs));
 }
 
-if($configs->sortable){ ImmoDB::view('list/listings/sort'); }
+if($configs->sortable){ SourceImmo::view('list/listings/sort'); }
     
 if($configs->mappable){ 
-    ImmoDB::view('list/listings/switch'); 
+    SourceImmo::view('list/listings/switch'); 
 }
 ?>
  </div>

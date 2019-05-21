@@ -2,7 +2,7 @@
 /**
 * Stores data from
 */
-class ImmoDBConfig {
+class SourceImmoConfig {
 
   /**
   * Required properties for API call
@@ -67,25 +67,25 @@ class ImmoDBConfig {
 
   /**
   * List configuration
-  * @var ArrayImmoDBView
+  * @var ArraySourceImmoView
   */
   public $lists = array();
 
   /**
   * Listing details route path configuration
-  * @var ArrayImmoDBRoute
+  * @var ArraySourceImmoRoute
   */
   public $listing_routes = array();
 
   /**
   * Broker details route path configuration
-  * @var ArrayImmoDBRoute
+  * @var ArraySourceImmoRoute
   */
   public $broker_routes = array();
 
   /**
   * City details route path configuration
-  * @var ArrayImmoDBRoute
+  * @var ArraySourceImmoRoute
   */
   public $city_routes = array();
 
@@ -106,8 +106,8 @@ class ImmoDBConfig {
    */
   public function __construct(){
     // read only
-    $this->app_id         = IMMODB_APP_ID;
-    $this->app_version    = IMMODB_VERSION;
+    $this->app_id         = SI_APP_ID;
+    $this->app_version    = SI_VERSION;
 
     // set defaut DEMO value
     $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
@@ -119,34 +119,34 @@ class ImmoDBConfig {
 
     // init routes
     $this->listing_routes  = array(
-      new ImmoDBRoute('fr', 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','propriete/{{item.ref_number}}/'),
-      new ImmoDBRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','listing/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','propriete/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','listing/{{item.ref_number}}/'),
     );
     $this->broker_routes  = array(
-      new ImmoDBRoute('fr', 'courtiers/{{item.ref_number}}/','courtier/{{item.ref_number}}/'),
-      new ImmoDBRoute('en', 'brokers/{{item.ref_number}}/','broker/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'courtiers/{{item.ref_number}}/','courtier/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'brokers/{{item.ref_number}}/','broker/{{item.ref_number}}/'),
     );
     $this->city_routes  = array(
-      new ImmoDBRoute('fr', 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
-      new ImmoDBRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
     );
 
     // init layouts
     $this->listing_layouts = array(
-      new ImmoDBLayout('fr','standard'),
-      new ImmoDBLayout('en','standard')
+      new SourceImmoLayout('fr','standard'),
+      new SourceImmoLayout('en','standard')
     );
     $this->broker_layouts = array(
-      new ImmoDBLayout('fr','standard'),
-      new ImmoDBLayout('en','standard')
+      new SourceImmoLayout('fr','standard'),
+      new SourceImmoLayout('en','standard')
     );
 
-    $listingList = new ImmoDBList();
+    $listingList = new SourceImmoList();
     $listingList->sort = 'contract.start_date';
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
-    $brokerList = new ImmoDBList('','brokers','brokers','last_name');
+    $brokerList = new SourceImmoList('','brokers','brokers','last_name');
     
     $this->lists = array(
       $listingList,$brokerList
@@ -154,9 +154,9 @@ class ImmoDBConfig {
   }
 
   public static function load(){
-    $instance = new ImmoDbConfig();
+    $instance = new SourceImmoConfig();
 
-    $savedConfigs = get_option('ImmoDBConfig');
+    $savedConfigs = get_option('SourceImmoConfig');
     if($savedConfigs){
       $instance->parse(json_decode($savedConfigs));
       $instance->normalizeRoutes();
@@ -180,14 +180,14 @@ class ImmoDBConfig {
   public function save(){
     $this->normalizeRoutes();
 
-    update_option('ImmoDBConfig', json_encode($this));
+    update_option('SourceImmoConfig', json_encode($this));
     $this->saveConfigFile();
   }
 
   public function saveConfigFile(){
     // save to file system too
     $lUploadDir   = wp_upload_dir();
-    $lConfigPath = $lUploadDir['basedir'] . '/_immodb';
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
     if ( ! file_exists( $lConfigPath ) ) {
       wp_mkdir_p( $lConfigPath );
     }
@@ -237,7 +237,7 @@ class ImmoDBConfig {
 }
 
 
-class ImmoDBRoute{
+class SourceImmoRoute{
 
   public $lang = '';
   public $route = '';
@@ -249,7 +249,7 @@ class ImmoDBRoute{
   }
 }
 
-class ImmoDBLayout{
+class SourceImmoLayout{
   public $lang = '';
   public $type = 'standard';
   public $preset = 'standard';
@@ -262,7 +262,7 @@ class ImmoDBLayout{
   }
 }
 
-class ImmoDBList {
+class SourceImmoList {
   public $source = 'default';
   public $alias = 'default';
   public $limit = 0;
@@ -286,17 +286,17 @@ class ImmoDBList {
     $this->sort = $sort;
 
 
-    $this->list_layout = new ImmoDBLayout();
-    $this->list_item_layout = new ImmoDBLayout();
+    $this->list_layout = new SourceImmoLayout();
+    $this->list_item_layout = new SourceImmoLayout();
 
-    $this->filter_group = new ImmoDBFilterGroup();
+    $this->filter_group = new SourceImmoFilterGroup();
   }
 
   static function parse($source){
     return unserialize(sprintf(
       'O:%d:"%s"%s',
-      strlen('ImmoDBList'),
-      'ImmoDBList',
+      strlen('SourceImmoList'),
+      'SourceImmoList',
       strstr(strstr(serialize($source), '"'), ':')
     ));
   }
@@ -314,7 +314,7 @@ class ImmoDBList {
 }
 
 
-class ImmoDBFilterGroup {
+class SourceImmoFilterGroup {
   public $operator = 'and';
   public $filters = null;
   public $filter_groups = null;
@@ -325,7 +325,7 @@ class ImmoDBFilterGroup {
   }
 }
 
-class ImmoDBFilter {
+class SourceImmoFilter {
   public $field = '';
   public $operator = 'equal';
   public $value = '';

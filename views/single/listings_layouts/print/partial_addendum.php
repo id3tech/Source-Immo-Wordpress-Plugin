@@ -2,7 +2,7 @@
     if(isset($model->addendum)){
     ?>
     <div class="panel addendum">
-        <h3><?php _e('Addendum', IMMODB) ?></h3>
+        <h3><?php _e('Addendum', SI) ?></h3>
         <?php 
             $trunc_limit = 620;
             $truncated = false;
@@ -18,7 +18,7 @@
             
             echo($addendum);
             if($truncated){
-                echo '<note>' . __("See complete addendum in annex", IMMODB) . '</note>';
+                echo '<note>' . __("See complete addendum in annex", SI) . '</note>';
             }
         ?>
     </div>

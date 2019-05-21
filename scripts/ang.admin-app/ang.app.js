@@ -1,6 +1,6 @@
-var ImmoDbApp = angular.module('ImmoDb', ['ngRoute','ngMaterial', 'ngMessages']);
+var siApp = angular.module('siApplication', ['ngRoute','ngMaterial', 'ngMessages']);
 
-ImmoDbApp
+siApp
 .config(function ($routeProvider, $mdThemingProvider, $httpProvider, $mdAriaProvider) {
     // disable aria warnings (aka aria-label warning of hell)
     $mdAriaProvider.disableWarnings();

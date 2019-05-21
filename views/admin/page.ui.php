@@ -4,5 +4,5 @@
     id="<?php echo($page_id); ?>"
     ng-controller="<?php echo($page_id); ?>Ctrl" ng-init="_pageInit_()">
 
-    <?php ImmoDB::view($page_path); ?>
+    <?php SourceImmo::view($page_path); ?>
 </div>

@@ -1,5 +1,5 @@
 
-ImmoDbApp
+siApp
 .filter('range', 
 function rangeFilter(){
     return function($items, $lowerBound, $upperBound){
@@ -32,7 +32,7 @@ function rangeFilter(){
     }
 });
 
-ImmoDbApp
+siApp
 .filter('asArray', 
 function asArrayFilter(){
     return function($object){
@@ -50,7 +50,7 @@ function asArrayFilter(){
     }
 });
 
-ImmoDbApp
+siApp
 .filter('orderObjectBy', 
 function orderObjectByFilter(){
     return function(input, attribute) {
@@ -80,7 +80,7 @@ function orderObjectByFilter(){
     }
 });
 
-ImmoDbApp
+siApp
 .filter('textToHtml', [
 function textToHtml(){
     return function($value){
@@ -108,23 +108,23 @@ function textToHtml(){
     }
 }]);
 
-ImmoDbApp
-.filter('formatDimension', ['$immodbUtils', function dimensionFilter($immodbUtils){
+siApp
+.filter('formatDimension', ['$siUtils', function dimensionFilter($siUtils){
     return function($value){
-        return $immodbUtils.formatDimension($value);
+        return $siUtils.formatDimension($value);
     }
 }]);
 
-ImmoDbApp
-.filter('sanitize', ['$immodbUtils', function sanitize($immodbUtils){
+siApp
+.filter('sanitize', ['$siUtils', function sanitize($siUtils){
     return function($value){
-        return $immodbUtils.sanitize($value);
+        return $siUtils.sanitize($value);
     }
 }]);
 
-ImmoDbApp
-.filter('iconFromType', ['$immodbUtils', 
-function iconFromType($immodbUtils){
+siApp
+.filter('iconFromType', ['$siUtils', 
+function iconFromType($siUtils){
     return function($value){
         let lTypeIcons = {
             'listing' : 'home',
@@ -135,8 +135,8 @@ function iconFromType($immodbUtils){
     }
 }]);
 
-ImmoDbApp
-.filter('wrapWith', ['$immodbUtils', 
+siApp
+.filter('wrapWith', ['$siUtils', 
 function wrapWith(){
     return function($text, $tag, $search, $startingAt){
         $startingAt = (typeof $startingAg == 'undefined') ? 0 : $startingAt;

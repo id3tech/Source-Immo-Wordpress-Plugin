@@ -6,26 +6,26 @@
     </div>
     <div class="options" layout="column" layout-align="start stretch">
         <md-input-container>
-            <label><?php _e('Alias of the list',IMMODB) ?></label>
+            <label><?php _e('Alias of the list',SI) ?></label>
             <input ng-model="model.alias" />
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('Source ImmoDB view',IMMODB) ?></label>
+            <label><?php _e('Source SourceImmo view',SI) ?></label>
             <md-select ng-model="model.$$source_id" ng-change="updateSource()">
                 <md-option ng-repeat="item in data_views" value="{{item.id}}">{{item.name}}</md-option>
             </md-select>
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('List of',IMMODB) ?></label>
+            <label><?php _e('List of',SI) ?></label>
             <md-select ng-model="model.type" ng-change="reset_default_value()">
                 <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
             </md-select>
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('Sort by',IMMODB) ?></label>
+            <label><?php _e('Sort by',SI) ?></label>
             <md-select ng-model="model.sort">
                 <md-option ng-repeat="elm in global_list.list_ordering_field[model.type]" ng-value="elm.name">{{elm.label.translate()}}</md-option>
             </md-select>
@@ -39,7 +39,7 @@
         </div>  
 
         <md-input-container>
-            <label><?php _e('Limit the number of displayed elements',IMMODB) ?></label>
+            <label><?php _e('Limit the number of displayed elements',SI) ?></label>
             <input type="number" ng-model="model.limit" ng-change="validate()" />
         </md-input-container>
     </div>
@@ -47,16 +47,16 @@
     <div class="other-stuff">
         <md-tabs md-dynamic-height md-border-bottom>
             <md-tab>
-                <md-tab-label><?php _e('Filters',IMMODB)?></md-tab-label>
+                <md-tab-label><?php _e('Filters',SI)?></md-tab-label>
                 <md-tab-body class="md-padding">
-                <?php ImmoDB::view('admin/lists/filters') ?>
+                <?php SourceImmo::view('admin/lists/filters') ?>
                 </md-tab-body>
             </md-tab>
 
             <md-tab>
-                <md-tab-label><?php _e('Layout',IMMODB)?></md-tab-label>
+                <md-tab-label><?php _e('Layout',SI)?></md-tab-label>
                 <md-tab-body class="md-padding">
-                <?php ImmoDB::view('admin/lists/layout') ?>
+                <?php SourceImmo::view('admin/lists/layout') ?>
                 </md-tab-body>
             </md-tab>
         </md-tabs>

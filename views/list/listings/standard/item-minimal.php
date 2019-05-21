@@ -7,7 +7,7 @@ if(isset($configs)){
     $scope_class = $configs->list_item_layout->scope_class;
 }
 ?>
-<article class="immodb-item immodb-listing-item immodb-small-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
+<article class="si-item si-listing-item si-small-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
     data-ng-cloak>
     <a href="{{item.permalink}}">
         <div class="content">

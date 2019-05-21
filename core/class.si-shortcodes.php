@@ -1,6 +1,6 @@
 <?php
 
-class ImmoDbShorcodes{
+class SiShorcodes{
 
     public function __construct(){
         
@@ -9,16 +9,16 @@ class ImmoDbShorcodes{
 
     public function init_hook(){
         $hooks = array(
-            'immodb',
-            'immodb_search',
-            'immodb_searchbox',
+            'si',
+            'si_search',
+            'si_searchbox',
             // Broker - Sub shortcodes
-            'immodb_broker',
-            'immodb_broker_listings',
-            'immodb_broker_part',
+            'si_broker',
+            'si_broker_listings',
+            'si_broker_part',
             // Listing - Sub shorcodes
-            'immodb_listing',
-            'immodb_listing_part'
+            'si_listing',
+            'si_listing_part'
         );
 
         foreach ($hooks as $item) {
@@ -26,7 +26,7 @@ class ImmoDbShorcodes{
         }
     }
 
-    public function sc_immodb_searchbox($atts, $content=null){
+    public function sc_si_searchbox($atts, $content=null){
         extract( shortcode_atts(
             array(
                 'alias' => 'default',
@@ -37,13 +37,13 @@ class ImmoDbShorcodes{
         );
 
         ob_start();
-        echo('<immodb-search-box alias="' . $alias . '" placeholder="'. $placeholder .'" on-enter="'. $on_enter .'" result-page="'. $result_page .'"></immodb-search-box>');
+        echo('<si-search-box alias="' . $alias . '" placeholder="'. $placeholder .'" on-enter="'. $on_enter .'" result-page="'. $result_page .'"></si-search-box>');
         $lResult = ob_get_clean();
 
         return $lResult;
     }
   
-    public function sc_immodb_search($atts, $content=null){
+    public function sc_si_search($atts, $content=null){
         extract( shortcode_atts(
             array(
                 'alias' => 'default',
@@ -53,13 +53,13 @@ class ImmoDbShorcodes{
         );
 
         ob_start();
-        $listConfig = ImmoDB::current()->get_list_configs($alias);
+        $listConfig = SourceImmo::current()->get_list_configs($alias);
         $resultUrl = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
-        echo('<div class="immodb standard-layout">');
-        echo('<immodb-search immodb-alias="'. $alias . '" class="search-container" immodb-result-url="' . $resultUrl . '" immodb-standalone="' . $standalone . '"></immodb-search>');
+        echo('<div class="si standard-layout">');
+        echo('<si-search si-alias="'. $alias . '" class="search-container" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
 
-        echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-        ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
+        echo('<script type="text/ng-template" id="si-search-for-'. $alias . '">');
+        SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
         echo('</script>');
         echo('</div>');
         $lResult = ob_get_clean();
@@ -67,7 +67,7 @@ class ImmoDbShorcodes{
         return $lResult;
     }
 
-    public function sc_immodb($atts, $content=null){
+    public function sc_si($atts, $content=null){
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
@@ -78,8 +78,7 @@ class ImmoDbShorcodes{
         );
 
         ob_start();
-        $listConfig = ImmoDB::current()->get_list_configs($alias);
-        
+        $listConfig = SourceImmo::current()->get_list_configs($alias);
         
 
         if($listConfig != null){
@@ -91,25 +90,25 @@ class ImmoDbShorcodes{
             }
 
             
-            $global_container_classes = array('immodb', 'standard-layout', "immodb-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
+            $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
             $global_container_attr = array();
 
             if(in_array($listConfig->list_layout->preset, array('direct'))){
-                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
+                SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
 
-                $listData = ImmoDBApi::get_data($listConfig);
+                $listData = SourceImmoApi::get_data($listConfig);
 
-                echo('<immodb-list immodb-alias="' . $alias . '" immodb-class="' . implode(' ' , $global_container_classes) . '" ></immodb-list>');
+                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" ></si-list>');
                 echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
-                echo('<script type="text/ng-template" id="immodb-template-for-'. $alias . '">');
-                ImmoDB::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
+                echo('<script type="text/ng-template" id="si-template-for-'. $alias . '">');
+                SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
                 echo('</script>');
 
                 if($listConfig->searchable){ 
-                    echo('<script type="text/ng-template" id="immodb-search-for-'. $alias . '">');
-                    ImmoDB::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig, "sc_atts" => $atts)); 
+                    echo('<script type="text/ng-template" id="si-search-for-'. $alias . '">');
+                    SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig, "sc_atts" => $atts)); 
                     echo('</script>');
                 }
             }
@@ -121,32 +120,32 @@ class ImmoDbShorcodes{
     }
 
     #region Broker - Sub shortcodes
-    public function sc_immodb_broker($atts, $content){
+    public function sc_si_broker($atts, $content){
         extract( shortcode_atts(
             array(
                 'ref_number' => ''
             ), $atts )
         );
         
-        $data = json_decode(ImmoDBApi::get_broker_data($ref_number));
+        $data = json_decode(SourceImmoApi::get_broker_data($ref_number));
         if($data != null){
             global $dictionary;
-            $brokerWrapper = new ImmoDBBrokersResult();
-            $dictionary = new ImmoDBDictionary($data->dictionary);
+            $brokerWrapper = new SourceImmoBrokersResult();
+            $dictionary = new SourceImmoDictionary($data->dictionary);
             $brokerWrapper->preprocess_item($data);
         }
         
         ob_start();
         ?>
         <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
         <?php
         echo(do_shortcode($content));
         ?>
 
         </div>
         <script type="text/javascript">
-        var immodbBrokerData = <?php 
+        var siBrokerData = <?php 
             echo(json_encode($data)); 
         ?>;
         </script>
@@ -159,10 +158,10 @@ class ImmoDbShorcodes{
     /**
      * Display broker listings
      */
-    public function sc_immodb_broker_listings($atts, $content=null){
+    public function sc_si_broker_listings($atts, $content=null){
         ob_start();
         ?>
-        <div class="listing-list immodb-list-of-listings">
+        <div class="listing-list si-list-of-listings">
             <div ng-show="model.listings.length>0">
                 <div class="list-header">
                     <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
@@ -175,7 +174,7 @@ class ImmoDbShorcodes{
                 <div class="list-container">
                     <div ng-repeat="item in model.listings | filter : filterListings" ng-animate>
                         <?php
-                        ImmoDB::view("list/listings/standard/item-small");
+                        SourceImmo::view("list/listings/standard/item-small");
                         ?>
                     </div>
                 </div>
@@ -188,7 +187,7 @@ class ImmoDbShorcodes{
         return $lResult;
     }
 
-    public function sc_immodb_broker_part($atts, $content){
+    public function sc_si_broker_part($atts, $content){
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
@@ -201,7 +200,7 @@ class ImmoDbShorcodes{
         if($part != ''){
             ob_start();
 
-            ImmoDB::view('single/brokers_layouts/subs/' . $part); 
+            SourceImmo::view('single/brokers_layouts/subs/' . $part); 
 
             $lResult = ob_get_clean();
         }
@@ -213,34 +212,34 @@ class ImmoDbShorcodes{
 
     #region Listing - Sub shortcodes
 
-    public function sc_immodb_listing($atts, $content){
+    public function sc_si_listing($atts, $content){
         extract( shortcode_atts(
             array(
                 'ref_number' => ''
             ), $atts )
         );
         
-        $listing_data = json_decode(ImmoDBApi::get_listing_data($ref_number));
+        $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
         if($listing_data != null){
             global $dictionary;
-            $listingWrapper = new ImmoDBListingsResult();
-            $dictionary = new ImmoDBDictionary($listing_data->dictionary);
+            $listingWrapper = new SourceImmoListingsResult();
+            $dictionary = new SourceImmoDictionary($listing_data->dictionary);
             $listingWrapper->preprocess_item($listing_data);
             $listingWrapper->extendedPreprocess($listing_data);
         }
         
         ob_start();
-        ImmoDB::view('single/listings_layouts/_schema',array('model' => $listing_data));
+        SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
         ?>
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="immodb listing-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si listing-single {{model.status}} {{model!=null?'loaded':''}}">
         <?php
         echo(do_shortcode($content));
         ?>
 
         </div>
         <script type="text/javascript">
-        var immodbListingData = <?php 
+        var siListingData = <?php 
             echo(json_encode($listing_data)); 
         ?>;
         </script>
@@ -250,7 +249,7 @@ class ImmoDbShorcodes{
         return $result;
     }
 
-    public function sc_immodb_listing_part($atts, $content){
+    public function sc_si_listing_part($atts, $content){
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
@@ -263,7 +262,7 @@ class ImmoDbShorcodes{
         if($part != ''){
             ob_start();
 
-            ImmoDB::view('single/listings_layouts/subs/' . $part); 
+            SourceImmo::view('single/listings_layouts/subs/' . $part); 
 
             $lResult = ob_get_clean();
         }

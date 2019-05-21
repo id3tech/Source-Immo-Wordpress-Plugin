@@ -5,5 +5,5 @@
     <div class="share-item" ng-click="shareTo('linkedin')"><i class="fab fa-linkedin"></i><label>Linked In</label></div>
     <div class="share-item" ng-click="shareTo('googleplus')"><i class="fab fa-google-plus"></i><label>Google +</label></div>
     <div class="share-item" ng-click="shareTo('pinterest')"><i class="fab fa-pinterest"></i><label>Pinterest</label></div>
-    <div class="share-item" ng-click="shareTo('email')"><i class="fas fa-envelope"></i><label><?php _e('Email',IMMODB) ?></label></div>
+    <div class="share-item" ng-click="shareTo('email')"><i class="fas fa-envelope"></i><label><?php _e('Email',SI) ?></label></div>
 </div>

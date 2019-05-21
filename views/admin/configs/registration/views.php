@@ -1,6 +1,6 @@
 <div class="infos">
-    <h2><?php   _e('Data views', IMMODB) ?></h2>
-    <p><?php    _e('Select one of these views as the default source of data',IMMODB) ?></p>
+    <h2><?php   _e('Data views', SI) ?></h2>
+    <p><?php    _e('Select one of these views as the default source of data',SI) ?></p>
 </div>
 
 <div class="view-list">

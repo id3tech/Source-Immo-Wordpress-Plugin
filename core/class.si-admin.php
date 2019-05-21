@@ -3,8 +3,8 @@
 Admin management class
 */
 
-class ImmoDBAdmin {
-  const CONFIG_PAGE_KEY = 'immodb-config';
+class SourceImmoAdmin {
+  const CONFIG_PAGE_KEY = 'si-config';
 
   public function init_hooks() {
     $this->register_actions(array(
@@ -17,7 +17,7 @@ class ImmoDBAdmin {
     ));
 
     $this->register_filters(array(
-      'plugin_action_links_'.plugin_basename(IMMODB_PLUGIN_DIR. 'immodb.php') => 'admin_plugin_settings_link', // little "settings" link in the plugin page
+      'plugin_action_links_'.plugin_basename(SI_PLUGIN_DIR. 'source-immo.php') => 'admin_plugin_settings_link', // little "settings" link in the plugin page
     ));
 
 	}
@@ -27,7 +27,7 @@ class ImmoDBAdmin {
   */
 
   public function render_page(){
-    ImmoDB::view( 'admin/master' );
+    SourceImmo::view( 'admin/master' );
   }
 
 
@@ -36,8 +36,8 @@ class ImmoDBAdmin {
   }
 
   public function load_resources(){
-    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', IMMODB_PLUGIN) );
-    wp_enqueue_style( 'immodb-style', plugins_url('/styles/admin.min.css', IMMODB_PLUGIN) );
+    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', SI_PLUGIN) );
+    wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
   }
 
   /***
@@ -49,8 +49,8 @@ class ImmoDBAdmin {
   */
   public function load_menu() {
 		$hook = add_options_page(
-              __('Immo DB', IMMODB),
-              __('Immo DB', IMMODB),
+              __('Source Immo', SI),
+              __('Source Immo', SI),
               'manage_options',
               self::CONFIG_PAGE_KEY,
               array( $this, 'render_page' )
@@ -65,7 +65,7 @@ class ImmoDBAdmin {
   * Initialization on admin
   */
   public static function admin_init() {
-		load_plugin_textdomain( IMMODB );
+		load_plugin_textdomain( SI );
 	}
 
 
@@ -73,7 +73,7 @@ class ImmoDBAdmin {
   * Add the "settings" link below the plugin name in the plugins management page
   */
   public function admin_plugin_settings_link( $links ) {
-  		$settings_link = '<a href="'.esc_url( self::get_page_url() ).'">'.__('Settings', IMMODB).'</a>';
+  		$settings_link = '<a href="'.esc_url( self::get_page_url() ).'">'.__('Settings', SI).'</a>';
   		array_unshift( $links, $settings_link );
   		return $links;
 	}
@@ -89,7 +89,7 @@ class ImmoDBAdmin {
   */
   public static function current() {
     if(self::$current_instance==null){
-      self::$current_instance = new ImmoDBAdmin();
+      self::$current_instance = new SourceImmoAdmin();
     }
     return self::$current_instance;
   }

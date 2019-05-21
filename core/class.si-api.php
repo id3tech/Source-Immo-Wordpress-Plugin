@@ -2,7 +2,7 @@
 /*
 API interface class
 */
-class ImmoDBApi {
+class SourceImmoApi {
   /**
   * REST API Wordpress init
   * register all rest route
@@ -49,7 +49,7 @@ class ImmoDBApi {
 
     $lTypePermalink = null;
     if($type != null){
-      $lTypePermalink = ImmoDB::current()->get_permalink($type);
+      $lTypePermalink = SourceImmo::current()->get_permalink($type);
       $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
     }
     
@@ -85,8 +85,8 @@ class ImmoDBApi {
   * @return Object : Object
   */
   public static function get_access_token(){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
 
     // Trap empty values
     if(!$account_id || empty($account_id)){
@@ -97,14 +97,14 @@ class ImmoDBApi {
     }
 
     // check if the token is stored in transient
-    $lResult = get_transient('immodb_temp_auth_token' . $api_key);
+    $lResult = get_transient('si_temp_auth_token' . $api_key);
     
     if($lResult == '' || !self::token_is_valid($lResult)){
-      // get access token from ImmoDb remote api
+      // get access token from Si remote api
       $lResult = HttpCall::to('~','auth','get_token',$account_id,$api_key)->get();
       $lDiff = self::get_token_timelapse(json_decode($lResult));
 
-      set_transient('immodb_temp_auth_token' . $api_key, $lResult, $lDiff * MINUTE_IN_SECONDS);
+      set_transient('si_temp_auth_token' . $api_key, $lResult, $lDiff * MINUTE_IN_SECONDS);
     }   
 
 
@@ -118,8 +118,8 @@ class ImmoDBApi {
   }
 
   public static function clear_access_token(){
-    $api_key = ImmoDB::current()->get_api_key();
-    delete_transient('immodb_temp_auth_token' . $api_key);
+    $api_key = SourceImmo::current()->get_api_key();
+    delete_transient('si_temp_auth_token' . $api_key);
 
     return true;
   }
@@ -159,8 +159,8 @@ class ImmoDBApi {
 
 
   public static function get_data_view(){
-    if(ImmoDB::current()->configs->default_view != null){
-      return si_view_id(ImmoDB::current()->configs->default_view);
+    if(SourceImmo::current()->configs->default_view != null){
+      return si_view_id(SourceImmo::current()->configs->default_view);
     }
     
     $lToken = self::get_access_token();
@@ -170,8 +170,8 @@ class ImmoDBApi {
   
   public static function get_configs_permalinks(){
     $lResult = array(
-      'listings' => ImmoDB::current()->configs->listing_routes,
-      'brokers' => ImmoDB::current()->configs->broker_routes
+      'listings' => SourceImmo::current()->configs->listing_routes,
+      'brokers' => SourceImmo::current()->configs->broker_routes
     );
 
     return $lResult;
@@ -181,7 +181,7 @@ class ImmoDBApi {
   * Get global configurations
   */
   public static function get_configs(){
-    return ImmoDB::current()->configs;
+    return SourceImmo::current()->configs;
   }
 
   /**
@@ -192,8 +192,8 @@ class ImmoDBApi {
   public static function set_configs($request){
     $config_value = $request->get_param('settings');
 
-    ImmoDB::current()->configs->parse($config_value);
-    ImmoDB::current()->configs->save();
+    SourceImmo::current()->configs->parse($config_value);
+    SourceImmo::current()->configs->save();
 
     // delete access token cache
     self::clear_access_token();
@@ -207,21 +207,21 @@ class ImmoDBApi {
    * @return Object global configuration
    */
   public static function reset_configs($request){
-    $new_config_value = new ImmoDBConfig();
-    ImmoDB::current()->configs = $new_config_value;
-    ImmoDB::current()->configs->save();
+    $new_config_value = new SourceImmoConfig();
+    SourceImmo::current()->configs = $new_config_value;
+    SourceImmo::current()->configs->save();
 
     return self::get_configs();
   }
 
   public static function get_dictionary($request){
-    $viewId = si_view_id(ImmoDB::current()->configs->default_view);
+    $viewId = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
     $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)
-                            ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                            ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                             ->get(null, true);
 
     return $lResult->dictionary;
@@ -234,7 +234,7 @@ class ImmoDBApi {
    */
   public static function get_list_configs($request){
     $alias = $request->get_param('alias');
-    $result = ImmoDB::current()->get_list_configs($alias);
+    $result = SourceImmo::current()->get_list_configs($alias);
     return $result;
   }
 
@@ -318,8 +318,8 @@ class ImmoDBApi {
    * @param list_config   Object containing list configuration infos
    */
   public static function get_list_meta(&$list_config){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     
     $lAccessToken = self::get_access_token();
 
@@ -327,7 +327,7 @@ class ImmoDBApi {
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
     $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)
-                          ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                          ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                           ->get(null, true);
     
     return $lResult;
@@ -339,8 +339,8 @@ class ImmoDBApi {
    * @param atts          ObjectArray filter parameters for the list
    */
   public static function get_data(&$list_config, $atts=null){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
 
     $lTwoLetterLocale = substr(get_locale(),0,2);
 
@@ -354,7 +354,7 @@ class ImmoDBApi {
     $st = $lFilters["st"];
 
     $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')
-                    ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                    ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get($lFilters, true);
 
     // In case the limit is 0 (infinite), we should load data until there's no more "next page"
@@ -365,7 +365,7 @@ class ImmoDBApi {
         $lFilters = array('st'=> $st, 'nt'=>urlencode($lResult->metadata->next_token));
 
         $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')
-                              ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                              ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                               ->get($lFilters, true);
 
         $data_list = array_merge($data_list,$lResult->items);
@@ -385,16 +385,16 @@ class ImmoDBApi {
    * @param id          String identifier for the listing
    */
   public static function get_listing_data($id){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
     
-    if(!isset(ImmoDB::current()->configs->default_view)) return '';
+    if(!isset(SourceImmo::current()->configs->default_view)) return '';
 
-    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lResult = HttpCall::to('~', 'listing/view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
-                  ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get();
     
     return $lResult;
@@ -405,13 +405,13 @@ class ImmoDBApi {
    * @param id          String identifier for the broker
    */
   public static function get_broker_data($id){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lResult = HttpCall::to('~', 'broker/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
-                  ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get();
     
     return $lResult;
@@ -423,10 +423,10 @@ class ImmoDBApi {
    * @param id          String identifier for the city
    */
   public static function get_city_data($id){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
     
     $lFilters = array("st"=>urlencode(self::get_search_token(
           array('code'=>$id),
@@ -435,7 +435,7 @@ class ImmoDBApi {
     
 
     $lResult = HttpCall::to('~', 'location/city/view',$view_id,$lTwoLetterLocale,'items/')
-                  ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get($lFilters,true);
     
     return $lResult;
@@ -446,10 +446,10 @@ class ImmoDBApi {
    * @param id          String identifier for the city
    */
   public static function get_city_listings_data($id){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = si_view_id(ImmoDB::current()->configs->default_view);
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
 
     
     $lFilters = array("st"=>urlencode(self::get_search_token(
@@ -458,7 +458,7 @@ class ImmoDBApi {
                 )));
     
     $lResult = HttpCall::to('~', 'listing/view', $view_id,  $lTwoLetterLocale,'items')
-                          ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                          ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                           ->get($lFilters, true);
     
     $data_list = $lResult->items;
@@ -467,7 +467,7 @@ class ImmoDBApi {
       $lFilters = array('st'=>$lResult->metadata->search_token,'nt'=>urlencode($lResult->metadata->next_token));
 
       $lResult = HttpCall::to('~', 'listing/view', $view_id,  $lTwoLetterLocale,'items')
-                              ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                              ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                               ->get($lFilters, true);
 
       $data_list = array_merge($data_list,$lResult->items);
@@ -483,11 +483,11 @@ class ImmoDBApi {
    * Get account information
    */
   public static function get_account(){
-    $account_id = ImmoDB::current()->get_account_id();
-    $api_key = ImmoDB::current()->get_api_key();
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     
     $lResult = HttpCall::to('~','account')
-                    ->with_credentials($account_id, $api_key, IMMODB_APP_ID, IMMODB_VERSION)
+                    ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get(null, true);
     
     return $lResult;
@@ -506,18 +506,18 @@ class ImmoDBApi {
     $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
     $random_hash = sha1($hash_seed);
     
-    $configs = ImmoDB::current()->configs;
+    $configs = SourceImmo::current()->configs;
     if($configs->mode == 'DEV'){
       $destination = $configs->form_recipient;
     }
 
     $labels = array(
-      'firstname' => __('First name',IMMODB),
-      'lastname' => __('Last name',IMMODB),
-      'email' => __('Email',IMMODB),
-      'phone' => __('Phone',IMMODB),
-      'subject' => __('Subject',IMMODB),
-      'message' => __('Message',IMMODB)
+      'firstname' => __('First name',SI),
+      'lastname' => __('Last name',SI),
+      'email' => __('Email',SI),
+      'phone' => __('Phone',SI),
+      'subject' => __('Subject',SI),
+      'message' => __('Message',SI)
     );
 
     $messageData = array();
@@ -531,7 +531,7 @@ class ImmoDBApi {
 
     // build email
     ob_start();
-    ImmoDB::view('messages/' . $type . '.' . $lTwoLetterLocale, array('random_hash'=>$random_hash,'data'=>$messageData, 'metadata' => $metadata));
+    SourceImmo::view('messages/' . $type . '.' . $lTwoLetterLocale, array('random_hash'=>$random_hash,'data'=>$messageData, 'metadata' => $metadata));
     $email_body = ob_get_contents();
     ob_end_clean();
 
@@ -570,90 +570,90 @@ class ImmoDBApi {
 
 
   private static function _registerRestApiListeners(){
-    // Acquire access token to make call to the immodb remote api
-    register_rest_route( 'immodb','/access_token',array(
+    // Acquire access token to make call to the source.immo remote api
+    register_rest_route( 'si-rest','/access_token',array(
         array(
           'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'get_access_token' ),
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'get_access_token' ),
         ), // End GET
 
         array(
           'methods' => WP_REST_Server::EDITABLE,
-          'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'clear_access_token' ),
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'clear_access_token' ),
         ), // End PATCH
       )
     );
 
-    // Acquire access token to make call to the immodb remote api
-    register_rest_route( 'immodb','/account',
+    // Acquire access token to make call to the source.immo remote api
+    register_rest_route( 'si-rest','/account',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'get_account' ),
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_account' ),
       )
     );
 
     // Get the default dictionary
-    register_rest_route( 'immodb','/dictionary',
+    register_rest_route( 'si-rest','/dictionary',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'get_dictionary' ),
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_dictionary' ),
       )
     );
 
     // Acquire default data view
-    register_rest_route( 'immodb','/data_view',
+    register_rest_route( 'si-rest','/data_view',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'get_data_view' ),
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_data_view' ),
       )
     );
 
     // Get WP page list
-    register_rest_route( 'immodb','/pages',
+    register_rest_route( 'si-rest','/pages',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'get_pages' ),
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_pages' ),
         'args' => array(
           'locale' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'Page language filter', IMMODB ),
+            'description' => __( 'Page language filter', SI ),
           ),
           'type' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'Type for permalink', IMMODB ),
+            'description' => __( 'Type for permalink', SI ),
           )
         )
       )
     );
 
-    register_rest_route( 'immodb','/page',
+    register_rest_route( 'si-rest','/page',
       array(
         'methods' => WP_REST_Server::EDITABLE,
-        //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-        'callback' => array( 'ImmoDBApi', 'update_page' ),
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'update_page' ),
         'args' => array(
           'page_id' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'Page ID', IMMODB ),
+            'description' => __( 'Page ID', SI ),
           ),
           'title' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'Page title', IMMODB ),
+            'description' => __( 'Page title', SI ),
           ),
           'content' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'New content of the page', IMMODB ),
+            'description' => __( 'New content of the page', SI ),
           )
         )
       )
@@ -661,70 +661,70 @@ class ImmoDBApi {
 
 
     //Read/Write configs
-    register_rest_route( 'immodb','/configs',array(
+    register_rest_route( 'si-rest','/configs',array(
         array(
           'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'get_configs' ),
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'get_configs' ),
         ), // End GET
 
         array(
           'methods' => WP_REST_Server::CREATABLE,
-          'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'set_configs' ),
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'set_configs' ),
           'args' => array(
             'settings' => array(
               'required' => true,
-              'type' => 'ImmoDBConfig',
-              'description' => __( 'Configuration informations', IMMODB ),
+              'type' => 'SourceImmoConfig',
+              'description' => __( 'Configuration informations', SI ),
             )
           )
         ), // End POST
         
         array(
           'methods' => WP_REST_Server::EDITABLE,
-          'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'reset_configs' ),
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'reset_configs' ),
         ), // End PATCH
       )
     );
 
     //Read List configs
-    register_rest_route( 'immodb','/list_configs',
+    register_rest_route( 'si-rest','/list_configs',
       array(
         'methods' => WP_REST_Server::READABLE,
-        'callback' => array( 'ImmoDBApi', 'get_list_configs' ),
+        'callback' => array( 'SourceImmoApi', 'get_list_configs' ),
         'args' => array(
           'alias' => array(
             'required' => true,
             'type' => 'String',
-            'description' => __( 'Alias identifier of the List object', IMMODB ),
+            'description' => __( 'Alias identifier of the List object', SI ),
           )
         )
       ) // End GET
     );
 
     //Read config permalinks
-    register_rest_route( 'immodb','/permalinks',
+    register_rest_route( 'si-rest','/permalinks',
       array(
         'methods' => WP_REST_Server::READABLE,
-        'callback' => array( 'ImmoDBApi', 'get_configs_permalinks' )
+        'callback' => array( 'SourceImmoApi', 'get_configs_permalinks' )
       ) // End GET
     );
 
 
     //Write message
-    register_rest_route( 'immodb','/message',array(
+    register_rest_route( 'si-rest','/message',array(
         
         array(
           'methods' => WP_REST_Server::CREATABLE,
-          //'permission_callback' => array( 'ImmoDBApi', 'privileged_permission_callback' ),
-          'callback' => array( 'ImmoDBApi', 'send_message' ),
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'send_message' ),
           'args' => array(
             'params' => array(
               'required' => true,
               'type' => 'MessageData',
-              'description' => __( 'Message information', IMMODB ),
+              'description' => __( 'Message information', SI ),
             )
           )
         ), // End POST

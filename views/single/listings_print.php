@@ -34,19 +34,19 @@
             
             <div class="page-layout">
 
-                <?php ImmoDB::view('single/listings_layouts/print/icon_ribbon', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/icon_ribbon', array('model'=>$model))?>
 
-                <?php ImmoDB::view('single/listings_layouts/print/partial_addendum', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/partial_addendum', array('model'=>$model))?>
 
-                <?php ImmoDB::view('single/listings_layouts/print/caracteristics', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/caracteristics', array('model'=>$model))?>
 
-                <?php ImmoDB::view('single/listings_layouts/print/building', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
 
-                <?php ImmoDB::view('single/listings_layouts/print/land', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
 
             </div>
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
         </page>
 
         <page class="details-part2">
@@ -54,21 +54,21 @@
             
             <div class="page-layout">
                 <div class="in-ex">
-                    <?php ImmoDB::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
-                    <?php ImmoDB::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+                    <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
+                    <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
                 </div>
 
-                <?php ImmoDB::view('single/listings_layouts/print/financial', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/financial', array('model'=>$model))?>
                 
-                <?php ImmoDB::view('single/listings_layouts/print/map', array('model'=>$model))?>                
+                <?php SourceImmo::view('single/listings_layouts/print/map', array('model'=>$model))?>                
             </div>
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
         </page>
 
         <?php 
         if(isset($model->rooms) && count($model->rooms) > 0){
-            ImmoDB::view('single/listings_layouts/print/rooms', array('model'=>$model));
+            SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }
         ?>
 
@@ -84,16 +84,16 @@
         for ($i=0; $i < count($photoGroups); $i++) { 
         ?>
         <page class="photos">
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
             
             <div class="page-layout">
                 <h3><?php 
                     if(count($photoGroups) > 1){
-                        echo StringPrototype::format(__("Property's photos ({0}/{1})",IMMODB),$i+1, count($photoGroups));
+                        echo StringPrototype::format(__("Property's photos ({0}/{1})",SI),$i+1, count($photoGroups));
                     }
                     else{
-                        _e("Property's photos",IMMODB);
+                        _e("Property's photos",SI);
                     }
                 ?></h3>
                 <div class="photo-list">
@@ -122,12 +122,12 @@
         <page class="last-page">
             <div class="page-layout">
                 <div class="panel overlay dock-left brokers">
-                    <h3><?php _e('Presented by',IMMODB) ?></h3>
+                    <h3><?php _e('Presented by',SI) ?></h3>
                     <div class="broker-list">
                         
                     <?php
                     foreach ($model->brokers as $broker) {
-                        ImmoDB::view('single/listings_layouts/print/broker', array('broker'=>$broker));
+                        SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
                     }
                     ?>
                     </div>
@@ -136,14 +136,14 @@
                 </div>
 
                 <div class="panel overlay dock-right notepad">
-                        <h3><?php _e('Personnal notes',IMMODB) ?></h3>
+                        <h3><?php _e('Personnal notes',SI) ?></h3>
                         <div class="handwrite-zone">
                         </div>
                     
                 </div>
             </div>
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
             
         </page>
 
@@ -152,7 +152,7 @@
         ?>
         <page class="annex">
             <div class="page-layout">
-                <h3><?php _e('Annex - Addendum',IMMODB) ?></h3>
+                <h3><?php _e('Annex - Addendum',SI) ?></h3>
                 <?php
                 
                 $addendumLines = explode("\n",$model->addendum);
@@ -175,8 +175,8 @@
                
             </div>
 
-            <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
         </page>
         <?php
         }

@@ -1,2 +1,2 @@
 
-<immodb-listing-navigation data-immodb-current="model.id" data-immodb-title="<?php _e('Browse your search results',IMMODB) ?>"></immodb-listing-navigation>
+<si-listing-navigation data-si-current="model.id" data-si-title="<?php _e('Browse your search results',SI) ?>"></si-listing-navigation>

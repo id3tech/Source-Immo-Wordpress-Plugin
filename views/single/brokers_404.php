@@ -8,9 +8,9 @@ get_header();
 <div class="wrap">
     <div id="primary" class="content-area">
         <main id="main" class="site-main" role="main">
-            <div class="immodb broker-single not-found">
+            <div class="si broker-single not-found">
             <?php
-            $layout = ImmoDB::current()->get_detail_layout('broker_not_found');
+            $layout = SourceImmo::current()->get_detail_layout('broker_not_found');
             if($layout!=null && $layout->type =='custom_page'){
                 $lPost = get_post($layout->page);
                 ob_start();
@@ -20,8 +20,8 @@ get_header();
             }
             else{
             ?>
-                <h2><?php _e("Sorry, this broker could not be found.",IMMODB) ?></h2>
-                <p><?php _e("It's possible that this broker is no longer member of the team or the link you used to access this page is invalid.",IMMODB) ?></p>
+                <h2><?php _e("Sorry, this broker could not be found.",SI) ?></h2>
+                <p><?php _e("It's possible that this broker is no longer member of the team or the link you used to access this page is invalid.",SI) ?></p>
             <?php
             }
             ?>

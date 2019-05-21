@@ -6,7 +6,7 @@
         <div class="contact">
             <?php
             foreach ($broker->phones as $key => $value) {
-                echo '<div class="phone"><span>' . __($key,IMMODB) . '</span><em>' . $value . '</em></div>';
+                echo '<div class="phone"><span>' . __($key,SI) . '</span><em>' . $value . '</em></div>';
             }
             ?>
         </div>

@@ -13,7 +13,7 @@
         </md-toolbar>
 
         <md-dialog-content layout-padding>
-            <?php ImmoDB::view($dialog_path); ?>
+            <?php SourceImmo::view($dialog_path); ?>
         </md-dialog-content>
 
         <md-dialog-actions layout="row">

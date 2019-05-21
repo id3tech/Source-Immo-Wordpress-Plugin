@@ -1,9 +1,10 @@
 /**
  * Global - Controller
  */
-ImmoDbApp
+
+siApp
 .controller('publicCtrl', 
-function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHooks){
+function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
@@ -15,17 +16,17 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
     }
 
     // listingsUpdate
-    $scope.$on('immodb-listings-update', function($event, $list, $meta){  
-        $scope.listing_count = $immodbHooks.filter('listing_count', $meta.item_count);
+    $scope.$on('si-listings-update', function($event, $list, $meta){  
+        $scope.listing_count = $siHooks.filter('listing_count', $meta.item_count);
     });
 
     // brokersUpdate
-    $scope.$on('immodb-brokers-update',function(ev, $list, $meta){
-        $scope.broker_count = $immodbHooks.filter('broker_count', $meta.item_count);
+    $scope.$on('si-brokers-update',function(ev, $list, $meta){
+        $scope.broker_count = $siHooks.filter('broker_count', $meta.item_count);
     });
 
     // Static data
-    $scope.$on('immodb-static-data', function($event, $configs, $data){
+    $scope.$on('si-static-data', function($event, $configs, $data){
         
         $scope.addStatic($configs.alias, $data);
 
@@ -37,8 +38,8 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
             _data: $data
         };
 
-        const lVarName = $immodbUtils.sanitize($alias,true);
-        const lSanitizedName = $immodbUtils.sanitize($alias);
+        const lVarName = $siUtils.sanitize($alias,true);
+        const lSanitizedName = $siUtils.sanitize($alias);
 
         lStatic.getClasses = function(){
             const lClasses = [];
@@ -51,23 +52,23 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
     }
 
     /**
-     * Shorthand to $immodbDictionary.getCaption
-     * See $immodbDictionary factory for details
+     * Shorthand to $siDictionary.getCaption
+     * See $siDictionary factory for details
      * @param {string} $key 
      * @param {string} $domain 
      * @param {string} $asAbbr 
      */
     $scope.getCaption = function($key, $domain, $asAbbr){
-        return $immodbDictionary.getCaption($key, $domain, $asAbbr);
+        return $siDictionary.getCaption($key, $domain, $asAbbr);
     }
 
     /**
-     * Shorthand to $immodbUtils.formatPrice
-     * See $immodbUtils factory for details
+     * Shorthand to $siUtils.formatPrice
+     * See $siUtils factory for details
      * @param {object} $item 
      */
     $rootScope.formatPrice = function($item){
-        return $immodbUtils.formatPrice($item);
+        return $siUtils.formatPrice($item);
     }
 
     /**
@@ -91,11 +92,11 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
     }
 
     $scope.$on('modal-opened', function(){
-        angular.element(document.body).addClass('immodb-modal-open');
+        angular.element(document.body).addClass('si-modal-open');
     });
 
     $scope.$on('modal-closed', function(){
-        angular.element(document.body).removeClass('immodb-modal-open');
+        angular.element(document.body).removeClass('si-modal-open');
     });
 
 });
@@ -103,24 +104,24 @@ function publicCtrl($scope,$rootScope,$immodbDictionary, $immodbUtils,$immodbHoo
 /**
  * Static Data - Controller
  */
-ImmoDbApp
+siApp
 .controller('staticDataCtrl', 
-function staticDataCtrl($scope, $rootScope,$immodbDictionary, $immodbUtils,$immodbHooks){
+function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks){
     $scope.init = function($alias){
         const $configs = $statics[$alias].configs;
         const $data = $statics[$alias].data;
         
         console.log($configs, $data);
-        $scope.$emit('immodb-static-data', $configs, $data);
+        $scope.$emit('si-static-data', $configs, $data);
     }
 })
 
 /**
  * Listing Detail - Controller
  */
-ImmoDbApp
+siApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig, $sce, $immodbHooks,$immodbFavorites,$immodbShare){
+function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, $siHooks,$siFavorites,$siShare){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -141,7 +142,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     $scope.calculator_result = {};
     // message model
     $scope.message_model = {};
-    $scope.favorites = $immodbFavorites;
+    $scope.favorites = $siFavorites;
 
     /**
      * Initialize controller
@@ -159,7 +160,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            $immodbConfig.get().then(function($configs){
+            $siConfig.get().then(function($configs){
                 $resolve({
                     brokers: $configs.broker_routes,
                     listings: $configs.listing_routes
@@ -177,13 +178,13 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     $scope.loadSingleData = function($ref_number){
         // Get the default view id for data source
         let lPromise = $q(function($resolve,$reject){
-            if(typeof(immodbListingData)!='undefined'){
-                $resolve(immodbListingData);
+            if(typeof(siListingData)!='undefined'){
+                $resolve(siListingData);
             }
             else{
-                $immodbApi.getDefaultDataView().then(function($view){
+                $siApi.getDefaultDataView().then(function($view){
                     // Load listing data from api
-                    $immodbApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -195,7 +196,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         lPromise.then(function($data){
             $scope.model = $data;
             // set dictionary source
-            $immodbDictionary.source = $data.dictionary;
+            $siDictionary.source = $data.dictionary;
             // start preprocessing of data
             $scope.preprocess();
             
@@ -211,10 +212,10 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
                     $scope.message_model.email = lUserInfo.email;
                 }
             }
-            $immodbHooks.do('listing-message-model-post-process',$scope.message_model);
+            $siHooks.do('listing-message-model-post-process',$scope.message_model);
 
-            $immodbHooks.do('listing-ready',$scope.model);
-            $immodbHooks.addFilter('immodb.share.data',$scope.setShareData);
+            $siHooks.do('listing-ready',$scope.model);
+            $siHooks.addFilter('si.share.data',$scope.setShareData);
             // print data to console for further informations
             //console.log($scope.model);
         });
@@ -263,8 +264,8 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
         $scope.model.land.attributes = [];
         $scope.model.other = {attributes : []};
         $scope.model.important_flags = [];
-        $scope.model.long_price = $immodbUtils.formatPrice($scope.model,'long');
-        $scope.model.short_price = $immodbUtils.formatPrice($scope.model);
+        $scope.model.long_price = $siUtils.formatPrice($scope.model,'long');
+        $scope.model.short_price = $siUtils.formatPrice($scope.model);
 
         // from main unit
         let lMainUnit = $scope.model.units.find(function($u){return $u.category_code=='MAIN'});
@@ -319,7 +320,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
         // units
         $scope.model.units.forEach(function($u){
-            $u.category = $immodbDictionary.getCaption($u.category_code,'unit_category');
+            $u.category = $siDictionary.getCaption($u.category_code,'unit_category');
             $u.flags = [];
             if($u.room_count) $u.flags.push({icon: 'door-open', value: $u.room_count, caption: 'Rooms'.translate()});
             if($u.bedroom_count) $u.flags.push({icon: 'bed', value: $u.bedroom_count, caption: 'Bedrooms'.translate()});
@@ -328,12 +329,12 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 
         // rooms
         $scope.model.rooms.forEach(function($r){
-            $r.category = $immodbDictionary.getCaption($r.category_code,'room_category');
-            $r.level_category = $immodbDictionary.getCaption($r.level_category_code, 'level_category');
-            $r.short_dimension = $immodbUtils.formatDimension($r.dimension);
+            $r.category = $siDictionary.getCaption($r.category_code,'room_category');
+            $r.level_category = $siDictionary.getCaption($r.level_category_code, 'level_category');
+            $r.short_dimension = $siUtils.formatDimension($r.dimension);
             let lRoomInfos = [];
             if($r.flooring_code!='OTHER'){
-                $r.flooring = $immodbDictionary.getCaption($r.flooring_code,'flooring');
+                $r.flooring = $siDictionary.getCaption($r.flooring_code,'flooring');
             }
         });
 
@@ -350,7 +351,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
         }
 
-        $immodbHooks.do('single-listing-preprocess', $scope.model);
+        $siHooks.do('single-listing-preprocess', $scope.model);
     }
 
     $scope.setShareData = function($data){
@@ -396,13 +397,13 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
             email: $scope.message_model.email
         }));
 
-        let lSent = $immodbHooks.do('single-listing-send-message', $scope.message_model);
+        let lSent = $siHooks.do('single-listing-send-message', $scope.message_model);
         
         //console.log(lSent);
 
         if(lSent!==true){
             let lDestEmails = $scope.model.brokers.map($e => $e.email);
-            lDestEmails = $immodbHooks.filter('single-listing-message-emails', lDestEmails, $scope.model.brokers);
+            lDestEmails = $siHooks.filter('single-listing-message-emails', lDestEmails, $scope.model.brokers);
             
             lMessage = {
                 type: 'information_request',
@@ -415,7 +416,7 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
                 data: $scope.message_model
             }
 
-            $immodbApi.rest('message', {params:lMessage}).then(function($response){
+            $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
             })
         }
@@ -429,11 +430,11 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
     }
 
     $scope.hasDimension = function($dimension){
-        return $immodbUtils.hasDimension($dimension);
+        return $siUtils.hasDimension($dimension);
     }
 
     $scope.shareTo = function($social_media){
-        $immodbShare.execute($social_media);
+        $siShare.execute($social_media);
     }
 });
 
@@ -441,9 +442,9 @@ function singleListingCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils
 /**
  * Broker Detail - Controller
  */
-ImmoDbApp
+siApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,$immodbConfig,$immodbHooks){
+function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siHooks){
     $scope.filter_keywords = '';
     $scope.message_model = {};
 
@@ -482,7 +483,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            $immodbConfig.get().then(function($configs){
+            $siConfig.get().then(function($configs){
                 $resolve({
                     brokers: $configs.broker_routes,
                     listings: $configs.listing_routes
@@ -499,14 +500,14 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
     $scope.loadSingleData = function($ref_number){
 
         let lPromise = $q(function($resolve,$reject){
-            if(typeof(immodbBrokerData)!='undefined'){
-                $resolve(immodbBrokerData);
+            if(typeof(siBrokerData)!='undefined'){
+                $resolve(siBrokerData);
             }
             else{
-                $immodbApi.getDefaultDataView().then(function($view){
+                $siApi.getDefaultDataView().then(function($view){
                     // Load broker data from api
                     //console.log($view);
-                    $immodbApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,immodbApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -517,7 +518,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
         lPromise.then(function($data){
             $scope.model = $data;
             // set dictionary source
-            $immodbDictionary.source = $data.dictionary;
+            $siDictionary.source = $data.dictionary;
             // start preprocessing of data
             $scope.preprocess();
             // prepare message subject build from data
@@ -555,7 +556,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
                                             );
 
         $scope.model.location = $scope.model.office.location;
-        $immodbUtils.compileListingList($scope.model.listings);           
+        $siUtils.compileListingList($scope.model.listings);           
     }
 
     $scope.getPhoneIcon = function($key){
@@ -648,12 +649,12 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
     }
 
     /**
-    * Shorthand to $immodbUtils.getClassList
-    * see $immodbUtils factory for details
+    * Shorthand to $siUtils.getClassList
+    * see $siUtils factory for details
     * @param {object} $item Listing item data
     */
     $scope.getClassList = function($item){
-        let lResult = $immodbUtils.getClassList($item);
+        let lResult = $siUtils.getClassList($item);
         return lResult;
     }
 
@@ -669,11 +670,11 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
             email: $scope.message_model.email
         }));
 
-        let lSent = $immodbHooks.do('single-broker-send-message', $scope.message_model);
+        let lSent = $siHooks.do('single-broker-send-message', $scope.message_model);
 
         if(lSent!==true){
             let lDestEmails = $scope.model.email;
-            lDestEmails = $immodbHooks.filter('single-broker-message-emails', lDestEmails, $scope.model);
+            lDestEmails = $siHooks.filter('single-broker-message-emails', lDestEmails, $scope.model);
             
             lMessage = {
                 type: 'broker_message',
@@ -681,7 +682,7 @@ function singleBrokerCtrl($scope,$q,$immodbApi, $immodbDictionary, $immodbUtils,
                 data: $scope.message_model
             }
 
-            $immodbApi.rest('message', {params:lMessage}).then(function($response){
+            $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
             })
         }

@@ -3,7 +3,7 @@
 * Debug utility class
 */
 class Debug {
-  public static function log(...$data){
+  public function log(...$data){
     // TODO: add to log
   }
 
@@ -12,7 +12,7 @@ class Debug {
    * @param ArrayObject $data List of object to display
    * @return null
    */
-  public static function write(...$data){
+  public function write(...$data){
     ob_start();
     foreach ($data as $item) {
       echo('<pre>');
@@ -26,7 +26,7 @@ class Debug {
 		return $lResult;
   }
 
-  public static function force(...$data){
+  public function force(...$data){
     ob_start();
     foreach ($data as $item) {
       echo('<pre>');
@@ -39,6 +39,11 @@ class Debug {
     echo($lResult);
     exit;
   }
+}
+global $console;
+$console = new Debug();
+function __c(){
+  return new Debug();
 }
 
 /**
@@ -91,7 +96,7 @@ if(!function_exists('str_null_or_empty')){
 
 if(!function_exists('hook_from_key')){
   function hook_from_key(...$keys){
-    array_unshift($keys, IMMODB);
+    array_unshift($keys, SI);
     return implode('_',$keys);
   }
 }
@@ -135,18 +140,18 @@ function si_view_id($viewData){
   }
 }
 
-function immodb_start_of_template($loading_text='Loading'){
+function si_start_of_template($loading_text='Loading'){
   ?>
   <div class="wrap">
     <div id="primary" class="content-area">
         <main id="main" class="site-main" role="main">
             <div class="container">
         
-            <label class="placeholder"  data-ng-show="model==null"><?php _e($loading_text,IMMODB) ?> <i class="fal fa-spinner fa-spin"></i></label>
-            <div class="immodb-content"  ng-cloak>
+            <label class="placeholder"  data-ng-show="model==null"><?php _e($loading_text,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
+            <div class="si-content"  ng-cloak>
   <?php
 }
-function immodb_end_of_template(){
+function si_end_of_template(){
   ?>
             </div>
         </main>
@@ -188,12 +193,12 @@ class ThemeOverrides {
   public static function search(string $file_path, $search_in = '', $fallback=false){
     
     $theme_dir = get_stylesheet_directory();
-    $theme_plugin_dir = untrailingslashit($theme_dir)  . '/immodb';
+    $theme_plugin_dir = untrailingslashit($theme_dir)  . '/source-immo';
     $theme_plugin_search_dir =  $theme_plugin_dir . '/' . $search_in;
 
     if(file_exists($theme_plugin_dir)){
         //$file_name = basename($file_path);
-        $file_name = str_replace(IMMODB_PLUGIN_DIR . 'views/', '',$file_path);        
+        $file_name = str_replace(SI_PLUGIN_DIR . 'views/', '',$file_path);        
         if(file_exists($theme_plugin_search_dir . '/' . $file_name)){
           return $theme_plugin_search_dir . '/' . $file_name;
         }
@@ -231,7 +236,7 @@ class Moment {
 
     foreach ($string as $k => &$v) {
         if ($diff->$k) {
-            $label = __($v,IMMODB) . ($diff->$k > 1 ? 's' : '');
+            $label = __($v,SI) . ($diff->$k > 1 ? 's' : '');
 
             $v = $diff->$k . ' ' . str_replace('ss','s', $label);
         } else {
@@ -242,7 +247,7 @@ class Moment {
     if (!$full) $string = array_slice($string, 0, 1);
     if($string){
       if($diff->invert==0){
-        return __('in', IMMODB) . ' ' . implode(', ', $string);
+        return __('in', SI) . ' ' . implode(', ', $string);
       }
       else{
         return implode(', ', $string) . ' ago';
@@ -272,7 +277,7 @@ class HttpCall{
   public static function to(string ...$endpoint_parts){
     $lInstance = new HttpCall();
 
-    $apiHost = apply_filters('immodb-api-host', IMMODB_API_HOST);
+    $apiHost = apply_filters('si-api-host', SI_API_HOST);
     $normHost = rtrim($apiHost,"/");
 
     $lInstance->endpoint = implode('/',$endpoint_parts);
@@ -426,8 +431,8 @@ if(false){
 /**
  * fPdf wrapper class
  */
-define('FPDF_FONTPATH',IMMODB_PLUGIN_DIR . '/modules/font');
-require(IMMODB_PLUGIN_DIR . '/modules/fpdf.php');
+define('FPDF_FONTPATH',SI_PLUGIN_DIR . '/modules/font');
+require(SI_PLUGIN_DIR . '/modules/fpdf.php');
 class PDFBuilder extends FPDF{
 
   private $globalFont;

@@ -1,4 +1,4 @@
-<div class="immodb-searchbox {{filter.data.keyword != '' ? 'has-input' : ''}} {{suggestions.length>0 ? 'has-suggestions':''}}">
+<div class="si-searchbox {{filter.data.keyword != '' ? 'has-input' : ''}} {{suggestions.length>0 ? 'has-suggestions':''}}">
     <div class="input">
         <i class="fal fa-search"></i>
         <div class="suggestion-placeholder"
@@ -12,7 +12,7 @@
         <i class="clear-button far fa-times" ng-click="resetFilters()"></i>
     </div>
 
-    <div class="immodb-searchbox suggestion-list {{suggestions.length>0 ? 'has-suggestions':''}}" 
+    <div class="si-searchbox suggestion-list {{suggestions.length>0 ? 'has-suggestions':''}}" 
             style="{{getSuggestionPosition()}}">
         
         <div class="list">

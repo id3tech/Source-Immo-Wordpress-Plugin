@@ -7,12 +7,12 @@ if($lTwoLetterLocale == ''){
 ?>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css">
 
-<div id="immodb-app" ng-app="ImmoDb" ng-controller="mainCtrl" ng-init="init()"
+<div id="si-app" ng-app="siApplication" ng-controller="mainCtrl" ng-init="init()"
   class="{{isInitializing() ? 'warming-up' : 'ready'}}">
   <div class="app-header" layout="row" layout-align="space-between center">
     <h1 class="md-display-1">
       <si-svg class="logo" src="~/styles/assets/logo.svg"></si-svg>
-      Source.Immo<span class="version">v.<?php echo IMMODB_VERSION?></span>
+      Source.Immo <span class="version">v.<?php echo SI_VERSION?></span>
     </h1>
     
     
@@ -21,13 +21,13 @@ if($lTwoLetterLocale == ''){
         <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-ellipsis-v"></md-icon></md-button>
         <md-menu-content>
           <md-menu-item>
-            <md-button class="" ng-click="save_configs()"><i class="fal fa-save"></i> <?php _e('Save settings', IMMODB)?></md-button>
+            <md-button class="" ng-click="save_configs()"><i class="fal fa-save"></i> <?php _e('Save settings', SI)?></md-button>
           </md-menu-item>
           <md-menu-item>
-          <md-button ng-click="clearAccessToken()"><i class="fal fa-eraser"></i> <?php _e('Clear access token',IMMODB) ?></md-button>
+          <md-button ng-click="clearAccessToken()"><i class="fal fa-eraser"></i> <?php _e('Clear access token',SI) ?></md-button>
           </md-menu-item>
           <md-menu-item>
-            <md-button class="" ng-click="reset_configs()"><i class="fal fa-undo"></i> <?php _e('Reset to demo settings', IMMODB)?></md-button>
+            <md-button class="" ng-click="reset_configs()"><i class="fal fa-undo"></i> <?php _e('Reset to demo settings', SI)?></md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
@@ -48,8 +48,8 @@ if($lTwoLetterLocale == ''){
   <div class="page-viewport">
     <div class="page-container" style="{{pages[current_page].style}}">
     <?php
-    ImmoDB::page('admin/configs/index','home');
-    ImmoDB::page('admin/lists/index','listEdit');
+    SourceImmo::page('admin/configs/index','home');
+    SourceImmo::page('admin/lists/index','listEdit');
     ?>
     </div>
   </div>
@@ -57,8 +57,8 @@ if($lTwoLetterLocale == ''){
   <script type="text/javascript">
     var wpApiSettings={
         locale: '<?php echo $lTwoLetterLocale ?>',
-        base_path: '<?php echo IMMODB_PLUGIN_URL ?>', 
-        api_root: '<?php echo IMMODB_API_HOST ?>', 
+        base_path: '<?php echo SI_PLUGIN_URL ?>', 
+        api_root: '<?php echo SI_API_HOST ?>', 
         root:'<?php echo esc_url_raw( rest_url() ) ?>', 
         nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'
       };
@@ -73,12 +73,12 @@ if($lTwoLetterLocale == ''){
   <!-- Angular Material Library -->
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js"></script>
 
-  <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , SI_PLUGIN ) ?>"></script>
   <script type="text/javascript">
   $locales.init('<?php echo($lTwoLetterLocale); ?>');
   </script>
-  <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , SI_PLUGIN ) ?>"></script>
   
-  <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , IMMODB_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , SI_PLUGIN ) ?>"></script>
 
 </div>

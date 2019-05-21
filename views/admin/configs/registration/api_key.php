@@ -1,6 +1,6 @@
 <div class="infos">
-    <h2><?php   _e('API Key', IMMODB) ?></h2>
-    <p><?php    _e('We have detect more than one API key. Please choose one.',IMMODB) ?></p>
+    <h2><?php   _e('API Key', SI) ?></h2>
+    <p><?php    _e('We have detect more than one API key. Please choose one.',SI) ?></p>
 </div>
 
 <div class="key-list">

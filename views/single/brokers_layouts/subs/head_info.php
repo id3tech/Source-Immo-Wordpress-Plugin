@@ -16,12 +16,12 @@
     </div>
 
     <div class="languages">
-        <h5 class="title"><?php _e('Languages',IMMODB) ?></h5>
+        <h5 class="title"><?php _e('Languages',SI) ?></h5>
         <span>{{model.languages}}</span>
     </div>
 
     <div class="expertises">
-        <h5 class="title"><?php _e('Expertises',IMMODB) ?></h5>
+        <h5 class="title"><?php _e('Expertises',SI) ?></h5>
         <span>{{model.expertises}}</span>
     </div>
 </div>

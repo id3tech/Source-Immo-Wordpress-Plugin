@@ -7,6 +7,6 @@
     </div>
     
     <div class="actions">
-    <?php echo do_shortcode('[immodb_broker_part part="info_request"]') ?>
+    <?php echo do_shortcode('[si_broker_part part="info_request"]') ?>
     </div>
 </div>

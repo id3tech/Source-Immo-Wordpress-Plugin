@@ -5,25 +5,25 @@
 
 /**
  * DIRECTIVE: SEARCH
- * usage: <immodb-list immodb-alias="default"></immodb-list>
- * @param {string} immodbAlias List alias name. Required
+ * usage: <si-list si-alias="default"></si-list>
+ * @param {string} siAlias List alias name. Required
  * @param {string} class CSS class to add to template
  */
-ImmoDbApp
-.directive('immodbList', ['$immodbFavorites', '$immodbConfig',
-function immodbList(){
+siApp
+.directive('siList', ['$siFavorites', '$siConfig',
+function siList(){
     return {
         restrict: 'E',
         scope: {
-            alias: '@immodbAlias',
-            class: '@immodbClass'
+            alias: '@siAlias',
+            class: '@siClass'
         },
         controllerAs: 'ctrl',
-        template: '<div ng-include="\'immodb-template-for-\' + alias" class="{{class}}"></div>',
+        template: '<div ng-include="\'si-template-for-\' + alias" class="{{class}}"></div>',
         link : function($scope){
             $scope.init();
         },
-        controller: function ($scope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbUtils,$immodbFavorites,$immodbConfig) {
+        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $siUtils,$siFavorites,$siConfig) {
             $scope.configs = null;
             $scope.list = null;
             $scope.page = 1;
@@ -40,7 +40,7 @@ function immodbList(){
             $scope.city_list = [];
             $scope.subcategory_list = [];
             $scope.client_sort = null;
-            $scope.favorites = $immodbFavorites;
+            $scope.favorites = $siFavorites;
             
             /**
              * Initialize the controller
@@ -67,28 +67,28 @@ function immodbList(){
 
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
                 
-                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), function(){
+                $scope.$on('si-{0}-display-switch-map'.format($scope.alias), function(){
                     $scope.display_mode = 'map';
                 });
 
-                $scope.$on('immodb-{0}-display-switch-list'.format($scope.alias), function(){
+                $scope.$on('si-{0}-display-switch-list'.format($scope.alias), function(){
                     $scope.display_mode = 'list';
                 });
 
                 $scope.$on('auth_token_refresh', function(){
-                    sessionStorage.removeItem('immodb.list.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
-                    sessionStorage.removeItem('immodb.listMeta.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
-                    sessionStorage.removeItem('immodb.pageIndex.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
+                    sessionStorage.removeItem('si.list.{0}.{1}'.format($scope.configs.type,siCtx.locale));
+                    sessionStorage.removeItem('si.listMeta.{0}.{1}'.format($scope.configs.type,siCtx.locale));
+                    sessionStorage.removeItem('si.pageIndex.{0}.{1}'.format($scope.configs.type,siCtx.locale));
                 });
 
-                $immodbApi.getListConfigs($scope.alias).then(function($configs){
+                $siApi.getListConfigs($scope.alias).then(function($configs){
                     $scope.configs = $configs;
-                    let lClientSearchToken = sessionStorage.getItem("immodb.{0}.st".format($scope.configs.alias));
+                    let lClientSearchToken = sessionStorage.getItem("si.{0}.st".format($scope.configs.alias));
                     if(lClientSearchToken!=undefined){
                         $scope.client.search_token = lClientSearchToken;
                     }
 
-                    $immodbApi.renewToken().then(function(){
+                    $siApi.renewToken().then(function(){
                         $scope.start();
                     });
                 });
@@ -99,14 +99,14 @@ function immodbList(){
              */
             $scope.start = function(){
                 //return;
-                $immodbConfig.get().then(function($global_configs){
+                $siConfig.get().then(function($global_configs){
                     // Prepare Api
-                    $immodbApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
+                    $siApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
                         // init dictionary
-                        $immodbDictionary.init($response.dictionary);
+                        $siDictionary.init($response.dictionary);
                         if($global_configs.enable_custom_page){
-                            $immodbApi.rest_call('pages',{locale: immodbCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
-                                $immodbUtils.page_list = $site_page_list;
+                            $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
+                                $siUtils.page_list = $site_page_list;
                                 $scope.dictionary = $response.dictionary;
                                 $scope.is_ready = true;
                                 // load data
@@ -114,7 +114,7 @@ function immodbList(){
                             });
                         }
                         else{
-                            $immodbUtils.page_list = [];
+                            $siUtils.page_list = [];
                             $scope.dictionary = $response.dictionary;
                             $scope.is_ready = true;
                             // load data
@@ -138,10 +138,10 @@ function immodbList(){
                     if(typeof $scope._preloadedList == 'undefined'){
                         console.log('compile list');
                         if($scope.configs.type=='listings'){
-                            $scope._preloadedList = $immodbUtils.compileListingList(lItems);
+                            $scope._preloadedList = $siUtils.compileListingList(lItems);
                         }
                         else{
-                            $scope._preloadedList = $immodbUtils.compileBrokerList(lItems);
+                            $scope._preloadedList = $siUtils.compileBrokerList(lItems);
                         }
                         console.log('compile done');
                     }
@@ -154,8 +154,8 @@ function immodbList(){
                     $scope.listMeta = $preloadDatas[$scope.configs.alias].metadata;
                     $scope.page_index = 0;
                     
-                    $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-                    $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                    $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                    $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
 
                     return true;
@@ -195,8 +195,8 @@ function immodbList(){
                     // clear list stored in session
                     if($scope.getLatestSearchToken() != $newToken){
                         //console.log('clear latest st for ', $newToken);
-                        sessionStorage.removeItem('immodb.{0}.latestSearchToken.{1}'.format($scope.configs.alias, immodbCtx.locale));
-                        sessionStorage.removeItem('immodb.list.{0}.{1}'.format($scope.configs.type,immodbCtx.locale));
+                        sessionStorage.removeItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias, siCtx.locale));
+                        sessionStorage.removeItem('si.list.{0}.{1}'.format($scope.configs.type,siCtx.locale));
                     }
                     
                     $scope.getList();
@@ -251,13 +251,13 @@ function immodbList(){
                     if($scope.is_loading_data == false){
                         $scope.setLoadingState(true);
                         
-                        $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
+                        $siApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                             // set list/meta
                             if($scope.configs.type=='listings'){
-                                $scope.list = $immodbUtils.compileListingList($response.items);
+                                $scope.list = $siUtils.compileListingList($response.items);
                             }
                             else{
-                                $scope.list = $immodbUtils.compileBrokerList($response.items);
+                                $scope.list = $siUtils.compileBrokerList($response.items);
                             }
                             $scope.ghost_list = [];
                             
@@ -265,8 +265,8 @@ function immodbList(){
                             // unlock
                             $scope.setLoadingState(false);
                             // broadcast new list
-                            $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-                            $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                            $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                            $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
                             // print list to console for further information
                             $scope.saveListToStorage($scope.configs.type);
@@ -278,8 +278,8 @@ function immodbList(){
                     }
                 }
                 else{
-                    $rootScope.$broadcast('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-                    $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                    $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                    $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                 }
             }
 
@@ -314,13 +314,13 @@ function immodbList(){
                 if(!$scope.is_loading_data){
                     // lock loading to prevent call overlaps
                     $scope.setLoadingState(true);
-                    $immodbApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
+                    $siApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                         let lNewItems = $response.items;
                         if($scope.configs.type=='listings'){
-                            lNewItems = $immodbUtils.compileListingList(lNewItems);
+                            lNewItems = $siUtils.compileListingList(lNewItems);
                         }
                         else{
-                            lNewItems = $immodbUtils.compileBrokerList(lNewItems);
+                            lNewItems = $siUtils.compileBrokerList(lNewItems);
                         }
 
                         $scope.list = $scope.list.concat(lNewItems);
@@ -329,7 +329,7 @@ function immodbList(){
                         // increment page index
                         $scope.page_index++;
                         // broadcast new list
-                        $scope.$emit('immodb-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                        $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                         // unlock
                         window.setTimeout(function(){
                             $scope.setLoadingState(false);
@@ -346,7 +346,7 @@ function immodbList(){
             }
             
             $scope.loadListFromStorage = function($type){
-                let lListDate = sessionStorage.getItem('immodb.list.date.{0}.{1}'.format($type,immodbCtx.locale));
+                let lListDate = sessionStorage.getItem('si.list.date.{0}.{1}'.format($type,siCtx.locale));
                 if(lListDate==undefined){
                     return false;
                 }
@@ -358,9 +358,9 @@ function immodbList(){
                     }
                 }
 
-                let lList = sessionStorage.getItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale));
-                let lListMeta = sessionStorage.getItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale));
-                let lPageIndex = sessionStorage.getItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale));
+                let lList = sessionStorage.getItem('si.list.{0}.{1}'.format($type,siCtx.locale));
+                let lListMeta = sessionStorage.getItem('si.listMeta.{0}.{1}'.format($type,siCtx.locale));
+                let lPageIndex = sessionStorage.getItem('si.pageIndex.{0}.{1}'.format($type,siCtx.locale));
                 
                 if (lList != undefined){
                     $scope.list = JSON.parse(lList);
@@ -376,17 +376,17 @@ function immodbList(){
              * @param {string} $type Type of the list
              */
             $scope.saveListToStorage = function($type){
-                sessionStorage.setItem('immodb.list.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.list));
-                sessionStorage.setItem('immodb.listMeta.{0}.{1}'.format($type,immodbCtx.locale), JSON.stringify($scope.listMeta));
-                sessionStorage.setItem('immodb.pageIndex.{0}.{1}'.format($type,immodbCtx.locale), $scope.page_index);
+                sessionStorage.setItem('si.list.{0}.{1}'.format($type,siCtx.locale), JSON.stringify($scope.list));
+                sessionStorage.setItem('si.listMeta.{0}.{1}'.format($type,siCtx.locale), JSON.stringify($scope.listMeta));
+                sessionStorage.setItem('si.pageIndex.{0}.{1}'.format($type,siCtx.locale), $scope.page_index);
             }
 
             $scope.getLatestSearchToken = function(){
-                return sessionStorage.getItem('immodb.{0}.latestSearchToken.{1}'.format($scope.configs.alias,immodbCtx.locale));
+                return sessionStorage.getItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias,siCtx.locale));
             }
 
             $scope.saveLatestSearchToken = function($token){
-                sessionStorage.setItem('immodb.{0}.latestSearchToken.{1}'.format($scope.configs.alias,immodbCtx.locale), $token);
+                sessionStorage.setItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias,siCtx.locale), $token);
             }
     
             /**
@@ -402,7 +402,7 @@ function immodbList(){
                     case 'cities':
                         lOrigin = 'city';break;
                 }
-                return lOrigin.concat('/view/',$scope.configs.source.id,'/',immodbApiSettings.locale);
+                return lOrigin.concat('/view/',$scope.configs.source.id,'/',siApiSettings.locale);
             }
     
     
@@ -458,32 +458,32 @@ function immodbList(){
             }
     
             /**
-             * Shorthand to $immodbDictionary.getCaption
-             * see $immodbDictionary factory for details
+             * Shorthand to $siDictionary.getCaption
+             * see $siDictionary factory for details
              * @param {string} $key 
              * @param {string} $domain 
              * @return {string} Caption
              */
             $scope.getCaption = function($key, $domain, $asAbbr){
-                return $immodbDictionary.getCaption($key, $domain, $asAbbr);
+                return $siDictionary.getCaption($key, $domain, $asAbbr);
             }
 
             /**
-             * Shorthand to $immodbUtils.formatPrice
-             * see $immodbUtils factory for details
+             * Shorthand to $siUtils.formatPrice
+             * see $siUtils factory for details
              * @param {object} $item Listing item data
              */
             $scope.formatPrice = function($item){
-                return $immodbUtils.formatPrice($item);
+                return $siUtils.formatPrice($item);
             }
     
             /**
-             * Shorthand to $immodbUtils.getClassList
-             * see $immodbUtils factory for details
+             * Shorthand to $siUtils.getClassList
+             * see $siUtils factory for details
              * @param {object} $item Listing item data
              */
             $scope.getClassList = function($item){
-                return $immodbUtils.getClassList($item);
+                return $siUtils.getClassList($item);
             }
     
             /**
@@ -496,34 +496,34 @@ function immodbList(){
                 // switch mode
                 $scope.display_mode = $mode;
                 // broadcast the change to other component
-                $rootScope.$broadcast('immodb-{0}-display-switch-{1}'.format($scope.alias,$mode));
+                $rootScope.$broadcast('si-{0}-display-switch-{1}'.format($scope.alias,$mode));
             }
     
             /**
-             * Shorthand to $immodbUtils.getCity
-             * see $immodbUtils factory for details
+             * Shorthand to $siUtils.getCity
+             * see $siUtils factory for details
              * @param {object} $item Listing item data
              */
             $scope.getCity = function($item, $sanitize){
-                return $immodbUtils.getCity($item, $sanitize);
+                return $siUtils.getCity($item, $sanitize);
             }
     
             /**
-             * Shorthand to $immodbUtils.getRegion
-             * see $immodbUtils factory for details
+             * Shorthand to $siUtils.getRegion
+             * see $siUtils factory for details
              * @param {object} $item Listing item data
              */
             $scope.getRegion = function($item, $sanitize){
-                return $immodbUtils.getRegion($item, $sanitize);
+                return $siUtils.getRegion($item, $sanitize);
             }
     
             /**
-             * Shorthand to $immodbUtils.getTransaction
-             * see $immodbUtils factory for details
+             * Shorthand to $siUtils.getTransaction
+             * see $siUtils factory for details
              * @param {object} $item Listing item data
              */
             $scope.getTransaction = function($item, $sanitize){
-                return $immodbUtils.getTransaction($item, $sanitize);
+                return $siUtils.getTransaction($item, $sanitize);
             }
 
         }
@@ -532,36 +532,36 @@ function immodbList(){
 
 /**
  * DIRECTIVE: SEARCH
- * usage: <immodb-search></immodb-search>
- * @param {string} immodbAlias List alias name. Required
+ * usage: <si-search></si-search>
+ * @param {string} siAlias List alias name. Required
  * @param {string} class CSS class to add to template
- * @param {object} immodbConfigs List Config object. When omitted, will load it from alias name
- * @param {object} immodbDictionary Dictionary object. When omitted, will load it from alias name
- * @param {string} immodbResultUrl Url to display the search result. When configured, will display a button to trigger to search
+ * @param {object} siConfigs List Config object. When omitted, will load it from alias name
+ * @param {object} siDictionary Dictionary object. When omitted, will load it from alias name
+ * @param {string} siResultUrl Url to display the search result. When configured, will display a button to trigger to search
  */
-ImmoDbApp
-.directive('immodbSearch', function immodbSearch(){
+siApp
+.directive('siSearch', function siSearch(){
     return {
         restrict: 'E',
         replace: true,
         scope: {
-            alias: '@immodbAlias',
+            alias: '@siAlias',
             class: '@class',
-            configs: '=?immodbConfigs',
-            dictionary: '=?immodbDictionary',
-            result_url: "@immodbResultUrl",
-            standalone: "@immodbStandalone"
+            configs: '=?siConfigs',
+            dictionary: '=?siDictionary',
+            result_url: "@siResultUrl",
+            standalone: "@siStandalone"
         },
         controllerAs: 'ctrl',
-        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}" ng-include="\'immodb-search-for-\' + alias"></div>',
+        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}" ng-include="\'si-search-for-\' + alias"></div>',
         link : function($scope, $element, $attrs){
             $scope.standalone = $scope.standalone =='true';
 
             $scope.init();
         },
-        controller: function($scope, $q, $immodbApi, $rootScope,
-                                $immodbDictionary, $immodbUtils,  $immodbFilters,
-                                $immodbHooks){
+        controller: function($scope, $q, $siApi, $rootScope,
+                                $siDictionary, $siUtils,  $siFilters,
+                                $siHooks){
             let lToday = new Date().round();    // save today
             let lNow = new Date();
 
@@ -723,7 +723,7 @@ ImmoDbApp
                         }
                     }
 
-                    $immodbFilters.with($scope.alias, function($filter){
+                    $siFilters.with($scope.alias, function($filter){
                         $scope.filter = $filter;
                         if(!$scope.standalone){
                             $filter.result_url = $scope.result_url;
@@ -775,10 +775,10 @@ ImmoDbApp
                         $scope.getConfigs().then(function($configs){
                             // load view meta
                             $scope.configs = $configs;
-                            $immodbFilters.with($scope.alias).configs = $configs;
+                            $siFilters.with($scope.alias).configs = $configs;
 
-                            $immodbApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
-                                //$immodbDictionary.init($response.dictionary);
+                            $siApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
+                                //$siDictionary.init($response.dictionary);
                                 $scope.dictionary = $response.dictionary; // save dictionary
                                 // directive is ready
                                 $scope.is_ready = true;
@@ -1082,14 +1082,14 @@ ImmoDbApp
             }
 
             $scope.lateCall = function($func){
-                $immodbUtils.lateCall($func);
+                $siUtils.lateCall($func);
             }
             
             $scope._priceChangeDebounce = null;
             $scope.updatePrice = function(){
                 if($scope._priceChangeDebounce != null) window.clearTimeout($scope._priceChangeDebounce);
-                const lPriceStep = $immodbHooks.filter('search-price-step', 10000);
-                const lPriceMaxBoundary = $immodbHooks.filter('search-max-price-boundary', 1000000);
+                const lPriceStep = $siHooks.filter('search-price-step', 10000);
+                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
 
                 lMinPrice = Math.round(($scope.priceRange[0] * 100) * lPriceStep);
                 lMaxPrice = Math.round(($scope.priceRange[2] * 100) * lPriceStep);
@@ -1180,7 +1180,7 @@ ImmoDbApp
                     lInput = $eventOrInput;
                 }
                 
-                $immodbFilters.with($scope.alias, function($filter){
+                $siFilters.with($scope.alias, function($filter){
                     let lOperators = {
                         'min' : 'greater_or_equal_to',
                         'max' : 'less_or_equal_to'
@@ -1211,7 +1211,7 @@ ImmoDbApp
             }  
             
             $scope.setPriceFromRange = function($values){
-                $immodbFilters.with($scope.alias, function($filter){
+                $siFilters.with($scope.alias, function($filter){
 
                     //console.log('set price from range', $values)
 
@@ -1343,7 +1343,7 @@ ImmoDbApp
                     "building.category_code" : "building_category"
                 }
 
-                $immodbFilters.with($scope.alias, function($filter){
+                $siFilters.with($scope.alias, function($filter){
                     if($filter.filter_group!=null && $filter.filter_group.filters != null){
                         $filter.filter_group.filters.forEach(function($e,$i){
                             // dictionary sync
@@ -1378,8 +1378,8 @@ ImmoDbApp
                     }
 
                     //console.log('filter data',$filter.data);
-                    const lPriceStep = $immodbHooks.filter('search-price-step', 10000);
-                    const lPriceMaxBoundary = $immodbHooks.filter('search-max-price-boundary', 1000000);
+                    const lPriceStep = $siHooks.filter('search-price-step', 10000);
+                    const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
 
                     if($filter.data.min_price != null){
                         $scope.priceRange[0] = ($filter.data.min_price / lPriceStep) / 100;
@@ -1394,7 +1394,7 @@ ImmoDbApp
                         }
                     }
                     $scope.priceRange[1] = 1 - $scope.priceRange[0] - $scope.priceRange[2];
-                    $immodbHooks.do('sync-filters-to-ui', $filter);
+                    $siHooks.do('sync-filters-to-ui', $filter);
                 })
                 
 
@@ -1408,10 +1408,10 @@ ImmoDbApp
              * @param {object} $list List object or array
              */
             $scope.syncToList = function($filter, $list){
-                $immodbFilters.with($scope.alias).syncToList($filter, $list);
+                $siFilters.with($scope.alias).syncToList($filter, $list);
 
                 // // make sure list is an array
-                // let lListArray = $immodbUtils.toArray($list);
+                // let lListArray = $siUtils.toArray($list);
                 
                 // lListArray.forEach(function($e){
                 //     // when filter is an array of value and item key is contained in that list
@@ -1472,7 +1472,7 @@ ImmoDbApp
              */
             $scope.buildHints = function(){
                 let lResult = [];
-                $immodbFilters.with($scope.alias, function($filter){
+                $siFilters.with($scope.alias, function($filter){
                     //console.log('building hints for ', $filter);
 
                     lResult = $scope.buildFilterHints($filter.filter_group);  
@@ -1650,13 +1650,13 @@ ImmoDbApp
                 $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.priceRange = [0,1,0];
                 
-                $immodbHooks.do('filter-reset');
+                $siHooks.do('filter-reset');
 
                 $scope.filter.resetFilters();
                 
                 
 
-                //$scope.$broadcast('immodb-reset-filter');
+                //$scope.$broadcast('si-reset-filter');
                 $scope.getConfigs().then(function($configs){
                     //console.log('Reset filter to', $configs.search_token);
                     if($configs.search_token!=''){
@@ -1776,7 +1776,7 @@ ImmoDbApp
                 let lPromise = $q(function($resolve, $reject){
                     if($scope.configs==null){
                         //console.log($scope.alias);
-                        $immodbApi.getListConfigs($scope.alias).then(function($configs){
+                        $siApi.getListConfigs($scope.alias).then(function($configs){
                             $scope.configs = $configs;
                             $resolve($scope.configs);
                         });
@@ -1805,17 +1805,17 @@ ImmoDbApp
             
             $scope.$watch("dictionary", function(newValue, oldValue){
                 if($scope.dictionary!=undefined && $scope.dictionary.region!=undefined){
-                    let lRegionList = $immodbUtils.toSortedArray($scope.dictionary.region);
+                    let lRegionList = $siUtils.toSortedArray($scope.dictionary.region);
                     $scope.tab_region = lRegionList[0].__$key;
                 }
 
                 if($scope.dictionary!=undefined && $scope.dictionary.city!=undefined){
-                    let lCityList = $immodbUtils.toArray($scope.dictionary.city);
+                    let lCityList = $siUtils.toArray($scope.dictionary.city);
                     $scope.city_list = lCityList;
                 }
 
                 if($scope.dictionary!=undefined && $scope.dictionary.listing_subcategory!=undefined){
-                    let lSubcategoryList = $immodbUtils.toArray($scope.dictionary.listing_subcategory);
+                    let lSubcategoryList = $siUtils.toArray($scope.dictionary.listing_subcategory);
                     $scope.subcategory_list = lSubcategoryList;
                 }
             });
@@ -1827,13 +1827,13 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbSearchBox', ['$sce','$compile','$immodbUtils','$immodbFilters','$immodbConfig',
-function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfig){
+siApp
+.directive('siSearchBox', ['$sce','$compile','$siUtils','$siFilters','$siConfig',
+function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
     return {
         restrict: 'E',
         replace: true,
-        required: '^immodbSearch',
+        required: '^siSearch',
         scope: {
             alias: '@',
             placeholder: '@',
@@ -1841,7 +1841,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             result_page: '@resultPage',
             persistantKeyword : '@persistantKeyword'
         },
-        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-searchbox.html?v=4',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-searchbox.html?v=4',
         link : function($scope,element, attrs){
             $scope.persistantKeyword = $scope.persistantKeyword == 'true';
             $scope._suggestion_list_el =  element.find('.suggestion-list');
@@ -1852,7 +1852,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             
             $scope.init();
         },
-        controller: function($scope, $q, $immodbApi, $rootScope,$immodbDictionary, $immodbUtils){
+        controller: function($scope, $q, $siApi, $rootScope,$siDictionary, $siUtils){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -1865,7 +1865,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             $scope.init = function(){
                 
                 $scope.isReady().then(function(){
-                    $immodbFilters.with($scope.alias, $filter =>{
+                    $siFilters.with($scope.alias, $filter =>{
                         $scope.filter = $filter;
                         $scope.filter.result_url = $scope.result_page;
                         
@@ -1923,10 +1923,10 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                         $scope.getConfigs().then(function($configs){
                             // load view meta
                             $scope.configs = $configs;
-                            $immodbFilters.with($scope.alias).configs = $configs;
+                            $siFilters.with($scope.alias).configs = $configs;
                             
-                            $immodbApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
-                                //$immodbDictionary.init($response.dictionary);
+                            $siApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
+                                //$siDictionary.init($response.dictionary);
                                 $scope.dictionary = $response.dictionary; // save dictionary
                                 // directive is ready
                                 $scope.is_ready = true;
@@ -1946,7 +1946,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                     return '';
                 }
                     
-                let lRect = $immodbUtils.absolutePosition($scope._el);
+                let lRect = $siUtils.absolutePosition($scope._el);
                 lRect.width = Math.min($scope._el.offsetWidth, window.innerWidth);
                 lRect.height = window.getComputedStyle($scope._el).getPropertyValue('height').replace('px','');
 
@@ -1972,7 +1972,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                 if($event != undefined){
                     if($scope.trapKeyCode($event.keyCode)) return false;
                 }
-                $immodbFilters.with($scope.alias, $filter => {       
+                $siFilters.with($scope.alias, $filter => {       
                     //$filter.data.keyword = $scope.keyword;     
                     // When keyword is not empty
                     if($filter.data.keyword == ''){
@@ -1990,7 +1990,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                                         lType = $scope.$parent.getListType();
                                         lType = (lType == 'listings') ? 'listing-city' : lType.replace('s','');
                                     }
-                                    $immodbApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then($qsItems => {
+                                    $siApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then($qsItems => {
                                         // add extra in caption
                                         $qsItems.forEach($e =>{
                                             if(typeof $e.context != 'undefined'){
@@ -2095,7 +2095,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             
 
             $scope.getReverseSuggestions = function(){
-                $immodbFilters.with($scope.alias, $filter =>{
+                $siFilters.with($scope.alias, $filter =>{
                         
                     let lValue = $filter.data.keyword.toLowerCase();
                     let lValueList = lValue.split(' ');
@@ -2301,7 +2301,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
                 let lPromise = $q(function($resolve, $reject){
                     if($scope.configs==null){
                         //console.log('get config for',$scope.alias);
-                        $immodbApi.getListConfigs($scope.alias).then(function($configs){
+                        $siApi.getListConfigs($scope.alias).then(function($configs){
                             $scope.configs = $configs;
                             $resolve($scope.configs);
                         });
@@ -2315,7 +2315,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             }
 
             $scope.openItem = function($item){
-                $immodbConfig.get().then(function($global_configs){
+                $siConfig.get().then(function($global_configs){
                     let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
                     let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
                     console.log('Open item @', lPath);
@@ -2324,7 +2324,7 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             }
             
             $scope.getItemLinkShortcut = function($type, $configs){
-                let lRoute = $configs[$type + '_routes'].find($r => $r.lang == immodbApiSettings.locale) || 
+                let lRoute = $configs[$type + '_routes'].find($r => $r.lang == siApiSettings.locale) || 
                                $configs[$type + '_routes'][0];
                 
                 
@@ -2335,13 +2335,13 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
             * Reset all filter to nothing
             */
             $scope.resetFilters = function(){
-                $immodbFilters.with($scope.alias).resetFilters();
+                $siFilters.with($scope.alias).resetFilters();
 
             }
 
 
             $scope.getEndpoint = function(){
-                return 'view/'.concat($scope.configs.source.id,'/', immodbApiSettings.locale + '/quick_search');
+                return 'view/'.concat($scope.configs.source.id,'/', siApiSettings.locale + '/quick_search');
             }
 
 
@@ -2351,10 +2351,10 @@ function immodbSearchBox($sce,$compile,$immodbUtils,$immodbFilters, $immodbConfi
     };
 }]);
 
-ImmoDbApp
-.directive('immodbStreetview', function immodbStreetView( $immodbTemplate, $immodbUtils, $immodbDictionary){
+siApp
+.directive('siStreetview', function siStreetView( $siTemplate, $siUtils, $siDictionary){
     let dir_controller = 
-    function($scope, $q, $immodbApi, $rootScope){
+    function($scope, $q, $siApi, $rootScope){
         $scope.ready = false;
         $scope.is_visible = false;
         $scope.positioned = false;
@@ -2373,7 +2373,7 @@ ImmoDbApp
 
         $scope.$onInit = function(){
 
-            $scope.$on('immodb-display-streetview', $scope.display);
+            $scope.$on('si-display-streetview', $scope.display);
    
         }
 
@@ -2462,9 +2462,9 @@ ImmoDbApp
         restrict: 'E',
         replace: true,
         scope: {
-            alias: '@immodbAlias',
+            alias: '@siAlias',
             class: '@class',
-            configs: '=?immodbConfigs',
+            configs: '=?siConfigs',
             latlng: '=?latlng',
             zoom: '@'
         },
@@ -2479,10 +2479,10 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbMap', function immodbMap( $immodbTemplate, $immodbUtils, $immodbDictionary,$immodbHooks,$immodbConfig){
+siApp
+.directive('siMap', function siMap( $siTemplate, $siUtils, $siDictionary,$siHooks,$siConfig){
     const dir_controller = 
-    function($scope, $q, $immodbApi, $rootScope){
+    function($scope, $q, $siApi, $rootScope){
         $scope.ready = false;
         $scope.is_visible = false;
         $scope.zoom = 8;
@@ -2500,12 +2500,12 @@ ImmoDbApp
         $scope.$onInit = function(){
             console.log('init map listeners',$scope.latlng);
             if($scope.latlng!=null){
-                $scope.$on('immodb-display-map', $scope.display);
+                $scope.$on('si-display-map', $scope.display);
                 //$scope.mapInit();
             }
             else{
-                $scope.$on('immodb-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
-                $scope.$on('immodb-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
+                $scope.$on('si-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
+                $scope.$on('si-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
             }
 
             $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
@@ -2520,7 +2520,7 @@ ImmoDbApp
             if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
 
             return $q(function($resolve, $reject){   
-                $immodbConfig.get().then($config => {
+                $siConfig.get().then($config => {
                     if($scope.ready == false){
                         //console.log('Map init', $config, $scope.zoom);
                         
@@ -2617,11 +2617,11 @@ ImmoDbApp
             lParams = {'st': $token};
             $scope.page_index = 0;
             $scope.is_loading_data = true;
-            $immodbApi.api($scope.getEndpoint() + 'map_markers', lParams,{method:'GET'}).then(function($response){
+            $siApi.api($scope.getEndpoint() + 'map_markers', lParams,{method:'GET'}).then(function($response){
                 $scope.list = $response.markers;
                 $scope.updateMarkerList()
                 //console.log('marker list:', $scope.list);
-                $rootScope.$broadcast('immodb-listings-update',$scope.list,{item_count: $scope.list.length});
+                $rootScope.$broadcast('si-listings-update',$scope.list,{item_count: $scope.list.length});
                 $scope.is_loading_data = false;
             })
             
@@ -2682,7 +2682,7 @@ ImmoDbApp
             $scope.list.forEach(function($marker){
                 let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
                 
-                $marker.marker = new ImmoDbMarker({
+                $marker.marker = new SiMarker({
 			    	position: lngLat,
 			    	map: $scope.map,
                     obj: $marker,
@@ -2697,7 +2697,7 @@ ImmoDbApp
             if($scope.list.length>1){
                 let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
                 let lClustererOptions = {
-                    //cssClass : 'immodbMarkerCluster',
+                    //cssClass : 'siMarkerCluster',
                     gridSize: 80,
                     styles: [{
                         url: lImagePath + '1.png',
@@ -2717,7 +2717,7 @@ ImmoDbApp
                       }]
                 };
 
-                lClustererOptions = $immodbHooks.filter('marker_cluster_options',lClustererOptions);
+                lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
 
 		    	$scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
                 
@@ -2738,15 +2738,15 @@ ImmoDbApp
         $scope.pinClick = function($marker){
             //console.log('Marker clicked', $marker);
 
-            $immodbApi.api($scope.getEndpoint().concat('/',immodbApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
-                let lInfoWindowScope = $immodbUtils;
-                $immodbDictionary.source = $response.dictionary;
+            $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
+                let lInfoWindowScope = $siUtils;
+                $siDictionary.source = $response.dictionary;
 
                 lInfoWindowScope.compileListingItem($response);
                 lInfoWindowScope.item = $response;
 
                 //console.log('lInfoWindowScope',lInfoWindowScope);
-                $immodbTemplate.load('views/ang-templates/immodb-map-info-window.html?v=2', lInfoWindowScope).then(function($content){
+                $siTemplate.load('views/ang-templates/si-map-info-window.html?v=2', lInfoWindowScope).then(function($content){
                     let infowindow = new google.maps.InfoWindow({
                         content: $content
                     });
@@ -2797,7 +2797,7 @@ ImmoDbApp
         });
 
 
-        function ImmoDbMarker(options) {
+        function SiMarker(options) {
 
             // Initialize all properties.
             this.latlng_ = options.position;
@@ -2814,7 +2814,7 @@ ImmoDbApp
             this.setMap(options.map);
         }
         if( typeof(google) != 'undefined'){
-            ImmoDbMarker.prototype = new google.maps.OverlayView();
+            SiMarker.prototype = new google.maps.OverlayView();
             (function($proto){
                 $proto.draw = function() {
                     var me = this;
@@ -2899,7 +2899,7 @@ ImmoDbApp
                 }
                 };
 
-            })(ImmoDbMarker.prototype);
+            })(SiMarker.prototype);
         }
     };
 
@@ -2908,9 +2908,9 @@ ImmoDbApp
         restrict: 'E',
         replace: true,
         scope: {
-            alias: '@immodbAlias',
+            alias: '@siAlias',
             class: '@class',
-            configs: '=?immodbConfigs',
+            configs: '=?siConfigs',
             latlng: '=?latlng',
             zoom: '@'
         },
@@ -2924,7 +2924,7 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
+siApp
 .directive('onBottomReached', function onBottomReached($document) {
     //This function will fire an event when the container/document is scrolled to the bottom of the page
     return {
@@ -2949,9 +2949,9 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbImageSlider', function immodbImageSlider(){
-    let dir_controller = function immodbImageSliderCtrl ($scope,$rootScope, $q,$immodbApi,$rootScope,$immodbDictionary, $immodbHooks) {
+siApp
+.directive('siImageSlider', function siImageSlider(){
+    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks) {
         $scope.expand_mode = false;
         $scope.picture_grid_mode = false;
 
@@ -3062,17 +3062,17 @@ ImmoDbApp
         }
 
         $scope.getImageAlt = function($img){
-            let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+            let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
 
-            lResult = $immodbHooks.filter('listing-picture-alt', lResult, $img);
+            lResult = $siHooks.filter('listing-picture-alt', lResult, $img);
 
             return lResult;
         }
 
         $scope.getImageCaption = function($img){
-            let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+            let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
 
-            lResult = $immodbHooks.filter('listing-picture-caption', lResult, $img);
+            lResult = $siHooks.filter('listing-picture-caption', lResult, $img);
 
             return lResult;
         }
@@ -3081,15 +3081,15 @@ ImmoDbApp
     return {
         restrict: 'E',
         scope: {
-            pictures: '=immodbPictures',
-            dictionary: '=?immodbDictionary',
-            gap: '@immodbGap',
-            index: '=?immodbIndex',
-            showGrid: '=immodbShowPictureGrid'
+            pictures: '=siPictures',
+            dictionary: '=?siDictionary',
+            gap: '@siGap',
+            index: '=?siIndex',
+            showGrid: '=siShowPictureGrid'
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-image-slider.html?v=2',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=2',
         controller: dir_controller,
         link: function (scope, element, attrs) {
             scope.$element = element[0];
@@ -3120,20 +3120,20 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbCalculator', function immodbCalculator(){
+siApp
+.directive('siCalculator', function siCalculator(){
     return {
         restrict: 'E',
         scope: {
-            amount: '=immodbAmount',
-            dictionary: '=?immodbDictionary',
-            downpayment_selection: '@?immodbDownpaymentSelection',
-            region: '@?immodbRegion',
+            amount: '=siAmount',
+            dictionary: '=?siDictionary',
+            downpayment_selection: '@?siDownpaymentSelection',
+            region: '@?siRegion',
             on_change: '&onChange'
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-calculator.html?v=2',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-calculator.html?v=2',
         controller: function($scope, $q,$rootScope) {
             $scope.downpayment_selection = 'manual';
             
@@ -3223,7 +3223,7 @@ ImmoDbApp
                     transfer_tax : getTransferTax($scope.data.amount,$scope.region=='06 ')
                 }
     
-                $rootScope.$broadcast('immodb-mortgage-calculator-result-changed', lResult);
+                $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
                 
                 if(typeof($scope.on_change) == 'function'){
                     $scope.on_change({'$result' : lResult});
@@ -3306,14 +3306,14 @@ ImmoDbApp
             };
     
             $scope.preload = function(){
-                let lData = sessionStorage.getItem('immodb.mortgage-calculator');
+                let lData = sessionStorage.getItem('si.mortgage-calculator');
                 if(lData != null){
                     $scope.data = JSON.parse(lData);
                 }
             }
     
             $scope.save = function(){
-                sessionStorage.setItem('immodb.mortgage-calculator', JSON.stringify($scope.data));
+                sessionStorage.setItem('si.mortgage-calculator', JSON.stringify($scope.data));
             }
     
             // watch for amount to be valid then init directive
@@ -3328,8 +3328,8 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbModalTrigger', function immodbModalTrigger(){
+siApp
+.directive('siModalTrigger', function siModalTrigger(){
     return {
         restrict: 'C',
         scope:{
@@ -3349,9 +3349,9 @@ ImmoDbApp
     }
 });
 
-ImmoDbApp
-.directive('immodbModal', function immodbModal(){
-    let dir_controller = function immodbModalCtrl($scope, $q,$immodbApi,$rootScope) {
+siApp
+.directive('siModal', function siModal(){
+    let dir_controller = function siModalCtrl($scope, $q,$siApi,$rootScope) {
 
         $scope.options = {
             close_label : null,
@@ -3431,7 +3431,7 @@ ImmoDbApp
         controllerAs    : 'ctrl',
         replace         : true,
         transclude      : true,
-        templateUrl     : immodbCtx.base_path + 'views/ang-templates/immodb-modal.html?v=2',
+        templateUrl     : siCtx.base_path + 'views/ang-templates/si-modal.html?v=2',
         link            : function(scope, element, attr){
             scope.modal_element = element;
             angular.element(document.body).append(scope.modal_element);
@@ -3440,8 +3440,8 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbContainer', function immodbContainer(){
+siApp
+.directive('siContainer', function siContainer(){
     return {
         restrict: "E",
         replace: true,
@@ -3454,18 +3454,18 @@ ImmoDbApp
     };
 });
 
-ImmoDbApp
-.directive('immodbListingNavigation', ['$q',function immodbListingNavigation(){
+siApp
+.directive('siListingNavigation', ['$q',function siListingNavigation(){
     return {
         restrict: "E",
         replace: true,
         transclude: true,
         scope:{
-            current : '=immodbCurrent',
-            display : '@immodbDisplay',
-            panelTitle: '@?immodbTitle'
+            current : '=siCurrent',
+            display : '@siDisplay',
+            panelTitle: '@?siTitle'
         },
-        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-listing-navigation.html?v=2',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-listing-navigation.html?v=2',
         link: function($scope, element, attr){
             $scope.init();
         },
@@ -3485,7 +3485,7 @@ ImmoDbApp
             })
 
             $scope.loadList = function(){
-                let lList = sessionStorage.getItem('immodb.list.listings.{0}'.format(immodbCtx.locale));
+                let lList = sessionStorage.getItem('si.list.listings.{0}'.format(siCtx.locale));
                 if(lList !=undefined){
                     $scope.list = JSON.parse(lList);
                 }
@@ -3520,15 +3520,15 @@ ImmoDbApp
     };
 }]);
 
-ImmoDbApp
-.directive('immodbLoading', [function immodbLoading(){
+siApp
+.directive('siLoading', [function siLoading(){
     return {
         restrict: 'E',
         replace: true,
         scope: {
-            label: '@immodbLabel'
+            label: '@siLabel'
         },
-        template: '<div class="immodb-loading"><i class="fal fa-spinner fa-spin"></i> {{label.translate()}}</div>',
+        template: '<div class="si-loading"><i class="fal fa-spinner fa-spin"></i> {{label.translate()}}</div>',
         controller: function($scope){
             
         }
@@ -3536,9 +3536,9 @@ ImmoDbApp
 }]);
 
 
-ImmoDbApp
-.directive('immodbDropdown',['$rootScope',
-    function immodbDropdown($rootScope){
+siApp
+.directive('siDropdown',['$rootScope',
+    function siDropdown($rootScope){
         return {
             restrict: 'C',
             scope: {
@@ -3600,8 +3600,8 @@ ImmoDbApp
     }
 ])
 
-ImmoDbApp
-.directive('immodbCheckbox',[function immodbCheckbox(){
+siApp
+.directive('siCheckbox',[function siCheckbox(){
     return {
         retrict: 'E',
         transclude:true,
@@ -3619,8 +3619,8 @@ ImmoDbApp
     }
 }]);
 
-ImmoDbApp
-.directive("immodbSlider", function immodbSlider($document, $timeout) {
+siApp
+.directive("siSlider", function siSlider($document, $timeout) {
     return {
         restrict: "E",
         scope: {
@@ -3633,7 +3633,7 @@ ImmoDbApp
             endLabel:"@"
         },
         replace: true,
-        template: '<div class="immodb-slider"><div class="label start">{{startLabel}}</div><div class="inner"><div class="slider {{boundaryClasses()}}" style="--lower-value:{{getLowerValue()}};--upper-value:{{getUpperValue()}}"></div></div><div class="label end">{{endLabel}}</div></div>',
+        template: '<div class="si-slider"><div class="label start">{{startLabel}}</div><div class="inner"><div class="slider {{boundaryClasses()}}" style="--lower-value:{{getLowerValue()}};--upper-value:{{getUpperValue()}}"></div></div><div class="label end">{{endLabel}}</div></div>',
         link: function($scope, element, attrs) {
             var getP, handles, rangeHandle, i, j, len, mv, pTotal, ref, setP, step, updatePositions;
             
@@ -3838,8 +3838,8 @@ ImmoDbApp
     };
   });
 
-ImmoDbApp
-.directive('immodbRadio',[function immodbRadio(){
+siApp
+.directive('siRadio',[function siRadio(){
     return {
         retrict: 'E',
         transclude:true,
@@ -3860,7 +3860,7 @@ ImmoDbApp
     }
 }]);
 
-ImmoDbApp
+siApp
 .directive('inputContainer', function(){
     return {
         restrict: 'C',
@@ -3890,9 +3890,9 @@ ImmoDbApp
     }
 });
 
-ImmoDbApp
-.directive('immodbMediabox',[
-function immodbMediabox(){
+siApp
+.directive('siMediabox',[
+function siMediabox(){
     return {
         restrict : 'E',
         scope : {
@@ -3904,7 +3904,7 @@ function immodbMediabox(){
         link: function ($scope,$elm, $attrs){
             $scope.init();
         },
-        templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-mediabox.html?v=2',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-mediabox.html?v=2',
         replace: true,
         controller : function($scope){
             $scope.selected_media = $scope.defaultTab || 'pictures';
@@ -3927,7 +3927,7 @@ function immodbMediabox(){
             $scope.selectMedia = function($media){
                 $scope.selected_media = $media;
                 
-                const lTrigger = 'immodb-display-' + $media;
+                const lTrigger = 'si-display-' + $media;
                 console.log('triggering', lTrigger);
 
                 if($scope._initialized){
@@ -4027,12 +4027,12 @@ function immodbMediabox(){
  
 }]);
 
-ImmoDbApp
-.directive('immodbThumbnailsSlider',[ '$timeout',
-    function immodbThumbnailsSlider($timeout){
+siApp
+.directive('siThumbnailsSlider',[ '$timeout',
+    function siThumbnailsSlider($timeout){
         return {
             restrict: 'E',
-            templateUrl: immodbCtx.base_path + 'views/ang-templates/immodb-thumbnails-slider.html',
+            templateUrl: siCtx.base_path + 'views/ang-templates/si-thumbnails-slider.html',
             replace: true,
             scope: {
                 list: '=siList'
@@ -4150,17 +4150,17 @@ ImmoDbApp
                 }
 
                 $scope.getImageAlt = function($img){
-                    let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+                    let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
         
-                    lResult = $immodbHooks.filter('listing-picture-alt', lResult, $img);
+                    lResult = $siHooks.filter('listing-picture-alt', lResult, $img);
         
                     return lResult;
                 }
         
                 $scope.getImageCaption = function($img){
-                    let lResult = $immodbDictionary.getCaption($img.category_code,'photo_category');
+                    let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
         
-                    lResult = $immodbHooks.filter('listing-picture-caption', lResult, $img);
+                    lResult = $siHooks.filter('listing-picture-caption', lResult, $img);
         
                     return lResult;
                 }

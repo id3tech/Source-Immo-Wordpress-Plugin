@@ -1,20 +1,20 @@
 <div class="financial">
     <div class="panel">
 
-        <h4><?php echo StringPrototype::format(__('Assessment ({0})',IMMODB), $model->assessment->year) ?></h4>
+        <h4><?php echo StringPrototype::format(__('Assessment ({0})',SI), $model->assessment->year) ?></h4>
         <div class="list">
             <div class="assessment land">
-                <label><?php echo StringPrototype::format(__('Land assessment ({0})',IMMODB),$model->land->assessment->year) ?></label>
+                <label><?php echo StringPrototype::format(__('Land assessment ({0})',SI),$model->land->assessment->year) ?></label>
                 <div class="value"><?php echo  $model->land->assessment->amount_text ?></div>
             </div>
 
             <div class="assessment building">
-                <label><?php echo StringPrototype::format(__('Building assessment ({0})',IMMODB), $model->building->assessment->year) ?></label>
+                <label><?php echo StringPrototype::format(__('Building assessment ({0})',SI), $model->building->assessment->year) ?></label>
                 <div class="value"><?php echo  $model->building->assessment->amount_text ?></div>
             </div>
 
             <div class="assessment total">
-                <label><?php _e('Municipal assessment',IMMODB) ?></label>
+                <label><?php _e('Municipal assessment',SI) ?></label>
                 <div class="value"><?php echo  $model->assessment->amount_text ?></div>
             </div>
         </div>
@@ -22,7 +22,7 @@
 
     <div class="panel">
 
-        <h4><?php _e('Expenses',IMMODB)?></h4>
+        <h4><?php _e('Expenses',SI)?></h4>
 
         <div class="list">
         <?php

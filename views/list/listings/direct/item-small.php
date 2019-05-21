@@ -6,7 +6,7 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
 
 ?>
 
-<article class="immodb-item immodb-listing-item immodb-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
+<article class="si-item si-listing-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
@@ -20,7 +20,7 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
 	        <div class="open-houses">
                 <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
             	<div class="open-house-item">
-                    <i class="fal fa-calendar-alt"></i> <?php _e('Open house', IMMODB) ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
+                    <i class="fal fa-calendar-alt"></i> <?php _e('Open house', SI) ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
             	</div>
                 <?php } ?>
 	        </div>

@@ -2,12 +2,12 @@
 if(isset($model->building->attributes)){
 ?>
 <div class="panel other-specs">
-    <h3><?php _e('Building and interior',IMMODB) ?></h3>
+    <h3><?php _e('Building and interior',SI) ?></h3>
     <?php 
     if(isset($model->building->dimension)){
     ?>
     <div class="area">
-        <label><?php _e('Building area', IMMODB) ?>:</label>
+        <label><?php _e('Building area', SI) ?>:</label>
         <div class="value"><?php echo($model->building->short_dimension) ?></div>
     </div>
     <?php 

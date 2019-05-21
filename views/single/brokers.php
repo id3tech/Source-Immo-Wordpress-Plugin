@@ -2,28 +2,28 @@
 $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
-$layout = ImmoDB::current()->get_detail_layout('broker');
+$layout = SourceImmo::current()->get_detail_layout('broker');
 
 get_header();
 
 
-ImmoDB::view('single/brokers_layouts/_schema',array('model' => $data));
+SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
 
 ?>
 <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="immodb broker-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
     
     <?php 
         if($layout->type=='custom_page'){
             // load page content
-            do_action('immodb_render_page',$layout->page, 'Loading broker');
+            do_action('si_render_page',$layout->page, 'Loading broker');
         }
         else{
-            immodb_start_of_template("Loading broker");
+            si_start_of_template("Loading broker");
 
-            ImmoDB::view('single/brokers_layouts/' . $layout->type);
+            SourceImmo::view('single/brokers_layouts/' . $layout->type);
             
-            immodb_end_of_template();
+            si_end_of_template();
         }
     ?>
 </div>
@@ -31,7 +31,7 @@ ImmoDB::view('single/brokers_layouts/_schema',array('model' => $data));
 
 
 <script type="text/javascript">
-var immodbBrokerData = <?php echo(json_encode($data)); ?>;
+var siBrokerData = <?php echo(json_encode($data)); ?>;
 </script>
 <?php
 get_footer();

@@ -97,7 +97,7 @@ $locales.fr = {};$locales.fr.global =
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"
-    , "Source ImmoDB view" : "Vue ImmoDB d'origine"
+    , "Source SourceImmo view" : "Vue SourceImmo d'origine"
     , "List of" : "Liste de"
     , "Listings" : "Propriétés"
     , "Brokers" : "Courtiers"

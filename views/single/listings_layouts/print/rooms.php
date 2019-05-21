@@ -11,8 +11,8 @@ function _end_room_page($model){
     ?>
         </div>
 
-    <header><?php ImmoDB::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-    <footer><?php ImmoDB::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+    <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
+    <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
 
     </page>
     <?php
@@ -22,14 +22,14 @@ function _start_unit($model,$unit, $continuing_unit = false){
     echo('<div class="panel unit">');
     if(count($model->units)>1) { 
         if($continuing_unit){
-            echo('<h3>' . StringPrototype::format(__('{0} unit (continue)',IMMODB), $unit->category) . '</h3>'); 
+            echo('<h3>' . StringPrototype::format(__('{0} unit (continue)',SI), $unit->category) . '</h3>'); 
         }
         else{
-            echo('<h3>' . StringPrototype::format(__('{0} unit',IMMODB),$unit->category) . '</h3>'); 
+            echo('<h3>' . StringPrototype::format(__('{0} unit',SI),$unit->category) . '</h3>'); 
         }
     } 
     else{
-        echo('<h3>' . __("Property's rooms",IMMODB) . '</h3>'); 
+        echo('<h3>' . __("Property's rooms",SI) . '</h3>'); 
     }
 }
 
@@ -42,10 +42,10 @@ function _start_room_list(){
     <div class="room-list">
         <div class="room-item list-header">
             <div class="type"></div>
-            <div class="level"><?php _e('Level',IMMODB) ?></div>
-            <div class="area"><?php _e('Size',IMMODB) ?></div>
-            <div class="floor"><?php _e('Flooring',IMMODB) ?></div>
-            <div class="infos"><?php _e('Infos',IMMODB) ?></div>
+            <div class="level"><?php _e('Level',SI) ?></div>
+            <div class="area"><?php _e('Size',SI) ?></div>
+            <div class="floor"><?php _e('Flooring',SI) ?></div>
+            <div class="infos"><?php _e('Infos',SI) ?></div>
         </div>
     <?php
 }

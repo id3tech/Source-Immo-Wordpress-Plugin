@@ -77,10 +77,10 @@ $laptop : 1280px;
     --broker-item-picture-ratio : 1.5;
 }
 
-#top .immodb, // enfold overrides
-#top .immodb-modal,
-.immodb-modal,
-.immodb{
+#top .si, // enfold overrides
+#top .si-modal,
+.si-modal,
+.si{
     display:grid;
     font-size: 16px;
     a{
@@ -217,8 +217,8 @@ $laptop : 1280px;
 // ************************
 // LIST
 // ************************
-#top .immodb,
-.immodb{    
+#top .si,
+.si{    
     // -------------------------
     // Elements initialization 
     // ------------------------- 
@@ -629,7 +629,7 @@ $laptop : 1280px;
                     "price-suggestions"
                     ;
                 
-                .immodb-slider{
+                .si-slider{
                     place-self:stretch;
                     grid-row:1;
                     grid-column: 1 / span 3;
@@ -825,7 +825,7 @@ $laptop : 1280px;
         place-self: center center;
         text-align: center;
     }
-    .immodb-list-container{
+    .si-list-container{
         grid-area: list;
         display:grid;
         grid-gap:20px;
@@ -833,14 +833,14 @@ $laptop : 1280px;
         border:var(--element-border);
         border-radius:var(--element-border-radius);
     }
-    .immodb-list-header{
+    .si-list-header{
         grid-area: header;
         display:grid;
         grid-gap: 20px;
         grid-template-columns: 1fr 1fr 1fr;
         align-items: center;
     }
-    .immodb-list{
+    .si-list{
         grid-area: list;
         display:grid;
         grid-gap: 20px;
@@ -850,7 +850,7 @@ $laptop : 1280px;
             display:grid;place-items:stretch;
         }
     }
-    .immodb-item{
+    .si-item{
         //max-width:360px;
 
         // Map info window
@@ -938,7 +938,7 @@ $laptop : 1280px;
         }
 
         // LISTINGS 
-        &.immodb-listing-item{
+        &.si-listing-item{
             &.sold{
                 .price{
                     background:var(--listing-item-sold-bg-color);
@@ -1025,7 +1025,7 @@ $laptop : 1280px;
         }
 
         // BROKERS
-        &.immodb-broker-item{
+        &.si-broker-item{
             @include gridAreas('image','name','contact','title','listings-count');
             .content{
                 grid-gap: 0;
@@ -1072,7 +1072,7 @@ $laptop : 1280px;
             }
         }
 
-        &.immodb-city-item{
+        &.si-city-item{
             display:grid;
             border: 5px solid #ccc;
             place-items:stretch;
@@ -1098,8 +1098,8 @@ $laptop : 1280px;
         }
     }
 
-    &.immodb-list-of-listings{
-        .immodb-list{
+    &.si-list-of-listings{
+        .si-list{
             grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
             @include media($tablet){
                 grid-template-columns: repeat(auto-fill, minmax(calc(var(--listing-item-column-width) * 0.6), 1fr));
@@ -1107,14 +1107,14 @@ $laptop : 1280px;
         }
     }
 
-    &.immodb-list-of-brokers{
-        .immodb-list{
+    &.si-list-of-brokers{
+        .si-list{
             grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );
         }
     }
 
-    &.immodb-list-of-cities{
-        .immodb-list{
+    &.si-list-of-cities{
+        .si-list{
             grid-template-columns: repeat( auto-fill, minmax(180px, 1fr) );
         }
     }
@@ -1129,8 +1129,8 @@ $laptop : 1280px;
 // -------------------------
 // STANDARD LAYOUT 
 // ------------------------- 
-#top .immodb,
-.immodb{
+#top .si,
+.si{
     &.standard-layout{
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
@@ -1139,8 +1139,8 @@ $laptop : 1280px;
             "search search search"
             "list list list"
             ;
-        .immodb-list-of-ghost{
-            .immodb-item{
+        .si-list-of-ghost{
+            .si-item{
                 pointer-events: none;
                 @keyframes pulse {
                     0% {
@@ -1338,7 +1338,7 @@ $laptop : 1280px;
 
         // main list container
         // ----------------
-        .immodb-list-container{
+        .si-list-container{
             grid-template-areas:
                 "header header header"
                 "list list list"
@@ -1351,7 +1351,7 @@ $laptop : 1280px;
                     "map map map"
                     ;
             }
-            .immodb-list-header{
+            .si-list-header{
                 grid-template-areas:
                     "switch meta sort";
                 @include media($phone){
@@ -1363,19 +1363,19 @@ $laptop : 1280px;
                 }
                 .sort-container{grid-area:sort;place-self: center end;}
             }
-            .immodb-loading{
+            .si-loading{
                 grid-area: next-page;
             }
         }
 
-        &.immodb-list-of-listings{
+        &.si-list-of-listings{
            
         }
 
         
 
-        &.immodb-list-of-brokers{
-            .immodb-item{
+        &.si-list-of-brokers{
+            .si-item{
                 .content{
                     grid-template-rows: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio)) auto;
                     grid-template-areas: 
@@ -1480,8 +1480,8 @@ $laptop : 1280px;
 // -------------------------
 // DIRECT LAYOUT 
 // ------------------------- 
-#top .immodb,
- .immodb{
+#top .si,
+ .si{
     &.direct-layout{
         grid-template-columns: 120px 1fr 60px 60px;
         grid-template-rows: auto;
@@ -1495,7 +1495,7 @@ $laptop : 1280px;
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
         }
         
-        .immodb-list-empty{
+        .si-list-empty{
             grid-area: empty;
         }
         .list-meta{
@@ -1508,8 +1508,8 @@ $laptop : 1280px;
 // ***************************
 // SINGLE
 // ***************************
-#top .immodb,
- .immodb{   
+#top .si,
+ .si{   
     // ---------------
     // Listing
     // ---------------
@@ -1523,8 +1523,8 @@ $laptop : 1280px;
                 opacity:0.5;
             }
         }
-        .immodb-custom-content, .immodb-content{display:none;}
-        .immodb-content{
+        .si-custom-content, .si-content{display:none;}
+        .si-content{
             transition:0.25s;opacity:0;
             @include gridAreas('ref-number','subcategory','price','city','medias', 
             'header','summary','details','left','right','flags',
@@ -2084,7 +2084,7 @@ $laptop : 1280px;
             background-color:var(--medium-contrast-color);
             color:var(--medium-contrast-text-color);
 
-            .immodb-calculator{padding:20px;}
+            .si-calculator{padding:20px;}
             .title{
                 font-size:1.6em;padding:20px;
             }
@@ -2197,17 +2197,17 @@ $laptop : 1280px;
             }
         }
 
-        .immodb-listing-navigation{
+        .si-listing-navigation{
             @include media-gt($laptop){
                 grid-column: 1 / span 2;
             }
         }
         &.loaded{
-            .immodb-content{
+            .si-content{
                 display:grid;
                 opacity:1;
             }
-            .immodb-custom-content{
+            .si-custom-content{
                 display:block;
             }
         }
@@ -2219,8 +2219,8 @@ $laptop : 1280px;
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
         }
-        .immodb-custom-content, .immodb-content{display:none;}
-        .immodb-content{
+        .si-custom-content, .si-content{display:none;}
+        .si-content{
             @include gridAreas('left-column','right-column');
             
             grid-template-columns: 2fr 1fr;
@@ -2371,10 +2371,10 @@ $laptop : 1280px;
         }
 
         &.loaded{
-            .immodb-content{
+            .si-content{
                 display:grid;
             }
-            .immodb-custom-content{
+            .si-custom-content{
                 display:block;
             }
         }
@@ -2382,8 +2382,8 @@ $laptop : 1280px;
 }
 
 
-#top .immodb-dropdown,
-.immodb-dropdown{
+#top .si-dropdown,
+.si-dropdown{
     position:relative;
     .button{
         padding:10px;
@@ -2414,7 +2414,7 @@ $laptop : 1280px;
             }
         }
     }
-    .immodb-dropdown-panel{
+    .si-dropdown-panel{
         position: absolute;
         overflow:hidden;
         max-height:0px;
@@ -2445,7 +2445,7 @@ $laptop : 1280px;
         }
     }
     &.expanded{
-        .immodb-dropdown-panel{
+        .si-dropdown-panel{
             max-height:initial;
             opacity:1;
             padding:10px 0;
@@ -2455,15 +2455,15 @@ $laptop : 1280px;
 }
 
 // Modal
-body#top.immodb-modal-open,
-body.immodb-modal-open{
+body#top.si-modal-open,
+body.si-modal-open{
     > div:first-child,#wrap_all, #page,#wpadminbar{
         filter: blur(5px);
     }
     
 }
-#top .immodb-modal,
-.immodb-modal{
+#top .si-modal,
+.si-modal{
     position:fixed;
     top:0px;left:0px;
     width:100%;height:100%;
@@ -2481,7 +2481,7 @@ body.immodb-modal-open{
         background-color:var(--high-contrast-color);
         opacity:0.8;
     }
-    .immodb-modal-dialog{
+    .si-modal-dialog{
         position: absolute;
         top:50%;left:50%;transform:translate(-50%,0);
         min-width:50%;
@@ -2513,7 +2513,7 @@ body.immodb-modal-open{
             .button{margin:0px;}
         }
 
-        .immodb-modal-content{
+        .si-modal-content{
             background-color:var(--background-color);
             max-height:calc(100vh - 30px);
             overflow-y:auto;
@@ -2535,7 +2535,7 @@ body.immodb-modal-open{
     &.opened{
         pointer-events:auto;
         opacity:1;
-        .immodb-modal-dialog{
+        .si-modal-dialog{
             transform:translate(-50%,-50%);
             box-shadow: rgba(#000,0.75) 5px 5px 30px;
         }
@@ -2592,8 +2592,8 @@ body.immodb-modal-open{
     }
 }
 
-#top .immodb-image-slider,
-.immodb-image-slider{
+#top .si-image-slider,
+.si-image-slider{
     position:relative;
     width:100%;height:100%;
     overflow:hidden;
@@ -2860,8 +2860,8 @@ body.immodb-modal-open{
     }
 }
 
-#top .immodb-thumbnails-slider,
-.immodb-thumbnails-slider{
+#top .si-thumbnails-slider,
+.si-thumbnails-slider{
     
     height: calc(var(--thumbnail-picture-size) * .66);
     width:100%;
@@ -2953,8 +2953,8 @@ body.immodb-modal-open{
     }
 }
 
-#top .immodb-searchbox,
-.immodb-searchbox{
+#top .si-searchbox,
+.si-searchbox{
     position:relative;
     .input{
         position:relative;
@@ -3096,8 +3096,8 @@ body.immodb-modal-open{
     
 }
 
-#top .immodb-calculator,
-.immodb-calculator{
+#top .si-calculator,
+.si-calculator{
     
     display:grid;
         grid-gap:20px;
@@ -3118,8 +3118,8 @@ body.immodb-modal-open{
     }
 }
 
-#top .immodb-listing-navigation,
-.immodb-listing-navigation{
+#top .si-listing-navigation,
+.si-listing-navigation{
     @include gridLayout('auto 1fr auto','auto',0px);
     @include gridAreas('previous','next','title');
     grid-template-areas: "title title title" "previous . next";
@@ -3288,14 +3288,14 @@ body.immodb-modal-open{
     // }
 }
 
-#top .immodb-loading,
-.immodb-loading{
+#top .si-loading,
+.si-loading{
     text-align:center;
 }
 
 
-#top .immodb-slider,
-.immodb-slider{
+#top .si-slider,
+.si-slider{
     height: 50px;
     border-radius: var(--element-border-radius);
     position:relative;
@@ -3369,7 +3369,7 @@ body.immodb-modal-open{
 }
 // enfold fixes
 #top{
-    .immodb{
+    .si{
         &.listing-single,
         &.broker-single{
             // max-width:1310px;
@@ -3379,7 +3379,7 @@ body.immodb-modal-open{
         }
     }
 
-    .immodb-list-of-listings,.immodb-list-of-brokers{
+    .si-list-of-listings,.si-list-of-brokers{
         a{
             position:initial !important;
         

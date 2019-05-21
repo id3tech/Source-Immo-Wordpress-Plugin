@@ -21,7 +21,7 @@ foreach ($data as $item) {
 
 CONTACTEZ CETTE PERSONNE SANS TARDER!
 
-Ce prospect a été généré par votre service <?php echo(IMMODB_NAME) ?>.
+Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.
 
 
 --PHP-alt-<?php echo("$random_hash\r\n") ?>
@@ -52,7 +52,7 @@ Content-Transfer-Encoding: 7bit
                     </table>
 
                     <h3>CONTACTEZ CETTE PERSONNE SANS TARDER!</h3>
-                    <p>Ce prospect a été généré par votre service <?php echo(IMMODB_NAME) ?>.</p>
+                    <p>Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.</p>
                 </td>
             </tr>
         </table>

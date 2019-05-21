@@ -2,12 +2,12 @@
 if(isset($model->land->attributes)){
 ?>
 <div class="panel other-specs">
-    <h3><?php _e('Lot and exterior',IMMODB) ?></h3>
+    <h3><?php _e('Lot and exterior',SI) ?></h3>
     <?php 
     if(isset($model->land->dimension)){
     ?>
     <div class="area">
-        <label><?php _e('Land area', IMMODB) ?>:</label>
+        <label><?php _e('Land area', SI) ?>:</label>
         <div class="value"><?php echo($model->land->short_dimension) ?></div>
     </div>
     <?php 

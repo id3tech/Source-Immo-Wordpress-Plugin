@@ -1,5 +1,5 @@
 body.wp-admin{
-  #immodb-app{
+  #si-app{
     $primary : #2196F3;
     $warn: #ff0000;
     $accent: #FF6E40;
@@ -245,7 +245,7 @@ body.wp-admin{
     }
 
     .permalink-settings{
-      .immodb-route-box{
+      .si-route-box{
         &.headers{
           border-bottom:solid 1px #1E88E5;
           div{font-size:13px;text-transform:uppercase;color:#1E88E5;opacity:0.75;}
@@ -318,9 +318,9 @@ body.wp-admin{
         }
       }
       .list-filters{
-        .immodb-filter-group{
+        .si-filter-group{
           padding:5px 5px 5px 0;
-          .immodb-filter-group{
+          .si-filter-group{
             border:dashed 1px #ccc;
             
           }
@@ -405,16 +405,15 @@ body.wp-admin{
       div{font-size:13px;text-transform:uppercase;color:#1E88E5;opacity:0.75;}
     }
   }
-
   /* Directives */
-  #immodb-app{
-    .immodb-filter-item{
+  #si-app{
+    .si-filter-item{
       .value{
         md-input-container{width:100%;}
       }
     }
 
-    .immodb-route-box{
+    .si-route-box{
       display:grid;
       grid-template-columns: 100px 2fr  1fr auto auto auto;
       align-items: center;

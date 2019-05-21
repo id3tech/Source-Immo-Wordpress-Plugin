@@ -2,7 +2,7 @@
     <div class="by-keywords">
         <i class="far fa-search"></i>
     
-        <input type="text" placeholder="<?php _e('Search by first or last name',IMMODB) ?>"
+        <input type="text" placeholder="<?php _e('Search by first or last name',SI) ?>"
             data-ng-model="filter.data.keyword" data-ng-keyup="lateCall(searchForKeyword)">
     </div>
     <div class="by-letters">
@@ -24,6 +24,6 @@
 
 <div class="advanced">
     <div class="search-trigger">
-        <button type="button" class="btn" data-ng-click="buildAndGo()"><?php _e('Search', IMMODB) ?></button>
+        <button type="button" class="btn" data-ng-click="buildAndGo()"><?php _e('Search', SI) ?></button>
     </div>
 </div>

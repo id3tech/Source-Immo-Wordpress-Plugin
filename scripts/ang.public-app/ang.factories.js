@@ -1,13 +1,13 @@
 /* ------------------------------- 
         FACTORIES
 -------------------------------- */
-ImmoDbApp
-.factory('$immodbTemplate', ["$http", "$q", "$interpolate", "$sce", 
-function $immodbTemplate($http, $q, $interpolate, $sce){
+siApp
+.factory('$siTemplate', ["$http", "$q", "$interpolate", "$sce", 
+function $siTemplate($http, $q, $interpolate, $sce){
         let $scope = {};
 
         $scope.load = function($path, $template_scope){
-            let templateUrl = $sce.getTrustedResourceUrl(immodbCtx.base_path + $path);
+            let templateUrl = $sce.getTrustedResourceUrl(siCtx.base_path + $path);
             let lPromise = $q(function($resolve, $reject){
                 $http.get(templateUrl).then(function($response) {
                     let lContent = $scope.interpolate($response.data, $template_scope);
@@ -25,9 +25,9 @@ function $immodbTemplate($http, $q, $interpolate, $sce){
         return $scope;
 }]);
 
-ImmoDbApp
-.factory('$immodbApi', ["$http","$q","$immodbConfig","$rootScope", 
-function $immodbApi($http,$q,$immodbConfig,$rootScope){
+siApp
+.factory('$siApi', ["$http","$q","$siConfig","$rootScope", 
+function $siApi($http,$q,$siConfig,$rootScope){
     let $scope = {};
     
     $scope.viewMetas = {};
@@ -64,7 +64,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
         let lNow = new Date();
         // token is not defined
         if($scope.auth_token==null){
-            let lStoredToken = sessionStorage.getItem('immodb.auth_token');
+            let lStoredToken = sessionStorage.getItem('si.auth_token');
             if(lStoredToken != null && lStoredToken != ''){
                 $scope.auth_token = JSON.parse(lStoredToken);
             }
@@ -89,22 +89,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
      */
     $scope.renewToken = function(){
         let lPromise = $q(function($resolve, $reject){
-            if(!$scope.tokenIsValid()){   
-                $scope.rest_call('access_token').then(function($response){
-                    if($response != ''){
-                        $scope.auth_token = $response;
-                        $rootScope.$broadcast('auth_token_refresh');
-                        sessionStorage.setItem('immodb.auth_token', JSON.stringify($scope.auth_token));
-                        $resolve()
-                    }
-                    else{
-                        $reject();                        
-                    }
-                });
-            }
-            else{
-                $resolve();
-            }
+            $resolve();
         });
 
         return lPromise;
@@ -112,7 +97,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
 
     $scope.getDefaultDataView = function(){
         let lPromise = $q(function($resolve, $reject){
-            $immodbConfig.get().then(function($config){
+            $siConfig.get().then(function($config){
                 $resolve(JSON.parse($config.default_view));
             });
         });
@@ -126,7 +111,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
      */
     $scope.getListConfigs = function($alias){
         let lPromise = $q(function($resolve, $reject){
-            $immodbConfig.get().then(function($configs){
+            $siConfig.get().then(function($configs){
                 let lResult = null;
                 //console.log($configs);
                 $configs.lists.some(function($e){
@@ -161,7 +146,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
             case 'cities':
                 lOrigin = 'city';break;
         }
-        let lEndPoint = ''.concat('view/',$view_id,'/',immodbApiSettings.locale);
+        let lEndPoint = ''.concat('view/',$view_id,'/',siApiSettings.locale);
         
         let lPromise = $q(function($resolve, $reject){
             // View is defined, therefor loaded
@@ -204,7 +189,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
      * @return {promise} Promise object
      */
     $scope.call = function($path, $data, $options){
-        const lApiRoot = immodbApiSettings.api_root.replace(/\/+$/,'');
+        const lApiRoot = siApiSettings.api_root.replace(/\/+$/,'');
 
         $options = angular.merge({
             url     : lApiRoot + '/api/' + $path,
@@ -225,7 +210,7 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
         // Setup promise object
         let lPromise = $q(function($resolve, $reject){
             // add auth data
-            $immodbConfig.get().then($configs => {
+            $siConfig.get().then($configs => {
                 $options.headers = {
                     'x-si-account'      : $configs.account_id,
                     'x-si-api'          : $configs.api_key,
@@ -257,11 +242,11 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
 
     $scope.rest_call = function($path, $data, $options){
         $options = angular.merge({
-            url     : immodbApiSettings.rest_root + 'immodb/' + $path,
+            url     : siApiSettings.rest_root + 'si/' + $path,
             method  : (typeof($data)=='undefined' || $data==null) ? 'GET' : 'POST',
             data : $data,
             headers: {
-                'X-WP-Nonce': immodbApiSettings.nonce
+                'X-WP-Nonce': siApiSettings.nonce
             }
         }, $options);
 
@@ -298,9 +283,9 @@ function $immodbApi($http,$q,$immodbConfig,$rootScope){
     return $scope;
 }]);
 
-ImmoDbApp
-.factory('$immodbDictionary', 
-function $immodbDictionary(){
+siApp
+.factory('$siDictionary', 
+function $siDictionary(){
     let $scope = {};
 
 
@@ -329,12 +314,12 @@ function $immodbDictionary(){
                 return 1;
             }
         });
-        //console.log('immodbDictionary array sorted', lCollArray);
+        //console.log('siDictionary array sorted', lCollArray);
         
         // turn array back to collection
         let lResult = $scope._toObject(lCollArray);
 
-        //console.log('immodbDictionary sorted collection', lResult);
+        //console.log('siDictionary sorted collection', lResult);
         return lResult;
     }
 
@@ -382,9 +367,9 @@ function $immodbDictionary(){
     return $scope;
 });
 
-ImmoDbApp
-.factory('$immodbUtils', ['$immodbDictionary', '$immodbTemplate', '$interpolate' , '$sce', '$immodbConfig',
-function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$immodbConfig){
+siApp
+.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$sce', '$siConfig',
+function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
     let $scope = {};
     $scope.page_list = [];
 
@@ -397,7 +382,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
      * @return {string} Caption matched or the key in case the something's missing or went wrong
      */
     $scope.getCaption = function($key, $domain, $asAbbr){
-        return $immodbDictionary.getCaption($key,$domain,$asAbbr);
+        return $siDictionary.getCaption($key,$domain,$asAbbr);
     }
 
     /**
@@ -454,11 +439,11 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
         if($dimension != undefined){
             
             if(typeof $dimension.width != 'undefined'){
-                let lUnit = $immodbDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
+                let lUnit = $siDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
                 lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
             }
             else if (typeof $dimension.area != undefined){
-                let lUnit = $immodbDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
+                let lUnit = $siDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
                 //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
                 lResult = '{0} {1}'.format($dimension.area, lUnit);
             }
@@ -492,8 +477,8 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
         $type = (typeof $type=='undefined') ? 'listing' : $type;
         $scope.item = angular.copy($item);
         
-        immodbCtx[$type + '_routes'].forEach(function($r){
-            if($r.lang==immodbCtx.locale){
+        siCtx[$type + '_routes'].forEach(function($r){
+            if($r.lang==siCtx.locale){
                 lRoute=$r;
             }
         });
@@ -508,10 +493,10 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
             })
         }
 
-        let lResult = $scope.sanitize('/' + $immodbTemplate.interpolate(lRoute.route, $scope));
+        let lResult = $scope.sanitize('/' + $siTemplate.interpolate(lRoute.route, $scope));
         
         // check if permalink overrides is allowed
-        if($immodbConfig._data.enable_custom_page){  
+        if($siConfig._data.enable_custom_page){  
             // search in page_permalink first
             $scope.page_list.some(function($p){
                 let lCustomPage = '';
@@ -590,7 +575,7 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
 
     $scope.compileBrokerItem = function($item){
         if($item.permalink == undefined){
-            $item.license_type = $immodbDictionary.getCaption($item.license_type_code, 'broker_license_type');
+            $item.license_type = $siDictionary.getCaption($item.license_type_code, 'broker_license_type');
             $item.permalink = $scope.getPermalink($item,'broker');
         }
     }
@@ -838,9 +823,9 @@ function $immodbUtils($immodbDictionary,$immodbTemplate, $interpolate, $sce,$imm
     return $scope;
 }]);
 
-ImmoDbApp
-.factory('$immodbConfig',['$http','$q',
-function $immodbConfig($http, $q){
+siApp
+.factory('$siConfig',['$http','$q',
+function $siConfig($http, $q){
     let $scope = {};
 
     $scope._data = null;
@@ -871,7 +856,7 @@ function $immodbConfig($http, $q){
                 }
                 else{
                     $scope._loading = true;
-                    $http.get(immodbCtx.config_path).then(function($response){
+                    $http.get(siCtx.config_path).then(function($response){
                         if($response.status==200){
                             $scope._data = $response.data;
                             $scope._loading = false;
@@ -897,9 +882,9 @@ function $immodbConfig($http, $q){
 }
 ]);
 
-ImmoDbApp
-.factory('$immodbHooks', ['$q', 
-function $immodbHooks($q){
+siApp
+.factory('$siHooks', ['$q', 
+function $siHooks($q){
     let $scope = {};
 
     $scope._actions = [];
@@ -966,9 +951,9 @@ function $immodbHooks($q){
     return $scope;
 }]);
 
-ImmoDbApp
-.factory('$immodbFavorites', ['$q', 
-function $immodbFavorites($q){
+siApp
+.factory('$siFavorites', ['$q', 
+function $siFavorites($q){
     let $scope = {}
     
     $scope.favorites = [];
@@ -1004,9 +989,9 @@ function $immodbFavorites($q){
     return $scope;
 }]);
 
-ImmoDbApp
-.factory('$immodbShare', ['$q','$immodbHooks','$immodbUtils', 
-function immodbShare($q,$immodbHooks,$immodbUtils){
+siApp
+.factory('$siShare', ['$q','$siHooks','$siUtils', 
+function siShare($q,$siHooks,$siUtils){
     let $scope = {};
 
     $scope.data = {
@@ -1030,9 +1015,9 @@ function immodbShare($q,$immodbHooks,$immodbUtils){
             return false;
         }
 
-        $scope.data = $immodbHooks.filter('immodb.share.data',$scope.data);
+        $scope.data = $siHooks.filter('si.share.data',$scope.data);
         if($scope.data.url != null && $scope.data.url_timed==null){   
-            $scope.data.url_timed = $immodbUtils.appendToUrlQuery($scope.data.url, 't', moment().valueOf());
+            $scope.data.url_timed = $siUtils.appendToUrlQuery($scope.data.url, 't', moment().valueOf());
         }
 
         for($key in $scope.data){
@@ -1063,9 +1048,9 @@ function immodbShare($q,$immodbHooks,$immodbUtils){
 }]);
 
 
-ImmoDbApp
-.factory('$immodbFilters', ['$q','$immodbApi','$immodbUtils', 
-function $immodbFilters($q,$immodbApi,$immodbUtils){
+siApp
+.factory('$siFilters', ['$q','$siApi','$siUtils', 
+function $siFilters($q,$siApi,$siUtils){
     $scope = {
         filters:{}
     }
@@ -1513,7 +1498,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
         }
 
         $fm.resetKeywordSearch = function(){
-            let lKey = 'immodb.' + $fm.alias + '.{0}';
+            let lKey = 'si.' + $fm.alias + '.{0}';
 
             $fm.query_text = null;
             $fm.data.keyword = '';
@@ -1629,7 +1614,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
          */
         $fm.syncToList = function($filter, $list){
             // make sure list is an array
-            let lListArray = $immodbUtils.toArray($list);
+            let lListArray = $siUtils.toArray($list);
             
             lListArray.forEach(function($e){
                 // when filter is an array of value and item key is contained in that list
@@ -1714,7 +1699,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
 
         $fm.saveState = function($item_key, $data){
             
-            let lKey = 'immodb.' + $fm.alias + '.{0}';
+            let lKey = 'si.' + $fm.alias + '.{0}';
             
             if($item_key == undefined){
                 $fm.state_loaded = false;
@@ -1737,7 +1722,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
 
         }
         $fm.clearState = function($item_key){
-            let lKey = 'immodb.' + $fm.alias + '.{0}';
+            let lKey = 'si.' + $fm.alias + '.{0}';
 
             if($item_key == undefined){
                 $fm.state_loaded = false;
@@ -1751,7 +1736,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
             }
         }
         $fm.loadState = function($item_key){
-            $key = 'immodb.' + $fm.alias + '.{0}';
+            $key = 'si.' + $fm.alias + '.{0}';
             if($item_key == undefined && !$fm.state_loaded){
                 let lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));
                 let lSessionData = sessionStorage.getItem($key.format('data'));
@@ -1799,7 +1784,7 @@ function $immodbFilters($q,$immodbApi,$immodbUtils){
             
             let lPromise =  $q(function($resolve, $reject){    
                 if($filters != null){
-                    $immodbApi.api('utils/search_encode', $filters).then(function($response){
+                    $siApi.api('utils/search_encode', $filters).then(function($response){
                         $resolve($response);
                     });
                 }

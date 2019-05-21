@@ -2,35 +2,35 @@
 <div class="grid-layout">
     <div class="options" layout="column" layout-align="start stretch">
         <md-input-container>
-            <label><?php _e('Alias of the stream',IMMODB) ?></label>
+            <label><?php _e('Alias of the stream',SI) ?></label>
             <input ng-model="model.alias" />
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('Source ImmoDB view',IMMODB) ?></label>
+            <label><?php _e('Source SourceImmo view',SI) ?></label>
             <md-select ng-model="model.source">
-                <md-option value="default"><?php _e('Default view',IMMODB) ?></md-option>
+                <md-option value="default"><?php _e('Default view',SI) ?></md-option>
                 <md-option ng-repeat="item in global_list.sources"></md-option>
             </md-select>
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('Sort by',IMMODB) ?></label>
+            <label><?php _e('Sort by',SI) ?></label>
             <input ng-model="model.sort" placeholder="ex.: location.city" />
         </md-input-container>  
 
 
         <md-input-container>
-            <label><?php _e('Limit the number of displayed elements',IMMODB) ?></label>
+            <label><?php _e('Limit the number of displayed elements',SI) ?></label>
             <input type="number" ng-model="model.limit" />
         </md-input-container>
     </div>
 
     <div class="filters" layout="column" layout-align="start stretch">
         <div class="grid-row header">
-            <div><?php _e('Attribute',IMMODB) ?></div>
-            <div><?php _e('Operator',IMMODB) ?></div>
-            <div><?php _e('Value',IMMODB) ?></div>
+            <div><?php _e('Attribute',SI) ?></div>
+            <div><?php _e('Operator',SI) ?></div>
+            <div><?php _e('Value',SI) ?></div>
             <div></div>
         </div>
 
@@ -56,11 +56,11 @@
         </div>
 
         <div ng-show="model.filters==null || model.filters.length == 0">
-            <label class="placeholder"><?php _e("There is no filter yet", IMMODB) ?></label>
+            <label class="placeholder"><?php _e("There is no filter yet", SI) ?></label>
         </div>
 
         <div layout="row" layout-align="center center" layout-padding>
-            <md-button class="md-raised md-primary md-icon-button" ng-click="addFilter()" title="<?php _e('Add a filter', IMMODB) ?>"><i class="fal fa-plus fa-lg"></i></md-button>
+            <md-button class="md-raised md-primary md-icon-button" ng-click="addFilter()" title="<?php _e('Add a filter', SI) ?>"><i class="fal fa-plus fa-lg"></i></md-button>
         </div>
     </div>
 </div>

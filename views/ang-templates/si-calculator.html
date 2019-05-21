@@ -1,4 +1,4 @@
-<div class="immodb-calculator">
+<div class="si-calculator">
     <div class="input-container">
         <label>{{'Property evaluation'.translate()}}</label>
         <div class="input" >
@@ -55,11 +55,11 @@
     <div class="input-container">
         <label>{{'Payments'.translate()}}</label>
 
-        <div class="input immodb-dropdown">
+        <div class="input si-dropdown">
             <button class="button" type="button">
                 {{frequencies[data.frequency].translate()}}
             </button>
-            <div class="immodb-dropdown-panel" aria-labelledby="dropdownMenuButton">
+            <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
                 <div class="dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
             </div>
         </div>

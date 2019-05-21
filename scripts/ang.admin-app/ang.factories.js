@@ -1,7 +1,7 @@
 /* SERVICES */
-ImmoDbApp
-.factory('$immodbUtils', [
-function $immodbUtils(){
+siApp
+.factory('$siUtils', [
+function $siUtils(){
   let $scope = {};
 
   $scope.stringToOptionList = function($source){
@@ -57,10 +57,10 @@ function $immodbUtils(){
 }]);
 
 
-ImmoDbApp
-.factory('$immodbList', [
-  '$immodbApi',
-  function $immodbList($immodbApi){
+siApp
+.factory('$siList', [
+  '$siApi',
+  function $siList($siApi){
     let $scope ={};
     $scope.dictionary = null;
 
@@ -71,7 +71,7 @@ ImmoDbApp
     $scope.fetchDictionary = function($view_id){
       if($view_id == null) return;
 
-      $immodbApi.rest('dictionary').then(function($response){
+      $siApi.rest('dictionary').then(function($response){
         $scope.dictionary = $response;
       });
     }
@@ -132,15 +132,15 @@ ImmoDbApp
   }
 ]);
 
-ImmoDbApp
-.factory('$immodbApi', [
+siApp
+.factory('$siApi', [
   '$http','$q',
-  function $immodbApi($http,$q){
+  function $siApi($http,$q){
     $scope = {};
 
     $scope.rest = function($path, $data, $options){
       $options = angular.merge({
-        url     : wpApiSettings.root + 'immodb/' + $path,
+        url     : wpApiSettings.root + 'si-rest/' + $path,
         method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
         headers: {
            'X-WP-Nonce': wpApiSettings.nonce
@@ -216,8 +216,8 @@ ImmoDbApp
 ])
 
 
-ImmoDbApp
-.factory('$immodbUI',['$mdDialog','$mdToast','$q','$rootScope', function $immodbUI($mdDialog,$mdToast,$q,$rootScope){
+siApp
+.factory('$siUI',['$mdDialog','$mdToast','$q','$rootScope', function $siUI($mdDialog,$mdToast,$q,$rootScope){
   $scope = {};
 
   /**

@@ -1,8 +1,8 @@
 <?php
-function immodb_enfold_render_template_builder_for($post_id, $loading_text){
-    ImmoDB::current()->page_template_rendered = true;
-	echo('<label class="placeholder"  data-ng-show="model==null">' . __($loading_text,IMMODB) . '<i class="fal fa-spinner fa-spin"></i></label>');
-	echo('<div class="immodb-custom-content" ng-cloak>');
+function si_enfold_render_template_builder_for($post_id, $loading_text){
+    SourceImmo::current()->page_template_rendered = true;
+	echo('<label class="placeholder"  data-ng-show="model==null">' . __($loading_text,SI) . '<i class="fal fa-spinner fa-spin"></i></label>');
+	echo('<div class="si-custom-content" ng-cloak>');
 
 	/* Run the loop to output the posts.
 	* If you want to overload this in a child theme then include a file
@@ -55,4 +55,4 @@ function immodb_enfold_render_template_builder_for($post_id, $loading_text){
 	echo('</div>');
 }
 
-add_action('immodb_render_page', 'immodb_enfold_render_template_builder_for', 5,1);
+add_action('si_render_page', 'si_enfold_render_template_builder_for', 5,1);
