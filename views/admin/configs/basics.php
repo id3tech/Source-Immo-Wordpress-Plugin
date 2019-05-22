@@ -11,9 +11,17 @@
         <h2 class="md-headline"><?php _e('Authentication',SI)?></h2>
         <div>
             <div layout="column" layout-align="start stretch">
-                <md-input-container flex>
+                <md-input-container flex ng-show="api_keys == null">
                     <label><?php _e('API key',SI)?></label>
                     <input ng-model="configs.api_key" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" required disabled/>
+                    <md-icon class="fal fa-pen" ng-click="changeApiKey()" title="{{'Change the API key'.translate()}}"></md-icon>
+                </md-input-container>
+
+                <md-input-container flex ng-show="api_keys != null">
+                    <label><?php _e('API key',SI)?></label>
+                    <md-select ng-model="configs.api_key" ng-change="save_configs()">
+                        <md-option ng-repeat="item in api_keys" ng-value="item.id">{{item.name}}</md-option>
+                    </md-select>
                 </md-input-container>
 
                 <md-input-container flex>

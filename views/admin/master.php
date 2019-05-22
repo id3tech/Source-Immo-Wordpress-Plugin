@@ -41,7 +41,7 @@ if($lTwoLetterLocale == ''){
       <si-svg src="~/styles/assets/logo-anim.svg"></si-svg>
     </div>
     <div class="loaded-components">
-      <div class="comp-item" ng-repeat="item in loaded_components"><i class="fal fa-{{item}}"></i></div>
+      <div class="comp-item" ng-repeat="item in loaded_components track by $index"><i class="fal fa-{{item}}"></i></div>
     </div>
   </div>
 

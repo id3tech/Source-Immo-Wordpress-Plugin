@@ -4,7 +4,7 @@
       <md-dialog ng-controller="<?php echo(str_replace('-', '_', $dialog_id) . 'Ctrl') ?>" ng-init="_dialogInit_()">
         <md-toolbar>
             <div class="md-toolbar-tools">
-                <h2>{{title}}</h2>
+                <h2>{{title.translate()}}</h2>
                 <span flex></span>
                 <md-button class="md-icon-button" ng-click="cancel()">
                     <md-icon aria-label="Close dialog" class="fal fa-times"></md-icon>
@@ -18,7 +18,7 @@
 
         <md-dialog-actions layout="row">
             <span flex></span>
-            <md-button ng-repeat="item in actions" ng-click="item.action()">{{item.label}}</md-button>
+            <md-button ng-repeat="item in actions track by $index" ng-click="item.action()">{{item.label.translate()}}</md-button>
         </md-dialog-actions>
       </md-dialog>
     </div>

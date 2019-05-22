@@ -128,6 +128,7 @@ function $siUtils($siApi,$q){
     return $filter_group;
   }
 
+  
   return $scope;
 }]);
 
@@ -291,6 +292,7 @@ siApp
 ])
 
 
+
 siApp
 .factory('$siUI',['$mdDialog','$mdToast','$q','$rootScope', function $siUI($mdDialog,$mdToast,$q,$rootScope){
   $scope = {};
@@ -360,6 +362,19 @@ siApp
     return lPromise;
   }
 
+  $scope.getPortalCredentials = function(){
+    return $q( ($resolve, $reject) => {  
+      $scope.dialog('signin')
+      .then(
+        $credentials => {
+          $resolve($credentials)
+        },
+        _ => {
+          $reject();
+        }
+      )
+    });
+  }
 
   return $scope;
 }]);

@@ -177,7 +177,7 @@ class SourceImmoConfig {
   }
 
   public function loadSavedConfigs(){
-    $lResult = false; //get_option('SourceImmoConfig');
+    $lResult = get_option('SourceImmoConfig');
     if($lResult === false){
       // Try loading previous version
       $lResult = get_option('ImmoDBConfig');

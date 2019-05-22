@@ -240,7 +240,9 @@ siApp
             
     let lPromise =  $q(function($resolve, $reject){
         if(lFilters != null){
-            $scope.api('utils/search_encode', lFilters).then(function($response){
+            $scope.api('',lFilters,{
+              url: wpApiSettings.api_root + '/api/utils/search_encode'
+            }).then(function($response){
                 $resolve($response);
             });
         }
@@ -414,6 +416,7 @@ siApp
     'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(calc(-100vw + 180px));'},
   }
   
+  
   $scope.configuration_step = 0;
   $scope.credentials = null;
   $scope.data_views = [];
@@ -422,6 +425,7 @@ siApp
     email: '',
     password: ''
   }
+  $scope.api_keys = null;
 
   $scope.init = function(){
     $scope.load_configs().then(_ => {
@@ -577,6 +581,7 @@ siApp
         $scope.show_toast('Configuration completed')
         $scope.save_configs().then(_ => {
           $scope.configuration_step = 0;
+          $scope.api_keys = null;
         });
       });
     });
@@ -741,11 +746,39 @@ siApp
     return lPromise;
   }
 
+  
+  $scope.changeApiKey = function(){
+    $siUI.getPortalCredentials().then($credentials => {
+      console.log($credentials);
+      $scope.credentials = $credentials;
+      
+      $scope.portalApi('linked_account/list').then($response => {
+        const lPortalAccount = $response.items.find($e => $e.account.id == $scope.configs.account_id);
+        if(lPortalAccount != null){
+          $scope.portal_account_id = lPortalAccount.id;
 
+          $scope.portalApi('api_key/list').then($response => {
+            if($response.items.length == 1){
+              $siUI.show_toast("There's only one API key for this account");
+              return;
+            }
+            $scope.api_keys = $response.items
+          });
+        }
+      });
+
+
+      
+    });
+  }
+
+
+
+
+//#region UI
   /*
   * UI
   */
-
   $scope.show_page = function($page_id, $params){
     console.log('page is called', $page_id);
     let lPromise = $q(function($resolve, $reject){
@@ -788,8 +821,10 @@ siApp
     return $siUI.dialog($dialog_id, $params);
   }
 
+//#endregion
 
 
+//#region API
   /**
    * Call the API
    * @param {string} $path Endpoint to the api call
@@ -839,7 +874,8 @@ siApp
     })
     
   }
-  
+
+//#endregion
 
   /**
    * Copy some data into clipboard
@@ -933,8 +969,25 @@ siApp
 
 /* DIALOGS */
 siApp
-.controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog){
+.controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog,$siUI){
   BaseDialogController('signin',$scope, $rootScope, $mdDialog);
+  $scope.login_infos = {
+    email: '',
+    password: ''
+  }
+  $scope.title = 'Please signin'
+  $scope.actions = [
+    {label: 'Submit', action : _ => {$scope.login();}}
+  ]
 
-
+  $scope.login = function(){
+    $scope.portalApi('auth/login', $scope.login_infos).then($response => {
+      if($response.statusCode==200){
+        $scope.return($response);
+      }
+      else{
+        $siUI.show_toast($response.message.translate());
+      }
+    });
+  }
 })
