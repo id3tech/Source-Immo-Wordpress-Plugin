@@ -182,9 +182,11 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
                 $resolve(siListingData);
             }
             else{
+                
                 $siApi.getDefaultDataView().then(function($view){
                     // Load listing data from api
-                    $siApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view.id,siApiSettings.locale,$ref_number)).then(function($data){
+                    
+                    $siApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -507,7 +509,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
                 $siApi.getDefaultDataView().then(function($view){
                     // Load broker data from api
                     //console.log($view);
-                    $siApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view.id,siApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });

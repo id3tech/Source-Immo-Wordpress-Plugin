@@ -29,11 +29,15 @@ $contentClass = ($layout->type == 'custom_page') ? "si-custom-content" : "si-con
     ?>
     
 </div>
-
+<?php 
+if(SourceImmo::current()->configs->prefetch_data){
+?>
 <script type="text/javascript">
 var siListingData = <?php 
     echo(json_encode($data)); 
 ?>;
 </script>
 <?php
+}
+
 get_footer();

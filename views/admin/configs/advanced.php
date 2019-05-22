@@ -48,6 +48,16 @@
                     <input ng-model="configs.form_recipient" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" />
                 </md-input-container>
             </div>
+
+            <div layout="row" layout-align="start center">
+                <md-input-container flex>
+                    <label><?php _e('Prefetch data server side to allow api call caching',SI) ?></label>
+                    <md-select ng-model="configs.prefetch_data" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()">
+                        <md-option value="true"><?php _e('Yes',SI) ?></md-option>
+                        <md-option value="false"><?php _e('No',SI) ?></md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
         </div>
     </div>
 </div>

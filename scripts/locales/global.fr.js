@@ -96,6 +96,7 @@ $locales.fr = {};$locales.fr.global =
     , "Change the API key" : "Modifier la clé d'API"
     , "Please signin" : "Veuillez vous connecter"
     , "Submit" : "Envoyer"
+    , "Prefetch data server side to allow api call caching" : "Prélecture de données du coté serveur pour permettre la mise en cache des appels api"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"

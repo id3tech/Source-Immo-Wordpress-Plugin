@@ -131,7 +131,9 @@ function siList(){
                 let lSearchToken = $scope.getSearchToken();
 
                 // search for data with search token
-                if(lSearchToken == $scope.configs.search_token && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
+                if(lSearchToken == $scope.configs.search_token 
+                    && typeof $preloadDatas != 'undefined'
+                    && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
                     console.log('loading from preloaded data');
                     const lItems = $preloadDatas[$scope.configs.alias].items;
 

@@ -98,7 +98,14 @@ function $siApi($http,$q,$siConfig,$rootScope){
     $scope.getDefaultDataView = function(){
         let lPromise = $q(function($resolve, $reject){
             $siConfig.get().then(function($config){
-                $resolve(JSON.parse($config.default_view));
+                console.log('default dv', $config.default_view);
+                if($config.default_view.indexOf('{')>=0){
+                    $resolve(JSON.parse($config.default_view).id);
+                }
+                else{
+                    $resolve($config.default_view);
+                }
+                
             });
         });
 

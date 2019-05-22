@@ -98,10 +98,15 @@ class SiShorcodes{
             }
             else{
 
-                $listData = SourceImmoApi::get_data($listConfig);
+                
+                
 
                 echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" ></si-list>');
-                echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
+                if(SourceImmo::current()->configs->prefetch_data){
+                    $listData = SourceImmoApi::get_data($listConfig);
+                    echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
+                }
+                
                 echo('<script type="text/ng-template" id="si-template-for-'. $alias . '">');
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
                 echo('</script>');
@@ -144,12 +149,17 @@ class SiShorcodes{
         ?>
 
         </div>
+        <?php
+        if(SourceImmo::current()->configs->prefetch_data){
+        ?>                
         <script type="text/javascript">
         var siBrokerData = <?php 
             echo(json_encode($data)); 
         ?>;
         </script>
         <?php
+        }
+
         $result = ob_get_contents();
         ob_end_clean();
         return $result;
@@ -238,12 +248,18 @@ class SiShorcodes{
         ?>
 
         </div>
+
+        <?php
+        if(SourceImmo::current()->configs->prefetch_data){
+        ?> 
         <script type="text/javascript">
         var siListingData = <?php 
             echo(json_encode($listing_data)); 
         ?>;
         </script>
         <?php
+        }
+        
         $result = ob_get_contents();
         ob_end_clean();
         return $result;
