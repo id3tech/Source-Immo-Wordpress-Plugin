@@ -160,7 +160,7 @@ function si_end_of_template(){
   <?php
 }
 
-class ImmodbTools {
+class SourceImmoTools {
 
   public static function get_tiny_url($url)  {  
     $ch = curl_init();  
@@ -321,6 +321,7 @@ class HttpCall{
       array(
         'CURLOPT_HTTPGET' => true,
         'CURLINFO_HEADER_OUT' => true,
+        'CURLOPT_REFERER' => $this->_getCurrentPage(),
         'CURLOPT_USERAGENT' => $this->_getServerSideUA(),
       ),
       $this->request_options
@@ -354,6 +355,7 @@ class HttpCall{
     $lCurlHandle = $this->_setup_curl(array_merge(array(
       'CURLOPT_POST' => true,
       'CURLOPT_USERAGENT' => $this->_getServerSideUA(),
+      'CURLOPT_REFERER' => $this->_getCurrentPage(),
       'CURLOPT_HTTPHEADER' => array(                                                                          
         'Content-Type: application/json',                                                                                
         'Content-Length: ' . strlen($data_string)                                                                       
@@ -399,6 +401,11 @@ class HttpCall{
       }
     }
 
+  }
+
+  private function _getCurrentPage(){
+    $lResult = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    return $lResult;
   }
 
   private function _getServerSideUA(){

@@ -610,7 +610,7 @@ siApp
                     caption: 'For sale', 
                     filter : {field: 'for_sale_flag', operator: 'equal', value: true}
                 },
-                lease : {
+                rent : {
                     caption: 'For rent',
                     filter : {field: 'for_rent_flag', operator: 'equal', value: true}
                 },

@@ -60,6 +60,12 @@ class SourceImmoConfig {
   public $mode = 'PROD';
 
   /**
+   * Prefetch data server side to allow api call caching
+   * @var boolean
+   */
+  public $prefetch_data = false;
+
+  /**
    * Email address to send form information
    * @var string
    */
@@ -123,8 +129,8 @@ class SourceImmoConfig {
       new SourceImmoRoute('en', 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/','listing/{{item.ref_number}}/'),
     );
     $this->broker_routes  = array(
-      new SourceImmoRoute('fr', 'courtiers/{{item.ref_number}}/','courtier/{{item.ref_number}}/'),
-      new SourceImmoRoute('en', 'brokers/{{item.ref_number}}/','broker/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'courtiers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/','courtier/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'brokers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/','broker/{{item.ref_number}}/'),
     );
     $this->city_routes  = array(
       new SourceImmoRoute('fr', 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
@@ -156,7 +162,8 @@ class SourceImmoConfig {
   public static function load(){
     $instance = new SourceImmoConfig();
 
-    $savedConfigs = get_option('SourceImmoConfig');
+    $savedConfigs = $instance->loadSavedConfigs();
+
     if($savedConfigs){
       $instance->parse(json_decode($savedConfigs));
       $instance->normalizeRoutes();
@@ -167,6 +174,15 @@ class SourceImmoConfig {
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
 
     return $instance;
+  }
+
+  public function loadSavedConfigs(){
+    $lResult = false; //get_option('SourceImmoConfig');
+    if($lResult === false){
+      // Try loading previous version
+      $lResult = get_option('ImmoDBConfig');
+    }
+    return $lResult;
   }
 
   public function parse($data){

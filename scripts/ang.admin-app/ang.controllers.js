@@ -149,7 +149,7 @@ siApp
 
 // Edit
 siApp
-.controller('listEditCtrl', function($scope, $rootScope,$q){
+.controller('listEditCtrl', function($scope, $rootScope,$q, $siUtils){
   BasePageController('listEdit', $scope,$rootScope);
 
   
@@ -240,9 +240,7 @@ siApp
             
     let lPromise =  $q(function($resolve, $reject){
         if(lFilters != null){
-            $scope.api('', lFilters,{
-              url: wpApiSettings.api_root + '/api/utils/search_encode'
-            }).then(function($response){
+            $scope.api('utils/search_encode', lFilters).then(function($response){
                 $resolve($response);
             });
         }
@@ -334,7 +332,7 @@ siApp
  * MAIN ROOT CONTROLLER
  */
 siApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
 
@@ -480,13 +478,34 @@ siApp
   $scope.save_configs = function($silent){
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
-      $scope.api('configs',{settings: $scope.configs}).then(function($response){
-        if(!$silent){
-          $scope.show_toast('Save completed');
-        }
-        $resolve();
-      });
+      // Make sure there's a default search token for lists
+      $scope.validateListConfigs()
+        .then(_ => {
+          $scope.api('configs',{settings: $scope.configs}).then(function($response){
+            if(!$silent){
+              $scope.show_toast('Save completed');
+            }
+            $resolve();
+          });
+        });
     });
+  }
+
+  $scope.validateListConfigs = function(){
+    const lDefaultSearchTokenRenew = $scope.configs.lists
+      .filter($l => $l.search_token=='')
+      .map($l => {
+        return $q( ($resolve,$reject) => {
+          $siUtils.renewListSearchToken($l).then($token => {
+            $l.search_token = $token;
+            console.log('After token renew', $l);
+            $resolve();
+          })
+        })
+      });
+      
+    return $q
+        .all(lDefaultSearchTokenRenew)
   }
 
   $scope.isInitializing = function(){

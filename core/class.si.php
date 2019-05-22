@@ -1778,7 +1778,7 @@ class BrokerSchema extends BaseDataSchema{
       $this->_schema['address'] = array(
         '@type' => 'PostalAddress',
         'streetAddress' => $broker->office->location->address->street_number . ' ' . $broker->office->location->address->street_name,
-        'addressLocality' => $broker->office->location->city
+        'addressLocality' => (isset($broker->office->location->city)) ? $broker->office->location->city : ''
       );
     }
     

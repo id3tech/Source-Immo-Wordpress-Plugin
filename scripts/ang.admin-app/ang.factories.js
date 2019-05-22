@@ -1,7 +1,7 @@
 /* SERVICES */
 siApp
-.factory('$siUtils', [
-function $siUtils(){
+.factory('$siUtils', ['$siApi','$q',
+function $siUtils($siApi,$q){
   let $scope = {};
 
   $scope.stringToOptionList = function($source){
@@ -51,6 +51,81 @@ function $siUtils(){
       }
     }
     return lResult;
+  }
+
+  $scope.renewListSearchToken = function($list){
+    let lFilters = $scope.buildListFilter($list);
+ 
+    return $q(function($resolve, $reject){
+        if(lFilters != null){
+          $siApi.call('', lFilters,{
+              url: wpApiSettings.api_root + '/api/utils/search_encode'
+            }).then(function($response){
+                $resolve($response);
+            });
+        }
+        else{
+            $resolve('');
+        }
+    });
+  }
+  
+
+  $scope.buildListFilter = function($list){
+      let lResult = null;
+      
+      if($list.limit>0){
+          lResult = {
+              max_item_count : $list.limit
+          }
+      }
+
+      if($list.sort != '' && $list.sort != 'auto'){
+        if(lResult==null) lResult = {};
+        lResult.sort_fields = [{field: $list.sort, desc: $list.sort_reverse}];
+      }
+
+      if($list.shuffle){
+        if(lResult==null) lResult = {};
+        lResult.shuffle = $list.shuffle;
+      }
+      
+      if($list.filter_group != null){
+        if(lResult==null) lResult = {};
+
+        lResult.filter_group = $scope.normalizeFilterGroup(angular.copy($list.filter_group));
+      }
+      return lResult;
+  }
+
+  $scope.normalizeFilterGroup = function($filter_group){
+    if($filter_group.filters){
+        $filter_group.filters.forEach(function($filter){
+            if(['in','not_in'].indexOf($filter.operator) >= 0){
+                if(typeof $filter.value.push == 'undefined'){
+                  $filter.value = $filter.value.split(",");
+                  $filter.value.forEach(function($val){
+                      if(!isNaN($val)){
+                          $val = Number($val)
+                      }
+                  });
+                }
+            }
+            else{
+                if(!isNaN($filter.value)){
+                    $filter.value = Number($filter.value);
+                }
+            }
+        });
+    }
+    
+    if($filter_group.filter_groups){
+        $filter_group.filter_groups.forEach(function($group){
+            $scope.normalizeFilterGroup($group);
+        });
+    }
+
+    return $filter_group;
   }
 
   return $scope;

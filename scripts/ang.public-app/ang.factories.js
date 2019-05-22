@@ -664,17 +664,37 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
     $scope.getTransaction = function($item, $sanitize){
         $sanitize = ($sanitize==undefined)?false:$sanitize;
         let lResult = [];
-        for(var $key in $item.price){
-            if($key!='foreclosure'){
-                let lTrans = ('To ' + $key).translate();
+        const lLabel = {
+            'rent' : 'For rent',
+            'lease': 'For rent',
+            'sell' : 'For sale'
+        }
+        lResult = $scope.getTransactionFromArray($item,['rent','sell'], lLabel, $sanitize);
+
+        if(lResult.length ==0){
+            lResult = $scope.getTransactionFromArray($item,['lease','sell'], lLabel, $sanitize);
+        }
+
+        return lResult.join(' ' + 'or'.translate() + ' ');
+    }
+
+    /**
+     * Get transaction from array of price nodes
+     */
+    $scope.getTransactionFromArray = function($item, $keys, $labels, $sanitize){
+        let lResult = [];
+
+        $keys.forEach($key =>{
+            if(typeof $item.price[$key]!='undefined'){
+                let lTrans = ($labels[$key]).translate();
                 if($sanitize){
                     lTrans = $scope.sanitize(lTrans);
                 }
                 lResult.push(lTrans);
             }
-        }
+        });
 
-        return lResult.join(' ' + 'or'.translate() + ' ');
+        return lResult;
     }
 
     /**

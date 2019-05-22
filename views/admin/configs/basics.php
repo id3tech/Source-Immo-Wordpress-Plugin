@@ -13,12 +13,12 @@
             <div layout="column" layout-align="start stretch">
                 <md-input-container flex>
                     <label><?php _e('API key',SI)?></label>
-                    <input ng-model="configs.api_key" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" required/>
+                    <input ng-model="configs.api_key" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" required disabled/>
                 </md-input-container>
 
                 <md-input-container flex>
                     <label><?php _e('Account ID',SI)?></label>
-                    <input ng-model="configs.account_id" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" required />
+                    <input ng-model="configs.account_id" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" required disabled />
                 </md-input-container>
             </div>
         </div>
