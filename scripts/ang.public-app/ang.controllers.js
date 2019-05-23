@@ -353,6 +353,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
         }
 
+        $scope.model.permalink = window.location.pathname;
+        console.log('permalink', $scope.model.permalink);
         $siHooks.do('single-listing-preprocess', $scope.model);
     }
 

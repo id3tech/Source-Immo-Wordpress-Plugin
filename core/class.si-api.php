@@ -13,8 +13,12 @@ class SourceImmoApi {
   }
 
 
+  /**
+   * Update page content
+   * @static
+   * POST /si-rest/page
+   */
   public static function update_page($request){
-    global $sitepress;
     $page_id = $request->get_param('page_id');
     $title = $request->get_param('title');
     $content = $request->get_param('content');
@@ -23,7 +27,8 @@ class SourceImmoApi {
       $my_post = array(
         'post_title'    => $title,
         'post_content'  => $content,
-        'post_status'   => 'publish'
+        'post_status'   => 'publish',
+        'post_type'     => 'page'
       );
      
       wp_insert_post( $my_post );
@@ -36,8 +41,12 @@ class SourceImmoApi {
     }
   }
 
-
-  public static function get_pages($request){
+  /**
+   * Get pages list
+   * @static
+   * GET /si-rest/pages
+   */
+  public static function get_page_list($request){
     // change language
     global $sitepress;
     $lang = $request->get_param('locale');
@@ -81,6 +90,7 @@ class SourceImmoApi {
 
   /**
   * Get a valid access token from the server
+  * GET: /si-rest/access_token
   * @static
   * @return Object : Object
   */
@@ -117,12 +127,17 @@ class SourceImmoApi {
     return json_decode($lResult);
   }
 
+  /**
+   * Clear the access token
+   * POST: /si-rest/access_token/clear
+   */
   public static function clear_access_token(){
     $api_key = SourceImmo::current()->get_api_key();
     delete_transient('si_temp_auth_token' . $api_key);
 
     return true;
   }
+
 
   private static function get_token_timelapse($token){
     $lDiff = 0;
@@ -158,6 +173,10 @@ class SourceImmoApi {
   }
 
 
+  /**
+   * Get the view config
+   * GET: /si-rest/data_view
+   */
   public static function get_data_view(){
     if(SourceImmo::current()->configs->default_view != null){
       return si_view_id(SourceImmo::current()->configs->default_view);
@@ -167,7 +186,10 @@ class SourceImmoApi {
     return si_view_id($lToken->view_ids[0]);
   }
 
-  
+  /**
+   * Get the view config
+   * GET: /si-rest/permalinks
+   */
   public static function get_configs_permalinks(){
     $lResult = array(
       'listings' => SourceImmo::current()->configs->listing_routes,
@@ -568,25 +590,76 @@ class SourceImmoApi {
     );
   }
 
-
+  /**
+   * Register all REST listener
+   * @static
+   */
   private static function _registerRestApiListeners(){
+    
+    // Access Token
+    self::_register_access_token_routes();
+    
+    // Account
+    self::_register_account_routes();
+
+    // Dictionary
+    self::_register_dictionary_routes();
+
+    // Configs
+    self::_register_config_routes();
+
+    // View
+    self::_register_view_routes();
+
+    // List
+    self::_register_list_routes();
+
+    // Message
+    self::_register_message_routes();
+
+    // Page
+    self::_register_page_routes();
+
+    // Permalink
+    self::_register_permalink_routes();
+
+  }
+
+  
+  /**
+   * Access Token REST routes registration
+   * @static
+   */
+  static function _register_access_token_routes(){
     // Acquire access token to make call to the source.immo remote api
-    register_rest_route( 'si-rest','/access_token',array(
+    register_rest_route( 'si-rest','/access_token',
+      array(
         array(
           'methods' => WP_REST_Server::READABLE,
           //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
           'callback' => array( 'SourceImmoApi', 'get_access_token' ),
-        ), // End GET
+        )
+      )
+    );
 
+    // Clear AT
+    register_rest_route( 'si-rest','/access_token/clear',
+      array(
         array(
           'methods' => WP_REST_Server::EDITABLE,
           'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
           'callback' => array( 'SourceImmoApi', 'clear_access_token' ),
-        ), // End PATCH
+        ),
       )
     );
+  }
 
-    // Acquire access token to make call to the source.immo remote api
+
+  /**
+   * Access Token REST routes registration
+   * @static
+   */
+  static function _register_account_routes(){
     register_rest_route( 'si-rest','/account',
       array(
         'methods' => WP_REST_Server::READABLE,
@@ -594,8 +667,14 @@ class SourceImmoApi {
         'callback' => array( 'SourceImmoApi', 'get_account' ),
       )
     );
+  }
 
-    // Get the default dictionary
+
+  /**
+   * Access Token REST routes registration
+   * @static
+   */
+  static function _register_dictionary_routes(){
     register_rest_route( 'si-rest','/dictionary',
       array(
         'methods' => WP_REST_Server::READABLE,
@@ -603,22 +682,117 @@ class SourceImmoApi {
         'callback' => array( 'SourceImmoApi', 'get_dictionary' ),
       )
     );
+  }
 
-    // Acquire default data view
-    register_rest_route( 'si-rest','/data_view',
+
+
+  /**
+   * Config REST routes registration
+   * @static
+   */
+  static function _register_config_routes(){
+    //Read/Write configs
+    register_rest_route( 'si-rest','/configs',
       array(
-        'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-        'callback' => array( 'SourceImmoApi', 'get_data_view' ),
+        // GET
+        array(
+          'methods' => WP_REST_Server::READABLE,
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'get_configs' ),
+        ), // End GET
+
+        // SAVE/UPDATE
+        array(
+          'methods' => WP_REST_Server::EDITABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'set_configs' ),
+          'args' => array(
+            'settings' => array(
+              'required' => true,
+              'type' => 'SourceImmoConfig',
+              'description' => __( 'Configuration informations', SI ),
+            )
+          )
+        )
       )
     );
 
+    // Reset
+    register_rest_route( 'si-rest','/configs/reset',array(
+        array(
+          'methods' => WP_REST_Server::EDITABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'reset_configs' ),
+        ), // End POST
+      )
+    );
+  }
+
+
+
+  
+
+
+  /**
+   * List REST routes registration
+   * @static
+   */
+  static function _register_list_routes(){
+    //Write message
+    register_rest_route( 'si-rest','/list_configs',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => array( 'SourceImmoApi', 'get_list_configs' ),
+        'args' => array(
+          'alias' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Alias identifier of the List object', SI ),
+          )
+        )
+      ) // End GET
+    );
+  }
+
+
+
+  /**
+   * Message REST routes registration
+   * @static
+   */
+  static function _register_message_routes(){
+    //Write message
+    register_rest_route( 'si-rest','/message',
+      array(
+        array(
+          'methods' => WP_REST_Server::CREATABLE,
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'send_message' ),
+          'args' => array(
+            'params' => array(
+              'required' => true,
+              'type' => 'MessageData',
+              'description' => __( 'Message information', SI ),
+            )
+          )
+        ), // End POST
+      )
+    );
+  }
+
+
+
+  /**
+   * Message REST routes registration
+   * @static
+   */
+  static function _register_page_routes(){
     // Get WP page list
-    register_rest_route( 'si-rest','/pages',
+    register_rest_route( 'si-rest','/page/list',
       array(
         'methods' => WP_REST_Server::READABLE,
         //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-        'callback' => array( 'SourceImmoApi', 'get_pages' ),
+        'callback' => array( 'SourceImmoApi', 'get_page_list' ),
         'args' => array(
           'locale' => array(
             'required' => true,
@@ -658,78 +832,37 @@ class SourceImmoApi {
         )
       )
     );
+  }
 
 
-    //Read/Write configs
-    register_rest_route( 'si-rest','/configs',array(
-        array(
-          'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-          'callback' => array( 'SourceImmoApi', 'get_configs' ),
-        ), // End GET
-
-        array(
-          'methods' => WP_REST_Server::CREATABLE,
-          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-          'callback' => array( 'SourceImmoApi', 'set_configs' ),
-          'args' => array(
-            'settings' => array(
-              'required' => true,
-              'type' => 'SourceImmoConfig',
-              'description' => __( 'Configuration informations', SI ),
-            )
-          )
-        ), // End POST
-        
-        array(
-          'methods' => WP_REST_Server::EDITABLE,
-          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-          'callback' => array( 'SourceImmoApi', 'reset_configs' ),
-        ), // End PATCH
-      )
-    );
-
-    //Read List configs
-    register_rest_route( 'si-rest','/list_configs',
-      array(
-        'methods' => WP_REST_Server::READABLE,
-        'callback' => array( 'SourceImmoApi', 'get_list_configs' ),
-        'args' => array(
-          'alias' => array(
-            'required' => true,
-            'type' => 'String',
-            'description' => __( 'Alias identifier of the List object', SI ),
-          )
-        )
-      ) // End GET
-    );
-
-    //Read config permalinks
+  /**
+   * Permalinks REST routes registration
+   * @static
+   */
+  static function _register_permalink_routes(){
+    //Write message
     register_rest_route( 'si-rest','/permalinks',
       array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => array( 'SourceImmoApi', 'get_configs_permalinks' )
       ) // End GET
     );
+  }
 
 
-    //Write message
-    register_rest_route( 'si-rest','/message',array(
-        
-        array(
-          'methods' => WP_REST_Server::CREATABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
-          'callback' => array( 'SourceImmoApi', 'send_message' ),
-          'args' => array(
-            'params' => array(
-              'required' => true,
-              'type' => 'MessageData',
-              'description' => __( 'Message information', SI ),
-            )
-          )
-        ), // End POST
-        
+  /**
+   * View REST routes registration
+   * @static
+   */
+  static function _register_view_routes(){
+    // Acquire default data view
+    register_rest_route( 'si-rest','/data_view',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_data_view' ),
       )
     );
   }
+
 }

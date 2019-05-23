@@ -93,6 +93,7 @@ $locales.fr = {};$locales.fr.global =
     , "Choose a page in which you want to display your listings and another for your brokers" : "Choisissez la page où sera affiché vos propriétés et une autre pour vos courtiers"
     , "Page for listings" : "Page de propriétés"
     , "Page for brokers" : "Page de courtiers"
+    , "Create a new page" : "Créer une nouvelle page"
     , "Change the API key" : "Modifier la clé d'API"
     , "Please signin" : "Veuillez vous connecter"
     , "Submit" : "Envoyer"

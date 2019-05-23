@@ -6,17 +6,17 @@
 <div class="page-list">
     <md-input-container>
         <label><?php _e('Page for listings',SI) ?></label>
-        <md-select ng-model="default_listing_page">
-        <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-        <md-option ng-repeat="item in wp_pages.fr" value="{{item.ID}}" >{{item.post_title}}</md-option>
+        <md-select ng-model="default_page.listing">
+            <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
+            <md-option ng-repeat="item in wp_pages.fr" value="{{item.ID}}" >{{item.post_title}}</md-option>
         </md-select>
     </md-input-container>
 
     <md-input-container>
         <label><?php _e('Page for brokers',SI) ?></label>
-        <md-select ng-model="default_broker_page">
-        <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-        <md-option ng-repeat="item in wp_pages.fr" value="{{item.ID}}" >{{item.post_title}}</md-option>
+        <md-select ng-model="default_page.broker">
+            <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
+            <md-option ng-repeat="item in wp_pages.fr" value="{{item.ID}}" >{{item.post_title}}</md-option>
         </md-select>
     </md-input-container>
 

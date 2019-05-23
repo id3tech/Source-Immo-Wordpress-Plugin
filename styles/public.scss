@@ -1556,17 +1556,19 @@ $laptop : 1280px;
         }
         .header{
             display:grid;
-            grid-gap: 10px;
+            grid-gap: 0 10px;
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: auto;
             grid-template-areas: 
                 "subcategory subcategory subcategory price price price price" 
-                "city city city city tools information_request information_request";
+                "city city city price price price price"
+                "tools tools tools tools tools information_request information_request";
 
             &.is-sold{
                 grid-template-areas: 
                     "subcategory subcategory subcategory price price price price" 
-                    "city city city city city tools tools";
+                    "city city city price price price price"
+                    "tools tools tools tools tools tools tools";
                 .information_request{display:none;}
             }
             @include media($tablet){
@@ -1625,7 +1627,7 @@ $laptop : 1280px;
             }
             .price{
                 font-size:1.75em;font-weight: 600;
-                place-self: self-end;
+                place-self: start end;
                 text-align:right;
                 .mortgage{
                     font-size:0.5em;font-weight:400;
@@ -3257,35 +3259,6 @@ body.si-modal-open{
         }
     }
 
-    // &.display-fixed{
-    //     position:fixed;
-    //     width:calc(100vw - 20px);height:100vh;
-    //     top:0px;left:0px;
-
-    //     .item{
-    //         position:relative;
-    //         opacity:0;
-            
-    //         .content{
-    //             background:#fdfdfd;
-    //             border:solid 1px #ccc;
-    //             position: absolute;top:50%;transform:translateY(-50%);
-    //             transition:0.25s;
-    //             &:hover{
-    //                 box-shadow:rgba(#000,0.5) 0 10px 20px;
-    //             }
-    //         }
-    //         &.previous{
-    //             left:0px;
-    //         }
-    //         &.next{
-    //             right:0px;
-    //         }
-    //         &:hover{
-    //             opacity:1;
-    //         }
-    //     }
-    // }
 }
 
 #top .si-loading,

@@ -429,6 +429,7 @@ class SourceImmo {
                           'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
                           'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', SI_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . '};'
                         );
+    
     if($lTwoLetterLocale!='en'){
       wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
                 null, 

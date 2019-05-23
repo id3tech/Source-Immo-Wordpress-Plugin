@@ -426,6 +426,11 @@ siApp
     password: ''
   }
   $scope.api_keys = null;
+  $scope.default_page = {
+    listing: 'NEW',
+    broker: 'NEW'
+  }
+  
 
   $scope.init = function(){
     $scope.load_configs().then(_ => {
@@ -473,7 +478,7 @@ siApp
   }
 
   $scope.reset_configs = function(){
-    $scope.api('configs',null, {method:'PATCH'}).then(function($response){
+    $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
       $scope.configs = $response;
       $scope.show_toast('Configuration reset to demo mode');
     });
@@ -520,8 +525,8 @@ siApp
     return $q(function($resolve, $reject){
 
       $q.all([
-        $scope.api('pages',{locale: 'fr', type: ''},{method : 'GET'}),
-        $scope.api('pages',{locale: 'en', type: ''},{method : 'GET'})
+        $scope.api('page/list',{locale: 'fr', type: ''},{method : 'GET'}),
+        $scope.api('page/list',{locale: 'en', type: ''},{method : 'GET'})
       ])
       .then($results => {
         $scope.wp_pages.fr = $results[0];
@@ -670,8 +675,7 @@ siApp
 
   $scope.setDisplayPages = function(){
     $scope.configuration_step += 1;
-    $scope.default_listing_page = 'NEW';
-    $scope.default_broker_page = 'NEW';
+    
 
 
 
@@ -681,8 +685,8 @@ siApp
         //$timeout(_ => {
           $pages.fr.forEach($p => {
             console.log($p.post_title);
-            if('propriétés' == $p.post_title.toLowerCase()) $scope.default_listing_page = $p.ID;
-            if('courtiers' == $p.post_title.toLowerCase()) $scope.default_broker_page = $p.ID;
+            if('propriétés' == $p.post_title.toLowerCase()) $scope.default_page.listing = $p.ID;
+            if('courtiers' == $p.post_title.toLowerCase()) $scope.default_page.broker = $p.ID;
           });  
         //})
         
@@ -701,7 +705,13 @@ siApp
 
   $scope.applyListingShortCode = function(){
     return $q(function($resolve, $reject){
-      $scope.api('page',{page_id: $scope.default_listing_page, title: 'Propriétés', content:'[si alias="listings"]'}).then($result => {
+      const params = {
+        page_id: $scope.default_page.listing, 
+        title: 'Our Listings'.translate(), 
+        content:'[si alias="listings"]'
+      };
+
+      $scope.api('page',params).then($result => {
         $resolve();
       });
     })
@@ -709,7 +719,13 @@ siApp
 
   $scope.applyBrokerShortCode = function(){
     return $q(function($resolve, $reject){
-      $scope.api('page',{page_id: $scope.default_broker_page, title: 'Courtiers',content:'[si alias="brokers"]'}).then($result => {
+      const params = {
+        page_id: $scope.default_page.broker, 
+        title: 'Our Teams'.translate(),
+        content:'[si alias="brokers"]'
+      };
+
+      $scope.api('page',params).then($result => {
         $resolve();
       });
     })

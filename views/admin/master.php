@@ -77,7 +77,13 @@ if($lTwoLetterLocale == ''){
   <script type="text/javascript">
   $locales.init('<?php echo($lTwoLetterLocale); ?>');
   </script>
-  <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , SI_PLUGIN ) ?>"></script>
+  <?php
+  if($lTwoLetterLocale != 'en'){
+    ?>
+    <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , SI_PLUGIN ) ?>"></script>
+    <?php
+  }
+  ?>
   
   <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , SI_PLUGIN ) ?>"></script>
 
