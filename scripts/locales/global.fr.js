@@ -114,6 +114,7 @@ $locales.fr = {};$locales.fr.global =
     , "Limit the number of displayed elements" : "Limiter le nombre d'élément affiché"
     , "Filters" : "Filtres"
     , "Layout" : "Disposition"
+    , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Attribute" : "Attribut"
     , "Operator" : "Opérateur"
     , "Value" : "Valeur"

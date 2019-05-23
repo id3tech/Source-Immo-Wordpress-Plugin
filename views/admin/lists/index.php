@@ -46,6 +46,14 @@
 
     <div class="other-stuff">
         <md-tabs md-dynamic-height md-border-bottom>
+
+            <md-tab>
+                <md-tab-label><?php _e('Layout',SI)?></md-tab-label>
+                <md-tab-body class="md-padding">
+                <?php SourceImmo::view('admin/lists/layout') ?>
+                </md-tab-body>
+            </md-tab>            
+            
             <md-tab>
                 <md-tab-label><?php _e('Filters',SI)?></md-tab-label>
                 <md-tab-body class="md-padding">
@@ -53,12 +61,6 @@
                 </md-tab-body>
             </md-tab>
 
-            <md-tab>
-                <md-tab-label><?php _e('Layout',SI)?></md-tab-label>
-                <md-tab-body class="md-padding">
-                <?php SourceImmo::view('admin/lists/layout') ?>
-                </md-tab-body>
-            </md-tab>
         </md-tabs>
     </div>
 </div>

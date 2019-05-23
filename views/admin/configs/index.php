@@ -11,13 +11,7 @@
       </md-tab-body>
     </md-tab>
 
-    <md-tab>
-      <md-tab-label><i class="fal fa-link"></i> <?php _e('Permalinks',SI)?></md-tab-label>
-      <md-tab-body class="md-padding">
-        <?php SourceImmo::view('admin/configs/permalinks') ?>
-      </md-tab-body>
-    </md-tab>
-
+   
 
     <md-tab>
       <md-tab-label><i class="fal fa-list"></i> <?php _e('Lists',SI)?></md-tab-label>
@@ -33,6 +27,14 @@
       </md-tab-body>
     </md-tab>
 
+    <md-tab>
+      <md-tab-label><i class="fal fa-link"></i> <?php _e('Permalinks',SI)?></md-tab-label>
+      <md-tab-body class="md-padding">
+        <?php SourceImmo::view('admin/configs/permalinks') ?>
+      </md-tab-body>
+    </md-tab>
+
+    
     <md-tab>
       <md-tab-label><i class="fal fa-wrench"></i> <?php _e('Advanced',SI)?></md-tab-label>
       <md-tab-body class="md-padding">
