@@ -135,7 +135,7 @@ $locales.fr = {};$locales.fr.global =
     , "List items" : "Éléments de la liste"
     , "Model" : "Modèle"
     , "Map" : "Carte"
-    , "Direct render" : "Rendu direct"
+    , "Server side rendering" : "Génération côté serveur"
     , "Show list metadatas" : "Afficher les métadonnées de la liste"
     , "List removed" : "Liste supprimée"
     , "Save completed" : "Sauvegarde complétée"

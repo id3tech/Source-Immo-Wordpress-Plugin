@@ -54,7 +54,7 @@
                 </md-tab-body>
             </md-tab>            
             
-            <md-tab>
+            <md-tab ng-disabled="model.list_layout.preset!='direct'">
                 <md-tab-label><?php _e('Filters',SI)?></md-tab-label>
                 <md-tab-body class="md-padding">
                 <?php SourceImmo::view('admin/lists/filters') ?>

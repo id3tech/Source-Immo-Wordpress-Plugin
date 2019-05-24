@@ -355,15 +355,14 @@ siApp
       listings: [
         {name: 'standard', label: 'Standard'},
         {name: 'map', label: 'Map'},
-        {name: 'direct', label: 'Direct render'}
+        {name: 'direct', label: 'Server side rendering'}
       ],
       brokers: [
         {name: 'standard', label: 'Standard'},
-        {name: 'map', label: 'Map'},
-        {name: 'direct', label: 'Direct render'}
+        {name: 'direct', label: 'Server side rendering'}
       ],
       cities: [
-        {name: 'direct', label: 'Direct render'}
+        {name: 'direct', label: 'Server side rendering'}
       ]
     },
     list_item_layouts:{

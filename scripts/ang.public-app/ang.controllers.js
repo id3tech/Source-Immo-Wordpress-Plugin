@@ -268,7 +268,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         $scope.model.important_flags = [];
         $scope.model.long_price = $siUtils.formatPrice($scope.model,'long');
         $scope.model.short_price = $siUtils.formatPrice($scope.model);
-
+        
         // from main unit
         let lMainUnit = $scope.model.units.find(function($u){return $u.category_code=='MAIN'});
         if(lMainUnit!=null){
@@ -354,6 +354,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         }
 
         $scope.model.permalink = window.location.pathname;
+        $siUtils.compileBrokerList($scope.model.brokers);
+        
         console.log('permalink', $scope.model.permalink);
         $siHooks.do('single-listing-preprocess', $scope.model);
     }
