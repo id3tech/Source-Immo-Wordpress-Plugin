@@ -13,7 +13,7 @@
 
         ?>
         <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
-            <div ng-repeat="item in list track by item.id">
+            <div ng-repeat="item in list track by item.id"  class="item-{{item.ref_number}}">
             <?php 
                 SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
             ?>

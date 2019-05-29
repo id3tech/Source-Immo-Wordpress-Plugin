@@ -683,18 +683,20 @@ class SourceImmo {
   }
 
   public function start_of_template($loadingText){
-    if(did_action('si_start_of_template') === 1) return;
+    if(did_action('si_start_of_template') === 1){
     ?>
     <label class="placeholder"  data-ng-show="model==null"><?php _e($loadingText,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
             <div class="si-content"  ng-cloak>
     <?php
+    }
   }
 
   public function end_of_template(){
-    if(did_action('si_end_of_template') === 1) return;
+    if(did_action('si_end_of_template') === 1){
     ?>
       </div>
     <?php
+    }
   }
 
   public static function staticDataController($configs, $data){

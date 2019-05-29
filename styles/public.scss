@@ -2527,7 +2527,7 @@ body.si-modal-open{
             textarea,input{
                 border:var(--element-border);
                 border-radius:var(--element-border-radius);
-                
+                outline:none;
                 &:focus{
                     border-color: var(--text-color);
                 }
