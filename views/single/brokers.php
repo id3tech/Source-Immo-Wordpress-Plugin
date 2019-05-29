@@ -19,11 +19,11 @@ SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
             do_action('si_render_page',$layout->page, 'Loading broker');
         }
         else{
-            si_start_of_template("Loading broker");
+            do_action('si_start_of_template',"Loading broker" );
 
             SourceImmo::view('single/brokers_layouts/' . $layout->type);
             
-            si_end_of_template();
+            do_action('si_end_of_template');
         }
     ?>
 </div>
