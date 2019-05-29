@@ -22,7 +22,7 @@ $contentClass = ($layout->type == 'custom_page') ? "si-custom-content" : "si-con
         else{
             do_action('si_start_of_template',"Loading listing" );
             //
-
+            
             SourceImmo::view('single/listings_layouts/' . $layout->type);
             
             do_action('si_end_of_template');

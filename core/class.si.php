@@ -60,6 +60,9 @@ class SourceImmo {
       add_action('wp_ajax_admin_abc_ajax', array($this,'validate_file_version'), 1);
 
       add_action('si_render_page', array($this, 'render_page'),10,2);
+
+      add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
+      add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
     }
   }
 
@@ -671,12 +674,27 @@ class SourceImmo {
   public function render_page($post_id, $load_text){
     if($this->page_template_rendered) return;
     
-    si_end_of_template($load_text);
+    do_action('si_start_of_template', $load_text);
 
     $lPost = get_post($post_id);
     echo(do_shortcode($lPost->post_content));
   
-    si_end_of_template();
+    do_action('si_end_of_template');
+  }
+
+  public function start_of_template($loadingText){
+    if(did_action('si_start_of_template') === 1) return;
+    ?>
+    <label class="placeholder"  data-ng-show="model==null"><?php _e($loadingText,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
+            <div class="si-content"  ng-cloak>
+    <?php
+  }
+
+  public function end_of_template(){
+    if(did_action('si_end_of_template') === 1) return;
+    ?>
+      </div>
+    <?php
   }
 
   public static function staticDataController($configs, $data){
