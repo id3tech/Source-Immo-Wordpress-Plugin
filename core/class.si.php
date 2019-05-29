@@ -683,6 +683,7 @@ class SourceImmo {
   }
 
   public function start_of_template($loadingText){
+    if($this->page_template_rendered) return;
     if(did_action('si_start_of_template') === 1){
     ?>
     <label class="placeholder"  data-ng-show="model==null"><?php _e($loadingText,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
@@ -692,6 +693,7 @@ class SourceImmo {
   }
 
   public function end_of_template(){
+    if($this->page_template_rendered) return;
     if(did_action('si_end_of_template') === 1){
     ?>
       </div>

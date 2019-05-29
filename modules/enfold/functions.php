@@ -54,5 +54,22 @@ function si_enfold_render_template_builder_for($post_id, $loading_text="Loading 
 	echo('</div>');
 	echo('</div>');
 }
-
 add_action('si_render_page', 'si_enfold_render_template_builder_for', 5,1);
+
+function si_enfold_start_of_template($loadingText){
+?>
+
+            <div class="container">
+        
+            
+  <?php
+}
+add_action('si_start_of_template', 'si_enfold_start_of_template', 5,1);
+
+function si_enfold_end_of_template(){
+    ?>
+
+</div>
+<?php
+}
+add_action('si_end_of_template', 'si_enfold_end_of_template', 5,1);
