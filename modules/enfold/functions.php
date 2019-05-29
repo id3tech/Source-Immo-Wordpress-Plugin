@@ -1,5 +1,5 @@
 <?php
-function si_enfold_render_template_builder_for($post_id, $loading_text){
+function si_enfold_render_template_builder_for($post_id, $loading_text="Loading data"){
     SourceImmo::current()->page_template_rendered = true;
 	echo('<label class="placeholder"  data-ng-show="model==null">' . __($loading_text,SI) . '<i class="fal fa-spinner fa-spin"></i></label>');
 	echo('<div class="si-custom-content" ng-cloak>');

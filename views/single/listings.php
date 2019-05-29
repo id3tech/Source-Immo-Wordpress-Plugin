@@ -17,14 +17,17 @@ $contentClass = ($layout->type == 'custom_page') ? "si-custom-content" : "si-con
         $layout = SourceImmo::current()->get_detail_layout('listing');
         if($layout->type=='custom_page'){
             // load page content
-            do_action('si_render_page',$layout->page);
+            do_action('si_render_page',$layout->page,"Loading listing");
         }
         else{
-            si_start_of_template("Loading listing");
+            do_action('si_start_of_template',"Loading listing" );
+            //
 
             SourceImmo::view('single/listings_layouts/' . $layout->type);
             
-            si_end_of_template();
+            do_action('si_end_of_template');
+
+            //si_end_of_template();
         }
     ?>
     

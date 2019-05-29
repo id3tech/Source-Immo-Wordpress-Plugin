@@ -42,8 +42,9 @@ class Debug {
 }
 global $console;
 $console = new Debug();
-function __c(){
-  return new Debug();
+function __c(...$data){
+  $c = new Debug();
+  $c->write(...$data);
 }
 
 /**
@@ -141,23 +142,10 @@ function si_view_id($viewData){
 }
 
 function si_start_of_template($loading_text='Loading'){
-  ?>
-  <div class="wrap">
-    <div id="primary" class="content-area">
-        <main id="main" class="site-main" role="main">
-            <div class="container">
-        
-            <label class="placeholder"  data-ng-show="model==null"><?php _e($loading_text,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
-            <div class="si-content"  ng-cloak>
-  <?php
+  
 }
 function si_end_of_template(){
-  ?>
-            </div>
-        </main>
-    </div>
-  </div>
-  <?php
+  
 }
 
 class SourceImmoTools {

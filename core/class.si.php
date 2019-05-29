@@ -387,7 +387,10 @@ class SourceImmo {
   */
   public function load_resources(){
     $lTwoLetterLocale = substr(get_locale(),0,2);
-    
+    $mapKeyParams = '';
+    if(!empty($this->configs->map_api_key)){
+      $mapKeyParams = 'key=' . $this->configs->map_api_key;
+    }
 
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
     //wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
@@ -404,8 +407,8 @@ class SourceImmo {
     // swipe-touch handling library
     wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
     // google map API library
+    wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?' . $mapKeyParams . '&libraries=places', null, null, true );
     if($this->configs->map_api_key != ''){
-      wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?key=' . $this->configs->map_api_key . '&libraries=places', null, null, true );
       wp_enqueue_script( 'google-map-cluster', 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', 'google-map', null, true );
     }
     
@@ -599,7 +602,7 @@ class SourceImmo {
       
       $permalink = $share_tool->getPermalink();
 
-      $post->permalink = $permalink;
+      if($post != null) $post->permalink = $permalink;
 
       // add hook for permalink
       add_filter('the_permalink', function($url){
@@ -797,11 +800,18 @@ class SourceImmo {
   public function load_modules(){
     $theme = wp_get_theme();
 
-    // enfold
-    if ( 'Enfold' == $theme->name || 'Enfold' == $theme->parent_theme ) {
-      include SI_PLUGIN_DIR . 'modules/enfold/functions.php';
-    }
+    $themeNames = array($theme->name, $theme->parent_theme);
+    foreach ($themeNames as $name) {
+      if(!isset($name) || $name == null || $name == '') continue;
 
+      $moduleName = str_replace(' ','-',strtolower($name));
+      $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
+      
+      if(file_exists($modulePath)){
+        include $modulePath;
+      }
+    }
+    
   }
 
   /** 
