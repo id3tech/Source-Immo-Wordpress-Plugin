@@ -563,7 +563,11 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
                                                     );
-                
+            if(typeof $item.location.address.door != 'undefined'){
+                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
+            }
+            
+            $scope.compileListingRooms($item);
             $item.permalink = $scope.getPermalink($item);
         }
     }
@@ -584,6 +588,35 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         if($item.permalink == undefined){
             $item.license_type = $siDictionary.getCaption($item.license_type_code, 'broker_license_type');
             $item.permalink = $scope.getPermalink($item,'broker');
+        }
+    }
+
+    $scope.compileListingRooms = function($item){
+        if(typeof $item.main_unit != 'undefined'){
+            
+            const lIconRef = {
+                'bathroom_count' : 'bath',
+                'bedroom_count' : 'bed',
+                'waterroom_count' : 'hand-holding-water'
+            }
+            const lLabelRef = {
+                'bathroom_count' : 'Bathroom',
+                'bedroom_count' : 'Bedroom',
+                'waterroom_count' : 'Powder room'
+            }
+            const lPluralLabelRef = {
+                'bathroom_count' : 'Bathrooms',
+                'bedroom_count' : 'Bedrooms',
+                'waterroom_count' : 'Powder rooms'
+            }
+
+            $item.rooms = {};
+            Object.keys($item.main_unit).forEach($k => {
+                if($item.main_unit[$k] > 0){
+                    const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
+                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
+                }
+            });
         }
     }
 

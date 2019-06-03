@@ -20,6 +20,8 @@ $locales.fr = {};$locales.fr.global =
     , "Save completed" : "Sauvegarde complétée"
     , "Standard" : "Régulier"
     , "Custom" : "Personnalisé"
+    , "Reduced" : "Réduit"
+    , "Minimal" : "Minimal"
     , "Loading results" : "Chargement des résultats"
     // Time
     , "in" : "dans"
@@ -333,6 +335,7 @@ $locales.fr = {};$locales.fr.global =
     , "Virtual tour" : "Visite virtuelle"
     , "{0} unit" : "Unité {0}"
     , "{0} unit (continue)" : "Unité {0} (suite)"
+    , "apt. {0}" : "app. {0}"
     , "Rooms" : "Pièces"
     , "{0}th" : "{0}e"
     , "{0}st" : "{0}er"

@@ -6,16 +6,22 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
 
 ?>
 
-<article class="si-item si-listing-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
+<article class="si-item si-listing-item si-minimal-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
             <div class="image"><img src="<?php echo($item->photo_url);?>" itemprop="image" /></div>
             <div class="price"><?php echo($item->price_text);?></div>
             <div class="civic-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
-            <div class="ref_number"><?php echo($item->ref_number);?></div>
             <div class="city" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>
             <div class="region"><?php echo($item->location->region);?></div>
+            <div class="rooms">
+                <?php 
+                    foreach ($item->rooms as $icon => $room) {
+                        echo('<div class="room ' . $icon . '"><i class="icon fal fa-fw fa-' . $icon . '"></i> <span class="count">' . $room->count . '</span> <span class="label">' . $room->label . '</span></div>');
+                    }
+                ?>
+            </div>
 	        <div class="open-houses">
                 <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
             	<div class="open-house-item">

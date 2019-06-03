@@ -16,12 +16,19 @@ if($item->status_code=='SOLD'){
             <div class="image"><img src="<?php echo($item->photo_url);?>" itemprop="image" /></div>
             <div class="price"><?php echo($item->price_text);?></div>
             <div class="civic-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
-            <div class="ref_number"><?php echo($item->ref_number);?></div>
+            <div class="ref-number"><?php echo($item->ref_number);?></div>
             <div class="city" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>
             <div class="region"><?php echo($item->location->region);?></div>
             <div class="category"><?php echo($item->category);?></div>
             <div class="subcategory"><?php echo($item->subcategory);?></div>
             <div class="description" itemprop="description"><?php echo(isset($item->description) ? $item->description : '');?></div>
+            <div class="rooms">
+                <?php 
+                    foreach ($item->rooms as $icon => $room) {
+                        echo('<div class="room ' . $icon . '"><i class="icon fal fa-fw fa-' . $icon . '"></i> <span class="count">' . $room->count . '</span> <span class="label">' . $room->label . '</span></div>');
+                    }
+                ?>
+            </div>
 	        <div class="open-houses">
                 <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
             	<div class="open-house-item">

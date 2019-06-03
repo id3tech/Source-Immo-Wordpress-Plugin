@@ -294,6 +294,7 @@ class SourceImmoList {
   public $list_item_layout = 'standard';
   public $browse_mode = null;
   public $shuffle = false;  
+  public $default_zoom_level = "auto";
 
   public function __construct($source='',$alias='listings',$type='listings',$sort=''){
     $this->source = $source;

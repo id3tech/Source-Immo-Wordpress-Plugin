@@ -425,7 +425,7 @@ function siList(){
              */
             $scope.sortByPrice = function($more_to_least){
                 $scope.client_sort = 'price_' + ($more_to_least ? 'desc' : 'asc');
-                let lNewSortFields = {field: 'price.sell.amount', desc: $more_to_least};
+                let lNewSortFields = {field: 'price', desc: $more_to_least};
                 $rootScope.$broadcast($scope.alias + 'SortDataChanged', lNewSortFields);
             }
     
@@ -435,7 +435,7 @@ function siList(){
              */
             $scope.sortByDate = function($more_to_least){
                 $scope.client_sort = 'date_' + ($more_to_least ? 'desc' : 'asc');
-                let lNewSortFields = {field: 'contract.start_date', desc: $more_to_least};
+                let lNewSortFields = {field: 'contract_start_date', desc: $more_to_least};
                 $rootScope.$broadcast($scope.alias + 'SortDataChanged', lNewSortFields);
             }
     
@@ -445,7 +445,7 @@ function siList(){
              */
             $scope.sortByName = function($more_to_least){
                 $scope.client_sort = 'name_' + ($more_to_least ? 'desc' : 'asc');
-                let lNewSortFields = {field: 'last_name', desc: $more_to_least};
+                let lNewSortFields = {field: 'name', desc: $more_to_least};
                 $rootScope.$broadcast($scope.alias + 'SortDataChanged', lNewSortFields);
             }
     
@@ -2678,63 +2678,128 @@ siApp
         $scope.updateMarkerList = function(){
             $scope.clear();
             $scope.bounds = new google.maps.LatLngBounds();
-            
+            const lPoints = [];
+
             //console.log($scope.list[0]);
+            $siConfig.get().then($configs => {
+                const lListConfig = $configs.lists.find($e => $e.alias==$scope.alias);
+                const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
 
-            $scope.list.forEach(function($marker){
-                let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
-                
-                $marker.marker = new SiMarker({
-			    	position: lngLat,
-			    	map: $scope.map,
-                    obj: $marker,
-			    	markerClass: ['map-marker-icon',$marker.category_code.replace(' ','_')],
-			    	onPinClick: $scope.pinClick
+                $scope.list.forEach(function($marker){
+                    let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
+                    
+                    $marker.marker = new SiMarker({
+                        position: lngLat,
+                        map: $scope.map,
+                        obj: $marker,
+                        markerClass: ['map-marker-icon',$marker.category_code.replace(' ','_')],
+                        onPinClick: $scope.pinClick
+                    });
+                    
+                    $scope.markers.push($marker.marker);
+                    const lLngLat = $marker.marker.getPosition();
+                    lPoints.push({x: lLngLat.lat(), y: lLngLat.lng(), lngLat: lLngLat});
+                    //$scope.extendBounds($scope.bounds, lLngLat);
                 });
+
+                console.log('points', lPoints);
+                const lXMed = $scope.median(lPoints.map($p => $p.x));
+                const lYMed = $scope.median(lPoints.map($p => $p.y));
+                const lXAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lXMed - $p.x)), 0) / lPoints.length)*2;
+                const lYAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lYMed - $p.y)), 0) / lPoints.length)*2;
                 
-		    	$scope.markers.push($marker.marker);
-		    	$scope.bounds.extend($marker.marker.getPosition());
-            });
-
-            if($scope.list.length>1){
-                let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
-                let lClustererOptions = {
-                    //cssClass : 'siMarkerCluster',
-                    gridSize: 80,
-                    styles: [{
-                        url: lImagePath + '1.png',
-                        height: 53,
-                        width: 54,
-                        anchor: [0, 0]
-                      }, {
-                        url: lImagePath + '2.png',
-                        height: 56,
-                        width: 55,
-                        anchor: [0, 0]
-                      }, {
-                        url: lImagePath + '3.png',
-                        width: 66,
-                        height: 65,
-                        anchor: [0, 0]
-                      }]
-                };
-
-                lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
-
-		    	$scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
-                
-                if($scope.is_visible == true){
-                    window.setTimeout(function(){
-                        $scope.map.fitBounds($scope.bounds);
-                    },250);
+                console.log('medians',lXMed, lYMed);
+                console.log('averages',lXAvg, lYAvg);
+                const lMedianRect = {
+                    x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
+                    y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
+                    contains: function($x, $y){
+                        //console.log($x, $y, 'contained in ', this);
+                        return ($x > this.x && $x < this.x_prime) &&
+                                ($y > this.y && $y < this.y_prime)
+                    }
                 }
-		    }
-		    else if ($scope.list.length>0){
-                $scope.map.setCenter($scope.list[0].marker.getPosition());
-                $scope.map.setZoom(12);
-            }
-            
+               // lMedianRect.contains.bind(lMedianRect);
+
+                console.log('Media rect', lMedianRect);
+
+                lPoints
+                    .filter($p => lMedianRect.contains($p.x,$p.y) )
+                    .forEach($p => {$scope.bounds.extend($p.lngLat)})
+
+                    
+                if($scope.list.length>1){
+                    let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
+                    let lClustererOptions = {
+                        //cssClass : 'siMarkerCluster',
+                        gridSize: 80,
+                        styles: [{
+                            url: lImagePath + '1.png',
+                            height: 53,
+                            width: 54,
+                            anchor: [0, 0]
+                        }, {
+                            url: lImagePath + '2.png',
+                            height: 56,
+                            width: 55,
+                            anchor: [0, 0]
+                        }, {
+                            url: lImagePath + '3.png',
+                            width: 66,
+                            height: 65,
+                            anchor: [0, 0]
+                        }]
+                    };
+
+                    lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
+
+                    $scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
+                    
+                    if($scope.is_visible == true){
+                        
+                        window.setTimeout(function(){
+                            
+                            $scope.map.fitBounds($scope.bounds);
+
+                            if(lDefaultZoom != 'auto'){
+                                console.log('zoom to', lDefaultZoom);
+                                $scope.map.setZoom(Number(lDefaultZoom));
+                            }
+                        },250);
+                        
+                    }
+                }
+                else if ($scope.list.length>0){
+                    $scope.map.setCenter($scope.list[0].marker.getPosition());
+                    
+                    if(lDefaultZoom != 'auto'){
+                        console.log('zoom to', lDefaultZoom);
+                        $scope.map.setZoom(Number(lDefaultZoom));
+                    }
+                    else{
+                        $scope.map.setZoom(12);
+                    }
+                }
+            });
             //console.log('Map markers updated');
+        }
+
+        $scope.median = function(values){
+            values.sort(function(a,b){
+              return a-b;
+          });
+          var half = Math.floor(values.length / 2);
+          
+          if (values.length % 2)
+              return values[half];
+          else
+              return (values[half - 1] + values[half]) / 2.0;
+        }
+
+        $scope.extendBounds = function($bounds, $lngLat){
+
+            console.log('bounds',$bounds, $lngLat);
+            $bounds.extend($lngLat);
         }
 
         $scope.pinClick = function($marker){
@@ -3711,9 +3776,11 @@ siApp
 
                 return $elm.on(lEvents[$type].down, function(event) {
                         var lPointerMoveHndl, lPointerUpHndl;
-                        //console.log($type,'down triggered');
+                        console.log($type,'down triggered');
                         
                         lPositionRef = event;
+                        jQuery('.slider-handle').css('z-index',1);
+                        jQuery($elm).css('z-index',2);
 
                         lPointerMoveHndl = (event) => {
                             return $scope.$apply(function() {
@@ -3744,6 +3811,7 @@ siApp
                                 // trigger onChange only when pointer release the handle
                                 $scope.onChange();
                             }
+                            
 
                             return $document.unbind(lEvents[$type].up, lPointerUpHndl);
                         };

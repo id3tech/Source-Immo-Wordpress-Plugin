@@ -21,6 +21,9 @@ if(isset($configs)){
                 <i class="video far fa-video"></i>
                 <i class="virtual-tour far fa-street-view"></i>
             </div>
+            <div class="rooms">
+                <div class="room {{icon}}" ng-repeat="(icon,room) in item.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label}}</span></div>
+            </div>
             <div class="open-houses">
                 <div class="open-house-item">
                     <i class="fal fa-calendar-alt"></i> {{'Open house'.translate()}} <span data-am-time-ago="item.open_houses[0].start_date"></span>

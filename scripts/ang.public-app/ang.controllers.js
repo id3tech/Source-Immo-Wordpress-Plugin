@@ -256,6 +256,10 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
                 $scope.model.location.address.street_name,
                 $scope.model.location.city
             );
+
+            if(typeof  $scope.model.location.address.door != 'undefined'){
+                $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().format( $scope.model.location.address.door);
+            }
         }
         else{
             $scope.model.location.full_address = $scope.model.location.city;

@@ -947,7 +947,7 @@ $laptop : 1280px;
                 
             }
 
-            @include gridAreas('ref-number','category','subcategory','price','city','image',
+            @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
                                 'description','address','region','state','country','civic-address',
                                 'open-houses','flags');
 
@@ -960,8 +960,9 @@ $laptop : 1280px;
                     "city city"
                     "image image"
                     "price price"
+                    "rooms rooms"
                     "open-houses open-houses"
-                    "category category"
+                    "category ref-number"
                     "subcategory ref-number"
                     "description description"
                     ;
@@ -998,8 +999,21 @@ $laptop : 1280px;
             .civic-address{padding:10px 0 0 10px;text-transform:uppercase;}
             .description{padding:10px;}
             .region{display:none;}
+            .rooms{
+                padding:10px;
+                display:grid;
+                grid-template-columns: auto 1fr auto;
+                place-items: center;
+                .room.hand-holding-water{grid-row:1;grid-column:2;}
+                .room.bath{grid-column: 3;}
+                .room{
+                    white-space: nowrap;
+                    .icon{opacity: 0.75;}
+                    .label{display:none;}
+                }
+            }
             .ref-number{
-                text-align:right;padding:0px 10px 10px 0;font-size:0.8em;
+                text-align:right;padding:10px 10px 10px 0;font-size:0.8em;
                 &::before{content:var(--uls-label);}
             }
             .category{font-size:1.2em;padding:10px 10px 0 10px;}
@@ -1022,6 +1036,31 @@ $laptop : 1280px;
                     .video{display:block;}
                 }
             }
+
+            &.si-small-item-layout{
+                .content{
+                 grid-template-areas: 
+                     "civic-address civic-address"
+                     "city city"
+                     "image image"
+                     "price price"
+                     "category rooms"
+                     "subcategory ref-number"
+                     "open-houses open-houses"
+                }
+            }
+ 
+            &.si-minimal-item-layout{
+             .content{
+                 grid-template-areas: 
+                     "civic-address civic-address"
+                     "city city"
+                     "image image"
+                     "price price"
+                     "rooms rooms"
+                     "open-houses open-houses"
+                 }
+             }
         }
 
         // BROKERS

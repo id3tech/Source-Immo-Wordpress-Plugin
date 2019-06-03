@@ -19,6 +19,9 @@ if(isset($configs)){
             <div class="category">{{item.category }}</div>
             <div class="subcategory">{{item.subcategory}}</div>
             <div class="description">{{item.description}}</div>
+            <div class="rooms">
+                <div class="room {{icon}}" ng-repeat="(icon,room) in item.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label}}</span></div>
+            </div>
             <div class="flags">
                 <i class="video far fa-video"></i>
                 <i class="virtual-tour far fa-street-view"></i>

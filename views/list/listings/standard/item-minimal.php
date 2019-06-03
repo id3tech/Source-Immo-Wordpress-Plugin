@@ -7,7 +7,7 @@ if(isset($configs)){
     $scope_class = $configs->list_item_layout->scope_class;
 }
 ?>
-<article class="si-item si-listing-item si-small-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
+<article class="si-item si-listing-item si-minimal-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
     data-ng-cloak>
     <a href="{{item.permalink}}">
         <div class="content">
@@ -18,6 +18,9 @@ if(isset($configs)){
             <div class="flags">
                 <i class="video far fa-video"></i>
                 <i class="virtual-tour far fa-street-view"></i>
+            </div>
+            <div class="rooms">
+                <div class="room {{icon}}" ng-repeat="(icon,room) in item.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label}}</span></div>
             </div>
             <div class="open-houses">
                 <div class="open-house-item">

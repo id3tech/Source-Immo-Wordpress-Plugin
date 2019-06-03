@@ -39,6 +39,19 @@
             <label><?php _e('Allow map switch',SI) ?></label>
             <md-checkbox ng-model="model.mappable"></md-checkbox>
         </div>
+
+        <div ng-show="(model.list_layout.preset | isIn : ['standard']) && (model.mappable)" 
+            class="input-container" layout="row" layout-align="space-between center">
+            <label><?php _e('Default zoom level',SI) ?></label>
+            <md-select ng-model="model.default_zoom_level">
+                <md-option value="auto"><?php _e('Automatic',SI) ?></md-option>
+                <md-option value="20"><?php _e('Ground level',SI) ?></md-option>
+                <md-option value="15"><?php _e('Street level',SI) ?></md-option>
+                <md-option value="12"><?php _e('City level',SI) ?></md-option>
+                <md-option value="10"><?php _e('Regional level',SI) ?></md-option>
+                <md-option value="5"><?php _e('Continent level',SI) ?></md-option>
+            </md-select>
+        </div>
         
         <div ng-show="model.list_layout.preset | isIn : ['standard','direct']" 
             class="input-container" layout="row" layout-align="space-between center">

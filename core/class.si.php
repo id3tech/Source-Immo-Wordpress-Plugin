@@ -411,11 +411,8 @@ class SourceImmo {
     wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
     // google map API library
     wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?' . $mapKeyParams . '&libraries=places', null, null, true );
-    if($this->configs->map_api_key != ''){
-      wp_enqueue_script( 'google-map-cluster', 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js', 'google-map', null, true );
-    }
+    wp_enqueue_script( 'google-map-cluster', 'https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js', 'google-map', null, true );
     
-
 
     // wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('si-style'), "1", "all");
 	  // wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
@@ -1245,9 +1242,15 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
 
     if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
       $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+      if(isset($item->location->address->door)){
+        $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
+      }
     }
     else if(isset($item->location->address->street_name) && $item->location->address->street_name != ''){
       $item->location->civic_address = $item->location->address->street_name;
+      if(isset($item->location->address->door)){
+        $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
+      }
     }
     else{
       $item->location->civic_address = '';
@@ -1257,6 +1260,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
     if($item->location->civic_address != ''){
       $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
+      if(isset($item->location->address->door)){
+        $item->location->full_address .= ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
+      }
     }
     else{
       $item->location->full_address = $item->location->city;
@@ -1296,6 +1302,40 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
       foreach($item->photos as $photo){
         $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
       }
+    }
+
+    $item->rooms = (object) array();
+    
+    if(isset($item->main_unit)){
+      $lIconRef = array(
+        'bathroom_count' => 'bath',
+        'bedroom_count' => 'bed',
+        'waterroom_count' => 'hand-holding-water'
+      );
+      $lLabelRef = array(
+          'bathroom_count' => 'Bathroom',
+          'bedroom_count' => 'Bedroom',
+          'waterroom_count' => 'Powder room'
+      );
+      $lPluralLabelRef =array(
+          'bathroom_count' => 'Bathrooms',
+          'bedroom_count' => 'Bedrooms',
+          'waterroom_count' => 'Powder rooms'
+      );
+
+      $rooms = array();
+      foreach ($item->main_unit as $key => $value) {
+        if($item->main_unit->{$key} > 0){
+          if(isset($lIconRef[$key])){
+            $lLabel = ($item->main_unit->{$key} > 1) ? $lPluralLabelRef[$key] : $lLabelRef[$key];
+            $rooms[$lIconRef[$key]] = array(
+              'count' => $item->main_unit->{$key},
+              'label' => __($lLabel,SI)
+            );
+          }
+        }
+      }
+      $item->rooms = json_decode(json_encode($rooms));
     }
   }
 

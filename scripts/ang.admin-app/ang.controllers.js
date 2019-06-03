@@ -386,18 +386,16 @@ siApp
     ],
     list_ordering_field:{
       listings : [
-        {name: 'contract.start_date', label: 'Inscription date'},
-        {name: 'price.sell.amount, price.rental.amount', label: 'Price'},
-        {name: 'location.city_code', label: 'City'},
+        {name: 'contract_start_date', label: 'Inscription date'},
+        {name: 'price', label: 'Price'},
       ],
       brokers: [
-        {name: 'first_name', label: 'First name'},
-        {name: 'last_name', label: 'Last name'},
+        {name: 'name', label: 'Name'},
         {name: 'listing_count', label: 'Number of listings'},
       ],
       cities: [
         {name: 'name', label: 'Name'},
-        {name: 'region_code', label: 'Region'},
+        {name: 'region', label: 'Region'},
       ]
     }
   }
