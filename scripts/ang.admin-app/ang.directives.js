@@ -246,14 +246,14 @@ siApp
         {value: 'main_unit.bedroom_count'   , label: 'Bedroom count', value_type: 'number', op_out: ['like','not_like']},
         {value: 'main_unit.bathroom_count'  , label: 'Bathroom count', value_type: 'number', op_out: ['like','not_like']},
         {value: 'attributes.PARKING'        , label: 'Parking count', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'attributes.GARAGE'         , label: 'Garage', value_type: 'bool', op_in: ['equal','not_equal']},
-        {value: 'attributes.POOL'           , label: 'Pool', value_type: 'bool', op_in: ['equal','not_equal']},
-        {value: 'status_code'               , label: 'Status', value_type: 'list', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['in','not_in']},
+        {value: 'attributes.GARAGE'         , label: 'Garage', value_type: 'bool', op_in: ['equal','not_equal_to']},
+        {value: 'attributes.POOL'           , label: 'Pool', value_type: 'bool', op_in: ['equal','not_equal_to']},
+        {value: 'status_code'               , label: 'Status', value_type: 'text', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['equal','not_equal_to']},
       ];
 
       $scope.filter_operators = [
         {key: 'equal'               , value : 'Equal to'},
-        {key: 'not_equal'           , value: 'Different of'},
+        {key: 'not_equal_to'        , value: 'Different of'},
         {key: 'less_than'           , value: 'Less than'},
         {key: 'less_or_equal_to'    , value: 'Less or equals to'},
         {key: 'greater_than'        , value: 'Greater than'},
@@ -285,7 +285,7 @@ siApp
       }
 
       $scope.updateFilterChoices = function(){
-        if($scope.selected_filter_key.value_type == 'list'){
+        if(['list','text'].indexOf($scope.selected_filter_key.value_type) >= 0 && $scope.selected_filter_key.choices!=null){
           console.log('list from ', $scope.selected_filter_key.choices);
 
           if(typeof($siList[$scope.selected_filter_key.choices]) == 'function'){
@@ -295,6 +295,7 @@ siApp
           }
           else{
             $scope.value_choices = $siUtils.stringToOptionList($scope.selected_filter_key.choices);
+            console.log($scope.selected_filter_key.choices, $scope.value_choices);
           }
         }
       }
@@ -315,11 +316,11 @@ siApp
       $scope.operatorFilterByField = function($item){
           if($item == null) return false;
 
-          if($scope.selected_key.op_in != undefined){
-            return $scope.selected_key.op_in.indexOf($item.key) >= 0;
+          if($scope.selected_filter_key.op_in != undefined){
+            return $scope.selected_filter_key.op_in.indexOf($item.key) >= 0;
           }
-          else if ($scope.selected_key.op_out != undefined){
-            return !($scope.selected_key.op_out.indexOf($item.key) >= 0);
+          else if ($scope.selected_filter_key.op_out != undefined){
+            return !($scope.selected_filter_key.op_out.indexOf($item.key) >= 0);
           }
 
 

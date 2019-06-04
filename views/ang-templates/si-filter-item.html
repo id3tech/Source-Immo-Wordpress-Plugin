@@ -14,7 +14,7 @@
     </md-input-container>
 
     <div class="value">
-        <md-input-container ng-show="['text','number'].indexOf(selected_filter_key.value_type) >= 0">
+        <md-input-container ng-show="['text','number'].indexOf(selected_filter_key.value_type) >= 0 && value_choices == null">
             <input ng-model="filter.value" />
         </md-input-container>
 
@@ -29,6 +29,12 @@
             <md-select ng-model="filter.value" multiple md-selected-text="formatFilterValueList()">
                 <md-option ng-repeat="item in value_choices" value="{{item.key}}">{{item.label.translate()}}</md-option>
             </md-select>
+        </md-input-container> 
+
+        <md-input-container ng-show="selected_filter_key.value_type=='text' && value_choices!=null">
+                <md-select ng-model="filter.value">
+                    <md-option ng-repeat="item in value_choices" value="{{item.key}}">{{item.label.translate()}}</md-option>
+                </md-select>
         </md-input-container>   
     </div>
 

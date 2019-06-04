@@ -6,12 +6,13 @@ function $siUtils($siApi,$q){
 
   $scope.stringToOptionList = function($source){
     if($source == null || $source == undefined) return null;
-    if($source.indexOf('|') < 0) return [$source];
+    if($source.indexOf('|') < 0 && $source.indexOf(':') < 0) return [$source];
 
     let lKeyValues = $source.split("|");
     let lResult = [];
     lKeyValues.forEach(function($e){
       let lItemArr = $e.split(":");
+      console.log('splited item',lItemArr);
       let lItem = {
         key : lItemArr[0],
         label : lItemArr.length > 1 ? lItemArr[1] : lItemArr[0]
