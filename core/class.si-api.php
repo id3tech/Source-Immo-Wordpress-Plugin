@@ -378,7 +378,7 @@ class SourceImmoApi {
     $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')
                     ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get($lFilters, true);
-
+    
     // In case the limit is 0 (infinite), we should load data until there's no more "next page"
     if($list_config->limit==0){
       $data_list = $lResult->items;

@@ -295,6 +295,7 @@ class SourceImmoList {
   public $browse_mode = null;
   public $shuffle = false;  
   public $default_zoom_level = "auto";
+  public $smart_focus_tolerance = 5;
 
   public function __construct($source='',$alias='listings',$type='listings',$sort=''){
     $this->source = $source;
@@ -325,7 +326,6 @@ class SourceImmoList {
       'cities' => 'location/city',
       'brokers' => 'broker',
     );
-    
     return "{$lTypedPaths[$this->type]}/view";
   }
 }

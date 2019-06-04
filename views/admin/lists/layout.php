@@ -49,7 +49,29 @@
                 <md-option value="15"><?php _e('Street level',SI) ?></md-option>
                 <md-option value="12"><?php _e('City level',SI) ?></md-option>
                 <md-option value="10"><?php _e('Regional level',SI) ?></md-option>
+                <md-option value="8"><?php _e('State/Province level',SI) ?></md-option>
                 <md-option value="5"><?php _e('Continent level',SI) ?></md-option>
+            </md-select>
+        </div>
+        <div ng-show="(model.list_layout.preset | isIn : ['standard']) && (model.mappable)" 
+            class="input-container" layout="row" layout-align="space-between center">
+            <label>
+                <?php _e('Smart focus tolerance',SI) ?>
+                <div class="hint"><?php _e("Focus the map where the listings are located using a median location and average distances algorithm.",SI) ?></div>
+            </label>
+
+            <md-select ng-model="model.smart_focus_tolerance">
+                <md-option value="off"><?php _e("Don't use smart focus",SI) ?></md-option>
+                <md-option value="0"><?php _e('No tolerance',SI) ?></md-option>
+                <md-option value="5">5km</md-option>
+                <md-option value="10">10km</md-option>
+                <md-option value="25">25km</md-option>
+                <md-option value="50">50km</md-option>
+                <md-option value="100">100km</md-option>
+                <md-option value="500">500km</md-option>
+                <md-option value="1000">1000km</md-option>
+                <md-option value="5000">5000km</md-option>
+                <md-option value="10000">10000km</md-option>
             </md-select>
         </div>
         

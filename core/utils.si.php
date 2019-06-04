@@ -272,6 +272,7 @@ class HttpCall{
     $lInstance->endpoint = str_replace('~', $normHost . '/api', $lInstance->endpoint);
 
     
+
     return $lInstance;
   }
 

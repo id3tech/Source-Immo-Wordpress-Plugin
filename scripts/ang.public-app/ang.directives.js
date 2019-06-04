@@ -2684,6 +2684,7 @@ siApp
             $siConfig.get().then($configs => {
                 const lListConfig = $configs.lists.find($e => $e.alias==$scope.alias);
                 const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
+                const lSmartFocusTolerance = lListConfig.smart_focus_tolerance || 5;
 
                 $scope.list.forEach(function($marker){
                     let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
@@ -2702,31 +2703,47 @@ siApp
                     //$scope.extendBounds($scope.bounds, lLngLat);
                 });
 
-                console.log('points', lPoints);
-                const lXMed = $scope.median(lPoints.map($p => $p.x));
-                const lYMed = $scope.median(lPoints.map($p => $p.y));
-                const lXAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lXMed - $p.x)), 0) / lPoints.length)*2;
-                const lYAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lYMed - $p.y)), 0) / lPoints.length)*2;
-                
-                console.log('medians',lXMed, lYMed);
-                console.log('averages',lXAvg, lYAvg);
-                const lMedianRect = {
-                    x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
-                    y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
-                    contains: function($x, $y){
-                        //console.log($x, $y, 'contained in ', this);
-                        return ($x > this.x && $x < this.x_prime) &&
-                                ($y > this.y && $y < this.y_prime)
+                if(lSmartFocusTolerance != 'off'){
+                    
+                    //console.log('points', angular.copy(lPoints));
+                    const lXMed = $scope.median(lPoints.map($p => $p.x));
+                    const lYMed = $scope.median(lPoints.map($p => $p.y));
+                    let lXAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lXMed - $p.x)), 0) / lPoints.length);
+                    let lYAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lYMed - $p.y)), 0) / lPoints.length);
+
+                    if(lSmartFocusTolerance > 0){
+                        const lLatDegKm = 110.574;
+                        const lLngDegKm = 111.320;
+                        const deg2rad = $deg => ($deg*Math.PI)/180;
+
+                        lXAvg = lXAvg + (lSmartFocusTolerance / lLatDegKm);
+                        lYAvg = lYAvg + ((lSmartFocusTolerance / lLngDegKm) / Math.cos(deg2rad(lYAvg)));
                     }
+                    
+                    console.log('medians',lXMed, lYMed);
+                    console.log('averages',lXAvg, lYAvg);
+                    const lMedianRect = {
+                        x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
+                        y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
+                        contains: function($x, $y){
+                            //console.log($x, $y, 'contained in ', this);
+                            return ($x > this.x && $x < this.x_prime) &&
+                                    ($y > this.y && $y < this.y_prime)
+                        }
+                    }
+                // lMedianRect.contains.bind(lMedianRect);
+
+                    console.log('Media rect', lMedianRect);
+
+                    lPoints
+                        .filter($p => lMedianRect.contains($p.x,$p.y) )
+                        .forEach($p => {$scope.bounds.extend($p.lngLat)})
+                
                 }
-               // lMedianRect.contains.bind(lMedianRect);
-
-                console.log('Media rect', lMedianRect);
-
-                lPoints
-                    .filter($p => lMedianRect.contains($p.x,$p.y) )
-                    .forEach($p => {$scope.bounds.extend($p.lngLat)})
-
+                else{
+                    lPoints
+                        .forEach($p => {$scope.bounds.extend($p.lngLat)})
+                }
                     
                 if($scope.list.length>1){
                     let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';

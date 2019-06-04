@@ -23,6 +23,7 @@ $locales.fr = {};$locales.fr.global =
     , "Reduced" : "Réduit"
     , "Minimal" : "Minimal"
     , "Loading results" : "Chargement des résultats"
+    , "Automatic" : "Automatique"
     // Time
     , "in" : "dans"
     , "year" : "année"
@@ -100,6 +101,18 @@ $locales.fr = {};$locales.fr.global =
     , "Please signin" : "Veuillez vous connecter"
     , "Submit" : "Envoyer"
     , "Prefetch data server side to allow api call caching" : "Prélecture de données du coté serveur pour permettre la mise en cache des appels api"
+    , "Default zoom level" : "Niveau de zoom par défaut"
+    , "Ground level" : "Niveau du sol"
+    , "Street level" : "Niveau de la rue"
+    , "City level" : "Niveau de la ville"
+    , "Regional level" : "Niveau de la région"
+    , "State/Province level" : "Niveau de l'état/province"
+    , "Continent level" : "Niveau du continent"
+    , "Smart focus tolerance" : "Tolérance de focus intelligent"
+    , "Focus the map where the properties are located using a median location and average distances algorithm." : 
+        "Focalise la carte où se trouvent les propriétées en utilisant un algorithme de localisation médiane et de distances moyennes."
+    , "Don't use smart focus" : "Ne pas utiliser le focus intelligent"
+    , "No tolerance" : "Aucune tolérance"
     // Lists label
     , "Copy shortcode" : "Copier le shortcode"
     , "Alias of the list" : "Alias de la liste"
