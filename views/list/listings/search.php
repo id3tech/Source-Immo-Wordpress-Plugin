@@ -232,7 +232,7 @@
             </div>
 
             <div class="building_category grid-layout-column">
-                <h4><?php _e('Building type',SI) ?></h4>
+                <h4><?php _e('Building types',SI) ?></h4>
                 <div class="dropdown-divider"></div>
 
                 <si-checkbox
