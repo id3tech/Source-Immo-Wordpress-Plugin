@@ -17,7 +17,7 @@ class SourceImmo {
 
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
-    $this->load_locales();
+    
 
     if (!is_admin() ){
       // create an instance of the shortcodes class to force code bindings
@@ -394,6 +394,8 @@ class SourceImmo {
     if(!empty($this->configs->map_api_key)){
       $mapKeyParams = 'key=' . $this->configs->map_api_key;
     }
+
+    wp_deregister_script( 'moment');
 
     wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
     //wp_enqueue_style( 'bootstrap', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
@@ -837,9 +839,11 @@ class SourceImmo {
    TRANSLATION
   */
   public function load_locales(){
+    if($this->locales != null) return;
+
+
     $locale = substr(get_locale(),0,2);
     $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $locale . '.js'));
-    
     $this->locales = array();
     
     foreach ($locale_file_paths as $file_path) {
@@ -865,6 +869,7 @@ class SourceImmo {
   public function translate($translated_text, $text, $domain){
     
     if($domain == SI){
+      $this->load_locales();
       
       $locale = substr(get_locale(),0,2);
       

@@ -5,11 +5,11 @@
     </div>
     <div class="content">
         <div class="spec" data-ng-show="model.inclusions!=undefined">
-            <label><?php _e('Included',SI) ?></label>
+            <label><?php _e('Inclusions',SI) ?></label>
             <div>{{model.inclusions}}</div>
         </div>
         <div class="spec" data-ng-show="model.exclusions!=undefined">
-            <label><?php _e('Excluded',SI) ?></label>
+            <label><?php _e('Exclusions',SI) ?></label>
             <div>{{model.exclusions}}</div>
         </div>
     </div>
