@@ -1,6 +1,6 @@
 <div class="in-exclusions section {{sectionOpened('in_exclusions')?'opened':''}}"  data-ng-show="model.inclusions!=undefined || model.exclusions!=undefined">
     <div class="title" data-ng-click="toggleSection('in_exclusions')">
-        <div><?php _e('Included & excluded',SI) ?></div> 
+        <div><?php _e('Inclusions & exclusions',SI) ?></div> 
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="content">
