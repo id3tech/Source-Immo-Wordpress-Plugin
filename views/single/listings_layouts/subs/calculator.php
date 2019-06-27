@@ -1,6 +1,10 @@
 <div id="calculator" class="mortgage-calculator" data-ng-show="model.status_code!='SOLD' && model.price.sell!=undefined">
     <div class="title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',SI) ?></div>
-    <si-calculator data-si-amount="model.price.sell.amount" data-on-change="onMortgageChange($result)" data-si-region="{{model.location.region_code}}"></si-calculator>
+    <si-calculator 
+        data-si-amount="model.price.sell.amount" 
+        data-on-change="onMortgageChange($result)" 
+        data-si-region="{{model.location.region_code}}"
+        data-si-city="{{model.location.city_code}}"></si-calculator>
 
     <div class="result">
         <div class="mortgage">

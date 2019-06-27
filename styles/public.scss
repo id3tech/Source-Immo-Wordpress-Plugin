@@ -68,7 +68,7 @@ $laptop : 1280px;
     --listing-item-sold-bg-color: #ff8800;
     --listing-item-sold-text-color: #fff;
     --listing-item-column-width : 340px;
-    --listing-item-picture-ratio : 0.66;
+    --listing-item-picture-ratio : 0.75;
 
     --thumbnail-picture-size: 100px;
 
@@ -832,6 +832,10 @@ $laptop : 1280px;
         padding:20px;
         border:var(--element-border);
         border-radius:var(--element-border-radius);
+        @include media($phone){
+            border:none;
+            padding:0px;
+        }
     }
     .si-list-header{
         grid-area: header;
@@ -842,10 +846,13 @@ $laptop : 1280px;
     }
     .si-list{
         grid-area: list;
+        -ms-grid-column: 1;
+        -ms-grid-column-span: 3;
         display:grid;
         grid-gap: 20px;
         
         place-items: stretch;
+        
         > div{
             display:grid;place-items:stretch;
         }
@@ -954,7 +961,7 @@ $laptop : 1280px;
             .content{
                 grid-gap: 0;
                 grid-template-columns: 3fr 1fr;
-                grid-template-rows: auto auto calc(var(--listing-item-column-width) *  var(--listing-item-picture-ratio)) auto;
+                grid-template-rows: auto;
                 grid-template-areas: 
                     "civic-address civic-address"
                     "city city"
@@ -967,6 +974,9 @@ $laptop : 1280px;
                     "description description"
                     ;
                 
+                @include media($phone){
+                    grid-template-rows: auto;
+                }
             }
             .open-houses{
                 display:none;
@@ -994,6 +1004,11 @@ $laptop : 1280px;
             .civic-address,.city{
                 background-color:var(--high-contrast-color);color:var(--high-contrast-text-color);
             }
+            .image{
+                padding-bottom:75%;
+                img{position:absolute;}
+                
+            }
             .price{text-align:center;padding:10px;background:var(--small-contrast-color);font-size:1.2em;font-weight:700;}
             .city{padding:0 0 10px 10px;font-size:0.8em;}
             .civic-address{padding:10px 0 0 10px;text-transform:uppercase;}
@@ -1018,7 +1033,6 @@ $laptop : 1280px;
             }
             .category{font-size:1.2em;padding:10px 10px 0 10px;}
             .subcategory{padding:0 10px 10px 10px;}
-
             
             &.has-open-house{
                 .open-houses{display:block;}
@@ -1036,6 +1050,13 @@ $laptop : 1280px;
                     .video{display:block;}
                 }
             }
+
+            // @include media($phone){
+            //     overflow:visible;
+            //     .image{
+            //         margin:0 calc(-50vw + 50%);
+            //     }       
+            // }
 
             &.si-small-item-layout{
                 .content{
@@ -1060,7 +1081,8 @@ $laptop : 1280px;
                      "rooms rooms"
                      "open-houses open-houses"
                  }
-             }
+            }
+
         }
 
         // BROKERS
@@ -1740,12 +1762,16 @@ $laptop : 1280px;
                 position:relative;
                 width:100%;height:460px;
                 overflow:hidden;
-                @include media($phone){
-                    height:300px;
-                }
                 @include media($laptop){
                     height:380px;
                 }
+                @include media($tablet){
+                    height:300px;
+                }
+                @include media($phone){
+                    height:220px;
+                }
+                
 
                 > .trolley{
                     height:100%;width:100%;
@@ -2262,10 +2288,11 @@ $laptop : 1280px;
         }
         .si-custom-content, .si-content{display:none;}
         .si-content{
-            @include gridAreas('left-column','right-column');
+            //@include gridAreas('left-column','right-column');
             
             grid-template-columns: 2fr 1fr;
-            grid-template-areas: "left-column right-column";
+            grid-template-rows: repeat(4,auto) 1fr;
+            //grid-template-areas: "left-column right-column";
             place-items: start stretch;
             grid-gap:20px;
 
@@ -2282,7 +2309,44 @@ $laptop : 1280px;
 
            
         }
+
+        .head{
+            grid-column: 1;
+            grid-row: 1;
+            .name{margin-bottom:0px;}
+            .license-title{
+                font-size:1.3em;
+                text-transform:uppercase;
+                opacity: 0.75;
+            }
+        }
+
+        .bio{
+            grid-column: 1;
+            grid-row: 2;
+
+            .button{display:none;}
+            p:first-child{margin-top:0px;}
+            &.long{
+                .text{
+                    max-height:calc(4 * 1.55em);
+                    transition:0.25s;
+                    overflow:hidden;
+                }
+                &.expanded{
+                    .text{
+                        max-height:2000px;
+                    }
+                }
+                .button{display:initial;}
+            }
+        }
+
+
         .info{
+            grid-column: 1;
+            grid-row: 1;
+
             @include gridAreas('head','bio','languages','expertises');
 
             display: grid;
@@ -2306,28 +2370,16 @@ $laptop : 1280px;
             // Remove next line when "Language" becomes available
             .languages,.expertises{display:none;}   
 
-            .bio{
-                .button{display:none;}
-                p:first-child{margin-top:0px;}
-                &.long{
-                    .text{
-                        max-height:calc(4 * 1.55em);
-                        transition:0.25s;
-                        overflow:hidden;
-                    }
-                    &.expanded{
-                        .text{
-                            max-height:2000px;
-                        }
-                    }
-                    .button{display:initial;}
-                }
-            }
+            
         }
         .picture{
+            grid-column: 2;
+            grid-row: 1 / span 3;
             border-bottom: solid 25px #ccc;
         }
         .contact{
+            grid-column: 2;
+            grid-row: 4;
             display:grid;
             grid-gap:10px;
             background:#ececec;
@@ -2344,6 +2396,9 @@ $laptop : 1280px;
         
 
         .listing-list{
+            grid-column: 1;
+            grid-row: 3 / span 4;
+
             .list-header{
                 display:grid;
                 grid-template-columns: 1fr 1fr;
@@ -2382,6 +2437,8 @@ $laptop : 1280px;
             }
         }
         .office{
+            grid-column: 2;
+            grid-row: 5;
             padding:10px;
             .content{
                 @include gridAreas('icon','title','address','city','country');
@@ -2397,6 +2454,8 @@ $laptop : 1280px;
             }
         }
         .cities{
+            grid-column: 2;
+            grid-row: 6 / span 2;
             padding:10px;
             .city{
                 display:inline-block;
@@ -2411,6 +2470,37 @@ $laptop : 1280px;
             }
         }
 
+        @include media($tablet){
+            .si-content{
+                grid-template-columns:2fr 3fr;
+            }
+            .picture{grid-column:1;grid-row:1 / span 2;}
+            .head{grid-column:2;grid-row:1;}
+            
+            .contact{grid-column:2;grid-row:2;}
+            
+            .bio{grid-column: 1 / span 2;grid-row:3;}
+            
+            
+            .listing-list{grid-column:1 / span 2;grid-row:5;}
+            .cities{grid-column:2;grid-row:6;}
+            .office{grid-column:1;grid-row:6;}
+        }
+
+        @include media($phone){
+            .si-content{
+                grid-template-columns:1fr;
+            }
+            .head{grid-column:1;grid-row:1;}
+            .bio{grid-column: 1;grid-row: 3;}
+            .picture{grid-column:1;grid-row:2;}
+            .contact{grid-column:1;grid-row:4;}
+            
+            .listing-list{grid-column:1;grid-row:5;}
+            .cities{grid-column:1;grid-row:7;}
+            .office{grid-column:1;grid-row:6;}
+        }
+
         &.loaded{
             .si-content{
                 display:grid;
@@ -2419,6 +2509,12 @@ $laptop : 1280px;
                 display:block;
             }
         }
+    }
+}
+#top .si{
+    &.listing-single,
+    &.broker-single{
+        > .container{margin:40px auto;}
     }
 }
 
@@ -2542,7 +2638,7 @@ body.si-modal-open{
             grid-template-columns: 1fr auto;
             place-items:center start;
             color:var(--high-contrast-text-color);
-            position: fixed;
+            position: absolute;
             top:0px;left:0px;width:100%;
             z-index:9;
             .modal-title{
@@ -2584,7 +2680,7 @@ body.si-modal-open{
             text-align:right;
             background-color:var(--small-contrast-color);
             color:var(--small-contrast-text-color);
-            position: fixed;
+            position: absolute;
             bottom:0px;left:0px;width:100%;
             z-index:9;
         }
@@ -2878,6 +2974,9 @@ body.si-modal-open{
                 top:50%;left:5px;transform:translateY(-50%);
                 
                 width:auto;
+                @include media($phone){
+                    label{display:none;}
+                }
             }
         }
     }
@@ -3423,6 +3522,199 @@ body.si-modal-open{
                 position: absolute;
                 background:var(--highlight);
             }
+        }
+    }
+    
+}
+
+// IE11 fixes
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    #top .si,
+    .si{
+        .search-container{display:none;}
+        .si-list-container{display:block;}
+        &.si-list-of-listings,&.si-list-of-brokers{
+            .si-list-header{
+                display:none;
+            }
+            display:block;
+            .si-list{
+                display:block;
+                > div{
+                    display:block;
+                    float:left;
+                    padding:10px;
+                    max-width:25%;
+                    &:nth-child(4n+1){
+                        clear:left;
+                    }
+                }
+                .si-item{
+                    display:block;
+                    .content{
+                        display:block;
+                        .image{width:100%;max-height:250px;}
+                        .description{height:250px;overflow:hidden;}
+                    }
+                }
+            }
+        }
+
+        &.listing-single, &.broker-single{
+            display:block;
+            .si-content,&.loaded .si-content{
+                display:block;
+                .left-column,.left,.previous{display:block;float:left;}
+                .right-column,.right,.next{float:right;display:block;}
+
+                .si-item,.info,.list-header,.list-container,.contact,.office,.cities,.header,.details,
+                .si-listing-navigation,.summary{
+                    display:block;overflow:hidden;
+                }
+                .list-container > div{display:block;}
+                .si-item{
+                    float:left;
+                    width:50%;
+                    padding:20px;
+                    .content{display:block;}
+                }
+                .si-listing-navigation{
+                    .previous,.next{
+                        width:33%;
+                        .content{display:block;}
+                    }
+                }
+            }
+        }
+        &.broker-single{
+            .left-column{width:66%;}
+            .right-column{width:33%;}
+
+            .office{
+                .content{
+                    display:block;
+                    > div{
+                        display:inline-block;
+                        &.title{display:block;}
+                    }
+                }  
+                
+                .icon{float:left;height:80px;width:40px;}
+                
+            }
+        }
+        &.listing-single{
+            .header{
+                .tools{float:left;display:none;}
+                .information_request{float:right;}
+            }
+            .flags{
+                display:flex;
+                flex-direction: row;
+                .flag{
+                    padding:10px;
+                }
+            }
+            .si-calculator{display:block;}
+            .section{
+                .title{
+                    display:block;
+                    position:relative;
+                    .icon{
+                        position: absolute;
+                        right:0px;
+                        top:calc(50% - 10px);
+                    }
+                }
+                .spec-grid{
+                    display:block;
+                }
+                .unit-list{
+                    display:block;
+                    .room-list{
+                        display:block;
+                        .room-item{
+                            display:block;
+                            &.list-header{
+                                display:none;
+                            }
+                        }
+                    }
+                }
+            }
+            .details{
+                clear:both;
+                .left{width:66%;}
+                .right{width:33%;}
+            }
+
+            .medias{
+                float:left;
+                width:66%;
+                display:block;
+                .tabs{display:none;}
+               >.viewport > .trolley{display:block;}
+            }
+            .summary{
+                float:right;
+                width:33%;
+            }
+            
+            .si-image-slider{
+                > .viewport{
+                    > .trolley{
+                        display:block;
+                        white-space: nowrap;
+
+                        .item{
+                            float:left;clear:none;
+                            .caption{
+                                label{color:#fff;}
+                            }
+                        }
+
+                    }
+                }
+                .navigation-controls{
+                    .btn{
+                        color:#fff;
+                    }
+                }
+                .controls{display:none;}
+            }
+        }
+    }
+    #top .si-modal,
+    .si-modal{
+        .si-modal-dialog{
+            .si-modal-content{
+                background:#fff;
+                
+            }
+            .modal-header{
+                display:block;
+                .close{
+                    position: absolute;
+                    right:0px;top:50%;
+                    transform:translateY(-50%);
+                }
+            }
+            .modal-footer{
+                display:block;
+            }
+            display:block;
+
+        }
+
+        &#information_request{
+            .modal-body{
+                .form{
+                    &.info-request{
+                        display:block;
+                    }       
+                }
+            }
+            
         }
     }
     

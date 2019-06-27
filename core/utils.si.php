@@ -148,6 +148,23 @@ function si_end_of_template(){
   
 }
 
+function si_listing_srcset($original_picture_url){
+  if(strpos($original_picture_url,'sm')===false) return '';
+
+  $srcSet = [$original_picture_url . ' 1x'];
+  $sizes = array(
+    '2x' => 'md',
+    //'3x' => 'lg'
+  );
+
+  foreach ($sizes as $key => $value) {
+    $srcSet[] = str_replace('sm',$value, $original_picture_url) . ' ' . $key;
+  }
+
+  return implode(", ", $srcSet);
+}
+add_filter('si_listing_srcset', 'si_listing_srcset',10,1);
+
 class SourceImmoTools {
 
   public static function get_tiny_url($url)  {  

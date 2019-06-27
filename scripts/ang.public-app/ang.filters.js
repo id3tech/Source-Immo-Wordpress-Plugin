@@ -159,7 +159,7 @@ function $lateBind($callback){
         __callback : $callback
     };
 
-    $scope.resolve = function(...$params){
+    $scope.resolve = function(){
         $scope.__callback
     }
 
@@ -174,7 +174,7 @@ const findProperty = function($source, $path){
     let lPathParts = $path.split('.');
     let lCursor = $source;
     let lResult = null;
-    lPathParts.forEach($e => {
+    lPathParts.forEach(function($e){
         //console.log(lCursor, $e);
         if(typeof lCursor[$e] != 'undefined'){
             lCursor = lCursor[$e];

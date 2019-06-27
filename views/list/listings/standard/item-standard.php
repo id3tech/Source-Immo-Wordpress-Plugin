@@ -10,7 +10,7 @@ if(isset($configs)){
 <article class="si-item si-listing-item si-standard-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}" ng-cloak>
     <a href="{{item.permalink}}">
         <div class="content">
-            <div class="image"><img data-ng-src="{{item.photo_url}}" /></div>
+            <div class="image"><img data-ng-src="{{item.photo_url}}" data-si-srcset="{{item.photo_url}}" /></div>
             <div class="price">{{formatPrice(item)}}</div>
             <div class="civic-address">{{item.location.civic_address}}</div>
             <div class="ref-number">{{item.ref_number}}</div>

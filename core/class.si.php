@@ -35,6 +35,7 @@ class SourceImmo {
     
     $this->register_filters(array(
       // add route rules
+      //'init' => 'apply_routes',
       'query_vars' => 'update_routes_query_var',
       'rewrite_rules_array' => 'update_routes',
       'locale' => 'detect_locale'
@@ -49,7 +50,7 @@ class SourceImmo {
 
       $this->register_filters(array(
         'language_attributes' => 'set_html_attributes',
-        'body_class' => 'body_class',
+        'body_class' => 'body_class'
       ));
 
       $this->register_actions(array(
@@ -63,6 +64,7 @@ class SourceImmo {
 
       add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
       add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
+
     }
   }
 
@@ -191,8 +193,9 @@ class SourceImmo {
 
   public function apply_routes(){
     $routes = $this->update_routes(array());
+    
     foreach ($routes as $key => $value) {
-      add_rewrite_rule($key, $value);
+      add_rewrite_rule($key, $value,'top');
     }
   }
 
@@ -260,6 +263,7 @@ class SourceImmo {
       }
     }
 
+    //__c($newrules, $rules);
     return array_merge($newrules, $rules);
   }
 
@@ -301,6 +305,7 @@ class SourceImmo {
   
 	function template_redirect(){
     $ref_number = get_query_var( 'ref_number' );
+    //__c($ref_number);
 		if ( $ref_number ) {
       $type = get_query_var( 'type' );
       $mode = get_query_var( 'mode' );
@@ -430,12 +435,14 @@ class SourceImmo {
     $lConfigVersion = filemtime(str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFilePath));
     $lConfigPath  = $lConfigFilePath . '?v=' . $lConfigVersion;
 
+    $currentPagePath = $_SERVER['REQUEST_URI'];
     
     wp_add_inline_script( 'si-prototype', 
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
                           '$locales.init("' . $lTwoLetterLocale . '");' .
                           'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
-                          'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', SI_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . '};'
+                          'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', SI_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . ', use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . '};'
+
                         );
     
     if($lTwoLetterLocale!='en'){
@@ -521,7 +528,7 @@ class SourceImmo {
       $share_tool->addHook('listing');
       
       $permalink = $share_tool->getPermalink();
-
+      if(!isset($post)) $post = json_decode('{}');
       $post->permalink = $permalink;
 
       // add hook for permalink
@@ -1636,9 +1643,12 @@ class SourceImmoAbstractResult{
     return $lResult;
   }
 
-  public static function buildPermalink($item, $format){
+  public static function buildPermalink($item, $format, $lang=null){
     $lResult = $format;
-    
+    global $sitepress;
+    $lTwoLetterLocale = $lang!=null ? $lang : substr(get_locale(),0,2);
+    $lHomeUrl= $sitepress->language_url( $lTwoLetterLocale );
+
     $lAttrList = self::getAttributeValueList($item);
     $item->has_custom_page = false;
 
@@ -1653,8 +1663,9 @@ class SourceImmoAbstractResult{
           ), sanitize_title($lValue), $lResult);
       
     }
-    
-    return '/'. str_replace(' ','-',$lResult);
+    $lFinalPermalink = '/'. str_replace(' ','-',$lResult);
+    if(strpos($lHomeUrl,$lTwoLetterLocale)!==false) $lFinalPermalink = '/' . $lTwoLetterLocale . $lFinalPermalink; 
+    return $lFinalPermalink;
   }
 
   public static function validatePagePermalinks($list, $type = 'city'){
@@ -1915,22 +1926,31 @@ class ListingOpenHouseSchema extends BaseDataSchema{
 }
 #endregion
 
-
 #region WPML FILTER
+
 add_action('si_listing_detail_begin', function(){
 	add_filter( 'WPML_filter_link', function($lang_url, $lang){
-		global $listing_data;
+    global $listing_data;
+    global $sitepress;
+    $lHomeUrl= $sitepress->language_url( $lang["code"] );
+    
 		$permalink_format = SourceImmo::current()->get_listing_permalink($lang['code']);
-		$permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format);
-		return $permalink;
+    $permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format,$lang["code"]);
+    //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
+    return $permalink;
 	  }, 10, 2 );
 }, 5,0);
 
 add_action('si_broker_detail_begin', function(){
 	add_filter( 'WPML_filter_link', function($lang_url, $lang){
-		global $broker_data;
+    global $broker_data;
+    global $sitepress;
+    $lHomeUrl= $sitepress->language_url( $lang["code"] );
+    
 		$permalink_format = SourceImmo::current()->get_broker_permalink($lang['code']);
-		$permalink = SourceImmoBrokersResult::buildPermalink($broker_data, $permalink_format);
+    $permalink = SourceImmoBrokersResult::buildPermalink($broker_data, $permalink_format,$lang["code"]);
+    
+    //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
 		return $permalink;
 	  }, 10, 2 );
 }, 5,0);

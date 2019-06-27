@@ -217,7 +217,7 @@ function $siApi($http,$q,$siConfig,$rootScope){
         // Setup promise object
         let lPromise = $q(function($resolve, $reject){
             // add auth data
-            $siConfig.get().then($configs => {
+            $siConfig.get().then(function($configs){
                 $options.headers = {
                     'x-si-account'      : $configs.account_id,
                     'x-si-api'          : $configs.api_key,
@@ -493,7 +493,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         let lMandatoryLocationData = ['country','province','region','city'];
         
         if($scope.item.location){
-            lMandatoryLocationData.forEach($d => {
+            lMandatoryLocationData.forEach(function($d) {
                 if(typeof $scope.item.location[$d] == 'undefined'){
                     $scope.item.location[$d] = ('other ' + $d).translate();
                 }
@@ -524,6 +524,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
                 }
             });
         }
+
+        if(siCtx.use_lang_in_path) lResult = '/' + siCtx.locale + lResult;
         return lResult;
     }
 
@@ -611,7 +613,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
             }
 
             $item.rooms = {};
-            Object.keys($item.main_unit).forEach($k => {
+            Object.keys($item.main_unit).forEach(function($k){
                 if($item.main_unit[$k] > 0){
                     const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
                     if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
@@ -724,7 +726,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
     $scope.getTransactionFromArray = function($item, $keys, $labels, $sanitize){
         let lResult = [];
 
-        $keys.forEach($key =>{
+        $keys.forEach(function($key){
             if(typeof $item.price[$key]!='undefined'){
                 let lTrans = ($labels[$key]).translate();
                 if($sanitize){
@@ -756,7 +758,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         lResult = lResult.replace(/\./gm, '');
 
         if($useCamelCase){
-            lResult = lResult.split('-').map(($e,$i) => { 
+            lResult = lResult.split('-').map(function ($e,$i){ 
                 if($i==0) return $e;
                 return $e[0].toUpperCase() + $e.substr(1);
             }).join('');
@@ -878,6 +880,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         }
 
         return $url + lDataPrefix + $key + '=' + $value;
+    }
+
+    $scope.isLegacyBrowser = function(){
+        const lUA = window.navigator.userAgent;
+        if(!['Chrome','Safari','Firefox'].some(function($e){return lUA.indexOf($e)>=0;})){
+            return true;
+        }
+        return false;
     }
 
     return $scope;
@@ -1041,7 +1051,7 @@ function $siFavorites($q){
     }
 
     $scope.isFavorite = function($key){
-        return $scope.favorites.some($e => $e == $key);
+        return $scope.favorites.some(function($e) {return $e == $key});
     }
 
     $scope.init();
@@ -1160,22 +1170,23 @@ function $siFilters($q,$siApi,$siUtils){
                 then : function($fn){
                     this._callback = $fn;
                 },
-                resolve: function(...params){
-                    this._callback(...params);
+                resolve: function(){
+                    //console.log('on resolve',this._callback)
+                    this._callback.apply(undefined, arguments);
                 }
             }
 
-            $fm._events_listener[$event_key].push(function(...params){
-                lResult.resolve(...params);
+            $fm._events_listener[$event_key].push(function(){
+                lResult.resolve.apply(lResult, arguments);
             });
 
             return lResult;
         }
 
-        $fm.trigger = function($event_key, ...$params){
+        $fm.trigger = function($event_key){
             if(typeof $fm._events_listener[$event_key] == 'undefined') return;
-
-            $fm._events_listener[$event_key].forEach($e => $e(...$params));
+            const $params = Array.prototype.slice.call(arguments,1);
+            $fm._events_listener[$event_key].forEach(function($e) {return $e.apply(undefined, $params)});
         }
 
         $fm.searchByKeyword = function($keyword){
@@ -1219,7 +1230,7 @@ function $siFilters($q,$siApi,$siUtils){
                 if(!Array.isArray(lFields)){
                     lFields = [$fieldname];
                 }
-                return lFields.some($f => {
+                return lFields.some(function($f) {
                     return $fm.getFilterByFieldName($f) != null
                 });
             }
@@ -1272,11 +1283,11 @@ function $siFilters($q,$siApi,$siUtils){
                 return $default;
             }
             let lItem = null;
-            if($list.some($e => $e.filter != undefined)){
-                lItem = $list.find($e => $e.filter.value == lValue);
+            if($list.some(function($e){ return $e.filter != undefined})){
+                lItem = $list.find(function($e) {return $e.filter.value == lValue});
             }
             else{
-                lItem = $list.find($e => $e.value == lValue);
+                lItem = $list.find(function($e){return $e.value == lValue});
             }
             
             if(lItem == null){
@@ -1618,8 +1629,8 @@ function $siFilters($q,$siApi,$siUtils){
                         lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
                     }
                     
-                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter($f => $f.field!='').length > 0){
-                        lResult.sort_fields = $fm.sort_fields.filter($f => $f.field!='');
+                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter(function($f) {return $f.field!=''}).length > 0){
+                        lResult.sort_fields = $fm.sort_fields.filter(function($f){return $f.field!=''});
                     }
                     else if($configs.sort != 'auto' && $configs.sort != ''){
                         lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
@@ -1858,7 +1869,7 @@ function $siFilters($q,$siApi,$siUtils){
 
         $fm.normalize = function($filterGroup){
             const lNewGroup = [];
-            $filterGroup.filter_groups.forEach( ($f,$i) => {
+            $filterGroup.filter_groups.forEach( function ($f,$i) {
                 if($f.filter_groups != null){
                     $fm.normalize($f);
                 }

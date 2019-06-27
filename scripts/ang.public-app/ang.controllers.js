@@ -9,7 +9,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
     $scope.broker_count = 0;
     $scope.listing_count = 0;
     $scope.statics = {
-        isNullOrEmpty: $value => $value==null || $value == '' || $value.length == 0
+        isNullOrEmpty: function($value) {return $value==null || $value == '' || $value.length == 0}
     };
 
     $scope.init = function(){
@@ -45,7 +45,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
             const lClasses = [];
             if(lStatic._data == null || lStatic._data == '' || lStatic._data.length ==0) lClasses.push('empty');
 
-            return lClasses.map($e => lSanitizedName + '-' + $e).join(' ');
+            return lClasses.map(function($e) {return lSanitizedName + '-' + $e}).join(' ');
         }
 
         $scope.statics[lVarName] = lStatic;
@@ -412,7 +412,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         //console.log(lSent);
 
         if(lSent!==true){
-            let lDestEmails = $scope.model.brokers.map($e => $e.email);
+            let lDestEmails = $scope.model.brokers.map(function($e) {return $e.email});
             lDestEmails = $siHooks.filter('single-listing-message-emails', lDestEmails, $scope.model.brokers);
             
             lMessage = {
@@ -592,7 +592,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         let lStringContentChecks = ['description','subcategory','category','location.city', 'location.address.street_name', 'ref_number'];
         let lNumContentChecks = ['price.sell.amount', 'price.lease.amount'];
 
-        if(lStringContentChecks.some($e => {
+        if(lStringContentChecks.some(function($e) {
             let lValue = findProperty($listing,$e);
             if(lValue != null && lValue.toLowerCase().indexOf(lLowerKeyword) >=0){
                 return true;
@@ -601,7 +601,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
             return true;
         };
         
-        if(lNumContentChecks.some($e => {
+        if(lNumContentChecks.some(function($e){
             let lValue = findProperty($listing,$e);
             if(lValue != null && lValue.toString().indexOf(lLowerKeyword) >=0){
                 return true;

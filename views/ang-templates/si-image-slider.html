@@ -1,6 +1,6 @@
 <div class="si-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
     <div class="viewport"> 
-        <div class="trolley" style="transform:translateX(-{{index * 100}}%);grid-gap:{{gap}}px;grid-template-columns: repeat({{pictures.length}},100%);">
+        <div class="trolley" ng-style="getTrolleyStyle()">
             <div class="item" data-ng-repeat="img in pictures">
                 <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
                 <div class="caption"><label>{{getImageCaption(img)}}</label></div>

@@ -1225,7 +1225,7 @@ siApp
                     $filter.data.min_price = $values[0];
                     $filter.data.max_price = $values[1];
 
-                    $values.forEach(($e,$i) => {
+                    $values.forEach(function($e,$i){
                         //console.log($e, $filter.hasFilter(['price.sell.amount','price.lease.amount']), $filter);
 
                         if($e > 0){
@@ -1369,7 +1369,7 @@ siApp
                         "attributes.PARKING" : $scope.parkingSuggestions,
                         "attributes.PARKING_GARAGE" : $scope.garageSuggestions
                     }
-                    for (const key in lListSync) {
+                    for (let key in lListSync) {
                         let lValue = $filter.getFilterValue(key);
                         lListSync[key].some(function($e){
                             if($e.value==lValue){
@@ -1867,7 +1867,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope.init = function(){
                 
                 $scope.isReady().then(function(){
-                    $siFilters.with($scope.alias, $filter =>{
+                    $siFilters.with($scope.alias, function($filter){
                         $scope.filter = $filter;
                         $scope.filter.result_url = $scope.result_page;
                         
@@ -1974,7 +1974,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                 if($event != undefined){
                     if($scope.trapKeyCode($event.keyCode)) return false;
                 }
-                $siFilters.with($scope.alias, $filter => {       
+                $siFilters.with($scope.alias, function($filter){       
                     //$filter.data.keyword = $scope.keyword;     
                     // When keyword is not empty
                     if($filter.data.keyword == ''){
@@ -1992,11 +1992,11 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                         lType = $scope.$parent.getListType();
                                         lType = (lType == 'listings') ? 'listing-city' : lType.replace('s','');
                                     }
-                                    $siApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then($qsItems => {
+                                    $siApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then(function($qsItems){
                                         // add extra in caption
-                                        $qsItems.forEach($e =>{
+                                        $qsItems.forEach(function($e){
                                             if(typeof $e.context != 'undefined'){
-                                                Object.keys($e.context).forEach($k =>{
+                                                Object.keys($e.context).forEach(function($k){
                                                     if($e.context[$k].match($scope.getKeywordRegEx())){
                                                         $e.caption = $e.caption + ' ' + $e.context[$k];
                                                     }
@@ -2018,7 +2018,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         }, 250);
                     }
                     else{
-                        $scope.suggestions = $scope.stored_suggestions.filter($e => $scope.elementMatchKeyword($e,false));
+                        $scope.suggestions = $scope.stored_suggestions.filter(function($e) {return $scope.elementMatchKeyword($e,false)});
                         console.log('stored_suggestions filtered to', $scope.suggestions);
 
                         if($scope.suggestions.length > 0) $scope.suggestions[0].selected =true;
@@ -2041,7 +2041,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     "c" : "(c|ç)"
                 }
 
-                Object.keys(lSpecials).forEach($k => {
+                Object.keys(lSpecials).forEach(function($k){
                     lPattern = lPattern.replace(new RegExp($k,'gi'), lSpecials[$k]);
                 });
                 
@@ -2057,7 +2057,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
 
             $scope.getSelection = function(){
-                return $scope.suggestions.find($e => $e.selected);
+                return $scope.suggestions.find(function($e) {return $e.selected});
             }
 
             $scope.elementMatchKeyword = function($item, $startsWith){
@@ -2097,7 +2097,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             
 
             $scope.getReverseSuggestions = function(){
-                $siFilters.with($scope.alias, $filter =>{
+                $siFilters.with($scope.alias, function($filter){
                         
                     let lValue = $filter.data.keyword.toLowerCase();
                     let lValueList = lValue.split(' ');
@@ -2326,7 +2326,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
             
             $scope.getItemLinkShortcut = function($type, $configs){
-                let lRoute = $configs[$type + '_routes'].find($r => $r.lang == siApiSettings.locale) || 
+                let lRoute = $configs[$type + '_routes'].find(function($r){return $r.lang == siApiSettings.locale}) || 
                                $configs[$type + '_routes'][0];
                 
                 
@@ -2406,7 +2406,7 @@ siApp
 
             if($scope.latlng == null){$scope.registerWatch();return;}
 
-            $scope.mapInit().then(_ => {
+            $scope.mapInit().then(function() {
                 $scope.setView($scope.latlng);
             });
         }
@@ -2522,7 +2522,7 @@ siApp
             if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
 
             return $q(function($resolve, $reject){   
-                $siConfig.get().then($config => {
+                $siConfig.get().then(function($config){
                     if($scope.ready == false){
                         //console.log('Map init', $config, $scope.zoom);
                         
@@ -2593,7 +2593,7 @@ siApp
             })
         }
         $scope.onSwitchToMap = function(){
-            $scope.mapInit().then(_ =>{
+            $scope.mapInit().then(function(){
                 if($scope.bounds){
                     //console.log('fit to bounds', $scope.bounds);
                     window.setTimeout(function(){
@@ -2681,8 +2681,8 @@ siApp
             const lPoints = [];
 
             //console.log($scope.list[0]);
-            $siConfig.get().then($configs => {
-                const lListConfig = $configs.lists.find($e => $e.alias==$scope.alias);
+            $siConfig.get().then(function($configs){
+                const lListConfig = $configs.lists.find(function($e) {return $e.alias==$scope.alias});
                 const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
                 const lSmartFocusTolerance = lListConfig.smart_focus_tolerance || 5;
 
@@ -2706,15 +2706,15 @@ siApp
                 if(lSmartFocusTolerance != 'off'){
                     
                     //console.log('points', angular.copy(lPoints));
-                    const lXMed = $scope.median(lPoints.map($p => $p.x));
-                    const lYMed = $scope.median(lPoints.map($p => $p.y));
-                    let lXAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lXMed - $p.x)), 0) / lPoints.length);
-                    let lYAvg = (lPoints.reduce(($sum, $p) => ($sum+Math.abs(lYMed - $p.y)), 0) / lPoints.length);
+                    const lXMed = $scope.median(lPoints.map(function($p) {return $p.x}));
+                    const lYMed = $scope.median(lPoints.map(function($p) {return $p.y}));
+                    let lXAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lXMed - $p.x))}, 0) / lPoints.length);
+                    let lYAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lYMed - $p.y))}, 0) / lPoints.length);
 
                     if(lSmartFocusTolerance > 0){
                         const lLatDegKm = 110.574;
                         const lLngDegKm = 111.320;
-                        const deg2rad = $deg => ($deg*Math.PI)/180;
+                        const deg2rad = function($deg) {return ($deg*Math.PI)/180};
 
                         lXAvg = lXAvg + (lSmartFocusTolerance / lLatDegKm);
                         lYAvg = lYAvg + ((lSmartFocusTolerance / lLngDegKm) / Math.cos(deg2rad(lYAvg)));
@@ -2736,13 +2736,13 @@ siApp
                     console.log('Media rect', lMedianRect);
 
                     lPoints
-                        .filter($p => lMedianRect.contains($p.x,$p.y) )
-                        .forEach($p => {$scope.bounds.extend($p.lngLat)})
+                        .filter(function($p) {return lMedianRect.contains($p.x,$p.y)} )
+                        .forEach(function($p) {$scope.bounds.extend($p.lngLat)})
                 
                 }
                 else{
                     lPoints
-                        .forEach($p => {$scope.bounds.extend($p.lngLat)})
+                        .forEach(function($p){$scope.bounds.extend($p.lngLat)})
                 }
                     
                 if($scope.list.length>1){
@@ -3035,10 +3035,10 @@ siApp
 
 siApp
 .directive('siImageSlider', function siImageSlider(){
-    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks) {
+    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils) {
         $scope.expand_mode = false;
         $scope.picture_grid_mode = false;
-
+        
         $scope.position = {
             current_picture_index : 0
         };
@@ -3047,9 +3047,23 @@ siApp
             $scope.index = 0;   
             
             $scope.$on('thumbnails-slider-select', function($event, $picture){
-                const lIndex = $scope.pictures.findIndex($e => $e.url == $picture.url);
+                const lIndex = $scope.pictures.findIndex(function($e){return $e.url == $picture.url});
                 $scope.set(lIndex,false);
-            })
+            });
+
+            if($scope.pictures){
+                if($siUtils.isLegacyBrowser()){
+                   const jqElm = jQuery($scope.$element)
+                    jqElm.find('.viewport .trolley').width(jqElm.width() * $scope.pictures.length);
+                    window.setTimeout(function(){
+                        
+                        jqElm.find('.viewport .trolley .item').each(function($i,$e){
+                            jQuery($e).width(jqElm.width());
+                        })
+                    },200);
+                }
+                
+            }
         }
 
         $scope.next = function(){
@@ -3059,7 +3073,6 @@ siApp
                 lNewIndex= 0;
             }
             $scope.set(lNewIndex);
-            
         }
 
         $scope.previous = function(){
@@ -3074,7 +3087,8 @@ siApp
             $triggerEvents = typeof $triggerEvents == 'undefined' ? true : $triggerEvents;
             $scope.index = $index;
             $scope.picture_grid_mode =false;
-            
+            $scope.updateTrolley();
+
             if($triggerEvents){
                 const lItem = $scope.pictures[$index];
                 $rootScope.$broadcast('mediabox-picture-select', lItem);
@@ -3085,6 +3099,8 @@ siApp
             }catch($e){}
 
         }
+
+
 
         $scope.toggleExpand = function(){
             $scope.expand_mode = !$scope.expand_mode;
@@ -3160,6 +3176,30 @@ siApp
 
             return lResult;
         }
+
+        $scope.updateTrolley = function(){
+            return;
+            const jqElm = jQuery($scope.$element);
+            jqElm.find('.trolley').css('transform', 'translateX(-' + ($scope.index * jqElm.width()) + 'px)');
+        }
+
+        $scope.getTrolleyStyle = function(){
+            if($scope.pictures == null) return {};
+
+            if(!$siUtils.isLegacyBrowser()){
+                return {
+                    'transform' :'translateX(-' + (100 * $scope.index) + '%)',
+                    'grid-gap': $scope.gap + 'px',
+                    'grid-template-columns': 'repeat(' + $scope.pictures.length + ',100%)'
+                }
+            }
+            else{
+                const jqElm = jQuery($scope.$element);
+                return {
+                    'transform' :'translateX(-' + ($scope.index * jqElm.width()) + 'px)',
+                }
+            }
+        }
     };
 
     return {
@@ -3205,6 +3245,25 @@ siApp
 });
 
 siApp
+.directive('siSrcset', ['$compile', function siSrcset($compile){
+    return {
+        restrict: 'A',
+        link: function($scope, $element, $attrs){
+            const lOriginalPicture = $attrs.siSrcset;
+            if($element[0].tagName != 'IMG') return;
+            if(lOriginalPicture.indexOf('sm') < 0) return;
+            
+            const lPictureSets = [lOriginalPicture + ' 1x'];
+            ['md'].forEach(function($size,$index){
+                lPictureSets.push(lOriginalPicture.replace('sm',$size) + ' ' + ($index + 2) + 'x');
+            });
+
+            $element.attr('srcset', lPictureSets.join(', '));
+        }
+    }
+}])
+
+siApp
 .directive('siCalculator', function siCalculator(){
     return {
         restrict: 'E',
@@ -3213,6 +3272,7 @@ siApp
             dictionary: '=?siDictionary',
             downpayment_selection: '@?siDownpaymentSelection',
             region: '@?siRegion',
+            cityCode: '@?siCity',
             on_change: '&onChange'
         },
         controllerAs: 'ctrl',
@@ -3321,7 +3381,6 @@ siApp
                 branch.insurance = getMortgageInsurance($scope.data.amount, downpayment_ratio);
                 branch.mortgage = $scope.data.amount - branch.downpayment + branch.insurance;
     
-    
                 var PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
                 var IntRate = branch.rate / 100; //Number($("input[name=calInterest]").val()) / 100;
                 var Period = branch.amortization; //Number($("input[name=calAmortizationPeriod]").val());
@@ -3358,9 +3417,27 @@ siApp
             getTransferTax = function (amount, in_montreal) {
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
                 parts = [];
-    
+                const lBoundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
+                console.log('transferTax',$scope.cityCode, lBoundaries);
                 //console.log('in montreal', in_montreal);
-    
+                
+                let rates = lBoundaries.rates;
+                let bounds = lBoundaries.bounds;
+                // let lAmountRaw = $("#purchase_price").val();
+                
+                // let amount = me.devise(parseFloat(lAmountRaw.replace(/ /g,'')));
+                let taxemutation = 0;
+                for (i=0; i<rates.length; i++) {
+                    if(amount <= 0) continue;
+
+                    const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
+                    taxemutation = taxemutation + lRemovedAmount*rates[i];
+                    amount = amount - lRemovedAmount;
+                    console.log('step',i,':', lRemovedAmount,'x',rates[i]*100,'% =', lRemovedAmount*rates[i], '(',taxemutation,') still have', amount, '$ to process' )
+                }
+
+                return Math.round(taxemutation);
+
                 parts.push((amount > 50000 ? 50000 : amount) * 0.005);
                 if (amount > 50000) {
                     parts.push((amount > 250000 ? 200000 : amount - 50000) * 0.01);
@@ -3388,7 +3465,55 @@ siApp
     
                 return lResult;
             };
-    
+            
+            $scope.getTransferTaxBoundaries = function($cityCode){
+                const defaultBoundaries = {code: 'default', rates: [0.005,0.01,0.015], bounds : [50900,254400,99000000]};
+                const citiesBoundaries = [
+                    {code: '93042', name:'Alma', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '73005', name:'Boisbriand', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '59005', name:'Boucherville', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]},
+                    {code: '58005', name:'Brossard', bounds:[50900,254400,750000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: '57005', name:'Chambly', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
+                    {code: '67050', name:'Châteauguay', bounds:[50900,254400,505200,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '49057', name:'Drummondville', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
+                    {code: ["46085", "46112"], name:'Farnham', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.0225]},
+                    {code: '66100', name:'Kirkland', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: '60028', name:'L\'assomption', bounds:[50900,254400,508700,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: ["65101", "65102", "65103", "65104", "65105", "65106", "65107", "65108", "65109", "65110", "65111", "65112", "65113"], name:'Laval', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: ["25214", "25215", "25216"], name:'Lévis', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: ["58015", "58020", "58227"], name:'Longueuil', bounds:[50900,254400,508699,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '73025', name:'Lorraine', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '64015', name:'Mascouche', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '57035', name:'Mont-Saint-Hilaire', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: ["66020", "66030", "66040", "66057", "66065", "66070", "66075", "66085", "66125", "66130", "66140", "66150", "66501", "66505", "66506", "66507", "66508", "66509", "66511", "66516"], name:'Montréal', bounds:[50900,254400,508700,1017400,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: '78102', name:'Mont-Tremblant', bounds:[50900,254400,503500,1007000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: '77050', name:'Morin-Heights', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
+                    {code:  ["60010", "60013"], name:'Repentigny', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '10043', name:'Rimouski', bounds:[50900,254400,505100,757700,1010300,99000000],rates:[0.005,0.01,0.015,0.02,0.025,0.03]},
+                    {code: '75005', name:'Saint-Colomban', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '72005', name:'Saint-Eustache', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
+                    {code: '56083', name:'Saint-Jean-Sur-Richelieu', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '59010', name: 'Sainte-Julie', rates: [0.005,0.01,0.015 ,0.025], bounds : [50900,254400,500000,99000000]},
+                    {code: '87120', name:'Saint-Lambert', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
+                    {code: '77040', name:'Saint-Sauveur', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: ["43010", "43020", "43023", "43024", "43025", "43030"], name:'Sherbrooke', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '53052', name:'Sorel-Tracy', bounds:[50900,254400,500000,700000,900000,99000000],rates:[0.005,0.01,0.015,0.02,0.025,0.03]},
+                    {code: ["64005", "64008", "64020"], name:'Terrebonne', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
+                    {code: '37067', name:'Trois-Rivières', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]},
+                    {code: '78010', name:'Val David', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]}
+                ];
+                
+                const lBoundedCity = citiesBoundaries.find(function($e){ 
+                    if(Array.isArray($e.code)){
+                        return $e.code.includes($cityCode.toString());
+                    }
+                    return $e.code == $cityCode
+                });
+
+                if(lBoundedCity != null) return lBoundedCity;
+                return defaultBoundaries;
+            }
+
             $scope.preload = function(){
                 let lData = sessionStorage.getItem('si.mortgage-calculator');
                 if(lData != null){
@@ -3799,7 +3924,7 @@ siApp
                         jQuery('.slider-handle').css('z-index',1);
                         jQuery($elm).css('z-index',2);
 
-                        lPointerMoveHndl = (event) => {
+                        lPointerMoveHndl = function(event){
                             return $scope.$apply(function() {
                                 
                                 let lPositionRef = event;
@@ -4008,7 +4133,7 @@ function siMediabox(){
             $scope.tabIsAvailable = function($name){
                 if(!$scope.tabs) return true;
 
-                return $scope.tabs.some($t => $t == $name);
+                return $scope.tabs.some(function($t) {return $t == $name});
             }
 
             $scope.selectMedia = function($media){
@@ -4021,7 +4146,7 @@ function siMediabox(){
                     $scope.$broadcast(lTrigger);
                 }
                 else{
-                    window.setTimeout(_ => {
+                    window.setTimeout(function(){
                         $scope.$broadcast(lTrigger);
                     },1000);
                 }
@@ -4153,10 +4278,9 @@ siApp
 
                 $scope.next = function(){
                     let lOffsetValue = $scope.trolleyOffset+1;
-                    const { 
-                        controlWidth,
-                        pictureWidth
-                    } = $scope.getComponentsWidth();
+                    const lCompsWidth = $scope.getComponentsWidth();
+                        const controlWidth = lCompsWidth.controlWidth;
+                        const pictureWidth = lCompsWidth.pictureWidth;
 
                     console.log('click next');
 
@@ -4193,10 +4317,9 @@ siApp
     
                     let lResult = 0;
 
-                    const { 
-                        controlWidth,
-                        pictureWidth
-                    } = $scope.getComponentsWidth();
+                    const lCompsWidth = $scope.getComponentsWidth();
+                        const controlWidth = lCompsWidth.controlWidth;
+                        const pictureWidth = lCompsWidth.pictureWidth;
 
                     const lPicturePerPage = Math.floor(controlWidth / pictureWidth);
                     const indexOfFirstPicture = $scope.trolleyOffset * lPicturePerPage;
@@ -4207,10 +4330,9 @@ siApp
 
                 $scope.getTrolleyIndexFromSelection = function($selectedIndex){
                     if($selectedIndex == 0) return 0;
-                    const { 
-                        controlWidth,
-                        pictureWidth
-                    } = $scope.getComponentsWidth();
+                    const lCompsWidth = $scope.getComponentsWidth();
+                        const controlWidth = lCompsWidth.controlWidth;
+                        const pictureWidth = lCompsWidth.pictureWidth;
                     
                     const lPicturePerPage = Math.floor(controlWidth / pictureWidth);
                     if(($selectedIndex + 1) <= lPicturePerPage) return 0;
@@ -4229,7 +4351,7 @@ siApp
                 $scope.select = function($picture, $triggerEvents){
                     $triggerEvents = typeof  $triggerEvents == 'undefined' ? true : $triggerEvents;
 
-                    $scope.selectedIndex = $scope.list.findIndex($e => $e.url == $picture.url);
+                    $scope.selectedIndex = $scope.list.findIndex(function($e) {return $e.url == $picture.url});
                     console.log('click on picture')
                     if($triggerEvents){
                         $rootScope.$broadcast('thumbnails-slider-select', $scope.list[$scope.selectedIndex]);
