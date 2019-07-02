@@ -3085,7 +3085,7 @@ body.si-modal-open{
         grid-auto-flow: column;
         .item{
             height:100%; position:relative;
-            padding-right:5px;
+            padding-right:5px;padding-bottom:75%;
             width:var(--thumbnail-picture-size);
             cursor:pointer;
             img{
@@ -3094,6 +3094,7 @@ body.si-modal-open{
                 min-height:100%;
                 transition: 0.25s;
                 pointer-events: none;
+                position: absolute;
             }
             .fa-eye{
                 position: absolute;
