@@ -3271,14 +3271,32 @@ body.si-modal-open{
         grid-gap:10px;
         grid-template-columns: 3fr 2fr 25px;
         grid-template-areas: "label input extra";
-        input{padding:10px;}
+        input{
+            padding:10px;outline:none;border: var(--element-border);border-radius: var(--element-border-radius);
+            transition:0.25s;
+            &:focus{
+                border-color: var(--highlight);
+            }
+        }
         place-items: center stretch;
-        label{grid-area:label;color:inherit;}
+        label{
+            grid-area:label;color:inherit;
+            
+        }
         .dropdown{
             > .btn{color:inherit;}
         }
         .input{grid-area:input}
         .extra{grid-area:extra;}
+
+        @include media($phone){
+            grid-template-columns: 1fr 25px;
+            grid-template-areas: "label label" "input extra";
+            > label{
+                display: grid;
+                grid-template-columns: 1fr auto;
+            }
+        }
     }
 }
 
