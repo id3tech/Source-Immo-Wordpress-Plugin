@@ -3035,7 +3035,7 @@ siApp
 
 siApp
 .directive('siImageSlider', function siImageSlider(){
-    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils) {
+    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils,$timeout) {
         $scope.expand_mode = false;
         $scope.picture_grid_mode = false;
         
@@ -3064,6 +3064,15 @@ siApp
                 }
                 
             }
+
+            document.addEventListener('fullscreenchange', function(){
+                console.log('fullscreen change', document.fullscreenElement)
+                if(document.fullscreenElement == null){
+                    $timeout(_ => {
+                        $scope.expand_mode = false;
+                    });
+                }
+            })
         }
 
         $scope.next = function(){
@@ -3155,6 +3164,8 @@ siApp
 
                 $scope.expand_mode = true;
               }
+
+            
         }
 
         $scope.togglePictureGrid = function(){

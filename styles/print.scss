@@ -6,6 +6,8 @@
         height:11in;
         margin:0px;
     }
+
+    .print-button{display:none;}
 }
 
 :root{
@@ -29,6 +31,33 @@ html.print{
         h3{font-size: 1.375rem;}
         h4{font-size: 1.25rem;}
         h5{font-size: 1.15rem;}
+        .print-button{
+            position:fixed;
+            display:block;
+            left: calc(50%  + 5in);
+            top:1in;
+            background-color:transparent;
+            color: var(--highlight-text-color);
+            width: 1in;height:1in;line-height:1in;
+            text-align:center;
+            border:none;
+            
+            i{font-size: 2rem;z-index:2;position:relative;}
+            &::before{
+                content:"";
+                position: absolute;
+                width:80%;height:80%;
+                top:50%;left:50%;transform:translate(-50%,-50%);
+                border-radius:50%;
+                background-color:var(--highlight);
+            }
+            &:hover{
+                &::before{
+                    width:100%;height:100%;
+                    transition:0.25s;
+                }
+            }
+        }
         page{
             display:block;
             margin:20px auto;
@@ -113,6 +142,10 @@ html.print{
         @for $i from 1 through 20{
             .blur-#{$i}{filter:blur(#{$i}px);}
         }
+        @for $i from 1 through 20{
+            .opacity-#{$i * 5}{opacity: #{($i * 5)/100};}
+        }
+
         .panel{
             position:relative;
             padding:0.25in;
@@ -258,15 +291,15 @@ html.print{
                     background-color:var(--background-color);
                     text-align:right;
                     grid-template-columns: 2.5in 1fr;
-                    grid-template-rows: 3.5in auto;
+                    grid-template-rows: auto;
                     gap:0 0.25in;
                     box-shadow: rgba(#000,0.5) 0 0 0.25in;
                     .main-picture{
                         grid-column: 1 / span 2;
-                        height:3.5in;
-                        overflow:hidden;background-color:red;
+                        padding-bottom:75%;
+                        overflow:hidden;background-color:#fff;
                         position:relative;
-                        img{width:100%;min-height:100%;position: absolute;top:0;left:0;}
+                        img{width:100%;min-height:100%;position: absolute;top:0;left:0;object-fit: cover;object-position: center;}
                     }
                     .transaction{text-transform:uppercase;}
                     .address{

@@ -3007,6 +3007,10 @@ body.si-modal-open{
             opacity:1;
         }
     }
+    &:-webkit-full-screen{
+        width:100vw;
+        height:100vh;
+    }
     &.expanded{
         .viewport{
             background:rgba(#000,0.75);

@@ -11,7 +11,7 @@
 
         <page class="front-page">
             
-            <div class="page-background blur-5"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
+            <div class="page-background opacity-75"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
             
             <div class="panel overlay center">
                 <div class="address"><?php echo($model->location->civic_address)?></div>
@@ -67,7 +67,7 @@
         </page>
 
         <?php 
-        if(isset($model->rooms) && count($model->rooms) > 0){
+        if(isset($model->rooms) && is_array($model->rooms) && count($model->rooms) > 0){
             SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }
         ?>
@@ -103,7 +103,7 @@
                     <div class="item">
                         <div class="photo">
                             
-                            <img src="<?php echo($photo->url) ?>" />
+                            <img src="<?php echo(str_replace("md","sm",$photo->url)) ?>" />
                         </div>
                         <label><?php echo($photo->category) ?></label>
                     </div>
@@ -182,12 +182,11 @@
         }
         ?>
 
+        <button class="print-button" onclick="fnPrint()"><i class="fal fa-print"></i></button>
         <script type="text/javascript">
-        window.setTimeout(function(){
+        const fnPrint = function(){
             window.print();
-            //window.close();
-        },1000)
-            
+        }
         </script>
 
         
