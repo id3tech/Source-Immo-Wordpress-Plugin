@@ -241,7 +241,7 @@ siApp
     let lPromise =  $q(function($resolve, $reject){
         if(lFilters != null){
             $scope.api('',lFilters,{
-              url: wpApiSettings.api_root + '/api/utils/search_encode'
+              url: wpSiApiSettings.api_root + '/api/utils/search_encode'
             }).then(function($response){
                 $resolve($response);
             });
@@ -752,7 +752,7 @@ siApp
     let lPromise =  $q(function($resolve, $reject){
         if(lFilters != null){
             $scope.api('', lFilters,{
-              url: wpApiSettings.api_root + '/api/utils/search_encode'
+              url: wpSiApiSettings.api_root + '/api/utils/search_encode'
             }).then(function($response){
                 $resolve($response);
             });

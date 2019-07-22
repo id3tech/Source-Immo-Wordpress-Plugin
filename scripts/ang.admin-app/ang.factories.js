@@ -60,7 +60,7 @@ function $siUtils($siApi,$q){
     return $q(function($resolve, $reject){
         if(lFilters != null){
           $siApi.call('', lFilters,{
-              url: wpApiSettings.api_root + '/api/utils/search_encode'
+              url: wpSiApiSettings.api_root + '/api/utils/search_encode'
             }).then(function($response){
                 $resolve($response);
             });
@@ -217,10 +217,10 @@ siApp
 
     $scope.rest = function($path, $data, $options){
       $options = angular.merge({
-        url     : wpApiSettings.root + 'si-rest/' + $path,
+        url     : wpSiApiSettings.root + 'si-rest/' + $path,
         method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
         headers: {
-           'X-WP-Nonce': wpApiSettings.nonce
+           'X-WP-Nonce': wpSiApiSettings.nonce
          },
       }, $options);
 
@@ -257,7 +257,7 @@ siApp
     $scope.call = function($path, $data, $options){
       $path = (typeof $path.push == 'function') ? $path.join('/') : $path;
       $options = angular.merge({
-        url     : wpApiSettings.api_root + '/api/' + $path,
+        url     : wpSiApiSettings.api_root + '/api/' + $path,
         method  : typeof($data)=='undefined' ? 'GET' : 'POST',        
       }, $options);
 

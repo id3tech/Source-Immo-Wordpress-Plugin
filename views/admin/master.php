@@ -55,7 +55,7 @@ if($lTwoLetterLocale == ''){
   </div>
 
   <script type="text/javascript">
-    var wpApiSettings={
+    var wpSiApiSettings={
         locale: '<?php echo $lTwoLetterLocale ?>',
         base_path: '<?php echo SI_PLUGIN_URL ?>', 
         api_root: '<?php echo SI_API_HOST ?>', 

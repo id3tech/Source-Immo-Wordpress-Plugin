@@ -12,7 +12,7 @@ siApp
       type: '@',
       changeHandler: '&siChange'
     },
-    templateUrl : wpApiSettings.base_path + '/views/ang-templates/si-route-box.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-route-box.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -225,7 +225,7 @@ siApp
       filter : '=ngModel',
       removeHandler : '&onRemove'
     },
-    templateUrl : wpApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -373,7 +373,7 @@ siApp
               let lPath = $scope.src;
               if(lPath.indexOf("~")==0){
                 // replace ~ by plugin path
-                lPath = lPath.replace("~", wpApiSettings.base_path);
+                lPath = lPath.replace("~", wpSiApiSettings.base_path);
               }
 
               return lPath;
