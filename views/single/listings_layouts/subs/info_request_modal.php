@@ -1,7 +1,7 @@
 <?php
 
 $layout = SourceImmo::current()->get_detail_layout('listing');
-$communication_mode = $layout->communication_mode;
+$communication_mode = isset($layout->communication_mode) ? $layout->communication_mode : 'basic';
 
 ?>
 
