@@ -3173,17 +3173,15 @@ siApp
         }
 
         $scope.getImageAlt = function($img){
-            let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
-
-            lResult = $siHooks.filter('listing-picture-alt', lResult, $img);
+            const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+            const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
 
             return lResult;
         }
 
         $scope.getImageCaption = function($img){
-            let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
-
-            lResult = $siHooks.filter('listing-picture-caption', lResult, $img);
+            const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+            const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
 
             return lResult;
         }
@@ -4428,17 +4426,19 @@ siApp
                 }
 
                 $scope.getImageAlt = function($img){
-                    let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
-        
-                    lResult = $siHooks.filter('listing-picture-alt', lResult, $img);
+                    const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+                    console.log('Image alt', lCaption);
+                    
+                    const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
         
                     return lResult;
                 }
         
                 $scope.getImageCaption = function($img){
-                    let lResult = $siDictionary.getCaption($img.category_code,'photo_category');
-        
-                    lResult = $siHooks.filter('listing-picture-caption', lResult, $img);
+                    const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+                    console.log('Image caption', lCaption);
+
+                    const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
         
                     return lResult;
                 }
