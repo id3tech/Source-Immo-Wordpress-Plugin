@@ -442,7 +442,6 @@ class SourceImmo {
                           '$locales.init("' . $lTwoLetterLocale . '");' .
                           'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
                           'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', SI_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . ', use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . '};'
-
                         );
     
     if($lTwoLetterLocale!='en'){
@@ -1175,7 +1174,7 @@ class SourceImmoBrokersResult extends SourceImmoAbstractResult {
               'ref_number' => $listing->location->city_code,
               'code' => $listing->location->city_code,
               'name' => isset($listing->location->city) ? $listing->location->city : $dictionary->getCaption($listing->location->city_code , 'city'),
-              'region_code' => $listing->location->region_code,
+              'region_code' => isset($listing->location->region_code) ? $listing->location->region_code : '' ,
               'country_code' => $listing->location->country_code,
               'state_code' => $listing->location->state_code,
               'listing_count' => 1
@@ -1647,7 +1646,7 @@ class SourceImmoAbstractResult{
     $lResult = $format;
     global $sitepress;
     $lTwoLetterLocale = $lang!=null ? $lang : substr(get_locale(),0,2);
-    $lHomeUrl= $sitepress->language_url( $lTwoLetterLocale );
+    $lHomeUrl= $sitepress == null ? '/' : $sitepress->language_url( $lTwoLetterLocale );
 
     $lAttrList = self::getAttributeValueList($item);
     $item->has_custom_page = false;

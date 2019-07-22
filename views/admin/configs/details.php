@@ -18,6 +18,10 @@
                 <md-option ng-repeat="item in wp_pages[layout.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
             </md-select>
         </md-input-container>
+
+        <div ng-show="layout.type=='standard'" layout="column" layout-align="start stretch">
+            <?php include "communication.php" ?>
+        </div>
     </div>
 </div>
 
@@ -38,6 +42,11 @@
                 <md-option ng-repeat="item in wp_pages[layout.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
             </md-select>
         </md-input-container>
+
+        
+        <div ng-show="layout.type=='standard'" layout="column" layout-align="start stretch">
+            <?php include "communication.php" ?>
+        </div>
     </div>
 </div>
 

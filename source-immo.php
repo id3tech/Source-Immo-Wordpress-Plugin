@@ -28,6 +28,9 @@ require_once( SI_PLUGIN_DIR . '/core/class.si-shortcodes.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-api.php' );
 
+// include form 3rd party support
+require_once( SI_PLUGIN_DIR . '/modules/forms/index.php' );
+
 add_action( 'init', array( 'SourceImmo', 'init' ) );
 add_action( 'rest_api_init', array( 'SourceImmoAPI', 'init' ) );
 

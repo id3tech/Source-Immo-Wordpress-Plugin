@@ -433,7 +433,8 @@ siApp
     $scope.load_configs().then(_ => {
       $q.all([
         $scope.load_wp_pages(),
-        $scope.load_data_views()
+        $scope.load_data_views(),
+        $scope.load_wp_forms()
       ])
       .then(
         _ => {
@@ -471,6 +472,12 @@ siApp
         
         $resolve();
       });
+    });
+  }
+
+  $scope.load_wp_forms = function(){
+    $scope.api('form/list',null,{method : 'GET'}).then(function($response){
+      $scope.formList = $response;
     });
   }
 

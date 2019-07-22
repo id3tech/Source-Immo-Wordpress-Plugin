@@ -3388,17 +3388,17 @@ siApp
             }
     
             $scope.process_branch = function (branch, downpayment_ratio) {
-                branch.downpayment = getDownPayment($scope.data.amount, downpayment_ratio);
+                branch.downpayment = getDownPayment($scope.data.amount, downpayment_ratio) + 0.000001;
                 branch.insurance = getMortgageInsurance($scope.data.amount, downpayment_ratio);
                 branch.mortgage = $scope.data.amount - branch.downpayment + branch.insurance;
+                
+                const PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
+                const IntRate = branch.rate / 100; //Number($("input[name=calInterest]").val()) / 100;
+                const Period = branch.amortization; //Number($("input[name=calAmortizationPeriod]").val());
+                const PPay = branch.frequency; //Number($("input[name=calFreq]").val());
     
-                var PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
-                var IntRate = branch.rate / 100; //Number($("input[name=calInterest]").val()) / 100;
-                var Period = branch.amortization; //Number($("input[name=calAmortizationPeriod]").val());
-                var PPay = branch.frequency; //Number($("input[name=calFreq]").val());
-    
-                var intcandebase = Math.pow((1 + IntRate / 2), (2 / PPay)) - 1;
-                var paymperiobase = (PrValue * intcandebase) / (1 - (1 / Math.pow((1 + intcandebase), (Period * PPay))));
+                const intcandebase = Math.pow((1 + IntRate / 2), (2 / PPay)) - 1;
+                const paymperiobase = (PrValue * intcandebase) / (1 - (1 / Math.pow((1 + intcandebase), (Period * PPay))));
                 branch.payment = paymperiobase;
             };
     
@@ -3407,7 +3407,12 @@ siApp
             };
     
             getMortgageInsurance = function (price, downpayment_ratio) {
-                var lResult = price - (price * downpayment_ratio);
+                //  EDIT:   remove insurance offset because it's not shown 
+                //          and insurance are calculated on fixed downpayment ratio
+                //          We should correct it by including range or get a real 
+                //          algorithm
+                return 0;
+                let lResult = price - (price * downpayment_ratio);
                 switch (downpayment_ratio) {
                     case 0.05:
                         lResult = lResult * 0.036;
@@ -3429,7 +3434,7 @@ siApp
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
                 parts = [];
                 const lBoundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
-                console.log('transferTax',$scope.cityCode, lBoundaries);
+                //console.log('transferTax',$scope.cityCode, lBoundaries);
                 //console.log('in montreal', in_montreal);
                 
                 let rates = lBoundaries.rates;
@@ -3444,37 +3449,10 @@ siApp
                     const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
                     taxemutation = taxemutation + lRemovedAmount*rates[i];
                     amount = amount - lRemovedAmount;
-                    console.log('step',i,':', lRemovedAmount,'x',rates[i]*100,'% =', lRemovedAmount*rates[i], '(',taxemutation,') still have', amount, '$ to process' )
+                    //console.log('step',i,':', lRemovedAmount,'x',rates[i]*100,'% =', lRemovedAmount*rates[i], '(',taxemutation,') still have', amount, '$ to process' )
                 }
 
                 return Math.round(taxemutation);
-
-                parts.push((amount > 50000 ? 50000 : amount) * 0.005);
-                if (amount > 50000) {
-                    parts.push((amount > 250000 ? 200000 : amount - 50000) * 0.01);
-    
-                    if (in_montreal) {
-                        if (amount > 250000) {
-                            parts.push((amount > 500000 ? 250000 : amount - 250000) * 0.015);
-                        }
-    
-                        if (amount > 500000) {
-                            parts.push((amount - 500000) * 0.02);
-                        }
-                    }
-                    else {
-                        if (amount > 250000) {
-                            parts.push((amount - 250000) * 0.015);
-                        }
-                    }
-                }
-    
-                var lResult = 0;
-                for (var i = 0; i < parts.length; i++) {
-                    lResult += parts[i];
-                }
-    
-                return lResult;
             };
             
             $scope.getTransferTaxBoundaries = function($cityCode){
@@ -3571,7 +3549,9 @@ siApp
 
 siApp
 .directive('siModal', function siModal(){
-    let dir_controller = function siModalCtrl($scope, $q,$siApi,$rootScope) {
+    let dir_controller = function siModalCtrl($scope, $q,$siApi,$rootScope,$siHooks) {
+        $scope.modal_element = null;
+        $scope.forms = {};
 
         $scope.options = {
             close_label : null,
@@ -3582,12 +3562,23 @@ siApp
         $scope.$on('show-' + $scope.modal_id, function(){
             //console.log('show modal trigger received');
             $scope.open();
+            $siHooks.do('si-modal-open');
         });
 
         $scope.init = function(){
             if($scope.model==null){
                 $scope.model = {};
-            }            
+            }   
+            
+            const lForm = $scope.modal_element.find('form').eq(0);
+            if(lForm != null){
+                $scope.forms.modalForm = lForm.controller('form');
+            }
+            else{
+                $scope.forms.modalForm = null;
+            }
+
+            //var input1 = element.find('input').eq(0);
         }
 
         $scope.cancelEvent = function($event){
@@ -3608,7 +3599,7 @@ siApp
         $scope.closeWithValue = function(){
             //console.log('close with value',typeof($scope.onOK))
             
-            if($scope.modalForm.$valid){
+            if($scope.forms.modalForm.$valid){
                 if(typeof($scope.onOK)=='function'){
                     $scope.onOK();
                 }
@@ -3635,6 +3626,11 @@ siApp
                 $scope.options.close_label = $scope.close_label;
             }
         });
+
+        $scope.isFormValid = function(){
+            if ($scope.forms.modalForm == null) return true;
+            return $scope.forms.modalForm.$valid;
+        }
     };
 
     return {
@@ -3643,22 +3639,84 @@ siApp
             modal_id        : '@modalId',
             modal_title     : '@modalTitle',
             onOK            : '&?onOk',
-            model           : '=ngModel',
+            model           : '=?ngModel',
             ok_label        : '@?okLabel',
             cancel_label    : '@?cancelLabel',
-            onValidate      : '&?onValidate'
+            onValidate      : '&?onValidate',
+            showControls    : '@?showControls'
         },
-        controllerAs    : 'ctrl',
+        controllerAs    : 'modalCtrl',
         replace         : true,
         transclude      : true,
-        templateUrl     : siCtx.base_path + 'views/ang-templates/si-modal.html?v=2',
+        templateUrl     : siCtx.base_path + 'views/ang-templates/si-modal.html?v=3',
         link            : function(scope, element, attr){
+            
             scope.modal_element = element;
-            angular.element(document.body).append(scope.modal_element);
+            if(scope.modal_element_moved !== true){
+                jQuery(element[0]).appendTo(document.body);
+                scope.modal_element_moved = true;
+                
+                console.log('modal content moved to body',element[0],jQuery(element[0]).find('input[type=submit]'));
+                
+                scope.init();
+                
+            }
+            
+            //angular.element(document.body).append(scope.modal_element,true);
         },
         controller      : dir_controller,
     };
 });
+
+/**
+ * Delayed renderer
+ * Get a server side ajex render after a trigger
+ */
+siApp
+.directive('siDelayedRenderer', ['$http','$timeout','$siHooks', function siDelayedRenderer($http,$timeout,$siHooks){
+    return {
+        restrict: "A",
+        link: function($scope,$element,$attrs){
+            $scope.init($element,$attrs);
+        },
+        controller: function($scope){
+            $scope._elm = null;
+
+            $scope.init = function($element,$attrs){
+                $scope._elm = $element;
+                $scope.trigger = $attrs.siDelayedRenderer;
+                $scope.content = $element.html();
+                $element.html('');
+
+                if(isNaN($scope.trigger)){
+                    $siHooks.addAction($scope.trigger, function(){ $scope.render(); });
+                }
+                else{
+                    $timeout(function(){ $scope.render();}, Number($scope.trigger));
+                }
+            }
+
+            $scope.render = function(){
+                const expression = /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+                const regex = new RegExp(expression);
+
+                if(regex.test($scope.content) || $scope.content.indexOf('/wp-json/si-rest') == 0){
+                    $scope.content = $scope.content.replace(/\&amp;/gi,'&');
+
+                    $http.get($scope.content).then(function($response){
+                        if($response.status == 200){
+                            $scope._elm.html('');
+                            $scope._elm.append($response.data);
+                        }
+                    });
+                }
+                else{
+                    $scope._elm.append($scope.content);
+                }
+            }
+        }
+    }
+}]);
 
 siApp
 .directive('siContainer', function siContainer(){

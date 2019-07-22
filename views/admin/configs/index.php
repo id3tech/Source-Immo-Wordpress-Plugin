@@ -1,7 +1,7 @@
 
 <?php SourceImmo::view('admin/configs/registration/index'); ?>
 
-
+<form autocomplete="off">
 <div ng-cloak ng-show="configs.registered">
   <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
     <md-tab>
@@ -43,6 +43,7 @@
     </md-tab>
   </md-tabs>
 </div>
+</form>
 <?php
   SourceImmo::dialog('admin/dialogs/signin','signin');
 ?>

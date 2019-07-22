@@ -65,11 +65,24 @@ class SourceImmoConfig {
    */
   public $prefetch_data = false;
 
+  
+
+  /**
+   * Form from name
+   */
+  public $form_from_name = '';
+
+  /**
+   * Form from address
+   */
+  public $form_from_address = '';
+
   /**
    * Email address to send form information
    * @var string
    */
   public $form_recipient = '';
+
 
   /**
   * List configuration
@@ -122,6 +135,10 @@ class SourceImmoConfig {
     $this->registered     = false;
 
     $this->supported_locales = ['fr','en'];
+
+    $this->form_from_name = __('Your website',SI);
+    $this->form_from_address = 'no-reply@' . $_SERVER['HTTP_HOST'];
+  
 
     // init routes
     $this->listing_routes  = array(
@@ -271,10 +288,20 @@ class SourceImmoLayout{
   public $preset = 'standard';
   public $scope_class = '';
   public $page = null;
+  /**
+   * Communication method for forms
+   */
+  public $communication_mode = 'basic';
+  /**
+   * Form id
+   */
+  public $form_id = '';
 
   public function __construct($lang='', $type=''){
     $this->lang = $lang;
     $this->type = $type;
+    $this->communication_mode = 'basic';
+    
   }
 }
 

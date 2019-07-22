@@ -9,6 +9,33 @@
     </div>
 
     <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Communication',SI)?></h2>
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <p>
+                <?php _e('Communication settings used for basic forms.',SI) ?>
+            </p>
+
+            <md-input-container flex>
+                <label><?php _e('From name (default: Your website)',SI) ?></label>
+                <input autocomplete="off" ng-model="configs.form_from_name" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()"  />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label><?php echo str_replace('{0}', $_SERVER['HTTP_HOST'], __('From address (default: no-reply@{0})',SI)) ?></label>
+                <input autocomplete="off" ng-model="configs.form_from_address" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()"  />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label><?php _e('Recipient (default: Broker email)',SI) ?></label>
+                <input autocomplete="off" type="text" ng-model="configs.form_recipient" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" />
+            </md-input-container>
+            <p>
+                <em class="note"><?php _e('Leave the previous fields blank to use default values',SI) ?></em>
+            </p>
+        </div>
+    </div>
+
+    <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Map',SI)?></h2>
         <div class="block-content">
             <div layout="column" layout-align="start stretch">
@@ -29,6 +56,7 @@
         </div>
     </div>
 
+    
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Mode',SI)?></h2>
         <div class="block-content">
@@ -39,13 +67,6 @@
                         <md-option value="DEV"><?php _e('Development (recommanded for configuration or testing step)',SI)?></md-option>
                         <md-option value="PROD"><?php _e('Production',SI)?></md-option>
                     </md-select>
-                </md-input-container>
-            </div>
-
-            <div layout="row" layout-align="start center" ng-show="configs.mode=='DEV'">
-                <md-input-container flex>
-                    <label><?php _e('Form recipient',SI) ?></label>
-                    <input ng-model="configs.form_recipient" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" />
                 </md-input-container>
             </div>
 

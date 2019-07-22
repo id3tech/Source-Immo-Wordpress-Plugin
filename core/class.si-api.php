@@ -42,6 +42,19 @@ class SourceImmoApi {
   }
 
   /**
+   * Get forms list
+   * @static
+   * GET /si-rest/forms
+   */
+  public static function get_form_list($request){
+    
+    $lResult = apply_filters('si-get-form-list',array());
+    
+    return $lResult;
+  }
+
+
+  /**
    * Get pages list
    * @static
    * GET /si-rest/pages
@@ -514,6 +527,22 @@ class SourceImmoApi {
     
     return $lResult;
   }
+
+  public static function module($request){
+    $moduleName = $request->get_param('module');
+    $moduleMethod = $request->get_param('method');
+    $data = $request->get_param('data');
+    $lResult = '';
+
+    if(class_exists($moduleName)){
+      $moduleInstance = new $moduleName;
+      if(method_exists($moduleInstance, $moduleMethod)){
+        $lResult = $moduleInstance->{$moduleMethod}($data);
+      }
+    }
+
+    return  $lResult;
+  }
   
   /**
    * Send an email message 
@@ -523,15 +552,17 @@ class SourceImmoApi {
     $data = $params->data;
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
-    $destination = ''; // implode(',',$params->destination);
+    $destination = implode(',',$params->destination);
     $lTwoLetterLocale = substr(get_locale(),0,2);
     $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
     $random_hash = sha1($hash_seed);
     
     $configs = SourceImmo::current()->configs;
-    if($configs->mode == 'DEV'){
+    if(!str_null_or_empty($configs->form_recipient)){
       $destination = $configs->form_recipient;
     }
+    $from_name = str_null_or_empty($configs->form_from_name) ? 'Your website' : $configs->form_from_name;
+    $from_address = str_null_or_empty($configs->form_from_address) ? 'no-reply@' . $_SERVER['HTTP_HOST'] :  $configs->form_from_address;
 
     $labels = array(
       'firstname' => __('First name',SI),
@@ -560,13 +591,18 @@ class SourceImmoApi {
 
     // send email to destination
     $headers = implode("\r\n", array(
-      'From: no-reply@' . $_SERVER['HTTP_HOST'],
-      'FromName: Your website',
+      'From: ' . $from_address,
+      'FromName: ' . $from_name,
       'Content-Type: multipart/alternative; boundary="PHP-alt-' .$random_hash. '"'
     ));
     $lResult = mail($destination,$data->subject,$email_body,$headers);
 
-    return $lResult;
+    return array(
+      'sent' => $lResult,
+      'to' => $destination,
+      'from' => $from_address,
+      'from_name' => $from_name
+    );
   }
 
   /*
@@ -596,6 +632,7 @@ class SourceImmoApi {
    */
   private static function _registerRestApiListeners(){
     
+
     // Access Token
     self::_register_access_token_routes();
     
@@ -617,12 +654,42 @@ class SourceImmoApi {
     // Message
     self::_register_message_routes();
 
+    // Form
+    self::_register_form_routes();
+
     // Page
     self::_register_page_routes();
 
     // Permalink
     self::_register_permalink_routes();
 
+    // Module
+    register_rest_route( 'si-rest','/module',
+      array(
+        array(
+          'methods' => WP_REST_Server::READABLE,
+          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'module' ),
+          'args' => array(
+            'module' => array(
+              'required' => true,
+              'type' => 'string',
+              'description' => __( 'Module name', SI ),
+            ),
+            'method' => array(
+              'required' => true,
+              'type' => 'string',
+              'description' => __( 'Module method to call', SI ),
+            ),
+            'data' => array(
+              'required' => true,
+              'type' => 'mixed',
+              'description' => __( 'Data to pass to method', SI ),
+            )
+          )
+        )
+      )
+    );
   }
 
   
@@ -780,7 +847,21 @@ class SourceImmoApi {
     );
   }
 
+ /**
+   * Message REST routes registration
+   * @static
+   */
+  static function _register_form_routes(){
+    // Get WP page list
+    register_rest_route( 'si-rest','/form/list',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_form_list' ),
+      )
+    );
 
+  }
 
   /**
    * Message REST routes registration

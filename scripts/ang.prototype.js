@@ -207,3 +207,40 @@ if(typeof Date.addMonths === 'undefined'){
         return lResult;
     }
 }
+
+if(typeof $siGlobalHooks == 'undefined'){
+    var $siGlobalHooks = {};
+    (function($scope){
+        $scope._filters = [];
+        $scope._actions = [];
+
+        $scope.addAction = function($key, $func, $priority,$unique){
+            $unique = ($unique == undefined) ? false : $unique;
+
+            let lNewAction = {key: $key, fn: $func};
+            if($unique) $scope._actions = $scope._actions.filter(function($e) { return $e.key != $key});
+
+            if($priority == undefined || $priority > $scope._actions.length - 1){
+                $scope._actions.push(lNewAction);
+            }
+            else{
+                $scope._actions.splice($priority, 0, lNewAction);
+            }
+        }
+    
+        $scope.addFilter = function($key, $func, $priority, $unique){
+            $unique = ($unique == undefined) ? false : $unique;
+            let lNewFilter = {key: $key, fn: $func};
+            
+            if($unique) $scope._filters = $scope._filters.filter(function($e) { return $e.key != $key});
+            
+            if($priority == undefined || $priority > $scope._filters.length - 1){
+                $scope._filters.push(lNewFilter);
+            }
+            else{
+                $scope._filters.splice($priority, 0, lNewFilter);
+            }
+        }
+    
+    })($siGlobalHooks);
+}

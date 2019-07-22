@@ -2686,6 +2686,15 @@ body.si-modal-open{
             bottom:0px;left:0px;width:100%;
             z-index:9;
         }
+
+        &.si-no-controls{
+            .modal-body{
+                padding:87px 20px 20px 20px;
+            }
+            .modal-footer{
+                display:none;
+            }
+        }
     }
     &.opened{
         pointer-events:auto;
@@ -2742,7 +2751,16 @@ body.si-modal-open{
                         "subject subject"
                         "message message"
                     ;
-                
+
+                >form{display:contents;}
+
+                &.wpcf7_contact_form, &.gravity_form{
+                    grid-template-areas: unset;
+                    grid-template-columns: 1fr;
+                    input[type=submit]{
+                        width:auto;
+                    }
+                }
             }
         }
     }

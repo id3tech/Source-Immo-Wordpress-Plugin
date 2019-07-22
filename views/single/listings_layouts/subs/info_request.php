@@ -1,4 +1,14 @@
-<div class="info-request form">
+<?php
+
+$layout = SourceImmo::current()->get_detail_layout('listing');
+$communication_mode = $layout->communication_mode;
+?>
+
+<div class="info-request form <?php echo $communication_mode ?>">
+    <?php
+    if($layout->communication_mode == 'basic'){
+    ?>
+    <form name="requestForm">
     <div class="firstname input-container">
         <label><?php _e('First name', SI) ?></label>
         <div class="input">
@@ -40,4 +50,11 @@
             <textarea rows="5" data-ng-model="message_model.message"></textarea>
         </div>
     </div>
+    </form>
+    <?php
+    }
+    else{
+        do_action('si-render-form',$communication_mode, $layout->form_id);
+    }
+    ?>
 </div>

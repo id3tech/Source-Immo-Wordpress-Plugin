@@ -249,7 +249,7 @@ function $siApi($http,$q,$siConfig,$rootScope){
 
     $scope.rest_call = function($path, $data, $options){
         $options = angular.merge({
-            url     : siApiSettings.rest_root + 'si/' + $path,
+            url     : siApiSettings.rest_root + 'si-rest/' + $path,
             method  : (typeof($data)=='undefined' || $data==null) ? 'GET' : 'POST',
             data : $data,
             headers: {
@@ -988,12 +988,15 @@ function $siHooks($q){
      */
     $scope.do = function($key, $params){
         let lActions = [];
+        
+        if(typeof $siGlobalHooks != 'undefined') lActions = $siGlobalHooks._actions.filter(function($a){return $a.key==$key});
+
         $scope._actions.forEach(function($a){
             if($key == $a.key){
                 lActions.push($a);
             }
         });
-
+        console.log('hooks do:', $key, lActions);
         lActions.forEach(function($a){
             $a.fn($params);
         });
@@ -1005,11 +1008,14 @@ function $siHooks($q){
      */
     $scope.filter = function($key, $default_value, $otherParams){
         let lFilters = [];
+        if(typeof $siGlobalHooks != 'undefined') lFilters = $siGlobalHooks._filters;
+
         $scope._filters.forEach(function($f){
             if($key == $f.key){
                 lFilters.push($f);
             }
         });
+
         //console.log('filters', lFilters,'from', $scope._filters);
         lFilters.forEach(function($f){
             $default_value = $f.fn($default_value,$otherParams);
