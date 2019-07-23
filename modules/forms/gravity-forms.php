@@ -3,12 +3,18 @@
 class SIGravityFormsConnector{
 
     public function __construct(){
-        // add hook
-        add_filter('si-get-form-list', array($this,'get_form_list'), 10,1);
-        
+        // add filters after all plugins are loaded
+        add_action('plugins_loaded', array($this, 'plugins_loaded'));
+        // Hook to render the form 
         add_action('si-render-form', array($this, 'render_form'), 10, 2);
-        
+        // Add module clients files
         add_action('wp_enqueue_scripts', array($this, 'register_clients'));
+    }
+
+    
+    public function plugins_loaded(){
+        if(!class_exists('GFForms')) return;
+        add_filter('si-get-form-list', array($this,'get_form_list'), 10,1);
     }
 
     public function get_form_list($list){
@@ -29,6 +35,7 @@ class SIGravityFormsConnector{
 
     
     function register_clients(){
+        if(!class_exists('GFForms')) return;
         wp_enqueue_script( 
                             'si-gravity-form-script',
                             plugins_url('/modules/forms/scripts/gravity-form.js', SI_PLUGIN),

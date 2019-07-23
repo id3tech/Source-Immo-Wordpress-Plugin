@@ -40,6 +40,7 @@ class SourceImmoAdmin {
     wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
   }
 
+
   /***
     WP ADMIN UI INTEGRATION
   */
@@ -111,7 +112,7 @@ class SourceImmoAdmin {
   private static $initiated = false;
   public static function init() {
     if ( ! self::$initiated ) {
-			self::current()->init_hooks();
+      self::current()->init_hooks();
       self::$initiated = true;
 		}
   }
@@ -124,6 +125,8 @@ class SourceImmoAdmin {
   * Shortcut for multiple action hook registration
   */
   private function register_actions($hooks){
+    
+
     foreach ($hooks as $hook => $func) {
       // if $func is empty, fallback to $hook for function name
       $funcName = (empty($func))?$hook:$func;

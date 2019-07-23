@@ -1,13 +1,19 @@
 <?php
-
-
 class SIContactForm7Connector{
 
     public function __construct(){
-        // add hook
-        add_filter('si-get-form-list', array($this,'get_form_list'), 10,1);
+        // add filters after all plugins are loaded
+        add_action('plugins_loaded', array($this, 'plugins_loaded'));
+        // Hook to render the form
         add_action('si-render-form', array($this, 'render_form'), 10, 2);
+        // Add module clients files
         add_action('wp_enqueue_scripts', array($this, 'register_clients'));
+    }
+
+    public function plugins_loaded(){
+        if(!class_exists('WPCF7_ContactForm')) return;
+
+        add_filter('si-get-form-list', array($this,'get_form_list'), 10,1);
         
     }
 
@@ -43,6 +49,7 @@ class SIContactForm7Connector{
     }
 
     function register_clients(){
+        if(!class_exists('WPCF7_ContactForm')) return;
         wp_enqueue_script( 
                             'si-wpcf7-script',
                             plugins_url('/modules/forms/scripts/contact-form-7.js', SI_PLUGIN),
@@ -50,6 +57,7 @@ class SIContactForm7Connector{
                             filemtime(SI_PLUGIN_DIR . '/modules/forms/scripts/contact-form-7.js'),
                             true
                         );
+        
     }
 
     function render_form($type, $form_id){
