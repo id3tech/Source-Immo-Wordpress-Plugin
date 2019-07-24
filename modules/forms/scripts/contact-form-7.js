@@ -23,14 +23,14 @@ siApp
             $scope.initForm = function(){
                 if($scope._form_initialized) return;
 
-                // jQuery( 'div.wpcf7 > form' ).each( function() {
-                //     var $form = jQuery( this );
-                //     wpcf7.initForm( $form );
+                jQuery( 'div.wpcf7 > form' ).each( function() {
+                    var $form = jQuery( this );
+                    wpcf7.initForm( $form );
 
-                //     if ( wpcf7.cached ) {
-                //         wpcf7.refill( $form );
-                //     }
-                // } );
+                    if ( wpcf7.cached ) {
+                        wpcf7.refill( $form );
+                    }
+                } );
             }
 
             $scope.fillForm = function($model){
