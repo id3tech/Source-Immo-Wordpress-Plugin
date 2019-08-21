@@ -4,6 +4,7 @@ Start up class for SourceImmo
 */
 if(!defined('SI_API_HOST')){
   define('SI_API_HOST', 'https://api-v1.source.immo');
+  //define('SI_API_HOST', 'https://source-immo-api-v1-staging.azurewebsites.net/');
 }
 
 class SourceImmo {
@@ -561,6 +562,11 @@ class SourceImmo {
     if($model != null){
       header('http/1.0 200 found');
       global $dictionary;
+      // hook to sharing tools
+
+      $share_tool = new SiSharing($model);
+      $share_tool->addHook('listing');
+
       $listingWrapper = new SourceImmoListingsResult();
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
@@ -1118,7 +1124,12 @@ class SourceImmoDictionary{
 
   public function getCaption($key, $domain, $asAbbr=false){
     $lResult = $key;
-
+    
+    // check in rebound property if the 
+    if(is_array($key)){
+      return $this->getCaptionFrom($key[0], $key[1], $domain, $asAbbr);
+    }
+    
     if(isset($this->entries) && $this->entries->{$domain}){
         if(isset($this->entries->{$domain}->{$key})){
             if($asAbbr){
@@ -1131,6 +1142,20 @@ class SourceImmoDictionary{
         }
     }
     return $lResult;
+  }
+
+  public function getCaptionFrom($source, $key, $domain, $asAbbr=false){
+      $dictionaryKey = isset($source->{$key}) ? $source->{$key} : '';
+      
+      if(!str_null_or_empty($dictionaryKey) && strpos($dictionaryKey,'_') === 0){
+        $srcKey = str_replace('_code', $dictionaryKey,$key);
+        
+        if(isset($source->{$srcKey}) && !str_null_or_empty($source->{$srcKey})) {
+          return $source->{$srcKey};
+        }
+      }
+      
+      return $this->getCaption($dictionaryKey, $domain, $asAbbr);
   }
 }
 
@@ -1253,13 +1278,13 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
 
     if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
       $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
-      if(isset($item->location->address->door)){
+      if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
         $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
       }
     }
     else if(isset($item->location->address->street_name) && $item->location->address->street_name != ''){
       $item->location->civic_address = $item->location->address->street_name;
-      if(isset($item->location->address->door)){
+      if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
         $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
       }
     }
@@ -1271,7 +1296,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
     if($item->location->civic_address != ''){
       $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
-      if(isset($item->location->address->door)){
+      if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
         $item->location->full_address .= ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
       }
     }
@@ -1311,13 +1336,15 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
 
     if(isset($item->photos)){
       foreach($item->photos as $photo){
-        $photo->category = $dictionary->getCaption($photo->category_code , 'photo_category');
+        $photo->category = $dictionary->getCaption(array($photo,'category_code') , 'photo_category');
       }
     }
 
-    $item->rooms = (object) array();
+    
     
     if(isset($item->main_unit)){
+      $item->rooms = (object) array();
+
       $lIconRef = array(
         'bathroom_count' => 'bath',
         'bedroom_count' => 'bed',
@@ -1346,7 +1373,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
           }
         }
       }
-      $item->rooms = json_decode(json_encode($rooms));
+      if(count($rooms)>0){
+        $item->rooms = json_decode(json_encode($rooms));
+      }
     }
   }
 
@@ -1354,10 +1383,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     global $dictionary;
 
     $item->important_flags = array();
-    
     // from units
     foreach($item->units as $unit){
-      $unit->category = $dictionary->getCaption($unit->category_code , 'unit_category');
+      $unit->category = $dictionary->getCaption(array($unit,'category_code') , 'unit_category');
       if($unit->category_code=='MAIN'){
         if(isset($unit->bedroom_count)){ $item->important_flags[] = array('icon' => 'bed', 'value' => $unit->bedroom_count, 'caption' => __('Bedroom',SI));}
         if(isset($unit->bathroom_count)){ $item->important_flags[] = array('icon' => 'bath', 'value' => $unit->bathroom_count, 'caption' => __('Bathroom',SI));}
@@ -1461,8 +1489,8 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     }
 
     foreach($item->rooms as &$room){
-      $room->category = $dictionary->getCaption($room->category_code , 'room_category');
-      $room->flooring = $dictionary->getCaption($room->flooring_code , 'flooring');
+      $room->category = $dictionary->getCaption(array($room,'category_code') , 'room_category');
+      $room->flooring = $dictionary->getCaption(array($room,'flooring_code') , 'flooring');
       $room->level_category = (isset($room->level_category_code)) ? $dictionary->getCaption($room->level_category_code , 'level_category') : '';
       $room->short_dimension = self::formatDimension($room->dimension);
     }
@@ -1483,7 +1511,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     }
 
     foreach($item->expenses as &$expense){
-      $expense->type = $dictionary->getCaption($expense->type_code , 'expense_type');
+      $expense->type = $dictionary->getCaption(array($expense,'type_code') , 'expense_type');
       $expense->amount_text = self::formatPrice($expense->amount);
     }
   }

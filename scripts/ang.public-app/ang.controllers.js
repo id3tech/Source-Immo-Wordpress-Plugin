@@ -257,7 +257,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
                 $scope.model.location.city
             );
 
-            if(typeof  $scope.model.location.address.door != 'undefined'){
+            if(!isNullOrEmpty($scope.model.location.address.door) && typeof  $scope.model.location.address.door != 'undefined'){
                 $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().format( $scope.model.location.address.door);
             }
         }
@@ -326,22 +326,25 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
         // units
         $scope.model.units.forEach(function($u){
-            $u.category = $siDictionary.getCaption($u.category_code,'unit_category');
+            $u.category = $siDictionary.getCaption({src:$u,key:'category_code'},'unit_category');
             $u.flags = [];
             if($u.room_count) $u.flags.push({icon: 'door-open', value: $u.room_count, caption: 'Rooms'.translate()});
             if($u.bedroom_count) $u.flags.push({icon: 'bed', value: $u.bedroom_count, caption: 'Bedrooms'.translate()});
             if($u.bathroom_count) $u.flags.push({icon: 'bath', value: $u.bathroom_count, caption: 'Bathrooms'.translate()});
         });
 
+        // expenses
+        $scope.model.expenses.forEach(function($ex){
+            $ex.type = $siDictionary.getCaption({src:$ex, key:'type_code'},'expense_type');
+        });
+
         // rooms
         $scope.model.rooms.forEach(function($r){
-            $r.category = $siDictionary.getCaption($r.category_code,'room_category');
-            $r.level_category = $siDictionary.getCaption($r.level_category_code, 'level_category');
+            $r.category = $siDictionary.getCaption({src:$r, key:'category_code'},'room_category');
+            $r.level_category = $siDictionary.getCaption({src:$r, key: 'level_category_code'}, 'level_category');
             $r.short_dimension = $siUtils.formatDimension($r.dimension);
             let lRoomInfos = [];
-            if($r.flooring_code!='OTHER'){
-                $r.flooring = $siDictionary.getCaption($r.flooring_code,'flooring');
-            }
+            $r.flooring = $siDictionary.getCaption({src:$r, key: 'flooring_code'},'flooring');
         });
 
         // trusted src

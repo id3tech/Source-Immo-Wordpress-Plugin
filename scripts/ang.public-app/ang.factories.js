@@ -355,20 +355,44 @@ function $siDictionary(){
      * @return {string} Caption matched or the key in case the something's missing or went wrong
      */
     $scope.getCaption = function($key, $domain, $asAbbr){
-        let lResult = $key;
+        if(typeof $key == 'object'){
+            return $scope.getCaptionFrom($key.src, $key.key, $domain, $asAbbr);
+        }
+
+        const lKeyValue = $key;
+        let lResult = lKeyValue;
         $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
 
         if($scope.source && $scope.source[$domain]){
-            if($scope.source[$domain][$key] != undefined){
+            if($scope.source[$domain][lKeyValue] != undefined){
                 if($asAbbr){
-                    lResult = $scope.source[$domain][$key].abbr;
+                    lResult = $scope.source[$domain][lKeyValue].abbr;
                 }
                 else{
-                    lResult = $scope.source[$domain][$key].caption;
+                    lResult = $scope.source[$domain][lKeyValue].caption;
                 }
             }
         }
+
+        
         return lResult;
+    }
+
+    $scope.getCaptionFrom = function($obj, $key, $domain, $asAbbr){
+        const lDictionaryKey = $obj[$key];
+        
+        // when key is defined and starts with an _
+        if(lDictionaryKey != undefined && lDictionaryKey.indexOf('_') == 0){ 
+            // transform key to match the property where the value will be find
+            // Ex.: category_code -> category_other
+            const lSrcKey = $key.replace('_code', lDictionaryKey);  
+            console.log(lSrcKey, $obj[lSrcKey]);
+            // return the value contained in the new property if it's not null or empty
+            if(!isNullOrEmpty($obj[lSrcKey])) return $obj[lSrcKey];
+        }
+
+        // Since there was no value in the "other" property, get the regular value from the dictionary
+        return $scope.getCaption(lDictionaryKey, $domain, $asAbbr);
     }
 
     return $scope;
@@ -565,7 +589,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
                                                     );
-            if(typeof $item.location.address.door != 'undefined'){
+            if(!$scope.isNullOrEmpty($item.location.address.door)){
                 $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
             }
             
@@ -880,6 +904,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         }
 
         return $url + lDataPrefix + $key + '=' + $value;
+    }
+
+    $scope.isNullOrEmpty = function($value){
+        return isNullOrEmpty($value);
     }
 
     $scope.isLegacyBrowser = function(){

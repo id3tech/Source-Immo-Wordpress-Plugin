@@ -83,7 +83,6 @@ $roomIndex = 0;
 $unitIndex = 0;
 if(isset($model->rooms)){
     _start_room_page($model);
-
     foreach ($model->units as $unit) {
         $unitIndex++;
         if(_calc_space_taken($unitIndex, $roomIndex) >= 10.25){

@@ -138,6 +138,7 @@ $locales.fr = {};$locales.fr.global =
     , "Allow map switch" : "Permettre le commuteur de carte"
     , "Limit the number of displayed elements" : "Limiter le nombre d'élément affiché"
     , "Filters" : "Filtres"
+    , "To filter the list, you must use the server side rendering method" : "Pour filtrer la liste, vous devez utiliser la méthode de génération côté serveur"
     , "Layout" : "Disposition"
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Attribute" : "Attribut"

@@ -474,6 +474,46 @@ siApp
     }
 }]);
 
+siApp
+.directive('siTooltip', ['$parse','$q','$timeout', function siTooltip($parse,$q,$timeout){
+  return {
+    restrict: 'E',
+    transclude: true,
+    template: '<div class="si-tooltip"><div class="si-tooltip-content"><label ng-transclude></label></div><i class="fal fa-info-circle" ng-mouseover="enter($event)" ng-mouseout="leave()"></i></div>',
+    link: function($scope, $element, $attrs){
+      $scope._elm = $element[0];
+    },
+    controller: function($scope){
+
+      $scope.initTip = function(){
+        $scope._tip = jQuery($scope._elm).find('.si-tooltip-content');
+        jQuery(document.body).append($scope._tip);
+        
+      }
+
+      $scope.enter = function($event){
+        if($scope._tip == undefined) $scope.initTip();
+
+        const jElm = jQuery($event.target);
+        const lPos = {
+          left: Math.round(jElm.offset().left + (jElm.width() / 2)),
+          top: Math.round(jElm.offset().top)
+        };
+
+        console.log('mouse over ',$event.target, 'positionned at', lPos);
+        
+        $scope._tip.css(lPos);
+        $scope._tip.addClass('show');
+      }
+
+      $scope.leave = function(){
+        if($scope._tip == undefined) return;
+
+        $scope._tip.removeClass('show');
+      }
+    }
+  }
+}])
 
 siApp
 .directive('siOnEnter', ['$parse', function siOnEnter($parse){

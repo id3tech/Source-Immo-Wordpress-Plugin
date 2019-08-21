@@ -3173,14 +3173,14 @@ siApp
         }
 
         $scope.getImageAlt = function($img){
-            const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+            const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
             const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
 
             return lResult;
         }
 
         $scope.getImageCaption = function($img){
-            const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+            const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
             const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
 
             return lResult;
@@ -4426,7 +4426,7 @@ siApp
                 }
 
                 $scope.getImageAlt = function($img){
-                    const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+                    const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
                     console.log('Image alt', lCaption);
                     
                     const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
@@ -4435,7 +4435,7 @@ siApp
                 }
         
                 $scope.getImageCaption = function($img){
-                    const lCaption = $siDictionary.getCaption($img.category_code,'photo_category');
+                    const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
                     console.log('Image caption', lCaption);
 
                     const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);

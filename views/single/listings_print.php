@@ -67,6 +67,7 @@
         </page>
 
         <?php 
+        
         if(isset($model->rooms) && is_array($model->rooms) && count($model->rooms) > 0){
             SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }

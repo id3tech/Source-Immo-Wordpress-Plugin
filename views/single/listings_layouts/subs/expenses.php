@@ -14,7 +14,7 @@
 
         <div class="expense-list">
             <div class="label-value" data-ng-repeat="exp in model.expenses">
-                <label>{{getCaption(exp.type_code, 'expense_type')}}</label>
+                <label>{{exp.type}}</label>
                 <div class="value">{{exp.amount.formatPrice()}}</div>
             </div>
         </div>

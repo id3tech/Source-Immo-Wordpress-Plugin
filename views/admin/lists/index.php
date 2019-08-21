@@ -55,7 +55,7 @@
             </md-tab>            
             
             <md-tab ng-disabled="model.list_layout.preset!='direct'">
-                <md-tab-label><?php _e('Filters',SI)?></md-tab-label>
+                <md-tab-label><?php _e('Filters',SI)?> <si-tooltip ng-show="model.list_layout.preset!='direct'"><?php _e('To filter the list, you must use the server side rendering method',SI) ?></si-tooltip></md-tab-label>
                 <md-tab-body class="md-padding">
                 <?php SourceImmo::view('admin/lists/filters') ?>
                 </md-tab-body>
