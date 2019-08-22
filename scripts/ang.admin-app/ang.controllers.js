@@ -434,11 +434,12 @@ siApp
       $q.all([
         $scope.load_wp_pages(),
         $scope.load_data_views(),
-        $scope.load_wp_forms()
+        $scope.load_wp_forms(),
+        $scope.load_dictionary()
       ])
       .then(
         _ => {
-          $siList.init();
+          //$siList.init($scope.configs.default_view);
 
           $scope._status = 'ready';
         },
@@ -477,7 +478,15 @@ siApp
 
   $scope.load_wp_forms = function(){
     $scope.api('form/list',null,{method : 'GET'}).then(function($response){
+      $scope.loaded_components.push('clipboard-check');
       $scope.formList = $response;
+    });
+  }
+
+  $scope.load_dictionary = function(){
+    $scope.api('dictionary',{lang: $locales._current_lang_},{method : 'GET'}).then(function($response){
+      $scope.loaded_components.push('book');
+      $siList.dictionary = $response;
     });
   }
 

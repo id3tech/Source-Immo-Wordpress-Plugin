@@ -250,10 +250,13 @@ class SourceImmoApi {
   }
 
   public static function get_dictionary($request){
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
     $viewId = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lang = $request->get_param('lang');
+    $lTwoLetterLocale = isset($lang) ? $lang : substr(get_locale(),0,2);
 
     $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)
                             ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -747,6 +750,13 @@ class SourceImmoApi {
         'methods' => WP_REST_Server::READABLE,
         //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
         'callback' => array( 'SourceImmoApi', 'get_dictionary' ),
+        'args' => array(
+          'lang' => array(
+            'required' => false,
+            'type' => 'string',
+            'description' => __( 'Dictionary language', SI ),
+          )
+        )
       )
     );
   }

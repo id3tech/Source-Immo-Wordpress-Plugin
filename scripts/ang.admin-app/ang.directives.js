@@ -209,6 +209,7 @@ siApp
     restrict: 'E',
     scope: {
         model: '=ngModel',
+        type: '=siType',
         parent: '=ngParent'
     },
     controllerAs: 'ctrl',
@@ -223,6 +224,7 @@ siApp
     restrict : 'E',
     scope : {
       filter : '=ngModel',
+      type: '=siType',
       removeHandler : '&onRemove'
     },
     templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
@@ -235,23 +237,30 @@ siApp
       $scope.selected_key =  'price.sell.amount';
       $scope.selected_filter_key = null;
 
-      $scope.filter_key_list = [
-        {value: 'price.sell.amount'         , label: 'Selling price', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'price.lease.amount'         , label: 'Leasing price', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'location.country_code'     , label: 'Country', value_type: 'list', choices: 'getCountryList', op_in: ['in','not_in']},
-        {value: 'location.state_code'       , label: 'State/Province', value_type: 'list', choices: 'getStateList', op_in: ['in','not_in']},
-        {value: 'location.region_code'      , label: 'Region', value_type: 'list', choices: 'getRegionList', op_in: ['in','not_in']},
-        {value: 'location.city_code'        , label: 'City', value_type: 'list', choices: 'getCityList', op_in: ['in','not_in']},
-        {value: 'category_code'             , label: 'Category', value_type: 'list', choices: 'getCategoryList', op_in: ['in','not_in']},
-        {value: 'subcategory_code'          , label: 'Subcategory', value_type: 'list', choices: 'getSubcategoryList', op_in: ['in','not_in']},
-        {value: 'open_houses[0].end_date'   , label: 'Open house date', value_type: 'text', choices: 'udf.now():Now'},
-        {value: 'main_unit.bedroom_count'   , label: 'Bedroom count', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'main_unit.bathroom_count'  , label: 'Bathroom count', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'attributes.PARKING'        , label: 'Parking count', value_type: 'number', op_out: ['like','not_like']},
-        {value: 'attributes.GARAGE'         , label: 'Garage', value_type: 'bool', op_in: ['equal','not_equal_to']},
-        {value: 'attributes.POOL'           , label: 'Pool', value_type: 'bool', op_in: ['equal','not_equal_to']},
-        {value: 'status_code'               , label: 'Status', value_type: 'text', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['equal','not_equal_to']},
-      ];
+      $scope.filter_key_list = {
+        'listings' : [
+          {value: 'price.sell.amount'         , label: 'Selling price', value_type: 'number', op_out: ['like','not_like']},
+          {value: 'price.lease.amount'        , label: 'Leasing price', value_type: 'number', op_out: ['like','not_like']},
+          {value: 'location.country_code'     , label: 'Country', value_type: 'list', choices: 'getCountryList', op_in: ['in','not_in']},
+          {value: 'location.state_code'       , label: 'State/Province', value_type: 'list', choices: 'getStateList', op_in: ['in','not_in']},
+          {value: 'location.region_code'      , label: 'Region', value_type: 'list', choices: 'getRegionList', op_in: ['in','not_in']},
+          {value: 'location.city_code'        , label: 'City', value_type: 'list', choices: 'getCityList', op_in: ['in','not_in']},
+          {value: 'category_code'             , label: 'Category', value_type: 'list', choices: 'getCategoryList', op_in: ['in','not_in']},
+          {value: 'subcategory_code'          , label: 'Subcategory', value_type: 'list', choices: 'getSubcategoryList', op_in: ['in','not_in']},
+          {value: 'open_houses[0].end_date'   , label: 'Open house date', value_type: 'text', choices: 'udf.now():Now'},
+          {value: 'main_unit.bedroom_count'   , label: 'Bedroom count', value_type: 'number', op_out: ['like','not_like']},
+          {value: 'main_unit.bathroom_count'  , label: 'Bathroom count', value_type: 'number', op_out: ['like','not_like']},
+          {value: 'attributes.PARKING'        , label: 'Parking count', value_type: 'number', op_out: ['like','not_like']},
+          {value: 'attributes.GARAGE'         , label: 'Garage', value_type: 'bool', op_in: ['equal','not_equal_to']},
+          {value: 'attributes.POOL'           , label: 'Pool', value_type: 'bool', op_in: ['equal','not_equal_to']},
+          {value: 'status_code'               , label: 'Status', value_type: 'text', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['equal','not_equal_to']},
+        ],
+        'brokers' : [
+          {value: 'first_name'                , label: 'First name', value_type: 'text', op_in: ['like','not_like']},
+          {value: 'last_name'                 , label: 'Last name', value_type: 'text', op_in: ['like','not_like']},
+          {value: 'license_type_code'         , label: 'License type', value_type: 'list', choices: 'getLicenseList', op_in: ['in','not_in']}
+        ]
+      };
 
       $scope.filter_operators = [
         {key: 'equal'               , value : 'Equal to'},
@@ -268,7 +277,8 @@ siApp
 
       $scope.init = function(){
         $scope.selected_key = $scope.filter.field;
-        $scope.selected_filter_key = $scope.filter_key_list.find($e => $e.value == $scope.selected_key);
+        console.log($scope.type);
+        $scope.selected_filter_key = $scope.filter_key_list[$scope.type].find($e => $e.value == $scope.selected_key);
         $scope.updateFilterChoices();
       }
 
@@ -282,12 +292,20 @@ siApp
         $scope.filter.field=$scope.selected_key;
         $scope.value_choices = [];
         $scope.filter.value = '';
-        $scope.selected_filter_key = $scope.filter_key_list.find($e => $e.value == $scope.selected_key);
+        $scope.selected_filter_key = $scope.filter_key_list[$scope.type].find($e => $e.value == $scope.selected_key);
+        
         $scope.updateFilterChoices();
       }
 
       $scope.updateFilterChoices = function(){
-        if(['list','text'].indexOf($scope.selected_filter_key.value_type) >= 0 && $scope.selected_filter_key.choices!=null){
+        if($scope.selected_filter_key == undefined){
+          $scope.value_choices = null;
+          return;
+        }
+
+        console.log('filter choices from', $scope.selected_filter_key);
+
+        if(['list','text'].indexOf($scope.selected_filter_key.value_type) >= 0 && $scope.selected_filter_key.choices!=undefined){
           console.log('list from ', $scope.selected_filter_key.choices);
 
           if(typeof($siList[$scope.selected_filter_key.choices]) == 'function'){
@@ -299,6 +317,9 @@ siApp
             $scope.value_choices = $siUtils.stringToOptionList($scope.selected_filter_key.choices);
             console.log($scope.selected_filter_key.choices, $scope.value_choices);
           }
+        }
+        else{
+          $scope.value_choices = null;
         }
       }
 
@@ -317,6 +338,7 @@ siApp
 
       $scope.operatorFilterByField = function($item){
           if($item == null) return false;
+          if($scope.selected_filter_key == undefined) return false;
 
           if($scope.selected_filter_key.op_in != undefined){
             return $scope.selected_filter_key.op_in.indexOf($item.key) >= 0;

@@ -142,12 +142,15 @@ siApp
     $scope.dictionary = null;
 
     $scope.init = function($view_id){
+      console.log('loading lexicon',$view_id);
       $scope.fetchDictionary($view_id);
     }
 
     $scope.fetchDictionary = function($view_id){
+      
       if($view_id == null) return;
 
+      
       $siApi.rest('dictionary').then(function($response){
         $scope.dictionary = $response;
       });
@@ -193,6 +196,11 @@ siApp
       console.log($scope.dictionary);
       if($scope.dictionary == null) return [];
       return $scope.toArray($scope.dictionary.building_category);
+    }
+
+    $scope.getLicenseList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.broker_license_type);
     }
 
     $scope.toArray = function($source){

@@ -182,6 +182,9 @@ $locales.fr = {};$locales.fr.global =
     , "Street" : "Rue"
     , "Transaction type" : "Type de transaction"
     , "ID" : "Identifiant"
+    , "First name" : "Prénom"
+    , "Last name" : "Nom de famille"
+    , "License type" : "Type de license"
     // Routes
     , "Shortcut" : "Raccourci"
     , "Are you sure you want to remove this route?" : "Êtes-vous certain de vouloir supprimer ce chemin ?"

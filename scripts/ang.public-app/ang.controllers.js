@@ -541,6 +541,24 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         });
     }
 
+    // TODO: Late listing loading
+    $scope.loadListings = function(){
+        if($scope.listings == null){
+            $siApi.getDefaultDataView().then(function($view){
+                const $filters = {
+                    filter_group : {
+                        filters: [
+                            {field : "brokers", operator: 'in', value: [$scope.model.id]}
+                        ]
+                    }
+                }
+                $siApi.api('utils/search_encode', $filters).then(function($response){
+                    $resolve($response);
+                });
+            })
+        }
+    }
+
     /**
      * Preprocess data information to create shortcut, icon list and groups
      */
@@ -562,6 +580,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         // office
         $scope.model.office.location.country = $scope.getCaption($scope.model.office.location.country_code, 'country');
         $scope.model.office.location.state     = $scope.getCaption($scope.model.office.location.state_code, 'state');
+        $scope.model.office.location.city     = $scope.getCaption($scope.model.office.location.city_code, 'city');
         $scope.model.office.location.full_address = '{0} {1}, {2}'.format(
                                                 $scope.model.office.location.address.street_number,
                                                 $scope.model.office.location.address.street_name,
