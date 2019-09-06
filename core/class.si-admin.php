@@ -36,7 +36,7 @@ class SourceImmoAdmin {
   }
 
   public function load_resources(){
-    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/fontawesome-all.min.css', SI_PLUGIN) );
+    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
     wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
   }
 

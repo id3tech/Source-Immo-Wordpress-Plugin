@@ -12,13 +12,20 @@ class SiShorcodes{
             'si',
             'si_search',
             'si_searchbox',
+            'si_small_list',
+
             // Broker - Sub shortcodes
             'si_broker',
             'si_broker_listings',
             'si_broker_part',
-            // Listing - Sub shorcodes
+            // Listing - Sub shortcodes
             'si_listing',
-            'si_listing_part'
+            'si_listing_brokers',
+            'si_listing_part',
+            // Office - Sub shortcodes
+            'si_office_part',
+            'si_office_listings',
+            'si_office_brokers',
         );
 
         foreach ($hooks as $item) {
@@ -91,16 +98,12 @@ class SiShorcodes{
 
             
             $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
-            $global_container_attr = array();
-
+            
             if(in_array($listConfig->list_layout->preset, array('direct'))){
+                
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
-
-                
-                
-
                 echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" ></si-list>');
                 if(SourceImmo::current()->configs->prefetch_data){
                     $listData = SourceImmoApi::get_data($listConfig);
@@ -123,6 +126,60 @@ class SiShorcodes{
 
         return $lResult;
     }
+
+    public function sc_si_small_list($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'type' => 'listings',
+                'where' => null,
+                'class' => '',
+                'layout' => 'small',
+                'show_header' => true,
+                'limit' => 0,
+                'sort' => ''
+            ), $atts )
+        );
+        $show_header =  $show_header==true ? 'true' : 'false';
+        $sortFields = '';
+        if($sort != ''){
+            $sortArr = explode('|',$sort);
+            $sortFields = array();
+            foreach ($sortArr as $value) {
+                $sortFieldArr = explode(" ",$value);
+                $field = $sortFieldArr[0];
+                if($field!=''){
+                    $fieldDesc = (isset($sortFieldArr[1])) ? (($sortFieldArr[1]=='desc') ? 'true':'false') : 'false';
+                    $sortFields[] = '{field:\'' . $field . '\', desc: ' . $fieldDesc .'}';
+                }
+            }
+            $sortFields = implode ( ',',$sortFields);
+        }
+        
+
+        ob_start();
+        ?>
+        <si-small-list class="<?php echo($class) ?>" 
+                si-options="{show_header:<?php echo $show_header ?>, filter:{max_item_count: <?php echo($limit) ?>,sort_fields:[<?php echo($sortFields)?>]}}" si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
+        <?php
+        echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');
+        SourceImmo::view("list/{$type}/standard/item-{$layout}");
+        echo('</script>');
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
+
+    public function sc_si_listing_brokers($atts, $content=null){
+        $ref_number = get_query_var( 'ref_number');
+        ob_start();
+            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()"]');
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
 
     #region Broker - Sub shortcodes
     public function sc_si_broker($atts, $content){
@@ -169,6 +226,16 @@ class SiShorcodes{
      * Display broker listings
      */
     public function sc_si_broker_listings($atts, $content=null){
+        $ref_number = get_query_var( 'ref_number');
+        ob_start();
+            
+            echo do_shortcode('[si_small_list class="listing-list si-list-of-listings" type="listings" where="{field:\'brokers_ref_numbers\', operator : \'array_contains\', value: \'' . $ref_number . '\'}"]');
+            
+
+        $lResult = ob_get_clean();
+
+        return $lResult;
+
         ob_start();
         ?>
         <div class="listing-list si-list-of-listings">
@@ -218,6 +285,76 @@ class SiShorcodes{
         return $lResult;
     }
     
+    #endregion
+
+    #region Office - Sub shortcodes
+    public function sc_si_office_part($atts, $content){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'part' => ''
+            ), $atts )
+        );
+
+        $lResult = '';
+        
+        if($part != ''){
+            ob_start();
+
+            SourceImmo::view('single/offices_layouts/subs/' . $part); 
+
+            $lResult = ob_get_clean();
+        }
+        
+        return $lResult;
+    }
+
+    public function sc_si_office_listings($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'limit' => 0,
+                'sort' => '',
+                'show_header' => true,
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+        
+        ob_start();
+            
+        echo do_shortcode('[si_small_list class="listing-list si-list-of-listings" type="listings" where="{field:\'offices_ref_numbers\', operator : \'array_contains\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
+    public function sc_si_office_brokers($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'limit' => 0,
+                'sort' => '',
+                'show_header' => true,
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+
+        ob_start();
+            
+        echo do_shortcode('[si_small_list class="broker-list si-list-of-brokers" type="brokers" where="{field:\'office_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
     #endregion
 
     #region Listing - Sub shortcodes

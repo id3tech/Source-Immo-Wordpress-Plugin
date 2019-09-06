@@ -153,6 +153,21 @@ class SourceImmo {
     return $lResult;
   }
 
+  public function get_office_permalink($locale=null){
+    if($locale==null){
+      $locale = substr(get_locale(),0,2);
+    }
+
+    $lResult = $this->configs->office_routes[0]->route;
+    foreach($this->configs->office_routes as $item){
+      if($item->lang == $locale){
+        $lResult = $item->route;
+      }
+    }
+
+    return $lResult;
+  }
+
   /**
    * @param string $type Type of the layout
    */
@@ -261,6 +276,22 @@ class SourceImmo {
         $ruleKey=array();$matches=array();
         $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
         $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=cities&mode=shortcut&' . implode('&', $matches);  
+      }
+    }
+
+
+    // add routes
+    foreach($this->configs->office_routes as $route){
+      $ruleKey=array();$matches=array();
+      $this->getRulesAndMatches($route->route,$ruleKey,$matches);
+
+      $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=offices&' . implode('&', $matches);
+
+      // shortcut
+      if(!str_null_or_empty($route->shortcut)){
+        $ruleKey=array();$matches=array();
+        $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
+        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=offices&mode=shortcut&' . implode('&', $matches);  
       }
     }
 
@@ -373,7 +404,6 @@ class SourceImmo {
     // load data
     $model = SourceImmoApi::get_city_data($ref_number)->items[0];
     if($model != null){
-      
       global $dictionary;
       $listingWrapper = new SourceImmoCitiesResult();
       $dictionary = new SourceImmoDictionary($model->dictionary);
@@ -384,6 +414,21 @@ class SourceImmo {
     }
   }
 
+  
+  function redirect_offices($ref_number){
+    // load data
+    $model = json_decode(SourceImmoApi::get_office_data($ref_number));
+    if($model != null){
+      
+      global $dictionary;
+      $listingWrapper = new SourceImmoOfficesResult();
+      $dictionary = new SourceImmoDictionary($model->dictionary);
+      $listingWrapper->preprocess_item($model);
+
+      $model->permalink = SourceImmoOfficesResult::buildPermalink($model, SourceImmo::current()->get_office_permalink());
+      wp_redirect($model->permalink);
+    }
+  }
 
   
 
@@ -442,7 +487,14 @@ class SourceImmo {
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
                           '$locales.init("' . $lTwoLetterLocale . '");' .
                           'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
-                          'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", base_path:"' . plugins_url('/', SI_PLUGIN) . '", listing_routes : ' . json_encode($this->configs->listing_routes) . ', broker_routes : ' . json_encode($this->configs->broker_routes) . ', use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . '};'
+                          'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
+                                    'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' .
+                                    'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' .
+                                    'broker_routes : ' . json_encode($this->configs->broker_routes) . ', ' .
+                                    'city_routes : ' . json_encode($this->configs->city_routes) . ', ' .
+                                    'office_routes : ' . json_encode($this->configs->office_routes) . ', ' .
+                                    'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . 
+                                  '};'
                         );
     
     if($lTwoLetterLocale!='en'){
@@ -642,23 +694,23 @@ class SourceImmo {
 
   function include_cities_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
-    // global $permalink, $post,$city_data;
+    global $permalink, $post,$city_data;
 
     // load data
     // global $city_data;
-    $city_data = SourceImmoApi::get_city_data($ref_number);
+    $city_data = SourceImmoApi::get_city_data($ref_number)->items[0];
+    //__c($city_data);
+
     // $city_data = new SourceImmoListingsResult($city_data);
-    
     if($city_data != null){
       header('http/1.0 200 found');
-      do_action('si_listing_detail_begin');
+      do_action('si_city_detail_begin');
       // hook to sharing tools
-      //$share_tool = new SiSharing($city_data);
-      //$share_tool->addHook('listing');
+      $share_tool = new SiSharing($city_data);
+      $share_tool->addHook('city');
       
-      //$permalink = $share_tool->getPermalink();
-
-      //$post->permalink = $permalink;
+      $permalink = $share_tool->getPermalink();
+      if(isset($post)) $post->permalink = $permalink;
 
       // add hook for permalink
       // add_filter('the_permalink', function($url){
@@ -671,13 +723,54 @@ class SourceImmo {
       // });
 
       $city_data = apply_filters(hook_from_key('city','single'), $city_data);
-      self::view('single/cities', array('ref_number'=>$ref_number, 'data' => $city_data->items[0], 'permalink' => null));      
+      self::view('single/cities', array('ref_number'=>$ref_number, 'data' => $city_data, 'permalink' => null));      
       die();
     }
     else{
        header('http/1.0 404 not found');
 
        self::view('single/cities_404', array());
+       die();
+    }
+  }
+
+  function include_offices_detail_template(){
+    $ref_number = get_query_var( 'ref_number' );
+    global $broker_data,$post;
+    // load data
+    
+    $office_data = json_decode(SourceImmoApi::get_office_data(strtoupper($ref_number)));
+    
+    if($office_data != null){
+      header('http/1.0 200 found');
+      do_action('si_office_detail_begin');
+
+      // hook to sharing tools
+      $share_tool = new SiSharing($office_data);
+      $share_tool->addHook('office');
+      $permalink = $share_tool->getPermalink();
+
+      if($post != null) $post->permalink = $permalink;
+
+      // add hook for permalink
+      add_filter('the_permalink', function($url){
+        global $permalink;
+        return $permalink;
+      });
+      add_action('the_post', function($post_object){
+        global $permalink;
+        $post_object->permalink = $permalink;
+      });
+
+
+      $office_data = apply_filters(hook_from_key('office','single'), $office_data);
+      self::view('single/offices', array('ref_number'=>$ref_number, 'data' => $office_data, 'permalink' => null));      
+      die();
+    }
+    else{
+       header('http/1.0 404 not found');
+
+       self::view('single/offices_404', array());
        die();
     }
   }
@@ -1016,6 +1109,11 @@ class SiSharing{
 
   public function override_title($title){
     if($this->title != null){
+      $not_found_str = __('Page not found');
+      $not_found_ind = array_search($not_found_str, $title);
+      if($not_found_ind !== false){
+        unset($title[$not_found_ind]);
+      }
       array_unshift($title,$this->title);
     }
     return $title;
@@ -1082,7 +1180,6 @@ class SiSharing{
       echo('<meta '. $metaKeyNames[$prefix] . '="' . $prefix . ':' . $key . '" content="' . $value . '"></meta>');  
     }
   }
-
   public function brokerPreprocess(){
     global $dictionary;
     $objectWrapper = new SourceImmoBrokersResult();
@@ -1093,6 +1190,32 @@ class SiSharing{
     $this->title = $this->object->first_name . ' ' . $this->object->last_name;
     $this->desc = $this->object->license_type;
     $this->image = $this->object->photo->url;
+    $this->url = '/' . $this->object->permalink;
+  }
+
+  public function officePreprocess(){
+    global $dictionary;
+    $objectWrapper = new SourceImmoOfficesResult();
+    $dictionary = new SourceImmoDictionary($this->object->dictionary);
+    $objectWrapper->preprocess_item($this->object);
+    $this->object->permalink = $objectWrapper->buildPermalink($this->object, SourceImmo::current()->get_office_permalink());
+
+    $this->title = $this->object->name;
+    $this->desc = __('Office',SI); //$this->object->license_type;
+    $this->image = null; //$this->object->photo->url;
+    $this->url = '/' . $this->object->permalink;
+  }
+
+  public function cityPreprocess(){
+    global $dictionary;
+    $cityWrapper = new SourceImmoCitiesResult();
+    //$dictionary = new SourceImmoDictionary($this->object->dictionary);
+    //$cityWrapper->preprocess_item($this->object);
+    $this->object->permalink = $cityWrapper->buildPermalink($this->object, SourceImmo::current()->get_city_permalink());
+
+    $this->title = $this->object->name;
+    $this->desc = ''; //isset($this->object->description) ? $this->object->description : '';
+    $this->image = ''; //$this->object->photos[0]->source_url;
     $this->url = '/' . $this->object->permalink;
   }
 
@@ -1637,6 +1760,40 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
   }
 
 
+}
+
+class SourceImmoOfficesResult extends SourceImmoAbstractResult {
+  public $offices = null;
+  public $metadata = null;
+
+  public function __construct($data=null){
+    
+    if($data!=null){
+      $this->offices = $data->items;
+      $this->metadata = $data->metadata;
+      //Debug::write($this->cities);
+
+      foreach ($this->offices as $item) {
+        $this->preprocess_item($item);
+      }
+      
+      self::validatePagePermalinks($this->offices, 'office');
+    }
+    
+  }
+
+  public function preprocess_item(&$item){
+    global $dictionary;
+
+    //$item->location = (object) array();
+    $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
+    $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
+    $item->location->country = $dictionary->getCaption($item->location->country_code , 'country');
+    $item->location->state = $dictionary->getCaption($item->location->state_code , 'state');
+    $item->location->street_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+
+    $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_office_permalink());
+  }
 }
 
 class SourceImmoAbstractResult{

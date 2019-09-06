@@ -367,6 +367,22 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         $siHooks.do('single-listing-preprocess', $scope.model);
     }
 
+    $scope.getBrokerListFilter = function(){
+        if($scope.model == null) return null;
+        if($scope.broker_list_filter != undefined) return $scope.broker_list_filter;
+
+        const lBrokerIds = $scope.model.brokers_ids || $scope.model.brokers.map(function($e) {return $e.id});
+
+        $scope.broker_list_filter = {
+            field: 'id',
+            operator: 'in',
+            value : lBrokerIds
+        };
+        return $scope.broker_list_filter;
+
+    }
+    
+
     $scope.setShareData = function($data){
         $data.description = $scope.model.description;
         $data.media = $scope.model.photos[0].source_url;
@@ -431,6 +447,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
             $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
+                
             })
         }
     }
@@ -465,18 +482,6 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
     $scope.model = null;
     $scope.permalinks = null;
 
-    // ui - section toggles
-    $scope.sections = {
-        addendum : {opened:true},
-        building : {opened:false},
-        lot : {opened:false},
-        other: {opened: false},
-        in_exclusions:{opened:false}
-    }
-    // ui - media tabs selector
-    $scope.selected_media = 'pictures';
-    // calculator result
-    $scope.calculator_result = {};
     // message model
     $scope.message_model = {};
 
@@ -578,29 +583,14 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         $scope.list = $scope.model.listings;
 
         // office
-        $scope.model.office.location.country = $scope.getCaption($scope.model.office.location.country_code, 'country');
-        $scope.model.office.location.state     = $scope.getCaption($scope.model.office.location.state_code, 'state');
-        $scope.model.office.location.city     = $scope.getCaption($scope.model.office.location.city_code, 'city');
-        $scope.model.office.location.full_address = '{0} {1}, {2}'.format(
-                                                $scope.model.office.location.address.street_number,
-                                                $scope.model.office.location.address.street_name,
-                                                $scope.model.office.location.city
-                                            );
-
+        $siUtils.compileOfficeItem($scope.model.office);
+        
         $scope.model.location = $scope.model.office.location;
         $siUtils.compileListingList($scope.model.listings);           
     }
 
     $scope.getPhoneIcon = function($key){
-        let lPhoneIcon = {
-            'mobile' : 'mobile',
-            'office' : 'building'
-        }
-
-        if(lPhoneIcon[$key] != undefined){
-            return lPhoneIcon[$key];
-        }
-        return 'phone';
+        $siUtils.getPhoneIcon($key);
     }
 
     $scope.filterListings = function($listing){
@@ -725,5 +715,92 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
      */
     $scope.validateMessage = function(){
         
+    }
+
+    
+    $scope.getPhoneIcon = function($key){
+        return $siUtils.getPhoneIcon($key);
+    }
+});
+
+
+/**
+ * Office Detail - Controller
+ */
+siApp
+.controller('singleOfficeCtrl', 
+function singleOfficeCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siHooks){
+
+    // model data container - office
+    $scope.model = null;
+
+    /**
+     * Initialize controller
+     * @param {string} $ref_number broker reference key
+     */
+    $scope.init = function($ref_number){
+        if($ref_number != undefined){
+            //console.log($ref_number);
+            $scope.fetchPrerequisites().then(function(){
+                $scope.loadSingleData($ref_number);
+            });
+            
+        }
+    }
+
+    $scope.fetchPrerequisites = function(){
+        let lPromise = $q(function($resolve, $reject){
+            $siConfig.get().then(function($configs){
+                $resolve({
+                    brokers: $configs.broker_routes,
+                    listings: $configs.listing_routes
+                })
+            })
+        });
+        return lPromise;
+    }
+
+
+    /**
+     * Load broker data
+     * @param {string} $ref_number broker reference key
+     */
+    $scope.loadSingleData = function($ref_number){
+
+        let lPromise = $q(function($resolve,$reject){
+            if(typeof(siBrokerData)!='undefined'){
+                $resolve(siBrokerData);
+            }
+            else{
+                $siApi.getDefaultDataView().then(function($view){
+                    // Load broker data from api
+                    //console.log($view);
+                    $siApi.api("office/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                        $resolve($data);
+                    });
+                });
+            }
+
+        });
+
+        lPromise.then(function($data){
+            $scope.model = $data;
+            // set dictionary source
+            $siDictionary.source = $data.dictionary;
+            // start preprocessing of data
+            $scope.preprocess();
+            // prepare message subject build from data
+            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            // print data to console for further informations
+            //console.log($scope.model);
+        });
+    }
+
+    $scope.getPhoneIcon = function($key){
+        return $siUtils.getPhoneIcon($key);
+    }
+
+    $scope.preprocess = function(){
+        $siUtils.compileOfficeItem($scope.model);
     }
 });

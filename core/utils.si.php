@@ -334,7 +334,6 @@ class HttpCall{
     );
 
     $lCurlHandle = $this->_setup_curl( $queryOptions );
-    
     $lResult = curl_exec($lCurlHandle);
     //$information = curl_getinfo($lCurlHandle);
     //print_r($information);

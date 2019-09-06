@@ -98,14 +98,22 @@ function $siApi($http,$q,$siConfig,$rootScope){
     $scope.getDefaultDataView = function(){
         let lPromise = $q(function($resolve, $reject){
             $siConfig.get().then(function($config){
-                console.log('default dv', $config.default_view);
                 if($config.default_view.indexOf('{')>=0){
                     $resolve(JSON.parse($config.default_view).id);
                 }
                 else{
                     $resolve($config.default_view);
                 }
-                
+            });
+        });
+
+        return lPromise;
+    }
+
+    $scope.getViewDictionary = function($view_id, $lang){
+        let lPromise = $q(function($resolve, $reject){
+            $scope.call('view/' + $view_id + '/' + $lang).then(function($response){
+                $resolve($response.dictionary);
             });
         });
 
@@ -298,7 +306,14 @@ function $siDictionary(){
 
     $scope.source = null;
     $scope.init = function($source){
-        $scope.source = $source;
+        if($scope.source == null){
+            $scope.source = $source;
+        }
+        else{
+            Object.assign($scope.source, $source);
+            //console.log($scope.source);
+        }
+        
         //$scope.sortData();
     }
 
@@ -348,6 +363,15 @@ function $siDictionary(){
         return lResult;
     }
 
+    $scope.count = function($domain){
+        let lResult = 0;
+        if($scope.source && $scope.source[$domain]){
+            const lDomainKeys = Object.keys($scope.source[$domain]);
+            lResult = lDomainKeys.length;
+        }
+        return lResult
+    }
+
     /** 
      * Get the caption matching key and domain from the dictionary
      * @param {string} $key Key code of the dictionary item
@@ -386,7 +410,7 @@ function $siDictionary(){
             // transform key to match the property where the value will be find
             // Ex.: category_code -> category_other
             const lSrcKey = $key.replace('_code', lDictionaryKey);  
-            console.log(lSrcKey, $obj[lSrcKey]);
+            
             // return the value contained in the new property if it's not null or empty
             if(!isNullOrEmpty($obj[lSrcKey])) return $obj[lSrcKey];
         }
@@ -399,12 +423,112 @@ function $siDictionary(){
 });
 
 siApp
-.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$sce', '$siConfig',
-function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
+.factory('$siList', [
+  '$siApi',
+  function $siList($siApi){
+    let $scope ={};
+    $scope.dictionary = null;
+
+    $scope.init = function($view_id){
+      $scope.fetchDictionary($view_id);
+    }
+
+    $scope.fetchDictionary = function($view_id){
+      
+      if($view_id == null) return;
+
+      
+      $siApi.rest('dictionary').then(function($response){
+        $scope.dictionary = $response;
+      });
+    }
+
+    $scope.getCountryList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.country);
+    }
+
+    $scope.getStateList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.state);
+    }
+
+    $scope.getRegionList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.region);
+    }
+
+    $scope.getCityList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.city);
+    }
+
+    $scope.getCategoryList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.listing_category);
+    }
+
+    $scope.getSubcategoryList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.listing_subcategory);
+    }
+
+    $scope.getBuildingCategoryList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.building_category);
+    }
+
+    $scope.getLicenseList = function(){
+      if($scope.dictionary == null) return [];
+      return $scope.toArray($scope.dictionary.broker_license_type);
+    }
+
+    $scope.getOfficeList = function($source_id){
+        if($scope.offices == null) return [];
+        return $scope.offices;
+    //   $siApi.call('office/view/' + $configs.source.id + '/fr/items').then(function($response){
+    //     $scope.officeList = $response.items;
+    //     $scope.is_ready = true;
+    //     $resolve();
+    // })
+    }
+
+    $scope.toArray = function($source){
+      let lResult = [];
+      for($key in $source){
+        lResult.push({key : $key, label: $source[$key].caption});
+      }
+
+      return lResult;
+    }
+
+    return $scope;
+  }
+]);
+
+
+siApp
+.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$sce', '$siConfig', '$siHooks', '$siList', '$q',
+function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHooks,$siList,$q){
     let $scope = {};
     $scope.page_list = [];
 
     $scope.configs = null;
+
+    $scope.getSingularType = function($type, $toLower){
+        $toLower = $toLower == undefined ? true : $toLower;
+        const lTypes = {
+            listings: 'Listing',
+            brokers: 'Broker',
+            offices: 'Office',
+            cities : 'City'
+        };
+
+        const lResult = lTypes[$type];
+        if(lResult == undefined) return null;
+        if($toLower) return lResult.toLowerCase();
+        return lResult;
+    }
 
     /** 
      * Get the caption matching key and domain from the dictionary
@@ -414,6 +538,15 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
      */
     $scope.getCaption = function($key, $domain, $asAbbr){
         return $siDictionary.getCaption($key,$domain,$asAbbr);
+    }
+
+    $scope.formatPhone = function($phone){
+        const cleaned = ('' + $phone).replace(/\D/g, '')
+        const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
+        if (match) {
+            return match[1] + '.' + match[2] + '.' + match[3]
+        }
+        return null
     }
 
     /**
@@ -504,8 +637,9 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
      */
     $scope.getPermalink = function($item, $type, $configs){
         let lRoute = '';
-
         $type = (typeof $type=='undefined') ? 'listing' : $type;
+        if(siCtx[$type + '_routes'] == undefined) return '';
+        
         $scope.item = angular.copy($item);
         
         siCtx[$type + '_routes'].forEach(function($r){
@@ -513,6 +647,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
                 lRoute=$r;
             }
         });
+
 
         let lMandatoryLocationData = ['country','province','region','city'];
         
@@ -540,6 +675,11 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
                         lCustomPage= lResult.replace(lRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
                         
                         break;
+                    case 'office':
+                        let oRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
+                        lCustomPage= lResult.replace(oRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
+                        
+                        break;
                 }
 
                 if(lCustomPage != '' && lCustomPage == $p.permalink){
@@ -550,6 +690,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         }
 
         if(siCtx.use_lang_in_path) lResult = '/' + siCtx.locale + lResult;
+
+        // add hook for custom permalink for type
+        lResult = $siHooks.filter($type + '_permalink', lResult, $item);
+
         return lResult;
     }
 
@@ -560,6 +704,23 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
      */
     $scope.evaluate = function($text, $context){
         return $interpolate($text)($context);
+    }
+
+    /**
+     * Take a phone key type and return an icon that matches
+     * If no icon matches, will return the default "phone" icon
+     * @param {string} $key Phone key type
+     */
+    $scope.getPhoneIcon = function($key){
+        let lPhoneIcon = {
+            'mobile' : 'mobile',
+            'office' : 'building'
+        }
+
+        if(lPhoneIcon[$key] != undefined){
+            return lPhoneIcon[$key];
+        }
+        return 'phone';
     }
 
     /**
@@ -603,6 +764,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
      * @param {array} $list Array of broker item
      */
     $scope.compileBrokerList = function($list){
+        $siConfig.get().then(function ($configs){
+            $siList.getOfficeList($configs.default_view);
+        });
+
         $list.forEach(function($e){
             $scope.compileBrokerItem($e);
         });
@@ -614,6 +779,13 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         if($item.permalink == undefined){
             $item.license_type = $siDictionary.getCaption($item.license_type_code, 'broker_license_type');
             $item.permalink = $scope.getPermalink($item,'broker');
+            
+            if($item.office_ref_number != undefined){
+                $officeList = $siList.getOfficeList();
+                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
+                $scope.compileOfficeItem($item.office);
+            
+            }
         }
     }
 
@@ -645,6 +817,39 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
             });
         }
     }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of office item
+     */
+    $scope.compileOfficeList = function($list){
+        $list.forEach(function($e){
+            $scope.compileOfficeItem($e);
+        })
+    }
+    
+    $scope.compileOfficeItem = function($item){
+        if($item == undefined) return;
+        if($item.phones != null){
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $scope.formatPhone($item.phones[$key]);}); 
+        }
+        $item.location.region = $scope.getCaption($item.location.region_code, 'region');
+        $item.location.country = $scope.getCaption($item.location.country_code, 'country');
+        $item.location.state     = $scope.getCaption($item.location.state_code, 'state');
+        $item.location.city     = $scope.getCaption($item.location.city_code, 'city');
+        $item.location.street_address = '{0} {1}'.format(
+                                                    $item.location.address.street_number,
+                                                    $item.location.address.street_name
+                                                );
+        $item.location.full_address = '{0} {1}, {2}'.format(
+                                                $item.location.address.street_number,
+                                                $item.location.address.street_name,
+                                                $item.location.city
+                                            );
+
+        $item.permalink = $scope.getPermalink($item,'office');
+    }
+
 
     /**
      * Build listing class list
@@ -918,6 +1123,26 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig){
         return false;
     }
 
+    $scope.all = function($promises){
+        return $q(function($resolve, $reject){
+            const lConvertedPromises = Array.isArray($promises) ? $promises : 
+                                        Object.keys($promises).map(function($k){ return $promises[$k]()});
+            $q.all(
+                lConvertedPromises
+            )
+            .then(function($results){
+                const lConvertedResults = Array.isArray($promises) ? $results :
+                                            Object.keys($promises).reduce(
+                                                function($result, $k, $index){ 
+                                                    $result[$k] = $results[$index];
+                                                    return $result;
+                                                }, {}
+                                            );
+                $resolve(lConvertedResults);
+            })
+        })
+    }
+
     return $scope;
 }]);
 
@@ -1039,6 +1264,12 @@ function $siHooks($q){
                 lFilters.push($f);
             }
         });
+        
+        $siGlobalHooks._filters.forEach(function($f){
+            if($key == $f.key){
+                lFilters.push($f);
+            }
+        });
 
         //console.log('filters', lFilters,'from', $scope._filters);
         lFilters.forEach(function($f){
@@ -1156,13 +1387,17 @@ function $siFilters($q,$siApi,$siUtils){
     }
 
     $scope.with = function($alias, $resolve){
+        if(typeof $alias == 'undefined') return new FilterManager();
+
         if(typeof $scope.filters[$alias] == 'undefined'){
             $scope.filters[$alias] = new FilterManager($alias);
         }
 
         if(typeof $resolve == 'function') $resolve($scope.filters[$alias]);
+        
         return $scope.filters[$alias];
     }
+
 
     
 
@@ -1323,9 +1558,12 @@ function $siFilters($q,$siApi,$siUtils){
             if(lItem == null){
                 return $default;
             }
-
+            
             if(lItem.label != undefined){
                 return lItem.label;
+            }
+            if(lItem.name != undefined){
+                return lItem.name;
             }
             return lItem.caption;
         }
@@ -1341,9 +1579,17 @@ function $siFilters($q,$siApi,$siUtils){
 
             if($group.filters != null){
                 $group.filters.some(function($e){
-                    if($e.field == $fieldname){
-                        lResult = $e;
-                        return true;
+                    if($fieldname.indexOf('*')>=0){
+                        if($e.field.indexOf($fieldname.replace("*",""))>=0){
+                            lResult = $e;
+                            return true;
+                        }
+                    }
+                    else{
+                        if($e.field == $fieldname){
+                            lResult = $e;
+                            return true;
+                        }
                     }
                 });
             }
@@ -1394,8 +1640,16 @@ function $siFilters($q,$siApi,$siUtils){
 
             $fm._buildFiltersDebounce = window.setTimeout(function(){
                 $fm.buildFilters();
-            }, 100);
-            
+            }, 100); 
+        }
+
+        $fm.toggleFilter = function($field,$operator,$value, $label, $reverseFunc){
+            if($fm.hasFilter($field) && $fm.getFilterValue($field) == $value){
+                $fm.addFilter($field,$operator,null);
+            }
+            else{
+                $fm.addFilter($field,$operator,$value, $label, $reverseFunc)
+            }
         }
 
         $fm.addGeoFilter = function(){
@@ -1513,7 +1767,7 @@ function $siFilters($q,$siApi,$siUtils){
             if($value==='' || $value==null){
                 $fm.removeFilter(lFilterIndex, $group);
             }
-            else if (typeof($value.push)=='function' && $value.length == 0){
+            else if (Array.isArray($value) && $value.length == 0){
                 $fm.removeFilter(lFilterIndex, $group);
             }
             else{
@@ -1624,8 +1878,7 @@ function $siFilters($q,$siApi,$siUtils){
         $fm.buildFilters = function(){
             let lResult = null;
             let lPromise = $q(function($resolve, $reject){
-                console.log('Building filters');
-
+                
                 $fm.getConfigs().then(function($configs){
                     if(
                         !$fm.hasFilters()
@@ -1633,7 +1886,6 @@ function $siFilters($q,$siApi,$siUtils){
                         && $fm.sort_fields.length == 0
                         && $fm.data.location == null
                     ){
-                        console.log('Everything is back to default');
                         $fm.clearState();
                         $fm.resetFilters();
                         return;
@@ -1678,20 +1930,18 @@ function $siFilters($q,$siApi,$siUtils){
                     if($fm.data.location != null){
                         lResult.proximity_filter = $fm.data.location;
                     }
-                    console.log('getting new token', lResult);
-
+                    
                     $fm.getSearchToken(lResult).then(function($token){
-                        console.log('new token acquired',$token);
+                      
                         if($token!=''){
                             
                             $fm.saveState('st', $token);
                             
                             //$rootScope.$broadcast($fm.alias + 'FilterTokenChanged', $token);
                             $fm.trigger('filterTokenChanged', $token);
-                            console.log('filter token changed', $fm.result_url);
+                          
                             if($fm.result_url != null){
                                 $fm.saveState()
-                                console.log('navigating to', $fm.result_url);
                                 window.location = $fm.result_url;
                             }
                             else{
@@ -1806,7 +2056,6 @@ function $siFilters($q,$siApi,$siUtils){
                 $fm.state_loaded = false;
                 sessionStorage.setItem(lKey.format('filter_group'), JSON.stringify($fm.filter_group));
                 if($fm.query_text!=null){
-                    console.log('Saving query text');
                     sessionStorage.setItem(lKey.format('query'), $fm.query_text);
                 }
                 
@@ -1880,7 +2129,8 @@ function $siFilters($q,$siApi,$siUtils){
             //console.log('getSearchToken', $filters);
             // $filters.sort_fields = $filters.sort_fields.filter($sf => $sf.field!='');
             // if($filters.sort_fields.length == 0) delete $filters.sort_fields;
-
+            if($filters == null) return $q.resolve();
+            
             $fm.normalize($filters.filter_group);
             
             let lPromise =  $q(function($resolve, $reject){    
@@ -1899,19 +2149,24 @@ function $siFilters($q,$siApi,$siUtils){
 
         $fm.normalize = function($filterGroup){
             const lNewGroup = [];
-            $filterGroup.filter_groups.forEach( function ($f,$i) {
-                if($f.filter_groups != null){
-                    $fm.normalize($f);
-                }
-                if($f.filter_groups != null){
-                    lNewGroup.push($f);
-                }
-                else if ($f.filters != null){
-                    lNewGroup.push($f);
-                }
-            });
+            if($filterGroup==null) return;
+            
+            if($filterGroup.filter_groups){
+                $filterGroup.filter_groups.forEach( function ($f,$i) {
+                    if($f.filter_groups != null){
+                        $fm.normalize($f);
+                    }
+                    if($f.filter_groups != null){
+                        lNewGroup.push($f);
+                    }
+                    else if ($f.filters != null){
+                        lNewGroup.push($f);
+                    }
+                });
+                
 
-            $filterGroup.filter_groups = lNewGroup;
+                $filterGroup.filter_groups = lNewGroup;
+            }
         }
 
         $fm.getConfigs = function(){

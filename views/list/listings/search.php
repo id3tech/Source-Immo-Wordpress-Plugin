@@ -10,15 +10,15 @@
     </div>
 
     <div class="advanced">
-        <button class="cities {{isExpanded('cities')}} {{filterPanelHasFilters('location') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></button>
+        <button class="cities {{isExpanded('cities')}} {{filter.hasFilter('location.city_code') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></button>
     
-        <button class="price {{isExpanded('price')}} {{filterPanelHasFilters('price') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></button>
+        <button class="price {{isExpanded('price')}} {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></button>
     
-        <button class="category {{isExpanded('categories')}} {{filterPanelHasFilters('category') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></button>
+        <button class="category {{isExpanded('categories')}} {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></button>
         
-        <button class="rooms {{isExpanded('rooms')}} {{filterPanelHasFilters('room') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></button>
+        <button class="rooms {{isExpanded('rooms')}} {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></button>
         
-        <button class="more {{isExpanded('others')}} {{filterPanelHasFilters('other') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', SI) ?></button>
+        <button class="more {{isExpanded('others')}} {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', SI) ?></button>
     
         <div class="search-trigger">
             <button type="button" class="trigger-button button" data-ng-click="showResultPage()"><?php _e('Search', SI) ?></button>
@@ -30,7 +30,7 @@
 
     <!-- Cities -->
     <div class="filter-panel cities-panel {{isExpanded('cities')}}">
-        <button class="panel-trigger {{isExpanded('cities')}} {{filterPanelHasFilters('location') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></button>
+        <button class="panel-trigger {{isExpanded('cities')}} {{filter.hasFilter('location') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></button>
         <div class="filter-panel-content">
             <div class="region-city-list">                 
                 <div class="tabs tabs-left">
@@ -72,7 +72,7 @@
 
     <!-- Price -->
     <div class="filter-panel price-panel {{isExpanded('price')}}">
-        <button class="panel-trigger {{isExpanded('price')}} {{filterPanelHasFilters('price') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></button>
+        <button class="panel-trigger {{isExpanded('price')}} {{filter.hasFilter('price') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></button>
         <div class="filter-panel-content">
             <div class="price-inputs">
                 <si-slider model="priceRange" step="0.05" on-change="updatePrice()" start-label="Min" end-label="<?php _e('Unlimited',SI) ?>"></si-slider>
@@ -94,7 +94,7 @@
 
     <!-- Category -->
     <div class="filter-panel categories-panel {{isExpanded('categories')}}">
-        <button class="panel-trigger {{isExpanded('categories')}} {{filterPanelHasFilters('category') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></button>
+        <button class="panel-trigger {{isExpanded('categories')}} {{filter.hasFilter('category') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></button>
         <div class="filter-panel-content">
             <div class="tabs tabs-left">
                 <div class="category tab-header with-title"">
@@ -140,7 +140,7 @@
 
     <!-- Rooms -->
     <div class="filter-panel rooms-panel {{isExpanded('rooms')}}">
-        <button class="panel-trigger {{isExpanded('rooms')}} {{filterPanelHasFilters('room') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></button>
+        <button class="panel-trigger {{isExpanded('rooms')}} {{filter.hasFilter('room') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></button>
         <div class="filter-panel-content">
             <div class="bedrooms">
                 <h4><?php _e('Bedrooms',SI) ?></h4>
@@ -188,7 +188,7 @@
 
     <!-- Mores -->
     <div class="filter-panel others-panel {{isExpanded('others')}}">
-        <button class="panel-trigger {{isExpanded('others')}} {{filterPanelHasFilters('other') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', SI) ?></button>
+        <button class="panel-trigger {{isExpanded('others')}} {{filter.hasFilter('other') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', SI) ?></button>
         <div class="filter-panel-content">
             <div class="age grid-layout-column">
                 <h4><?php _e('Online for',SI) ?></h4>

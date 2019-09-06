@@ -2,6 +2,7 @@ $locales.fr = {};$locales.fr.global =
 {
     "Save" : "Sauvegarder"
     , "Apply" : "Appliquer"
+    , "Add" : "Ajouter"
     , "Delete" : "Supprimer"
     , "Remove" : "Retirer"
     , "Edit" : "Editer"
@@ -19,11 +20,13 @@ $locales.fr = {};$locales.fr.global =
     , "Copied to clipboard" : "Copié dans le presse-papier"
     , "Save completed" : "Sauvegarde complétée"
     , "Standard" : "Régulier"
+    , "Standard with office" : "Régulier avec bureau"
     , "Custom" : "Personnalisé"
     , "Reduced" : "Réduit"
     , "Minimal" : "Minimal"
     , "Loading results" : "Chargement des résultats"
     , "Automatic" : "Automatique"
+    , "Thank you" : "Merci"
     // Time
     , "in" : "dans"
     , "year" : "année"
@@ -46,6 +49,7 @@ $locales.fr = {};$locales.fr.global =
     , "Permalinks" : "Permaliens"
     , "Language" : "Langue"
     , "Route" : "Chemin"
+    , "Offices" : "Bureaux"
     , "API key" : "Clé d'API"
     , "Account ID" : "Identifiant de compte"
     , "Map API key" : "Clé d'API de la carte"
@@ -124,7 +128,8 @@ $locales.fr = {};$locales.fr.global =
     , "Form" : "Formulaire"
     , "Form to use" : "Formulaire à utiliser"
     // Lists label
-    , "Copy shortcode" : "Copier le shortcode"
+    , "New {0} list" : "Nouvelle liste {0}"
+    , "Copy shortcode" : "Copier le code court"
     , "Alias of the list" : "Alias de la liste"
     , "Source SourceImmo view" : "Vue SourceImmo d'origine"
     , "List of" : "Liste de"
@@ -139,7 +144,11 @@ $locales.fr = {};$locales.fr.global =
     , "Limit the number of displayed elements" : "Limiter le nombre d'élément affiché"
     , "Filters" : "Filtres"
     , "To filter the list, you must use the server side rendering method" : "Pour filtrer la liste, vous devez utiliser la méthode de génération côté serveur"
+    , "Long path" : "Chemin long"
+    , "Limit" : "Limite"
+    , "Sort" : "Ordonnement"
     , "Layout" : "Disposition"
+    , "Shortcode" : "Code court"
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Attribute" : "Attribut"
     , "Operator" : "Opérateur"
@@ -184,7 +193,12 @@ $locales.fr = {};$locales.fr.global =
     , "ID" : "Identifiant"
     , "First name" : "Prénom"
     , "Last name" : "Nom de famille"
-    , "License type" : "Type de license"
+    , "License type" : "Type de licence"
+    , "cities" : "villes"
+    , "listings" : "propriétés"
+    , "brokers" : "courtiers"
+    , "offices" : "bureaux"
+
     // Routes
     , "Shortcut" : "Raccourci"
     , "Are you sure you want to remove this route?" : "Êtes-vous certain de vouloir supprimer ce chemin ?"
@@ -216,6 +230,12 @@ $locales.fr = {};$locales.fr.global =
     , "properties" : "propriétés"
     , "property" : "propriété"
     , "There's no real estate broker matching your search criteria" : "Il n'y a pas de courtier correspondant à vos critères de recherche"
+    , "1 broker" : "1 courtier"
+    , "{0} brokers" : "{0} courtiers"
+    , "1 property" : "1 propriété"
+    , "{0} properties" : "{0} propriétés"
+    , "1 office" : "1 bureau"
+    , "{0} offices" : "{0} bureaux"
     // Public - SEARCH
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"
@@ -299,6 +319,10 @@ $locales.fr = {};$locales.fr.global =
     , "{0}+ garages" : "{0} garages +"
     , "Toggle all" : "Basculer tous"
     , "All cities" : "Toutes les villes"
+    , "License" : "Licence"
+    , "Alphabetical" : "Alphabétique"
+    , "First letter of the last name" : "Première lettre du nom"
+    
     // Public - SINGLE LISTING
     , "Presented by" : "Présenté par"
     , "You will find more informations and tools at the following address" : "Vous trouverez plus d'information et d'outils à l'adresse suivante"
@@ -412,6 +436,10 @@ $locales.fr = {};$locales.fr.global =
     , "Read less" : "Lire moins"
     // PUBLIC - SINGLE CITY
     , "Listings in {0}" : "Propriétés de {0}"
+    // PUBLIC - SINGLE OFFICE
+    , "Our listings" : "Nos propriétés"
+    , "Our team" : "Notre équipe"
+    , "To contact this office" : "Pour joindre ce bureau"
     // LIST NAVIGATION
     , "Previous" : "Précédant"
     , "Next" : "Suivant"

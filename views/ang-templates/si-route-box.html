@@ -1,37 +1,58 @@
 <div class="si-route-box">
-    <md-input-container>
-      <md-select ng-model="route.lang"   ng-change="update()">
-        <md-option ng-repeat="(key, value) in lang_codes"
-            ng-show="!langIsUsed(key)" value="{{key}}">{{value}}</option>
-      </md-select>
-    </md-input-container>
-    <md-input-container>
+    <h4>{{lang_codes[route.lang]}}</h4>
+    
+    <md-input-container class="route-part">
       <input ng-model="route.route" ng-model-options="{updateOn: 'blur'}" ng-change="update()" />
-    </md-input-container>
-    <md-input-container>
-      <input ng-model="route.shortcut" ng-model-options="{updateOn: 'blur'}" ng-change="update()" />
+      <md-menu>
+          <md-button class="md-icon-button" 
+            ng-disabled="elementAvailable('route')==0"
+            ng-click="$mdOpenMenu()"><i class="far fa-plus"></i></md-button>
+          <md-menu-content>
+            <md-menu-item ng-repeat="(key, value) in route_elements"
+                ng-show="!elementIsUsed(key,'route')">
+              <md-button ng-click="addRouteElement(key,'route')"><md-icon class="fal fa-plus"></md-icon> {{value.translate()}}</md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
     </md-input-container>
 
-    <md-button class="md-icon-button" 
-        title="{{'Remove this route'.translate()}}"
-        ng-disabled="hasMinRouteCount()" ng-click="remove()">
-        <md-icon class="fal fa-times"></md-icon>
-    </md-button>
-    <md-button class="md-icon-button" 
-        title="{{'Reset to default'.translate()}}"
-        ng-click="reset()">
-        <md-icon class="fal fa-sync"></md-icon>
-    </md-button>
-    <md-menu>
-      <md-button class="md-icon-button" 
-        ng-disabled="elementAvailable()==0"
-        ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-h"></i></md-button>
-      <md-menu-content>
-        <md-menu-item ng-repeat="(key, value) in route_elements"
-            ng-show="!elementIsUsed(key)">
-          <md-button ng-click="addRouteElement(key)"><md-icon class="fal fa-plus"></md-icon> {{value.translate()}}</md-button>
-        </md-menu-item>
-        
-      </md-menu-content>
-    </md-menu>
+    <md-input-container class="route-part">
+      <input ng-model="route.shortcut" ng-model-options="{updateOn: 'blur'}" ng-change="update()" />
+      <md-menu>
+          <md-button class="md-icon-button" 
+            ng-disabled="elementAvailable('shortcut')==0"
+            ng-click="$mdOpenMenu()"><i class="far fa-plus"></i></md-button>
+          <md-menu-content>
+            <md-menu-item ng-repeat="(key, value) in route_elements"
+                ng-show="!elementIsUsed(key,'shortcut')">
+              <md-button ng-click="addRouteElement(key,'shortcut')"><md-icon class="fal fa-plus"></md-icon> {{value.translate()}}</md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+    </md-input-container>
+
+    <div class="route-actions">
+        <md-menu>
+          <md-button class="md-icon-button" 
+            ng-disabled="elementAvailable()==0"
+            ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-v"></i></md-button>
+          <md-menu-content>
+          <md-menu-item>
+              <md-button
+                ng-disabled="hasMinRouteCount()" ng-click="remove()">
+                <md-icon class="fal fa-times"></md-icon>
+                <lstr>Remove this route</lstr>
+            </md-button>
+          </md-menu-item>
+          <md-menu-item>
+              <md-button
+                ng-click="reset()">
+                <md-icon class="fal fa-sync"></md-icon>
+                <lstr>Reset to default</lstr>
+            </md-button>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </div>
+
   </div>

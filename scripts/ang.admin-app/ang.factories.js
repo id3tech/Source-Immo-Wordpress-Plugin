@@ -203,6 +203,19 @@ siApp
       return $scope.toArray($scope.dictionary.broker_license_type);
     }
 
+    $scope.getOfficeList = async function(){
+      if($scope.offices == null) return [];
+      if($scope.offices != undefined) return $scope.offices;
+      const lResponse = await $siApi.call('office/view/' + $configs.source.id + '/fr/items');
+      console.log('getOffice await response', lResponse);
+
+    //   $siApi.call('office/view/' + $configs.source.id + '/fr/items').then(function($response){
+    //     $scope.officeList = $response.items;
+    //     $scope.is_ready = true;
+    //     $resolve();
+    // })
+    }
+
     $scope.toArray = function($source){
       let lResult = [];
       for($key in $source){

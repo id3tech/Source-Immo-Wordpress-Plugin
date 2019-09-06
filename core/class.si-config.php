@@ -108,13 +108,18 @@ class SourceImmoConfig {
   */
   public $city_routes = array();
 
+  /**
+  * Office details route path configuration
+  * @var ArraySourceImmoRoute
+  */
+  public $office_routes = array();
+
   public $default_view = null;
-  public $listing_layouts = array();
-  //public $listing_layout = 'standard';
-  //public $listing_layout_page = null;
-  public $broker_layouts = array();
-  //public $broker_layout = 'standard';
-  //public $broker_layout_page = null;
+
+  public $listing_layouts   = array();
+  public $city_layouts      = array();
+  public $office_layouts    = array();
+  public $broker_layouts    = array();
 
   public $enable_custom_page = false;
 
@@ -153,6 +158,10 @@ class SourceImmoConfig {
       new SourceImmoRoute('fr', 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
       new SourceImmoRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
     );
+    $this->office_routes  = array(
+      new SourceImmoRoute('fr', 'bureaux/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'office/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
+    );
 
     // init layouts
     $this->listing_layouts = array(
@@ -163,16 +172,26 @@ class SourceImmoConfig {
       new SourceImmoLayout('fr','standard'),
       new SourceImmoLayout('en','standard')
     );
+    $this->city_layouts   = array(
+      new SourceImmoLayout('fr','standard'),
+      new SourceImmoLayout('en','standard')
+    );
+    $this->office_layouts = array(
+      new SourceImmoLayout('fr','standard'),
+      new SourceImmoLayout('en','standard')
+    );
 
     $listingList = new SourceImmoList();
     $listingList->sort = 'contract.start_date';
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
-    $brokerList = new SourceImmoList('','brokers','brokers','last_name');
+    $brokerList   = new SourceImmoList('','brokers','brokers','last_name');
+    $cityList     = new SourceImmoList('','cities','cities','name');
+    $officeList   = new SourceImmoList('','offices','offices','name');
     
     $this->lists = array(
-      $listingList,$brokerList
+      $listingList,$brokerList,$cityList,$officeList
     );
   }
 
@@ -352,6 +371,7 @@ class SourceImmoList {
       'listings' => 'listing',
       'cities' => 'location/city',
       'brokers' => 'broker',
+      'offices' => 'office'
     );
     return "{$lTypedPaths[$this->type]}/view";
   }

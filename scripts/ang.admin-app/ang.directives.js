@@ -1,6 +1,36 @@
 /* DIRECTIVES */
 // siApp
 // .directive('siAutocomplete')
+/**
+ * lstr
+ * 
+ */
+siApp
+.directive('lstr', ['$parse', function lstr($parse){
+    return {
+        restrict: 'E,A',
+        compile: function compile(tElement, tAttrs, transclude) {
+            return {
+               pre: function preLink(scope, iElement, iAttrs, controller) {
+                    let lTranslatedContent = iElement.html().translate();
+                    let lFormatParams = iAttrs.params;
+                    if(lFormatParams == null && iAttrs.lstr != '') lFormatParams = iAttrs.lstr;
+                    
+                    if(lFormatParams != null){
+                        lFnFormatParams = $parse(lFormatParams);
+                        lFormatParams = lFnFormatParams(scope);
+                        if(!Array.isArray(lFormatParams)) lFormatParams = [lFormatParams];
+                        
+                        lTranslatedContent = lTranslatedContent.format.apply(lTranslatedContent, lFormatParams);
+                    }
+                    iElement.html('<span>' + lTranslatedContent + '</span>');
+               }
+            }
+        }
+    }
+}]);
+
+
 siApp
 .directive('siRouteBox', function siRouteBox($siUtils, $siList,$siUI){
   return {
@@ -18,6 +48,14 @@ siApp
       $scope.init();
     },
     controller: function($scope){
+      const lAssoc = {
+        'listings' : 'listing',
+        'cities' : 'city',
+        'brokers' : 'broker',
+        'offices' : 'office'
+      }
+      
+
       $scope.lang_codes = {
         fr: 'Français',
         en: 'English',
@@ -45,6 +83,14 @@ siApp
         '{{item.name}}' : 'Name'
       }
 
+      
+      $scope.route_office_elements = {
+        '{{item.ref_number}}' : 'ID',
+        '{{item.location.region}}' : 'Region',
+        '{{item.location.city}}' : 'City',
+        '{{item.name}}' : 'Name'
+      }
+
       $scope.route_default = {
         listing : {
           fr : 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
@@ -60,14 +106,20 @@ siApp
           fr : 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
           en : 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
           es : 'ciudades/{{item.location.region}}/{{item.name}}/{{item.ref_number}}'
+        },
+        office : {
+          fr : 'bureaux/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
+          en : 'offices/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
+          es : 'oficinas/{{item.location.city}}/{{item.name}}/{{item.ref_number}}'
         }
       }
 
       $scope.route_elements = {};
       
       $scope.init = function(){
-        $scope.route_elements = $scope['route_' + $scope.type + '_elements'];
+        console.log('Init routeBox with type', $scope.type);
         
+        $scope.route_elements = $scope['route_' + lAssoc[$scope.type] + '_elements'];
       }
 
       $scope.hasMinRouteCount = function(){
@@ -82,18 +134,20 @@ siApp
         return $scope.list.some($e => $e.lang == $lang);
       }
 
-      $scope.elementIsUsed = function($elm){
-        if($scope.route.route == '') return false;
+      $scope.elementIsUsed = function($elm, $partKey){
+        if($scope.route[$partKey] == '') return false;
         
-        return $scope.route.route.indexOf($elm)>=0;
+        return $scope.route[$partKey].indexOf($elm)>=0;
       }
 
-      $scope.elementUseCount = function(){
+      $scope.elementUseCount = function($partKey){
         let lResult = 0;
         if($scope.route_elements == null || $scope.route_elements==undefined) return 0;
+        if($scope.route[$partKey]==undefined) return 0;
         let lRouteElms = $siUtils.toKeyArray($scope.route_elements);
+
         lRouteElms.forEach(function($e){
-          if($scope.route.route.indexOf($e) >= 0){
+          if($scope.route[$partKey].indexOf($e) >= 0){
             lResult++;
           }
         });
@@ -105,10 +159,10 @@ siApp
         $scope.route.route = $scope.route_default[$scope.type][$scope.route.lang];
       }
 
-      $scope.elementAvailable = function(){
+      $scope.elementAvailable = function($partKey){
         if ($scope.route_elements == null || $scope.route_elements==undefined) return 0;
         let lRouteElms = $siUtils.toKeyArray($scope.route_elements);
-        let lResult = lRouteElms.length - $scope.elementUseCount();
+        let lResult = lRouteElms.length - $scope.elementUseCount($partKey);
         return lResult;
       }
 
@@ -138,8 +192,9 @@ siApp
       }
 
 
-      $scope.addRouteElement = function($key){
-        $scope.route.route += $key;
+      $scope.addRouteElement = function($key, $partKey){
+        $scope.route[$partKey] += $key;
+        $scope.update();
       }
     },
   }
@@ -355,6 +410,39 @@ siApp
   }
   
 });
+
+siApp
+.directive('siDataGroupEditor', ['$siUtils', '$siApi', '$q', '$timeout' , function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: true,
+    templateUrl: wpSiApiSettings.base_path + '/views/ang-templates/si-data-group-editor.html',
+    link: function($scope, $element, $attrs){
+      const lAssoc = {
+        'listings' : 'listing',
+        'cities' : 'city',
+        'brokers' : 'broker',
+        'offices' : 'office'
+      }
+
+      $scope.groupType = $attrs.siType;
+      $scope.routes = lAssoc[$scope.groupType] + '_routes';
+      $scope.layout = lAssoc[$scope.groupType] + '_layouts';
+
+      $scope.lang_codes = {
+        fr: 'Français',
+        en: 'English',
+        es: 'Español'
+      }
+    },
+    controller: function($scope){
+      
+      
+
+    }
+  }
+}])
 
 siApp
 .directive('siSvg', ['$parse','$compile', function siSvg($parse,$compile){

@@ -4,13 +4,13 @@
 -------------------------------- */
 
 /**
- * DIRECTIVE: SEARCH
+ * DIRECTIVE: LIST
  * usage: <si-list si-alias="default"></si-list>
  * @param {string} siAlias List alias name. Required
  * @param {string} class CSS class to add to template
  */
 siApp
-.directive('siList', ['$siFavorites', '$siConfig',
+.directive('siList', ['$siFavorites', '$siConfig', '$siList',
 function siList(){
     return {
         restrict: 'E',
@@ -23,7 +23,7 @@ function siList(){
         link : function($scope){
             $scope.init();
         },
-        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $siUtils,$siFavorites,$siConfig) {
+        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $siUtils,$siFavorites,$siConfig,$siList) {
             $scope.configs = null;
             $scope.list = null;
             $scope.page = 1;
@@ -101,30 +101,55 @@ function siList(){
                 //return;
                 $siConfig.get().then(function($global_configs){
                     // Prepare Api
-                    $siApi.getViewMeta($scope.configs.type,$scope.configs.source.id).then(function($response){
+                    const lPrerequisites = {};
+                    lPrerequisites.meta = function(){return $siApi.getViewMeta($scope.configs.type,$scope.configs.source.id)};
+                    lPrerequisites.pages = function() {
+                        if(!$global_configs.enable_custom_page) return null;
+                        return $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'})
+                    };
+                    lPrerequisites.offices = function(){
+                        if($scope.configs.type!='brokers') return null;
+                        return $siApi.call('office/view/' + $global_configs.default_view + '/fr/items');
+                    }
+
+                    $siUtils.all(lPrerequisites)
+                    .then(function($responses){
+                        //console.log('list Start', $responses);
                         // init dictionary
-                        $siDictionary.init($response.dictionary);
-                        if($global_configs.enable_custom_page){
-                            $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
-                                $siUtils.page_list = $site_page_list;
-                                $scope.dictionary = $response.dictionary;
-                                $scope.is_ready = true;
-                                // load data
-                                $scope.getList();
-                            });
-                        }
-                        else{
-                            $siUtils.page_list = [];
-                            $scope.dictionary = $response.dictionary;
-                            $scope.is_ready = true;
-                            // load data
-                            $scope.getList();
-                        }
-                    });
+                        $siDictionary.init($responses.meta.dictionary);
+                        $scope.dictionary = $responses.meta.dictionary;
+                        $siUtils.page_list = $responses.pages || null;
+                        $siList.offices = $responses.offices ? $responses.offices.items : [];
+
+                        $scope.is_ready = true;
+                        // load data
+                        $scope.getList();
+                    })
+
+
+                    // .then(function($response){
+                        
+                    //     if($global_configs.enable_custom_page){
+                    //         $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
+                    //             $siUtils.page_list = $site_page_list;
+                    //             $scope.dictionary = $response.dictionary;
+                    //             $scope.is_ready = true;
+                    //             // load data
+                    //             $scope.getList();
+                    //         });
+                    //     }
+                    //     else{
+                    //         $siUtils.page_list = [];
+                    //         $scope.dictionary = $response.dictionary;
+                    //         $scope.is_ready = true;
+                    //         // load data
+                    //         $scope.getList();
+                    //     }
+                    // });
                 });
             }
             /**
-             * Load listings
+             * Load list
              */
             $scope.getList = function(){
                 let lVer = 1;
@@ -134,22 +159,22 @@ function siList(){
                 if(lSearchToken == $scope.configs.search_token 
                     && typeof $preloadDatas != 'undefined'
                     && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
-                    console.log('loading from preloaded data');
+                    //console.log('loading from preloaded data');
                     const lItems = $preloadDatas[$scope.configs.alias].items;
 
                     if(typeof $scope._preloadedList == 'undefined'){
-                        console.log('compile list');
+                        //console.log('compile list');
                         if($scope.configs.type=='listings'){
                             $scope._preloadedList = $siUtils.compileListingList(lItems);
                         }
                         else{
                             $scope._preloadedList = $siUtils.compileBrokerList(lItems);
                         }
-                        console.log('compile done');
+                        //console.log('compile done');
                     }
                     
                     $scope.list = $scope._preloadedList;
-                    console.log('preloaded data applied',$scope.list.length);
+                    //console.log('preloaded data applied',$scope.list.length);
                     
                     $scope.ghost_list = [];
 
@@ -255,12 +280,14 @@ function siList(){
                         
                         $siApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                             // set list/meta
-                            if($scope.configs.type=='listings'){
-                                $scope.list = $siUtils.compileListingList($response.items);
+                            const lSingularType = $siUtils.getSingularType($scope.configs.type,false);
+                            if(lSingularType != null){
+                                const lCompileMethod = 'compile{0}List'.format(lSingularType);
+                                if(typeof $siUtils[lCompileMethod] == 'function'){
+                                    $siUtils[lCompileMethod]($response.items);
+                                }
                             }
-                            else{
-                                $scope.list = $siUtils.compileBrokerList($response.items);
-                            }
+                            $scope.list = $response.items;
                             $scope.ghost_list = [];
                             
                             $scope.listMeta = $response.metadata;
@@ -390,7 +417,9 @@ function siList(){
             $scope.saveLatestSearchToken = function($token){
                 sessionStorage.setItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias,siCtx.locale), $token);
             }
-    
+
+
+
             /**
              * Get the api endpoint matching the config type
              */
@@ -532,6 +561,154 @@ function siList(){
     }
 }]);
 
+siApp.directive('includeReplace', function () {
+    return {
+        require: 'ngInclude',
+        restrict: 'A', /* optional */
+        link: function (scope, el, attrs) {
+            el.replaceWith(el.children());
+        }
+    };
+});
+
+siApp
+.directive('siSmallList', ['$sce','$compile','$siFavorites', '$siConfig', '$siUtils','$siApi',
+                            '$siFilters','$siDictionary','$q','$siList',
+function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList){
+    return {
+        restrict: 'E',
+        scope: {
+            type: '@siType',
+            filters: '=siFilters',
+            options: '=?siOptions'
+        },
+        template: '<div class="list-header" ng-show="options.show_header">' + 
+                        '<h3 ng-cloak>{{getListTitle()}}</h3>' +
+                        '<div class="search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
+                    '</div>' +
+                    '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
+                    '<div class="list-container"><div ng-include="\'si-template-for-\' + type" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+        link: function($scope, $element, $attrs){
+            $scope.init($element);
+        },
+        controller:function($scope){
+            $scope.view_id = null;
+            $scope.list = [];
+            $scope._element = null;
+
+            $scope.typesHash = {
+                'listings' : 'Listing',
+                'brokers' : 'Broker',
+                'offices' : 'Office',
+                'cities' : 'City'
+            }
+            $scope.$watch('filters', function($new, $old){
+                if($new == null) return;
+                if($old == null){
+                    $scope.fetchList();
+                    return;
+                }
+
+                if($new.value == $old.value) return;
+                $scope.fetchList();
+            });
+
+            $scope.init = function($element){
+                $scope._element = $element;
+                $siApi.getDefaultDataView().then(function($view_id){
+                    $scope.view_id = $view_id;
+                        
+                    $scope.fetchList();
+                    
+                });
+            }
+
+            $scope.fetchList = function(){
+                if($scope.filters == null) return;
+                const lBaseFilter = $scope.getBaseFilter();
+                const lFilters = angular.merge(lBaseFilter, {
+                    filter_group:{
+                        filters: Array.isArray($scope.filters) ? $scope.filters : [$scope.filters]
+                    }
+                });
+
+                const lSingularType = $scope.typesHash[$scope.type];
+                
+                $siFilters.with().getSearchToken(lFilters).then(function($token){
+
+                    $siUtils.all({
+                        lexicon: function() { return $siApi.getViewDictionary($scope.view_id, $locales._current_lang_) },
+                        offices: function() {
+                            if($scope.type != 'brokers') return null;
+                            return $siApi.call('office/view/' + $scope.view_id + '/fr/items');
+                        },
+                        list : function() { return $siApi.call($scope.getApiEndpoint($scope.type,$scope.view_id,$locales._current_lang_), {st: $token}, {method: 'GET'}) },
+                    })
+                    .then(function($results){
+                        $siDictionary.init($results.lexicon);
+                        $scope.meta = $results.list.metadata;
+                        $siList.offices = $results.offices ? $results.offices.items : [];
+                        $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
+
+                        $scope._element.addClass("loaded");
+                    })
+
+
+                    // .then(function($response){
+                    //     .then(function($dictionaryData){
+                    //         $siDictionary.init($dictionaryData);
+                    //         $scope.meta = $response.metadata;
+                    //         $scope.list = $siUtils['compile' + lSingularType + 'List']($response.items);
+
+                    //         $scope._element.addClass("loaded");
+                    //     });
+                    // })
+                })
+            }
+
+            $scope.getBaseFilter = function(){
+                if(!$scope.options || !$scope.options.filter) return {};
+                const lResult = {};
+                
+                if($scope.options.filter.max_item_count > 0){
+                    lResult.max_item_count = $scope.options.filter.max_item_count;
+                }
+                
+                if($scope.options.filter.sort_fields.length > 0){
+                    lResult.sort_fields = $scope.options.filter.sort_fields
+                }
+
+                return lResult;
+            }
+
+            $scope.formatPrice = function($item){
+                return $siUtils.formatPrice($item);
+            }
+            
+
+            $scope.getListTitle = function(){
+                const lTypeCaptions = {
+                    listings : {single: '1 property', plural: '{0} properties'},
+                    brokers : {single: '1 broker', plural: '{0} brokers'},
+                    offices : {single: '1 office', plural: '{0} offices'},
+                    cities : {single: '1 city', plural: '{0} cities'},
+                }
+                if($scope.meta == undefined) return '';
+                if($scope.meta.item_count == 0) return '';
+                if($scope.meta.item_count == 1) return lTypeCaptions[$scope.type].single.translate();
+                if($scope.meta.item_count > 1) return lTypeCaptions[$scope.type].plural.translate().format($scope.meta.item_count);
+
+            }
+
+            $scope.getApiEndpoint = function($type, $view, $lang){
+                const lSingularType = $scope.typesHash[$scope.type].toLowerCase();
+                return '{0}/view/{1}/{2}/items'.format(lSingularType, $view, $lang );
+            }
+        }
+    }
+}])
+
+
 /**
  * DIRECTIVE: SEARCH
  * usage: <si-search></si-search>
@@ -542,7 +719,7 @@ function siList(){
  * @param {string} siResultUrl Url to display the search result. When configured, will display a button to trigger to search
  */
 siApp
-.directive('siSearch', function siSearch(){
+.directive('siSearch', ['$siList', function siSearch($siList){
     return {
         restrict: 'E',
         replace: true,
@@ -567,6 +744,8 @@ siApp
             let lToday = new Date().round();    // save today
             let lNow = new Date();
 
+            $scope.siDictionary = $siDictionary;
+            
             // init default values        
             $scope.is_ready = false;    
             $scope.tab_category = 'RESIDENTIAL';
@@ -585,6 +764,8 @@ siApp
             $scope.suggestions = [];
             $scope.query_text = null;
             $scope.alphaList = 'abcdefghijklmnopqrstuvwxyz'.split('');
+            $scope.officeList = [];
+
             $scope.filter = null;
 
             // search form data
@@ -712,7 +893,6 @@ siApp
                 // Wait for late initialization
                 // ie: Dictionnay, configs, etc are all loaded
                 $scope.isReady().then(function(){
-                    
                     let lfSyncFilter = function($filter){
                         //console.log('Filter to UI sync');
                         // Sync UI with filters
@@ -733,6 +913,7 @@ siApp
 
                         $filter.loadState();
                         lfSyncFilter($filter);
+                        
 
                         $filter.on('update').then(function(){
                             //console.log('filter', $scope.alias, 'update trigger');
@@ -775,17 +956,23 @@ siApp
                     if($scope.is_ready == false){
                         // load configs
                         $scope.getConfigs().then(function($configs){
-                            // load view meta
                             $scope.configs = $configs;
                             $siFilters.with($scope.alias).configs = $configs;
 
-                            $siApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
-                                //$siDictionary.init($response.dictionary);
-                                $scope.dictionary = $response.dictionary; // save dictionary
-                                // directive is ready
+                            // load view meta
+                            $siUtils.all({
+                                meta : function(){return $siApi.getViewMeta($configs.type,$configs.source.id)},
+                                offices: function(){
+                                    if($configs.type != 'brokers') return null;
+                                    return $siApi.call('office/view/' + $configs.source.id + '/fr/items')
+                                }
+                            })
+                            .then(function($results){
+                                $scope.dictionary = $results.meta.dictionary;
+                                $scope.officeList = $results.offices ? $results.offices.items : [];
                                 $scope.is_ready = true;
                                 $resolve();
-                            });
+                            })                            
                         });
                     }
                     else{
@@ -1367,18 +1554,34 @@ siApp
                         "main_unit.bedroom_count" : $scope.bedroomSuggestions,
                         "main_unit.bathroom_count" : $scope.bathroomSuggestions,
                         "attributes.PARKING" : $scope.parkingSuggestions,
-                        "attributes.PARKING_GARAGE" : $scope.garageSuggestions
+                        "attributes.PARKING_GARAGE" : $scope.garageSuggestions,
+                        "office_id" : $scope.officeList
                     }
+                    
                     for (let key in lListSync) {
                         let lValue = $filter.getFilterValue(key);
+                        
                         lListSync[key].some(function($e){
-                            if($e.value==lValue){
-                                $e.selected = true;
-                                return true;
+                            
+                            if(Array.isArray(lValue)){
+                                const lItemKey = 'id';
+                                if(
+                                    lValue.includes($e[lItemKey])
+                                ){
+                                    $e.selected = true;
+                                    return true;
+                                }
+                            }
+                            else if($e.value != undefined){
+                                if($e.value==lValue){
+                                    
+                                    $e.selected = true;
+                                    return true;
+                                }
                             }
                         });
                     }
-
+                    
                     //console.log('filter data',$filter.data);
                     const lPriceStep = $siHooks.filter('search-price-step', 10000);
                     const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
@@ -1511,7 +1714,7 @@ siApp
                     }
                     
                     if($filter.query_text!=null){
-                        console.log('query_text has something to say');
+                        //console.log('query_text has something to say');
                         lResult.push({
                             item: "QUERY_TEXT", 
                             label: 'Contains "{0}"'.translate().format($filter.query_text),
@@ -1559,13 +1762,18 @@ siApp
                     "subcategory_code" : "listing_subcategory",
                     "location.city_code" : "city",
                     "location.region_code" : "region",
-                    "building.category_code" : "building_category"
+                    "building.category_code" : "building_category",
+                    "office_id" : $scope.officeList
                 }
                 // filters that as a label
                 if($group.filters != null){
                     $group.filters.forEach(function($e,$i){
                         let lList = null;
     
+                        if(Array.isArray(lListSync[$e.field])){
+                            lList = lListSync[$e.field];
+                            lResult = lResult.concat($scope.buildFilterHintForList($e, lList))
+                        }
                         if(lListSync[$e.field] != undefined){
                             let lDictionaryKey = lListSync[$e.field];
                             if($scope.dictionary[lDictionaryKey]){
@@ -1608,6 +1816,21 @@ siApp
              */
             $scope.buildFilterHintForList = function($filter, $list){
                 let lResult = [];
+                if(Array.isArray($list)){
+                    $list.forEach(function($e,$i) {
+                        const lKey = Object.keys($e).find(function($k){return $k=='id'}) || Object.keys($e)[0];
+                        if($e.selected) lResult.push({
+                            item: lKey,
+                            label: $e.name || $e.caption || $e.label,
+                            reverse: function(){
+                                delete $e.selected;
+                                $scope.filter.addFilter($filter.field, 'in', $scope.getSelection($list))
+                            }
+                        });
+                    });
+                    return lResult;
+                }
+                
                 for(let $key in $list){
                     if($filter.operator=='in' && $filter.value.indexOf($key)>=0){
                         lResult.push({
@@ -1645,13 +1868,18 @@ siApp
                     delete $scope.listing_states[$key].selected;
                 }
                 $scope.filterHints = [];
+               
                 $scope.filter.resetListSelections($scope.listing_attributes);
                 $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
                 $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
+                $scope.officeList.forEach(function($e){delete $e.selected;});
+
                 $scope.priceRange = [0,1,0];
                 
+                //console.log('reset office filter', $scope.officeList);
+
                 $siHooks.do('filter-reset');
 
                 $scope.filter.resetFilters();
@@ -1714,13 +1942,21 @@ siApp
              * Loop through object attributes and return a list of key that are marked as "selected"
              * @param {object} $list 
              */
-            $scope.getSelection = function($list){
+            $scope.getSelection = function($list, $key_prop){
                 let lResult = [];
                 //console.log($list);
-                for (let lKey in $list) {
-                    if($list[lKey].selected==true){
-                        lResult.push(lKey);
-                    }
+                if(Array.isArray($list)){
+                    $list.forEach(function($e){
+                        const lKey = $key_prop || Object.keys($e).find(function($k){return $k=='id'}) || Object.keys($e)[0];
+                        if($e.selected) lResult.push($e[lKey]);
+                    });
+                }
+                else{
+                    for (let lKey in $list) {
+                        if($list[lKey].selected==true){
+                            lResult.push(lKey);
+                        }
+                    }    
                 }
                 
                 return lResult;
@@ -1827,7 +2063,7 @@ siApp
             }
         }
     };
-});
+}]);
 
 siApp
 .directive('siSearchBox', ['$sce','$compile','$siUtils','$siFilters','$siConfig',
@@ -1877,7 +2113,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                             $filter.data.keyword = $filter.query_text;
                         }
                         else{
-                            console.log('keywords are not persistant');
+                            //console.log('keywords are not persistant');
                             $filter.data.keyword = '';
                         }
                     });
@@ -2019,7 +2255,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     }
                     else{
                         $scope.suggestions = $scope.stored_suggestions.filter(function($e) {return $scope.elementMatchKeyword($e,false)});
-                        console.log('stored_suggestions filtered to', $scope.suggestions);
+                        //console.log('stored_suggestions filtered to', $scope.suggestions);
 
                         if($scope.suggestions.length > 0) $scope.suggestions[0].selected =true;
                     }
@@ -2320,7 +2556,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                 $siConfig.get().then(function($global_configs){
                     let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
                     let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
-                    console.log('Open item @', lPath);
+                    //console.log('Open item @', lPath);
                     window.location = '/' + lPath;
                 });
             }
@@ -2414,7 +2650,7 @@ siApp
         $scope.setView = function($position){
             if($scope.positioned == true) return;
 
-            console.log('engaging streetview');
+            //console.log('engaging streetview');
             let lPosition = new google.maps.LatLng($position.lat,$position.lng);
             
             $scope.panorama = new google.maps.StreetViewPanorama($scope.viewport_element, 
@@ -2500,7 +2736,6 @@ siApp
         $scope.permalink = '';
 
         $scope.$onInit = function(){
-            console.log('init map listeners',$scope.latlng);
             if($scope.latlng!=null){
                 $scope.$on('si-display-map', $scope.display);
                 //$scope.mapInit();
@@ -2514,7 +2749,6 @@ siApp
         }
 
         $scope.display = function(){
-            console.log('map is starting');
             $scope.mapInit();
         }
 
@@ -2542,7 +2776,7 @@ siApp
                             
                         }
                         
-                        console.log('map options', options);
+                        //console.log('map options', options);
 
                         $scope.map = new google.maps.Map(
                             $scope.viewport_element, options
@@ -2720,8 +2954,6 @@ siApp
                         lYAvg = lYAvg + ((lSmartFocusTolerance / lLngDegKm) / Math.cos(deg2rad(lYAvg)));
                     }
                     
-                    console.log('medians',lXMed, lYMed);
-                    console.log('averages',lXAvg, lYAvg);
                     const lMedianRect = {
                         x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
                         y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
@@ -2731,10 +2963,9 @@ siApp
                                     ($y > this.y && $y < this.y_prime)
                         }
                     }
-                // lMedianRect.contains.bind(lMedianRect);
+                
 
-                    console.log('Media rect', lMedianRect);
-
+                    
                     lPoints
                         .filter(function($p) {return lMedianRect.contains($p.x,$p.y)} )
                         .forEach(function($p) {$scope.bounds.extend($p.lngLat)})
@@ -2779,7 +3010,6 @@ siApp
                             $scope.map.fitBounds($scope.bounds);
 
                             if(lDefaultZoom != 'auto'){
-                                console.log('zoom to', lDefaultZoom);
                                 $scope.map.setZoom(Number(lDefaultZoom));
                             }
                         },250);
@@ -2790,7 +3020,6 @@ siApp
                     $scope.map.setCenter($scope.list[0].marker.getPosition());
                     
                     if(lDefaultZoom != 'auto'){
-                        console.log('zoom to', lDefaultZoom);
                         $scope.map.setZoom(Number(lDefaultZoom));
                     }
                     else{
@@ -2815,7 +3044,6 @@ siApp
 
         $scope.extendBounds = function($bounds, $lngLat){
 
-            console.log('bounds',$bounds, $lngLat);
             $bounds.extend($lngLat);
         }
 
@@ -3022,10 +3250,10 @@ siApp
             $document.bind('scroll', function () {
                 let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
                 let lBottomLimit = raw.offsetHeight + raw.offsetTop - (window.innerHeight/3*2);
-                // console.log('in scroll', lTop);
-                // console.log(lBottomLimit);
+                //console.log('in scroll', lTop);
+                //console.log(lBottomLimit);
                 if (lTop  >= lBottomLimit) {
-                    // console.log("I am at the bottom");
+                    //console.log("I am at the bottom");
                     scope.$apply(attrs.onBottomReached);
                 }
             });
@@ -3066,7 +3294,7 @@ siApp
             }
 
             document.addEventListener('fullscreenchange', function(){
-                console.log('fullscreen change', document.fullscreenElement)
+                //console.log('fullscreen change', document.fullscreenElement)
                 if(document.fullscreenElement == null){
                     $timeout(_ => {
                         $scope.expand_mode = false;
@@ -3108,7 +3336,6 @@ siApp
             }catch($e){}
 
         }
-
 
 
         $scope.toggleExpand = function(){
@@ -3228,7 +3455,7 @@ siApp
             scope.$element = element[0];
             var mc = new Hammer(element[0]);
             let lPanHndl = null;
-            console.log('image-slider showGrid', scope.showGrid);
+            //console.log('image-slider showGrid', scope.showGrid);
             // let the pan gesture support all directions.
             // this will block the vertical scrolling on a touch-device while on the element
             mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
@@ -3260,11 +3487,11 @@ siApp
         link: function($scope, $element, $attrs){
             const lOriginalPicture = $attrs.siSrcset;
             if($element[0].tagName != 'IMG') return;
-            if(lOriginalPicture.indexOf('sm') < 0) return;
+            if(lOriginalPicture.indexOf('-sm.') < 0) return;
             
             const lPictureSets = [lOriginalPicture + ' 1x'];
             ['md'].forEach(function($size,$index){
-                lPictureSets.push(lOriginalPicture.replace('sm',$size) + ' ' + ($index + 2) + 'x');
+                lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
             });
 
             $element.attr('srcset', lPictureSets.join(', '));
@@ -3654,7 +3881,7 @@ siApp
                 jQuery(element[0]).appendTo(document.body);
                 scope.modal_element_moved = true;
                 
-                console.log('modal content moved to body',element[0],jQuery(element[0]).find('input[type=submit]'));
+                //console.log('modal content moved to body',element[0],jQuery(element[0]).find('input[type=submit]'));
                 
                 scope.init();
                 
@@ -3985,7 +4212,7 @@ siApp
 
                 return $elm.on(lEvents[$type].down, function(event) {
                         var lPointerMoveHndl, lPointerUpHndl;
-                        console.log($type,'down triggered');
+                        //console.log($type,'down triggered');
                         
                         lPositionRef = event;
                         jQuery('.slider-handle').css('z-index',1);
@@ -4207,7 +4434,7 @@ function siMediabox(){
                 $scope.selected_media = $media;
                 
                 const lTrigger = 'si-display-' + $media;
-                console.log('triggering', lTrigger);
+                //console.log('triggering', lTrigger);
 
                 if($scope._initialized){
                     $scope.$broadcast(lTrigger);
@@ -4349,7 +4576,7 @@ siApp
                         const controlWidth = lCompsWidth.controlWidth;
                         const pictureWidth = lCompsWidth.pictureWidth;
 
-                    console.log('click next');
+                    //console.log('click next');
 
                     if(! $scope.hasViewablePicture(lOffsetValue, $scope.list.length, controlWidth, pictureWidth)){
                         lOffsetValue = $scope.trolleyOffset;
@@ -4363,7 +4590,7 @@ siApp
                     let lOffsetValue = $scope.trolleyOffset > 0 ? $scope.trolleyOffset-1 : 0;
                     $scope.trolleyOffset = lOffsetValue;
 
-                    console.log('click previous');
+                    //console.log('click previous');
                 }
 
                 $scope.hasViewablePicture = function($trolleyOffset, $pictureCount, $controlWidth, $pictureWidth){
@@ -4419,7 +4646,7 @@ siApp
                     $triggerEvents = typeof  $triggerEvents == 'undefined' ? true : $triggerEvents;
 
                     $scope.selectedIndex = $scope.list.findIndex(function($e) {return $e.url == $picture.url});
-                    console.log('click on picture')
+                    //console.log('click on picture')
                     if($triggerEvents){
                         $rootScope.$broadcast('thumbnails-slider-select', $scope.list[$scope.selectedIndex]);
                     }
@@ -4427,7 +4654,7 @@ siApp
 
                 $scope.getImageAlt = function($img){
                     const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
-                    console.log('Image alt', lCaption);
+                    //console.log('Image alt', lCaption);
                     
                     const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
         
@@ -4436,7 +4663,7 @@ siApp
         
                 $scope.getImageCaption = function($img){
                     const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
-                    console.log('Image caption', lCaption);
+                    //console.log('Image caption', lCaption);
 
                     const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
         
@@ -4446,3 +4673,155 @@ siApp
         }
     }
 ]);
+
+
+siApp
+.directive('siTabs', ['$q', function siTabs($q){
+    return {
+        restrict: 'E',
+        replace:true,
+        transclude: true,
+        template: '<div class="si-tabs" style="--selected-tab:{{selected_tab_index}};--tab-count:{{button_elms.length}}">' + 
+                        '<div class="si-tab-button-container"></div>' +  
+                        '<div class="si-tab-content-container">' +
+                            '<div class="si-tab-trolley" ng-transclude></div>' +
+                        '</div>' + 
+                    '</div>',
+        link: function($scope, $element, $attrs){
+            //console.log('siTabs link')
+            $scope.init($element);
+        },
+        controller: function($scope){
+            $scope._element = null;
+            $scope.button_elms = [];
+            $scope.content_elms = [];
+            $scope.selected_tab_index = 0;
+
+            $scope.init = function($element){
+                $scope._element = $element;
+                $scope._button_container = $scope._element.find('.si-tab-button-container');
+                $scope._content_container = $scope._element.find('.si-tab-content-container');
+
+                $scope.button_elms.forEach(function($e,$i){
+                    if($i == $scope.selected_tab_index) $e.addClass('active');
+                    $scope._button_container.append($e);
+                });
+
+                $scope.showTab($scope.selected_tab_index);
+            }
+
+            $scope.addTabButton = function($tabButtonElement){
+                $scope.button_elms.push($tabButtonElement);
+            }
+
+            $scope.addTabContent = function($tabContentElement){
+                const lResult = $scope.content_elms.length;
+                $scope.content_elms.push($tabContentElement);
+                return lResult;
+            }
+
+            $scope.showTab = function($tabContentElementIndex){
+                $scope.button_elms.forEach(function($e,$i){
+                    if($i == $tabContentElementIndex){
+                        $e.addClass('active');
+                    }
+                    else{
+                        $e.removeClass('active');
+                    }
+                })
+
+                $scope.selected_tab_index = $tabContentElementIndex;
+                $scope.tabContentResize();
+            }
+
+            $scope.tabContentResize = function(){
+                const lContentElm = $scope.content_elms[$scope.selected_tab_index];
+                const lContentHeight = jQuery(lContentElm[0]).height();
+                $scope._content_container.css({height : lContentHeight});
+            }
+        }
+    }
+}])
+
+siApp
+.directive('siTab', ['$q', function siTabs($q){
+    return {
+        restrict: 'E',
+        required: '^siTabs',
+        scope:true,
+        link: function($scope, $element, $attr){
+            $scope.init($element);
+        },
+        controller: function($scope){
+            $scope._element = null;
+            $scope._button_elm = null;
+            $scope._content_elm = null;
+
+            $scope.init = function($element){
+                $scope._element = $element;
+                $scope._button_elm = $element.find('.si-tab-label');
+                $scope._content_elm = $element.find('.si-tab-content');
+
+                $scope.addTabButton($scope._button_elm);
+                $scope._content_elm._si_tab_index = $scope.addTabContent($scope._content_elm);
+            }
+
+            $scope.tabClick = function(){
+                $scope.showTab($scope._content_elm._si_tab_index);
+            }
+        }
+    }
+}]);
+
+siApp
+.directive('siTabLabel', function siTabLabel(){
+    return {
+        restrict:'E',
+        required: '^siTab',
+        transclude: true,
+        scope: true,
+        replace:true,
+        template: '<div class="si-tab-label" ng-click="tabClick()"><span ng-transclude></span></div>',
+        link: function($scope, $element, $attrs){
+            $scope._element = $element;
+        },
+        controller: function($scope){
+            
+            
+        }
+    }
+})
+
+
+siApp
+.directive('siTabContent', function siTabContent(){
+    return {
+        restrict:'E',
+        required: '^siTab',
+        transclude: true,
+        scope: true,
+        replace:true,
+        template: '<div class="si-tab-content" ng-transclude></div>',
+        link: function($scope, $element, $attrs){
+            $scope.init($element, $attrs.siElement);
+        },
+        controller: function($scope){
+            $scope.init = function($element, $contentQuery){
+                $scope._element = $element;
+                $scope._element_node = $element[0];
+
+                
+                if($contentQuery != undefined){
+                    const lContent = angular.element($contentQuery);
+                
+                    $scope._element.append(lContent);
+                }
+                
+                $scope.$watch('_element_node.offsetHeight', function($a,$b){
+                    $scope.tabContentResize();
+                })
+            }
+            
+        }
+    }
+})

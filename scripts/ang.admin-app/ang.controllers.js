@@ -95,10 +95,11 @@ siApp
 
   }
 
-  $scope.add = function(){
-    $scope.show_page('listEdit', null).then(function($result){
+  $scope.add = function($type){
+    $scope.show_page('listEdit', $type).then(function($result){
       lNew = $result;
       $scope.configs.lists.push(lNew);
+      $scope.$emit('save-request');
     });
   }
 
@@ -162,12 +163,13 @@ siApp
   ];
 
   $scope.init = function($params){
-    console.log('listEdit init');
-    if($params==null){
+    console.log('listEdit init',$scope.configs);
+
+    if(typeof $params == 'string'){
       $scope.model = {
-        alias: 'New list'.translate(),
-        source :$scope.data_views[0],
-        type: 'listings'
+        alias: 'New {0} list'.translate().format($params.translate()),
+        $$source_id : $scope.configs.default_view,
+        type: $params
       }
 
       $scope.reset_default_value();
@@ -209,6 +211,11 @@ siApp
         });
         break;
       case "cities":
+        $scope.model = angular.merge($scope.model, {
+          list_layout : { preset: 'direct', scope_class : '', custom:null},
+          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
+        });
+      case "offices":
         $scope.model = angular.merge($scope.model, {
           list_layout : { preset: 'direct', scope_class : '', custom:null},
           list_item_layout : { preset: 'standard', scope_class : '', custom:null}
@@ -349,7 +356,8 @@ siApp
     list_types: [
       {key: 'listings', label: 'Listings'},
       {key: 'brokers', label: 'Brokers'},
-      {key: 'cities', label: 'Cities'}
+      {key: 'cities', label: 'Cities'},
+      {key: 'offices', label: 'Offices'}
     ],
     list_layouts:{
       listings: [
@@ -363,6 +371,9 @@ siApp
       ],
       cities: [
         {name: 'direct', label: 'Server side rendering'}
+      ],
+      offices: [
+        {name: 'direct', label: 'Server side rendering'}
       ]
     },
     list_item_layouts:{
@@ -373,10 +384,14 @@ siApp
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
+        {name: 'standard-with-office', label: 'Standard with office'},
         {name: 'reduced', label: 'Reduced'},
         {name: 'minimal', label: 'Minimal'}
       ],
       cities: [
+        {name: 'standard', label: 'Standard'}
+      ],
+      offices: [
         {name: 'standard', label: 'Standard'}
       ]
     },
@@ -394,6 +409,10 @@ siApp
         {name: 'listing_count', label: 'Number of listings'},
       ],
       cities: [
+        {name: 'name', label: 'Name'},
+        {name: 'region', label: 'Region'},
+      ],
+      offices: [
         {name: 'name', label: 'Name'},
         {name: 'region', label: 'Region'},
       ]

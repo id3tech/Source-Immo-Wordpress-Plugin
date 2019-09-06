@@ -399,6 +399,8 @@ body.wp-admin{
 
   }
 
+  lstr{display: inline-block;}
+
   /* Grid and rows basics */
   .grid-layout{
     display:grid;
@@ -414,6 +416,97 @@ body.wp-admin{
   }
   /* Directives */
   #si-app{
+    .si-data-group-editor{
+      height:100%;
+      [ng-click]{cursor:pointer;}
+      .content{
+        
+        .group-section{
+          border-left:solid 5px var(--item-color);
+          padding:20px;
+        }
+
+        .lists{
+          .list{
+            display:grid;
+            grid-template-columns: 1fr max-content max-content max-content auto auto auto;
+            place-items: center start;
+            gap:10px 20px;
+            
+            .list-item{
+              display:contents;
+
+              .title{
+                place-self:center start;
+                
+                > div{
+                  font-size: 1rem;
+                  text-transform: uppercase;
+                }
+              }
+              &.data-row{
+                .title{
+                  border-left: solid 2px #ccc;
+                  padding-left: 10px;
+                }
+              }
+            }
+          }
+        }
+
+        .route-list{
+          display:grid;
+          gap: 0 10px;
+          grid-template-columns: 200px 1fr 1fr auto;
+          place-items: center stretch;
+          .route-item{
+            display:contents;
+            .route-part{
+              md-menu{
+                position: absolute;
+                right:0px;top:50%;transform:translateY(-50%);
+              }
+            }
+          }
+        }
+
+        .layout-list{
+          display:grid;
+          gap: 0 10px;
+          grid-template-columns: 200px 1fr 1fr 1fr 1fr;
+          place-items: center stretch;
+            
+          .layout-item{
+            display:contents;
+            md-select{margin:0px;}
+          }
+        }
+
+        .list{
+          position:relative;
+          h3{margin-bottom:0px;}
+          .list-item-header{
+            > div {
+              place-self: end stretch;
+              font-size:0.6rem;
+              font-style: italic;
+              opacity:0.5;
+            }
+          }
+        }
+
+        .list-action{
+          text-align:right;
+          display:flex;
+          flex-direction: row;
+          justify-content: flex-end;
+        }
+        
+      }
+    }
+
+
+
     .si-filter-item{
       .value{
         md-input-container{width:100%;}

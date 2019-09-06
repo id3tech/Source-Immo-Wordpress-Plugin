@@ -10,6 +10,7 @@ $meta = SourceImmoApi::get_list_meta($configs);
 
 $dictionary = new SourceImmoDictionary($meta->dictionary);
 $data = SourceImmoApi::get_data($configs, $sc_atts);
+
 $resultView = new SourceImmoListingsResult($data);
 
 

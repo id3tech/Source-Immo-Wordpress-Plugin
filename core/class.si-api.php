@@ -367,7 +367,7 @@ class SourceImmoApi {
     $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)
                           ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                           ->get(null, true);
-    
+
     return $lResult;
   }
 
@@ -410,9 +410,33 @@ class SourceImmoApi {
 
         $roundTrip++;
       }
+
+      
       
       $lResult->items = $data_list;
+
     }
+    return $lResult;
+  }
+
+
+  /**
+   * Get the listing data
+   * @param id          String identifier for the listing
+   */
+  public static function get_data_of($type, $id){
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+    
+    if(!isset(SourceImmo::current()->configs->default_view)) return '';
+
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
+
+    $lResult = HttpCall::to('~', $type, 'view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
+                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
+                  ->get();
+    
     return $lResult;
   }
 
@@ -423,17 +447,7 @@ class SourceImmoApi {
    * @param id          String identifier for the listing
    */
   public static function get_listing_data($id){
-    $account_id = SourceImmo::current()->get_account_id();
-    $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
-    
-    if(!isset(SourceImmo::current()->configs->default_view)) return '';
-
-    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
-
-    $lResult = HttpCall::to('~', 'listing/view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
-                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
-                  ->get();
+    $lResult = self::get_data_of('listing',$id);
     
     return $lResult;
   }
@@ -443,14 +457,7 @@ class SourceImmoApi {
    * @param id          String identifier for the broker
    */
   public static function get_broker_data($id){
-    $account_id = SourceImmo::current()->get_account_id();
-    $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
-    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
-
-    $lResult = HttpCall::to('~', 'broker/view/',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
-                  ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
-                  ->get();
+    $lResult = self::get_data_of('broker',$id);
     
     return $lResult;
   }
@@ -478,6 +485,17 @@ class SourceImmoApi {
     
     return $lResult;
   }
+
+  /**
+   * Get the listing data
+   * @param id          String identifier for the city
+   */
+  public static function get_office_data($id){
+    $lResult = self::get_data_of('office',$id);
+    
+    return $lResult;
+  }
+
 
   /**
    * Get the listings data for a particular City
