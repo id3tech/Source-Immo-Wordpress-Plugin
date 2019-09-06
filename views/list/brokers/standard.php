@@ -4,7 +4,7 @@
     }
     ?>
 
-    <div class="si-list-container display-mode-{{display_mode}}">
+    <div class="si-list-container display-mode-{{display_mode}}" si-lazy-load>
         <?php
         SourceImmo::view("list/{$configs->type}/standard/header", array(
                             "configs" => $configs

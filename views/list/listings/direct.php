@@ -15,7 +15,7 @@ $resultView = new SourceImmoListingsResult($data);
 
 
 ?>
-<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
+<div class="<?php echo(implode(' ' , $global_container_classes)) ?>"  si-lazy-load>
     <?php
     SourceImmo::staticDataController($configs, $resultView->listings);
 

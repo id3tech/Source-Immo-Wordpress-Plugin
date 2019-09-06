@@ -13,7 +13,7 @@ if($item->status_code=='SOLD'){
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
-            <div class="image"><img src="<?php echo($item->photo_url);?>" srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
+            <div class="image si-lazy-loading"><img si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
             <div class="price"><?php echo($item->price_text);?></div>
             <div class="civic-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
             <div class="ref-number"><?php echo($item->ref_number);?></div>

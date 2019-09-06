@@ -180,7 +180,7 @@ function siList(){
 
                     $scope.listMeta = $preloadDatas[$scope.configs.alias].metadata;
                     $scope.page_index = 0;
-                    
+                    $rootScope.$broadcast('si-list-loaded');
                     $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                     $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
@@ -294,6 +294,7 @@ function siList(){
                             // unlock
                             $scope.setLoadingState(false);
                             // broadcast new list
+                            $rootScope.$broadcast('si-list-loaded');
                             $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                             $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
@@ -307,6 +308,7 @@ function siList(){
                     }
                 }
                 else{
+                    $rootScope.$broadcast('si-list-loaded');
                     $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                     $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                 }
@@ -358,6 +360,7 @@ function siList(){
                         // increment page index
                         $scope.page_index++;
                         // broadcast new list
+                        $rootScope.$broadcast('si-list-loaded');
                         $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                         // unlock
                         window.setTimeout(function(){
@@ -395,6 +398,8 @@ function siList(){
                     $scope.list = JSON.parse(lList);
                     $scope.listMeta = JSON.parse(lListMeta);
                     $scope.page_index = lPageIndex;
+                    
+                    $rootScope.$broadcast('si-list-loaded');
                     return true;
                 }
                 return false;
@@ -3242,21 +3247,46 @@ siApp
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-            var raw = element[0];
+            const lObservable = angular.element('<span></span>');
+            element.append(lObservable);
+            const raw = element[0];
             let doc = $document[0];
             //console.log('loading directive on ');
             
+            if(!!window.IntersectionObserver){
+                const lMargin = (window.innerHeight > 1080) 
+                                    ? window.innerHeight * 0.25 
+                                    : window.innerHeight;
 
-            $document.bind('scroll', function () {
-                let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-                let lBottomLimit = raw.offsetHeight + raw.offsetTop - (window.innerHeight/3*2);
-                //console.log('in scroll', lTop);
-                //console.log(lBottomLimit);
-                if (lTop  >= lBottomLimit) {
-                    //console.log("I am at the bottom");
-                    scope.$apply(attrs.onBottomReached);
+                const options = {
+                    rootMargin: lMargin + 'px',
+                    threshold: 0
                 }
-            });
+                const observer = new IntersectionObserver(function($entries, $observer){
+                    $entries.forEach(function($entry){
+                        if($entry.isIntersecting){
+                            scope.$apply(attrs.onBottomReached);
+                        }
+                    });
+                    
+                }, options);
+                observer.observe(lObservable[0]);
+
+            }
+            else{
+                $document.bind('scroll', function () {
+                    let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+                    let lBottomLimit = raw.offsetHeight + raw.offsetTop - (window.innerHeight/3*2);
+                    //console.log('in scroll', lTop);
+                    //console.log(lBottomLimit);
+                    if (lTop  >= lBottomLimit) {
+                        //console.log("I am at the bottom");
+                        scope.$apply(attrs.onBottomReached);
+                    }
+                });
+            }
+
+            
         }
     };
 });
@@ -3494,7 +3524,7 @@ siApp
                 lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
             });
 
-            $element.attr('srcset', lPictureSets.join(', '));
+            $element.attr('si-srcset', lPictureSets.join(', '));
         }
     }
 }])
@@ -3892,6 +3922,48 @@ siApp
         controller      : dir_controller,
     };
 });
+
+siApp
+.directive('siLazyLoad', ['$timeout', function siLazyLoad($timeout){
+    return {
+        restrict: 'A',
+        link: function($scope, $element, $attrs){
+            if(!!window.IntersectionObserver){
+                const lMargin = (window.innerHeight > 1080) 
+                                    ? window.innerHeight * 0.25 
+                                    : window.innerHeight;
+                const options = {
+                    rootMargin: lMargin + 'px',
+                    threshold: 0
+                }
+
+                $scope.observer = new IntersectionObserver(function($entries, $observer){
+                    $entries.forEach(function($entry){
+                        if($entry.isIntersecting){
+                            const lImg = $entry.target;
+                            const lImgSource = lImg.getAttribute('si-src') || lImg.getAttribute('data-si-src');
+                            const lImgSourceset = lImg.getAttribute('si-srcset') || lImg.getAttribute('data-si-srcset');
+                            if(lImgSource != undefined) lImg.setAttribute('src', lImgSource);
+                            if(lImgSourceset != undefined) lImg.setAttribute('srcset', lImgSourceset);
+                        }
+                    });
+                    
+                }, options);
+
+                
+            }
+        },
+        controller: function($scope){
+            $scope.$on('si-list-loaded', function(){
+                $timeout(function(){
+                    document.querySelectorAll('.si-lazy-loading img').forEach(function($element){
+                        $scope.observer.observe($element);
+                    });
+                })
+            })
+        }
+    }
+}])
 
 /**
  * Delayed renderer
