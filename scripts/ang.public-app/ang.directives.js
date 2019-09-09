@@ -3945,6 +3945,8 @@ siApp
                             const lImgSourceset = lImg.getAttribute('si-srcset') || lImg.getAttribute('data-si-srcset');
                             if(lImgSource != undefined) lImg.setAttribute('src', lImgSource);
                             if(lImgSourceset != undefined) lImg.setAttribute('srcset', lImgSourceset);
+
+                            $scope.observer.unobserve($entry.target);
                         }
                     });
                     
@@ -3957,6 +3959,7 @@ siApp
             $scope.$on('si-list-loaded', function(){
                 $timeout(function(){
                     document.querySelectorAll('.si-lazy-loading img').forEach(function($element){
+                        if($element.getAttribute('src') != null) return;
                         $scope.observer.observe($element);
                     });
                 })
