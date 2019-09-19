@@ -148,17 +148,20 @@ function si_end_of_template(){
   
 }
 
+/**
+ * TODO Check this
+ */
 function si_listing_srcset($original_picture_url){
-  if(strpos($original_picture_url,'sm')===false) return '';
+  if(strpos($original_picture_url,'-sm.')===false) return '';
 
   $srcSet = [$original_picture_url . ' 1x'];
   $sizes = array(
-    '2x' => 'md',
+    '2x' => '-md.',
     //'3x' => 'lg'
   );
 
   foreach ($sizes as $key => $value) {
-    $srcSet[] = str_replace('sm',$value, $original_picture_url) . ' ' . $key;
+    $srcSet[] = str_replace('-sm.',$value, $original_picture_url) . ' ' . $key;
   }
 
   return implode(", ", $srcSet);

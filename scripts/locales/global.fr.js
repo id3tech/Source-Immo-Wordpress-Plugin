@@ -244,6 +244,7 @@ $locales.fr = {};$locales.fr.global =
     , "1 result found" : "1 résultat trouvé"
     , "No result found" : "Aucun résultat trouvé"
     , "Regions" : "Régions"
+    , "All" : "Tout"
     , "Search a region, city, street" : "Recherchez par région, ville, rue"
     , "Search a name, region, city" : "Recherchez par nom, région, ville"
     , "Search by first or last name" : "Recherchez par prénom ou nom"

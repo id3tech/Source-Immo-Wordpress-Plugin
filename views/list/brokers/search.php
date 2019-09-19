@@ -13,6 +13,17 @@
     <button class="offices {{isExpanded('offices')}} {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" type="button" 
         ng-show="officeList.length > 1" ng-click="toggleExpand('offices')"><?php _e('Office', SI) ?></button>
 
+    <div class="filter-menu">
+        <div class="si-dropdown" data-show-button-icon="false">
+            <button class="button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></button>
+            <div class="si-dropdown-panel">
+                <div class="dropdown-item {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" ng-click="toggleExpand('letters')"><?php _e('Alphabetical', SI) ?></div>
+                <div class="dropdown-item {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" ng-click="toggleExpand('licenses')"><?php _e('License', SI) ?></div>
+                <div class="dropdown-item {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" ng-click="toggleExpand('offices')"><?php _e('Office', SI) ?></div>
+            </div>
+        </div>
+    </div>
+
     <div class="search-trigger">
         <button type="button" class="btn" data-ng-click="buildAndGo()"><?php _e('Search', SI) ?></button>
     </div>
@@ -20,10 +31,11 @@
 
 <!-- LETTERS -->
 <div class="filter-panel letters-panel {{isExpanded('letters')}}">
-    <button class="panel-trigger {{isExpanded('letters')}} {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" type="button"  
-            ng-click="toggleExpand('letters')"><?php _e('Alphabetical', SI) ?></button>
+    <div class="panel-header">
+        <h3><?php _e('First letter of the last name', SI) ?></h3>
+        <button class="button" type="button"  ng-click="toggleExpand('letters')"><i class="fal fa-times"></i></button>
+    </div>
     <div class="filter-panel-content">
-        <h4 class="title"><?php _e('First letter of the last name',SI) ?></h4>
         <div class="filter-list letter-list">
             <div class="letter {{filter.getFilterValue('last_name') == letter ? 'active' : ''}}" 
                     ng-repeat="letter in alphaList" 
@@ -36,10 +48,13 @@
 
 <!-- LICENSES -->
 <div class="filter-panel licenses-panel {{isExpanded('licenses')}}">
-    <button class="panel-trigger {{isExpanded('licenses')}} {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" type="button"  
-        ng-click="toggleExpand('licenses')"><?php _e('License', SI) ?></button>
+    <div class="panel-header">
+        <h3><?php _e('License', SI) ?></h3>
+        <button class="button" type="button"  ng-click="toggleExpand('licenses')"><i class="fal fa-times"></i></button>
+    </div>
+
+    
     <div class="filter-panel-content">
-        <h4 class="title"><?php _e('License type',SI) ?></h4>
         <div class="filter-list license-list">    
             <si-radio
                     data-ng-repeat="(key,item) in dictionary.broker_license_type"
@@ -61,10 +76,12 @@
 
 <!-- OFFICES -->
 <div class="filter-panel offices-panel {{isExpanded('offices')}}">
-    <button class="panel-trigger {{isExpanded('offices')}} {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" type="button"  
-            ng-click="toggleExpand('offices')"><?php _e('Office', SI) ?></button>
+    <div class="panel-header">
+        <h3><?php _e('Office', SI) ?></h3>
+        <button class="button" type="button"  ng-click="toggleExpand('offices')"><i class="fal fa-times"></i></button>
+    </div>
+    
     <div class="filter-panel-content">
-        <h4 class="title"><?php _e('Office',SI) ?></h4>
         <div class="filter-list office-list">
         
             <si-checkbox

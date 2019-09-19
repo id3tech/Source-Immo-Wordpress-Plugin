@@ -592,11 +592,11 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                         '<div class="search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="list-container"><div ng-include="\'si-template-for-\' + type" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+                    '<div class="list-container"  si-lazy-load><div ng-include="\'si-template-for-\' + type" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
         link: function($scope, $element, $attrs){
             $scope.init($element);
         },
-        controller:function($scope){
+        controller:function($scope,$rootScope){
             $scope.view_id = null;
             $scope.list = [];
             $scope._element = null;
@@ -656,6 +656,8 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                         $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
 
                         $scope._element.addClass("loaded");
+                        console.log('list loaded');
+                        $rootScope.$broadcast('si-list-loaded');
                     })
 
 
@@ -737,11 +739,11 @@ siApp
             standalone: "@siStandalone"
         },
         controllerAs: 'ctrl',
-        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}" ng-include="\'si-search-for-\' + alias"></div>',
+        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}"><div ng-include="\'si-search-for-\' + alias"></div></div>',
         link : function($scope, $element, $attrs){
             $scope.standalone = $scope.standalone =='true';
 
-            $scope.init();
+            $scope.init($element);
         },
         controller: function($scope, $q, $siApi, $rootScope,
                                 $siDictionary, $siUtils,  $siFilters,
@@ -885,7 +887,13 @@ siApp
             /**
              * Directive initialization
              */
-            $scope.init = function(){
+            $scope.init = function($element){
+                $scope._element = $element[0];
+                const lFilterPanelContainer = angular.element('<div class="si si-filter-panel-container"></div>');
+                
+                angular.element(document.body).append(lFilterPanelContainer);
+                $scope.filterPanelContainer = lFilterPanelContainer;
+            
                 // bind events
                 $rootScope.$on($scope.alias + 'SortDataChanged', $scope.onSortDataChanged);
 
@@ -998,6 +1006,32 @@ siApp
             ------------------------- */
             $scope._expandedPanel = null;
             $scope.toggleExpand = function($key){
+                // Move panels to document root
+                
+
+                if($scope._expandedPanel != $key){
+                    const lElmRect = $scope._element.getBoundingClientRect();
+                    const lSearchBox = $scope._element.querySelector('.search-box').getBoundingClientRect();
+
+                    $scope._element.querySelectorAll('.filter-panel').forEach(function($e){
+                        $scope.filterPanelContainer.append($e);
+                    });
+
+                    $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
+                    $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
+                    $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
+                    $scope.filterPanelContainer[0].style.setProperty('--relative-height', lSearchBox.height + 'px');
+                    
+                    $scope.filterPanelContainer.addClass('expanded');
+                    if(window.innerHeight >= 1000 && window.innerWidth >= 1000){       
+                        document.documentElement.style.scrollBehavior = 'smooth';
+                        document.documentElement.scrollTop = window.innerHeight * 0.25;
+                    }
+                }
+                else{
+                    $scope.filterPanelContainer.removeClass('expanded');
+                }
+
                 $scope._expandedPanel = ($scope._expandedPanel == $key) ? null : $key;
             }
 
@@ -1006,6 +1040,17 @@ siApp
                     return 'expanded';
                 }
                 return '';
+            }
+
+            $scope.expandSublist = function($dictionaryKey, $item, $itemKey){
+                const lItemKey = $itemKey || $item.__$obj_key;
+
+                Object.keys($scope.dictionary[$dictionaryKey]).forEach(function($k){
+                    if($k == lItemKey) return;
+                    delete $scope.dictionary[$dictionaryKey][$k].expanded;
+                });
+
+                $item.expanded = ($item.expanded != undefined)? !$item.expanded : true;
             }
 
             /**
@@ -3518,6 +3563,7 @@ siApp
             const lOriginalPicture = $attrs.siSrcset;
             if($element[0].tagName != 'IMG') return;
             if(lOriginalPicture.indexOf('-sm.') < 0) return;
+            if($element.attr('si-srcset').indexOf('1x')>0) return;
             
             const lPictureSets = [lOriginalPicture + ' 1x'];
             ['md'].forEach(function($size,$index){
@@ -3952,18 +3998,24 @@ siApp
                     
                 }, options);
 
-                
+                $scope.applyObserver();
             }
         },
         controller: function($scope){
             $scope.$on('si-list-loaded', function(){
+                console.log('list loaded triggered');
                 $timeout(function(){
-                    document.querySelectorAll('.si-lazy-loading img').forEach(function($element){
-                        if($element.getAttribute('src') != null) return;
-                        $scope.observer.observe($element);
-                    });
+                    $scope.applyObserver();
                 })
-            })
+            });
+
+            $scope.applyObserver = function(){
+                document.querySelectorAll('.si-lazy-loading img').forEach(function($element){
+                    if($element.getAttribute('src') != null) return;
+                    $scope.observer.observe($element);
+                });
+            }
+            
         }
     }
 }])
