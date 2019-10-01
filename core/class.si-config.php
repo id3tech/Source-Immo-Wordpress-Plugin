@@ -125,6 +125,8 @@ class SourceImmoConfig {
 
   public $map_style = null;
 
+  public $favorites_button_menu = null;
+
   /**
    * Configuration constructor class
    */

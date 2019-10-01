@@ -53,11 +53,20 @@ class SourceImmoApi {
     return $lResult;
   }
 
+  /**
+   * Get pages list
+   * @static
+   * GET /si-rest/menu/list
+   */
+  public static function get_menu_list(){
+    return get_registered_nav_menus();
+  }
+
 
   /**
    * Get pages list
    * @static
-   * GET /si-rest/pages
+   * GET /si-rest/page/list
    */
   public static function get_page_list($request){
     // change language
@@ -681,6 +690,9 @@ class SourceImmoApi {
     // Page
     self::_register_page_routes();
 
+    // Menu
+    self::_register_menu_routes();
+
     // Permalink
     self::_register_permalink_routes();
 
@@ -892,7 +904,24 @@ class SourceImmoApi {
   }
 
   /**
-   * Message REST routes registration
+   * Message REST menus registration
+   * @static
+   */
+  static function _register_menu_routes(){
+    // Get WP page list
+    register_rest_route( 'si-rest','/menu/list',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_menu_list' )
+      )
+    );
+  }
+
+
+
+  /**
+   * Message REST pages registration
    * @static
    */
   static function _register_page_routes(){

@@ -1,4 +1,5 @@
-<div class="rooms section {{sectionOpened('rooms')?'opened':''}}" data-ng-show="model.rooms!=undefined">
+<div class="rooms section {{sectionOpened('rooms')?'opened':''}}" 
+        data-ng-show="[model.rooms, model.units] | siHasValue">
     <div class="title" data-ng-click="toggleSection('rooms')"><div><?php _e('Rooms',SI) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
     <div class="content">
         <div class="unit-list" data-ng-repeat="unit in model.units">

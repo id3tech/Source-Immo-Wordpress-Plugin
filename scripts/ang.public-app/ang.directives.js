@@ -2,6 +2,35 @@
 /* ------------------------------- 
         DIRECTIVES
 -------------------------------- */
+/**
+ * lstr
+ * 
+ */
+siApp
+.directive('lstr', ['$parse', function lstr($parse){
+    return {
+        restrict: 'E,A',
+        compile: function compile(tElement, tAttrs, transclude) {
+            return {
+               pre: function preLink(scope, iElement, iAttrs, controller) {
+                    let lTranslatedContent = iElement.html().translate();
+                    let lFormatParams = iAttrs.params;
+                    if(lFormatParams == null && iAttrs.lstr != '') lFormatParams = iAttrs.lstr;
+                    
+                    if(lFormatParams != null){
+                        lFnFormatParams = $parse(lFormatParams);
+                        lFormatParams = lFnFormatParams(scope);
+                        if(!Array.isArray(lFormatParams)) lFormatParams = [lFormatParams];
+                        
+                        lTranslatedContent = lTranslatedContent.format.apply(lTranslatedContent, lFormatParams);
+                    }
+                    iElement.html('<span>' + lTranslatedContent + '</span>');
+               }
+            }
+        }
+    }
+}]);
+
 
 /**
  * DIRECTIVE: LIST
@@ -38,6 +67,7 @@ function siList(){
                 search_token : null
             }
             $scope.city_list = [];
+            $scope.region_list = [];
             $scope.subcategory_list = [];
             $scope.client_sort = null;
             $scope.favorites = $siFavorites;
@@ -578,8 +608,8 @@ siApp.directive('includeReplace', function () {
 
 siApp
 .directive('siSmallList', ['$sce','$compile','$siFavorites', '$siConfig', '$siUtils','$siApi',
-                            '$siFilters','$siDictionary','$q','$siList',
-function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList){
+                            '$siFilters','$siDictionary','$q','$siList','$timeout',
+function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList,$timeout){
     return {
         restrict: 'E',
         scope: {
@@ -592,7 +622,7 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                         '<div class="search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="list-container"  si-lazy-load><div ng-include="\'si-template-for-\' + type" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+                    '<div class="list-container"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
         link: function($scope, $element, $attrs){
             $scope.init($element);
         },
@@ -617,6 +647,20 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                 if($new.value == $old.value) return;
                 $scope.fetchList();
             });
+
+            $scope.$watch('filter_keywords', function($new, $old){
+                if($new == $old) return;
+
+                $timeout(function(){
+                    $rootScope.$broadcast('si-list-loaded');
+                })
+            });
+
+            $scope.getItemTemplateInclude = function(){
+                console.log('getItemTemplateInclude', $scope.options);
+                if($scope.options.item_template != undefined) return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
+                return 'si-template-for-' + $scope.type;
+            }
 
             $scope.init = function($element){
                 $scope._element = $element;
@@ -681,7 +725,7 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                     lResult.max_item_count = $scope.options.filter.max_item_count;
                 }
                 
-                if($scope.options.filter.sort_fields.length > 0){
+                if($scope.options.filter.sort_fields && $scope.options.filter.sort_fields.length > 0){
                     lResult.sort_fields = $scope.options.filter.sort_fields
                 }
 
@@ -710,6 +754,15 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
             $scope.getApiEndpoint = function($type, $view, $lang){
                 const lSingularType = $scope.typesHash[$scope.type].toLowerCase();
                 return '{0}/view/{1}/{2}/items'.format(lSingularType, $view, $lang );
+            }
+
+            $scope.removeFromList = function($event, $item){
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                if(typeof $scope.$parent.removeFromList == 'function'){
+                    $scope.$parent.removeFromList($event,$item);
+                }
             }
         }
     }
@@ -745,9 +798,9 @@ siApp
 
             $scope.init($element);
         },
-        controller: function($scope, $q, $siApi, $rootScope,
+        controller: function($scope, $q, $siApi, $rootScope,$timeout,
                                 $siDictionary, $siUtils,  $siFilters,
-                                $siHooks){
+                                $siHooks,$siFavorites){
             let lToday = new Date().round();    // save today
             let lNow = new Date();
 
@@ -789,6 +842,7 @@ siApp
                 filters: null,
                 filter_groups: null
             }
+            
             
             // listing states
             $scope.listing_states = {
@@ -893,7 +947,9 @@ siApp
                 
                 angular.element(document.body).append(lFilterPanelContainer);
                 $scope.filterPanelContainer = lFilterPanelContainer;
-            
+                // prevent panel click event bubble up
+                lFilterPanelContainer.on('click', function($event){$event.stopPropagation();});
+                $element.on('click',function($event){$event.stopPropagation();});
                 // bind events
                 $rootScope.$on($scope.alias + 'SortDataChanged', $scope.onSortDataChanged);
 
@@ -908,11 +964,14 @@ siApp
                 $scope.isReady().then(function(){
                     let lfSyncFilter = function($filter){
                         //console.log('Filter to UI sync');
-                        // Sync UI with filters
-                        $scope.syncFiltersToUI();
     
                         // check if there's filters stored
                         if($filter.hasFilters()){
+                            // Sync UI with filters
+                            $scope.syncFiltersToUI();
+                            console.log($scope.dictionary.city["14065"]);
+                            
+                        
                             // build hints
                             $scope.buildHints();
                         }
@@ -940,7 +999,14 @@ siApp
                         })
                     });
                     
-                    
+                    // add listener to close the panel whenever a click occurs outside the search panel
+                    angular.element(document.body).on('click', function($event){
+                        $scope.closePanels();
+                    });
+
+                    $scope.$on('close-everything', function(){
+                        $scope.closePanels();
+                    })
 
                     $scope.$broadcast('search-is-ready');
                     // load stored search token
@@ -1004,10 +1070,23 @@ siApp
             UI MANAGEMENT 
 
             ------------------------- */
-            $scope._expandedPanel = null;
-            $scope.toggleExpand = function($key){
-                // Move panels to document root
+            $scope.closePanels = function(){
+                $timeout(function(){
+                    $scope._expandedPanel = null;
+                });
+
+                if($scope.filterPanelContainer == null) return;
                 
+                $scope.filterPanelContainer.removeClass('expanded');
+
+                
+            }
+
+
+            $scope._expandedPanel = null;
+            $scope.toggleExpand = function($event,$key){
+                // Move panels to document root
+                //$event.stopPropagation();
 
                 if($scope._expandedPanel != $key){
                     const lElmRect = $scope._element.getBoundingClientRect();
@@ -1022,11 +1101,22 @@ siApp
                     $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
                     $scope.filterPanelContainer[0].style.setProperty('--relative-height', lSearchBox.height + 'px');
                     
+                   
+                    $scope.filterPanelContainer.on('transitionend', function(){
+                        const lPanelHeight = window.getComputedStyle($scope.filterPanelContainer[0]).height.replace('px',''); //(lHeader != null) ? window.getComputedStyle(lHeader).height : 0;
+                            
+                        if(window.innerHeight >= 800 && window.innerWidth >= 1000){
+                            const lScrollTop = lElmRect.top - lPanelHeight;
+                            //if(lScrollTop > window.innerHeight)
+                            //const lHeader = document.querySelector('header');
+                            
+                            // document.documentElement.style.scrollBehavior = 'smooth';
+                            // document.documentElement.scrollTop = lScrollTop; //window.innerHeight * 0.25;
+                        }
+                        $scope.filterPanelContainer.off('transitionend');
+                    });
+                
                     $scope.filterPanelContainer.addClass('expanded');
-                    if(window.innerHeight >= 1000 && window.innerWidth >= 1000){       
-                        document.documentElement.style.scrollBehavior = 'smooth';
-                        document.documentElement.scrollTop = window.innerHeight * 0.25;
-                    }
                 }
                 else{
                     $scope.filterPanelContainer.removeClass('expanded');
@@ -1042,12 +1132,16 @@ siApp
                 return '';
             }
 
-            $scope.expandSublist = function($dictionaryKey, $item, $itemKey){
+            $scope.expandSublist = function($list, $item, $itemKey){
                 const lItemKey = $itemKey || $item.__$obj_key;
-
-                Object.keys($scope.dictionary[$dictionaryKey]).forEach(function($k){
-                    if($k == lItemKey) return;
-                    delete $scope.dictionary[$dictionaryKey][$k].expanded;
+                if(!Array.isArray($list)) {
+                    console.log(angular.copy($list));
+                    $list = $siUtils.toArray($list);
+                    console.log($list);
+                }
+                $list.forEach(function($e){
+                    if($e.__$obj_key == lItemKey) return;
+                    delete $e.expanded;
                 });
 
                 $item.expanded = ($item.expanded != undefined)? !$item.expanded : true;
@@ -1085,6 +1179,9 @@ siApp
              * @param {string} $key 
              */
             $scope.changeRegionTab = function($key){
+                $scope.region_list.forEach(function($r){
+                    if($r.__$obj_key != $key) delete $r.selected;
+                })
                 $scope.tab_region = $key;
             }
 
@@ -1316,6 +1413,10 @@ siApp
 
             $scope.searchForKeyword = function(){
                 $scope.filter.query_text = $scope.filter.data.keyword; 
+                if($scope.filter.query_text == ''){
+                    $scope.resetFilters();
+                    return;
+                }
                 $scope.filter.saveState();
                 $scope.filter.buildFilters();
             }
@@ -1664,24 +1765,6 @@ siApp
              */
             $scope.syncToList = function($filter, $list){
                 $siFilters.with($scope.alias).syncToList($filter, $list);
-
-                // // make sure list is an array
-                // let lListArray = $siUtils.toArray($list);
-                
-                // lListArray.forEach(function($e){
-                //     // when filter is an array of value and item key is contained in that list
-                //     if($filter.operator=='in' && ($filter.value.indexOf($e.__$key)>=0)){
-                //         if(!$list[$e.__$key].selected) $list[$e.__$key].selected=true;
-                //     }
-                //     // when item field matches filter field
-                //     else if($e.field==$filter.field){
-                //         if(!$e.selected) $e.selected=true; // set selection on the list item
-                //     }
-                //     // when item has a filter attribute which the field 
-                //     else if(($e.filter != undefined) && $e.filter.field == $filter.field){
-                //         if(!$e.selected) $e.selected=true; // set selection on the list item
-                //     }
-                // });
             }
 
     
@@ -1713,6 +1796,16 @@ siApp
                 }
                 
                 return false;
+            }
+
+            $scope.getFavorites = function($key){
+                return $siFavorites.favorites.map(function($e) {
+                    return $e[$key];
+                })
+            }
+
+            $scope.hasFavorites = function(){
+                return !$siFavorites.isEmpty();
             }
     
             /* ----------------------
@@ -1813,7 +1906,7 @@ siApp
                     "location.city_code" : "city",
                     "location.region_code" : "region",
                     "building.category_code" : "building_category",
-                    "office_id" : $scope.officeList
+                    "office_ref_number" : $scope.officeList
                 }
                 // filters that as a label
                 if($group.filters != null){
@@ -2094,8 +2187,13 @@ siApp
             $scope.$watch("dictionary", function(newValue, oldValue){
                 if($scope.dictionary!=undefined && $scope.dictionary.region!=undefined){
                     let lRegionList = $siUtils.toSortedArray($scope.dictionary.region);
+                    $scope.region_list = lRegionList;
                     $scope.tab_region = lRegionList[0].__$key;
                 }
+                // if($scope.dictionary!=undefined && $scope.dictionary.listing_category!=undefined){
+                //     let lCategoryList = $siUtils.toArray($scope.dictionary.listing_category);
+                //     $scope.category_list = lCategoryList;
+                // }
 
                 if($scope.dictionary!=undefined && $scope.dictionary.city!=undefined){
                     let lCityList = $siUtils.toArray($scope.dictionary.city);
@@ -2129,15 +2227,11 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             result_page: '@resultPage',
             persistantKeyword : '@persistantKeyword'
         },
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-searchbox.html?v=4',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-searchbox.html?v=5',
         link : function($scope,element, attrs){
             $scope.persistantKeyword = $scope.persistantKeyword == 'true';
-            $scope._suggestion_list_el =  element.find('.suggestion-list');
             $scope._el = element[0];
-
-            angular.element('body').append($scope._suggestion_list_el);
-
-            
+           
             $scope.init();
         },
         controller: function($scope, $q, $siApi, $rootScope,$siDictionary, $siUtils){
@@ -2149,6 +2243,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope.sort_fields = [];
             $scope.filter = null;
             $scope.stored_suggestions = null;
+            $scope._suggestion_list_el = null;
 
             $scope.init = function(){
                 
@@ -2180,13 +2275,14 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         }
                     })
                     lInput.bind('blur', function(){
-                        angular.element($scope._el).removeClass('has-focus');
-                        window.setTimeout(function(){
+                        
+                        $scope.closeSuggestionPanel().then( function(){
+                            angular.element($scope._el).removeClass('has-focus');
+                            console.log('remove focus class and clear suggestions');
                             $scope.suggestions = [];
                             $scope.stored_suggestions = null;
-                            $scope.$apply();    
-                        },500);
-                        
+                            //$scope.$apply();    
+                        });
                     });
                     
 
@@ -2290,9 +2386,19 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                                 //$e.caption = $e.caption + ' ' + $e.context[0];
                                             }
                                         });
-                                        $scope.suggestions = $qsItems;
-                                        $scope.stored_suggestions = $scope.suggestions;
-                                        if($scope.suggestions.length > 0) $scope.suggestions[0].selected =true;
+                                       
+                                        if($qsItems.length > 0) {
+                                            $scope.suggestions = $qsItems;
+                                            $scope.stored_suggestions = $scope.suggestions;
+                                            $scope.suggestions[0].selected =true;
+                                            $scope.openSuggestionPanel()
+                                        }
+                                        else{
+                                            $scope.closeSuggestionPanel().then(function(){
+                                                $scope.suggestions = $qsItems;
+                                                $scope.stored_suggestions = $scope.suggestions;
+                                            });
+                                        }
                                     });
                                 });
                                 
@@ -2309,6 +2415,40 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
                         if($scope.suggestions.length > 0) $scope.suggestions[0].selected =true;
                     }
+                });
+            }
+
+            $scope.openSuggestionPanel = function(){
+                if($scope._suggestion_list_el == null){
+                    $scope._suggestion_list_el =  $scope._el.querySelector('.suggestion-list');
+                    angular.element('body').append($scope._suggestion_list_el);
+                }
+                
+                const lMainElmRect = $scope._el.getBoundingClientRect();
+
+                $scope._suggestion_list_el.style.top = (-1 + lMainElmRect.top + window.pageYOffset) + 'px';
+                $scope._suggestion_list_el.style.left = (-1 + lMainElmRect.left) + 'px';
+                $scope._suggestion_list_el.style.width = (lMainElmRect.width) + 'px';
+                $scope._suggestion_list_el.style.setProperty('--input-height', lMainElmRect.height + 'px');
+
+                $scope._suggestion_list_el.classList.add('expanded');
+            }
+
+            $scope.closeSuggestionPanel = function(){
+                if($scope._suggestion_list_el==null)return $q.resolve();
+
+                return $q(function($resolve,$reject){
+                    console.log('closing suggestion panel')
+                    angular.element($scope._suggestion_list_el).on('transitionend', function(){
+                        angular.element($scope._suggestion_list_el).off('transitionend')
+                        console.log('Suggestion panel close')
+
+                        $resolve();
+                    });
+
+                    $scope._suggestion_list_el.style.left = '0px';
+                    //$scope._suggestion_list_el.style.width = '0px';
+                    $scope._suggestion_list_el.classList.remove('expanded');
                 });
             }
 
@@ -3563,6 +3703,7 @@ siApp
             const lOriginalPicture = $attrs.siSrcset;
             if($element[0].tagName != 'IMG') return;
             if(lOriginalPicture.indexOf('-sm.') < 0) return;
+            if($element.attr('si-srcset') == undefined) return;
             if($element.attr('si-srcset').indexOf('1x')>0) return;
             
             const lPictureSets = [lOriginalPicture + ' 1x'];
@@ -4020,6 +4161,98 @@ siApp
     }
 }])
 
+siApp
+.directive('siFavoritesButton', [function siFavoritesButton(){
+    return {
+        restrict: 'E',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-favorites-button.html',
+        replace: true,
+        link: function($scope, $element, $attr){
+            $scope.init($element);
+        },
+        controller: function($scope,$rootScope, $siFavorites, $timeout){
+            $scope.favorites = $siFavorites;
+            $scope._panel_elm = null;
+            $scope._elm = null;
+            $scope._button_elm = null;
+
+            $scope.init = function($element){
+                $scope._elm = $element[0];
+                $scope._button_elm = $scope._elm.querySelector('.si-favorites-toggle-button');
+                const lPanel = $scope._elm.querySelector('.si-favorites-panel');
+
+                const lButtonRect = $scope._button_elm.getBoundingClientRect();
+                lPanel.style.setProperty('--origin-y', lButtonRect.top + ( lButtonRect.height/2) + 'px');
+                lPanel.style.setProperty('--origin-x',  lButtonRect.left + ( lButtonRect.width/2) + 'px');
+
+                angular.element(document.body).on('click', function(){
+                    $scope.closePanel();
+                });
+
+            }
+
+            $scope._favorite_filter = null;
+            
+            $scope.getFavoriteFilter = function(){
+                const lListingsRefNumbers = $siFavorites.getValues();
+                if($scope._favorite_filter == null || $scope._favorite_filter.value.length != lListingsRefNumbers.length){
+                    $scope._favorite_filter = {
+                        field: 'ref_number',
+                        operator: 'in',
+                        value : lListingsRefNumbers
+                    };
+                }
+                return $scope._favorite_filter;
+            }
+
+            $scope.togglePanel = function($event){
+                $event.preventDefault();
+                
+                if($scope._panel_elm == null){
+                    $scope._panel_elm = $scope._elm.querySelector('.si-favorites-panel');
+                    angular.element('body').append($scope._panel_elm);
+
+                    angular.element($scope._panel_elm).on('click', function($event){
+                        //$event.preventDefault();
+                        $event.stopPropagation();
+                    })
+                }
+                
+                if(!$scope._panel_elm.classList.contains('opened')){
+                    $event.stopPropagation();
+                    $rootScope.$broadcast('close-everything');
+                    $scope.list = $siFavorites.favorites
+                    
+                    $timeout(function(){
+                        $scope._panel_elm.classList.add('opened');
+                        $rootScope.$broadcast('si-list-loaded');
+                    },100)
+                }
+                else{
+                    $scope.closePanel();
+                }
+
+                
+            }
+
+            $scope.closePanel = function(){
+                if($scope._panel_elm == null) return;
+
+                $scope._button_elm.classList.remove('panel-opened');
+                $scope._panel_elm.classList.remove('opened');
+            }
+
+            $scope.removeFromList =function($event, $item){
+                console.log('removeFromList');
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                $siFavorites.toggle($item);
+            }
+        }
+    }
+}])
+
 /**
  * Delayed renderer
  * Get a server side ajex render after a trigger
@@ -4175,69 +4408,182 @@ siApp
                 showButtonIcon : "@?",
                 hasValue : "@?"
             },
-            link: function(scope,element,attr){
-                let lElm = angular.element(element);
-                scope._elm = lElm;
-                scope.showButtonIcon = (typeof scope.showButtonIcon == 'undefined') ? true : scope.showButtonIcon;
-                scope.hasValue = (typeof scope.hasValue == 'undefined') ? false : scope.hasValue!=null;
-                scope.buttonIcon = "anchor-down";
-
-                if(scope.hasValue){
-                    lElm.addClass('has-value');
-                }
-
-                if(scope.showButtonIcon === true || scope.showButtonIcon != 'false'){
-                    lElm.addClass('has-button-icon');
-                    if(typeof scope.showButtonIcon == 'string' && scope.showButtonIcon != 'true'){
-                        scope.buttonIcon = scope.showButtonIcon;
-                    }
-                }
-                
-
-                angular.element(document).on('click', function(){
-                   $rootScope.$broadcast('close-dropdown', null);
-                });
-                
-                jQuery(lElm).parents('.modal-body').on('click', function(){
-                    $rootScope.$broadcast('close-dropdown', null);
-                })
-
-                lElm.find('.button').on('click', function($event){
-                    
-                    $rootScope.$broadcast('close-dropdown', lElm);
-
-                    lElm.addClass('expanded');
-                    $event.stopPropagation();
-                });
-
-                scope.$on('close-dropdown', function($event, $source){
-                    if($source != lElm){
-                        lElm.removeClass('expanded');
-                    }
-                })
+            link: function($scope,$element,$attr){
+                $scope.init($element);
             },
-            controller: function($scope){
+            controller: function($scope, $timeout){
+                $scope._menu_elm = null;
+
                 $scope.$watch('hasValue', function($new, $old){
                     if($new == true){
-                        $scope._elm.addClass('has-value');
+                        $scope._elm.classList.add('has-value');
                     }
                     else{
-                        $scope._elm.removeClass('has-value');
+                        $scope._elm.classList.remove('has-value');
                     }
                 });
+
+                $scope.init = function($element){
+                    $scope._elm = $element[0];
+
+                    $scope.showButtonIcon = (typeof $scope.showButtonIcon == 'undefined') ? true : $scope.showButtonIcon;
+                    $scope.hasValue = (typeof $scope.hasValue == 'undefined') ? false : $scope.hasValue!=null;
+                    $scope.buttonIcon = "anchor-down";
+
+                    if($scope.hasValue){
+                        $scope._elm.classList.add('has-value');
+                    }
+
+                    if($scope.showButtonIcon === true || $scope.showButtonIcon != 'false'){
+                        $scope._elm.classList.add('has-button-icon');
+                        if(typeof $scope.showButtonIcon == 'string' && $scope.showButtonIcon != 'true'){
+                            $scope.buttonIcon = $scope.showButtonIcon;
+                        }
+                    }
+
+                    $scope.applyEvents();
+                }
+
+                $scope.applyEvents  = function(){
+                    // track click on parents to close the dropdown
+                    // will climb the document up to the body
+                    angular.element(document).on('click', function(){
+                        console.log('Closest parent clicked');
+                        $rootScope.$broadcast('close-dropdown', null);
+                    })
+    
+                    // Apply button click event handler
+                    angular.element($scope._elm).find('.button').on('click', $scope.clickHandler);
+                    
+                    // listen to 'close-dropdown' signal to close the menu
+                    $scope.$on('close-dropdown', function($event, $source){
+                        if($source != $scope._elm){
+                            $scope.closeMenu();
+                        }
+                    })
+                }
+
+                $scope.getContentHeight = function($element){
+                    let lPotentialHeight = 0;
+                    $element.querySelectorAll('.dropdown-item').forEach(function($e){
+                        lPotentialHeight += Number(window.getComputedStyle($e).height.replace('px',''));
+                    });
+                    //const lMenuElm = $element.querySelector('.si-dropdown-panel');
+
+                    //lMenuElm.style.setProperty('--content-height', lPotentialHeight);
+                    return lPotentialHeight;
+                }
+
+                $scope.closeMenu = function(){
+                    if($scope._menu_elm != null){
+                        $scope._menu_elm.classList.remove('expanded');
+                        $scope._menu_elm.removeAttribute('style');
+                    }
+                }
+
+                $scope.clickHandler = function($event){
+                    console.log('button clicked');
+                    $rootScope.$broadcast('close-dropdown', $scope._elm);
+                    const lClosestParent = $scope._elm.closest('.modal-body, .filter-panel');
+                    angular.element(lClosestParent).on('click', function(){
+                        console.log('Closest parent clicked');
+                        $rootScope.$broadcast('close-dropdown', null);
+                    })
+
+                    const lMenuElm = $scope.extractMenu($scope._elm);
+                    lMenuElm.classList.add('expanded');
+
+                    $event.stopPropagation();
+                }
+
+                $scope.extractMenu = function($element){
+                    if($scope._menu_elm == null){
+                        const lMenu = $element.querySelector('.si-dropdown-panel');
+                        document.body.append(lMenu);
+                        $scope._menu_elm = lMenu;
+
+                        $scope._menu_elm.addEventListener('click', function($event){
+                            $event.stopPropagation();
+                            $scope.closeMenu();
+                        })
+                    }
+                    $timeout(_ => {
+                        const lMainElmRect = $scope._elm.getBoundingClientRect();
+                        lMainElmRect.inner_cx = lMainElmRect.width / 2;
+                        lMainElmRect.inner_cy = lMainElmRect.height / 2;
+                        lMainElmRect.cx = lMainElmRect.left + lMainElmRect.inner_cx;
+                        lMainElmRect.cy = lMainElmRect.top + window.pageYOffset + lMainElmRect.inner_cy;
+                        
+                        
+                            
+                        $scope._menu_elm.style.width='unset';
+                        $scope._menu_elm.style.minWidth = lMainElmRect.width + 'px';
+                        $scope._menu_elm.style.top = lMainElmRect.cy + 'px';
+                        $scope._menu_elm.style.left = lMainElmRect.cx + 'px';    
+                        //$scope._menu_elm.style.transform = 'translate(-50%,-50%)';
+    
+                        // position the dropdown menu
+                        const lMenuRect = $scope._menu_elm.getBoundingClientRect();
+                        lMenuRect.height = $scope.getContentHeight($scope._menu_elm);
+                        lMenuRect.top = lMainElmRect.cy - (lMenuRect.height/2);
+                        
+                        const lMenuStyle = window.getComputedStyle($scope._menu_elm);
+                        const lMenuWidth = Number(lMenuStyle.width.replace('px',''));
+                        const lMenuHeight = $scope.getContentHeight($scope._menu_elm);
+                        const lViewportRect = {
+                            top: Math.min(25,lMainElmRect.top),
+                            left:Math.min(25,lMainElmRect.left),
+                            bottom: window.innerHeight -  Math.min(50,lMenuRect.top * 2),
+                            right: window.innerWidth -  Math.min(50,lMenuRect.left * 2)
+                        }
+                        
+                        const lTransform = {x : '-50%',y : '-50%'};
+                        console.log({
+                            menuRect: lMenuRect,
+                            viewportRect: lViewportRect
+                        });
+    
+                        if(lMenuRect.left < lViewportRect.left){
+                            lTransform.x = '0%';
+                        }
+                        else if (lMenuRect.right > lViewportRect.right){
+                            lTransform.x = 'calc(-100% + ' + lMainElmRect.inner_cx + 'px)';
+                        }
+    
+                        if(lMenuRect.top < lViewportRect.top){
+                            lTransform.y = (0 - lMainElmRect.inner_cy) + 'px';
+                        }
+                        else if(lMenuRect.bottom > lViewportRect.bottom){
+                            lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
+                        }
+    
+                        $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
+                    },20);
+                    
+
+                    return $scope._menu_elm;
+                }
             }
         }
     }
 ])
 
 siApp
-.directive('siCheckbox',[function siCheckbox(){
+.directive('siCheckbox',['$parse', function siCheckbox($parse){
     return {
         retrict: 'E',
         transclude:true,
         scope: {
             label: '@',
-            model: '=?ngModel'
+            model: '=?ngModel',
+            checked:'@?siChecked'
+        },
+        link: function($scope, $element, $attrs){
+            if($attrs.siChecked != undefined){
+                const isChecked = $parse($attrs.siChecked)($scope);
+                $scope.model = isChecked;
+                console.log(isChecked,$attrs.siChecked);
+            }
         },
         template: '<div class="pretty p-icon p-pulse">' +
                     '<input type="checkbox" ng-model="model">' +

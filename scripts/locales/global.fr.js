@@ -127,6 +127,8 @@ $locales.fr = {};$locales.fr.global =
     , "Leave the previous fields blank to use default values" : "Laissez les champs précédants vides pour utiliser les valeurs par défaut"
     , "Form" : "Formulaire"
     , "Form to use" : "Formulaire à utiliser"
+    , "Add favorites button to menu" : "Ajouter le bouton Favoris au menu"
+    , "Edit on Map Style" : "Éditer sur Map Style"
     // Lists label
     , "New {0} list" : "Nouvelle liste {0}"
     , "Copy shortcode" : "Copier le code court"
@@ -288,6 +290,8 @@ $locales.fr = {};$locales.fr.global =
     , "Foreclosure" : "Reprise de finance"
     , "Type something to begin your search" : "Tapez quelque chose pour commencer votre recherche"
     , "Contains \"{0}\"" : "Contient \"{0}\""
+    , "Starting with {0}" : "Commence par {0}"
+    , "My favorites" : "Mes coups de coeur"
     , "On \"{0}\" street" : "Sur la rue \"{0}\""
     , "ID is \"{0}\"" : "ID est \"{0}\""
     , "Last name is \"{0}\"" : "Nom est \"{0}\""
@@ -401,8 +405,11 @@ $locales.fr = {};$locales.fr.global =
     , "Expenses and assessments" : "Dépenses et évaluations"
     , "Expenses" : "Dépenses"
     , "Assessment ({0})" : "Évaluation ({0})"
-    , "Building assessment ({0})" : "Évaluation du bâtiment ({0})"
-    , "Land assessment ({0})" : "Évaluation du terrain ({0})"
+    , "Assessments" : "Évaluations"
+    , "Incomes" : "Revenus"
+    
+    , "Building ({0})" : "Bâtiment ({0})"
+    , "Land ({0})" : "Terrain ({0})"
     , "Municipal assessment" : "Évaluation municipal"
     , "Browse your search results" : "Naviguez parmi vos résultats de recherche"
     , "Land area" : "Superficie du terrain"
@@ -447,4 +454,8 @@ $locales.fr = {};$locales.fr.global =
     // IMAGE BOX
     , "All pictures" : "Toutes les images"
     , "Fullscreen" : "Plein écran"
+    // FAVORITES BUTTON
+    , "Quickly access your favorites" : "Accédez rapidement à vos coups de coeur"
+    , "You don't have any favorites yet" : "Vous n'avez aucun coups de coeur pour l'instant"
+    , "Use the <i class=\"fal fa-2x fa-heart\"></i> button in the descriptive page to add a property in your favorites" : "Utilisez le bouton <i class=\"fal fa-2x fa-heart\"></i> dans la page descriptive pour ajouter une propriété à vos coups de coeur"
 }

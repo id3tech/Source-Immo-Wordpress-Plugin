@@ -1,0 +1,18 @@
+<div class="si-favorites-button">
+    <div class="si-favorites-toggle-button {{favorites.hasFavorites() ? 'full' : 'empty'}}">
+        <a href="#" ng-click="togglePanel($event)" title="{{'My favorites'.translate()}}"><i class="{{favorites.hasFavorites() ? 'fas' : 'fal'}} fa-fw fa-heart"></i> <span class="label">{{'My favorites'.translate()}}</span></a>
+    </div>
+
+    <div class="si si-favorites-panel" >
+        <h3>{{'Quickly access your favorites'.translate()}}</h3>
+        <div class="close-button" ng-click="closePanel()"><i class="fal fa-2x fa-times"></i></div>
+        <div class="favorite-list-container">
+            <si-small-list si-options="{show_header:false, filter:{max_item_count: 20}, item_template: '~/list/listings/standard/item-picture-only.php'}" si-type="listings" si-filters="getFavoriteFilter()" ></si-small-list>
+
+            <label class="placeholder" data-ng-show="!favorites.hasFavorites()">
+                {{"You don't have any favorites yet".translate()}}
+                <sub><lstr>Use the <i class="fal fa-2x fa-heart"></i> button in the descriptive page to add a property in your favorites</lstr></sub>
+            </label>
+        </div>
+    </div>
+</div>

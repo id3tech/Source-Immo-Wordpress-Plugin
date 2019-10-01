@@ -1,4 +1,5 @@
-<div class="other-specs section {{sectionOpened('other')?'opened':''}}">
+<div class="other-specs section {{sectionOpened('other')?'opened':''}}"
+        data-ng-show="model.other.attributes | siHasValue">
     <div class="title" data-ng-click="toggleSection('other')">
         <div><?php _e('Other characteristics',SI) ?></div>
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>

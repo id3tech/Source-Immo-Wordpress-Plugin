@@ -9,6 +9,20 @@
     </div>
 
     <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Integration',SI)?></h2>
+
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <md-input-container flex>
+                <label><?php _e('Add favorites button to menu',SI) ?></label>
+                <md-select ng-model="configs.favorites_button_menu" ng-change="save_configs()">
+                    <md-option value="">{{'None'.translate()}}</md-option>
+                    <md-option ng-repeat="item in wp_menus" value="{{item.key}}">{{item.name}}</md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </div>
+    
+    <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Communication',SI)?></h2>
         <div class="block-content" layout="column" layout-align="start stretch">
             <p>

@@ -10,7 +10,7 @@
     <div class="tools">
         <button type="button" class="button si-modal-trigger" data-target="share-page"><i class="fal fa-share-alt"></i></button>
         <button type="button" class="button" ng-click="print()"><i class="fal fa-print"></i></button>
-        <button type="button" class="button {{favorites.isFavorite(model.id) ? 'active' : ''}}" ng-click="favorites.toggle(model.id)"><i class="{{favorites.isFavorite(model.id) ? 'fas' : 'fal'}} fa-heart"></i></button>
+        <button type="button" class="button {{favorites.isFavorite(model.ref_number) ? 'active' : ''}}" ng-click="favorites.toggle(model)"><i class="{{favorites.isFavorite(model.ref_number) ? 'fas' : 'fal'}} fa-heart"></i></button>
     </div>
 
     <?php echo do_shortcode('[si_listing_part part="info_request_button"]') ?>
@@ -51,8 +51,6 @@
 
         <?php echo do_shortcode('[si_listing_part part="rooms"]') ?>
         
-        <?php echo do_shortcode('[si_listing_part part="expenses"]') ?>
-
         <?php echo do_shortcode('[si_listing_part part="building_specs"]') ?>
 
         <?php echo do_shortcode('[si_listing_part part="lot_specs"]') ?>
@@ -60,6 +58,8 @@
         <?php echo do_shortcode('[si_listing_part part="other_specs"]') ?>
 
         <?php echo do_shortcode('[si_listing_part part="in_exclusions"]') ?>
+
+        <?php echo do_shortcode('[si_listing_part part="financials"]') ?>
 
     </div>
     <div class="right">

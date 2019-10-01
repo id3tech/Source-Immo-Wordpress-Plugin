@@ -1,11 +1,12 @@
-<div class="lot-specs section {{sectionOpened('lot')?'opened':''}}">
+<div class="lot-specs section {{sectionOpened('lot')?'opened':''}}"
+    ng-show="(model.land.attributes | siHasValue) || hasDimension(model.land.dimension)">
     <div class="title" data-ng-click="toggleSection('lot')">
         <div><?php _e('Lot and exterior',SI) ?></div>
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="content spec-grid">
         <div class="special-box" data-ng-show="hasDimension(model.land.dimension)">
-            <div class="dimension" data-ng-show="hasDimension(model.land.dimension)">
+            <div class="dimension">
                 <label>{{'Dimensions'.translate()}}</label>
                 <div class="value">{{model.land.dimension | formatDimension}}</div>
             </div>

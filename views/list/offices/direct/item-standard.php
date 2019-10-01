@@ -3,7 +3,8 @@
  * Standard list item view
  */
 
-$classes = array('office-' . $item->ref_number, 'region-' . $item->location->region_code);
+$regionCode = isset($item->location->region_code) ? $item->location->region_code : '';
+$classes = array('office-' . $item->ref_number, 'region-' . $regionCode);
 if($item->has_custom_page){
     $classes[] = 'has-custom-page';
 }

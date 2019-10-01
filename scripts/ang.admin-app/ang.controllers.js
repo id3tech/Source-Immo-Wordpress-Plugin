@@ -452,6 +452,7 @@ siApp
     $scope.load_configs().then(_ => {
       $q.all([
         $scope.load_wp_pages(),
+        $scope.load_wp_menus(),
         $scope.load_data_views(),
         $scope.load_wp_forms(),
         $scope.load_dictionary()
@@ -568,6 +569,13 @@ siApp
         $resolve($scope.wp_pages);
       })
       .catch($err => {console.error($err)})
+    });
+  }
+
+  $scope.load_wp_menus = function(){
+    return $scope.api('menu/list',null, {method: 'GET'})
+    .then($result => {
+        $scope.wp_menus = Object.keys($result).map($k => {return {key: $k, name: $result[$k]} });
     });
   }
 

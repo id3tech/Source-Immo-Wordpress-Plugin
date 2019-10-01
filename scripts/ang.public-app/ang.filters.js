@@ -109,6 +109,13 @@ function textToHtml(){
 }]);
 
 siApp
+.filter('siHasValue', ['$siUtils', function siHasValueFilter($siUtils){
+    return function($values, $arrayOffset){
+        return $siUtils.hasValue($values, $arrayOffset );
+    }
+}])
+
+siApp
 .filter('formatDimension', ['$siUtils', function dimensionFilter($siUtils){
     return function($value){
         return $siUtils.formatDimension($value);

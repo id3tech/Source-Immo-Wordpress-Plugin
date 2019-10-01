@@ -14,6 +14,12 @@
     grid-gap: $gap;
 }
 
+@mixin reset(){
+    background:unset;
+    color:unset;
+    font-size:unset;
+}
+
 $phone : 640px;
 $tablet : 800px;
 $laptop : 1280px;
@@ -901,9 +907,12 @@ $laptop : 1280px;
             .image{
                 padding-bottom:75%;
                 text-align: unset;
-                img{position:absolute;}
+                background: url('assets/shadow_property.jpg') no-repeat;
+                background-size: cover;
+                img{position:absolute;text-indent: -1000px;}
                 
             }
+            
             .price{text-align:center;padding:10px;background:var(--small-contrast-color);font-size:1.2em;font-weight:700;}
             .city{padding:0 0 10px 10px;font-size:0.8em;}
             .civic-address{padding:10px 0 0 10px;text-transform:uppercase;}
@@ -978,6 +987,72 @@ $laptop : 1280px;
                 }
             }
 
+            &.si-picture-only-item-layout{
+                perspective: 500px;
+                position: relative;
+                
+                .infos{
+                    @include absoluteFill();
+                    --text-color: var(--high-contrast-text-color);
+                    display:grid;
+                    grid-template-columns:1fr;
+                    grid-template-rows: auto auto 1fr auto auto;
+                    place-items: center;
+                    grid-template-areas: 
+                        "civic-address civic-address"
+                        "city city"
+                        "price price"
+                        "rooms rooms"
+                        "open-houses open-houses";
+                    z-index:5;
+
+                    div{position:relative;z-index:10;background:unset;color:var(--text-color);text-align:center;}
+                    .rooms{
+                        place-self:stretch;
+                    }
+                    &::before{
+                        content:"";
+                        @include absoluteFill();
+                        background:var(--high-contrast-color);
+                        opacity: 0.8;
+                        z-index:1;
+                    }
+                    transition:0.25s;
+                    transform: rotateY(90deg);
+                    
+                }
+                .content{
+
+                }
+                &:hover{
+                    .infos{
+                        transform:rotateY(0deg);
+                    }
+                }
+                .remove-button{
+                    opacity:0;
+                    pointer-events: none;
+                    position: absolute;
+                    top:0;
+                    right:0;
+                    z-index: 9;
+                    display:flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    width:2rem;height:2rem;
+                    background:var(--button-bg-color);
+                    --text-color: var(--button-text-color);
+                    border-radius:50%;
+                    transition:0.25s;
+                    i{transition:0.25s}
+                    &:hover{
+                        background:var(--button-hover-bg-color);
+                        --text-color: var(--button-hover-text-color);
+                    }
+                }
+            }
+
         }
 
         // BROKERS
@@ -998,7 +1073,11 @@ $laptop : 1280px;
                     "name name"
                     "title title"
                     "contact contact";
-                
+                .image{
+                    background: url('assets/shadow_broker.jpg') no-repeat;
+                    background-size: cover;
+                    img{text-indent: -1000px;}
+                }
                 .contact{
                     padding:10px;
                     .email,.phone{
@@ -1130,6 +1209,14 @@ $laptop : 1280px;
                 }
             }
         }
+
+        &.si-office-item{
+            .image{
+                background: url('assets/shadow_office.jpg') no-repeat;
+                background-size: cover;
+                img{text-indent: -1000px;}
+            }
+        }
     }
 
     si-small-list{
@@ -1259,7 +1346,6 @@ $laptop : 1280px;
         max-height:0px;
         transition:max-height 0.5s, opacity 0.25s;
         z-index: 99;
-        display: block;
         &.expanded{
             opacity:1;
             max-height:100vh;
@@ -1276,7 +1362,7 @@ $laptop : 1280px;
             transform: translate(-50%,-50%)
         }
         @include media($phone){
-            top:0;left:0;
+            top:0px;left:0px;
             width:100%;
             height:100%;
             border-radius: 0px;
@@ -1286,6 +1372,10 @@ $laptop : 1280px;
     }
     .filter-panel{
         position:relative;
+        @include media($tablet){
+            position:absolute;
+            width:100%;
+        }
         h4{
             font-size:20px;font-weight: 400;margin:0px;
         }
@@ -1313,6 +1403,7 @@ $laptop : 1280px;
             opacity:0;
             transition:0.05s;
             pointer-events: none;
+            padding:0px;
             .panel-list{
                 .list-item{
                     border-bottom: var(--element-border);
@@ -1845,6 +1936,7 @@ $laptop : 1280px;
                 }
 
                 .image{
+                    background:none;
                     &::after{
                         content:"\f03e";font-family: 'Font Awesome 5 pro';
                         font-size:80px;
@@ -2842,7 +2934,7 @@ $laptop : 1280px;
             
         }
 
-        .expenses{
+        .expenses, .assessments, .incomes{
 
             .label-value{
                 display:flex;
@@ -2967,8 +3059,13 @@ $laptop : 1280px;
             grid-column: 2;
             grid-row: 1 / span 3;
             border-bottom: solid 25px #ccc;
+            background: url('assets/shadow_broker.jpg') no-repeat;
+            background-size: cover;
+            
             img{
                 display:block;
+                text-indent: -1000px;
+                max-width:100%;
             }
         }
         .contact{
@@ -3248,43 +3345,48 @@ $laptop : 1280px;
             }
         }
     }
-    .si-dropdown-panel{
-        position: absolute;
-        overflow:hidden;
-        max-height:0px;
+}
+#top .si-dropdown-panel,
+.si-dropdown-panel{
+    position: absolute;
+    overflow:hidden;
+    max-height:0px;
+    max-width:80vw;
+    transition:max-height 0.25s;
+    background-color:var(--background-color);
+    transform:translate(-50%,-50%);
+    opacity:0;
+    z-index:99999999;
+    border:var(--element-border);
+    border-radius:var(--element-border-radius);
+    left:0px;
+    width:0px;
+    pointer-events: none;
+    .dropdown-item{
+        white-space: nowrap;
+        padding:5px 10px;
+        cursor:pointer;
+        border-left-width: 4px;
+        border-left-style: solid;
+        border-left-color: transparent;
+        color:var(--text-color);
         transition:0.25s;
-        background-color:var(--background-color);
-        right:0px;
-        opacity:0;
-        z-index:99999999;
-        border:var(--element-border);
-        border-radius:var(--element-border-radius);
-        min-width:100%;
-        .dropdown-item{
-            white-space: nowrap;
-            padding:5px 10px;
-            cursor:pointer;
-            border-left-width: 4px;
-            border-left-style: solid;
-            border-left-color: transparent;
-            color:var(--text-color);
-            transition:0.25s;
-            &.active{    
-                border-left-color: var(--highlight);
-            }
-            &:not(.active):hover{
-                border-left-color:var(--highlight);
-                font-weight: 600;
-            }
+        &.active{    
+            border-left-color: var(--highlight);
+        }
+        &:not(.active):hover{
+            border-left-color:var(--highlight);
+            font-weight: 600;
         }
     }
+
     &.expanded{
-        .si-dropdown-panel{
-            max-height:initial;
-            opacity:1;
-            padding:10px 0;
-            box-shadow: rgba(#000,0.5) 2px 2px 10px;
-        }
+        max-height:initial;
+        opacity:1;
+        padding:10px 0;
+        box-shadow: rgba(#000,0.5) 2px 2px 10px;
+        pointer-events: auto;
+        width:unset;
     }
 }
 
@@ -3879,14 +3981,22 @@ body.si-modal-open{
         //padding-top: 100%;
         width:100%;
         border:solid 1px var(--highlight);
-        border-radius: var(--element-border-radius);
+        border-radius:var(--element-border-radius);
         
-        transition:0.25s opacity, 0.05s 0.25s max-height, 0.5s 1s box-shadow;
-            padding:0px;
-            max-height:0px;
-            opacity:0;
-            pointer-events:none;
-        
+        transition:
+                opacity 0.15s 0.1s, 
+                max-height 0.25s,
+                box-shadow 0.15s,
+                left 0.25s 0.25s,
+                padding 0.25s 0.25s,
+                width 0.25s 0.25s
+                ;
+        padding:0px;
+        max-height:0px;
+        max-width:80vw;
+        opacity:0;
+        pointer-events:none;
+        overflow:hidden;
         z-index:999;
         //background:#fff;
         box-shadow:rgba(#000,0.5) 0 0px 0px;
@@ -3924,6 +4034,8 @@ body.si-modal-open{
             grid-gap: 5px;
             place-items: center start;
             font-size: 1.2rem;
+            pointer-events:auto;
+
             label{
                 cursor:pointer;
                 padding-left:8px;font-weight: 400;margin:0px;color:inherit;
@@ -3942,13 +4054,17 @@ body.si-modal-open{
                 background:var(--highlight);color:var(--highlight-text-color);
             }
         }
-        &.has-suggestions{
+        &.expanded{
             //padding:0px;
             max-height:80vh;
             opacity:1;
-            box-shadow:rgba(#000,0.5) 0 0px 15px;
-            pointer-events:auto;
-
+            box-shadow:rgba(#000,0.25) 0 10px 10px;
+            padding-top: var(--input-height);
+            transition:
+                opacity 0.15s, 
+                max-height 0.25s,
+                box-shadow 0.25s 0.15s
+                ;
         }
     }
 
@@ -4008,6 +4124,115 @@ body.si-modal-open{
             > label{
                 display: grid;
                 grid-template-columns: 1fr auto;
+            }
+        }
+    }
+}
+
+
+#top .si-favorites-button,
+.si-favorites-button{
+    // arrow
+    .si-favorites-toggle-button{
+        position:relative;
+        a{outline:none;}
+        
+        //.label{display:none;}
+        &.panel-opened{
+            &::before{
+                transition:0.25s;
+                opacity:1;
+                top:100%;
+            }
+        }
+    }
+    
+}
+.menu{
+    .si-favorites-button{
+        button{
+            @include reset;
+            font-weight: inherit;
+        }
+    }
+}
+
+
+#top .si-favorites-panel,
+.si-favorites-panel{
+    pointer-events: none;
+    opacity:0;
+    position: fixed;
+    top: var(--origin-y);
+    left: var(--origin-x);
+    max-width:1200px;
+    z-index:9999;
+    border: var(--element-border);
+    border-radius: var(--element-border-radius);
+    background: var(--small-contrast-color);
+    --text-color: var(--small-contrast-text-color);
+    --listing-item-column-width: 225px;
+    width:0px;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    place-items: stretch;
+    padding:1rem;
+    max-height:0px;
+    overflow:hidden;
+    transform: translate(-50%,-50%);
+    transition: all 0.25s;
+    
+
+    .si-list-of-listings{display:contents;}
+    .favorite-list-container{
+        overflow:hidden;
+        overflow-y:auto;
+
+        label.placeholder{
+            display:block;
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+            i{vertical-align: sub;}
+            sub{display:block;}
+        }
+    }
+    h3{text-align:center;}
+    .list-container{
+        display:grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--listing-item-column-width),1fr));
+    }
+    .si-list{
+        grid-area:unset;
+        place-self: stretch;
+        
+        .si-item{
+            .content{
+                grid-template-rows:auto;
+            }
+            
+        }
+    }
+    .close-button{
+        position: absolute;
+        top:1.25rem;
+        right:1.25rem;
+        cursor:pointer;
+    }
+
+    &.opened{
+        opacity:1;pointer-events: auto;
+        width:80vw;
+        max-height:80vh;
+        box-shadow: 0px 0px 10px #00000099;
+        padding:2.5rem;
+        left:50%;
+        top:50%;
+        .list-container{
+            .si-item{
+                .remove-button{
+                    opacity:1;
+                    pointer-events: auto;
+                }
             }
         }
     }

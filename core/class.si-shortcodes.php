@@ -235,33 +235,6 @@ class SiShorcodes{
         $lResult = ob_get_clean();
 
         return $lResult;
-
-        ob_start();
-        ?>
-        <div class="listing-list si-list-of-listings">
-            <div ng-show="model.listings.length>0">
-                <div class="list-header">
-                    <h3>{{(model.listings.length==1 ? '1 property' : '{0} properties').translate().format(model.listings.length)}}</h3>
-
-                    <div class="search-input">
-                        <input placeholder="{{'Use keywords to filter the list'.translate()}}" ng-model="filter_keywords" />
-                        <i class="far fa-search"></i>
-                    </div>
-                </div>
-                <div class="list-container">
-                    <div ng-repeat="item in model.listings | filter : filterListings" ng-animate>
-                        <?php
-                        SourceImmo::view("list/listings/standard/item-small");
-                        ?>
-                    </div>
-                </div>
-            </div>
-            <label class="placeholder" ng-show="model.listings.length==0">{{'{0} has no properties yet'.translate().format(model.first_name)}}</label>
-        </div>
-        <?php
-        $lResult = ob_get_clean();
-
-        return $lResult;
     }
 
     public function sc_si_broker_part($atts, $content){

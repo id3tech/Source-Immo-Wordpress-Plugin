@@ -10,25 +10,30 @@
     </div>
 
     <div class="advanced">
-        <button class="cities {{isExpanded('cities')}} {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></button>
+        <button class="cities {{isExpanded('cities')}} {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" type="button"  
+                ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></button>
     
-        <button class="price {{isExpanded('price')}} {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></button>
+        <button class="price {{isExpanded('price')}} {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" type="button"  
+                ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></button>
     
-        <button class="category {{isExpanded('categories')}} {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></button>
+        <button class="category {{isExpanded('categories')}} {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" type="button"  
+                ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></button>
         
-        <button class="rooms {{isExpanded('rooms')}} {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></button>
+        <button class="rooms {{isExpanded('rooms')}} {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" type="button"  
+                ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></button>
         
-        <button class="more {{isExpanded('others')}} {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" type="button"  ng-click="toggleExpand('others')"><?php _e('More', SI) ?></button>
+        <button class="more {{isExpanded('others')}} {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" type="button"  
+                ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></button>
     
         <div class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
                 <button class="button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></button>
                 <div class="si-dropdown-panel">
-                    <div class="dropdown-item {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand('cities')"><?php _e('Cities', SI) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" ng-click="toggleExpand('price')"><?php _e('Price', SI) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand('categories')"><?php _e('Home types', SI) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" ng-click="toggleExpand('rooms')"><?php _e('Rooms', SI) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" ng-click="toggleExpand('others')"><?php _e('More', SI) ?></div>
+                    <div class="dropdown-item {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
+                    <div class="dropdown-item {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
+                    <div class="dropdown-item {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></div>
+                    <div class="dropdown-item {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></div>
+                    <div class="dropdown-item {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
                 </div>
             </div>
         </div>
@@ -45,19 +50,19 @@
     <div class="filter-panel cities-panel {{isExpanded('cities')}}">
         <div class="panel-header">
             <h3><?php _e('Cities', SI) ?></h3>
-            <button class="button" type="button"  ng-click="toggleExpand('cities')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'cities')"><i class="fal fa-times"></i></button>
         </div>
         
         <div class="filter-panel-content">
             
             <div class="panel-list region-city-list">                 
                 <div class="list-container regions">
-                    <div class="list-item region {{region.selected || filter.sublistHasFilters(region.__$obj_key, dictionary.city) ? 'has-filters' : ''}}" 
-                        data-ng-repeat="region in dictionary.region | orderObjectBy: 'caption'" 
+                    <div class="list-item region {{region.selected || filter.sublistHasFilters(region.__$obj_key, city_list) ? 'has-filters' : ''}}" 
+                        data-ng-repeat="region in region_list | orderObjectBy: 'caption'" 
                         >
 
                         <div class="list-item-title region-name " 
-                                data-ng-click="expandSublist('region',region)"
+                                data-ng-click="expandSublist(region_list,region)"
                                 data-ng-click-off="changeRegionTab(region.__$obj_key)">
                             <h3>{{region.caption}}</h3>                                
                         </div>
@@ -69,12 +74,12 @@
                                 <si-checkbox class="sublist-all"
                                     data-label="{{'All cities'.translate()}}" 
                                     data-ng-model="region.selected"
-                                    data-ng-click="filter.addFilter('location.region_code','in',getSelection(dictionary.region))"></si-checkbox>
+                                    data-ng-click="filter.addFilter('location.region_code','in',getSelection(region_list))"></si-checkbox>
 
                                 <si-checkbox
-                                    data-ng-repeat="city in city_list | filter : {parent: region.__$obj_key} | orderObjectBy: 'caption'"
-                                    data-ng-click="filter.addFilter('location.city_code','in',getSelection(dictionary.city))"
-                                    data-ng-model="dictionary.city[city.__$obj_key].selected"
+                                    data-ng-repeat="city in city_list | filter : {parent: region.__$obj_key} | orderBy: 'caption'"
+                                    data-ng-click="filter.addFilter('location.city_code','in',getSelection(city_list))"
+                                    data-ng-model="city.selected"
                                     ng-disabled="region.selected"
                                     data-label="{{city.caption.replace('(' + region.caption +')','')}}"
                                     ></si-checkbox>
@@ -93,7 +98,7 @@
     <div class="filter-panel price-panel {{isExpanded('price')}}">
         <div class="panel-header">
             <h3><?php _e('Price', SI) ?></h3>
-            <button class="button" type="button"  ng-click="toggleExpand('price')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'price')"><i class="fal fa-times"></i></button>
         </div>
     
         <div class="filter-panel-content">
@@ -121,7 +126,7 @@
     <div class="filter-panel categories-panel {{isExpanded('categories')}} ">
         <div class="panel-header">
             <h3><?php _e('Home types', SI) ?></h3>
-            <button class="button" type="button"  ng-click="toggleExpand('categories')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'categories')"><i class="fal fa-times"></i></button>
         </div>
         
         <div class="filter-panel-content">
@@ -130,7 +135,7 @@
                     <div class="list-item category {{category.selected || filter.sublistHasFilters(category_code, dictionary.listing_subcategory) ? 'has-filters' : ''}}" 
                         data-ng-repeat="(category_code,category) in dictionary.listing_category">
                         <div class="list-item-title category-name"
-                            data-ng-click="expandSublist('listing_category', category,category_code)">
+                            data-ng-click="expandSublist(dictionary.listing_category, category,category_code)">
                             <h3><i class="far fa-fw fa-{{getCategoryIcon(category_code)}}"></i> {{category.caption}}</h3>
                         </div>
 
@@ -163,7 +168,7 @@
     <div class="filter-panel rooms-panel {{isExpanded('rooms')}}">
         <div class="panel-header">
             <h3><?php _e('Rooms', SI) ?></h3>
-            <button class="button" type="button"  ng-click="toggleExpand('rooms')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'rooms')"><i class="fal fa-times"></i></button>
         </div>
 
         <div class="filter-panel-content">
@@ -217,7 +222,7 @@
     <div class="filter-panel others-panel {{isExpanded('others')}}">
         <div class="panel-header">
             <h3><?php _e('More', SI) ?></h3>
-            <button class="button" type="button"  ng-click="toggleExpand('others')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'others')"><i class="fal fa-times"></i></button>
         </div>
         
         <div class="filter-panel-content">
@@ -300,7 +305,11 @@
                     data-ng-model="item.selected"
                     data-label="{{item.caption.translate()}}"
                     ></si-checkbox>
-                 
+                <si-checkbox
+                    data-ng-show="hasFavorites()"
+                    data-ng-click="filter.addFilter('ref_number','in', getFavorites('ref_number'),'My favorites'.translate())"
+                    data-label="{{'My favorites'.translate()}}"
+                    data-si-checked="{{filter.hasFilter('ref_number')}}"></si-checkbox>
             </div>
         </div>
     </div>

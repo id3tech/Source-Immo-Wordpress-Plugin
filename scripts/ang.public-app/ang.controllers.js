@@ -134,7 +134,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         other: {opened: false},
         in_exclusions:{opened:false},
         rooms:{opened:false},
-        expenses: {opened:false}
+        financials: {opened:false}
     }
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
@@ -338,6 +338,11 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             $ex.type = $siDictionary.getCaption({src:$ex, key:'type_code'},'expense_type');
         });
 
+        // incomes
+        $scope.model.incomes.forEach(function($ex){
+            $ex.type = $siDictionary.getCaption({src:$ex, key:'type_code'},'income_type');
+        });
+
         // rooms
         $scope.model.rooms.forEach(function($r){
             $r.category = $siDictionary.getCaption({src:$r, key:'category_code'},'room_category');
@@ -353,10 +358,14 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         }
         if($scope.model.video != undefined){
             let lEmbedVideo = $scope.model.video.url;
-            if($scope.model.video.type=='youtube'){
-                lEmbedVideo = '//www.youtube.com/embed/{0}?rel=0&showinfo=0&enablejsapi=1&origin=*'.format($scope.model.video.id);
+            const lEmbedFormatFn = {
+                youtube : function(){ return '//www.youtube.com/embed/{0}?rel=0&showinfo=0&enablejsapi=1&origin=*'.format($scope.model.video.id);},
+                vimeo   : function(){ return '//player.vimeo.com/video/{0}'.format($scope.model.video.id);}
             }
-
+            if(typeof lEmbedFormatFn[$scope.model.video.type] == 'function'){
+                lEmbedVideo = lEmbedFormatFn[$scope.model.video.type]();
+            }
+            
             $scope.model.video.trusted_url = $sce.trustAsResourceUrl(lEmbedVideo);
         }
 
@@ -581,6 +590,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         });
         $scope.model.expertises = lExpertises.join(', ');
         $scope.list = $scope.model.listings;
+        $scope.model.photo = $scope.model.photo != null ? $scope.model.photo : {url: siCtx.base_path + 'styles/assets/shadow_broker.jpg'};
 
         // office
         $siUtils.compileOfficeItem($scope.model.office);

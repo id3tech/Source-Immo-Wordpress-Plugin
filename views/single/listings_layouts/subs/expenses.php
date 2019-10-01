@@ -1,4 +1,5 @@
-<div class="expenses section {{sectionOpened('expenses')?'opened':''}}" >
+<div class="expenses section {{sectionOpened('expenses')?'opened':''}}" 
+        data-ng-show="[model.building.assessment, model.land.assessment, model.expenses] | siHasValue">
     <div class="title" data-ng-click="toggleSection('expenses')"><div><?php _e('Expenses and assessments',SI) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
     <div class="content">
 

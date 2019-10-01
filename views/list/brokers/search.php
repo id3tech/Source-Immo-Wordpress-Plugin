@@ -7,19 +7,19 @@
 
 <div class="advanced">
     <button class="letters {{isExpanded('letters')}} {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" type="button"  
-        ng-click="toggleExpand('letters')"><?php _e('Alphabetical', SI) ?></button>
+        ng-click="toggleExpand($event,'letters')"><?php _e('Alphabetical', SI) ?></button>
     <button class="licenses {{isExpanded('licenses')}} {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" type="button"  
-        ng-show="siDictionary.count('broker_license_type') > 1" ng-click="toggleExpand('licenses')"><?php _e('License', SI) ?></button>
+        ng-show="siDictionary.count('broker_license_type') > 1" ng-click="toggleExpand($event,'licenses')"><?php _e('License', SI) ?></button>
     <button class="offices {{isExpanded('offices')}} {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" type="button" 
-        ng-show="officeList.length > 1" ng-click="toggleExpand('offices')"><?php _e('Office', SI) ?></button>
+        ng-show="officeList.length > 1" ng-click="toggleExpand($event,'offices')"><?php _e('Office', SI) ?></button>
 
     <div class="filter-menu">
         <div class="si-dropdown" data-show-button-icon="false">
             <button class="button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></button>
             <div class="si-dropdown-panel">
-                <div class="dropdown-item {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" ng-click="toggleExpand('letters')"><?php _e('Alphabetical', SI) ?></div>
-                <div class="dropdown-item {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" ng-click="toggleExpand('licenses')"><?php _e('License', SI) ?></div>
-                <div class="dropdown-item {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" ng-click="toggleExpand('offices')"><?php _e('Office', SI) ?></div>
+                <div class="dropdown-item {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'letters')"><?php _e('Alphabetical', SI) ?></div>
+                <div class="dropdown-item {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'licenses')"><?php _e('License', SI) ?></div>
+                <div class="dropdown-item {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'offices')"><?php _e('Office', SI) ?></div>
             </div>
         </div>
     </div>
@@ -33,13 +33,13 @@
 <div class="filter-panel letters-panel {{isExpanded('letters')}}">
     <div class="panel-header">
         <h3><?php _e('First letter of the last name', SI) ?></h3>
-        <button class="button" type="button"  ng-click="toggleExpand('letters')"><i class="fal fa-times"></i></button>
+        <button class="button" type="button"  ng-click="toggleExpand($event,'letters')"><i class="fal fa-times"></i></button>
     </div>
     <div class="filter-panel-content">
         <div class="filter-list letter-list">
             <div class="letter {{filter.getFilterValue('last_name') == letter ? 'active' : ''}}" 
                     ng-repeat="letter in alphaList" 
-                    ng-click="filter.toggleFilter('last_name','starts_with',letter, 'Starting with &quot;{0}&quot;'.translate().format(letter.toUpperCase()))">
+                    ng-click="filter.toggleFilter('last_name','starts_with',letter, 'Starting with {0}'.translate().format(letter.toUpperCase()))">
                 <span>{{letter.toUpperCase()}}</span>
             </div>
         </div>
@@ -50,26 +50,18 @@
 <div class="filter-panel licenses-panel {{isExpanded('licenses')}}">
     <div class="panel-header">
         <h3><?php _e('License', SI) ?></h3>
-        <button class="button" type="button"  ng-click="toggleExpand('licenses')"><i class="fal fa-times"></i></button>
+        <button class="button" type="button"  ng-click="toggleExpand($event,'licenses')"><i class="fal fa-times"></i></button>
     </div>
 
     
     <div class="filter-panel-content">
         <div class="filter-list license-list">    
-            <si-radio
+            <si-checkbox
                     data-ng-repeat="(key,item) in dictionary.broker_license_type"
-                    name="bedrooms-count"
-                    data-ng-click="filter.addFilter('license_type_code','equal',key, item.caption)"
-                    data-ng-checked="filter.getFilterValue('license_type_code') == key"
+                    data-ng-click="filter.addFilter('license_type_code','in',filter.getSelection(dictionary.broker_license_type))"
+                    data-ng-model="item.selected"
                     data-label="{{item.caption}}"
-                ></si-radio>
-
-            <si-radio
-                    name="bedrooms-count"
-                    data-ng-click="filter.addFilter('license_type_code','equal','')"
-                    data-ng-checked="filter.getFilterValue('license_type_code') == null"
-                    data-label="<?php _e('Any',SI) ?>"
-                ></si-radio>
+                ></si-checkbox>
         </div>
     </div>
 </div>
@@ -78,7 +70,7 @@
 <div class="filter-panel offices-panel {{isExpanded('offices')}}">
     <div class="panel-header">
         <h3><?php _e('Office', SI) ?></h3>
-        <button class="button" type="button"  ng-click="toggleExpand('offices')"><i class="fal fa-times"></i></button>
+        <button class="button" type="button"  ng-click="toggleExpand($event,'offices')"><i class="fal fa-times"></i></button>
     </div>
     
     <div class="filter-panel-content">
@@ -86,7 +78,7 @@
         
             <si-checkbox
                 data-ng-repeat="item in officeList | orderBy: 'name'"
-                data-ng-click="filter.addFilter('office_id','in',getSelection(officeList))"
+                data-ng-click="filter.addFilter('office_ref_number','in',getSelection(officeList,'ref_number'))"
                 data-ng-model="item.selected"
                 data-label="{{item.name}}"
                 ></si-checkbox>

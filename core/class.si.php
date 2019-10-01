@@ -65,11 +65,19 @@ class SourceImmo {
 
       add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
       add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
-
+      if($this->configs->favorites_button_menu != null){
+        add_filter('wp_nav_menu_items',array($this, 'add_favorite_button_to_menu'), 10, 2);
+      }
     }
   }
 
-
+  
+  function add_favorite_button_to_menu( $items, $args ) {
+      if( $args->theme_location == $this->configs->favorites_button_menu )
+          return $items."<li class='menu-item'><si-favorites-button></si-favorites-button></li>";
+   
+      return $items;
+  }
   
 
   public function get_account_id() {
@@ -1189,7 +1197,7 @@ class SiSharing{
 
     $this->title = $this->object->first_name . ' ' . $this->object->last_name;
     $this->desc = $this->object->license_type;
-    $this->image = $this->object->photo->url;
+    $this->image = isset($this->object->photo->url) ? $this->object->photo->url : '';
     $this->url = '/' . $this->object->permalink;
   }
 
@@ -1341,6 +1349,7 @@ class SourceImmoBrokersResult extends SourceImmoAbstractResult {
 
       $citiesResult = new SourceImmoCitiesResult($cityListData);
       $item->cities = $citiesResult->cities;
+      $item->photo = isset($item->photo) ? $item->photo : (object) array('url' => SI_PLUGIN_URL . 'styles/assets/shadow_broker.jpg');
     }
   }
 }
@@ -1786,11 +1795,11 @@ class SourceImmoOfficesResult extends SourceImmoAbstractResult {
     global $dictionary;
 
     //$item->location = (object) array();
-    $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
-    $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
-    $item->location->country = $dictionary->getCaption($item->location->country_code , 'country');
-    $item->location->state = $dictionary->getCaption($item->location->state_code , 'state');
-    $item->location->street_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
+    $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : '';
+    $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
+    $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
+    $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
+    $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';
 
     $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_office_permalink());
   }
@@ -2043,7 +2052,7 @@ class BrokerSchema extends BaseDataSchema{
   public function __construct($broker){
     $basicInfos = new BaseSchemaInfos(
         $broker->first_name . ' ' . $broker->last_name, 
-        isset($broker->photo_url) ? $broker->photo_url : $broker->photo->url, 
+        isset($broker->photo_url) ? $broker->photo_url : SI_PLUGIN_URL . '/styles/assets/shadow_broker.jpg', 
         $broker->license_type);
     parent::__construct('RealEstateAgent',$basicInfos);
 

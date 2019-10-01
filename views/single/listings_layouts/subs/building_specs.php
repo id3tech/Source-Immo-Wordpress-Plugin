@@ -1,5 +1,5 @@
 <div class="building-specs section {{sectionOpened('building')?'opened':''}}"
-    data-ng-show="model.building.attributes != null && model.building.attributes.length > 0">
+    data-ng-show="model.building.attributes | siHasValue">
     <div class="title" data-ng-click="toggleSection('building')">
         <div><?php _e('Building and interior',SI) ?></div> 
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>

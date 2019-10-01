@@ -630,6 +630,25 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         }
         return lResult;
     }
+    
+    /**
+     * Check if any of the values have some sort of value
+     * @param {mixed object/array} $value A single or an array of value to check
+     * @param {int} $arrayOffset Optional. Minimal value for an array to be considered "not empty"
+     */
+    $scope.hasValue = function($values, $arrayOffset){
+        if($values == undefined) return false;
+        $arrayOffset = ($arrayOffset == undefined) ? 0 : $arrayOffset;
+
+        const lValuesToCheck = (Array.isArray($values)) ? $values : [$values];
+        return lValuesToCheck.some(function($value){
+            
+            if(Array.isArray($value)) return $value.length > $arrayOffset;
+            if(typeof $value == 'string') return $value != '';
+            if($value!=undefined)return true;
+            
+        })
+    }
 
     /**
      * Get permalink of the listing item
@@ -1299,20 +1318,34 @@ function $siFavorites($q){
     $scope.save = function(){
         localStorage.setItem('favorites', JSON.stringify($scope.favorites));
     }
+    
+    $scope.hasFavorites = function(){
+        return $scope.favorites.length > 0;
+    }
 
-    $scope.toggle = function($key){
-        if($scope.isFavorite($key) === false){
-            $scope.favorites.push($key);
+    $scope.toggle = function($item){
+        if($scope.isFavorite($item.ref_number) === false){
+            $item.added_to_fav = new Date();
+            $scope.favorites.push($item);
             $scope.save();
         }
         else{
-            $scope.favorites.splice($scope.favorites.indexOf($key),1);
+            $scope.favorites = $scope.favorites.filter(function($e) { return $e.ref_number != $item.ref_number});
             $scope.save();
         }
     }
 
-    $scope.isFavorite = function($key){
-        return $scope.favorites.some(function($e) {return $e == $key});
+    $scope.isFavorite = function($ref_number){
+        return $scope.favorites.some(function($e) {return $e.ref_number == $ref_number});
+    }
+
+    $scope.isEmpty = function(){
+        return $scope.favorites.length == 0;
+    }
+
+    $scope.getValues = function(){
+        if($scope.favorites.length == 0)  return [];
+        return $scope.favorites.map(function($e) { return $e.ref_number});
     }
 
     $scope.init();
@@ -1471,16 +1504,15 @@ function $siFilters($q,$siApi,$siUtils){
          * @return {boolean}
          */
         $fm.hasFilters = function($customCheck){
-            
-            if($fm.filter_group.filter_groups != null) return true;
-            if($fm.filter_group.filters != null) return true;
+            if($fm.filter_group.filter_groups != null && $fm.filter_group.filter_groups.length>0) return true;
+            if($fm.filter_group.filters != null && $fm.filter_group.filters.length>0) return true;
             if($fm.query_text != null) return true;
             if($fm.data.location != null) return true;
             //if($fm.data.keyword != '') return true;
-            if($fm.data.min_price != null) return true;
-            if($fm.data.max_price != null) return true;
+            if($fm.data.min_price != null && $fm.data.min_price > 0) return true;
+            if($fm.data.max_price != null && $fm.data.max_price > 0) return true;
 
-            
+
             return false;
         }
 
@@ -1966,11 +1998,12 @@ function $siFilters($q,$siApi,$siUtils){
         $fm.syncToList = function($filter, $list){
             // make sure list is an array
             let lListArray = $siUtils.toArray($list);
-            
+            //console.log($list, $filter);
+
             lListArray.forEach(function($e){
                 // when filter is an array of value and item key is contained in that list
-                if($filter.operator=='in' && ($filter.value.indexOf($e.__$key)>=0)){
-                    if(!$list[$e.__$key].selected) $list[$e.__$key].selected=true;
+                if($filter.operator=='in' && ($filter.value.indexOf($e.__$obj_key)>=0)){
+                    if($list[$e.__$obj_key].selected == undefined || !$list[$e.__$obj_key].selected) $list[$e.__$obj_key].selected=true;
                 }
                 // when item field matches filter field
                 else if($e.field==$filter.field){
