@@ -150,6 +150,7 @@ html.print{
             position:relative;
             padding:0.25in;
             overflow:hidden;
+            &.hidden{display:none;}
             &.small-contrast{
                 background-color:var(--small-contrast-color);
             }
@@ -420,29 +421,45 @@ html.print{
                         }
                     }
                 }
-                .in-ex,
+                .page-layout{
+                    display:grid;
+                    grid-template-columns: 2fr 1fr;
+                    grid-template-areas: "financial inc-exc";
+                    place-items:start stretch;
+                }
+                .in-ex{
+                    grid-area: inc-exc;
+
+                }
+                .financial{grid-area: financial;}
                 .financial{
                     display:grid;
-                    grid-template-columns: 1fr 1fr;
+                    grid-template-columns: 1fr;
                     grid-gap:0.25in;
                     .list{
                         display:grid;
-                        grid-template-columns: 1fr 1fr;
+                        grid-template-columns: 1fr auto;
                         grid-gap:0.25in;
+                        place-items:center stretch;
+                        .list-item{
+                            display:contents;
+                        }
                     }
-                    .assessment,.expense{
-                        display:grid;
-                        grid-template-columns: 1fr;
-                        grid-template-areas: "value" "label";
-                        place-items:center;
+
+                    .assessment,.expense,.income{
+                        // display:grid;
+                        // grid-template-columns: 1fr;
+                        // grid-template-areas: "value" "label";
+                        // place-items:center;
                         label{
-                            grid-area:label;
+                            //grid-area:label;
                             margin:0;
                             font-weight: 400;
                         }
                         .value{
-                            grid-area:value;
-                            font-size:1.3rem;
+                            //grid-area:value;
+                            font-size:1rem;
+                            text-align:right;
                         }
                     }
                 }

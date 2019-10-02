@@ -5,7 +5,7 @@
         
         
         
-        <div class="assessments" data-ng-show="[model.building.assessment, model.land.assessment] | siHasValue">
+        <div class="assessments" data-ng-show="[model.assessment, model.building.assessment, model.land.assessment] | siHasValue">
             <h4><?php _e('Assessments',SI) ?></h4>
             <div class="label-value building-assessment" ng-show="model.building.assessment">
                 <label>{{'Building ({0})'.translate().format(model.building.assessment.year)}}</label>
@@ -15,6 +15,10 @@
             <div class="label-value land-assessment" ng-show="model.land.assessment">
                 <label>{{'Land ({0})'.translate().format(model.land.assessment.year)}}</label>
                 <div class="value">{{model.land.assessment.amount.formatPrice()}}</div>
+            </div>
+            <div class="label-value municipal-assessment" ng-show="model.assessment">
+                <label>{{'Municipal ({0})'.translate().format(model.assessment.year)}}</label>
+                <div class="value">{{model.assessment.amount.formatPrice()}}</div>
             </div>
         </div>
 

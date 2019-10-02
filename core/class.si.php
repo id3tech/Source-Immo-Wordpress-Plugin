@@ -1644,7 +1644,12 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
 
     foreach($item->expenses as &$expense){
       $expense->type = $dictionary->getCaption(array($expense,'type_code') , 'expense_type');
-      $expense->amount_text = self::formatPrice($expense->amount);
+      $expense->amount_text = isset($expense->amount) ? self::formatPrice($expense->amount) : '';
+    }
+
+    foreach($item->incomes as &$income){
+      $income->type = $dictionary->getCaption(array($income,'type_code') , 'income_type');
+      $income->amount_text = self::formatPrice($income->amount);
     }
   }
   

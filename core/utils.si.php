@@ -440,3 +440,19 @@ class HttpCall{
   }
 
 }
+
+if(!function_exists('hasValue')){
+  function hasValue($expression,$trueResult='', $falseResult=''){
+    echo _hasValue($expression,$trueResult,$falseResult);
+  }
+  function _hasValue($expression,$trueResult='', $falseResult=''){
+    if(!isset($expression))return $falseResult;
+    if($expression === null) return $falseResult;
+    if(is_array($expression) && count($expression)==0) return $falseResult;
+    if($expression === '') return $falseResult;
+    if($expression === false) return $falseResult;
+
+    
+    return $trueResult;
+  }
+}

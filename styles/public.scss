@@ -2935,7 +2935,9 @@ $laptop : 1280px;
         }
 
         .expenses, .assessments, .incomes{
-
+            &:not(:first-child){
+                h4{margin-top:1rem;}
+            }
             .label-value{
                 display:flex;
                 justify-content: space-between;
