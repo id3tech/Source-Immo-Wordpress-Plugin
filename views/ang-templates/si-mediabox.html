@@ -1,25 +1,25 @@
 <div class="medias select-{{selected_media}}">
     <div class="tabs">
-        <button type="button" class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
+        <span class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
             data-ng-show="tabIsAvailable('pictures')"
             data-ng-click="selectMedia('pictures')">
-            <i class="fal fa-camera"></i> <span>{{'Pictures'.translate()}} ({{model.photos.length}})</span></button>
-        <button type="button" class="tab videos {{selected_media=='videos'?'selected':''}}"
+            <i class="fal fa-camera"></i> <span>{{'Pictures'.translate()}} ({{model.photos.length}})</span></span>
+        <span class="tab videos {{selected_media=='videos'?'selected':''}}"
             data-ng-show="tabIsAvailable('video') && model.video!=undefined" 
             data-ng-click="selectMedia('videos')">
-            <i class="fal fa-video"></i> <span>{{'Video'.translate()}}</span></button>
-        <button type="button" class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
+            <i class="fal fa-video"></i> <span>{{'Video'.translate()}}</span></span>
+        <span class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
             data-ng-show="tabIsAvailable('virtual-tours') && model.virtual_tour!=undefined" 
             data-ng-click="selectMedia('virtual-tours')">
-            <i class="fal fa-street-view"></i> <span>{{'Virtual tour'.translate()}}</span></button>
-        <button type="button" class="tab streetview {{selected_media=='streetview'?'selected':''}}" 
+            <i class="fal fa-street-view"></i> <span>{{'Virtual tour'.translate()}}</span></span>
+        <span class="tab streetview {{selected_media=='streetview'?'selected':''}}" 
             data-ng-show="tabIsAvailable('streetview')"
             data-ng-click="selectMedia('streetview')">
-            <i class="fal fa-street-view"></i> <span>{{'Street view'.translate()}}</span></button>
-        <button type="button" class="tab map {{selected_media=='map'?'selected':''}}" 
+            <i class="fal fa-street-view"></i> <span>{{'Street view'.translate()}}</span></span>
+        <span class="tab map {{selected_media=='map'?'selected':''}}" 
             data-ng-show="tabIsAvailable('map')"
             data-ng-click="selectMedia('map')">
-            <i class="fal fa-map"></i> <span>{{'Map'.translate()}}</span></button>
+            <i class="fal fa-map"></i> <span>{{'Map'.translate()}}</span></span>
     </div>
     <div class="viewport">
         <div class="trolley">

@@ -641,6 +641,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         $arrayOffset = ($arrayOffset == undefined) ? 0 : $arrayOffset;
 
         const lValuesToCheck = (Array.isArray($values)) ? $values : [$values];
+        if($values.length == 0) return false;
+        
         return lValuesToCheck.some(function($value){
             
             if(Array.isArray($value)) return $value.length > $arrayOffset;

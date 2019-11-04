@@ -25,6 +25,7 @@ register_deactivation_hook( __FILE__, array( 'SourceImmo', 'plugin_deactivation'
 require_once( SI_PLUGIN_DIR . '/core/utils.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-config.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-shortcodes.php' );
+require_once( SI_PLUGIN_DIR . '/core/class.si-page-builder.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-api.php' );
 

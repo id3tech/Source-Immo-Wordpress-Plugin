@@ -98,7 +98,6 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
     $scope.$on('modal-closed', function(){
         angular.element(document.body).removeClass('si-modal-open');
     });
-
 });
 
 /**
@@ -125,7 +124,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
-
+    $scope.configs = null;
+    
     // ui - section toggles
     $scope.sections = {
         addendum : {opened:false},
@@ -161,6 +161,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
             $siConfig.get().then(function($configs){
+                $scope.configs = $configs;
+
                 $resolve({
                     brokers: $configs.broker_routes,
                     listings: $configs.listing_routes
@@ -404,6 +406,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
      * @param {string} $section Section key
      */
     $scope.sectionOpened = function($section){
+        if($scope.sections[$section] == undefined) return false;
         return $scope.sections[$section].opened;
     }
     /**
@@ -474,6 +477,13 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
     $scope.shareTo = function($social_media){
         $siShare.execute($social_media);
+    }
+
+    $scope.hasListOf = function($type){
+        console.log($scope.configs);
+        return $scope.configs.lists.some(function($l){
+            return $l.type == $type;
+        })
     }
 });
 

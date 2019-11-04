@@ -2,9 +2,13 @@
 $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
-$layout = SourceImmo::current()->get_detail_layout('broker');
+$pageBuilder = new SourceImmoPageBuilder('broker');
 
-get_header();
+$pageBuilder->start_page();
+
+// $layout = SourceImmo::current()->get_detail_layout('broker');
+
+// get_header();
 
 
 SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
@@ -14,14 +18,14 @@ SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
                 class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
     
     <?php 
-        if($layout->type=='custom_page'){
+        if($pageBuilder->layout->type=='custom_page'){
             // load page content
-            do_action('si_render_page',$layout->page, 'Loading broker');
+            do_action('si_render_page',$pageBuilder->layout->page, 'Loading broker');
         }
         else{
             do_action('si_start_of_template',"Loading broker" );
 
-            SourceImmo::view('single/brokers_layouts/' . $layout->type);
+            SourceImmo::view('single/brokers_layouts/' . $pageBuilder->layout->type);
             
             do_action('si_end_of_template');
         }
@@ -34,4 +38,5 @@ SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
 var siBrokerData = <?php echo(json_encode($data)); ?>;
 </script>
 <?php
-get_footer();
+$pageBuilder->close_page();
+$pageBuilder->render();

@@ -56,9 +56,9 @@
         <label>{{'Payments'.translate()}}</label>
 
         <div class="input si-dropdown">
-            <button class="button" type="button">
+            <div class="dropdown-button">
                 {{frequencies[data.frequency].translate()}}
-            </button>
+            </div>
             <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
                 <div class="dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
             </div>

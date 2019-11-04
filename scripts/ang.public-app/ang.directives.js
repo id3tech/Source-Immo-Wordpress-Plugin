@@ -664,6 +664,10 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
 
             $scope.init = function($element){
                 $scope._element = $element;
+                $siConfig.get().then(function($configs){
+                    $scope.configs = $configs;
+                });
+
                 $siApi.getDefaultDataView().then(function($view_id){
                     $scope.view_id = $view_id;
                         
@@ -763,6 +767,13 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                 if(typeof $scope.$parent.removeFromList == 'function'){
                     $scope.$parent.removeFromList($event,$item);
                 }
+            }
+
+            
+            $scope.hasListOf = function($type){
+                return $scope.configs.lists.some(function($l){
+                    return $l.type == $type;
+                })
             }
         }
     }
@@ -3437,8 +3448,20 @@ siApp
             const raw = element[0];
             let doc = $document[0];
             //console.log('loading directive on ');
-            
-            if(!!window.IntersectionObserver){
+            if (typeof window.IntersectionObserver == 'undefined') {
+
+                $document.bind('scroll', function () {
+                    let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+                    let lBottomLimit = raw.offsetHeight + raw.offsetTop - (window.innerHeight/3*2);
+                    //console.log('in scroll', lTop);
+                    //console.log(lBottomLimit);
+                    if (lTop  >= lBottomLimit) {
+                        //console.log("I am at the bottom");
+                        scope.$apply(attrs.onBottomReached);
+                    }
+                });
+            }
+            else{
                 const lMargin = (window.innerHeight > 1080) 
                                     ? window.innerHeight * 0.25 
                                     : window.innerHeight;
@@ -3458,20 +3481,6 @@ siApp
                 observer.observe(lObservable[0]);
 
             }
-            else{
-                $document.bind('scroll', function () {
-                    let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-                    let lBottomLimit = raw.offsetHeight + raw.offsetTop - (window.innerHeight/3*2);
-                    //console.log('in scroll', lTop);
-                    //console.log(lBottomLimit);
-                    if (lTop  >= lBottomLimit) {
-                        //console.log("I am at the bottom");
-                        scope.$apply(attrs.onBottomReached);
-                    }
-                });
-            }
-
-            
         }
     };
 });
@@ -3511,7 +3520,7 @@ siApp
             document.addEventListener('fullscreenchange', function(){
                 //console.log('fullscreen change', document.fullscreenElement)
                 if(document.fullscreenElement == null){
-                    $timeout(_ => {
+                    $timeout(function() {
                         $scope.expand_mode = false;
                     });
                 }
@@ -3817,7 +3826,7 @@ siApp
     
                 let lResult = {
                     mortgage : lBranch,
-                    transfer_tax : getTransferTax($scope.data.amount,$scope.region=='06 ')
+                    transfer_tax : $scope.getTransferTax($scope.data.amount,$scope.region=='06 ')
                 }
     
                 $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
@@ -3872,7 +3881,7 @@ siApp
                 return lResult;
             };
     
-            getTransferTax = function (amount, in_montreal) {
+            $scope.getTransferTax = function (amount, in_montreal) {
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
                 parts = [];
                 const lBoundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
@@ -3898,7 +3907,10 @@ siApp
             };
             
             $scope.getTransferTaxBoundaries = function($cityCode){
+                
                 const defaultBoundaries = {code: 'default', rates: [0.005,0.01,0.015], bounds : [50900,254400,99000000]};
+                if($cityCode == undefined) return defaultBoundaries;
+                
                 const citiesBoundaries = [
                     {code: '93042', name:'Alma', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
                     {code: '73005', name:'Boisbriand', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
@@ -4115,7 +4127,10 @@ siApp
     return {
         restrict: 'A',
         link: function($scope, $element, $attrs){
-            if(!!window.IntersectionObserver){
+            if (typeof window.IntersectionObserver == 'undefined') {
+                $scope.applyAllImageSource();
+            }
+            else {
                 const lMargin = (window.innerHeight > 1080) 
                                     ? window.innerHeight * 0.25 
                                     : window.innerHeight;
@@ -4127,12 +4142,7 @@ siApp
                 $scope.observer = new IntersectionObserver(function($entries, $observer){
                     $entries.forEach(function($entry){
                         if($entry.isIntersecting){
-                            const lImg = $entry.target;
-                            const lImgSource = lImg.getAttribute('si-src') || lImg.getAttribute('data-si-src');
-                            const lImgSourceset = lImg.getAttribute('si-srcset') || lImg.getAttribute('data-si-srcset');
-                            if(lImgSource != undefined) lImg.setAttribute('src', lImgSource);
-                            if(lImgSourceset != undefined) lImg.setAttribute('srcset', lImgSourceset);
-
+                            $scope.applyImageSource($entry.target);
                             $scope.observer.unobserve($entry.target);
                         }
                     });
@@ -4146,15 +4156,46 @@ siApp
             $scope.$on('si-list-loaded', function(){
                 console.log('list loaded triggered');
                 $timeout(function(){
-                    $scope.applyObserver();
+                    if($scope.observer != undefined){
+                        $scope.applyObserver();
+                    }
+                    else{
+                        $scope.applyAllImageSource();
+                    }
                 })
             });
 
+            $scope.applyAllImageSource = function(){
+                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img')
+                if(lLazyLoadImages.forEach == undefined){
+                    lLazyLoadImages = Array.from(lLazyLoadImages);
+                }
+                lLazyLoadImages.forEach(function($element){
+                    if($element.getAttribute('src') != null) return;
+                    $scope.applyImageSource($element);
+                });
+            }
+
+            $scope.applyImageSource = function($imgElm){
+                const lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
+                const lImgSourceset = $imgElm.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
+                
+                if(lImgSource != undefined) $imgElm.setAttribute('src', lImgSource);
+                if(lImgSourceset != undefined) $imgElm.setAttribute('srcset', lImgSourceset);
+
+            }
+
             $scope.applyObserver = function(){
-                document.querySelectorAll('.si-lazy-loading img').forEach(function($element){
+                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img')
+                if(lLazyLoadImages.forEach == undefined){
+                    lLazyLoadImages = Array.from(lLazyLoadImages);
+                }
+                
+                lLazyLoadImages.forEach(function($element){
                     if($element.getAttribute('src') != null) return;
                     $scope.observer.observe($element);
                 });
+            
             }
             
         }
@@ -4453,7 +4494,7 @@ siApp
                     })
     
                     // Apply button click event handler
-                    angular.element($scope._elm).find('.button').on('click', $scope.clickHandler);
+                    angular.element($scope._elm).find('.dropdown-button').on('click', $scope.clickHandler);
                     
                     // listen to 'close-dropdown' signal to close the menu
                     $scope.$on('close-dropdown', function($event, $source){
@@ -4507,7 +4548,7 @@ siApp
                             $scope.closeMenu();
                         })
                     }
-                    $timeout(_ => {
+                    $timeout(function() {
                         const lMainElmRect = $scope._elm.getBoundingClientRect();
                         lMainElmRect.inner_cx = lMainElmRect.width / 2;
                         lMainElmRect.inner_cy = lMainElmRect.height / 2;

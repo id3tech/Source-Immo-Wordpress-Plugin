@@ -440,19 +440,33 @@ class HttpCall{
   }
 
 }
-
 if(!function_exists('hasValue')){
-  function hasValue($expression,$trueResult='', $falseResult=''){
-    echo _hasValue($expression,$trueResult,$falseResult);
-  }
-  function _hasValue($expression,$trueResult='', $falseResult=''){
-    if(!isset($expression))return $falseResult;
-    if($expression === null) return $falseResult;
-    if(is_array($expression) && count($expression)==0) return $falseResult;
-    if($expression === '') return $falseResult;
-    if($expression === false) return $falseResult;
+  function hasValue($expression){
+    if(!isset($expression))return false;
+    if($expression === null) return false;
+    if(is_array($expression) && count($expression)==0)return false;
+    if($expression === '') return false;
+    if($expression === false) return false;
 
+    if(is_array($expression)){
+      foreach ($expression as $value) {
+        if($value === null) return false;
+        if($value === '') return false;
+      }
+    }
     
-    return $trueResult;
+    return true;
+  }
+}
+
+
+if(!function_exists('iifHasValue')){
+  function iifHasValue($expression,$trueResult='', $falseResult=''){
+    echo _iifHasValue($expression,$trueResult,$falseResult);
+  }
+  function _iifHasValue($expression,$trueResult='', $falseResult=''){
+    if(hasValue($expression)) return $trueResult;
+    
+    return $falseResult;
   }
 }

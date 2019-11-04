@@ -1,4 +1,4 @@
-<div class="header {{model.status=='SOLD'? 'is-sold':''}}">
+<div class="si-header {{model.status=='SOLD'? 'is-sold':''}}">
     
     <div class="price">
         <div>{{model.long_price}}</div>
@@ -19,7 +19,7 @@
 <?php echo do_shortcode('[si_listing_part part="media_box"]') ?>
 
 
-<div class="summary">
+<div class="si-summary">
     <div class="ref-number">{{model.ref_number}}</div>
     <div class="address" data-ng-show="model.location.full_address!=undefined">{{model.location.full_address}}</div>
     <div class="near" data-ng-show="model.location.details!=undefined">{{model.location.details}}</div>
@@ -45,8 +45,8 @@
 
 </div>
 
-<div class="details">
-    <div class="left">
+<div class="si-details">
+    <div class="si-left">
         <?php echo do_shortcode('[si_listing_part part="addendum"]') ?>
 
         <?php echo do_shortcode('[si_listing_part part="rooms"]') ?>
@@ -62,7 +62,7 @@
         <?php echo do_shortcode('[si_listing_part part="financials"]') ?>
 
     </div>
-    <div class="right">
+    <div class="si-right">
         
         <?php echo do_shortcode('[si_listing_part part="brokers"]') ?>
         

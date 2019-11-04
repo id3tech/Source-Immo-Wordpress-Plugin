@@ -1,7 +1,7 @@
-<div class="financials section {{sectionOpened('financials')?'opened':''}}" 
+<div class="financials detail-section {{sectionOpened('financials')?'opened':''}}" 
         data-ng-show="[model.building.assessment, model.land.assessment, model.expenses, model.incomes] | siHasValue">
     <div class="title" data-ng-click="toggleSection('financials')"><div><?php _e('Financial details',SI) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
-    <div class="content">
+    <div class="detail-section-content">
         
         
         
@@ -16,8 +16,8 @@
                 <label>{{'Land ({0})'.translate().format(model.land.assessment.year)}}</label>
                 <div class="value">{{model.land.assessment.amount.formatPrice()}}</div>
             </div>
-            <div class="label-value municipal-assessment" ng-show="model.assessment">
-                <label>{{'Municipal ({0})'.translate().format(model.assessment.year)}}</label>
+            <div class="label-value municipal-assessment" ng-show="model.assessment | siHasValue">
+                <label>{{'Municipal'.translate()}} <span ng-show="model.assessment.year | siHasValue">({{model.assessment.year}})</span></label>
                 <div class="value">{{model.assessment.amount.formatPrice()}}</div>
             </div>
         </div>

@@ -10,24 +10,24 @@
     </div>
 
     <div class="advanced">
-        <button class="cities {{isExpanded('cities')}} {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" type="button"  
-                ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></button>
+        <div class="si-button cities {{isExpanded('cities')}} {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}"  
+                ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
     
-        <button class="price {{isExpanded('price')}} {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" type="button"  
-                ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></button>
+        <div class="si-button price {{isExpanded('price')}} {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}"  
+                ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
     
-        <button class="category {{isExpanded('categories')}} {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}" type="button"  
-                ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></button>
+        <div class="si-button category {{isExpanded('categories')}} {{filter.hasFilter(['category_code','subcategory_code']) ? 'has-filters' : ''}}"  
+                ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></div>
         
-        <button class="rooms {{isExpanded('rooms')}} {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}" type="button"  
-                ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></button>
+        <div class="si-button rooms {{isExpanded('rooms')}} {{filter.hasFilter(['main_unit.bedroom_count','main_unit.bathroom_count']) ? 'has-filters' : ''}}"  
+                ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></div>
         
-        <button class="more {{isExpanded('others')}} {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}" type="button"  
-                ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></button>
+        <div class="si-button more {{isExpanded('others')}} {{filter.hasFilter(['contract.start_date','attributes.*','building.category_code','status_code','*_flag','open_houses*','price.foreclosure']) ? 'has-filters' : ''}}"  
+                ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
     
         <div class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
-                <button class="button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></button>
+                <div class="dropdown-button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></div>
                 <div class="si-dropdown-panel">
                     <div class="dropdown-item {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
@@ -49,7 +49,7 @@
     <!-- Cities -->
     <div class="filter-panel cities-panel {{isExpanded('cities')}}">
         <div class="panel-header">
-            <h3><?php _e('Cities', SI) ?></h3>
+            <h4><?php _e('Cities', SI) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'cities')"><i class="fal fa-times"></i></button>
         </div>
         
@@ -64,7 +64,7 @@
                         <div class="list-item-title region-name " 
                                 data-ng-click="expandSublist(region_list,region)"
                                 data-ng-click-off="changeRegionTab(region.__$obj_key)">
-                            <h3>{{region.caption}}</h3>                                
+                            <h5>{{region.caption}}</h5>                                
                         </div>
 
                         <div class="sublist region-cities {{region.expanded ? 'expanded' : ''}}" 
@@ -97,7 +97,7 @@
     <!-- Price -->
     <div class="filter-panel price-panel {{isExpanded('price')}}">
         <div class="panel-header">
-            <h3><?php _e('Price', SI) ?></h3>
+            <h4><?php _e('Price', SI) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'price')"><i class="fal fa-times"></i></button>
         </div>
     
@@ -125,7 +125,7 @@
     <!-- Category -->
     <div class="filter-panel categories-panel {{isExpanded('categories')}} ">
         <div class="panel-header">
-            <h3><?php _e('Home types', SI) ?></h3>
+            <h4><?php _e('Home types', SI) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'categories')"><i class="fal fa-times"></i></button>
         </div>
         
@@ -136,7 +136,7 @@
                         data-ng-repeat="(category_code,category) in dictionary.listing_category">
                         <div class="list-item-title category-name"
                             data-ng-click="expandSublist(dictionary.listing_category, category,category_code)">
-                            <h3><i class="far fa-fw fa-{{getCategoryIcon(category_code)}}"></i> {{category.caption}}</h3>
+                            <h5><i class="far fa-fw fa-{{getCategoryIcon(category_code)}}"></i> {{category.caption}}</h5>
                         </div>
 
                         <div class="sublist category-subcategories {{category.expanded ? 'expanded' : ''}}"
@@ -167,7 +167,7 @@
     <!-- Rooms -->
     <div class="filter-panel rooms-panel {{isExpanded('rooms')}}">
         <div class="panel-header">
-            <h3><?php _e('Rooms', SI) ?></h3>
+            <h4><?php _e('Rooms', SI) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'rooms')"><i class="fal fa-times"></i></button>
         </div>
 
@@ -221,7 +221,7 @@
     <!-- Mores -->
     <div class="filter-panel others-panel {{isExpanded('others')}}">
         <div class="panel-header">
-            <h3><?php _e('More', SI) ?></h3>
+            <h4><?php _e('More', SI) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'others')"><i class="fal fa-times"></i></button>
         </div>
         
@@ -232,7 +232,7 @@
                 <h4><?php _e('Online for',SI) ?></h4>
 
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('contract.start_date')}}">
-                    <button class="button" type="button">{{filter.getFilterCaptionFromList('contract.start_date',listing_ages,listing_ages[0].caption)}}</button>
+                    <div class="dropdown-button" type="button">{{filter.getFilterCaptionFromList('contract.start_date',listing_ages,listing_ages[0].caption)}}</div>
                     <div class="si-dropdown-panel">
                         <div class="dropdown-item
                                 {{filter.getFilterValue('contract.start_date') == item.filter.value ? 'active' : ''}}"
@@ -249,7 +249,7 @@
                 <h4><?php _e('Parkings',SI) ?></h4>
                 
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('attributes.PARKING')}}">
-                    <button class="button" type="button">{{filter.getFilterCaptionFromList('attributes.PARKING',parkingSuggestions, '<?php _e('Any',SI) ?>')}}</button>
+                    <div class="dropdown-button" type="button">{{filter.getFilterCaptionFromList('attributes.PARKING',parkingSuggestions, '<?php _e('Any',SI) ?>')}}</div>
                     <div class="si-dropdown-panel">
                         <div class="dropdown-item
                                 {{filter.getFilterValue('attributes.PARKING') == null ? 'active' : ''}}"

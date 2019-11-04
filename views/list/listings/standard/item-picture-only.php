@@ -10,7 +10,7 @@ if(isset($configs)){
 <article class="si-item si-listing-item si-picture-only-item-layout <?php echo($scope_class) ?> {{getClassList(item)}}"  
     data-ng-cloak>
     <a href="{{item.permalink}}">
-        <div class="content">
+        <div class="item-content">
             <div class="image si-lazy-loading"><img data-si-src="{{item.photo_url}}"  data-si-srcset="{{item.photo_url}}" /></div>
             <div class="flags">
                 <i class="video far fa-video"></i>

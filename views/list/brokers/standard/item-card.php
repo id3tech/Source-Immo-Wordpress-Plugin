@@ -10,7 +10,7 @@
     <div class="contact">
         <div class="phone" data-ng-repeat="(key,phone) in item.phones">{{key.translate()}} : {{phone}}</div>
     </div>
-    <div class="actions">
+    <div class="actions" ng-show="hasListOf('brokers')">
         <a class="button" href="{{item.permalink}}">{{'Other properties'.translate()}}</a>
     </div>
     

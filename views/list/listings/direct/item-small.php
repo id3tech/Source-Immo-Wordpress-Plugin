@@ -9,7 +9,7 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
 <article class="si-item si-listing-item si-small-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
-        <div class="content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
+        <div class="item-content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
             <div class="image si-lazy-loading"><img si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
             <div class="price"><?php echo($item->price_text);?></div>
             <div class="civic-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>

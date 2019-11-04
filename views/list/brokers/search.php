@@ -6,16 +6,16 @@
 </div>
 
 <div class="advanced">
-    <button class="letters {{isExpanded('letters')}} {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" type="button"  
-        ng-click="toggleExpand($event,'letters')"><?php _e('Alphabetical', SI) ?></button>
-    <button class="licenses {{isExpanded('licenses')}} {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" type="button"  
-        ng-show="siDictionary.count('broker_license_type') > 1" ng-click="toggleExpand($event,'licenses')"><?php _e('License', SI) ?></button>
-    <button class="offices {{isExpanded('offices')}} {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" type="button" 
-        ng-show="officeList.length > 1" ng-click="toggleExpand($event,'offices')"><?php _e('Office', SI) ?></button>
+    <div class="si-button letters {{isExpanded('letters')}} {{filter.hasFilter('last_name') ? 'has-filters' : ''}}"  
+        ng-click="toggleExpand($event,'letters')"><?php _e('Alphabetical', SI) ?></div>
+    <div class="si-button licenses {{isExpanded('licenses')}} {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}"  
+        ng-show="siDictionary.count('broker_license_type') > 1" ng-click="toggleExpand($event,'licenses')"><?php _e('License', SI) ?></div>
+    <div class="si-button offices {{isExpanded('offices')}} {{filter.hasFilter('office_id') ? 'has-filters' : ''}}" 
+        ng-show="officeList.length > 1" ng-click="toggleExpand($event,'offices')"><?php _e('Office', SI) ?></div>
 
     <div class="filter-menu">
         <div class="si-dropdown" data-show-button-icon="false">
-            <button class="button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></button>
+            <div class="dropdown-button {{filter.hasFilters() ? 'active' : ''}}"><i class="fal fa-filter"></i></div>
             <div class="si-dropdown-panel">
                 <div class="dropdown-item {{filter.hasFilter('last_name') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'letters')"><?php _e('Alphabetical', SI) ?></div>
                 <div class="dropdown-item {{filter.hasFilter('license_type_code') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'licenses')"><?php _e('License', SI) ?></div>

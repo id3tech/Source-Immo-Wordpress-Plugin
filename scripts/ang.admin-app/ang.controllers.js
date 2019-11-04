@@ -130,6 +130,7 @@ siApp
       $scope.configs.lists = lNewlists;
 
       $scope.show_toast('List removed');
+      $scope.$emit('save-request');
     });
   }
 

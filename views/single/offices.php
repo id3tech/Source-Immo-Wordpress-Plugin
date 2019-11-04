@@ -2,9 +2,10 @@
 $ref_number = get_query_var( 'ref_number');
 $ref_type = get_query_var( 'type' );
 
-$layout = SourceImmo::current()->get_detail_layout('office');
 
-get_header();
+$pageBuilder = new SourceImmoPageBuilder('office');
+
+$pageBuilder->start_page();
 
 
 //SourceImmo::view('single/offices_layouts/_schema',array('model' => $data));
@@ -14,14 +15,14 @@ get_header();
                 class="si office-single {{model.status}} {{model!=null?'loaded':''}}">
     
     <?php 
-        if($layout->type=='custom_page'){
+        if($pageBuilder->layout->type=='custom_page'){
             // load page content
-            do_action('si_render_page',$layout->page, 'Loading office');
+            do_action('si_render_page',$pageBuilder->layout->page, 'Loading office');
         }
         else{
             do_action('si_start_of_template',"Loading office" );
 
-            SourceImmo::view('single/offices_layouts/' . $layout->type);
+            SourceImmo::view('single/offices_layouts/' . $pageBuilder->layout->type);
             
             do_action('si_end_of_template');
         }
@@ -34,4 +35,5 @@ get_header();
 var siOfficeData = <?php echo(json_encode($data)); ?>;
 </script>
 <?php
-get_footer();
+$pageBuilder->close_page();
+$pageBuilder->render();

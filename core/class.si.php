@@ -341,29 +341,6 @@ class SourceImmo {
 
     return $vars;
   }
-
-  
-	function template_redirect(){
-    $ref_number = get_query_var( 'ref_number' );
-    //__c($ref_number);
-		if ( $ref_number ) {
-      $type = get_query_var( 'type' );
-      $mode = get_query_var( 'mode' );
-      if($mode == 'shortcut'){
-        // redirect to long
-        $this->{'redirect_' . $type}($ref_number);
-      }
-      else{
-        if($mode == 'print'){
-          $mode = '_print';
-        }
-        else{
-          $mode = '_detail_template';
-        }
-        add_filter( 'template_include', array($this, 'include_' . $type . $mode));
-      }
-    }
-  }
   
   function detect_locale($locale){
     $request_locale = get_query_var( 'lang' );
@@ -380,6 +357,11 @@ class SourceImmo {
     return $locale;
   }
 
+
+  
+  // --------------------------------
+  //#region REDIRECTS
+  
   function redirect_listings($ref_number){
     // load data
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
@@ -422,7 +404,6 @@ class SourceImmo {
     }
   }
 
-  
   function redirect_offices($ref_number){
     // load data
     $model = json_decode(SourceImmoApi::get_office_data($ref_number));
@@ -437,11 +418,13 @@ class SourceImmo {
       wp_redirect($model->permalink);
     }
   }
-
+  
+  //#endregion
+  // --------------------------------
   
 
   /**
-    RENDERING
+  *  RENDERING
   */
 
   /**
@@ -574,6 +557,32 @@ class SourceImmo {
     return "{$attr} data-ng-app=\"siApplication\" data-ng-controller=\"publicCtrl\"";
   }
 
+  // ----------------------
+  //#region TEMPLATE HANDLING
+
+	function template_redirect(){
+    $ref_number = get_query_var( 'ref_number' );
+    //__c($ref_number);
+		if ( $ref_number ) {
+      $type = get_query_var( 'type' );
+      $mode = get_query_var( 'mode' );
+      if($mode == 'shortcut'){
+        // redirect to long
+        $this->{'redirect_' . $type}($ref_number);
+      }
+      else{
+        if($mode == 'print'){
+          $mode = '_print';
+        }
+        else{
+          $mode = '_detail_template';
+        }
+        add_filter( 'template_include', array($this, 'include_' . $type . $mode));
+      }
+    }
+  }
+
+  
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
     global $permalink, $post,$listing_data;
@@ -782,6 +791,7 @@ class SourceImmo {
        die();
     }
   }
+  
 
   public function render_page($post_id, $load_text){
     if($this->page_template_rendered) return;
@@ -812,6 +822,10 @@ class SourceImmo {
     <?php
     }
   }
+  //#endregion
+  // ----------------------
+
+
 
   public static function staticDataController($configs, $data){
     $alias = StringPrototype::toJsVariableName($configs->alias);
@@ -1102,6 +1116,7 @@ class SiSharing{
 
     add_filter('document_title_parts', array($this, 'override_title'),10);
     add_filter('wp_head', array($this,'seo_metas'),10,1);
+    //add_filter('the_title', array($this, 'page_title'), 10,1);
 
     //Yoast
     add_filter('wpseo_title', array($this, 'title'), 10,1);
@@ -1123,6 +1138,15 @@ class SiSharing{
         unset($title[$not_found_ind]);
       }
       array_unshift($title,$this->title);
+    }
+    return $title;
+  }
+
+  public function page_title($title='',$id=null){
+    __c($id);
+
+    if($this->title != null && $id==null){
+      $title = $this->title;
     }
     return $title;
   }
@@ -1559,12 +1583,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
           $item->building->assessment->amount_text = 'NA';
         }
       }
-      else{
-        $item->building->assessment = (object) array(
-          'amount_text' => 'NA',
-          'year' => '-'
-        );
-      }
+      
 
       $item->land->short_dimension = self::formatDimension($item->land->dimension);
       if(isset($item->land->assessment)){
@@ -1575,11 +1594,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
           $item->land->assessment->amount_text = 'NA';
         }
       }
-      else{
-        $item->land->assessment = (object) array(
-          'amount_text' => 'NA'
-        );
-      }
+      
 
       if(isset($item->assessment)){
         if(isset($item->assessment->amount)){
@@ -1590,11 +1605,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
         }
         
       }
-      else{
-        $item->assessment = (object) array(
-          'amount_text' => 'NA'
-        );
-      }
+      
 
 
       if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'))){
@@ -2073,7 +2084,8 @@ class BrokerSchema extends BaseDataSchema{
     }
     
     $this->_schema['email'] = $broker->email;
-    $this->_schema['telephone'] = isset($broker->phones->cell) ? $broker->phones->cell : $broker->phones->office;
+    $this->_schema['telephone'] = isset($broker->phones->cell) ? $broker->phones->cell 
+                                : isset($broker->phones->office) ? $broker->phones->office : '';
 
     $this->_schema['url'] = $this->currentPageUrl();
   }

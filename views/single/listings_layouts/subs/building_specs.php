@@ -1,10 +1,10 @@
-<div class="building-specs section {{sectionOpened('building')?'opened':''}}"
+<div class="building-specs detail-section {{sectionOpened('building')?'opened':''}}"
     data-ng-show="model.building.attributes | siHasValue">
     <div class="title" data-ng-click="toggleSection('building')">
         <div><?php _e('Building and interior',SI) ?></div> 
         <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
-    <div class="content spec-grid">
+    <div class="detail-section-content spec-grid">
         <div class="special-box" data-ng-show="model.building.construction_year!=undefined && hasDimension(model.building.dimension)" >
             <div class="built-year" data-ng-show="model.building.construction_year!=undefined">
                 <label>{{'Contruction year'.translate()}}</label>
