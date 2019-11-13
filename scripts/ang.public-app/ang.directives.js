@@ -803,9 +803,12 @@ siApp
             standalone: "@siStandalone"
         },
         controllerAs: 'ctrl',
-        template: '<div class="{{standalone ? \'show-trigger\':\'\'}}"><div ng-include="\'si-search-for-\' + alias"></div></div>',
+        template: '<div><div ng-include="\'si-search-for-\' + alias"></div></div>',
         link : function($scope, $element, $attrs){
-            $scope.standalone = $scope.standalone =='true';
+            console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
+
+            $scope.standalone = (typeof $scope.standalone == 'string') ? $scope.standalone == 'true' : $scope.standalone;
+            console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
 
             $scope.init($element);
         },
@@ -963,7 +966,10 @@ siApp
                 $element.on('click',function($event){$event.stopPropagation();});
                 // bind events
                 $rootScope.$on($scope.alias + 'SortDataChanged', $scope.onSortDataChanged);
-
+                
+                if($scope.standalone){
+                    $scope._element.classList.add('show-trigger');
+                }
 
                 // prebuild suggestions
                 $scope.buildDropdownSuggestions();

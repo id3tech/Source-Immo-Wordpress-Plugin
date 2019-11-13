@@ -2,7 +2,7 @@
     <h3 class="title">{{panelTitle}}</h3>
     <div class="item previous" data-ng-show="previous!=null">
         <a href="{{previous.permalink}}">
-            <div class="content">
+            <div class="item-content">
                 <div class="photo">
                     <img data-ng-src="{{previous.photo_url}}">
                     <div class="label"><span><i class="fal fa-arrow-left"></i> {{'Previous'.translate()}}</span></div>
@@ -18,7 +18,7 @@
 
     <div class="item next" data-ng-show="next!=null">
         <a href="{{next.permalink}}">
-            <div class="content">
+            <div class="item-content">
                 <div class="photo">
                     <img data-ng-src="{{next.photo_url}}">
                     <div class="label"><span>{{'Next'.translate()}} <i class="fal fa-arrow-right"></i></span></div>

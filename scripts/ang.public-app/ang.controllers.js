@@ -382,10 +382,10 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         if($scope.model == null) return null;
         if($scope.broker_list_filter != undefined) return $scope.broker_list_filter;
 
-        const lBrokerIds = $scope.model.brokers_ids || $scope.model.brokers.map(function($e) {return $e.id});
+        const lBrokerIds = $scope.model.brokers_ref_numbers || $scope.model.brokers.map(function($e) {return $e.ref_number});
 
         $scope.broker_list_filter = {
-            field: 'id',
+            field: 'ref_number',
             operator: 'in',
             value : lBrokerIds
         };
