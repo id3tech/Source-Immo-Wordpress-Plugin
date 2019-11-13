@@ -195,7 +195,7 @@ $locales.fr = {};$locales.fr.global =
     , "ID" : "Identifiant"
     , "First name" : "Prénom"
     , "Last name" : "Nom de famille"
-    , "License type" : "Type de licence"
+    , "License type" : "Type de permis"
     , "cities" : "villes"
     , "listings" : "propriétés"
     , "brokers" : "courtiers"
@@ -324,7 +324,7 @@ $locales.fr = {};$locales.fr.global =
     , "{0}+ garages" : "{0} garages +"
     , "Toggle all" : "Basculer tous"
     , "All cities" : "Toutes les villes"
-    , "License" : "Licence"
+    , "License" : "Permis"
     , "Alphabetical" : "Alphabétique"
     , "First letter of the last name" : "Première lettre du nom"
     
