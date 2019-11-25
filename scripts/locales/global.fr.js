@@ -238,6 +238,8 @@ $locales.fr = {};$locales.fr.global =
     , "{0} properties" : "{0} propriétés"
     , "1 office" : "1 bureau"
     , "{0} offices" : "{0} bureaux"
+    , "1 Bedroom {0}" : "{0} - 1 chambre"
+    , "{0} Bedrooms {1}" : "{1} - {0} chambres"
     // Public - SEARCH
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"

@@ -13,6 +13,7 @@ class SiShorcodes{
             'si_search',
             'si_searchbox',
             'si_small_list',
+            'si_list_slider',
 
             // Broker - Sub shortcodes
             'si_broker',
@@ -31,6 +32,37 @@ class SiShorcodes{
         foreach ($hooks as $item) {
             add_shortcode( $item, array($this, 'sc_' . $item) );
         }
+    }
+
+    public function sc_si_list_slider($atts, $content=null){
+        extract( shortcode_atts(
+            array(
+                'alias' => null,
+                'class' => '',
+                'type'  => 'hero',  // hero | fullwidth | fullscreen
+                'limit' => 5,
+                'detail_label' => 'View detail',
+                'show_navigation' => 'true',
+            ), $atts )
+        );
+
+        if($alias == null) return '';
+        
+        $listConfigs = SourceImmo::current()->get_list_configs($alias);
+
+        ob_start();
+        ?>
+        <si-list-slider class="<?php echo($class) ?> slider-type-<?php echo($type) ?>" 
+                si-alias="<?php echo($alias) ?>"
+                si-options="{show_navigation:<?php echo $show_navigation ?>, limit: <?php echo $limit ?>}">
+                </si-list-slider>
+        <?php
+        echo('<script type="text/ng-template" id="si-list-slider-for-'. $alias . '">');
+        SourceImmo::view("list/{$listConfigs->type}/slider/item");
+        echo('</script>');
+        $lResult = ob_get_clean();
+
+        return $lResult;
     }
 
     public function sc_si_searchbox($atts, $content=null){

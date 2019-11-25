@@ -1,8 +1,10 @@
 <div class="si-header {{model.status=='SOLD'? 'is-sold':''}}">
     
     <div class="price">
-        <div>{{model.long_price}}</div>
-        <div class="mortgage" data-ng-show="model.status_code!='SOLD' && model.price.sell!=undefined"><?php _e('Estimated mortgage payments',SI) ?>: <a href="#" data-ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</a></div>
+        <div ng-bind-html="model.long_price"></div>
+        <div class="mortgage" data-ng-show="model.status_code!='SOLD' && model.price.sell!=undefined">
+            <span><?php _e('Estimated mortgage payments',SI) ?>: </span>
+            <span class="nowrap"><a href="#" data-ng-click="scrollTo('#calculator')">{{calculator_result.mortgage.payment.formatPrice()}} {{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</span></a></div>
     </div>
     <div class="subcategory">{{model.subcategory}}</div>
     <div class="city">{{model.location.city}}</div>

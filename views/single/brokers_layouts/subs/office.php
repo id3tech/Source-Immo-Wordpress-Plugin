@@ -1,6 +1,6 @@
 <div class="office">
     <h3>{{'Office'.translate()}}</h3>
-    <div class="content">
+    <div class="item-content">
         <div class="name"><a href="{{model.office.permalink}}">{{model.office.name}}</a></div>
         <div class="license">{{model.office.license}}</div>
 

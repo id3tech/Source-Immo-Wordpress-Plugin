@@ -135,7 +135,7 @@ function siList(){
                     lPrerequisites.meta = function(){return $siApi.getViewMeta($scope.configs.type,$scope.configs.source.id)};
                     lPrerequisites.pages = function() {
                         if(!$global_configs.enable_custom_page) return null;
-                        return $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'})
+                        return $siApi.rest_call('page/list',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'})
                     };
                     lPrerequisites.offices = function(){
                         if($scope.configs.type!='brokers') return null;
@@ -809,7 +809,7 @@ siApp
 
             $scope.standalone = (typeof $scope.standalone == 'string') ? $scope.standalone == 'true' : $scope.standalone;
             console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
-
+            console.log('Search box element',$element[0]);
             $scope.init($element);
         },
         controller: function($scope, $q, $siApi, $rootScope,$timeout,
@@ -1116,7 +1116,7 @@ siApp
                     $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
                     $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
                     $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
-                    $scope.filterPanelContainer[0].style.setProperty('--relative-height', lSearchBox.height + 'px');
+                    $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
                     
                    
                     $scope.filterPanelContainer.on('transitionend', function(){
@@ -3493,181 +3493,6 @@ siApp
 
 siApp
 .directive('siImageSlider', function siImageSlider(){
-    let dir_controller = function siImageSliderCtrl ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils,$timeout) {
-        $scope.expand_mode = false;
-        $scope.picture_grid_mode = false;
-        
-        $scope.position = {
-            current_picture_index : 0
-        };
-
-        $scope.init = function(){
-            $scope.index = 0;   
-            
-            $scope.$on('thumbnails-slider-select', function($event, $picture){
-                const lIndex = $scope.pictures.findIndex(function($e){return $e.url == $picture.url});
-                $scope.set(lIndex,false);
-            });
-
-            if($scope.pictures){
-                if($siUtils.isLegacyBrowser()){
-                   const jqElm = jQuery($scope.$element)
-                    jqElm.find('.viewport .trolley').width(jqElm.width() * $scope.pictures.length);
-                    window.setTimeout(function(){
-                        
-                        jqElm.find('.viewport .trolley .item').each(function($i,$e){
-                            jQuery($e).width(jqElm.width());
-                        })
-                    },200);
-                }
-                
-            }
-
-            document.addEventListener('fullscreenchange', function(){
-                //console.log('fullscreen change', document.fullscreenElement)
-                if(document.fullscreenElement == null){
-                    $timeout(function() {
-                        $scope.expand_mode = false;
-                    });
-                }
-            })
-        }
-
-        $scope.next = function(){
-            //console.log($scope.index, '/', $scope.pictures.length-1);
-            let lNewIndex = $scope.index+1;
-            if(lNewIndex >=  $scope.pictures.length){
-                lNewIndex= 0;
-            }
-            $scope.set(lNewIndex);
-        }
-
-        $scope.previous = function(){
-            let lNewIndex = $scope.index-1;
-            if(lNewIndex ==  -1){
-                lNewIndex= $scope.pictures.length-1;
-            }
-            $scope.set(lNewIndex);
-        }
-
-        $scope.set = function($index, $triggerEvents){
-            $triggerEvents = typeof $triggerEvents == 'undefined' ? true : $triggerEvents;
-            $scope.index = $index;
-            $scope.picture_grid_mode =false;
-            $scope.updateTrolley();
-
-            if($triggerEvents){
-                const lItem = $scope.pictures[$index];
-                $rootScope.$broadcast('mediabox-picture-select', lItem);
-            }
-
-            try{
-                $scope.$digest();
-            }catch($e){}
-
-        }
-
-
-        $scope.toggleExpand = function(){
-            $scope.expand_mode = !$scope.expand_mode;
-        }
-
-        $scope.getPosition = function(){
-            return '-' + ($scope.position.current_picture_index * 100) + '%';
-        }
-
-        // watch for alias to be valid then init directive
-        $scope.$watch("pictures", function(){
-            if($scope.pictures!=null){
-                $scope.init();
-            }
-        });
-
-        $scope.toggleFullscreen = function(){
-            if (
-                document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement
-              ) {
-                if (document.exitFullscreen) {
-                  document.exitFullscreen();
-                } 
-                else if (document.mozCancelFullScreen) {
-                  document.mozCancelFullScreen();
-                } 
-                else if (document.webkitExitFullscreen) {
-                  document.webkitExitFullscreen();
-                } 
-                else if (document.msExitFullscreen) {
-                  document.msExitFullscreen();
-                }
-
-                $scope.expand_mode = false;
-              } 
-              else {
-                if ($scope.$element.requestFullscreen) {
-                  $scope.$element.requestFullscreen();
-                } 
-                else if ($scope.$element.mozRequestFullScreen) {
-                  $scope.$element.mozRequestFullScreen();
-                } 
-                else if ($scope.$element.webkitRequestFullscreen) {
-                  $scope.$element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                } 
-                else if ($scope.$element.msRequestFullscreen) {
-                  $scope.$element.msRequestFullscreen();
-                }
-
-                $scope.expand_mode = true;
-              }
-
-            
-        }
-
-        $scope.togglePictureGrid = function(){
-            $scope.picture_grid_mode = !$scope.picture_grid_mode;
-        }
-
-        $scope.getImageAlt = function($img){
-            const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
-            const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
-
-            return lResult;
-        }
-
-        $scope.getImageCaption = function($img){
-            const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
-            const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
-
-            return lResult;
-        }
-
-        $scope.updateTrolley = function(){
-            return;
-            const jqElm = jQuery($scope.$element);
-            jqElm.find('.trolley').css('transform', 'translateX(-' + ($scope.index * jqElm.width()) + 'px)');
-        }
-
-        $scope.getTrolleyStyle = function(){
-            if($scope.pictures == null) return {};
-
-            if(!$siUtils.isLegacyBrowser()){
-                return {
-                    'transform' :'translateX(-' + (100 * $scope.index) + '%)',
-                    'grid-gap': $scope.gap + 'px',
-                    'grid-template-columns': 'repeat(' + $scope.pictures.length + ',100%)'
-                }
-            }
-            else{
-                const jqElm = jQuery($scope.$element);
-                return {
-                    'transform' :'translateX(-' + ($scope.index * jqElm.width()) + 'px)',
-                }
-            }
-        }
-    };
-
     return {
         restrict: 'E',
         scope: {
@@ -3679,36 +3504,465 @@ siApp
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=2',
-        controller: dir_controller,
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=3',
         link: function (scope, element, attrs) {
             scope.$element = element[0];
             var mc = new Hammer(element[0]);
             let lPanHndl = null;
-            //console.log('image-slider showGrid', scope.showGrid);
-            // let the pan gesture support all directions.
-            // this will block the vertical scrolling on a touch-device while on the element
-            mc.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
-            mc.on("swipeleft swiperight", function(ev) {
-                
-                //console.log( ev.type +" gesture detected.");
-
-                    switch(ev.type){
-                        case 'swipeleft':
-                            scope.next();
-                            break;
-                        case 'swiperight':
-                            scope.previous();
-                            break;
-                    }
-                    
-                
-            });
-
             scope.init();
+        },
+        controller: function ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils,$timeout) {
+            $scope.expand_mode = false;
+            $scope.picture_grid_mode = false;
+            
+            $scope.position = {
+                current_picture_index : 0
+            };
+    
+            $scope.init = function($element){
+                $scope.index = 0;   
+                
+                $scope.$on('thumbnails-slider-select', function($event, $picture){
+                    const lIndex = $scope.pictures.findIndex(function($e){return $e.url == $picture.url});
+                    $scope.set(lIndex,false);
+                });
+    
+                if($scope.pictures){
+                    // if($siUtils.isLegacyBrowser()){
+                    //     const jqElm = jQuery($scope.$element)
+                    //     jqElm.find('.viewport .trolley').width(jqElm.width() * $scope.pictures.length);
+                    //     window.setTimeout(function(){
+                            
+                    //         jqElm.find('.viewport .trolley .item').each(function($i,$e){
+                    //             jQuery($e).width(jqElm.width());
+                    //         })
+                    //     },200);
+                    // }
+                    
+                }
+                window.addEventListener('resize', function(){
+                    $scope.detectBoxSize();
+                });
+                document.addEventListener('fullscreenchange', function(){
+                    //console.log('fullscreen change', document.fullscreenElement)
+                    if(document.fullscreenElement == null){
+                        $timeout(function() {
+                            $scope.expand_mode = false;
+                            
+                        });
+                    }
+                    $scope.detectBoxSize();
+                })
+
+                $timeout(function(){
+                    $scope.detectBoxSize();
+                })
+
+            }
+    
+            $scope.next = function(){
+                
+                //console.log($scope.index, '/', $scope.pictures.length-1);
+                let lNewIndex = $scope.index+1;
+                if(lNewIndex >=  $scope.pictures.length){
+                    lNewIndex= 0;
+                }
+                $scope.set(lNewIndex);
+            }
+    
+            $scope.previous = function(){
+                let lNewIndex = $scope.index-1;
+                if(lNewIndex ==  -1){
+                    lNewIndex= $scope.pictures.length-1;
+                }
+                $scope.set(lNewIndex);
+            }
+    
+            $scope.set = function($index, $triggerEvents){
+                $triggerEvents = typeof $triggerEvents == 'undefined' ? true : $triggerEvents;
+                $scope.index = $index;
+                const lViewport = $scope.$element.querySelector('.viewport');
+                const lViewportWidth =lViewport.getBoundingClientRect().width;
+                if(window.innerWidth <= 640){
+                    
+                    lViewport.scrollTo($index * lViewportWidth,0);
+                    return;
+                }
+    
+                $scope.picture_grid_mode =false;
+                
+                $scope.updateTrolley();
+    
+                if($triggerEvents){
+                    const lItem = $scope.pictures[$index];
+                    $rootScope.$broadcast('mediabox-picture-select', lItem);
+                }
+    
+                try{
+                    $scope.$digest();
+                }catch($e){}
+    
+            }
+    
+    
+            $scope.toggleExpand = function(){
+                $scope.expand_mode = !$scope.expand_mode;
+            }
+    
+            $scope.getPosition = function(){
+                return '-' + ($scope.position.current_picture_index * 100) + '%';
+            }
+    
+            // watch for alias to be valid then init directive
+            $scope.$watch("pictures", function(){
+                if($scope.pictures!=null){
+                    $scope.init();
+                }
+            });
+    
+            $scope.toggleFullscreen = function(){
+                if (
+                    document.fullscreenElement ||
+                    document.webkitFullscreenElement ||
+                    document.mozFullScreenElement ||
+                    document.msFullscreenElement
+                  ) {
+                    if (document.exitFullscreen) {
+                      document.exitFullscreen();
+                    } 
+                    else if (document.mozCancelFullScreen) {
+                      document.mozCancelFullScreen();
+                    } 
+                    else if (document.webkitExitFullscreen) {
+                      document.webkitExitFullscreen();
+                    } 
+                    else if (document.msExitFullscreen) {
+                      document.msExitFullscreen();
+                    }
+    
+                    $scope.expand_mode = false;
+                  } 
+                  else {
+                    if ($scope.$element.requestFullscreen) {
+                      $scope.$element.requestFullscreen();
+                    } 
+                    else if ($scope.$element.mozRequestFullScreen) {
+                      $scope.$element.mozRequestFullScreen();
+                    } 
+                    else if ($scope.$element.webkitRequestFullscreen) {
+                      $scope.$element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                    } 
+                    else if ($scope.$element.msRequestFullscreen) {
+                      $scope.$element.msRequestFullscreen();
+                    }
+    
+                    $scope.expand_mode = true;
+                  }
+    
+                
+            }
+    
+            $scope.togglePictureGrid = function(){
+                $scope.picture_grid_mode = !$scope.picture_grid_mode;
+            }
+    
+            $scope.getImageAlt = function($img){
+                const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
+                const lResult = $siHooks.filter('listing-picture-alt', lCaption, $img);
+    
+                return lResult;
+            }
+    
+            $scope.getImageCaption = function($img){
+                const lCaption = $siDictionary.getCaption({src:$img, key:'category_code'},'photo_category');
+                const lResult = $siHooks.filter('listing-picture-caption', lCaption, $img);
+    
+                return lResult;
+            }
+    
+            $scope.updateTrolley = function(){
+                return;
+                const jqElm = jQuery($scope.$element);
+                jqElm.find('.trolley').css('transform', 'translateX(-' + ($scope.index * jqElm.width()) + 'px)');
+            }
+    
+            $scope.getTrolleyStyle = function(){
+                if($scope.pictures == null) return {};
+    
+                return '--item-count:' + $scope.pictures.length + ';--item-index:' + $scope.index;
+    
+                if(!$siUtils.isLegacyBrowser()){
+                    return {
+                        'transform' :'translateX(-' + (100 * $scope.index) + '%)',
+                        'grid-gap': $scope.gap + 'px',
+                        'grid-template-columns': 'repeat(' + $scope.pictures.length + ',100%)'
+                    }
+                }
+                else{
+                    const jqElm = jQuery($scope.$element);
+                    return {
+                        'transform' :'translateX(-' + ($scope.index * jqElm.width()) + 'px)',
+                    }
+                }
+            }
+
+            $scope.detectBoxSize = function(){
+                const lElm = $scope.$element;
+                
+                const lElmRect = lElm.getBoundingClientRect();
+                
+                lElm.style.setProperty('--viewport-width', lElmRect.width + 'px');
+                lElm.style.setProperty('--viewport-height', lElmRect.height + 'px');
+
+                if($siUtils.isLegacyBrowser()){
+                    const lPictures = Array.from(lElm.querySelectorAll('.viewport .trolley .item'));
+                    lPictures.forEach(function($p){
+                        $p.style.width = lElmRect.width + 'px';
+                    })
+                }
+            }
         }
     };
 });
+
+siApp
+.directive('siImageAutoFit', function siImageAutoFit(){
+    return {
+        restrict: 'A',
+        link: function($scope, $element, $attrs){
+            console.log('siImageAutoFit', $element[0].tagName);
+            if($element[0].tagName !=  'IMG') return;
+
+            
+            const lImg = $element[0];
+            const lDefaultFit = $attrs.siImageAutoFit || 'cover';
+            //const lImg = document.createElement('img');
+            const fnGetOrientation = function($width, $height){
+                return ($width >= $height) ? 'landscape' : 'portrait';
+            }
+
+            lImg.addEventListener('load', function($event){
+                const lNaturalOrientation = fnGetOrientation(lImg.naturalWidth, lImg.naturalHeight);
+                const lComputedOrientation = fnGetOrientation(lImg.width, lImg.height);
+                
+                if(lNaturalOrientation == lComputedOrientation){
+                    lImg.style.objectFit = lDefaultFit;
+                }
+                else if (lNaturalOrientation == 'landscape'){
+                    lImg.style.objectFit = 'cover';
+                }
+                else{
+                    lImg.style.objectFit = 'contain';
+                }
+            }, {once:true});
+            //lImg.setAttribute('src',lElm.src);
+
+            lImg.addEventListener('resize', function($event){
+                if(document.fullscreenElement != null){
+                    lImg.style.objectFit = 'contain';
+                    return;
+                }
+            }
+        }
+    }
+})
+
+siApp
+.directive('siListSlider', ['$compile', '$siConfig', '$siApi','$siUtils','$siDictionary', '$siHooks', '$timeout',
+function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,$timeout){
+    return {
+        restrict: 'E',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-list-slider.html',
+        transclude:true,
+        replace:true,
+        scope: {
+            alias : '@siAlias',
+            options: '=?siOptions'
+        },
+        link: function($scope, $element, $attrs){
+            $scope.init($element);
+        },
+        controller: function($scope, $q){
+            $scope.configs = null;
+            $scope.typesHash = {
+                'listings' : 'Listing',
+                'brokers' : 'Broker',
+                'offices' : 'Office',
+                'cities' : 'City'
+            }
+
+            $scope.init = function($element){
+                $scope._element = $element;
+                
+                $siConfig.get().then(function($configs){
+                    console.log('init slider',$configs);
+                    $scope.configs = $configs;
+                    $scope.fetchList().then(function(){
+                        $scope.bindEvents();
+                    });
+                });
+
+                
+            }
+
+            $scope.fetchList = function(){
+                const lListConfigs = $scope.configs.lists.find(function($l){
+                    return $l.alias == $scope.alias;
+                });
+                
+                const lSingularType = $scope.typesHash[lListConfigs.type];
+            
+                return $q(function($resolve, $reject){
+                    
+               
+                    $siUtils.all({
+                        lexicon: function() { return $siApi.getViewDictionary(lListConfigs.source.id, $locales._current_lang_) },
+                        list : function() { return $siApi.call($scope.getApiEndpoint(lListConfigs.type,lListConfigs.source.id,$locales._current_lang_), {st: lListConfigs.search_token}, {method: 'GET'}) },
+                    })
+                    .then(function($results){
+
+                        $siDictionary.init($results.lexicon);
+                        $scope.meta = $results.list.metadata;
+                        $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
+
+                        $scope.list = $scope.list
+                            .filter(function($e,$i){
+                                return $i< $scope.options.limit;
+                            });
+
+                        $scope.list.forEach(function($e){
+                            $scope.postProcessListItem(lListConfigs.type, $e);
+                        });
+
+                        $scope.applyProperties();
+
+                        $scope._element.addClass("loaded");
+                        $timeout(function(){
+                            $resolve();
+                        })
+                    });
+                })
+            }
+
+            $scope.applyProperties = function(){
+                console.log('apply properties')
+                const lListConfigs = $scope.configs.lists.find(function($l){
+                    return $l.alias == $scope.alias;
+                });
+
+                const lSlideContainer = $scope._element[0].querySelector('.si-slide-container');
+                const lElmBoundingRect = $scope._element[0].getBoundingClientRect();
+
+                $scope._element[0].style.setProperty('--slider-width', lElmBoundingRect.width + 'px');
+                lSlideContainer.style.setProperty('--list-count', $scope.list.length);
+                lSlideContainer.style.setProperty('--current-index', 0);
+
+                $scope._element.addClass("list-of-" + lListConfigs.type);
+            }
+
+            $scope.postProcessListItem = function($type, $item){
+                console.log('postProcessListItem', $type, $item);
+
+                $item.photo_url = $item.photo_url.replace('-sm.jpg','-lg.jpg');
+                let lTitle;
+
+                if($type == 'listings'){
+                    lTitle = $item.subcategory;
+
+                    if($item.category_code == 'RESIDENTIAL'){
+                            
+                        if($item.rooms.bed.count>0){
+                            lTitle = $item.rooms.bed.count == 1 ? 
+                                        '1 Bedroom {0}'.translate().format($item.subcategory) : 
+                                        '{0} Bedrooms {1}'.translate().format($item.rooms.bed.count, $item.subcategory);
+                        }
+                        
+                    }
+                }
+
+                $item.title = $siHooks.filter('si-list-slider-item-title', lTitle, $item);
+            }
+
+            $scope.getApiEndpoint = function($type, $view, $lang){
+                const lSingularType = $scope.typesHash[$type].toLowerCase();
+                return '{0}/view/{1}/{2}/items'.format(lSingularType, $view, $lang );
+            }
+
+            $scope.getItemTemplateInclude = function(){
+                if($scope.options.item_template != undefined){
+                    return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
+                }
+                
+                const lListConfigs = $scope.configs.lists.find(function($l){
+                    return $l.alias == $scope.alias;
+                });
+
+                return 'si-list-slider-for-' + lListConfigs.type;
+            }
+
+            $scope.scrollTo = function($index){
+                const lContainer = $scope._element[0].querySelector('.si-slide-container');
+                const lScrollBy = $scope._element[0].getBoundingClientRect().width;
+                lContainer.scrollLeft = $index * lScrollBy;
+            }
+
+            $scope.scroll = function($dir){
+                const lContainer = $scope._element[0].querySelector('.si-slide-container');
+                const lPreviousScrollPos = lContainer.scrollLeft;
+                const lScrollBy = $dir * $scope._element[0].getBoundingClientRect().width;
+                if(lContainer.scrollLeft + lScrollBy >= lContainer.scrollWidth){
+                    lContainer.scrollLeft = 0;
+                }
+                else if(lContainer.scrollLeft + lScrollBy < 0){
+                    lContainer.scrollLeft = lContainer.scrollWidth;
+                }
+                else{
+                    lContainer.scrollLeft = lPreviousScrollPos + lScrollBy;
+                }
+            }
+
+            // #region Events
+            $scope.bindEvents = function(){
+                const lObserverRoot = $scope._element[0];
+                const lRootBounds = lObserverRoot.getBoundingClientRect();
+
+                const lObserverOptions = {
+                    root: lObserverRoot,
+                    rootMargin: "0px -40%",
+                    thresholds: 1
+                }
+                const lSlideObserver = new IntersectionObserver($scope.slideIntersectHandle,lObserverOptions);
+
+                const lSlides = Array.from(lObserverRoot.querySelectorAll(".si-slide"));
+                lSlides.forEach(function($elm){
+                    lSlideObserver.observe($elm);
+                });
+
+                window.addEventListener('resize', function(){
+                    $scope.applyProperties();
+                    const lContainer = $scope._element[0].querySelector('.si-slide-container');
+                    lContainer.scrollLeft +=1;
+                })
+            }
+
+            $scope.slideIntersectHandle = function($entries, $observer){
+                $entries.forEach(function(entry) {
+                    $timeout(function(){
+                        if(entry.isIntersecting){
+                            entry.target.classList.add('in-viewport');
+                        }
+                        else{
+                            entry.target.classList.remove('in-viewport');
+                        }
+                    }, 500);
+                });
+                  
+            }
+
+            // #endregion
+        }
+    }
+}])
 
 siApp
 .directive('siSrcset', ['$compile', function siSrcset($compile){

@@ -585,15 +585,19 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
 
                 if($format == 'long'){
                     let lStart = 'for {0} for '.format($key).translate();
-                    lResult.push(lStart + lPart.join('/'));
+                    lResult.push(lStart + '<span class="nowrap">' + lPart.join('/') + '</span>');
                 }
                 else{
                     lResult.push(lPart.join('/'));
                 }
             }
         }
+
         
         let lSeperator = ' or '.translate();
+        if($format == 'long'){
+            lSeperator = '<br />' + lSeperator;
+        }
 
         return lResult.join(lSeperator);
     }

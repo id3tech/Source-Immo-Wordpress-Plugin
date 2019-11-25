@@ -201,9 +201,11 @@ class SourceImmoConfig {
     $instance = new SourceImmoConfig();
 
     $savedConfigs = $instance->loadSavedConfigs();
-
+    
     if($savedConfigs){
       $instance->parse(json_decode($savedConfigs));
+      $instance->app_version = SI_VERSION;
+    
       $instance->normalizeRoutes();
 
       $instance->saveConfigFile();
@@ -211,6 +213,7 @@ class SourceImmoConfig {
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
 
+    
     return $instance;
   }
 

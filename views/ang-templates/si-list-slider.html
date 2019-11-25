@@ -1,0 +1,23 @@
+<div class="si si-list-slider">
+    <div class="si-slide-container">
+        <div ng-include="getItemTemplateInclude()"  class="si-slide" ng-repeat="item in list">
+           
+        </div>
+    </div>
+
+    <div class="si-slider-navigation">
+        <div class="nav-button previous-button" ng-click="scroll(-1)"><i class="fal fa-angle-left"></i></div>
+        <div class="nav-button next-button" ng-click="scroll(1)"><i class="fal fa-angle-right"></i></div>
+
+        <div class="slider-bullet-container">
+            <div class="slider-bullet " 
+                ng-repeat="item in list"
+                ng-click="scrollTo($index)"
+                >
+            </div>
+        </div>
+    </div>
+
+    
+    
+</div>

@@ -1,8 +1,8 @@
 <div class="si-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
     <div class="viewport"> 
-        <div class="trolley" ng-style="getTrolleyStyle()">
+        <div class="trolley" style="{{getTrolleyStyle()}}">
             <div class="item" data-ng-repeat="img in pictures">
-                <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
+                <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" si-image-auto-fit />
                 <div class="caption"><label>{{getImageCaption(img)}}</label></div>
             </div>
         </div>
@@ -17,9 +17,10 @@
     </div>
 
     <div class="navigation-controls" data-ng-show="pictures.length > 1">
-        <div class="nav-btn next" data-ng-click="next()"><i class="fal fa-fw fa-2x fa-angle-right"></i></div>
-        <div class="nav-btn previous" data-ng-click="previous()"><i class="fal fa-fw fa-2x fa-angle-left"></i></div>
+        <div class="nav-btn next" data-ng-click="next()"><i class="fal fa-fw fa-angle-right"></i></div>
+        <div class="nav-btn previous" data-ng-click="previous()"><i class="fal fa-fw fa-angle-left"></i></div>
     </div>
+    
     <div class="controls">
         <div class="nav-btn picture-grid" data-ng-click="togglePictureGrid()"><i class="fas fa-th"></i> <label>{{'All pictures'.translate()}}</label></div>
         <div class="nav-btn expand" data-ng-click="toggleFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>

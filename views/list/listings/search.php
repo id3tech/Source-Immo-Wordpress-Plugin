@@ -37,12 +37,10 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="search-trigger">
-            <button type="button" class="trigger-button button" data-ng-click="showResultPage()"><?php _e('Search', SI) ?></button>
-        </div>
-
-        
+    <div class="search-trigger">
+        <button type="button" class="trigger-button button" data-ng-click="showResultPage()"><?php _e('Search', SI) ?></button>
     </div>
 
 

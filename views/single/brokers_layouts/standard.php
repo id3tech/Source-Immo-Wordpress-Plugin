@@ -1,5 +1,4 @@
 
-
     <?php echo do_shortcode('[si_broker_part part="head"]') ?>
   
     <?php echo do_shortcode('[si_broker_part part="picture"]') ?>

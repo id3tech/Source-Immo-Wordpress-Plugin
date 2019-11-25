@@ -70,7 +70,6 @@ class SourceImmo {
       }
     }
   }
-
   
   function add_favorite_button_to_menu( $items, $args ) {
       if( $args->theme_location == $this->configs->favorites_button_menu )
@@ -1027,7 +1026,6 @@ class SourceImmo {
       self::$initiated = true;
       self::current()->load_modules();
       self::current()->init_hooks();
-      
 		}
 	}
   private static $initiated = false;
@@ -1260,7 +1258,7 @@ class SiSharing{
 
     $this->title = $this->object->subcategory . ' ' . $this->object->location->full_address;
     $this->desc = isset($this->object->description) ? $this->object->description : '';
-    $this->image = $this->object->photos[0]->source_url;
+    $this->image = (isset($this->object->photos[0]->source_url)) ? $this->object->photos[0]->source_url : null;
     $this->url = '/' . $this->object->permalink;
   }
 
@@ -1285,7 +1283,7 @@ class SourceImmoDictionary{
       return $this->getCaptionFrom($key[0], $key[1], $domain, $asAbbr);
     }
     
-    if(isset($this->entries) && $this->entries->{$domain}){
+    if(isset($this->entries) && isset( $this->entries->{$domain}) && $this->entries->{$domain}){
         if(isset($this->entries->{$domain}->{$key})){
             if($asAbbr){
                 $lResult = $this->entries->{$domain}->{$key}->abbr;
@@ -1448,8 +1446,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
       $item->location->civic_address = '';
     }
     
-    $item->location->city = $dictionary->getCaption($item->location->city_code , 'city');
-    $item->location->region = $dictionary->getCaption($item->location->region_code , 'region');
+    
+    $item->location->city = (isset($item->location->city_code)) ? $dictionary->getCaption($item->location->city_code , 'city') : '';
+    $item->location->region = (isset($item->location->region_code)) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
     if($item->location->civic_address != ''){
       $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
       if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
@@ -2099,10 +2098,13 @@ class ListingSchema extends BaseDataSchema{
     parent::__construct('Product',$basicInfos);
 
     if(isset($listing->price->sell)){
-      $this->addOffer('Residence',$listing->price->sell->amount,$listing->price->sell->currency, $listing->location);
+      $currency = (isset($listing->price->sell->currency)) ? $listing->price->sell->currency : '';
+
+      $this->addOffer('Residence',$listing->price->sell->amount, $currency, $listing->location);
     }
     else{
-      $this->addOffer('Residence',$listing->price->lease->amount,$listing->price->lease->currency, $listing->location);
+      $currency = (isset($listing->price->lease->currency)) ? $listing->price->lease->currency : '';
+      $this->addOffer('Residence',$listing->price->lease->amount,$currency, $listing->location);
     }
   }
 }

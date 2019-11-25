@@ -4,6 +4,7 @@ $ref_type = get_query_var( 'type' );
 
 $pageBuilder = new SourceImmoPageBuilder('broker');
 
+
 $pageBuilder->start_page();
 
 // $layout = SourceImmo::current()->get_detail_layout('broker');
@@ -24,6 +25,7 @@ SourceImmo::view('single/brokers_layouts/_schema',array('model' => $data));
         }
         else{
             do_action('si_start_of_template',"Loading broker" );
+            
 
             SourceImmo::view('single/brokers_layouts/' . $pageBuilder->layout->type);
             

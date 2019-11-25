@@ -369,7 +369,7 @@ class HttpCall{
         'Content-Length: ' . strlen($data_string)                                                                       
       ),
       'CURLOPT_POSTFIELDS' => $data_string,
-      'CURLOPT_VERBOSE'     => 1
+      'CURLOPT_VERBOSE'     => 0
     ), $this->request_options));
     
     $lResult = curl_exec($lCurlHandle);

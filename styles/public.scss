@@ -20,9 +20,11 @@
     font-size:unset;
 }
 
+$small-phone : 420px;
 $phone : 640px;
 $tablet : 800px;
 $laptop : 1280px;
+$desktop : 1440px;
 
 @mixin media($size){
     @media screen and (max-width: $size){
@@ -31,7 +33,7 @@ $laptop : 1280px;
 }
 
 @mixin media-gt($size){
-    @media screen and (min-width: $size){
+    @media screen and (min-width: $size+1){
         @content;
     }
 }
@@ -43,6 +45,7 @@ $laptop : 1280px;
 }
 
 :root{
+    --container-width: 1170px;
     //--font: 'Arial';
     --uls-label: "ULS: ";
     --text-color: #333;
@@ -85,11 +88,40 @@ $laptop : 1280px;
     // offices
     --office-item-column-width : 320px;
 }
+html{
+    font-size:14px;
+}
+
+@include media-gt($phone){
+    :root{
+        --container-width:  750px;
+    }
+}
+@include media-gt($tablet){
+    :root{
+        --container-width:  992px;
+    }
+}
+@include media-gt($laptop){
+    :root{
+        --container-width:  1170px;
+    }
+}
+
+
+@include media($phone){
+    :root{
+        --container-width:  100%;
+    }
+}
 
 #top .si, // enfold overrides
 #top .si-modal,
 .si-modal,
 .si{
+
+    
+
     display:grid;
     font-size: 16px;
     
@@ -108,6 +140,10 @@ $laptop : 1280px;
     //div{color:var(--text-color);}
     label{font-weight: 400;color:var(--text-color);}
     h1,h2,h3,h4,h5,h6{color:var(--text-color);}
+    .nowrap{
+        white-space: nowrap;
+    }
+
     .grid-layout-row{
         display:grid;
     }
@@ -317,8 +353,9 @@ $laptop : 1280px;
                 border:none;
                 outline:none;
                 display:flex;
-                flex-direction: column;
+                flex-direction: row;
                 justify-content: center;
+                align-items: center;
 
                 cursor: pointer;
                 &::before{
@@ -645,7 +682,7 @@ $laptop : 1280px;
             grid-area: client_filters;
             display:grid;grid-gap:10px;
             align-items:center;
-            .label{grid-area: label;}
+            .label{grid-area: label;color:var(--text-color);background:unset;}
             .list{
                 grid-area: list;
                 display:flex;
@@ -922,7 +959,10 @@ $laptop : 1280px;
             }
             
             .price{text-align:center;padding:10px;background:var(--small-contrast-color);font-size:1.2em;font-weight:700;}
-            .city{padding:0 0 10px 10px;font-size:0.8em;}
+            .city{
+                padding:0 0 10px 10px;font-size:0.8em;
+                &::after{content:"\00a0";}
+            }
             .civic-address{padding:10px 0 0 10px;text-transform:uppercase;}
             .description{padding:10px;}
             .region{display:none;}
@@ -1070,17 +1110,20 @@ $laptop : 1280px;
                 grid-gap: 0;
                 grid-template-columns: 2fr 1fr;
                 grid-template-rows: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio)) auto;
+                grid-template-areas: 
+                    "image image"
+                    "name name"
+                    "title title"
+                    "contact contact";
+
                 @include media($tablet){
                     //grid-template-rows: calc(40% * var(--broker-item-picture-ratio)) auto;
                 }
                 @include media($phone){
                     //grid-template-rows: calc(50% * var(--broker-item-picture-ratio)) auto;
                 }
-                grid-template-areas: 
-                    "image image"
-                    "name name"
-                    "title title"
-                    "contact contact";
+                
+                
                 .image{
                     background: url('assets/shadow_broker.jpg') no-repeat;
                     background-size: cover;
@@ -1158,6 +1201,17 @@ $laptop : 1280px;
                     "photo actions"
                 ;
                 padding:10px;
+                @include media($small-phone){
+                    grid-template-rows: 1fr;
+                    grid-template-areas: 
+                        "photo" "name" 
+                        "license" 
+                        "contact"
+                        "actions"
+                    ;
+                    place-items:center;
+                }
+
                 .photo{
                     width:100px;height:100px;overflow:hidden;
                     border-radius:50%;background:#fff;
@@ -1167,6 +1221,9 @@ $laptop : 1280px;
                 .name{
                     font-size:1.25em;font-weight: 600;
                     margin:0px;color:inherit;
+                    @include media($small-phone){
+                        text-align:center;
+                    }
                 }
                 .contact{
                     align-self: start;
@@ -2016,11 +2073,39 @@ $laptop : 1280px;
                 }
             }
             &.show-trigger{
-                .advanced{
-                    grid-template-areas: "cities category price rooms more trigger";
-                    
-                    .search-trigger{display:block;}
+                grid-template-columns: 1fr auto auto;
+                grid-template-areas: 
+                    "input advanced trigger"
+                    "filters filters filters"
+                    "client_filters client_filters client_filters";
+                @include media($phone){
+                    grid-template-columns: 1fr auto;
+                    grid-template-areas: 
+                        "input advanced"
+                        "trigger trigger"
+                        "filters filters "
+                        "client_filters client_filters";
                 }
+                .advanced{
+                    // @include media($phone){
+                    //     grid-template-columns: 1fr;
+                    //     grid-template-areas: "filter";
+
+                    //     .filter-menu{
+                    //         grid-area: filter;
+                    //     }
+                    // }
+                }
+
+                .search-trigger{
+                    display:block;
+                    grid-area: trigger;
+                    padding:0 1rem;
+                    @include media($phone){
+                        place-self: center;
+                    }
+                }
+
             }
             .client-filters{
                 grid-template-columns: auto 1fr auto;
@@ -2137,7 +2222,7 @@ $laptop : 1280px;
 
         &.si-list-of-listings{
            .search-container{
-
+            .search-trigger{display:none;}
            }
         }
 
@@ -2165,7 +2250,7 @@ $laptop : 1280px;
                 }
             }
             .search-container{
-                // .search-trigger{display:none;}
+                .search-trigger{display:none;}
                 // @include media($tablet){
                 //     grid-template-areas: "input advanced"
                 //                         "filters filters"
@@ -2359,6 +2444,10 @@ $laptop : 1280px;
                     "information_request"
                 ;
             }
+            @include media($phone){
+                place-items:center;
+                text-align:center;
+            }
             
             .subcategory{line-height: 1em;}
 
@@ -2368,6 +2457,9 @@ $laptop : 1280px;
                 
                 grid-column-span: 2;
                 button{width:100%;display:block;padding:1em 2em;border:none;}
+                @include media($phone){
+                    place-self:center;
+                }
             }
 
             .tools{
@@ -2403,23 +2495,39 @@ $laptop : 1280px;
             .city{
                 font-size:1.75em;font-weight: 300;
                 place-self: center self-start;
+                @include media($phone){
+                    place-self:center;
+                }
             }
             .price{
                 font-size:1.75em;font-weight: 600;
                 place-self: start end;
                 text-align:right;
+                
                 .mortgage{
                     font-size:0.5em;font-weight:400;
                     a{border-bottom:dotted 1px rgba(#000,0.75);outline:none;}
                 }
                 @include media($phone){
                     place-self:center;
+                    text-align:center;
+                    
+                    > div:first-child{
+                        
+                    }
                 }
             }
         }
         .medias{
             position:relative;    
             place-self: stretch;
+            @include media($phone){
+                // width: 100vw;
+                // margin-left: -50vw;
+                height: 40vh;
+                // left: 50%;
+
+            }
             .tabs{
                 @include media($phone){
                     display: flex;
@@ -2488,7 +2596,7 @@ $laptop : 1280px;
                     height:300px;
                 }
                 @include media($phone){
-                    height:220px;
+                    height:calc(100% - 40px);
                 }
                 
 
@@ -2593,6 +2701,20 @@ $laptop : 1280px;
                 "information_request information_request"
             ;
 
+            @include media($small-phone){
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "ref-number"
+                    "region" "state"
+                    "address"
+                    "near"
+                    "open-houses"
+                    "description"
+                    "attachments"
+                    "flags"
+                    "information_request"
+                ;
+            }
 
             .ref-number{
                 opacity:0.5;
@@ -2607,6 +2729,9 @@ $laptop : 1280px;
             }
             .state{
                 place-self: self-end;
+                @include media($small-phone){
+                    place-self: start;
+                }
             }
             .description{
                 margin:20px 0;
@@ -3125,11 +3250,13 @@ $laptop : 1280px;
 
                 display:grid;
                 grid-template-columns: 1fr;
+                
                 .location{
                     @include gridAreas('icon','address','city','country');
                 
                     display:grid;
                     grid-template-columns: auto 1fr;
+                    gap:0 1rem;
                     grid-template-areas: 
                         "icon address"
                         "icon country"
@@ -3588,18 +3715,40 @@ body.si-modal-open{
         width:100%;height:100%;
         top:0px;left:0px;
         overflow:hidden;
+        @include media($phone){
+            //overflow-y:hidden;
+            overflow-x:auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+        }
 
         .trolley{
             display:grid;
             grid-template-rows: 100%;
+            grid-template-columns: repeat(var(--item-count), var(--viewport-width));
             place-items: stretch;
             position: absolute;
             height:100%;
             top:0px;left:0px;
             transition:0.25s;
+            transform: translateX(calc(-1 * var(--viewport-width) * var(--item-index)));
+            @include media($phone){
+                display:grid;
+                grid-auto-flow: column;
+                position:relative;
+                transform:none;
+                //width: calc(var(--item-count) *  100vw);
+            }
+
             .item{
                 height:100%;
                 position:relative;
+                min-width:var(--viewport-width);
+                @include media($phone){
+                    
+                    scroll-snap-align: start;
+                    scroll-snap-stop: always;
+                }
                 img{object-fit: cover;width: 100%;height:100%;}
                 .caption{
                     position: absolute;
@@ -3610,7 +3759,7 @@ body.si-modal-open{
                         top:50%;left:50%;
                         transform:translate(-50%,-50%);
                         color:var(--high-contrast-text-color);
-                        font-size:1.2em;
+                        font-size:1.25rem;
                         text-shadow: rgba(#000,0.75) 1px 1px 2px;
                     }
                     &::before{
@@ -3618,6 +3767,15 @@ body.si-modal-open{
                         position: absolute;top:0px;left:0px;width:100%;height:100%;
                         background-color:var(--high-contrast-color);
                         opacity:0.5;
+                    }
+                    @include media($small-phone){
+                        bottom:unset;
+                        top:0px;
+                        label{
+                            width:100%;
+                            text-align:center;
+                            font-size: 1rem;
+                        }
                     }
                 }
             }
@@ -3726,11 +3884,17 @@ body.si-modal-open{
 
     .navigation-controls{
         position: absolute;top:0px;left:0px;width:100%;height:100%;
-        
+        pointer-events: none;
+        --nav-control-size: 40px;
+        @include media($phone){
+            --nav-control-size: 25px;
+        }
         .nav-btn{
-            position: absolute;height:75px;width:75px;
+            font-size: var(--nav-control-size);
+            position: absolute;height:2em;width:2em;
             border-radius:0;padding:0px;
             transition:0.25s;
+            pointer-events: auto;
             cursor:pointer;
             &::before{
                 content:"";
@@ -3743,6 +3907,7 @@ body.si-modal-open{
             .fal,.far,.fas{
                 position: absolute;top:50%;left:50%;transform:translate(-50%,-50%);
                 color:var(--button-text-color);
+                font-size: var(--nav-control-size);
                 transition:0.25s;
             }
             &:hover{
@@ -3753,8 +3918,14 @@ body.si-modal-open{
                     color:var(--button-hover-text-color);
                 }
             }
-            &.next{top:50%;right:0px;transform:translateX(100%) translateY(-50%);}
-            &.previous{top:50%;left:0px;transform:translateX(-100%) translateY(-50%);}
+            &.next{
+                top:50%;right:0px;transform:translateX(100%) translateY(-50%);
+                border-radius: var(--element-border-radius) 0 0 var(--element-border-radius);
+            }
+            &.previous{
+                top:50%;left:0px;transform:translateX(-100%) translateY(-50%);
+                border-radius: 0 var(--element-border-radius) var(--element-border-radius) 0;
+            }
         }
         z-index:9;
     }
@@ -3842,6 +4013,12 @@ body.si-modal-open{
     }
     &.expanded{
         .viewport{
+            // position:fixed;
+            // top:0px;
+            // left:0px;
+            // width:100vw;
+            // height:100vh;
+
             background:rgba(#000,0.75);
             .trolley{
                 .item{
@@ -3940,6 +4117,281 @@ body.si-modal-open{
                 img{opacity:1;}
                 .fa-eye{
                     opacity:1;
+                }
+            }
+        }
+    }
+}
+
+#top .si-list-slider,
+.si-list-slider{
+    height: 500px;
+    overflow:hidden;
+    position:relative;
+    --base-font-size: 1.25rem;
+    --nav-button-size: 60px;
+    --nav-bullet-size: 5px;
+    @include media($phone){
+        --base-font-size: 1rem;
+    }
+    &.slider-type-hero{
+        border-radius: var(--element-border-radius);
+        max-height:500px;
+    }
+
+    &.slider-type-fullwidth{
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 50vh;
+        max-height:700px;
+    }
+
+    &.slider-type-fullscreen{
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        height: 100vh;
+        max-height:950px;
+        @include media($phone){
+            height: 90vh;
+            max-height:640px;
+        }
+    }
+
+
+    .si-slider-navigation{
+        position: absolute;
+        left:50%;
+        width: var(--container-width);
+        max-width:100%;
+        height:100%;
+        transform:translateX(-50%);
+        pointer-events: none;
+        z-index: 10;
+        --text-color: #fff;
+        overflow:hidden;
+
+        .nav-button{
+            position: absolute;
+            top:50%;
+            transform:translateY(-50%);
+            transition:0.25s;
+            
+            font-size: calc(var(--nav-button-size) * .8);
+            pointer-events: auto;
+            width: var(--nav-button-size);
+            height:var(--nav-button-size);
+            background: #00000033;
+            text-align:center;
+            display:flex;
+            align-items:center;
+            justify-content: center;
+            cursor:pointer;
+            opacity:0;
+        }
+        .previous-button{
+            left: calc(-1 * var(--nav-button-size));
+        }
+        .next-button{
+            right: calc(-1 * var(--nav-button-size));
+        }
+
+        .slider-bullet-container{
+            position: absolute;
+            bottom:0px;
+            left:50%;
+            
+            display: grid;
+            grid-auto-flow: column;
+            gap:0rem;
+            padding:1rem;
+            transform:translate(-50%, 100%);
+            opacity:0;
+            transition:0.25s;
+
+            .slider-bullet{
+                pointer-events: auto;
+                padding:0.5rem;
+                cursor:pointer;
+                transition:0.25s;
+                &::before{
+                    content:"";
+                    width:var(--nav-bullet-size);
+                    height:var(--nav-bullet-size);
+                    display:block;
+                    background-color: var(--text-color);
+                    border-radius: var(--element-border-radius);
+                    transition:0.25s;
+                }
+
+                &:hover{
+                    padding:0rem;
+                    &::before{
+                        width:calc(var(--nav-bullet-size) + 1rem);
+                        height:calc(var(--nav-bullet-size) + 1rem);
+                    }
+                }
+            }
+        }
+    }
+    &:hover{
+        .si-slider-navigation{
+           
+            .previous-button{
+                left:0px;
+                opacity:1;
+            }
+            .next-button{
+                right:0px;
+                opacity:1;
+            }
+
+            .slider-bullet-container{
+                transform:translate(-50%, 0%);
+                opacity:1;
+            }
+        }
+    }
+
+    .si-slide-container{
+        display:flex;
+        flex-direction:row;
+        width:calc(var(--slider-width) * var(--item-count));
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        height:100%;
+        &::-webkit-scrollbar{
+            width:0px;
+            height:0px;
+        }
+
+        .si-slide{
+            width:var(--slider-width);
+            min-width:var(--slider-width);
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            position:relative;
+            user-select: none;
+            height:100%;
+            --delay: 0s;
+            
+            .slide-data{
+                color: #fff;
+                text-shadow: 1px 1px 2px #00000099;
+            }
+            
+            .slide-background{
+                @include absoluteFill();
+                z-index:1;
+                img{
+                    object-fit: cover;
+                    object-position: center;
+                    width:100%;
+                    height:100%;
+                    margin:0px;
+                    display:block;
+                }
+            }
+            .slide-infos{
+                position:absolute;
+                top:0px;
+                bottom:0px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index:2;
+                width: var(--container-width);
+                max-width:100%;
+                overflow: hidden;
+
+                .slide-data{
+                    position: absolute;
+                    padding: 1rem;
+                    font-size: var(--base-font-size);
+                    transition:0.25s;
+                    transition-delay: var(--delay);
+                }
+
+                
+            }
+            &:not(.in-viewport){
+                .slide-data{
+                    &.from-left{
+                        left: -10em;
+                        opacity:0;
+                    }
+                    &.from-bottom{
+                        bottom: -300px;
+                        opacity:0;
+                    }
+                }
+            }
+        }
+    }
+
+    &.list-of-listings{
+        .si-slide{
+            .slide-infos{
+                .title{
+                    font-size:  calc(var(--base-font-size) * 2);
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    bottom:25%;
+                    left:0;
+                    transform:translate(0,50%);
+                    @include media($phone){
+                        bottom:unset;
+                        top:10%;
+                        width:100%;
+                        transform:translate(0%,-50%);
+                    }
+                }
+                .city{
+                    bottom:calc(25% + calc(var(--base-font-size) * 1.75));
+                    left:0;
+                    transform:translate(0,50%);
+                    @include media($phone){
+                        bottom:unset;
+                        top:calc(10% + calc(var(--base-font-size) * 1.75));
+                        
+                        width:100%;
+                        transform:translate(0%,-50%);
+                    }
+                }
+                .address{
+                    bottom:calc(25% - calc(var(--base-font-size) * 1.75));
+                    left:0;
+                    transform:translate(0,50%);
+                    @include media($phone){
+                        bottom:unset;
+                        top:calc(10% - calc(var(--base-font-size) * 1.75));
+                        
+                        width:100%;
+                        transform:translate(0%,-50%);
+                    }
+                }
+                .price{
+                    font-size: calc(var(--base-font-size) * 3);
+                    font-weight: bold;
+                    right:0px;
+                    bottom:25%;
+                    transform:translate(0,50%);
+                }
+                .link{
+                    right:0px;
+                    bottom:calc(25% - calc(var(--base-font-size) * 4));
+                    transform:translate(0,50%);
+
+                    .button{
+                        font-size: calc(var(--base-font-size) * 1.25);
+                        text-transform: uppercase;
+                        padding: 0.75em 1em;
+                    }
                 }
             }
         }
@@ -4552,6 +5004,18 @@ si-checkbox, si-radio{
 }
 // enfold fixes
 #top{
+    &.single-listings,
+    &.single-brokers,
+    &.single-offices
+    &.single-cities{
+        .page.entry{
+            .container{
+                margin-top:50px;
+                margin-bottom:50px;
+            }
+        }
+    }
+
     .si{
         &.listing-single,
         &.broker-single{
