@@ -3762,7 +3762,7 @@ siApp
                     lImg.style.objectFit = 'contain';
                     return;
                 }
-            }
+            });
         }
     }
 })
@@ -3893,11 +3893,11 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
                     return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
                 }
                 
-                const lListConfigs = $scope.configs.lists.find(function($l){
-                    return $l.alias == $scope.alias;
-                });
+                // const lListConfigs = $scope.configs.lists.find(function($l){
+                //     return $l.alias == $scope.alias;
+                // });
 
-                return 'si-list-slider-for-' + lListConfigs.type;
+                return 'si-list-slider-for-' + $scope.alias;
             }
 
             $scope.scrollTo = function($index){
