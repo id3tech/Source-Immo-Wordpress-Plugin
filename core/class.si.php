@@ -585,7 +585,7 @@ class SourceImmo {
   function include_listings_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
     global $permalink, $post,$listing_data;
-
+    
     // load data
     global $listing_data;
     $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
@@ -607,6 +607,7 @@ class SourceImmo {
       add_action('the_post', function($post_object){
         global $permalink;
         $post_object->permalink = $permalink;
+        $post_object->post_title = '';
       });
 
       // Add hook to data
@@ -694,6 +695,7 @@ class SourceImmo {
       add_action('the_post', function($post_object){
         global $permalink;
         $post_object->permalink = $permalink;
+        $post_object->post_title = '';
       });
 
       $broker_data = apply_filters(hook_from_key('broker','single'), $broker_data);
@@ -776,6 +778,7 @@ class SourceImmo {
       add_action('the_post', function($post_object){
         global $permalink;
         $post_object->permalink = $permalink;
+        $post_object->post_title = '';
       });
 
 
@@ -1114,7 +1117,8 @@ class SiSharing{
 
     add_filter('document_title_parts', array($this, 'override_title'),10);
     add_filter('wp_head', array($this,'seo_metas'),10,1);
-    //add_filter('the_title', array($this, 'page_title'), 10,1);
+    //add_filter('single_post_title', array($this, 'page_title'), 10,1);
+    //add_action('the_post', array($this,'change_post'));
 
     //Yoast
     add_filter('wpseo_title', array($this, 'title'), 10,1);
@@ -1126,6 +1130,11 @@ class SiSharing{
     add_filter('wpseo_opengraph_image', array($this, 'image'), 10,1);
     add_filter('wpseo_opengraph_url',array($this,'url'),10,1);
     add_filter('wpseo_twitter_image', array($this, 'image'), 10,1);
+  }
+
+  public function change_post($post_object){
+    //__c($post_object);
+    //$post_object->title = $this->post_title;
   }
 
   public function override_title($title){
@@ -1141,8 +1150,6 @@ class SiSharing{
   }
 
   public function page_title($title='',$id=null){
-    __c($id);
-
     if($this->title != null && $id==null){
       $title = $this->title;
     }
