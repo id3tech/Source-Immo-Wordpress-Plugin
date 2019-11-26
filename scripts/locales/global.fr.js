@@ -27,6 +27,7 @@ $locales.fr = {};$locales.fr.global =
     , "Loading results" : "Chargement des résultats"
     , "Automatic" : "Automatique"
     , "Thank you" : "Merci"
+    , "Between" : "Entre"
     // Time
     , "in" : "dans"
     , "year" : "année"
@@ -40,6 +41,8 @@ $locales.fr = {};$locales.fr.global =
     , "{0} days ago" : "il y a {0} jours"
     , "{0} months ago" : "il y a {0} mois"
     , "{0} year ago" : "il y a {0} an"
+    // Measure
+    , "{0} sqft" : "{0} pc"
     // Configuration Screen
     , "General" : "Général"
     , "Lists" : "Listes"
@@ -416,6 +419,7 @@ $locales.fr = {};$locales.fr.global =
     , "Browse your search results" : "Naviguez parmi vos résultats de recherche"
     , "Land area" : "Superficie du terrain"
     , "Building area" : "Superficie du bâtiment"
+    , "Available area" : "Superficie disponible"
     , "Note how to go there" : "Notez comment s'y rendre"
     , "Personnal notes" : "Notes personnelles"
     , "Financial details" : "Détails financiers"

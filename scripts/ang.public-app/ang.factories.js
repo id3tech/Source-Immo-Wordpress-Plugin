@@ -1021,6 +1021,18 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         return lResult;
     }
 
+    $scope.filesize = function($value){
+        const lSizeGroup = [
+            'bytes','Kb','Mb','Gb','Tb'
+        ]
+        let lSizeDivider = 0;
+        while ($value > 1000) {
+            $value = $value / 1000;
+            lSizeDivider++;
+        }
+
+        return (Math.round($value * 100) / 100) + lSizeGroup[lSizeDivider].translate();
+    }
 
     /**
      * Convert an object to an array of its attributes
@@ -1581,7 +1593,16 @@ function $siFilters($q,$siApi,$siUtils){
         }
 
         $fm.getFilterCaptionFromList = function($fieldname,$list,$default){
-            let lValue = $fm.getFilterValue($fieldname);
+            let lValue = null;
+
+            if(typeof $fieldname == 'object'){
+                const lKey = Object.keys($fieldname)[0];
+                lValue = $fm[lKey][$fieldname[lKey]]
+            }
+            else{
+                lValue = $fm.getFilterValue($fieldname);
+            }
+            
             if(lValue == null){
                 return $default;
             }
@@ -1792,25 +1813,34 @@ function $siFilters($q,$siApi,$siUtils){
                 value: $value,
                 label: $label,
                 reverse: $reverseFunc || function(){
-                    $fm.addFilter($field,$operator, '')
+                    $fm.addFilter($field,$operator, '');
                 }
             };
 
-            for(lFilterIndex = 0; lFilterIndex < $group.filters.length; lFilterIndex++){
-                if($group.filters[lFilterIndex].field == $field){
-                    break;
+            lFilterIndex = $group.filters.findIndex(function($gf){
+                if($gf.field == $field && $gf.operator == $operator) return true;
+            });
+
+            // for(lFilterIndex = 0; lFilterIndex < $group.filters.length; lFilterIndex++){
+            //     if($group.filters[lFilterIndex].field == $field){
+            //         break;
+            //     }
+            // }
+            if(lFilterIndex >= 0){
+                if($value==='' || $value==null){
+                    $fm.removeFilter(lFilterIndex, $group);
+                }
+                else if (Array.isArray($value) && $value.length == 0){
+                    $fm.removeFilter(lFilterIndex, $group);
+                }
+                else{
+                    $fm.updateFilter(lNewFilter, lFilterIndex, $group);
                 }
             }
-            
-            if($value==='' || $value==null){
-                $fm.removeFilter(lFilterIndex, $group);
-            }
-            else if (Array.isArray($value) && $value.length == 0){
-                $fm.removeFilter(lFilterIndex, $group);
-            }
             else{
-                $fm.updateFilter(lNewFilter, lFilterIndex, $group);
+                $group.filters.push(lNewFilter);
             }
+            
         }
 
         $fm.updateFilter = function($filter,$index, $group){
@@ -1852,16 +1882,20 @@ function $siFilters($q,$siApi,$siUtils){
         */
         $fm.resetFilters = function($triggerUpdate){
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
-            $fm.data.keyword = '';
+            
             $fm.filter_group = {
                 operator: 'and',
                 filters: null,
                 filter_groups: null
             };
             $fm.query_text = null;
-            $fm.data.min_price = null;
-            $fm.data.max_price = null;
-            $fm.data.location = null;
+            // $fm.data.min_price = null;
+            // $fm.data.max_price = null;
+            // $fm.data.location = null;
+            Object.keys($fm.data).forEach(function($k){
+                $fm.data[$k] = null;
+            });
+            $fm.data.keyword = '';
 
             // save filters to localStorage
             $fm.clearState();

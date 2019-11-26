@@ -27,7 +27,7 @@
     
         <div class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
-                <div class="dropdown-button {{filter.hasFilters() ? 'active' : ''}}" type="button"><i class="fal fa-filter"></i></div>
+                <div class="dropdown-button {{filter.hasFilters() ? 'active' : ''}}"><i class="fal fa-filter"></i></div>
                 <div class="si-dropdown-panel">
                     <div class="dropdown-item {{filter.hasFilter(['location.region_code','location.city_code']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter('price.sell.amount') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
@@ -226,11 +226,10 @@
         <div class="filter-panel-content">
             
             
-            <div class="age grid-layout-column">
+            <div class="first-block grid-layout-column">
                 <h4><?php _e('Online for',SI) ?></h4>
-
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('contract.start_date')}}">
-                    <div class="dropdown-button" type="button">{{filter.getFilterCaptionFromList('contract.start_date',listing_ages,listing_ages[0].caption)}}</div>
+                    <div class="dropdown-button">{{filter.getFilterCaptionFromList('contract.start_date',listing_ages,listing_ages[0].caption)}}</div>
                     <div class="si-dropdown-panel">
                         <div class="dropdown-item
                                 {{filter.getFilterValue('contract.start_date') == item.filter.value ? 'active' : ''}}"
@@ -241,13 +240,10 @@
                     </div>
                 </div>
 
-            </div>
 
-            <div class="parkings grid-layout-column">
                 <h4><?php _e('Parkings',SI) ?></h4>
-                
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('attributes.PARKING')}}">
-                    <div class="dropdown-button" type="button">{{filter.getFilterCaptionFromList('attributes.PARKING',parkingSuggestions, '<?php _e('Any',SI) ?>')}}</div>
+                    <div class="dropdown-button" >{{filter.getFilterCaptionFromList('attributes.PARKING',parkingSuggestions, '<?php _e('Any',SI) ?>')}}</div>
                     <div class="si-dropdown-panel">
                         <div class="dropdown-item
                                 {{filter.getFilterValue('attributes.PARKING') == null ? 'active' : ''}}"
@@ -263,8 +259,84 @@
                     </div>
                 </div>
 
+                <h4><?php _e('Land area',SI) ?></h4>
+                <div class="si-min-max-input-container">
+                    <span><?php _e('Between',SI) ?></span>
+                    <div class="si-dropdown" data-has-value="{{filter.data.land_min != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'land_min'},land_areas, '<?php _e('Min',SI) ?>')}}</div>
+                        <div class="si-dropdown-panel">
+                            <div class="dropdown-item
+                                    {{filter.data.land_min == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'land', 'min', '')">
+                                <?php _e('Min',SI) ?>
+                            </div>
+                            <div class="dropdown-item
+                                    {{filter.data.land_min == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in land_areas"
+                                data-ng-click="setArea(item.value, 'land', 'min', 'Land more than {0} sqft')">
+                                {{item.caption}}
+                            </div>
+                        </div>
+                    </div>
+                    <span><?php _e('and',SI) ?></span>
+                    <div class="si-dropdown" data-has-value="{{filter.data.land_max != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'land_max'},land_areas, '<?php _e('Max',SI) ?>')}}</div>
+                        <div class="si-dropdown-panel">
+                            <div class="dropdown-item
+                                    {{filter.data.land_max == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'land', 'max', '')">
+                                <?php _e('Max',SI) ?>
+                            </div>
+                            <div class="dropdown-item
+                                    {{filter.data.land_max == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in land_areas"
+                                data-ng-click="setArea(item.value, 'land', 'max', 'Land less than {0} sqft')">
+                                {{item.caption}}
+                            </div>
+                        </div>
+                    </div>
 
-                
+                    
+                </div>
+
+                <h4><?php _e('Available area',SI) ?></h4>
+                <div class="si-min-max-input-container">
+                    <span><?php _e('Between',SI) ?></span>
+                    <div class="si-dropdown" data-has-value="{{filter.data.building_min != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'building_min'},building_areas, '<?php _e('Min',SI) ?>')}}</div>
+                        <div class="si-dropdown-panel">
+                            <div class="dropdown-item
+                                    {{filter.data.building_min == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'building', 'min', '')">
+                                <?php _e('Min',SI) ?>
+                            </div>
+                            <div class="dropdown-item
+                                    {{filter.data.building_min == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in building_areas"
+                                data-ng-click="setArea(item.value, 'building', 'min', 'Building more than {0} sqft')">
+                                {{item.caption}}
+                            </div>
+                        </div>
+                    </div>
+                    <span><?php _e('and',SI) ?></span>
+                    <div class="si-dropdown" data-has-value="{{filter.data.building_max != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'building_max'},building_areas, '<?php _e('Max',SI) ?>')}}</div>
+                        <div class="si-dropdown-panel">
+                            <div class="dropdown-item
+                                    {{filter.data.building_max == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'building', 'max', '')">
+                                <?php _e('Max',SI) ?>
+                            </div>
+                            <div class="dropdown-item
+                                    {{filter.data.building_max == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in building_areas"
+                                data-ng-click="setArea(item.value, 'building', 'max', 'Building less than {0} sqft')">
+                                {{item.caption}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <div class="building_category grid-layout-column">
@@ -316,7 +388,7 @@
     <div class="client-filters" ng-show="filter.hasFilters()">
         <div class="label"><?php _e('Selected filters', SI) ?></div>
         <div class="list">
-            <div class="item" data-ng-repeat="item in filterHints">{{item.label}} <i class="fas fa-times" data-ng-click="item.reverse()"></i></div>
+            <div class="item" data-ng-repeat="item in filterHints" data-ng-click="item.reverse()">{{item.label}} <i class="fas fa-times"></i></div>
         </div>
         <div class="reset"><button type="button" class="button" data-ng-click="resetFilters()"><?php _e('Reset', SI) ?></button></div>
     </div>

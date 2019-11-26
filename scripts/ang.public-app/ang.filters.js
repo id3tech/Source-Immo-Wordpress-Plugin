@@ -123,6 +123,13 @@ siApp
 }]);
 
 siApp
+.filter('filesize', ['$siUtils', function filesize($siUtils){
+    return function($value){
+        return $siUtils.filesize($value);
+    }
+}])
+
+siApp
 .filter('sanitize', ['$siUtils', function sanitize($siUtils){
     return function($value){
         return $siUtils.sanitize($value);

@@ -928,6 +928,17 @@ siApp
                     filter : {field: 'contract.start_date', operator: 'greater_than', value: lToday.addYears(-1).toJSON()}
                 },
             ];
+            // listing land areas
+            $scope.land_areas = Array.from(Array(10)).map(function($e,$i){
+                return { caption: '{0} sqft'.translate().format(5000 * ($i+1)), value: 5000 * ($i+1)}
+            });
+
+            // listing building areas
+            $scope.building_areas = Array.from(Array(10)).map(function($e,$i){
+                return { caption: '{0} sqft'.translate().format(500 * ($i+1)), value: 500 * ($i+1)}
+            });
+
+            
             // listing attributes
             $scope.listing_attributes = {
                 pool : {
@@ -986,9 +997,7 @@ siApp
                         if($filter.hasFilters()){
                             // Sync UI with filters
                             $scope.syncFiltersToUI();
-                            console.log($scope.dictionary.city["14065"]);
                             
-                        
                             // build hints
                             $scope.buildHints();
                         }
@@ -1005,14 +1014,22 @@ siApp
                         
 
                         $filter.on('update').then(function(){
-                            //console.log('filter', $scope.alias, 'update trigger');
+                            console.log('filter', $scope.alias, 'update trigger');
                             lfSyncFilter($filter);
+
+                            $timeout(function(){
+                                $scope.updateExpandPanelPosition();
+                            });
                         });
 
                         $filter.on('filterTokenChanged').then(function($token){
                             //console.log('filter', $scope.alias, 'filterTokenChanged trigger');
                             lfSyncFilter($filter);
                             $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $token);
+
+                            $timeout(function(){
+                                $scope.updateExpandPanelPosition();
+                            });
                         })
                     });
                     
@@ -1020,6 +1037,16 @@ siApp
                     angular.element(document.body).on('click', function($event){
                         $scope.closePanels();
                     });
+
+                    window._resizeTimeoutHndl = null;
+                    window.addEventListener('resize', function(){
+                        if(window._resizeTimeoutHndl != null){
+                            window.clearTimeout(window._resizeTimeoutHndl);
+                        }
+                        window._resizeTimeoutHndl = window.setTimeout(function(){
+                            $scope.updateExpandPanelPosition();
+                        }, 500);
+                    })
 
                     $scope.$on('close-everything', function(){
                         $scope.closePanels();
@@ -1113,17 +1140,19 @@ siApp
                         $scope.filterPanelContainer.append($e);
                     });
 
-                    $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
-                    $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
-                    $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
-                    $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
+                    $scope.updateExpandPanelPosition();
+                    // $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
+                    // $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
+                    // $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
+                    // $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
                     
                    
                     $scope.filterPanelContainer.on('transitionend', function(){
-                        const lPanelHeight = window.getComputedStyle($scope.filterPanelContainer[0]).height.replace('px',''); //(lHeader != null) ? window.getComputedStyle(lHeader).height : 0;
+                        const lPanelHeight = window.getComputedStyle($scope.filterPanelContainer[0]).height.replace('px',''); 
+                        //(lHeader != null) ? window.getComputedStyle(lHeader).height : 0;
                             
                         if(window.innerHeight >= 800 && window.innerWidth >= 1000){
-                            const lScrollTop = lElmRect.top - lPanelHeight;
+                            //const lScrollTop = lElmRect.top - lPanelHeight;
                             //if(lScrollTop > window.innerHeight)
                             //const lHeader = document.querySelector('header');
                             
@@ -1140,6 +1169,18 @@ siApp
                 }
 
                 $scope._expandedPanel = ($scope._expandedPanel == $key) ? null : $key;
+            }
+            $scope.updateExpandPanelPosition = function(){
+                const lElmRect = $scope._element.getBoundingClientRect();
+                const lSearchBox = $scope._element.querySelector('.search-box').getBoundingClientRect();
+
+                $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
+
+                console.log('updateExpandPanelPosition to', lElmRect.height);
+                
             }
 
             $scope.isExpanded = function($key){
@@ -1525,6 +1566,24 @@ siApp
 
             ------------------------- */
             
+            $scope.setArea = function($value, $areaType, $minMax, $filterLabelFormat){
+                $siFilters.with($scope.alias, function($filter){
+                    let lOperators = {
+                        'min' : 'greater_or_equal_to',
+                        'max' : 'less_or_equal_to'
+                    }
+                    const fnReverse = function(){
+                        //$timeout(function(){
+                            $scope.filter.data[$areaType + '_' + $minMax] = null; 
+                        //});
+                        
+                        $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], null, null);
+                    }
+                    $scope.filter.data[$areaType + '_' + $minMax] = $value; 
+                    $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], $value, $filterLabelFormat.translate().format($value), fnReverse);
+                    
+                });
+            }
 
             /**
              * Set the price for the input
@@ -1836,43 +1895,18 @@ siApp
              * Build a list of hints based on the filter group given as parameter
              */
             $scope.buildHints = function(){
-                let lResult = [];
+                const lResult = [];
                 $siFilters.with($scope.alias, function($filter){
                     //console.log('building hints for ', $filter);
 
-                    lResult = $scope.buildFilterHints($filter.filter_group);  
+                    lResult.concat($scope.buildFilterHints($filter.filter_group));  
+
                     //console.log('buildHints',$filter.data);
                     // prices
-                    if(
-                        ($filter.data.min_price != undefined || $filter.data.max_price != undefined) &&
-                        ($filter.data.min_price != 0 || $filter.data.max_price != 0)
-                    ){
-                        
-                        let lPriceHint = ['Min','Max'];
-                        if($filter.data.min_price!=undefined){
-                            lPriceHint[0] = $filter.data.min_price.formatPrice();
-                        }
-        
-                        if($filter.data.max_price!=undefined && $filter.data.max_price!=0){
-                            lPriceHint[1] = $filter.data.max_price.formatPrice();
-                        }
-                        else{
-                            lPriceHint[1] = 'Unlimited'.translate();
-                        }
-        
-                        lResult.push({
-                            item : 'PRICE', 
-                            label: lPriceHint.join(' - '),
-                            reverse: function(){
-                                //console.log('Remove price filter');
-                                $scope.priceRange = [0,1,0];
-                                $scope.updatePrice();
-                                // $scope.setPrice('','min');
-                                // $scope.setPrice('','max');
-                            }
-                        });
-                    }
-                    
+                    $scope.buildPriceHint($filter,lResult);
+                    $scope.buildAreasHint($filter,'land',lResult);
+                    $scope.buildAreasHint($filter,'building',lResult);
+
                     if($filter.query_text!=null){
                         //console.log('query_text has something to say');
                         lResult.push({
@@ -1908,6 +1942,73 @@ siApp
                 
                 
                 
+            }
+
+            $scope.buildPriceHint = function($filter,$hints){
+                const lResult = [];
+                if(
+                    ($filter.data.min_price != undefined || $filter.data.max_price != undefined) &&
+                    ($filter.data.min_price != 0 || $filter.data.max_price != 0)
+                ){
+                    
+                    let lPriceHint = ['Min','Max'];
+                    if($filter.data.min_price!=undefined){
+                        lPriceHint[0] = $filter.data.min_price.formatPrice();
+                    }
+    
+                    if($filter.data.max_price!=undefined && $filter.data.max_price!=0){
+                        lPriceHint[1] = $filter.data.max_price.formatPrice();
+                    }
+                    else{
+                        lPriceHint[1] = 'Unlimited'.translate();
+                    }
+    
+                    $hints.push({
+                        item : 'PRICE', 
+                        label: lPriceHint.join(' - '),
+                        reverse: function(){
+                            //console.log('Remove price filter');
+                            $scope.priceRange = [0,1,0];
+                            $scope.updatePrice();
+                            // $scope.setPrice('','min');
+                            // $scope.setPrice('','max');
+                        }
+                    });
+                }
+            }
+
+            $scope.buildAreasHint = function($filter, $type, $hints){
+                const lMinValue = $filter.data[$type + '_min'];
+                const lMaxValue = $filter.data[$type + '_max'];
+                const lTypeLabel = $type=='land' ? 'Land area' : 'Available area';
+
+                console.log('buildAreasHint', lMinValue, lMaxValue,$filter);
+
+                if(
+                    (lMinValue != undefined || lMaxValue != undefined) &&
+                    (lMinValue != 0 || lMaxValue != 0)
+                ){
+                    
+                    let lAreaLabels = ['Min','Max'];
+                    if(lMinValue!=undefined){
+                        lAreaLabels[0] = '{0} sqft'.translate().format(lMinValue);
+                    }
+    
+                    if(lMaxValue!=undefined && lMaxValue!=0){
+                        lAreaLabels[1] = '{0} sqft'.translate().format(lMaxValue);
+                    }
+    
+                    $hints.push({
+                        item : 'AREA', 
+                        label: lTypeLabel.translate() + ' ' + lAreaLabels.join(' - '),
+                        reverse: function(){
+                            $filter.data[$type + '_min'] = null;
+                            $filter.data[$type + '_max'] = null;
+                            $scope.setArea(null, $type, 'min', '')
+                            $scope.setArea(null, $type, 'max', '')
+                        }
+                    });
+                }
             }
     
             /**
@@ -4650,35 +4751,32 @@ siApp
 
             $scope.loadList = function(){
                 let lList = sessionStorage.getItem('si.list.listings.{0}'.format(siCtx.locale));
-                if(lList !=undefined){
-                    $scope.list = JSON.parse(lList);
+                if(lList != undefined){
+                    lList = JSON.parse(lList);
                 }
                 else{
-                    $scope.list = [];
+                    lList = [];
                 }
+                return lList;
             }
 
             $scope.getNextAndPrevious = function(){
-                $scope.loadList();
-                let lCurrentIndex = 0;
-
-                $scope.list.some(function($e,$index){
-                    if($e.id == $scope.current){
-                        lCurrentIndex = $index;
-                        return true;
-                    }
+                const lList = $scope.loadList();
+                let lCurrentIndex = lList.findIndex(function($e){
+                    return $e.id == $scope.current;
                 });
 
-                //console.log('getNextAndPrevious',$scope.current, lCurrentIndex);
-
+                const lResult = Array.from(Array(2));
                 if(lCurrentIndex>0){
-                    $scope.previous = $scope.list[lCurrentIndex-1];
-                    //console.log('previous', $scope.previous);
+                    lResult[0] = lList[lCurrentIndex-1];
+                    
                 }
-                if(lCurrentIndex < $scope.list.length-1){
-                    $scope.next = $scope.list[lCurrentIndex+1];
-                    //console.log('next', $scope.next);
+                if(lCurrentIndex < lList.length-1){
+                    lResult[1] = lList[lCurrentIndex+1];
+                    
                 }
+
+                $scope.list = lResult;
             }
         }
     };
@@ -5141,7 +5239,7 @@ siApp
 }]);
 
 siApp
-.directive('inputContainer', function(){
+.directive('inputContainer', function inputContainer(){
     return {
         restrict: 'C',
         scope:{},
@@ -5518,7 +5616,7 @@ siApp
 }])
 
 siApp
-.directive('siTab', ['$q', function siTabs($q){
+.directive('siTab', ['$q', function siTab($q){
     return {
         restrict: 'E',
         required: '^siTabs',

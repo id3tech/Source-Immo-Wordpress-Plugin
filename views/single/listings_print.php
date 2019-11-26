@@ -104,7 +104,7 @@
                     <div class="item">
                         <div class="photo">
                             
-                            <img src="<?php echo(str_replace("md","sm",$photo->url)) ?>" />
+                            <img src="<?php echo($photo->url) ?>" />
                         </div>
                         <label><?php echo($photo->category) ?></label>
                     </div>

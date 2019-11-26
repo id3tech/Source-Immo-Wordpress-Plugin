@@ -345,6 +345,11 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             $ex.type = $siDictionary.getCaption({src:$ex, key:'type_code'},'income_type');
         });
 
+        // documents
+        $scope.model.documents.forEach(function($doc){
+            $doc.category = $siDictionary.getCaption({src:$doc, key:'category_code'},'document_category');
+        });
+
         // rooms
         $scope.model.rooms.forEach(function($r){
             $r.category = $siDictionary.getCaption({src:$r, key:'category_code'},'room_category');
