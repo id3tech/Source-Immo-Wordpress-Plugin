@@ -4784,7 +4784,7 @@ body.si-modal-open{
                     content:"";
                     @include absoluteFill();
                     background: #000;
-                    opacity:0.2;
+                    opacity:0.4;
                     z-index: 2;
                 }
             }
@@ -4854,6 +4854,7 @@ body.si-modal-open{
             }
 
             &.previous{
+                place-self: center start;
                 a::after{
                     transition:0.25s;
                     transform:translateX(-100%);
@@ -4876,6 +4877,7 @@ body.si-modal-open{
                 
             }
             &.next{
+                place-self: center end;
                 a::after{
                     transition:0.25s;
                     transform:translateX(100%);
