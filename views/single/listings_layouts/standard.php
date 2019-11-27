@@ -31,17 +31,7 @@
     
     <div class="description">{{model.description}}</div>
     
-    <div class="attachments" ng-show="model.documents.length>0">
-        <div ng-repeat="item in model.documents"
-                class="attachment {{item.source_file_extension | sanitize}}"
-            >
-            <a href="{{item.url}}" target="_blank">
-                <i class="far"></i>
-                <div class="attachment-category">{{item.category}} {{item.size | filesize}}</div>
-                <span class="attachment-name">{{item.source_file_name}}</span>
-            </a>
-        </div>
-    </div>
+    <?php echo do_shortcode('[si_listing_part part="documents"]') ?>
 
     <?php echo do_shortcode('[si_listing_part part="flags"]') ?>
 
