@@ -929,12 +929,15 @@ siApp
                 },
             ];
             // listing land areas
-            $scope.land_areas = Array.from(Array(10)).map(function($e,$i){
+            $scope.land_areas = Array.from(Array(3)).map(function($e,$i){
                 return { caption: '{0} sqft'.translate().format(5000 * ($i+1)), value: 5000 * ($i+1)}
             });
+            $scope.land_areas = $scope.land_areas.concat(Array.from(Array(10)).map(function($e,$i){
+                return { caption: '{0} sqft'.translate().format(20000 * ($i+1)), value: 20000 * ($i+1)}
+            }));
 
             // listing building areas
-            $scope.building_areas = Array.from(Array(10)).map(function($e,$i){
+            $scope.building_areas = Array.from(Array(13)).map(function($e,$i){
                 return { caption: '{0} sqft'.translate().format(500 * ($i+1)), value: 500 * ($i+1)}
             });
 
@@ -948,6 +951,10 @@ siApp
                 fireplace : {
                     caption: 'Fireplace', 
                     field: 'attributes.HEART_STOVE'
+                },
+                elevator : {
+                    caption: 'Elevator', 
+                    field: 'attributes.ELEVATOR'
                 },
                 garage : {
                     caption: 'Garage', 
@@ -1171,6 +1178,8 @@ siApp
                 $scope._expandedPanel = ($scope._expandedPanel == $key) ? null : $key;
             }
             $scope.updateExpandPanelPosition = function(){
+                if($scope._element == null) return;
+                
                 const lElmRect = $scope._element.getBoundingClientRect();
                 const lSearchBox = $scope._element.querySelector('.search-box').getBoundingClientRect();
 
@@ -1579,8 +1588,11 @@ siApp
                         
                         $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], null, null);
                     }
+
+                    if($value <= 0) $value = null;
+
                     $scope.filter.data[$areaType + '_' + $minMax] = $value; 
-                    $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], $value, $filterLabelFormat.translate().format($value), fnReverse);
+                    $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], $value, null);
                     
                 });
             }
@@ -1895,11 +1907,11 @@ siApp
              * Build a list of hints based on the filter group given as parameter
              */
             $scope.buildHints = function(){
-                const lResult = [];
+                let lResult = [];
                 $siFilters.with($scope.alias, function($filter){
                     //console.log('building hints for ', $filter);
 
-                    lResult.concat($scope.buildFilterHints($filter.filter_group));  
+                    lResult = lResult.concat($scope.buildFilterHints($filter.filter_group));  
 
                     //console.log('buildHints',$filter.data);
                     // prices
@@ -4883,16 +4895,38 @@ siApp
                 $scope.clickHandler = function($event){
                     console.log('button clicked');
                     $rootScope.$broadcast('close-dropdown', $scope._elm);
-                    const lClosestParent = $scope._elm.closest('.modal-body, .filter-panel');
-                    angular.element(lClosestParent).on('click', function(){
-                        console.log('Closest parent clicked');
-                        $rootScope.$broadcast('close-dropdown', null);
-                    })
+                    // const lClosestParent = $scope._elm.closest('.modal-body, .filter-panel');
+                    // angular.element(lClosestParent).on('click', function(){
+                    //     console.log('Closest parent clicked');
+                    //     $rootScope.$broadcast('close-dropdown', null);
+                    // })
+                    
 
                     const lMenuElm = $scope.extractMenu($scope._elm);
                     lMenuElm.classList.add('expanded');
+                    
+                    const lClickTrap = $scope.ensureClickTrap();
+                    lClickTrap.classList.add('active');
+                    lClickTrap.addEventListener('click',function($event){
+                        lMenuElm.classList.remove('expanded');
+                        //$rootScope.$broadcast('close-dropdown', null);
+                        lClickTrap.classList.remove('active');
+                        $event.stopPropagation();
+                    },{once:true});
 
                     $event.stopPropagation();
+                }
+
+                $scope.ensureClickTrap = function(){
+                    let lClickTrap = document.body.querySelector('.si-click-trap');
+                    if(lClickTrap == null){
+                        lClickTrap = document.createElement("div");
+                        lClickTrap.classList.add('si-click-trap');
+                        lClickTrap.style.zIndex = 100;
+                        document.body.prepend(lClickTrap);
+                    }
+
+                    return lClickTrap;
                 }
 
                 $scope.extractMenu = function($element){
@@ -4906,6 +4940,8 @@ siApp
                             $scope.closeMenu();
                         })
                     }
+
+                    
                     $timeout(function() {
                         const lMainElmRect = $scope._elm.getBoundingClientRect();
                         lMainElmRect.inner_cx = lMainElmRect.width / 2;
@@ -4955,7 +4991,7 @@ siApp
                         else if(lMenuRect.bottom > lViewportRect.bottom){
                             lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
                         }
-    
+                        $scope._menu_elm.style.zIndex = 110;
                         $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
                     },20);
                     

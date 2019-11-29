@@ -93,7 +93,7 @@ function textToHtml(){
         }
 
         let lReplacements = [
-            {match: /(\n+)/gm, by: '</p><p>', wrap_by: 'p'},
+            {match: /(\n{2,})/gm, by: '</p><p>', wrap_by: 'p'},
             {match: /(\n)/g, by: '<br />'},
         ];
 
@@ -128,6 +128,7 @@ siApp
         return $siUtils.filesize($value);
     }
 }])
+
 
 siApp
 .filter('sanitize', ['$siUtils', function sanitize($siUtils){

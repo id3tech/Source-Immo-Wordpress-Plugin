@@ -316,6 +316,7 @@ $locales.fr = {};$locales.fr.global =
     , "Pool" : "Piscine"
     , "Fireplace" : "Foyer"
     , "Garage" : "Garage"
+    , "Elevator" : "Ascenseur"
     , "Water front" : "Bord de l'eau"
     , "Panoramic view" : "Vue panoramique"
     , "Caracteristics" : "Caractéristiques"

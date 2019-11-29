@@ -6,7 +6,7 @@
             <h4 class="title" data-ng-show="model.units.length>1">{{'{0} unit'.translate().format(unit.category)}}</h4>
             
             <div class="flags" data-ng-show="model.units.length>1"
-                style="grid-template-columns:1fr repeat({{unit.flags.length}},auto);">
+                style="--unit-flag-count:{{unit.flags.length}};">
                 <div class="spacer"></div>
                 <div class="flag" data-ng-repeat="flag in unit.flags" title="{{flag.caption}}">
                     

@@ -15,7 +15,7 @@ if($item->has_custom_page){
 <article class="si-item si-office-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/office">
     <a href="<?php echo($item->permalink) ?>" id="office-<?php echo($item->id) ?>">
-        <div class="content">
+        <div class="item-content">
             <h3 class="name" itemprop="name"><?php echo($item->name) ?></h3>
             <div class="region" 
                 itemscope itemtype="http://schema.org/Place" 

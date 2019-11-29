@@ -387,6 +387,7 @@ function $siDictionary(){
         let lResult = lKeyValue;
         $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
 
+
         if($scope.source && $scope.source[$domain]){
             if($scope.source[$domain][lKeyValue] != undefined){
                 if($asAbbr){
@@ -403,8 +404,9 @@ function $siDictionary(){
     }
 
     $scope.getCaptionFrom = function($obj, $key, $domain, $asAbbr){
-        const lDictionaryKey = $obj[$key];
-        
+        let lDictionaryKey = $obj[$key];
+        if(lDictionaryKey == '##OTHER##') lDictionaryKey= '_other';
+
         // when key is defined and starts with an _
         if(lDictionaryKey != undefined && lDictionaryKey.indexOf('_') == 0){ 
             // transform key to match the property where the value will be find
@@ -1826,6 +1828,9 @@ function $siFilters($q,$siApi,$siUtils){
             //         break;
             //     }
             // }
+            
+            console.log('setFilter', lNewFilter, lFilterIndex, $group.filters);
+
             if(lFilterIndex >= 0){
                 if($value==='' || $value==null){
                     $fm.removeFilter(lFilterIndex, $group);
@@ -1837,8 +1842,10 @@ function $siFilters($q,$siApi,$siUtils){
                     $fm.updateFilter(lNewFilter, lFilterIndex, $group);
                 }
             }
-            else{
-                $group.filters.push(lNewFilter);
+            else {
+                if($value !== '' && $value !== null){
+                    $group.filters.push(lNewFilter);
+                }
             }
             
         }

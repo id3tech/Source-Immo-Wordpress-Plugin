@@ -2919,6 +2919,10 @@ html{
                     }
                 }
             }
+            @include media($small-phone){
+                grid-template-columns: 1fr;
+            }
+
             .special-box{
                 grid-column: 1 / span 2;
                 padding:10px 0;
@@ -2927,15 +2931,36 @@ html{
                 border-radius:var(--element-border-radius);
                 display:grid;
                 grid-template-columns: repeat(2, 1fr);
+                gap:10px;
+
                 > div{
                     display:grid;
                     grid-template-columns:1fr;
-                    grid-template-rows:auto;
+                    grid-template-rows:1fr auto;
                     grid-template-areas:"label" "value";
                     place-items:center;
+                    text-align:center;
                 }
                 label{margin:0px;grid-area:label;font-style:italic;color:inherit;}
                 .value{font-weight: 600;grid-area:value;font-size:2em;color:inherit;}
+                @include media($phone){
+                    .value{font-size: 1.5em};
+                }
+
+                @include media($small-phone){
+                    grid-column:unset;
+                    grid-template-columns: 1fr max-content;
+                    grid-template-rows:auto;
+                    place-items:center stretch;
+                    padding:10px;
+                    gap:0px 10px;
+                    > div{
+                        display:contents;
+                    }
+                    .value{text-align:right;}
+                    label{text-align:left;}
+                    label,.value{grid-area:unset;}
+                }
             }
         }
         
@@ -3039,7 +3064,9 @@ html{
         .rooms{
             .unit-list{
                 .flags{
-                    grid-gap:0px;
+                    display:grid;
+                    grid-template-columns: 1fr repeat(var(--unit-flag-count), auto);
+                    gap:0px;
                     margin:10px auto;
                     place-items:center end;
                     background-color:var(--medium-contrast-color);
@@ -3054,13 +3081,32 @@ html{
                         em{background:none;padding-top:4px;font-size:25px;color:var(--small-contrast-text-color);position:relative;width:100%;}
                     }
                     @include media($phone){
+                        grid-template-columns: 1fr;
+                        place-items: stretch;
+                        margin:0 0 10px 0;
+                        padding:0;
+                        background:unset;
+                        border:none;
+                        .spacer{display:none;}
                         .flag{
+                            display:flex;
+                            flex-direction: row;
+                            align-items: center;
+                            border-left:none;
+                            label{
+                                order:-1;
+                                flex-grow: 1;
+                                text-align:left;
+                            }
+                            em{
+                                width:auto;
+                                padding:0;
+                            }
                             .fal{
                                 font-size:35px;
                             }
                         }
-                        width:100%;
-                        place-items: end center;
+                        
                     }
                 }
 
@@ -3081,10 +3127,7 @@ html{
                             "type floor level"
                             "infos infos area"
                             ;
-                        @include media($phone){
-                            grid-template-columns: 1fr 1fr;
-                            grid-template-areas: "type type" "floor level" "infos area";
-                        }
+                        
                         .type{font-weight: 700;text-transform: uppercase;}
                         .level{place-self:center end;}
                         .area{place-self:center end;font-style:italic;padding: 0 5px;}
@@ -3096,6 +3139,32 @@ html{
                             }
                             span:nth-child(2){
                                 &:before{content:", ";}
+                            }
+                        }
+                        @include media($phone){
+                            grid-template-columns: 1fr max-content;
+                            grid-template-areas: 
+                                "type area" 
+                                "floor floor"
+                                "infos level";
+                            .type,.floor,.area,.infos{
+                                place-self: center start;
+                            }
+                            .level{
+                                place-self: center end;
+                            }
+                        }
+                        @include media($small-phone){
+                            grid-template-columns: 1fr;
+                            grid-template-areas: 
+                                "type" 
+                                "area"
+                                "floor"
+                                "level"
+                                "infos";
+                            .type,.floor, .level,.area,.infos{
+                                place-self: center center;
+                                text-align:center;
                             }
                         }
                     }
@@ -3486,6 +3555,16 @@ html{
     }
 }
 
+#top .si-click-trap,
+.si-click-trap{
+    position:fixed;
+    top:0px;left:0px;
+    width:100%;height:100%;
+    pointer-events: none;
+    &.active{
+        pointer-events: auto;
+    }
+}
 
 #top .si-dropdown,
 .si-dropdown{
@@ -4495,7 +4574,7 @@ body.si-modal-open{
                 ;
         padding:0px;
         max-height:0px;
-        max-width:80vw;
+        max-width:100vw;
         opacity:0;
         pointer-events:none;
         overflow:hidden;

@@ -25,7 +25,7 @@ else if($item->listings_count > 12){
 <article class="si-item si-city-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/City">
     <a href="<?php echo($item->permalink) ?>">
-        <div class="content">
+        <div class="item-content">
             <div class="code"><?php echo($item->code) ?></div>
             <div class="name" itemprop="name"><?php echo($item->name) ?></div>
             <div class="listings-count"><?php echo($item->listings_count)?><label><?php _e( ($item->listings_count>1) ? 'properties' : 'property', SI) ?></label></div>
