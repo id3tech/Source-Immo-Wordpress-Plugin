@@ -298,18 +298,18 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
             // append to rightful domains
             // Building
-            if(['CUPBOARD','WINDOWS',
-                'WINDOW TYPE','ROOFING','FOUNDATION',
-                'GARAGE','SIDING','BATHR./WASHR','BASEMENT'].includes($e.code)){
+            const lBuildingCodes = ['CUPBOARD','WINDOWS','WINDOW TYPE','ROOFING','FOUNDATION','GARAGE','SIDING','BATHR./WASHR','BASEMENT','EASY ACCESS'];
+            const lLotCodes = ['LANDSCAPING','DRIVEWAY','PARKING','POOL','TOPOGRAPHY','VIEW','ZONING','PROXIMITY'];
+            const lOtherCodes = ['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'];
+            if(lBuildingCodes.includes($e.code)){
                 $scope.model.building.attributes.push($e);
             }
             // Lot
-            else if(['LANDSCAPING','DRIVEWAY','PARKING','POOL',
-                     'TOPOGRAPHY','VIEW','ZONING','PROXIMITY'].includes($e.code)){
+            else if(lLotCodes.includes($e.code)){
                 $scope.model.land.attributes.push($e);
             }
             // other
-            else if(['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'].includes($e.code)){
+            else if(![].concat(lBuildingCodes, lLotCodes).includes($e.code)){
                 $scope.model.other.attributes.push($e);
             }
 
