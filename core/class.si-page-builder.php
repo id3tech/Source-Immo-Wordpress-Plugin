@@ -36,9 +36,9 @@ class SourceImmoPageBuilder{
         
         if($wrapInContainer){
             // add most common structure and class to fit in page
-            $result = '<article class="page entry"><div class="container entry-content"><si-content>' . 
+            $result = '<article class="page entry"><si-content>' . 
                             $result . 
-                        '</si-content></div></article>';
+                        '</si-content></article>';
         }
         $this->rendered_once = true;
 
