@@ -1217,6 +1217,7 @@ html{
                 padding:10px;
                 @include media($small-phone){
                     grid-template-rows: 1fr;
+                    grid-template-columns: 1fr;
                     grid-template-areas: 
                         "photo" "name" 
                         "license" 
