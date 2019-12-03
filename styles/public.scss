@@ -3028,6 +3028,10 @@ html{
             .si-calculator{padding:20px;}
             .title{
                 font-size:1.6em;padding:20px;
+                @include media($small-phone){
+                    text-align:center;
+                    i{display:block;}
+                }
             }
             
             .result{
@@ -4679,10 +4683,11 @@ body.si-modal-open{
     .input-container{
         display:grid;
         grid-gap:10px;
-        grid-template-columns: 3fr 2fr 25px;
-        grid-template-areas: "label input extra";
+        grid-template-columns: 3fr 2fr;
+        grid-template-areas: "label input";
         input{
             padding:10px;outline:none;border: var(--element-border);border-radius: var(--element-border-radius);
+            min-width:0px;
             transition:0.25s;
             &:focus{
                 border-color: var(--highlight);
@@ -4696,15 +4701,31 @@ body.si-modal-open{
         .dropdown{
             > .btn{color:inherit;}
         }
-        .input{grid-area:input}
-        .extra{grid-area:extra;}
+        .input{
+            grid-area:input;
+            display:grid;
+            grid-template-columns: 1fr auto;
+            place-items: center;
+        }
+        .extra{width:25px;text-align:center;}
 
-        @include media($phone){
-            grid-template-columns: 1fr 25px;
-            grid-template-areas: "label label" "input extra";
+        @include media($small-phone){
+            text-align:center;
+            grid-template-columns: 1fr;
+            grid-template-areas: "label" "input";
+            place-items: center;
             > label{
                 display: grid;
-                grid-template-columns: 1fr auto;
+                grid-template-columns: 1fr;
+            }
+            .input{
+                position:relative;
+            }
+            .extra{
+                position: absolute;
+                right: -5px;
+                top:50%;
+                transform:translate(100%,-50%);
             }
         }
     }
@@ -4900,6 +4921,7 @@ body.si-modal-open{
                 transition:0.5s 0.25s;
                 z-index:4;
                 font-size: 3rem;
+                background:transparent;
             }
 
             .item-content{

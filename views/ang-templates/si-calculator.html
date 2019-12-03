@@ -3,8 +3,9 @@
         <label>{{'Property evaluation'.translate()}}</label>
         <div class="input" >
             <input type="number" data-ng-model="data.amount" autocomplete="off" data-ng-change="process()" />
+            <i class="extra fal fa-dollar-sign"></i>
         </div>
-        <i class="extra fal fa-dollar-sign"></i>
+        
     </div>
 
     <div class="input-container">
@@ -32,24 +33,27 @@
         </label>
         <div class="input">
             <input type="number" autocomplete="off" data-ng-model="data.downpayment" data-ng-change="process()" />
+            <i class="extra fal fa-{{(data.downpayment_method=='cash') ? 'dollar-sign' : 'percent'}}"></i>
         </div>
-        <i class="extra fal fa-{{(data.downpayment_method=='cash') ? 'dollar-sign' : 'percent'}}"></i>
+        
     </div>
 
     <div class="input-container">
         <label>{{'Interest rate'.translate()}}</label>
         <div class="input">
             <input type="number" autocomplete="off" data-ng-model="data.interest"  data-ng-change="process()" />
+            <i class="extra fal fa-percent"></i>
         </div>
-        <i class="extra fal fa-percent"></i>
+        
     </div>
 
     <div class="input-container">
         <label>{{'Amortization period'.translate()}}</label>
         <div class="input">
             <input type="number" autocomplete="off" data-ng-model="data.amortization"  data-ng-change="process()" />
+            <i class="extra fal fa-calendar-alt"></i>
         </div>
-        <i class="extra fal fa-calendar-alt"></i>
+        
     </div>
 
     <div class="input-container">
@@ -62,7 +66,7 @@
             <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
                 <div class="dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
             </div>
+            <i class="extra fal fa-repeat"></i>
         </div>
-        <i class="extra fal fa-repeat"></i>
     </div>
 </div>
