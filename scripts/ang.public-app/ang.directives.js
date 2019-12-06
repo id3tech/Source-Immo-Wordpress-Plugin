@@ -1181,7 +1181,10 @@ siApp
                 if($scope._element == null) return;
                 
                 const lElmRect = $scope._element.getBoundingClientRect();
-                const lSearchBox = $scope._element.querySelector('.search-box').getBoundingClientRect();
+                const lSearchBoxElm = $scope._element.querySelector('.search-box');
+                if(lSearchBoxElm == null) return;
+                
+                const lSearchBox = lSearchBoxElm.getBoundingClientRect();
 
                 $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
                 $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
@@ -2364,7 +2367,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
            
             $scope.init();
         },
-        controller: function($scope, $q, $siApi, $rootScope,$siDictionary, $siUtils){
+        controller: function($scope, $q, $siApi, $rootScope,$siDictionary, $siUtils,$timeout){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -2405,14 +2408,15 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         }
                     })
                     lInput.bind('blur', function(){
-                        
-                        $scope.closeSuggestionPanel().then( function(){
-                            angular.element($scope._el).removeClass('has-focus');
-                            console.log('remove focus class and clear suggestions');
-                            $scope.suggestions = [];
-                            $scope.stored_suggestions = null;
-                            //$scope.$apply();    
-                        });
+                        $timeout(function(){ 
+                            $scope.closeSuggestionPanel().then( function(){
+                                angular.element($scope._el).removeClass('has-focus');
+                                console.log('remove focus class and clear suggestions');
+                                $scope.suggestions = [];
+                                $scope.stored_suggestions = null;
+                                //$scope.$apply();    
+                            });
+                        }, 200);
                     });
                     
 
@@ -2576,7 +2580,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         $resolve();
                     });
 
-                    $scope._suggestion_list_el.style.left = '0px';
+                    //$scope._suggestion_list_el.style.left = '0px';
                     //$scope._suggestion_list_el.style.width = '0px';
                     $scope._suggestion_list_el.classList.remove('expanded');
                 });
@@ -2799,8 +2803,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                 $scope.suggestions = [];
                                 $scope.filter.data.keyword = '';
                                 
-                                let lInput = angular.element($scope._el).find('input');
-                                lInput.attr('placeholder','Opening...'.translate())
+                                
                                 
                                 return true;
                             }
@@ -2873,10 +2876,14 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
 
             $scope.openItem = function($item){
+                const lInput = angular.element($scope._el).find('input');
+                lInput.val('');
+                lInput.attr('placeholder','Opening...'.translate())
+
                 $siConfig.get().then(function($global_configs){
                     let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
                     let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
-                    //console.log('Open item @', lPath);
+                    console.log('Open item @', lPath);
                     window.location = '/' + lPath;
                 });
             }
