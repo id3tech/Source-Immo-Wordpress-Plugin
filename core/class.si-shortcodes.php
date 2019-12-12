@@ -19,14 +19,19 @@ class SiShorcodes{
             'si_broker',
             'si_broker_listings',
             'si_broker_part',
+            
             // Listing - Sub shortcodes
             'si_listing',
             'si_listing_brokers',
             'si_listing_part',
+            
             // Office - Sub shortcodes
             'si_office_part',
             'si_office_listings',
             'si_office_brokers',
+
+            // City
+            'si_city'
         );
 
         foreach ($hooks as $item) {
@@ -217,10 +222,14 @@ class SiShorcodes{
     public function sc_si_broker($atts, $content){
         extract( shortcode_atts(
             array(
-                'ref_number' => ''
+                'ref_number' => '',
+                'load_text' => 'Loading broker'
             ), $atts )
         );
-        
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+
         $data = json_decode(SourceImmoApi::get_broker_data($ref_number));
         if($data != null){
             global $dictionary;
@@ -231,14 +240,22 @@ class SiShorcodes{
         
         ob_start();
         ?>
+        
         <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                 class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
-        <?php
-        echo(do_shortcode($content));
-        ?>
-
+            <?php
+            do_action('si_start_of_template', $load_text);
+            if($content != null){
+                echo(do_shortcode($content));
+            }
+            else{
+                SourceImmo::view('single/brokers_layouts/standard');
+            }
+            do_action('si_end_of_template');
+            ?>
         </div>
         <?php
+        
         if(SourceImmo::current()->configs->prefetch_data){
         ?>                
         <script type="text/javascript">
@@ -362,6 +379,43 @@ class SiShorcodes{
 
     #endregion
 
+    #region City
+    
+    public function sc_si_city($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => get_query_var( 'ref_number'),
+                'load_text' => "Loading listing"
+            ), $atts )
+        );
+
+        ob_start();
+        
+        global $city_data;
+        if($city_data == null) $city_data = SourceImmoApi::get_city_data($ref_number)->items[0];
+
+        $lListConfig = SourceImmo::current()->get_default_list('listings');
+        $lAlias = 'default';
+        if($lListConfig!=null){
+            $lAlias = $lListConfig->alias;
+        }
+        do_action('si_start_of_template', null);
+        SourceImmo::view('single/cities_layouts/standard', array(
+            'model' => array(
+                'ref_number' => $ref_number,
+                'alias' => $lAlias,
+                'name' => $city_data->name,
+            )
+        ));
+        do_action('si_end_of_template');
+
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
+
+    #endregion
+
     #region Listing - Sub shortcodes
 
     public function sc_si_listing($atts, $content){
@@ -387,6 +441,7 @@ class SiShorcodes{
         }
         
         ob_start();
+        
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
         ?>
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 

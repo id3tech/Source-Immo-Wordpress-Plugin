@@ -676,7 +676,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         });
 
 
-        let lMandatoryLocationData = ['country','province','region','city'];
+        let lMandatoryLocationData = ['country','state','region','city'];
         
         if($scope.item.location){
             lMandatoryLocationData.forEach(function($d) {
@@ -766,6 +766,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
     $scope.compileListingItem = function($item){
         
         if($item.category == undefined){
+            
             $item.location.city = $scope.getCaption($item.location.city_code, 'city');
             $item.location.region = $scope.getCaption($item.location.region_code, 'region');
             $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
@@ -776,14 +777,19 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
             $item.location.civic_address = '{0} {1}'.format(
                                                         $item.location.address.street_number,
                                                         $item.location.address.street_name
-                                                    );
+                                                    ).trim();
             if(!$scope.isNullOrEmpty($item.location.address.door)){
                 $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
             }
             
+            
+
             $scope.compileListingRooms($item);
             $item.permalink = $scope.getPermalink($item);
+
+            
         }
+
     }
 
     /**
@@ -875,6 +881,21 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
                                             );
 
         $item.permalink = $scope.getPermalink($item,'office');
+    }
+
+    $scope.compileCityList = function($list){
+        $list.forEach(function($e){
+            $scope.compileCityItem($e);
+        });
+    }
+
+    $scope.compileCityItem = function($item){
+        $item.region    = $scope.getCaption($item.region_code, 'region');
+        $item.country   = $scope.getCaption($item.country_code, 'country');
+        $item.state     = $scope.getCaption($item.state_code, 'state');
+        $item.city      = $scope.getCaption($item.city_code, 'city');
+
+        $item.permalink = $scope.getPermalink($item,'city');
     }
 
 
@@ -1180,6 +1201,35 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
                 $resolve(lConvertedResults);
             })
         })
+    }
+
+    $scope.stylesToNum = function($styleList, $source){
+        return $styleList.reduce(
+            function($r, $s){
+                if($source[$s] == undefined){
+                    $r[$s] = 0;
+                }
+                else{
+                    $r[$s] = Number($source[$s].replace(/\D/gi,''));
+                }
+
+                
+                return $r
+            },
+            {}
+        );
+    }
+
+    $scope.elmOffsetZIndex = function($elm){
+        const lElmZindex = window.getComputedStyle($elm).zIndex;
+
+        if($elm.tagName == 'BODY') return lElmZindex;
+
+        if(lElmZindex == 'auto'){
+            return $scope.elmOffsetZIndex($elm.parentNode);
+        }
+
+        return lElmZindex;
     }
 
     return $scope;

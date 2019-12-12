@@ -161,8 +161,8 @@ class SourceImmoConfig {
       new SourceImmoRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
     );
     $this->office_routes  = array(
-      new SourceImmoRoute('fr', 'bureaux/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','ville/{{item.ref_number}}/'),
-      new SourceImmoRoute('en', 'office/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'bureaux/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','bureau/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'office/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','office/{{item.ref_number}}/'),
     );
 
     // init layouts

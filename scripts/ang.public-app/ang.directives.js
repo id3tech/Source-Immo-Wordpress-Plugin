@@ -737,7 +737,6 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
             });
 
             $scope.getItemTemplateInclude = function(){
-                console.log('getItemTemplateInclude', $scope.options);
                 if($scope.options.item_template != undefined) return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
                 return 'si-template-for-' + $scope.type;
             }
@@ -784,8 +783,9 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                         $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
 
                         $scope._element.addClass("loaded");
-                        console.log('list loaded');
-                        $rootScope.$broadcast('si-list-loaded');
+                        $timeout(function(){
+                            $rootScope.$broadcast('si-list-loaded', $scope.type,$scope.list);
+                        });
                     })
 
 
@@ -972,7 +972,7 @@ siApp
             // listing ages or timespan filters
             $scope.listing_ages = [
                 {
-                    caption : 'No limit'.translate(),
+                    caption : 'Always'.translate(),
                     filter : {field: 'contract.start_date', operator: 'greater_than', value: ''}
                 },
                 {
@@ -1228,24 +1228,14 @@ siApp
                     });
 
                     $scope.updateExpandPanelPosition();
-                    // $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
-                    // $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
-                    // $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
-                    // $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
                     
                    
                     $scope.filterPanelContainer.on('transitionend', function(){
-                        const lPanelHeight = window.getComputedStyle($scope.filterPanelContainer[0]).height.replace('px',''); 
-                        //(lHeader != null) ? window.getComputedStyle(lHeader).height : 0;
+                        // const lPanelHeight = window.getComputedStyle($scope.filterPanelContainer[0]).height.replace('px',''); 
                             
-                        if(window.innerHeight >= 800 && window.innerWidth >= 1000){
-                            //const lScrollTop = lElmRect.top - lPanelHeight;
-                            //if(lScrollTop > window.innerHeight)
-                            //const lHeader = document.querySelector('header');
+                        // if(window.innerHeight >= 800 && window.innerWidth >= 1000){
                             
-                            // document.documentElement.style.scrollBehavior = 'smooth';
-                            // document.documentElement.scrollTop = lScrollTop; //window.innerHeight * 0.25;
-                        }
+                        // }
                         $scope.filterPanelContainer.off('transitionend');
                     });
                 
@@ -1260,18 +1250,23 @@ siApp
             $scope.updateExpandPanelPosition = function(){
                 if($scope._element == null) return;
                 
+                const lElmStyle = window.getComputedStyle($scope._element);
                 const lElmRect = $scope._element.getBoundingClientRect();
                 const lSearchBoxElm = $scope._element.querySelector('.search-box');
                 if(lSearchBoxElm == null) return;
-                
-                const lSearchBox = lSearchBoxElm.getBoundingClientRect();
+                const lSearchBoxStyle = window.getComputedStyle(lSearchBoxElm)
+                const lElmBorder = $siUtils.stylesToNum(['borderLeftWidth','borderRightWidth'], lElmStyle);
+                const lSearchBoxBorder = $siUtils.stylesToNum(['borderLeftWidth','borderRightWidth'], lSearchBoxStyle);
 
-                $scope.filterPanelContainer[0].style.setProperty('--relative-top', (lElmRect.top + window.scrollY) + 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX)+ 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
+                const lBorderWidthOffset = lElmBorder.borderLeftWidth + lElmBorder.borderRightWidth +
+                                            lSearchBoxBorder.borderLeftWidth + lSearchBoxBorder.borderRightWidth;
+
+                $scope.filterPanelContainer[0].style.setProperty('--relative-top', Math.round(lElmRect.top + window.scrollY) + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-left', Math.round(lElmRect.left + window.scrollX)+ 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-width', Math.floor(lElmRect.width) - lBorderWidthOffset + 'px');
                 $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
 
-                console.log('updateExpandPanelPosition to', lElmRect.height);
+                console.log('updateExpandPanelPosition to',$scope._element, lElmRect,lBorderWidthOffset);
                 
             }
 
@@ -4168,26 +4163,29 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
     }
 }])
 
-siApp
-.directive('siSrcset', ['$compile', function siSrcset($compile){
-    return {
-        restrict: 'A',
-        link: function($scope, $element, $attrs){
-            const lOriginalPicture = $attrs.siSrcset;
-            if($element[0].tagName != 'IMG') return;
-            if(lOriginalPicture.indexOf('-sm.') < 0) return;
-            if($element.attr('si-srcset') == undefined) return;
-            if($element.attr('si-srcset').indexOf('1x')>0) return;
+// siApp
+// .directive('siSrcset', ['$compile', function siSrcset($compile){
+//     return {
+//         restrict: 'A',
+//         link: function($scope, $element, $attrs){
+//             const lOriginalPicture = $attrs.siSrcset;
             
-            const lPictureSets = [lOriginalPicture + ' 1x'];
-            ['md'].forEach(function($size,$index){
-                lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
-            });
+//             if($element[0].tagName != 'IMG') return;
+//             if(lOriginalPicture.indexOf('-sm.') < 0) return;
+//             if($attrs.siSrcset == undefined) return;
+//             if($attrs.siSrcset.indexOf('1x')>0) return;
+            
+//             const lPictureSets = [lOriginalPicture + ' 1x'];
+//             ['md'].forEach(function($size,$index){
+//                 lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
+//             });
 
-            $element.attr('si-srcset', lPictureSets.join(', '));
-        }
-    }
-}])
+//             console.log('si-srcset',lPictureSets.join(', '));
+
+//             $element[0].setAttribute('data-si-srcset', lPictureSets.join(', '));
+//         }
+//     }
+// }])
 
 siApp
 .directive('siCalculator', function siCalculator(){
@@ -4642,8 +4640,9 @@ siApp
 
             $scope.applyImageSource = function($imgElm){
                 const lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
-                const lImgSourceset = $imgElm.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
-                
+                const lImgSourceset = $scope.getSourceSet($imgElm); //.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
+                console.log('siLazyLoad', lImgSource, lImgSourceset);
+
                 if(lImgSource != undefined) $imgElm.setAttribute('src', lImgSource);
                 if(lImgSourceset != undefined) $imgElm.setAttribute('srcset', lImgSourceset);
 
@@ -4660,6 +4659,25 @@ siApp
                     $scope.observer.observe($element);
                 });
             
+            }
+
+            $scope.getSourceSet = function($imgElm){
+                if(!$imgElm.hasAttribute('si-srcset') && !$imgElm.hasAttribute('data-si-srcset')) return;
+                const lSrcset = $imgElm.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
+                
+                if(lSrcset.indexOf('-sm.') < 0) return lSrcset;
+                
+                
+                const lOriginalPicture = lSrcset;                
+                const lPictureSets = [lOriginalPicture + ' 1x'];
+                ['md'].forEach(function($size,$index){
+                    lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
+                });
+
+                return lPictureSets.join(', ');
+                // console.log('si-srcset',lPictureSets.join(', '));
+
+                // $element[0].setAttribute('data-si-srcset', lPictureSets.join(', '));
             }
             
         }
@@ -4913,7 +4931,7 @@ siApp
             link: function($scope,$element,$attr){
                 $scope.init($element);
             },
-            controller: function($scope, $timeout){
+            controller: function($scope, $timeout,$siUtils){
                 $scope._menu_elm = null;
 
                 $scope.$watch('hasValue', function($new, $old){
@@ -4980,6 +4998,9 @@ siApp
                     if($scope._menu_elm != null){
                         $scope._menu_elm.classList.remove('expanded');
                         $scope._menu_elm.removeAttribute('style');
+                        const lClickTrap = $scope.ensureClickTrap();
+                        lClickTrap.classList.remove('active');
+                        lClickTrap.style.removeProperty('z-index');
                     }
                 }
 
@@ -4992,16 +5013,28 @@ siApp
                     //     $rootScope.$broadcast('close-dropdown', null);
                     // })
                     
+                    const lElmZIndex = $siUtils.elmOffsetZIndex($scope._elm);
 
                     const lMenuElm = $scope.extractMenu($scope._elm);
                     lMenuElm.classList.add('expanded');
+                    console.log('Elm z-index', lElmZIndex);
+
+                    if(lElmZIndex != 'auto'){
+                        lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
+                    }
+                    else{
+                        lMenuElm.style.zIndex = 100;
+                    }
+                    
                     
                     const lClickTrap = $scope.ensureClickTrap();
                     lClickTrap.classList.add('active');
+                    if(lElmZIndex != 'auto') lClickTrap.style.zIndex = Number(lElmZIndex) + 5;
                     lClickTrap.addEventListener('click',function($event){
                         lMenuElm.classList.remove('expanded');
                         //$rootScope.$broadcast('close-dropdown', null);
                         lClickTrap.classList.remove('active');
+                        lClickTrap.style.removeProperty('z-index');
                         $event.stopPropagation();
                     },{once:true});
 
@@ -5013,7 +5046,7 @@ siApp
                     if(lClickTrap == null){
                         lClickTrap = document.createElement("div");
                         lClickTrap.classList.add('si-click-trap');
-                        lClickTrap.style.zIndex = 100;
+                        //lClickTrap.style.zIndex = 100;
                         document.body.prepend(lClickTrap);
                     }
 
@@ -5082,7 +5115,7 @@ siApp
                         else if(lMenuRect.bottom > lViewportRect.bottom){
                             lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
                         }
-                        $scope._menu_elm.style.zIndex = 110;
+                        //$scope._menu_elm.style.zIndex = 110;
                         $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
                     },20);
                     

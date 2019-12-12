@@ -45,8 +45,8 @@
                 <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
 
             </div>
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
         </page>
 
         <page class="details-part2">
@@ -62,8 +62,8 @@
                 
                 <?php SourceImmo::view('single/listings_layouts/print/map', array('model'=>$model))?>                
             </div>
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
         </page>
 
         <?php 
@@ -85,8 +85,8 @@
         for ($i=0; $i < count($photoGroups); $i++) { 
         ?>
         <page class="photos">
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'photos'))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'photos'))?></footer>
             
             <div class="page-layout">
                 <h3><?php 
@@ -143,8 +143,8 @@
                     
                 </div>
             </div>
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'last'))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'last'))?></footer>
             
         </page>
 
@@ -176,8 +176,8 @@
                
             </div>
 
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model))?></footer>
+            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'annex'))?></header>
+            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'annex'))?></footer>
         </page>
         <?php
         }

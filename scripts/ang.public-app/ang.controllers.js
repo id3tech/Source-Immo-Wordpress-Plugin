@@ -517,7 +517,33 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
             $scope.fetchPrerequisites().then(function(){
                 $scope.loadSingleData($ref_number);
             });
-            
+            $scope.$on('si-list-loaded', function($event, $type,$list){
+                console.log('si-list-loaded', $type, $list);
+                if($type == 'listings'){
+                    const lCities = [];
+                    $list.forEach( function($l) {
+                        const lCity = lCities.find( function($c){
+                            return $c.ref_number == $l.location.city_code;
+                        });
+                        if(lCity == null){
+                            const lNewCity = {
+                                ref_number:$l.location.city_code,
+                                name: $l.location.city,
+                                listing_count: 1,
+                                location: $l.location
+                            };
+                            
+                            $siUtils.compileCityItem(lNewCity);
+                            lCities.push( lNewCity);
+                        }
+                        else{
+                            lCity.listing_count++;
+                        }
+                    });
+
+                    $scope.cities = lCities;
+                }
+            })
         }
     }
 

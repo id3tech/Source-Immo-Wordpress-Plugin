@@ -12,7 +12,7 @@ if(isset($configs)){
     <a href="{{item.permalink}}">
         <div class="item-content">
             <div class="image si-lazy-loading"><img data-si-src="{{item.photo_url}}"  data-si-srcset="{{item.photo_url}}" /></div>
-            <div class="civic-address">{{item.location.civic_address}}</div>
+            <div class="civic-address">{{item.location.civic_address}}&nbsp;</div>
             <div class="price">{{formatPrice(item)}}</div>
             <div class="city">{{item.location.city}}</div>
             <div class="category">{{item.category}}</div>

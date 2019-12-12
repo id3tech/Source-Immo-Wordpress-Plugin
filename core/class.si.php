@@ -10,8 +10,6 @@ if(!defined('SI_API_HOST')){
 class SourceImmo {
   
   
-  public $page_template_rendered = false;
-
   public $configs = null;
 
   public $locales = null;
@@ -63,8 +61,6 @@ class SourceImmo {
 
       add_action('si_render_page', array($this, 'render_page'),10,2);
 
-      add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
-      add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
       if($this->configs->favorites_button_menu != null){
         add_filter('wp_nav_menu_items',array($this, 'add_favorite_button_to_menu'), 10, 2);
       }
@@ -596,6 +592,10 @@ class SourceImmo {
       $share_tool->addHook('listing');
       
       $permalink = $share_tool->getPermalink();
+      add_filter('si_page_title', function($title) use ($share_tool){
+        return $share_tool->title();
+      });
+
       if(!isset($post)) $post = json_decode('{}');
       $post->permalink = $permalink;
 
@@ -684,7 +684,9 @@ class SourceImmo {
       $share_tool->addHook('broker');
       
       $permalink = $share_tool->getPermalink();
-
+      add_filter('si_page_title', function($title) use ($share_tool){
+        return $share_tool->title();
+      });
       if($post != null) $post->permalink = $permalink;
 
       // add hook for permalink
@@ -729,16 +731,20 @@ class SourceImmo {
       
       $permalink = $share_tool->getPermalink();
       if(isset($post)) $post->permalink = $permalink;
-
+      add_filter('si_page_title', function($title) use ($share_tool){
+        return $share_tool->title();
+      });
+      
       // add hook for permalink
       // add_filter('the_permalink', function($url){
       //   global $permalink;
       //   return $permalink;
       // });
-      // add_action('the_post', function($post_object){
-      //   global $permalink;
-      //   $post_object->permalink = $permalink;
-      // });
+      add_action('the_post', function($post_object){
+        global $permalink;
+        $post_object->permalink = $permalink;
+        $post_object->post_title = '';
+      });
 
       $city_data = apply_filters(hook_from_key('city','single'), $city_data);
       self::view('single/cities', array('ref_number'=>$ref_number, 'data' => $city_data, 'permalink' => null));      
@@ -794,36 +800,19 @@ class SourceImmo {
     }
   }
   
-
+  // TODO: Deprecated
   public function render_page($post_id){
     if($this->page_template_rendered) return;
     
     //do_action('si_start_of_template', $load_text);
-
+    
     $lPost = get_post($post_id);
+
     echo(do_shortcode($lPost->post_content));
   
     //do_action('si_end_of_template');
   }
 
-  public function start_of_template($loadingText){
-    if($this->page_template_rendered) return;
-    if(did_action('si_start_of_template') === 1){
-    ?>
-    <label class="placeholder"  data-ng-show="model==null"><?php _e($loadingText,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
-            <div class="si-content"  ng-cloak si-adaptative-class >
-    <?php
-    }
-  }
-
-  public function end_of_template(){
-    if($this->page_template_rendered) return;
-    if(did_action('si_end_of_template') === 1){
-    ?>
-      </div>
-    <?php
-    }
-  }
   //#endregion
   // ----------------------
 
@@ -1117,7 +1106,8 @@ class SiSharing{
 
     add_filter('document_title_parts', array($this, 'override_title'),10);
     add_filter('wp_head', array($this,'seo_metas'),10,1);
-    //add_filter('single_post_title', array($this, 'page_title'), 10,1);
+    add_filter('single_post_title', array($this, 'page_title'), 10,1);
+   
     //add_action('the_post', array($this,'change_post'));
 
     //Yoast

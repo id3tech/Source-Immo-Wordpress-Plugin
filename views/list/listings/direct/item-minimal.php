@@ -17,10 +17,11 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
             <div class="region"><?php echo($item->location->region);?></div>
             <div class="rooms">
                 <?php 
+                if(isset($item->rooms) && is_array($item->rooms)){
                     foreach ($item->rooms as $icon => $room) {
                         echo('<div class="room ' . $icon . '"><i class="icon fal fa-fw fa-' . $icon . '"></i> <span class="count">' . $room->count . '</span> <span class="label">' . $room->label . '</span></div>');
                     }
-                ?>
+                }?>
             </div>
 	        <div class="open-houses">
                 <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
