@@ -473,7 +473,7 @@ body.wp-admin{
         .layout-list{
           display:grid;
           gap: 0 10px;
-          grid-template-columns: 200px 1fr 1fr 1fr 1fr;
+          grid-template-columns: 200px 1fr max-content 1fr 1fr;
           place-items: center stretch;
             
           .layout-item{

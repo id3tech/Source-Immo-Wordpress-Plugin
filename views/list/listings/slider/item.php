@@ -21,6 +21,6 @@
     </div>
 
     <div class="link slide-data from-bottom" style="--delay:0.75s">
-        <a href="{{item.permalink}}" class="button"><?php _e('Detail', SI) ?></a>
+        <a href="{{item.permalink}}" class="button"><?php _e('Details', SI) ?></a>
     </div>
 </div>

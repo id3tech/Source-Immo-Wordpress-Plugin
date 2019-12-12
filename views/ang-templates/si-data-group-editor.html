@@ -85,8 +85,8 @@
             <div class="list layout-list">
                 <div class="layout-item list-item-header">
                     <h3><i class="far fa-pencil-ruler"></i> <lstr>Details</lstr></h3>
-                    <div lstr>Layout</div>
-                    <div lstr>Custom layout from page</div>
+                    <div lstr>Layout page</div>
+                    <div></div>
                     <div lstr>Method used to build forms and manage results</div>
                     <div lstr>Form to use</div>
                 </div>
@@ -94,14 +94,24 @@
                 <div class="layout-item" ng-repeat="layout in configs[layout]">
                     <h4>{{lang_codes[layout.lang]}}</h4>
 
-                    <md-select ng-model="layout.type" ng-change="save_configs()">
-                        <md-option ng-repeat="item in global_list.detail_layouts" value="{{item.name}}">{{item.label.translate()}}</md-option>
-                    </md-select>
-
-                    <md-select ng-disabled="layout.type!='custom_page'" ng-model="layout.page" ng-change="save_configs()">
+                    <md-select ng-model="layout.page" ng-change="save_configs()">
                         <md-option ng-repeat="item in wp_pages[layout.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
                     </md-select>
-                    
+
+                    <div>
+                        <md-menu>
+                            <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-ellipsis-h"></md-icon></md-button>
+                            <md-menu-content>
+                                <md-menu-item>
+                                    <md-button ng-click="generateLayoutPage(layout)"><i class="fal fa-file-plus"></i> <lstr>Generate</lstr></md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="clearLayoutPage(layout)"><i class="fal fa-times"></i> <lstr>Clear</lstr> </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </div>
+
                     <md-select ng-disabled="layout.type!='standard'" ng-model="layout.communication_mode" ng-change="save_configs()" >
                         <md-option value="basic" lstr>Basic</md-option>
                         <md-option value="wpcf7_contact_form">Contact Form 7</md-option>

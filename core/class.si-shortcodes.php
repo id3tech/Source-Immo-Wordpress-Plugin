@@ -367,9 +367,15 @@ class SiShorcodes{
     public function sc_si_listing($atts, $content){
         extract( shortcode_atts(
             array(
-                'ref_number' => ''
+                'ref_number' => '',
+                'load_text' => "Loading listing"
             ), $atts )
         );
+
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+            //$ref_type = get_query_var( 'type' );
+        }
         
         $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
         if($listing_data != null){
@@ -385,20 +391,26 @@ class SiShorcodes{
         ?>
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                 class="si listing-single {{model.status}} {{model!=null?'loaded':''}}">
+
         <?php
-        echo(do_shortcode($content));
+        do_action('si_start_of_template', $load_text);
+        if($content != null){
+            echo(do_shortcode($content));
+        }
+        else{
+            SourceImmo::view('single/listings_layouts/standard');
+        }
+        do_action('si_end_of_template');
         ?>
-
         </div>
-
         <?php
         if(SourceImmo::current()->configs->prefetch_data){
         ?> 
-        <script type="text/javascript">
-        var siListingData = <?php 
-            echo(json_encode($listing_data)); 
-        ?>;
-        </script>
+            <script type="text/javascript">
+            var siListingData = <?php 
+                echo(json_encode($listing_data)); 
+            ?>;
+            </script>
         <?php
         }
         

@@ -16,7 +16,7 @@
                 <div class="office-name">{{item.office.name}}</div>
             </div>
             <div class="contact">
-                <div class="phone">{{item.phones.cell || item.phones.office}}</div>
+                <div class="phone">{{item.phones.mobile || item.phones.office}}</div>
                 <div class="email">{{item.email}}</div>
             </div>
         </div>

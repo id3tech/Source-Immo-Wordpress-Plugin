@@ -225,8 +225,6 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         });
     }
 
-    
-
     /**
      * Preprocess data information to create shortcut, icon list and groups
      */

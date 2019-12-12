@@ -28,70 +28,62 @@ class SourceImmoPageBuilder{
         
     }
 
-    public function get_page_content($wrapInContainer=true){
+    public function get_page_content($content){
         if($this->rendered_once) return;
-
+        
         $result = $this->inline_content;
 
-        
-        if($wrapInContainer){
-            // add most common structure and class to fit in page
-            $result = '<article class="page entry"><si-content>' . 
-                            $result . 
-                        '</si-content></article>';
-        }
         $this->rendered_once = true;
-
         return do_shortcode($result);
     }
 
-    public function get_default_page_template(){
-        $templates = wp_get_theme()->get_page_templates(null,'page');
-        if(count($templates) == 0) return null;
-        //__c($templates);
-        $templateNamePriorities = array('fullwidth','full-width','nosidebar');
-        foreach ($templateNamePriorities as $templateName) {
-            foreach ($templates as $key => $value) {
-                if(strpos($key, $templateName) != false){
-                    return($key);
+    public function get_page_template($page_id){
+        $page_template = get_page_template_slug($page_id);
+        if($page_template != '') return $page_template;
+
+        $templateFiles = wp_get_theme()->get_files('php',0,true);
+        $priorityList = array('page','single','index');
+
+        foreach ($priorityList as $pageName) {
+            foreach($templateFiles as $template => $path){
+                if($template== $pageName . '.php'){
+                    return $path;
                 }
-            }    
+            }
         }
-        
+
         return null;
     }
 
     public function render(){
-        if($this->layout->type == 'custom_page'){
-            echo $this->get_page_content(false);
-        }
-        else{
-            // get the template page layout
-            $defaultPageTemplate = $this->get_default_page_template();
-            if($defaultPageTemplate == null){
-                global $wp_query;
-                $wp_query->current_post = 0;
-                $wp_query->post_count = 2;
-                
-                get_header();
-                echo $this->get_page_content();
-                get_footer();
-            }
-            else{
-                global $wp_query;
-                $wp_query->current_post = 0;
-                $wp_query->post_count = 2;
-                
-                add_filter( 'body_class', function($classes) use ($defaultPageTemplate) {
-                    $classes[] = sanitize_title($defaultPageTemplate);
-                    $classes[] = sanitize_title(str_replace(array('.php'),array(''), $defaultPageTemplate));
-                    $classes[] = sanitize_title(str_replace(array('.php','templates'),array('','template'), $defaultPageTemplate));
+        
+            $pageTemplate = $this->get_page_template($this->layout->page);
+            //__c($pageTemplate);
 
-                    return $classes; 
-                });
-                include get_template_directory() . '/'. $defaultPageTemplate;
+            if($pageTemplate == null){
+                wp_head();
             }
-        }
+            
+            global $wp_query, $post;
+            $wp_query->current_post = 0;
+            $wp_query->post_count = 2;
+
+            $post = get_post($this->layout->page);
+            
+            add_filter( 'body_class', function($classes) use ($pageTemplate) {
+                $classes[] = sanitize_title($pageTemplate);
+                $classes[] = sanitize_title(str_replace(array('.php'),array(''), $pageTemplate));
+                $classes[] = sanitize_title(str_replace(array('.php','templates'),array('','template'), $pageTemplate));
+
+                return $classes; 
+            });
+
+            include $pageTemplate;
+            
+
+            if($pageTemplate == null){
+                wp_footer();
+            }
 
     }
 

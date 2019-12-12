@@ -1,4 +1,4 @@
-<div class="si-header {{model.status=='SOLD'? 'is-sold':''}}">
+<div class="si-header {{model.status=='SOLD'? 'is-sold':''}}" si-adaptative-class>
     
     <div class="price">
         <div ng-bind-html="model.long_price"></div>
@@ -39,7 +39,7 @@
 
 </div>
 
-<div class="si-details">
+<div class="si-details" si-adaptative-class>
     <div class="si-left">
         <?php echo do_shortcode('[si_listing_part part="addendum"]') ?>
 

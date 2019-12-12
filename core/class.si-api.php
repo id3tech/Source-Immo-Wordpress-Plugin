@@ -22,6 +22,7 @@ class SourceImmoApi {
     $page_id = $request->get_param('page_id');
     $title = $request->get_param('title');
     $content = $request->get_param('content');
+    $language_code = $request->get_param('lang');
 
     if($page_id == 'NEW'){
       $my_post = array(
@@ -30,8 +31,13 @@ class SourceImmoApi {
         'post_status'   => 'publish',
         'post_type'     => 'page'
       );
+      $post_id = wp_insert_post( $my_post );
+
+      if($language_code != null){
+        self::set_page_translation($post_id, $language_code, $request->get_param('original_page_id'));
+      }
      
-      wp_insert_post( $my_post );
+      return $post_id;
     }
     else{
       wp_update_post(array(
@@ -40,6 +46,31 @@ class SourceImmoApi {
       ));
     }
   }
+
+  public static function set_page_translation($page_id, $language_code, $source_page_id=null) {
+    
+    if ($page_id) {
+        $wpml_element_type = apply_filters('wpml_element_type', 'page');;
+        $set_language_args = array(
+            'element_id'    => $page_id,
+            'element_type'  => $wpml_element_type,
+            'language_code'   =>  $language_code
+        ); 
+
+        if($source_page_id != null){
+          // get the language info of the original post
+          $get_language_args = array('element_id' => $source_page_id, 'element_type' => $wpml_element_type );
+          $original_post_language_info = apply_filters( 'wpml_element_language_details', null, $get_language_args );
+
+          $set_language_args = array_merge($set_language_args, array(
+            'trid'   => $original_post_language_info->trid,
+            'source_language_code' => $original_post_language_info->language_code
+          ));
+        }
+         
+        do_action( 'wpml_set_element_language_details', $set_language_args );
+    }
+}
 
   /**
    * Get forms list

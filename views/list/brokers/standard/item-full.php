@@ -13,7 +13,7 @@
             <div class="name"><span class="first-name">{{item.first_name}}</span> <span class="last-name">{{item.last_name}}</span></div>
             <div class="title">{{getCaption(item.license_type,'license_type')}}</div>
             <div class="contact">
-                <div class="phone">{{item.phones.cell || item.phones.office}}</div>
+                <div class="phone">{{item.phones.mobile || item.phones.office}}</div>
                 <div class="email">{{item.email}}</div>
             </div>
         </div>

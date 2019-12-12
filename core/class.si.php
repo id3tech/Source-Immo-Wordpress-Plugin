@@ -795,15 +795,15 @@ class SourceImmo {
   }
   
 
-  public function render_page($post_id, $load_text){
+  public function render_page($post_id){
     if($this->page_template_rendered) return;
     
-    do_action('si_start_of_template', $load_text);
+    //do_action('si_start_of_template', $load_text);
 
     $lPost = get_post($post_id);
     echo(do_shortcode($lPost->post_content));
   
-    do_action('si_end_of_template');
+    //do_action('si_end_of_template');
   }
 
   public function start_of_template($loadingText){
@@ -811,7 +811,7 @@ class SourceImmo {
     if(did_action('si_start_of_template') === 1){
     ?>
     <label class="placeholder"  data-ng-show="model==null"><?php _e($loadingText,SI) ?> <i class="fal fa-spinner fa-spin"></i></label>
-            <div class="si-content"  ng-cloak>
+            <div class="si-content"  ng-cloak si-adaptative-class >
     <?php
     }
   }

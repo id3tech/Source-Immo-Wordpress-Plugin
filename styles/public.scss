@@ -2435,6 +2435,17 @@ html{
                 "medias si-summary"
                 "si-details si-details"
                 ;
+            &.si-adapt-tablet-size,
+            &.si-adapt-phone-size,
+            &.si-adapt-small-phone-size{
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "si-header"
+                    "medias"
+                    "si-summary"
+                    "si-details"
+                ;
+            }
             @include media($tablet){
                 grid-template-columns: 1fr;
                 grid-template-areas:
@@ -2444,6 +2455,7 @@ html{
                     "si-details"
                 ;
             }
+            
 
         }
         .si-header{
@@ -2463,6 +2475,28 @@ html{
                     "tools tools tools tools tools tools tools";
                 .information_request{display:none;}
             }
+
+            &.si-adapt-tablet-size,
+            &.si-adapt-phone-size,
+            &.si-adapt-small-phone-size{
+                grid-template-columns: 1fr;
+                justify-items:center;
+                grid-template-areas:
+                    "subcategory"
+                    "city"
+                    "price"
+                    "tools"
+                    "information_request"
+                ;
+            }
+            
+            &.si-adapt-phone-size,
+            &.si-adapt-small-phone-size{
+                place-items:center;
+                text-align:center;
+            }
+            
+
             @include media($tablet){
                 grid-template-columns: 1fr;
                 justify-items:center;
@@ -2548,6 +2582,7 @@ html{
                 }
             }
         }
+        
         .medias{
             position:relative;    
             place-self: stretch;
@@ -2895,11 +2930,20 @@ html{
             grid-template-columns: 2fr 1fr;
             grid-template-rows: auto;
             grid-template-areas: "si-left si-right";
+            &.si-adapt-tablet-size,
+            &.si-adapt-phone-size,
+            &.si-adapt-small-phone-size{
+                grid-template-columns: 1fr;
+                grid-template-areas: "si-left" "si-right";
+            }
+            
             @include media($tablet){
                 grid-template-columns: 1fr;
                 grid-template-areas: "si-left" "si-right";
             }
         }
+
+
 
         .spec-grid{
             display:grid;
@@ -3389,7 +3433,35 @@ html{
                 }
             }
         }
-
+        
+        .si-content{
+            &.si-adapt-tablet-size{
+                grid-template-columns:2fr 3fr;
+                .picture{grid-column:1;grid-row:1 / span 2;}
+                .head{grid-column:2;grid-row:1;}
+                
+                .contact{grid-column:2;grid-row:2;}
+                
+                .bio{grid-column: 1 / span 2;grid-row:3;}
+                
+                
+                .listing-list{grid-column:1 / span 2;grid-row:5;}
+                .cities{grid-column:2;grid-row:6;}
+                .office{grid-column:1;grid-row:6;}
+            }
+            &.si-adapt-phone-size{
+                grid-template-columns:1fr;
+                
+                .head{grid-column:1;grid-row:1;}
+                .bio{grid-column: 1;grid-row: 3;}
+                .picture{grid-column:1;grid-row:2;}
+                .contact{grid-column:1;grid-row:4;}
+                
+                .listing-list{grid-column:1;grid-row:5;}
+                .cities{grid-column:1;grid-row:7;}
+                .office{grid-column:1;grid-row:6;}
+            }
+        }
         @include media($tablet){
             .si-content{
                 grid-template-columns:2fr 3fr;
@@ -4247,7 +4319,7 @@ body.si-modal-open{
     height: 500px;
     overflow:hidden;
     position:relative;
-    --base-font-size: 1.25rem;
+    --base-font-size: 14px;
     --nav-button-size: 60px;
     --nav-bullet-size: 5px;
     @include media($phone){
@@ -4460,9 +4532,11 @@ body.si-modal-open{
                     font-size:  calc(var(--base-font-size) * 2);
                     font-weight: bold;
                     text-transform: uppercase;
-                    bottom:25%;
+                    top:80%;
                     left:0;
-                    transform:translate(0,50%);
+                    max-width:50%;
+                    transform:translate(0,0%);
+                    line-height:1em;
                     @include media($phone){
                         bottom:unset;
                         top:10%;
@@ -4471,7 +4545,7 @@ body.si-modal-open{
                     }
                 }
                 .city{
-                    bottom:calc(25% + calc(var(--base-font-size) * 1.75));
+                    top:calc(75% - calc(var(--base-font-size) * 2.75));
                     left:0;
                     transform:translate(0,50%);
                     @include media($phone){
@@ -4483,7 +4557,7 @@ body.si-modal-open{
                     }
                 }
                 .address{
-                    bottom:calc(25% - calc(var(--base-font-size) * 1.75));
+                    top:calc(75% - calc(var(--base-font-size) * 1.75));
                     left:0;
                     transform:translate(0,50%);
                     @include media($phone){
@@ -4498,14 +4572,14 @@ body.si-modal-open{
                     font-size: calc(var(--base-font-size) * 3);
                     font-weight: bold;
                     right:0px;
-                    bottom:25%;
-                    transform:translate(0,50%);
+                    max-width:50%;
+                    top:70%;
+                    transform:translate(0,0%);
                 }
                 .link{
                     right:0px;
-                    bottom:calc(25% - calc(var(--base-font-size) * 4));
-                    transform:translate(0,50%);
-
+                    bottom:10px;
+                    
                     .button{
                         font-size: calc(var(--base-font-size) * 1.25);
                         text-transform: uppercase;

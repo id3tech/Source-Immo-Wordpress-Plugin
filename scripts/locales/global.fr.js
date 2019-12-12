@@ -132,6 +132,15 @@ $locales.fr = {};$locales.fr.global =
     , "Form to use" : "Formulaire à utiliser"
     , "Add favorites button to menu" : "Ajouter le bouton Favoris au menu"
     , "Edit on Map Style" : "Éditer sur Map Style"
+    , "Some layout's page are missing. Would you like to create them now?" : "Certaines mise en page sont manquantes. Voulez-vous les créer maintenant?"
+    , "Clear all layouts" : "Effacer toutes les mises en page"
+    
+    // layouts title
+    , "Listing details" : "Détails de propriété"
+    , "Broker details" : "Détails de courtier"
+    , "Office details" : "Détails de bureau"
+    , "City details" : "Détails de ville"
+
     // Lists label
     , "New {0} list" : "Nouvelle liste {0}"
     , "Copy shortcode" : "Copier le code court"
@@ -155,6 +164,8 @@ $locales.fr = {};$locales.fr.global =
     , "Layout" : "Disposition"
     , "Shortcode" : "Code court"
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
+    , "Layout page" : "Page de gabarit"
+    , "Generate" : "Générer"
     , "Attribute" : "Attribut"
     , "Operator" : "Opérateur"
     , "Value" : "Valeur"

@@ -31,6 +31,86 @@ siApp
     }
 }]);
 
+siApp
+.directive('siAdaptativeClass', [
+    '$parse','$timeout',
+    function($parse,$timeout){
+        return {
+            restrict: 'A',
+            scope: true,
+            link: function($scope, $element, $attrs){
+                $scope.$element = $element[0]
+                
+                $timeout(function(){
+                    $scope.init();
+                },500);
+                
+            },
+            controller : function($scope, $rootScope){
+                $scope._resizeTimeoutHndl = null;
+                
+                $scope.init = function(){
+                    $scope.updateClass();
+                    $scope.addResizeListener();
+                }
+
+                $scope.addResizeListener = function(){
+                    window.addEventListener("resize", function($event){
+                        if($scope._resizeTimeoutHndl != null){
+                            window.clearTimeout($scope._resizeTimeoutHndl);
+                        }
+
+                        $scope._resizeTimeoutHndl = window.setTimeout(function(){
+                            $scope.updateClass();
+                        }, 100);
+                    })
+                }
+
+                $scope.updateClass = function(){
+                    const lSizeMap = {
+                        'si-adapt-small-phone-size': 320,
+                        'si-adapt-phone-size': 640,
+                        'si-adapt-tablet-size': 800,
+                        'si-adapt-laptop-size': 1000
+                    }
+                    
+                    // remove any class previously applied by a resize or initial parse
+                    Object.keys(lSizeMap)
+                        .forEach(function($k){
+                            $scope.$element.classList.remove($k);
+                        });
+
+                    
+
+                    // get element size
+                    let lReferenceElement = $scope.$element;
+                    if(!lReferenceElement.classList.contains('si-content')){
+                        lReferenceElement = lReferenceElement.closest('.si-content');
+                    }
+                    const lElementBox = lReferenceElement.parentNode.getBoundingClientRect();
+                    if(lElementBox.width == 0) return;  // bail out if the element has no width
+
+                    // find the first size greater than the element box width
+                    const lClass = Object.keys(lSizeMap)
+                                            .filter(function($k){
+                                                return lSizeMap[$k] <= window.innerWidth;
+                                            })
+                                            .find(function($k){
+                                                return lSizeMap[$k] >= lElementBox.width;
+                                            });
+
+                    if(lClass != null){
+                        // apply class if found
+                        $scope.$element.classList.add(lClass)
+                        $rootScope.$broadcast('container-resize');
+                    }
+                }
+
+            }
+        }
+    }
+])
+
 
 /**
  * DIRECTIVE: LIST
@@ -3660,6 +3740,10 @@ siApp
                     // }
                     
                 }
+                $scope.$on('container-resize', function(){
+                    console.log('container-resize');
+                    $scope.detectBoxSize();
+                })
                 window.addEventListener('resize', function(){
                     $scope.detectBoxSize();
                 });

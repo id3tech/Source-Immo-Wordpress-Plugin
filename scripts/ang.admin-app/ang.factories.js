@@ -334,6 +334,7 @@ siApp
       ok: 'OK',
       cancel: 'Cancel'
     }, $options);
+    
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
           .title($title.translate())

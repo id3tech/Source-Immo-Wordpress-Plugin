@@ -463,6 +463,8 @@ siApp
           //$siList.init($scope.configs.default_view);
 
           $scope._status = 'ready';
+
+          $scope.checkIntegrity();
         },
         _ => {
           $scope._status = 'ready';
@@ -476,6 +478,10 @@ siApp
     $scope.$on('save-request', function(){
       $scope.save_configs();
     });
+
+    $scope.$on('reload-pages', function(){
+      $scope.load_wp_pages();
+    })
   }
 
   $scope.load_configs = function(){
@@ -829,6 +835,138 @@ siApp
     });
   }
 
+  $scope.checkIntegrity = function(){
+    
+    // check details' layouts
+    if($scope.hasEmptyLayouts()){
+      $siUI.confirm("Some layout's page are missing. Would you like to create them now?",undefined,{ok: 'Yes', cancel: 'No'}).then(function(){
+        $scope.fillEmptyLayouts();
+      },_ => {});
+    }
+    else{
+      console.log('no empty layout', $scope.configs);
+    }
+    
+  }
+
+  $scope.generateLayoutPage = function($layout){
+
+  }
+
+  $scope.clearAllLayoutPage = function(){
+    const lLayoutMap = ['listing_layouts','broker_layouts','office_layouts','city_layouts'];
+
+    lLayoutMap.forEach($layoutGroup => {
+      $scope.configs[$layoutGroup].forEach($layout => {
+        $layout.page = null;
+      });
+    });
+
+    $scope.save_configs();
+  }
+
+  $scope.clearLayoutPage = function($layout){
+    $layout.page = null;
+    $scope.save_configs();
+  }
+  
+
+  $scope.hasEmptyLayouts = function(){
+    const lLayoutMap = {
+      listings : 'listing_layouts',
+      brokers : 'broker_layouts',
+      offices : 'office_layouts',
+      cities : 'city_layouts',
+    }
+
+    const lFiltered = Object.keys(lLayoutMap)
+                        .filter(function($type){
+                          return $scope.configs.lists.some(function($l){
+                            return $l.type == $type;
+                          })
+                        });
+    console.log('hasEmptyLayouts',lFiltered);
+    return lFiltered
+      .some(function($type){
+        return $scope.configs[lLayoutMap[$type]].some(function($layout){
+          return $layout.page==null
+        });
+      });
+  }
+
+  $scope.fillEmptyLayouts = function(){
+    const lLayoutMap = {
+      listings : 'listing_layouts',
+      brokers : 'broker_layouts',
+      offices : 'office_layouts',
+      cities : 'city_layouts',
+    }
+    const lPages = {
+      listings: {
+        title: 'Listing details',
+        content: '[si_listing]',
+      },
+      brokers:{
+        title: 'Broker details',
+        content: '[si_broker]'
+      },
+      offices:{
+        title: 'Office details',
+        content: '[si_office]'
+      },
+      cities:{
+        title: 'City details',
+        content: '[si_city]'
+      }
+    }
+    const lLayoutCreationPromises = [];
+    
+    Object.keys(lLayoutMap)
+      .filter(function($type){
+        return $scope.configs.lists.some(function($l){
+          return $l.type == $type;
+        })
+      })
+      .forEach(function($type){ // Loop throught layout maps
+        let lOrignalPageId = null;
+        $scope.configs[lLayoutMap[$type]].forEach(function($layout){ // loop throught layouts
+          
+
+          if($layout.page==null){
+            
+            lLayoutCreationPromises.push(_ => {
+              const lPageTitle    = $layout.lang == 'en' ? lPages[$type].title : lPages[$type].title.translate();
+              const lPageContent  = lPages[$type].content;
+
+              return $q( ($resolve, $reject) => {
+                
+                  $scope.api('page',{lang: $layout.lang, page_id: 'NEW', title: lPageTitle, content: lPageContent, original_page_id: lOrignalPageId}).then($response => {
+                    $layout.page = $response;
+                    lOrignalPageId = $layout.page;
+                    console.log('apply page layout', $response, $layout.page);
+                    $resolve();
+                  });
+                
+              })
+            });
+          }
+        });
+      });
+
+    $siUI.show_toast('Generating empty layout pages');
+    return lLayoutCreationPromises.reduce((promiseChain, currentTask) => {
+      return promiseChain.then(chainResults =>
+          currentTask().then(currentResult =>
+              [ ...chainResults, currentResult ]
+          )
+        );
+    }, Promise.resolve([])).then(arrayOfResults => {
+        console.log('saving these', $scope.configs);
+        $scope.save_configs();
+        $rootScope.$broadcast('reload-pages');
+    });
+
+  }
 
 
 
