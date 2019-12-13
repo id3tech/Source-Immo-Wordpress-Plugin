@@ -4639,8 +4639,15 @@ siApp
             }
 
             $scope.applyImageSource = function($imgElm){
-                const lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
+                let lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
                 const lImgSourceset = $scope.getSourceSet($imgElm); //.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
+
+                if($imgElm.getBoundingClientRect().width > 1200){
+                    lImgSource = lImgSource.replace("-sm.","-lg.");
+                }
+                if($imgElm.getBoundingClientRect().width > 400){
+                    lImgSource = lImgSource.replace("-sm.","-md.");
+                }
                 console.log('siLazyLoad', lImgSource, lImgSourceset);
 
                 if(lImgSource != undefined) $imgElm.setAttribute('src', lImgSource);
@@ -4669,9 +4676,14 @@ siApp
                 
                 
                 const lOriginalPicture = lSrcset;                
-                const lPictureSets = [lOriginalPicture + ' 1x'];
+                const lPictureSets = [];
+
+                if($imgElm.getBoundingClientRect().width < 400){
+                    lPictureSets.push(lOriginalPicture + ' 1x');
+                }
+
                 ['md'].forEach(function($size,$index){
-                    lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + 2) + 'x');
+                    lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + lPictureSets.length + 1) + 'x');
                 });
 
                 return lPictureSets.join(', ');
