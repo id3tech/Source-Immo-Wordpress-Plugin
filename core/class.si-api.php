@@ -23,6 +23,7 @@ class SourceImmoApi {
     $title = $request->get_param('title');
     $content = $request->get_param('content');
     $language_code = $request->get_param('lang');
+    $locale_parent_page_id = $request->get_param('original_page_id');
 
     if($page_id == 'NEW'){
       $my_post = array(
@@ -34,7 +35,7 @@ class SourceImmoApi {
       $post_id = wp_insert_post( $my_post );
 
       if($language_code != null){
-        self::set_page_translation($post_id, $language_code, $request->get_param('original_page_id'));
+        self::set_page_translation($post_id, $language_code, $locale_parent_page_id);
       }
      
       return $post_id;
@@ -50,10 +51,10 @@ class SourceImmoApi {
   public static function set_page_translation($page_id, $language_code, $source_page_id=null) {
     
     if ($page_id) {
-        $wpml_element_type = apply_filters('wpml_element_type', 'page');;
+        $wpml_element_type = apply_filters('wpml_element_type', 'page');
         $set_language_args = array(
-            'element_id'    => $page_id,
-            'element_type'  => $wpml_element_type,
+            'element_id'      => $page_id,
+            'element_type'    => $wpml_element_type,
             'language_code'   =>  $language_code
         ); 
 
@@ -73,6 +74,18 @@ class SourceImmoApi {
 }
 
   /**
+   * Get page permalink
+   * @static
+   * GET /si-rest/page/permalink
+   */
+  public static function get_page_permalink($request){
+    $page_id = $request->get_param('page_id');
+    
+    return get_permalink($page_id);
+    
+  }
+
+  /**
    * Get forms list
    * @static
    * GET /si-rest/forms
@@ -84,6 +97,51 @@ class SourceImmoApi {
     return $lResult;
   }
 
+
+
+
+  /**
+   * Get pages list
+   * @static
+   * GET /si-rest/menu/list
+   */
+  public static function get_language_list(){
+    $codeNames = array(
+      'en' => 'English',
+      'fr' => 'Français',
+      'es' => 'Espanol'
+    );
+
+    $currentLocale = substr(get_locale(),0,2);
+    $lResult = array();
+
+    // wpml languages
+    if(function_exists('icl_get_languages')){
+      $languages = icl_get_languages('skip_missing=0&orderby=code');
+      foreach ($languages as $l) {
+        $lResult[] = array(
+          'code' => $l['language_code'],
+          'name' => $l['native_name'],
+          'default' => $currentLocale == $l['language_code']
+        );
+      }
+    }
+    else{
+      $lResult = array(
+        0 => array(
+          'code' => $currentLocale,
+          'name' => $codeNames[$currentLocale],
+          'default' => true
+        )
+      );
+    }
+
+    return $lResult;
+  }
+
+  
+
+
   /**
    * Get pages list
    * @static
@@ -92,6 +150,7 @@ class SourceImmoApi {
   public static function get_menu_list(){
     return get_registered_nav_menus();
   }
+
 
 
   /**
@@ -721,6 +780,9 @@ class SourceImmoApi {
     // Page
     self::_register_page_routes();
 
+    // Languages
+    self::_register_language_routes();
+
     // Menu
     self::_register_menu_routes();
 
@@ -935,6 +997,21 @@ class SourceImmoApi {
   }
 
   /**
+   * Message REST languages registration
+   * @static
+   */
+  static function _register_language_routes(){
+    // Get WP language list
+    register_rest_route( 'si-rest','/language/list',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_language_list' ),
+      )
+    );
+
+  }
+  /**
    * Message REST menus registration
    * @static
    */
@@ -997,6 +1074,21 @@ class SourceImmoApi {
             'required' => true,
             'type' => 'String',
             'description' => __( 'New content of the page', SI ),
+          )
+        )
+      )
+    );
+    
+    register_rest_route( 'si-rest','/page/permalink',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_page_permalink' ),
+        'args' => array(
+          'page_id' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Page ID', SI ),
           )
         )
       )

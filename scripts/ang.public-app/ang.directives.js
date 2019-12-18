@@ -1250,23 +1250,14 @@ siApp
             $scope.updateExpandPanelPosition = function(){
                 if($scope._element == null) return;
                 
-                const lElmStyle = window.getComputedStyle($scope._element);
                 const lElmRect = $scope._element.getBoundingClientRect();
                 const lSearchBoxElm = $scope._element.querySelector('.search-box');
                 if(lSearchBoxElm == null) return;
-                const lSearchBoxStyle = window.getComputedStyle(lSearchBoxElm)
-                const lElmBorder = $siUtils.stylesToNum(['borderLeftWidth','borderRightWidth'], lElmStyle);
-                const lSearchBoxBorder = $siUtils.stylesToNum(['borderLeftWidth','borderRightWidth'], lSearchBoxStyle);
-
-                const lBorderWidthOffset = lElmBorder.borderLeftWidth + lElmBorder.borderRightWidth +
-                                            lSearchBoxBorder.borderLeftWidth + lSearchBoxBorder.borderRightWidth;
-
+                
                 $scope.filterPanelContainer[0].style.setProperty('--relative-top', Math.round(lElmRect.top + window.scrollY) + 'px');
                 $scope.filterPanelContainer[0].style.setProperty('--relative-left', Math.round(lElmRect.left + window.scrollX)+ 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-width', Math.floor(lElmRect.width) - lBorderWidthOffset + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-width', Math.floor(lElmRect.width) + 'px');
                 $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
-
-                console.log('updateExpandPanelPosition to',$scope._element, lElmRect,lBorderWidthOffset);
                 
             }
 

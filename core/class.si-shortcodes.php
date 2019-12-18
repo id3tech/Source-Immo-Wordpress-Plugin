@@ -133,8 +133,9 @@ class SiShorcodes{
                 $listConfig->show_list_meta = $show_list_meta=="true";
             }
 
-            
-            $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}",$listConfig->list_layout->scope_class);
+            $scopeClass = $listConfig->list_layout->scope_class;
+
+            $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
             if(in_array($listConfig->list_layout->preset, array('direct'))){
                 

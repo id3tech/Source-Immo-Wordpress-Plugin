@@ -1,7 +1,7 @@
 <div class="si-listing-navigation display-{{display}}" ng-show="list!=null && list.length > 1">
     <h3 class="title">{{panelTitle}}</h3>
 
-    <div class="si-listing-list">
+    <div class="si-listing-list"  si-adaptative-class >
         <div class="item {{$index == 0 ? 'previous' : 'next'}} {{item == null ? 'no-item' : ''}}" ng-repeat="item in list">
             <a href="{{item.permalink}}">
                 <div class="photo">

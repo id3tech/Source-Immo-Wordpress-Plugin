@@ -65,7 +65,7 @@ siApp
   $scope.hasMaxRouteCount = function($list){
     let lResult = true;
     if($list){
-      for (let $key in $scope.lang_codes) {
+      for (let $key in $scope.wp_languages) {
         if($list.map(function(e) {return e.lang}).indexOf($key)<0){
           lResult = false;
         }
@@ -352,6 +352,9 @@ siApp
     en: 'English',
     es: 'Español'
   }
+
+  $scope.wp_languages = null;
+
   $scope.global_list = {
     sources: [],
     list_types: [
@@ -443,9 +446,37 @@ siApp
     password: ''
   }
   $scope.api_keys = null;
-  $scope.default_page = {
-    listing: 'NEW',
-    broker: 'NEW'
+  $scope.page_languages = [];
+  $scope.languages = {
+    fr : 'Français',
+    en : 'English',
+    es : 'Español'
+  }
+
+  $scope.message = null;
+
+  $scope.default_page = 
+    {
+      fr: {
+        listing: 'NEW',
+        listing_details: 'NEW',
+        broker: 'NEW',
+        broker_details: 'NEW',
+        city: 'NONE',
+        city_details: 'NONE',
+        office:'NONE',
+        office_details: 'NONE',
+      },
+      en: {
+        listing: 'NEW',
+        listing_details: 'NEW',
+        broker: 'NEW',
+        broker_details: 'NEW',
+        city: 'NONE',
+        city_details: 'NONE',
+        office:'NONE',
+        office_details: 'NONE',
+      }
   }
   
 
@@ -561,21 +592,42 @@ siApp
     return $scope._status == 'initializing';
   }
 
-  $scope.load_wp_pages = function(){
+  $scope.load_wp_languages = function(){
     return $q(function($resolve, $reject){
-
-      $q.all([
-        $scope.api('page/list',{locale: 'fr', type: ''},{method : 'GET'}),
-        $scope.api('page/list',{locale: 'en', type: ''},{method : 'GET'})
-      ])
-      .then($results => {
-        $scope.wp_pages.fr = $results[0];
-        $scope.wp_pages.en = $results[1];
-
-        $scope.loaded_components.push('file');
-        $resolve($scope.wp_pages);
+      if($scope.wp_languages != null){
+        $resolve($scope.wp_languages);
+        return;
+      }
+      
+      $scope.api('language/list',null,{method : 'GET'})
+      .then($result => {
+        $scope.wp_languages = $result;
+        
+        $resolve($scope.wp_languages);
       })
       .catch($err => {console.error($err)})
+    });
+  }
+
+  $scope.load_wp_pages = function(){
+    return $q(function($resolve, $reject){
+      $scope.load_wp_languages().then($languages => {
+        
+
+      
+        $q.all([
+          $scope.api('page/list',{locale: 'fr', type: ''},{method : 'GET'}),
+          $scope.api('page/list',{locale: 'en', type: ''},{method : 'GET'})
+        ])
+        .then($results => {
+          $scope.wp_pages.fr = $results[0];
+          $scope.wp_pages.en = $results[1];
+
+          $scope.loaded_components.push('file');
+          $resolve($scope.wp_pages);
+        })
+        .catch($err => {console.error($err)})
+      });
     });
   }
 
@@ -628,12 +680,20 @@ siApp
         },
         Promise.resolve()
       ).then($result => {
+        $scope.message = {
+          show_icon: true,
+          title : 'Configuration completed',
+          text: 'Thank you! Please wait while the interface reloads'
+        };
         
         $scope.configs.registered = true;
-        $scope.show_toast('Configuration completed')
         $scope.save_configs().then(_ => {
-          $scope.configuration_step = 0;
-          $scope.api_keys = null;
+          
+          window.setTimeout(_ => {
+            $scope.configuration_step = 0;
+            $scope.api_keys = null;
+            window.location.reload(true);
+          },2000);
         });
       });
     });
@@ -722,32 +782,187 @@ siApp
 
   $scope.setDisplayPages = function(){
     $scope.configuration_step += 1;
+    console.log('setDeisplayPages', $scope.wp_languages);
+    $scope.wp_languages.forEach($l => {
+      $scope.addPageLanguage($l);  
+    })
+
     
+    const lShortcodeMap = {
+      listing : { title: 'Our listings', content: '[si alias="listings"]', list: _ => { $scope.addList('listings', 'listings', 'contract.start_date', true, 30); } },
+      listing_details : { title: 'Listing details', content: '[si_listing]', layout: 'listing_layouts'},
+      broker : { title: 'Our team', content: '[si alias="brokers"]', list: _ => { $scope.addList('brokers', 'brokers', 'last_name'); }},
+      broker_details : { title: 'Broker details', content: '[si_broker]', layout: 'broker_layouts'},
+      office : { title: 'Our offices', content: '[si alias="offices"]', list: _ => { $scope.addList('offices', 'offices', 'name'); }},
+      office_details : { title: 'Office details', content: '[si_office]', layout: 'office_layouts'},
+      city : { title: 'Cities', content: '[si alias="cities"]', list: _ => { $scope.addList('cities', 'cities','name'); }},
+      city_details : { title: 'City details', content: '[si_city]', layout: 'city_layouts'},
+    }
 
 
-
-    return $q(function($resolve, $reject){
+    return $q(function($resolve, $reject){  
       
-      $scope.load_wp_pages().then($pages => {
-        //$timeout(_ => {
-          $pages.fr.forEach($p => {
-            console.log($p.post_title);
-            if('propriétés' == $p.post_title.toLowerCase()) $scope.default_page.listing = $p.ID;
-            if('courtiers' == $p.post_title.toLowerCase()) $scope.default_page.broker = $p.ID;
-          });  
-        //})
-        
+      // will be call upon next step
+      $scope.applyShortCodeHandler = function(){
 
-        $scope.applyShortCodeHandler = function(){
-          $q.all(
-            $scope.applyListingShortCode(),
-            $scope.applyBrokerShortCode()
-          ).then($result => {
+        $scope.configs.lists =[];
+        const lSourcePages = [];
+        const lChildPages = [];
+
+        $scope.wp_languages.forEach( ($l, $li) => {
+          Object.keys($scope.default_page[$l.code]).forEach($pKey => {
+            if($scope.default_page[$l.code][$pKey] == 'NONE') return; 
+
+            const lMap =lShortcodeMap[$pKey];
+
+            
+            if(typeof lMap.list == 'function') {
+              lMap.list();
+            }
+
+            const params = {
+              page_id: $scope.default_page[$l.code][$pKey], 
+              title: lMap.title.translate(undefined, $l.code),
+              content: lMap.content,
+              lang: $l.code
+            };
+
+            const lCall =_ => {
+              const lLayout = (lMap.layout == undefined) ? null : $scope.configs[lMap.layout].find($layout => $layout.lang==$l.code)
+
+              if($li > 0) {
+                if(lMap.pages != undefined && lMap.pages[$scope.wp_languages[0].code] != undefined){
+                  params.original_page_id = lMap.pages[$scope.wp_languages[0].code];
+                }
+              }
+
+              return $scope.api('page',params).then($response => {
+                if($scope.default_page[$l.code][$pKey] == 'NEW' && !isNaN($response+1)){
+                  if(lMap.pages == undefined) lMap.pages = {};
+                  lMap.pages[$l.code] = $response;
+
+                  if(lLayout != null){
+                    lLayout.page = $response;
+                    lLayout.type = "custom";
+                  }
+                }
+              });
+            }
+
+            if($li == 0){
+              lSourcePages.push(lCall);
+            }
+            else{
+              lChildPages.push(lCall);
+            }
+            
+          });
+        })
+
+        $timeout( _ => {
+          $scope.message = {
+            show_icon: false,
+            title : 'Work in progress',
+            text: 'Please wait while we apply your configuration'
+          };
+        })
+        
+        return lSourcePages.reduce((promiseChain, currentTask) => {
+          return promiseChain.then(chainResults =>
+              currentTask().then(currentResult =>
+                  [ ...chainResults, currentResult ]
+              )
+            );
+        }, Promise.resolve([]))
+        .then(arrayOfResults => {
+          console.log('All main page created');
+          
+          return lChildPages.reduce((promiseChain, currentTask) => {
+            return promiseChain.then(chainResults =>
+                currentTask().then(currentResult =>
+                    [ ...chainResults, currentResult ]
+                )
+              );
+          }, Promise.resolve([]))
+          .then(arrayOfResults => {
+            console.log('All child page created');
+
             $resolve();
-          })
-        }
-      });
+          });
+        });
+      }
+    
     });
+  }
+
+  $scope.addList = function($type, $alias, $sort = '', $sortReverse = false, $limit = 0){
+    const lExistingList = $scope.configs.lists.find($l => $l.alias == $alias);
+    const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
+
+
+    lList.sort = $sort;
+    lList.sort_reverse = $sortReverse;
+    lList.limit = $limit;
+    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
+    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    
+    lList.searchable = true;
+    lList.sortable = true;
+    lList.mappable = true;
+
+    lList.source = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
+    lList.search_token = '';
+
+    if(lExistingList == null){
+      $scope.configs.lists.push(lList);
+    }
+    
+  }
+
+  $scope.addPageLanguage = function($lang){
+    const lPageTitleByLangMap = {
+      fr : {
+        'propriétés' : 'listing',
+        'courtiers' : 'broker',
+        'bureaux' : 'office',
+        'villes' : 'city'
+      },
+      en : {
+        'properties' : 'listing',
+        'brokers' : 'broker',
+        'offices' : 'office',
+        'cities' : 'city'
+      }
+    }
+    const lLocaleCode = $lang.code;
+
+    if($scope.default_page[lLocaleCode] == undefined) $scope.default_page[lLocaleCode] = {};
+    
+    $scope.wp_pages[lLocaleCode].forEach($p => {
+      const lMapKey = Object.keys(lPageTitleByLangMap[lLocaleCode]).find($k => $k == $p.post_title.toLowerCase());
+      if(lMapKey != null){
+        $scope.default_page[lLocaleCode][lMapKey] = $p.ID;
+      }
+    });
+
+    $scope.page_languages.push(lLocaleCode);
+    console.log('page_languages', $scope.page_languages);
+  }
+
+  $scope.removePageLanguage = function($lang){
+    $scope.page_languages = $scope.page_languages.filter($l => $l != $lang);
+  }
+
+  $scope.showPage = function($layout){
+    if($layout.page != undefined){
+      $scope.api('page/permalink',{page_id: $layout.page}).then($response => {
+        window.open($response);
+      })
+    }
+  }
+
+  $scope.languageIsAvailable = function($lang){
+    return !$scope.page_languages.includes($lang.code);
   }
 
   $scope.applyListingShortCode = function(){
@@ -872,6 +1087,8 @@ siApp
   
 
   $scope.hasEmptyLayouts = function(){
+    if(!$scope.configs.registered) return false;
+
     const lLayoutMap = {
       listings : 'listing_layouts',
       brokers : 'broker_layouts',

@@ -76,7 +76,7 @@ $desktop : 1440px;
     // listings
     --listing-item-sold-bg-color: #ff8800;
     --listing-item-sold-text-color: #fff;
-    --listing-item-column-width : 420px;
+    --listing-item-column-width : 340px;
     --listing-item-picture-ratio : 0.75;
 
     --thumbnail-picture-size: 100px;
@@ -127,7 +127,7 @@ html{
     
     a{
         color: var(--text-color);
-        text-decoration: none;
+        text-decoration: none !important;
         &:hover{
             color:inherit;
             text-decoration:inherit;
@@ -2505,6 +2505,9 @@ html{
                     "si-summary"
                     "si-details"
                 ;
+                .si-listing-navigation{
+                    grid-column:1;
+                }
             }
             @include media($tablet){
                 grid-template-columns: 1fr;
@@ -2539,16 +2542,22 @@ html{
             &.si-adapt-tablet-size,
             &.si-adapt-phone-size,
             &.si-adapt-small-phone-size{
-                grid-template-columns: 1fr;
-                justify-items:center;
+                place-items:center;
+                text-align:center;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
                 grid-template-areas:
-                    "subcategory"
-                    "city"
-                    "price"
-                    "tools"
-                    "information_request"
+                    "subcategory subcategory"
+                    "city city"
+                    "price price"
+                    "information_request tools"
                 ;
+                .city,.subcategory,.price{
+                    place-self:unset;
+                }
+                .information_request{place-self:center start;}
             }
+            
             
             &.si-adapt-phone-size,
             &.si-adapt-small-phone-size{
@@ -3077,6 +3086,8 @@ html{
                 padding:20px 0 10px 0;margin-bottom:10px;
                 display:grid;
                 grid-template-columns: 1fr 30px;
+                cursor:pointer;
+                
                 .icon{
                     position:relative;
                     width:30px;height:30px;transition:0.5s;
@@ -3299,6 +3310,7 @@ html{
                 grid-column: 1 / span 2;
             }
         }
+
         &.loaded{
             .si-content{
                 display:grid;
@@ -4820,7 +4832,8 @@ body.si-modal-open{
 
 #top .si-calculator,
 .si-calculator{
-    
+    box-sizing: border-box;
+    *{    box-sizing: border-box;}
     display:grid;
         grid-gap:20px;
         grid-template-rows: auto;
@@ -4832,8 +4845,10 @@ body.si-modal-open{
         input{
             padding:10px;outline:none;border: var(--element-border);border-radius: var(--element-border-radius);
             min-width:0px;
+            max-width: 100%;
             transition:0.25s;
             height:auto;
+            
             &:focus{
                 border-color: var(--highlight);
             }
@@ -5006,7 +5021,8 @@ body.si-modal-open{
         .item{
             overflow:hidden;
             border-radius: var(--element-border-radius);
-            width:350px;
+            width:100%;
+            max-width:350px;
             height:250px;
             --text-color: #fff;
             @include media($tablet){
@@ -5512,6 +5528,9 @@ si-checkbox, si-radio{
     }
     #top .si-modal,
     .si-modal{
+        box-sizing: border-box;
+        *{box-sizing: border-box;}
+
         .si-modal-dialog{
             .si-modal-content{
                 background:#fff;

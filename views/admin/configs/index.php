@@ -2,7 +2,7 @@
 <?php SourceImmo::view('admin/configs/registration/index'); ?>
 
 <form autocomplete="off">
-<div ng-cloak ng-show="configs.registered">
+<div ng-cloak ng-show="configs.registered && message == null">
   <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
     <md-tab>
       <md-tab-label><i class="fas fa-sign-in-alt"></i> <?php _e('Welcome',SI)?></md-tab-label>
