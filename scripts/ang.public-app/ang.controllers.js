@@ -469,9 +469,19 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
     $scope.print = function(){
         // reformat permalink to match print
-        let lPrintLink = $scope.model.permalink.split('/');
-        lPrintLink.splice(2,3,'print').join('/');
-        window.open(lPrintLink.join('/'));
+        const lSegmentToKeep = 1 + ( siCtx.use_lang_in_path ? 1 : 0 );
+        const lPermalinkParts =$scope.model.permalink.split('/')
+                                                        .filter(function($p){
+                                                            return $p != '';
+                                                        });
+        const lPrintLink = lPermalinkParts
+            .filter(function($e,$i){
+                return $i<lSegmentToKeep;
+            });
+        
+        lPrintLink.push('print');
+        
+        window.open('/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1]);
     }
 
     $scope.hasDimension = function($dimension){
