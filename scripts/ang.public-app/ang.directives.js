@@ -4,7 +4,7 @@
 -------------------------------- */
 /**
  * lstr
- * 
+ * Use to translate strings
  */
 siApp
 .directive('lstr', ['$parse', function lstr($parse){
@@ -31,6 +31,11 @@ siApp
     }
 }]);
 
+
+/**
+ * siAdaptativeClass
+ * Will set a class to element to match standard viewport (laptop, tablet, mobile), based on the space available 
+ */
 siApp
 .directive('siAdaptativeClass', [
     '$parse','$timeout',
