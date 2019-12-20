@@ -1574,9 +1574,12 @@ siApp
                 if($scope._priceChangeDebounce != null) window.clearTimeout($scope._priceChangeDebounce);
                 const lPriceStep = $siHooks.filter('search-price-step', $scope.PRICE_RANGE_STEP);
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
+
+                const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
                 
-                const lMinPrice = Math.round(( (lPriceMaxBoundary * $scope.priceRange[0])));
-                const lMaxPrice = Math.round(( (lPriceMaxBoundary * $scope.priceRange[1])));
+                const lMinPrice = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[0]);
+                const lMaxPrice = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]);
 
                 const lPriceRangeValues = [lMinPrice, lMaxPrice];
 
@@ -1766,19 +1769,28 @@ siApp
 
             $scope.getMinPriceLabel = function($minLabel){
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
+
+                const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
+                
                 $minLabel = ($minLabel == undefined) ? (0).formatPrice() : $minLabel;
 
                 if($scope.priceRange[0] == 0) return $minLabel;
-                return Math.round(lPriceMaxBoundary * $scope.priceRange[0]).formatPrice();
+            
+                const lResult = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[0]);
+                return lResult.formatPrice();
             }
 
             $scope.getMaxPriceLabel = function($maxLabel){
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
 
+                const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
+                
                 $maxLabel = ($maxLabel == undefined) ? lPriceMaxBoundary.formatPrice() : $maxLabel;
 
                 if($scope.priceRange[1]==1) return $maxLabel;
-                return Math.round(lPriceMaxBoundary * $scope.priceRange[1]).formatPrice();
+                return fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]).formatPrice();
             }
 
             /**
@@ -1914,7 +1926,6 @@ siApp
                     }
                     
                     //console.log('filter data',$filter.data);
-                    const lPriceStep = $siHooks.filter('search-price-step', $scope.PRICE_RANGE_STEP);
                     const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
                     
                     if($filter.data.min_price != null){

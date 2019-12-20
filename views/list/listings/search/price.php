@@ -14,7 +14,7 @@
                     end-label="<?php _e('Unlimited',SI) ?>"></si-price-range-slider>
                 <div class="min">
                     <em><?php _e('Minimal price', SI) ?></em>
-                    <h2 class="price-value">{{getMinPriceLabel()}}</h2>
+                    <h2 class="price-value">{{getMinPriceLabel('<?php _e('Min',SI) ?>')}}</h2>
                 </div>
                 
                 <i class="price-divider fal fa-3x fa-arrows-h"></i>
