@@ -1814,6 +1814,7 @@ function $siFilters($q,$siApi,$siUtils){
         $fm.addFilterGroup = function($fields,$operator,$value, $label){
             let lGroupName = $fields.join('-') + '-' + $operator;
             let parentFilterGroup = $fm.getFieldGroup(lGroupName,$fm.filter_group);
+            
             if(parentFilterGroup==null){
                 parentFilterGroup = {
                     operator: 'or',
@@ -1821,6 +1822,7 @@ function $siFilters($q,$siApi,$siUtils){
                     filters: null,
                     filter_groups: null
                 };
+
                 if($fm.filter_group.filter_groups==null) $fm.filter_group.filter_groups = [];
                 $fm.filter_group.filter_groups.push(parentFilterGroup);
             }
@@ -1838,7 +1840,6 @@ function $siFilters($q,$siApi,$siUtils){
                     }
                     $fm.setFilter($f,$operator,lValue,parentFilterGroup, $label);
                 }
-               
             });
 
             if(parentFilterGroup.filters==null){
@@ -1911,6 +1912,8 @@ function $siFilters($q,$siApi,$siUtils){
             if($group.filters.length == 0){
                 $group.filters=null;
             }
+
+            //$fm.clean();
         }
 
 
@@ -1920,11 +1923,17 @@ function $siFilters($q,$siApi,$siUtils){
             }
             else{
                 if($parent.filter_groups!=null){
-                    let lResult = null;
-                    $parent.filter_groups.every(function($g){
-                        lResult = $fm.getFieldGroup($groupName, $g);
-                        return lResult==null;
+                    let lResult = $parent.filter_groups.find(function($g){
+                        return $g.name == $groupName;
                     });
+
+                    if(lResult == null){
+                        $parent.filter_groups.some(function($g){
+                            lResult = $fm.getFieldGroup($groupName, $g);
+                            return lResult==null;
+                        });
+                    }
+                    
                     return lResult;
                 }
             }
@@ -2025,8 +2034,10 @@ function $siFilters($q,$siApi,$siUtils){
                             max_item_count : $configs.limit
                         }
                     }
-        
+                    
                     if($configs.filter_group != null || $fm.hasFilters()){
+                        $fm.clean();
+
                         if(lResult==null) lResult = {};
                         lResult.filter_group = {filters:[]};
                         if($configs.filter_group != null){
@@ -2034,6 +2045,8 @@ function $siFilters($q,$siApi,$siUtils){
                         }
         
                         if($fm.hasFilters()){
+                            if(lResult.filter_group.filter_groups == undefined) lResult.filter_group.filter_groups = [];
+
                             lResult.filter_group.filter_groups.push($fm.filter_group);
                         }
                         
@@ -2247,6 +2260,34 @@ function $siFilters($q,$siApi,$siUtils){
                     
                 }
                 return lResult;
+            }
+        }
+
+        $fm.clean = function($group){
+            $group = ($group == undefined) ? $fm.filter_group : $group;
+            
+            if($group.filters != null){
+                if($group.filters.length == 0) {
+                    $group.filters = null;
+                }
+            }
+
+            if($group.filter_groups != null){
+                if($group.filter_groups.length > 0){
+                    $group.filter_groups.forEach(function($g){
+                        $fm.clean($g);
+                    });
+
+                    if($group.filter_groups.every(function($g){
+                        return $g.filters == null;
+                    })){
+                        $group.filter_groups = null;
+                    }
+                }
+
+                if($group.filter_groups != null && $group.filter_groups.length == 0) {
+                    $group.filter_groups = null;
+                }
             }
         }
 

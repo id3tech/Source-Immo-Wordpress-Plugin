@@ -900,6 +900,10 @@ siApp
 
             $scope.siDictionary = $siDictionary;
             
+            // const
+            $scope.PRICE_RANGE_MAX  = 1000000;
+            $scope.PRICE_RANGE_STEP = 1000;
+
             // init default values        
             $scope.is_ready = false;    
             $scope.tab_category = 'RESIDENTIAL';
@@ -919,6 +923,10 @@ siApp
             $scope.query_text = null;
             $scope.alphaList = 'abcdefghijklmnopqrstuvwxyz'.split('');
             $scope.officeList = [];
+            $scope.priceBoundaries = {
+                min: 0,
+                max: 1000000
+            }
 
             $scope.filter = null;
 
@@ -1564,18 +1572,19 @@ siApp
             $scope._priceChangeDebounce = null;
             $scope.updatePrice = function(){
                 if($scope._priceChangeDebounce != null) window.clearTimeout($scope._priceChangeDebounce);
-                const lPriceStep = $siHooks.filter('search-price-step', 10000);
-                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
-
-                lMinPrice = Math.round(($scope.priceRange[0] * 100) * lPriceStep);
-                lMaxPrice = Math.round(($scope.priceRange[2] * 100) * lPriceStep);
-                if(lMaxPrice != 0) lMaxPrice = lPriceMaxBoundary - lMaxPrice;
+                const lPriceStep = $siHooks.filter('search-price-step', $scope.PRICE_RANGE_STEP);
+                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
                 
+                const lMinPrice = Math.round(( (lPriceMaxBoundary * $scope.priceRange[0])));
+                const lMaxPrice = Math.round(( (lPriceMaxBoundary * $scope.priceRange[1])));
+
+                const lPriceRangeValues = [lMinPrice, lMaxPrice];
+
                 $scope._priceChangeDebounce = window.setTimeout(function(){
-                    
-                    $scope.setPriceFromRange([lMinPrice, lMaxPrice]);
+                    $scope.setPriceFromRange(lPriceRangeValues);
                 },100);
             }
+
             $scope.resetPriceRange = function(){
                 $scope.priceRange = [0,1,0];
                 $scope.updatePrice();
@@ -1717,22 +1726,20 @@ siApp
                         'less_or_equal_to'
                     ]
 
+                    const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
                     $filter.data.min_price = $values[0];
-                    $filter.data.max_price = $values[1];
-
+                    $filter.data.max_price = $values[1] < lPriceMaxBoundary ? $values[1] : 0;
+                    
                     $values.forEach(function($e,$i){
                         //console.log($e, $filter.hasFilter(['price.sell.amount','price.lease.amount']), $filter);
 
-                        if($e > 0){
+                        if($e > 0 && $e < lPriceMaxBoundary){
                             $filter.addFilter(['price.sell.amount','price.lease.amount'], lOperators[$i], $e);
                         }
                         else if($filter.hasFilter(['price.sell.amount','price.lease.amount'])){
-                            //console.log('Removing price')
                             $filter.addFilter(['price.sell.amount','price.lease.amount'], lOperators[$i], '');
                         }
                     });
-                    //$scope.filter.addFilter(['price.sell.amount','price.lease.amount'], lOperators[lInput], $value);
-                
                 });
             }
             
@@ -1757,6 +1764,22 @@ siApp
                 return Math.round(lResult).formatPrice();
             }
 
+            $scope.getMinPriceLabel = function($minLabel){
+                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                $minLabel = ($minLabel == undefined) ? (0).formatPrice() : $minLabel;
+
+                if($scope.priceRange[0] == 0) return $minLabel;
+                return Math.round(lPriceMaxBoundary * $scope.priceRange[0]).formatPrice();
+            }
+
+            $scope.getMaxPriceLabel = function($maxLabel){
+                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+
+                $maxLabel = ($maxLabel == undefined) ? lPriceMaxBoundary.formatPrice() : $maxLabel;
+
+                if($scope.priceRange[1]==1) return $maxLabel;
+                return Math.round(lPriceMaxBoundary * $scope.priceRange[1]).formatPrice();
+            }
 
             /**
              * Set bedroom count filter from list item and tag it as selected
@@ -1891,22 +1914,19 @@ siApp
                     }
                     
                     //console.log('filter data',$filter.data);
-                    const lPriceStep = $siHooks.filter('search-price-step', 10000);
-                    const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', 1000000);
-
+                    const lPriceStep = $siHooks.filter('search-price-step', $scope.PRICE_RANGE_STEP);
+                    const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                    
                     if($filter.data.min_price != null){
-                        $scope.priceRange[0] = ($filter.data.min_price / lPriceStep) / 100;
+                        const lPriceRangeMin    = $filter.data.min_price / lPriceMaxBoundary;
+                        $scope.priceRange[0] = lPriceRangeMin;
                     }
 
                     if($filter.data.max_price != null){
-                        if($filter.data.max_price == 0){
-                            $scope.priceRange[2] = 0;
-                        }
-                        else{
-                            $scope.priceRange[2] = ( (lPriceMaxBoundary - $filter.data.max_price) / lPriceStep ) / 100;
-                        }
+                        const lPriceRangeMax    = $filter.data.max_price==0 ? 1 : $filter.data.max_price / lPriceMaxBoundary;
+                        $scope.priceRange[1] =  lPriceRangeMax;
                     }
-                    $scope.priceRange[1] = 1 - $scope.priceRange[0] - $scope.priceRange[2];
+
                     $siHooks.do('sync-filters-to-ui', $filter);
                 })
                 
@@ -5158,11 +5178,284 @@ siApp
 }]);
 
 siApp
+.directive("siPriceRangeSlider", ['$document', function siPriceRangeSlider($document) {
+    return {
+        restrict: "E",
+        scope: {
+            model: "=",
+            max: "=siMax",
+            onChange: "&",
+            valueFormat: "&",
+            property: "@",
+            startLabel: "@",
+            endLabel:"@"
+        },
+        replace: true,
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-price-range-slider.html',
+        link: function($scope, $element, attrs) {
+            // It's the inner div we're really working with.
+            const element = $element[0].querySelector('.inner');
+            
+            $scope.init(element);
+
+            return $scope.$watch("model", function(){
+                //$scope.model = $scope.model.slice(0,2);
+                $scope.updatePositions();
+            },true);
+        },
+        controller: function($scope, $timeout){
+            //var getP, handles, rangeHandle, i, j, len, mv, pTotal, ref, setP, step, updatePositions;
+            $scope.handles = [];
+            $scope.rangeHandle = null;
+            $scope.pTotal = 0;
+            $scope.eventMaps = {
+                "mouse" : {
+                    down : 'mousedown',
+                    move : 'mousemove',
+                    up : 'mouseup'
+                },
+                "touch" : {
+                    down : 'touchstart',
+                    move : 'touchmove',
+                    up : 'touchend'
+                }
+            }
+
+            $scope.init = function($element){
+                $scope.element = $element;
+                $scope.rangeHandle = $element.querySelector('.slider-range-handle');
+                $scope.handles.push($element.querySelector('.slider-handle.min'));
+                $scope.handles.push($element.querySelector('.slider-handle.max'));
+
+                $scope.handles.forEach(function($h, $i){
+                    $scope.applyPointerEvent($h, $i, 'mouse');
+                    $scope.applyPointerEvent($h, $i, 'touch');   
+                });
+                $scope.applyRangeHandleEvent('mouse');
+            }
+
+            $scope.boundaryClasses = function(){
+
+            }
+
+            /**
+             * Apply event handling for pointer
+             * @param $elm Angular element upon which ye bind event
+             * @param $type mouse|touch
+             */
+            $scope.applyPointerEvent = function($elm, $elm_index,  $type){
+                angular.element($elm).on($scope.eventMaps[$type].down, function(event) {
+                    lPositionRef = event;
+                    
+                    const lPointerMoveHndl = function(event){
+                        return $scope.$apply(function() {
+                            
+                            let lPositionRef = event;
+                            if($type=='touch'){
+                                lPositionRef = event.originalEvent.touches[0];
+                            }
+                            
+                            const lElmBox = $scope.element.getBoundingClientRect();
+
+                            const lScopedPositionX = lPositionRef.clientX - lElmBox.left;
+                            const lPctPositionX = Math.max(0, Math.min(1, (lScopedPositionX /  lElmBox.width) ));
+                            
+                            $scope.setP($elm_index, lPctPositionX)
+                        });
+                    };
+                    
+                    const lPointerUpHndl = function() {
+                        $document.unbind($scope.eventMaps[$type].move, lPointerMoveHndl);
+                        $document.unbind($scope.eventMaps[$type].up, lPointerUpHndl);
+
+                        if(typeof $scope.onChange == 'function'){
+                            // trigger onChange only when pointer release the handle
+                            $scope.onChange();
+                        }
+                    };
+
+
+                    // Prevent default dragging of selected content
+                    if($type=='touch'){
+                        lPositionRef = event.originalEvent.touches[0];
+                    }
+                    event.preventDefault();
+                    
+                    $document.on($scope.eventMaps[$type].move, lPointerMoveHndl);
+                    return $document.on($scope.eventMaps[$type].up, lPointerUpHndl);
+                });
+            }
+
+            $scope.applyRangeHandleEvent = function($type){
+                angular.element($scope.rangeHandle).on($scope.eventMaps[$type].down, function(event) {
+                    lPositionRef = event;
+                    const lElmBox = $scope.element.getBoundingClientRect();
+
+                    let lScopedPositionStartX = (lPositionRef.clientX - lElmBox.left);
+                    
+                    const lPointerMoveHndl = function(event){
+                        return $scope.$apply(function() {
+                            
+                            let lPositionRef = event;
+                            if($type=='touch'){
+                                lPositionRef = event.originalEvent.touches[0];
+                            }
+                            
+                            const lValues = [
+                                $scope.getP(0) * lElmBox.width,
+                                $scope.getP(1) * lElmBox.width
+                            ];
+
+                            const lRange = (lValues[1] - lValues[0]) / lElmBox.width;
+                            const lScopedPositionX = lPositionRef.clientX - lElmBox.left;
+                            const lScopedDeltaPositionX = lScopedPositionX - lScopedPositionStartX;
+                            
+                            lValues.forEach(function($v,$i,$arr){
+                                const lNewValue = Math.max(0, Math.min(1, ($v + lScopedDeltaPositionX) /  lElmBox.width));
+                                $arr[$i] = lNewValue;
+                            });
+
+                            // make sure the range stay fixed
+                            lValues[0] = Math.max(0, Math.min(lValues[1] - lRange, lValues[0]));
+                            lValues[1] = Math.max(lValues[0] + lRange, Math.min(1, lValues[1]));
+
+                            $scope.setPs(lValues);
+                            
+                            lScopedPositionStartX = (lPositionRef.clientX - lElmBox.left);
+                        });
+                    };
+                    
+                    const lPointerUpHndl = function() {
+                        $document.unbind($scope.eventMaps[$type].move, lPointerMoveHndl);
+                        $document.unbind($scope.eventMaps[$type].up, lPointerUpHndl);
+
+                        if(typeof $scope.onChange == 'function'){
+                            // trigger onChange only when pointer release the handle
+                            $scope.onChange();
+                        }
+                    };
+
+
+                    // Prevent default dragging of selected content
+                    if($type=='touch'){
+                        lPositionRef = event.originalEvent.touches[0];
+                    }
+                    event.preventDefault();
+                    
+                    $document.on($scope.eventMaps[$type].move, lPointerMoveHndl);
+                    return $document.on($scope.eventMaps[$type].up, lPointerUpHndl);
+                });
+            }
+
+
+            $scope.getLowerValue = function(){
+                let lResult = $scope.getP(0);
+                if(typeof $scope.valueFormat == 'function'){
+                    return $scope.valueFormat();
+                }
+                return lResult;
+            }
+
+            $scope.getUpperValue = function(){
+                let lResult = $scope.getP(2);
+                if(typeof $scope.valueFormat == 'function'){
+                    return $scope.valueFormat();
+                }
+                return lResult;
+            }
+
+            $scope.getStep = function() {
+                if (($scope.step != null)) {
+                    return parseFloat($scope.step);
+                } 
+                else {
+                    return 0;
+                }
+            };
+            
+            $scope.getP = function(i) {
+                
+                if ($scope.property != null) {
+                    return $scope.model[i][$scope.property];
+                } else {
+                    return $scope.model[i];
+                }
+            };
+
+            $scope.getValue = function($i){
+                return $scope.property != null ? $scope.model[$i][$scope.property] :  $scope.model[$i];
+            }
+
+            $scope.getValuePercent = function($i){
+                const lValue = $scope.getValue($i);
+                return lValue * 100;
+            }
+            
+            $scope.setP = function(i, p) {
+                const lTolerance = 0.01;
+
+                const lValue = $scope.model.slice(0,2).reduce(function($result,$cur,$index){
+                    if($index < i){
+                        $result = Math.max($cur + lTolerance, $result);
+                    }
+                    else if($index > i){
+                        $result = Math.min($cur - lTolerance, $result);
+                    }
+
+                    return $result;
+                },p);
+
+                console.log('setP', $scope.model, i, p, lValue);
+
+                if ($scope.property != null) {
+                    return $scope.model[i][$scope.property] = lValue;
+                } else {
+                    return $scope.model[i] = lValue;
+                }
+            };
+            $scope.setPs = function($values){
+                console.log('setPs', $values);
+
+                $values.forEach(function($v, $i){
+                    if ($scope.property != null) {
+                        return $scope.model[$i][$scope.property] = $v;
+                    } else {
+                        return $scope.model[$i] = $v;
+                    }
+                });
+            }
+
+            $scope.updatePositions = function() {
+                
+                const lPositions = [];
+                $scope.handles.forEach(function($h, $i){
+                    const lHandleRefValue = $scope.getValuePercent($i);
+                    lPositions.push(lHandleRefValue);
+                    $h.style.left = lHandleRefValue + '%';
+                })
+    
+                // range handle
+                angular.element($scope.rangeHandle).css({
+                    left: lPositions[0] + '%',
+                    width : (lPositions[1] - lPositions[0]) + '%'
+                });
+    
+                //return results;
+            };
+
+        }
+    };
+  }
+]);
+
+
+siApp
 .directive("siSlider", function siSlider($document, $timeout) {
     return {
         restrict: "E",
         scope: {
             model: "=",
+            max: "=siMax",
             onChange: "&",
             valueFormat: "&",
             property: "@",
@@ -5226,7 +5519,7 @@ siApp
             /**
              * Apply event handling for pointer
              * @param $elm Angular element upon which ye bind event
-             * @parem $type mouse|touch
+             * @param $type mouse|touch
              */
             $scope.applyPointerEvent = function($elm, $elm_index,  $type){
                 let lEvents = {
@@ -5326,6 +5619,7 @@ siApp
                     return 0;
                 }
             };
+            
             $scope.getP = function(i) {
                 if ($scope.property != null) {
                     return $scope.model[i][$scope.property];

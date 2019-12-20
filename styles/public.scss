@@ -1898,7 +1898,7 @@ html{
                 "price-inputs"
                 "price-suggestions"
                 ;
-            
+            .si-price-range-slider,
             .si-slider{
                 place-self:stretch;
                 grid-row:1;
@@ -5250,6 +5250,99 @@ si-checkbox, si-radio{
     }
 }
 
+
+#top .si-price-range-slider,
+.si-price-range-slider{
+    height: 50px;
+    border-radius: var(--element-border-radius);
+    position:relative;
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    grid-gap: 10px;
+    .label{
+        place-self:center;
+        padding:10px;
+    }
+    .inner{
+        position:relative;
+    }
+      .slider {
+          
+        height: 4px;
+        background: var(--element-border-color);
+        border-radius: var(--element-border-radius);
+        opacity:0.25;
+        transform: translateY(-50%);
+        position: absolute;
+        top:50%;
+        width:calc(100% - 50px);
+        left:25px;right:25px;
+      }
+      .slider-range-handle{
+        position: absolute;
+        height: 4px;
+        top:50%;transform:translateY(-50%);
+        z-index:2;
+        transition: height 0.25s; 
+        padding:0 10px;
+        cursor: pointer;
+        &::before,
+        &::after{
+            content:"";
+            position: absolute;
+            top:50%;
+            left:0px;
+            display:block;
+            background: var(--highlight);
+            border-radius:15px;
+            width:100%;
+            height:100%;
+            transform:translateY(-50%);
+        }
+        &::after{
+            transition:0.25;
+            height:0;
+            opacity: 0;
+        }
+        &:hover{
+            height: 6px;
+            &::after{
+                opacity: 0.5;
+                height:calc(100% + 5px);
+            } 
+        }
+      }
+      .slider-handle {
+        height: 26px;
+        width: 26px;
+        border-radius: 50%;
+        position: absolute;
+        background: var(--highlight);
+        top:50%;
+        transform: translate(-50%,-50%);
+        cursor: pointer; 
+        overflow:visible; 
+        //transition:0.25s; 
+        z-index: 3;
+        &::before{
+            content:"";
+            height: 32px;
+            width: 32px;border-radius:50%;
+            position:absolute;left:50%;top:50%;
+            transform:translate(-50%,-50%);
+            opacity:0;
+            background: var(--highlight); 
+            transition:0.25s;           
+        }
+        &:hover {
+            &::before{
+                
+                opacity:0.5;
+            }
+          }
+      }
+      
+}
 
 #top .si-slider,
 .si-slider{

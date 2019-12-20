@@ -469,8 +469,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
     $scope.print = function(){
         // reformat permalink to match print
-        const lSegmentToKeep = 1 + ( siCtx.use_lang_in_path ? 1 : 0 );
-        const lPermalinkParts =$scope.model.permalink.split('/')
+        const lSegmentToKeep    = 1 + ( siCtx.use_lang_in_path ? 1 : 0 );
+        const lPermalinkParts   = $scope.model.permalink.split('/')
                                                         .filter(function($p){
                                                             return $p != '';
                                                         });
