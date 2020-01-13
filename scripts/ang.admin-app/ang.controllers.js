@@ -231,14 +231,27 @@ siApp
 
   $scope.saveOrClose = function(){
     if($scope.hasChanged()){
-      delete $scope.model.$$source_id;
-
+      
+      
       $scope.renewSearchToken().then(function($searchToken){
         $scope.model.search_token = $searchToken;
-        $scope.return($scope.model);
+
+        const lResult = angular.copy($scope.model);
+
+        lResult.show_list_meta = (lResult.show_list_meta == undefined) ? false : lResult.show_list_meta;
+        
+        // Make sure the source is configured
+        if(lResult.source == undefined){
+          lResult.source = $scope.data_views.find(function($e){ return($e.id == lResult.$$source_id);});
+        }
+        delete lResult.$$source_id;
+
+        console.log('SaveOrClose', lResult, $scope.model);
+        $scope.return(lResult);
       });
     }
     else{
+      console.log('SaveOrClose', $scope.model);
       $scope.cancel();
     }
   }

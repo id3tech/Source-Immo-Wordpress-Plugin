@@ -3766,8 +3766,16 @@ siApp
                     console.log('container-resize');
                     $scope.detectBoxSize();
                 })
+                let lWindowResizeDebounce = null;
                 window.addEventListener('resize', function(){
-                    $scope.detectBoxSize();
+                    if(lWindowResizeDebounce!=null){
+                        window.clearTimeout(lWindowResizeDebounce);
+                    }
+                    lWindowResizeDebounce = window.setTimeout(function(){
+                        $scope.detectBoxSize();
+                        lWindowResizeDebounce=null;
+                    }, 500);
+                    
                 });
                 document.addEventListener('fullscreenchange', function(){
                     //console.log('fullscreen change', document.fullscreenElement)
@@ -3867,6 +3875,7 @@ siApp
                     }
     
                     $scope.expand_mode = false;
+                    console.log('exit fullscreen');
                   } 
                   else {
                     if ($scope.$element.requestFullscreen) {
@@ -3881,7 +3890,7 @@ siApp
                     else if ($scope.$element.msRequestFullscreen) {
                       $scope.$element.msRequestFullscreen();
                     }
-    
+                    console.log('enter fullscreen');
                     $scope.expand_mode = true;
                   }
     
@@ -3939,7 +3948,7 @@ siApp
                 
                 lElm.style.setProperty('--viewport-width', lElmRect.width + 'px');
                 lElm.style.setProperty('--viewport-height', lElmRect.height + 'px');
-
+                
                 if($siUtils.isLegacyBrowser()){
                     const lPictures = Array.from(lElm.querySelectorAll('.viewport .trolley .item'));
                     lPictures.forEach(function($p){
