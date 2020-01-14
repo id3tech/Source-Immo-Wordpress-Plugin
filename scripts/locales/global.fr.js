@@ -424,6 +424,8 @@ $locales.fr = {};$locales.fr.global =
     , "starting at" : "débutant"
     , "ending at" : "terminant"
     , "Virtual tour" : "Visite virtuelle"
+    , "Units" : "Unités"
+    , "Unit" : "Unité"
     , "{0} unit" : "Unité {0}"
     , "{0} unit (continue)" : "Unité {0} (suite)"
     , "apt. {0}" : "app. {0}"

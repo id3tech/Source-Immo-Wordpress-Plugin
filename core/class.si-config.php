@@ -238,7 +238,9 @@ class SourceImmoConfig {
     $this->normalizeRoutes();
 
     update_option('SourceImmoConfig', json_encode($this));
+    SourceImmo::current()->apply_routes();
     $this->saveConfigFile();
+
   }
 
   public function saveConfigFile(){

@@ -37,7 +37,8 @@ class SourceImmo {
       //'init' => 'apply_routes',
       'query_vars' => 'update_routes_query_var',
       'rewrite_rules_array' => 'update_routes',
-      'locale' => 'detect_locale'
+      'locale' => 'detect_locale',
+      'wp_get_nav_menu_items' => 'exclude_menu_pages'
     ));
     $this->register_actions(array(
       'template_redirect',
@@ -92,6 +93,26 @@ class SourceImmo {
 
     return null;
   }
+
+  public function exclude_menu_pages( $items) {
+    // Iterate over the items to search and destroy
+    $layouts = ['listing','city','office','broker'];
+    $layoutPages = array();
+    foreach ($layouts as $layout) {
+      $layoutInfos = $this->configs->{$layout . '_layouts'};
+      foreach($layoutInfos as $infos){
+        if( isset($infos->page) && ($infos->page != null) ){
+          $layoutPages[] = $infos->page;
+        }
+      }
+    }
+
+    foreach ( $items as $key => $item ) {
+        if ( in_array($item->object_id, $layoutPages) ) unset( $items[$key] );
+    }
+
+    return $items;
+}
 
   public function get_permalink($type){
     $lTypeConvertion = array(
@@ -211,6 +232,8 @@ class SourceImmo {
   }
 
   public function apply_routes(){
+    flush_rewrite_rules();
+
     $routes = $this->update_routes(array());
     
     foreach ($routes as $key => $value) {

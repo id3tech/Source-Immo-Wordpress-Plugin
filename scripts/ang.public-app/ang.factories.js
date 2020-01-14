@@ -647,11 +647,13 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         $arrayOffset = ($arrayOffset == undefined) ? 0 : $arrayOffset;
 
         const lValuesToCheck = (Array.isArray($values)) ? $values : [$values];
-        if($values.length == 0) return false;
+        if(lValuesToCheck.length == 0) return false;
         
         return lValuesToCheck.some(function($value){
-            
+            if($value == null) return false;
+
             if(Array.isArray($value)) return $value.length > $arrayOffset;
+            if(typeof $value === "object") return Object.keys($value).length > 0;
             if(typeof $value == 'string') return $value != '';
             if($value!=undefined)return true;
             

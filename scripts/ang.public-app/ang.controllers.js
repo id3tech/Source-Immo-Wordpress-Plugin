@@ -498,6 +498,15 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             return $l.type == $type;
         })
     }
+
+    $scope.allowCalculator = function(){
+        if($scope.model == null) return false;
+        if($scope.model.status_code=='SOLD') return false;
+        if($scope.model.price.sell==undefined) return false;
+        if($scope.model.price.sell.unit_code == 'SF') return false;
+
+        return true;
+    }
 });
 
 

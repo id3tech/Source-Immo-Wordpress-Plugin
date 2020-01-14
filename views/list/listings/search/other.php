@@ -6,7 +6,7 @@
         
         <div class="filter-panel-content">
             
-            <div class="age">
+            <div class="age filter-row">
                 <h4><?php _e('Online since',SI) ?></h4>
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('contract.start_date')}}">
                     <div class="dropdown-button">{{filter.getFilterCaptionFromList('contract.start_date',listing_ages,listing_ages[0].caption)}}</div>
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <div class="parkings">
+            <div class="parkings filter-row">
                 <h4><?php _e('Parkings',SI) ?></h4>
                 <div class="si-dropdown" data-has-value="{{filter.getFilterValue('attributes.PARKING')}}">
                     <div class="dropdown-button" >{{filter.getFilterCaptionFromList('attributes.PARKING',parkingSuggestions, '<?php _e('Any',SI) ?>')}}</div>
@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="lang-area">
+            <div class="lang-area filter-row">
                 <h4><?php _e('Land area',SI) ?></h4>
                 <div class="si-min-max-input-container">
                     <span><?php _e('Between',SI) ?></span>
@@ -82,7 +82,7 @@
                 </div>
             </div>
 
-            <div class="building-area">
+            <div class="building-area filter-row">
                 <h4><?php _e('Available area',SI) ?></h4>
                 <div class="si-min-max-input-container">
                     <span><?php _e('Between',SI) ?></span>
@@ -124,7 +124,7 @@
             </div>
             
 
-            <div class="building-category">
+            <div class="building-category filter-row">
                 <h4><?php _e('Building types',SI) ?></h4>
                 
                 <div class="grid-layout-column">
@@ -138,7 +138,7 @@
             </div>
 
 
-            <div class="attribute">
+            <div class="attribute filter-row">
                 <h4><?php _e('Caracteristics',SI) ?></h4>
                 <div class="grid-layout-column">
                     <si-checkbox
@@ -150,7 +150,7 @@
                 </div>
             </div>
 
-            <div class="transaction">
+            <div class="transaction filter-row">
                 <h4><?php _e('Filters',SI) ?></h4>
                 <div class="grid-layout-column">
                     <si-checkbox

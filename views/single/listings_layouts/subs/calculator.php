@@ -1,4 +1,4 @@
-<div id="calculator" class="mortgage-calculator" data-ng-show="model.status_code!='SOLD' && model.price.sell!=undefined">
+<div id="calculator" class="mortgage-calculator" data-ng-show="allowCalculator()">
     <div class="title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',SI) ?></div>
     <si-calculator 
         data-si-amount="model.price.sell.amount" 
