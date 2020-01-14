@@ -1767,6 +1767,12 @@ html{
                     gap:20px;
                     
                 }
+                .filter-row{
+                    min-height: 46px;
+                    .grid-layout-column{
+                        padding-top: 5px;
+                    }
+                }
                 h4{
                     text-align:right;
                 }
@@ -2555,6 +2561,9 @@ html{
                 .city,.subcategory,.price{
                     place-self:unset;
                 }
+                .price{
+                    text-align:center;
+                }
                 .information_request{place-self:center start;}
             }
             
@@ -3183,6 +3192,10 @@ html{
         }
         .rooms{
             .unit-list{
+                .title{
+                    display:grid;
+                    grid-template-columns: 1fr auto;
+                }
                 .flags{
                     display:grid;
                     grid-template-columns: 1fr repeat(var(--unit-flag-count), auto);
