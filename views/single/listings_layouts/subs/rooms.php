@@ -13,7 +13,7 @@
     </div>
     <div class="detail-section-content">
         <div class="unit-list" data-ng-repeat="unit in model.units">
-            <h4 class="title" data-ng-show="['OFFICE','INDUSTRY'].includes(unit.category_code) || model.units.length>1">
+            <h4 class="title" data-ng-show="['OFFICE','INDUSTRY','COMMERCIAL'].includes(unit.category_code) || model.units.length>1">
                 <span>{{'{0} unit'.translate().format(unit.category)}}</span>
                 <span class="area" data-ng-show="unit.dimension | siHasValue">{{unit.dimension | formatDimension}}</span>
             </h4>

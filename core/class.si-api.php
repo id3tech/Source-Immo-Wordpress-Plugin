@@ -40,7 +40,7 @@ class SourceImmoApi {
      
       return $post_id;
     }
-    else{
+    else if($page_id != 'NONE'){
       wp_update_post(array(
         'ID'            => $page_id,
         'post_content'  => $content
