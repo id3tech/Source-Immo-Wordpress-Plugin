@@ -94,7 +94,9 @@ class SourceImmoPageBuilder{
             return $classes; 
         });
 
-        include $pageTemplate;
+        if($pageTemplate != null){
+            include get_template_directory() . '/' . $pageTemplate;
+        }
         
         if($pageTemplate == null){
             wp_footer();

@@ -476,7 +476,7 @@ siApp
         broker: 'NEW',
         broker_details: 'NEW',
         city: 'NONE',
-        city_details: 'NEW',
+        city_details: 'NONE',
         office:'NONE',
         office_details: 'NONE',
       },
