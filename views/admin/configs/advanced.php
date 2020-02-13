@@ -21,7 +21,8 @@
             </md-input-container>
         </div>
     </div>
-    
+
+
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Communication',SI)?></h2>
         <div class="block-content" layout="column" layout-align="start stretch">
@@ -95,6 +96,7 @@
             </div>
         </div>
     </div>
+
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Reset',SI)?></h2>
         <div class="block-content">

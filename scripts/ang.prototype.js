@@ -19,6 +19,13 @@ if(typeof String.format === 'undefined'){
     }
 }
 
+if(typeof [].last === 'undefined' ){
+    Array.prototype.last = function(){
+        if(this.length == 0) return null;
+        return this[this.length - 1];
+    }
+}
+
 if(typeof Number.formatPrice === 'undefined' ){
 
     Number.prototype.formatPrice = function($currency){

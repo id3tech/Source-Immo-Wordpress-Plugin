@@ -10,7 +10,7 @@
        
         
         <md-input-container >
-            <label><?php _e('Element class',SI) ?></label>
+            <label><?php _e('List class',SI) ?></label>
             <input ng-model="model.list_layout.scope_class" />
         </md-input-container>
 
@@ -20,7 +20,13 @@
             <md-checkbox ng-model="model.searchable"></md-checkbox>
         </div>
 
-        <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
+        <div class="input-container" ng-show="(model.list_layout.preset | isIn : ['standard','map']) && model.searchable"  layout="row" layout-align="space-between center">
+            <label><?php _e('Edit search engine',SI) ?></label>
+            
+            <md-button ng-click="editSearchEngine(model.type)"><i class="fal fa-pen"></i> <?php _e('Edit') ?></md-button>
+        </div>
+
+        <div  ng-show="(model.list_layout.preset | isIn : ['standard','map']) && model.searchable" 
             class="input-container" layout="row" layout-align="space-between center">
             <label><?php _e('Result page',SI) ?></label>
             <md-select ng-model="model.result_page">
@@ -57,7 +63,7 @@
             class="input-container" layout="row" layout-align="space-between center">
             <label>
                 <?php _e('Smart focus tolerance',SI) ?>
-                <div class="hint"><?php _e("Focus the map where the listings are located using a median location and average distances algorithm.",SI) ?></div>
+                <div class="hint"><?php _e("Use a median location and average distances algorithm to center the map.",SI) ?></div>
             </label>
 
             <md-select ng-model="model.smart_focus_tolerance">

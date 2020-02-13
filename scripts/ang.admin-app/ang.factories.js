@@ -369,20 +369,49 @@ siApp
 
   /**
    * Call a dialog to open
-   * @param {string} $dialog_id 
-   * @param {*} $params 
+   * @param {string} $template Url or String containing the template 
+   * @param {*} $params parameters to pass to the dialog
+   * @param {*} $options options for the dialog
    */
-  $scope.dialog = function($dialog_id, $params){
-    let lPromise = $q(function($resolve, $reject){
-      $rootScope.$broadcast(
-          'on-' + $dialog_id,     // broadcast event
-          $params,                 // dialog parameters
-          function($result){      // callback handler
-            $resolve($result);
-          });
-    });
+  $scope.dialog = function($template, $params=null, $options=null){
+    const lOptions = Object.assign({
+        parent: angular.element(document.body),
+        targetEvent: null,
+        clickOutsideToClose:true,
+        fullscreen: true,
+        preserveScope: false,
+        locals : {
+          $params: $params
+        }
+      },$options
+    );
 
-    return lPromise;
+    if($template.match(/^~.+\.(html|php|vbhtml|cshtml)/).length > 0){
+      lOptions.templateUrl = $template.replace('~', wpSiApiSettings.base_path) + '?t=' + (new Date()).getTime();
+      // detect controller from filename
+      if(lOptions.controller == undefined){
+        const lPageName = $template.split("/").last().match(/(.+)\./)[1];
+        const lCtrlName = lPageName.replace(/-|\./g,'_') + 'Ctrl';
+        console.log('search for controller', lCtrlName, typeof window[lCtrlName]);
+        if(typeof window[lCtrlName] == 'function'){
+          console.log('assign root base function as dialog controller');
+          lOptions.controller = window[lCtrlName];
+        }
+        else{
+          const lCtrlProvider = siApp._invokeQueue
+                                  .filter($p => $p[0] == "$controllerProvider")
+                                  .find($p => $p[2][0] == lCtrlName);
+          if(lCtrlProvider != null) lOptions.controller = lCtrlProvider[2][1];
+        }
+        
+      }
+    }
+    else{
+      lOptions.template = $template.replace(/~/g, wpSiApiSettings.base_path);
+    }
+    
+    
+    return $mdDialog.show(lOptions);
   }
 
   $scope.getPortalCredentials = function(){
@@ -401,62 +430,6 @@ siApp
 
   return $scope;
 }]);
-
-
-/**
- * Sets basic dialog handler interface function
- */
-function BaseDialogController($dialogId, $scope, $rootScope, $mdDialog){
-  $scope.dialogId = $dialogId;
-  $scope.callback = null;
-  $scope.title = $dialogId.replace('-',' ');
-  $scope.actions = [
-      { label: 'OK', action: function () { $scope.cancel() } }
-  ];
-  
-  /**
-   * Initialize dialog
-   * 
-   * Add a listener for broadcast event
-   */
-  $scope._dialogInit_ = function () {
-      
-      $scope.$on('on-' + $scope.dialogId, function ($event, $params, $callback) {
-        console.log('instance of dialog', $scope.dialogId, 'called with', $params);
-          if (typeof ($scope.init) == 'function') {
-              $scope.init($params);
-          }
-
-          $scope.open($scope.dialogId);
-          $scope.callback = $callback;
-      });
-  }
-
-  $scope.setTitle = function($new_title){
-    $scope.title = $new_title;
-  }
-
-  $scope.open = function($dialogId){
-    return $mdDialog.show({
-        contentElement: '#' + $dialogId,
-        parent: angular.element(document.body),
-        targetEvent: null,
-        clickOutsideToClose: true,
-        fullscreen: true // Only for -xs, -sm breakpoints.
-    });
-  }
-
-  $scope.cancel = function () {
-      $mdDialog.cancel();
-  }
-
-  $scope.return = function($result){
-    $scope.callback($result);
-    $mdDialog.cancel();
-  }
-
-  return $scope;
-}
 
 /**
  * Sets basic page handler interface function

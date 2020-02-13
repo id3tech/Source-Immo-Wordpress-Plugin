@@ -95,7 +95,10 @@ class SourceImmoPageBuilder{
         });
 
         if($pageTemplate != null){
-            include get_template_directory() . '/' . $pageTemplate;
+            $templateDir = get_template_directory();
+            if(strpos($pageTemplate, $templateDir ) !== false) $pageTemplate = str_replace($templateDir,'',$pageTemplate);
+            
+            include  $templateDir . '/' . $pageTemplate;
         }
         
         if($pageTemplate == null){

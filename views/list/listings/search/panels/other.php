@@ -123,21 +123,6 @@
                 </div>
             </div>
             
-
-            <div class="building-category filter-row">
-                <h4><?php _e('Building types',SI) ?></h4>
-                
-                <div class="grid-layout-column">
-                    <si-checkbox
-                        data-ng-repeat="(key,item) in dictionary.building_category"
-                        data-ng-click="filter.addFilter('building.category_code','in',filter.getSelection(dictionary.building_category))"
-                        data-ng-model="item.selected"
-                        data-label="{{item.caption.translate()}}"
-                        ></si-checkbox>
-                </div>
-            </div>
-
-
             <div class="attribute filter-row">
                 <h4><?php _e('Caracteristics',SI) ?></h4>
                 <div class="grid-layout-column">

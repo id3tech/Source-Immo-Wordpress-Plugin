@@ -145,7 +145,8 @@ class SourceImmoConfig {
 
     $this->form_from_name = __('Your website',SI);
     $this->form_from_address = 'no-reply@' . $_SERVER['HTTP_HOST'];
-  
+    $this->styles = '';
+
 
     // init routes
     $this->listing_routes  = array(
@@ -219,6 +220,7 @@ class SourceImmoConfig {
 
   public function loadSavedConfigs(){
     $lResult = get_option('SourceImmoConfig');
+    
     if($lResult === false){
       // Try loading previous version
       $lResult = get_option('ImmoDBConfig');
@@ -349,6 +351,7 @@ class SourceImmoList {
   public $shuffle = false;  
   public $default_zoom_level = "auto";
   public $smart_focus_tolerance = 5;
+  public $search_engine_options = null;
 
   public function __construct($source='',$alias='listings',$type='listings',$sort=''){
     $this->source = $source;
@@ -361,6 +364,8 @@ class SourceImmoList {
     $this->list_item_layout = new SourceImmoLayout();
 
     $this->filter_group = new SourceImmoFilterGroup();
+
+    $this->search_engine_options = new SourceImmoSearchEngineOptions();
   }
 
   static function parse($source){
@@ -381,6 +386,17 @@ class SourceImmoList {
       'offices' => 'office'
     );
     return "{$lTypedPaths[$this->type]}/view";
+  }
+}
+
+class SourceImmoSearchEngineOptions {
+  public $type = 'full';
+  public $orientation = 'h';
+  public $focus_category = null;
+  public $sticky = false;
+  
+  public function __construct(){
+    $this->focus_category = array();
   }
 }
 

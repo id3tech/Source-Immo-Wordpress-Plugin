@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="links group-section" style="--item-color:#68217A" id="links">
+        <div class="links group-section"  ng-show="(configs.lists | filter : {'type' : groupType}).length > 0" style="--item-color:#68217A" id="links">
             <div class="list route-list">
                 <div class="route-item list-item-header">
                     <h3><i class="far fa-link"></i> <lstr>Permalinks</lstr></h3>
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="details group-section" id="details"  style="--item-color:#17A05D">
+        <div class="details group-section" id="details" ng-show="(configs.lists | filter : {'type' : groupType}).length > 0"  style="--item-color:#17A05D">
             <div class="list layout-list">
                 <div class="layout-item list-item-header">
                     <h3><i class="far fa-pencil-ruler"></i> <lstr>Details</lstr></h3>

@@ -572,7 +572,7 @@ class SourceImmo {
   }
 
   public function set_html_attributes($attr){
-    return "{$attr} data-ng-app=\"siApplication\" data-ng-controller=\"publicCtrl\"";
+    return "{$attr} data-ng-app=\"siApplication\" data-ng-controller=\"publicCtrl\" data-ng-init=\"init()\"";
   }
 
   // ----------------------

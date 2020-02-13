@@ -1090,6 +1090,36 @@ siApp
                 // Wait for late initialization
                 // ie: Dictionnay, configs, etc are all loaded
                 $scope.isReady().then(function(){
+                    const lSearchEngineOptions = Object.assign({type: 'full', orientation: 'h', focus_category: null},$scope.configs.search_engine_options);
+
+                    $scope._element.classList.add('layout-' + lSearchEngineOptions.type);
+                    $scope._element.classList.add('orientation-' + lSearchEngineOptions.orientation);
+                    $scope._element.closest('si-list').classList.add('search-orientation-' + lSearchEngineOptions.orientation)
+                    if(lSearchEngineOptions.sticky === true){
+                        const lAnchorElement = document.createElement('DIV');
+                        lAnchorElement.classList.add('sticky-anchor');
+                        $scope._element.parentNode.prepend(lAnchorElement)
+                        var options = {
+                            //root: document.querySelector('#scrollArea'),
+                            rootMargin: '0px',
+                            threshold: 1.0
+                          }
+                          
+                          const observer = new IntersectionObserver(function(entries, observer){
+                            entries.forEach(entry => {
+                                console.log(entry.isIntersecting);
+                                if(entry.isIntersecting){
+                                    $scope._element.classList.remove('stick');
+                                }
+                                else{
+                                    $scope._element.classList.add('stick');
+                                }
+                            });
+                          }, options);
+                          observer.observe(lAnchorElement);
+                    }
+
+                    
                     let lfSyncFilter = function($filter){
                         //console.log('Filter to UI sync');
     
@@ -1267,11 +1297,14 @@ siApp
                 const lSearchBoxElm = $scope._element.querySelector('.search-box');
                 if(lSearchBoxElm == null) return;
                 
-                $scope.filterPanelContainer[0].style.setProperty('--relative-top', Math.round(lElmRect.top + window.scrollY) + 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-left', Math.round(lElmRect.left + window.scrollX)+ 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-width', Math.floor(lElmRect.width) + 'px');
-                $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
+                const lCompStyle = window.getComputedStyle($scope._element);
+                const lBorderWidth = lCompStyle.borderWidth;
                 
+                $scope.filterPanelContainer[0].style.setProperty('--relative-top', Math.round(lElmRect.top + window.scrollY) + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-left', (lElmRect.left + window.scrollX) + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-width', lElmRect.width + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-height', lElmRect.height + 'px');
+                $scope.filterPanelContainer[0].style.setProperty('--relative-border-size', lBorderWidth);
             }
 
             $scope.isExpanded = function($key){
@@ -3917,28 +3950,12 @@ siApp
     
             $scope.updateTrolley = function(){
                 return;
-                const jqElm = jQuery($scope.$element);
-                jqElm.find('.trolley').css('transform', 'translateX(-' + ($scope.index * jqElm.width()) + 'px)');
             }
     
             $scope.getTrolleyStyle = function(){
                 if($scope.pictures == null) return {};
     
                 return '--item-count:' + $scope.pictures.length + ';--item-index:' + $scope.index;
-    
-                if(!$siUtils.isLegacyBrowser()){
-                    return {
-                        'transform' :'translateX(-' + (100 * $scope.index) + '%)',
-                        'grid-gap': $scope.gap + 'px',
-                        'grid-template-columns': 'repeat(' + $scope.pictures.length + ',100%)'
-                    }
-                }
-                else{
-                    const jqElm = jQuery($scope.$element);
-                    return {
-                        'transform' :'translateX(-' + ($scope.index * jqElm.width()) + 'px)',
-                    }
-                }
             }
 
             $scope.detectBoxSize = function(){

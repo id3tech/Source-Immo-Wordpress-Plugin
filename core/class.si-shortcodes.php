@@ -95,10 +95,12 @@ class SiShorcodes{
                 'standalone' => false,
             ), $atts )
         );
-
+        $listConfig     = SourceImmo::current()->get_list_configs($alias);
+        $resultUrl      = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
+        $search_layout  = isset($listConfig->search_engine_options->type) ? $listConfig->search_engine_options->type : 'full';
+        
         ob_start();
-        $listConfig = SourceImmo::current()->get_list_configs($alias);
-        $resultUrl = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
+        
         echo('<div class="si standard-layout">');
         echo('<si-search si-alias="'. $alias . '" class="search-container" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
 

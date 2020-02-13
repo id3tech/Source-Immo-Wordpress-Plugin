@@ -1,0 +1,58 @@
+<md-dialog aria-label="" ng-init="init()">
+    <form ng-cloak>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2 lstr>Listing search engine</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="cancel()">
+            <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+  
+      <md-dialog-content>
+        <div class="md-dialog-content" layout="column">
+          
+          <md-input-container>
+            <label lstr>Display</label>
+            <md-select ng-model="model.type">
+                <md-option value="full"><lstr>Show tabs with respective options</lstr></md-option>
+                <md-option value="focused"><lstr>Focus search for handpicked fields</lstr></md-option>
+            </md-select>
+          </md-input-container>
+
+          <md-input-container ng-show="model.type=='full'">
+            <label lstr>Focus tabs on</label>
+            <md-select ng-model="model.tab_types" multiple>
+                <md-option value="categories"><lstr>Categories (Residential, Commercial, Others)</lstr></md-option>
+                <md-option value="transaction"><lstr>For sale / For rent</lstr></md-option>
+            </md-select>
+          </md-input-container>
+
+          <div class="input-container" ng-show="model.type=='focused'">
+            <label lstr>Focus tabs on</label>
+            <div class="input">
+              <md-checkbox ng-repeat="field in fieldList track by $index" ng-model="field.selected">{{field.caption}}</md-checkbox>
+            </div>
+          </div>
+
+          <md-input-container>
+            <label lstr>Orientation</label>
+            <md-select ng-model="model.orientation">
+                <md-option value="h"><lstr>Horizontal</lstr></md-option>
+                <md-option value="v"><lstr>Vertical</lstr></md-option>
+            </md-select>
+          </md-input-container>
+
+          <md-input-container>
+            <md-checkbox ng-model="model.sticky"><lstr>Keep the search engine on screen when scrolling</lstr></md-checkbox>
+          </md-input-container>
+        </div>
+      </md-dialog-content>
+  
+      <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+      </md-dialog-actions>
+    </form>
+  </md-dialog>

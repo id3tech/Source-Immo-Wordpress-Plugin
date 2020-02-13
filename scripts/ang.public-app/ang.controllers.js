@@ -4,7 +4,7 @@
 
 siApp
 .controller('publicCtrl', 
-function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
+function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig){
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
@@ -13,6 +13,17 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
     };
 
     $scope.init = function(){
+        $siConfig.get().then(function($configs){
+            if($configs.styles != undefined){
+                if(!isNullOrEmpty($configs.styles)){
+                    const lStyles = JSON.parse($configs.styles);
+                    Object.keys(lStyles).forEach(function($key){
+                        console.log('style', $key, lStyles[$key]);
+                        document.body.style.setProperty($key, lStyles[$key]);
+                    });
+                }
+            }
+        });
     }
 
     // listingsUpdate

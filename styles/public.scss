@@ -46,15 +46,22 @@ $desktop : 1440px;
 
 :root{
     --container-width: 1170px;
-    //--font: 'Arial';
+    --font-name: inherit;
     --uls-label: "ULS: ";
     --text-color: #333;
     --background-color: #fff;
-    //--input-font: var(--font);
+    --layout-gutter: 20px;
+
     --input-placeholder-color: rgba(#333,0.5);
     --element-border-color: #aaa;
     --element-border: solid 1px var(--element-border-color);
     --element-border-radius: 5px;
+    
+    --container-border-color: var(--element-border-color);
+    --container-border: solid 1px var(--container-border-color);
+    --container-border-radius: var(--element-border-radius);
+    --container-padding: var(--layout-gutter);
+
     --high-contrast-color:#333;
     --high-contrast-text-color: #fff;
     --medium-contrast-color:#b9b9b9;
@@ -66,6 +73,7 @@ $desktop : 1440px;
     --error-color: #850000;
     --button-bg-color: #333;
     --button-text-color: #fff;
+    --button-font-name: var(--font-name);
     --button-hover-bg-color: #ff9900;
     --button-hover-text-color: #333;
     --button-alt-bg-color: #777;
@@ -119,9 +127,8 @@ html{
 #top .si-modal,
 .si-modal,
 .si{
-
+    font-family: var(--font-name);
     
-
     display:grid;
     font-size: 16px;
     
@@ -135,11 +142,12 @@ html{
     }
     .fal,.far,.fas{
         font-family: "Font Awesome 5 Pro"!important;
-        color:var(--text-color);
+        color:inherit;
     }
     //div{color:var(--text-color);}
     label{font-weight: 400;color:var(--text-color);}
     h1,h2,h3,h4,h5,h6{color:var(--text-color);}
+    td,li,p{color:var(--text-color);}
     .nowrap{
         white-space: nowrap;
     }
@@ -151,7 +159,7 @@ html{
         display:grid;
         grid-template-columns:1fr;
         grid-template-rows:auto;
-        grid-gap:10px;
+        gap:var(--layout-gutter);
     }
 
     .layout-row{
@@ -223,6 +231,7 @@ html{
         color: var(--button-text-color);
         border-radius:var(--element-border-radius);
         outline:none;
+        font-family: var(--button-font-name);
         cursor: pointer;
         i{color:inherit;}
         &:hover{
@@ -269,12 +278,26 @@ html{
     // -------------------------
     // Elements initialization 
     // ------------------------- 
+    .sticky-anchor{position: absolute;}
     .search-container{
         grid-area: search;
         display:grid;
-        grid-gap:10px;
+        gap:var(--layout-gutter);
         position:relative;
         align-items:center;
+        padding: var(--container-padding);
+        
+        &.stick{
+            position:fixed;
+            top:0px;
+            left:50%;
+            padding:1rem calc( (100vw - var(--container-width)) / 2);
+            transform:translateX(-50%);
+            width:var(--container-width);
+            background: var(--background-color);
+            z-index:100;
+        }
+
         >[ng-include]{display:contents;}
         h4{
             font-size:20px;font-weight: 400;margin:0px;
@@ -295,7 +318,7 @@ html{
         }
 
         .input{
-            display:grid;grid-gap:10px;
+            display:grid;gap:var(--layout-gutter);
             align-items:center;
             grid-area: input;
 
@@ -321,7 +344,7 @@ html{
 
         .advanced{
             padding:0 10px;
-            display:grid;grid-gap:10px;
+            display:grid;gap:var(--layout-gutter);
             place-self:stretch;
             align-items:stretch;
             grid-area: advanced;
@@ -362,7 +385,9 @@ html{
                 &::before{
                     content:"";
                     position: absolute;
-                    top:0px;left:50%;transform:translateX(-50%);
+                    top:calc(var(--container-padding) *-1);
+                    left:50%;
+                    transform:translateX(-50%);
                     transition:0.25s;
                     display:block;
                     width:0px;
@@ -421,228 +446,6 @@ html{
                 overflow:hidden;
             }
         }
-//#region to delete
-        //     &.expanded{
-        //         .filter-panel-content{
-        //             opacity:1;
-        //             max-height:calc(5 * 100vh);
-        //             padding:10px 0;
-        //             pointer-events:auto;
-        //             overflow:unset;
-        //         }
-        //     }
-            
-            
-        //     &.cities-panel{
-        //         .regions{
-        //             h4{margin-left:10px;}
-        //         }
-        //         .tab-content{
-        //             .grid-layout-column{
-        //                 grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
-        //                 .all-cities{
-        //                     label{font-style:italic;}
-        //                 }
-                        
-        //             }
-        //         }
-        //         @include media($tablet){
-        //             .tab-content{
-        //                 .grid-layout-column{
-        //                     grid-template-columns: 1fr;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     &.categories-panel{
-        //         .category{
-        //             h4{margin-left:10px;}
-        //         }
-        //         .tab-content{
-        //             .grid-layout-column{
-        //                 grid-template-columns: repeat(auto-fill, minmax(400px,1fr));
-        //             }
-        //         }
-        //         @include media($tablet){
-        //             .tab-content{
-        //                 .grid-layout-column{
-        //                     grid-template-columns: 1fr;
-        //                     h4{
-        //                         grid-column: 1;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     &.others-panel{
-        //         &.expanded{
-        //             .filter-panel-content{
-        //                 padding:10px;
-        //                 @include media($phone){
-        //                     padding:10px 60px;
-        //                 }
-        //             }
-        //         }
-
-        //         .filter-panel-content{
-                    
-        //             display:grid;
-        //             place-items: start stretch;
-        //             @include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
-
-        //             grid-gap: 20px;
-        //             grid-template-areas:
-        //                     "age attribute building_category transaction"
-        //                     "parkings attribute building_category transaction"
-        //                     ;
-        //             @include media($tablet){
-        //                 grid-template-columns: 1fr 1fr;
-        //                 grid-gap: 20px;
-        //                 grid-template-areas:
-        //                     "age parkings attribute" "building_category transaction .";
-        //             }
-
-        //             @include media($phone){
-        //                 grid-template-columns: 1fr;
-        //                 grid-template-areas:
-        //                     "age" "parkings" "attribute" "building_category" "transaction";
-        //                 text-align:center;
-                        
-        //             }
-        //         }
-        //     }
-
-        //     &.rooms-panel{
-        //         &.expanded{
-        //             .filter-panel-content{
-        //                 padding:10px;
-        //                 @include media($phone){
-        //                     padding:10px 60px;
-        //                 }
-        //             }
-        //         }
-        //         .filter-panel-content{
-        //             display:grid;
-                    
-        //             place-items: start stretch;
-        //             grid-gap:10px;
-        //             grid-template-columns:1fr 1fr;
-                    
-                    
-        //             .bedrooms,.bathrooms{
-        //                 display:grid;
-        //                 grid-template-columns: auto 1fr;
-        //                 grid-gap:10px;
-        //                 h4{grid-column:1 / span 2;}
-        //                 @include media($tablet){
-        //                     grid-template-columns:1fr;
-        //                     h4{grid-column:1;}
-        //                 }
-        //             }
-
-        //             @include media($phone){
-        //                 grid-template-columns:1fr;
-        //                 grid-gap:20px;
-        //                 text-align:center;
-        //                 .bathrooms{
-        //                     padding-bottom:20px;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     &.price-panel{
-        //         &.expanded{
-        //             .filter-panel-content{
-        //                 padding:10px;
-        //             }
-        //         }
-
-        //         @include gridAreas('price-inputs','price-suggestions');
-        //         grid-template-areas : 
-        //             "slider"
-        //             "price-inputs"
-        //             "price-suggestions"
-        //             ;
-                
-        //         .si-slider{
-        //             place-self:stretch;
-        //             grid-row:1;
-        //             grid-column: 1 / span 3;
-
-        //             @include media($phone){
-        //                 grid-template-columns: 1fr;
-        //                 padding-left:20px; padding-right:20px;
-        //                 .label{
-        //                     display:none;
-        //                 }
-        //             }
-        //         }
-                
-        //         .price-inputs{
-        //             display:grid;
-        //             grid-gap: 20px;
-        //             grid-template-columns: 1fr auto 1fr;
-        //             place-items: center;
-        //             h2{margin:0px;padding:0px;}
-                    
-        //             .min{
-        //                 place-self:center end;
-        //                 text-align:right;
-        //             }
-        //             .max{
-        //                 place-self:center start;
-        //                 text-align:left;
-        //             }
-        //             .price-divider{
-        //             }
-        //         }
-
-        //         .price-suggestions{
-        //             display:grid;
-        //             grid-gap:10px;
-        //             padding:10px;
-        //             grid-template-columns: repeat(2, 1fr);
-        //             .item{
-        //                 transition:0.25s;
-        //                 padding:8px 10px;
-        //                 cursor:pointer;
-        //                 text-align:center;
-        //                 color:var(--text-color);
-        //                 border-radius: var(--element-border-radius);
-        //                 &:hover{
-        //                     background-color:var(--highlight);
-        //                     color:var(--highlight-text-color);
-        //                 }
-        //                 &.clear-price{
-        //                     place-self:start stretch;
-        //                     grid-row:1;
-        //                     grid-column: 1 / span 2;
-        //                 }
-        //             }
-        //             @include media($phone){
-        //                 grid-template-columns: 1fr;
-        //                 .item{
-        //                     &.clear-price{
-        //                         grid-row:1;
-        //                         grid-column: 1;
-        //                     }
-        //                 }
-        //             }
-        //             &.target-max{
-        //                 text-align:right;
-        //                 // .item.clear-price{
-        //                 //     grid-column:3;
-        //                 // }
-        //             }
-        //         }
-        //     }
-
-
-        // }
-//#endregion to delete
 
         .panel-trigger{
             display:none;
@@ -681,7 +484,7 @@ html{
         .client-filters{
             padding:10px;
             grid-area: client_filters;
-            display:grid;grid-gap:10px;
+            display:grid;gap:var(--layout-gutter);
             align-items:center;
             .label{grid-area: label;color:var(--text-color);background:unset;}
             .list{
@@ -781,10 +584,10 @@ html{
     .si-list-container{
         grid-area: list;
         display:grid;
-        grid-gap:20px;
-        padding:20px;
-        border:var(--element-border);
-        border-radius:var(--element-border-radius);
+        gap:var(--layout-gutter);
+        padding: var(--container-padding);
+        border:var(--container-border);
+        border-radius:var(--container-border-radius);
         @include media($phone){
             border:none;
             padding:0px;
@@ -793,7 +596,7 @@ html{
     .si-list-header{
         grid-area: header;
         display:grid;
-        grid-gap: 20px;
+        gap:var(--layout-gutter);
         grid-template-columns: 1fr 1fr 1fr;
         align-items: center;
     }
@@ -804,7 +607,7 @@ html{
         -ms-grid-column: 1;
         -ms-grid-column-span: 3;
         display:grid;
-        grid-gap: 20px;
+        gap:var(--layout-gutter);
         
         place-items: stretch;
         
@@ -833,7 +636,7 @@ html{
                     "address address"
                 ;
             place-items: center stretch;
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             .price{
                 font-size:1.5em;
             }
@@ -942,8 +745,11 @@ html{
                 display:none;
                 padding:10px;
                 text-align:center;
-                color:#fff;
-                background-color:#000;
+                color:var(--high-contrast-text-color);
+                background-color:var(--high-contrast-color);
+                .open-house-item{
+                    color:inherit;
+                }
             }
             .flags{
                 display:none;
@@ -951,7 +757,7 @@ html{
                 top:10px;right:10px;
                 grid-template-columns:1fr;
                 grid-template-rows:auto;
-                grid-gap:10px;
+                gap:var(--layout-gutter);
                 $flag-size: 35px;
                 .far{
                     display:none;
@@ -1345,7 +1151,7 @@ html{
             .list-container{
                 opacity:1;max-height:unset;overflow:unset;
                 display:grid;
-                gap: 1rem;
+                gap:var(--layout-gutter);
             }
         }
 
@@ -1417,24 +1223,37 @@ html{
 .si{
     &.si-filter-panel-container{
         position:absolute;
-        top:calc(var(--relative-top) + var(--relative-height) - var(--element-border-radius));
+        top:var(--relative-top);
         left:var(--relative-left);
         width: var(--relative-width);
         max-width:100%;
-        background:var(--background-color);
-        border-radius: 0 0 var(--element-border-radius) var(--element-border-radius);
+        padding-top: var(--relative-height);
+        border-radius:var(--element-border-radius);
         border: var(--element-border);
-        border-top:none;
         opacity:0;
         max-height:0px;
         transition:max-height 0.5s, opacity 0.25s;
         z-index: 99;
+        pointer-events: none;
+        overflow:hidden;
+
+        &::before{
+            content:"";
+            position: absolute;
+            display:block;
+            top: 0px;
+            left: var(--container-border-radius);
+            width: calc(var(--relative-width) - (2 * var(--container-border-radius)));
+            height:calc(var(--relative-height) - (2 * var(--container-border-radius)));
+            box-shadow: 0 0 0 100vh var(--background-color);
+            z-index:1;
+        }
         &.expanded{
             opacity:1;
             max-height:100vh;
-            pointer-events: auto;
+            
             box-shadow:0 10px 10px #00000055;   
-            overflow:hidden;
+            
         }
         @include media($tablet){
             position:fixed;
@@ -1455,6 +1274,7 @@ html{
     }
     .filter-panel{
         position:relative;
+        z-index:2;
         @include media($tablet){
             position:absolute;
             width:100%;
@@ -1557,7 +1377,7 @@ html{
             .filter-panel-content{
                 opacity:1;
                 max-height:80vh;
-                padding:1rem;
+                padding:var(--layout-gutter);
                 pointer-events:auto;
                 transition:0.25s;
                 overflow-y:auto;
@@ -1758,7 +1578,7 @@ html{
                 
                 //@include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
 
-                grid-gap: 20px;
+                gap:var(--layout-gutter);
                 grid-template-columns: 1fr;
                 > div{
                     display:grid;
@@ -1856,7 +1676,7 @@ html{
                 display:grid;
                 
                 place-items: start stretch;
-                grid-gap:20px;
+                gap: var(--layout-gutter);
                 grid-template-columns:1fr;
                 
                 .bathrooms{
@@ -1881,7 +1701,7 @@ html{
                 }
                 @include media($tablet){
                     grid-template-columns:1fr;
-                    grid-gap:20px;
+                    gap: var(--layout-gutter);
                     
                 }
 
@@ -1921,7 +1741,7 @@ html{
             
             .price-inputs{
                 display:grid;
-                grid-gap: 20px;
+                gap:var(--layout-gutter);
                 grid-template-columns: 1fr auto 1fr;
                 place-items: center;
                 h2{margin:0px;padding:0px;}
@@ -1940,7 +1760,7 @@ html{
 
             .price-suggestions{
                 display:grid;
-                grid-gap:10px;
+                gap:var(--layout-gutter);
                 padding:10px;
                 grid-template-columns: repeat(2, 1fr);
                 .item{
@@ -2048,7 +1868,7 @@ html{
     &.standard-layout{
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
-        grid-gap: 20px;
+        gap:var(--layout-gutter);
         grid-template-areas: 
             "search search search"
             "list list list"
@@ -2108,28 +1928,66 @@ html{
         // search container
         // ----------------
         .search-container{
-            border:var(--element-border);
-            border-radius:var(--element-border-radius);
+            border:var(--container-border);
+            border-radius:var(--container-border-radius);
             grid-gap:0px;
-            grid-template-columns: 1fr auto;
-            grid-template-rows: auto;
-            grid-template-areas: 
-                "input advanced"
-                "filters filters"
-                "client_filters client_filters";
+           
 
-            @include media($tablet){
-                grid-template-areas: 
-                "input input" "advanced advanced"
-                "filters filters"
-                "client_filters client_filters";
-            }
-            @include media($phone){
+            &.layout-full{
                 grid-template-columns: 1fr auto;
+                grid-template-rows: auto;
                 grid-template-areas: 
-                "input advanced"
-                "client_filters client_filters";
+                    "input advanced"
+                    "filters filters"
+                    "client_filters client_filters";
+
+                @include media($tablet){
+                    grid-template-areas: 
+                    "input input" "advanced advanced"
+                    "filters filters"
+                    "client_filters client_filters";
+                }
+                @include media($phone){
+                    grid-template-columns: 1fr auto;
+                    grid-template-areas: 
+                    "input advanced"
+                    "client_filters client_filters";
+                }
             }
+    
+           
+
+            &.layout-adaptative{
+                grid-template-columns: 1fr auto;
+                grid-template-rows: auto;
+                grid-template-areas: 
+                    "tabs tabs"
+                    "input advanced"
+                    "filters filters"
+                    "client_filters client_filters";
+                    
+                @include media($tablet){
+                    grid-template-areas: 
+                    "input input" "advanced advanced"
+                    "filters filters"
+                    "client_filters client_filters";
+                }
+                @include media($phone){
+                    grid-template-columns: 1fr auto;
+                    grid-template-areas: 
+                    "input advanced"
+                    "client_filters client_filters";
+                }
+            }
+
+            .category-tabs{
+                grid-area: tabs;
+                place-self:start;
+                display:grid;
+                grid-auto-flow: column;
+                gap: 1rem;
+            }
+
             .search-box{
                 display: grid;
                 grid-template-columns: 1fr auto;
@@ -2443,7 +2301,7 @@ html{
     &.direct-layout{
         grid-template-columns: 120px 1fr 60px 60px;
         grid-template-rows: auto;
-        grid-gap: 20px;
+        gap:var(--layout-gutter);
         grid-template-areas: 
             "list list list list"
             "meta meta meta meta"
@@ -2598,7 +2456,12 @@ html{
                 text-align:center;
                 
                 grid-column-span: 2;
-                button{width:100%;display:block;padding:1em 2em;border:none;}
+                button{
+                    width:100%;
+                    display:block;padding:1em 2em;
+                    border:none;
+                    font-family: var(--button-font-name);
+                }
                 @include media($phone){
                     place-self:center;
                 }
@@ -2936,7 +2799,7 @@ html{
             display:grid;
             grid-template-columns: repeat(auto-fill,minmax(50px,1fr));
             grid-template-rows:auto;
-            grid-gap: 20px;
+            gap:var(--layout-gutter);
             padding:20px 0;
             .flag{
                 position:relative;
@@ -2972,7 +2835,7 @@ html{
                     @include gridAreas('date','start','end');
                     grid-template-columns : 1fr auto auto;
                     grid-template-areas: "date start end";
-                    grid-gap:10px;
+                    gap:var(--layout-gutter);
                     place-items: end start;
                     @include media($phone){
                         grid-template-columns : 1fr 1fr;
@@ -3137,7 +3000,7 @@ html{
             .list-header{display:none;}
             .list-container{
                 display:grid;
-                gap:5px;
+                gap:var(--layout-gutter);
                 grid-template-columns: 1fr;
                 .si-item{
                     background:var(--small-contrast-color);
@@ -3352,7 +3215,7 @@ html{
             grid-template-rows: repeat(5,auto) 1fr;
             //grid-template-areas: "left-column right-column";
             place-items: start stretch;
-            grid-gap:20px;
+            gap: var(--layout-gutter);
 
             label.placeholder{
                 padding:20px 0;
@@ -3362,7 +3225,7 @@ html{
 
             .left-column{
                 display:grid;
-                grid-gap:20px;
+                gap: var(--layout-gutter);
             }
 
            
@@ -3408,7 +3271,7 @@ html{
             @include gridAreas('head','bio','languages','expertises');
 
             display: grid;
-            grid-gap:20px;
+            gap: var(--layout-gutter);
             grid-template-columns: 2fr 1fr;
             grid-template-areas: 
                 "head head"
@@ -3449,7 +3312,7 @@ html{
             grid-column: 2;
             grid-row: 4;
             display:grid;
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             background:#ececec;
             padding:10px;
             place-self: stretch;
@@ -3473,7 +3336,7 @@ html{
 
             .list-container{
                 display:grid;
-                grid-gap:10px;
+                gap:var(--layout-gutter);
                 grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
                 place-items:stretch;
                 > div{
@@ -3606,7 +3469,7 @@ html{
             grid-template-columns: auto 1fr 1fr;
             grid-template-rows: auto;
             place-items: start stretch;
-            grid-gap:20px;
+            gap: var(--layout-gutter);
 
             label.placeholder{
                 padding:20px 0;
@@ -3673,7 +3536,7 @@ html{
             grid-column: 3;
             grid-row: 1;
             display:grid;
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             background:#ececec;
             padding:10px;
             @include media($phone){
@@ -3930,7 +3793,7 @@ body.si-modal-open{
         .media-list{
             display:grid;
             grid-template-columns: repeat(auto-fill, minmax(120px,1fr));
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             .share-item{
                 outline:none;
                 padding:10px;
@@ -3964,7 +3827,7 @@ body.si-modal-open{
             .form{
                 display:grid;
                 grid-template-columns: 1fr 1fr;
-                grid-gap: 20px;
+                gap:var(--layout-gutter);
                 grid-template-areas: 
                         "firstname lastname"
                         "phone email"
@@ -4002,6 +3865,15 @@ body.si-modal-open{
             overflow-x:auto;
             scroll-behavior: smooth;
             scroll-snap-type: x mandatory;
+
+            &::-webkit-scrollbar{
+                height:0px;
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb{
+                background:transparent;
+            }
         }
 
         .trolley{
@@ -4091,7 +3963,7 @@ body.si-modal-open{
             top:0px;left:0px;width:100%;
             grid-template-columns: repeat(auto-fill,minmax(150px,1fr));    
             grid-template-rows: 120px;
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             place-items:stretch;
             padding:10px;
         }
@@ -4124,7 +3996,7 @@ body.si-modal-open{
             left:50%;transform:translateX(-50%);
             bottom:0px;
             display: grid;
-            grid-gap:10px;
+            gap:var(--layout-gutter);
             grid-template-columns: repeat(5,1fr);
             height:2px;
             transition:0.25s;
@@ -4848,11 +4720,11 @@ body.si-modal-open{
     box-sizing: border-box;
     *{    box-sizing: border-box;}
     display:grid;
-        grid-gap:20px;
+        gap: var(--layout-gutter);
         grid-template-rows: auto;
     .input-container{
         display:grid;
-        grid-gap:10px;
+        gap:var(--layout-gutter);
         grid-template-columns: 3fr 2fr;
         grid-template-areas: "label input";
         input{

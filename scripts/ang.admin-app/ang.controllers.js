@@ -29,7 +29,7 @@ siApp
 
 
   $scope._pageInit_ = function(){
-
+    $scope.show('styles');
   }
 
   $scope.addRouteElement = function($item,$elm){
@@ -78,6 +78,20 @@ siApp
     $scope.api('access_token',null, {method:'PATCH'}).then(function($response){
       $scope.show_toast('Access token cleared');
     });
+  }
+
+  $scope.show = function($panel_id){
+    const lAdminPanel = document.querySelector('#si-admin-configs');
+    const lNavButtons = Array.from( lAdminPanel.querySelectorAll('.nav-button'));
+    const lSections = Array.from(lAdminPanel.querySelectorAll('.sections section'));
+    const lButton = lAdminPanel.querySelector('.nav-button.' + $panel_id);
+    const lTarget = lAdminPanel.querySelector('#' + $panel_id);
+
+    lNavButtons.forEach($e => $e.classList.remove('selected'));
+    lSections.forEach($e => $e.classList.remove('selected'));
+
+    lTarget.classList.add('selected');
+    lButton.classList.add('selected');
   }
 
 });
@@ -151,7 +165,7 @@ siApp
 
 // Edit
 siApp
-.controller('listEditCtrl', function($scope, $rootScope,$q, $siUtils){
+.controller('listEditCtrl', function($scope, $rootScope,$q, $siUtils,$siUI){
   BasePageController('listEdit', $scope,$rootScope);
 
   
@@ -194,6 +208,11 @@ siApp
         sort_reverse : false,
         limit: 0,
         searchable:true,
+        search_engine_options: {
+          type:'full',
+          focus_category: null,
+          orientation: 'h'
+        },
         sortable:true,
         mappable: true,
         filter_group : {
@@ -349,6 +368,12 @@ siApp
     //   $scope.model.searchable = false;
     // }
   }
+
+  $scope.editSearchEngine = function($type){
+    $siUI.dialog('~/views/admin/dialogs/' + $type + 'SearchEngineEdit.html',$scope.model.search_engine_options).then($result => {
+      $scope.model.search_engine_options = $result;
+    });
+  }
 });
 
 /**
@@ -397,7 +422,8 @@ siApp
       listings: [
         {name: 'standard', label: 'Standard'},
         {name: 'small', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'}
+        {name: 'minimal', label: 'Minimal'},
+        {name: 'picture-only', label: 'Picture only'}
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
@@ -446,7 +472,7 @@ siApp
   $rootScope.current_page = 'home'
   $scope.pages = {
     'home': {label: 'Home'.translate(), style: ''},
-    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(calc(-100vw + 180px));'},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
   }
   
   
@@ -1020,6 +1046,11 @@ siApp
     console.log('config lists', $scope.configs.lists);
   }
 
+  $scope.updateStyles = function($styles){
+    $scope.configs.styles = $styles;
+    $scope.save_configs();
+  }
+
   $scope.initListSearchToken = function(){
     let lFilters = null;
             
@@ -1240,15 +1271,6 @@ siApp
     $siUI.show_toast($message);
   }
 
-  /**
-   * Call a dialog to open
-   * @param {string} $dialog_id 
-   * @param {*} $params 
-   */
-  $scope.dialog = function($dialog_id, $params){
-    return $siUI.dialog($dialog_id, $params);
-  }
-
 //#endregion
 
 
@@ -1395,27 +1417,3 @@ siApp
 
 });
 
-/* DIALOGS */
-siApp
-.controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog,$siUI){
-  BaseDialogController('signin',$scope, $rootScope, $mdDialog);
-  $scope.login_infos = {
-    email: '',
-    password: ''
-  }
-  $scope.title = 'Please signin'
-  $scope.actions = [
-    {label: 'Submit', action : _ => {$scope.login();}}
-  ]
-
-  $scope.login = function(){
-    $scope.portalApi('auth/login', $scope.login_infos).then($response => {
-      if($response.statusCode==200){
-        $scope.return($response);
-      }
-      else{
-        $siUI.show_toast($response.message.translate());
-      }
-    });
-  }
-})
