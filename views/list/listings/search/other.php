@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="lang-area filter-row">
+            <div class="land-area filter-row">
                 <h4><?php _e('Land area',SI) ?></h4>
                 <div class="si-min-max-input-container">
                     <span><?php _e('Between',SI) ?></span>
@@ -82,39 +82,39 @@
                 </div>
             </div>
 
-            <div class="building-area filter-row">
+            <div class="available-area filter-row">
                 <h4><?php _e('Available area',SI) ?></h4>
                 <div class="si-min-max-input-container">
                     <span><?php _e('Between',SI) ?></span>
-                    <div class="si-dropdown" data-has-value="{{filter.data.building_min != null}}">
-                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'building_min'},building_areas, '<?php _e('Min',SI) ?>')}}</div>
+                    <div class="si-dropdown" data-has-value="{{filter.data.available_min != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'available_min'},available_areas, '<?php _e('Min',SI) ?>')}}</div>
                         <div class="si-dropdown-panel">
                             <div class="dropdown-item
-                                    {{filter.data.building_min == null ? 'active' : ''}}"
-                                data-ng-click="setArea(null, 'building', 'min', '')">
+                                    {{filter.data.available_min == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'available', 'min', '')">
                                 <?php _e('Min',SI) ?>
                             </div>
                             <div class="dropdown-item
-                                    {{filter.data.building_min == item.value ? 'active' : ''}}"
-                                data-ng-repeat="item in building_areas"
-                                data-ng-click="setArea(item.value, 'building', 'min', 'Building more than {0} sqft')">
+                                    {{filter.data.available_min == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in available_areas"
+                                data-ng-click="setArea(item.value, 'available', 'min', 'Avail. area more than {0} sqft')">
                                 {{item.caption}}
                             </div>
                         </div>
                     </div>
                     <span><?php _e('and',SI) ?></span>
-                    <div class="si-dropdown" data-has-value="{{filter.data.building_max != null}}">
-                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'building_max'},building_areas, '<?php _e('Max',SI) ?>')}}</div>
+                    <div class="si-dropdown" data-has-value="{{filter.data.available_max != null}}">
+                        <div class="dropdown-button" >{{filter.getFilterCaptionFromList({data: 'available_max'},available_areas, '<?php _e('Max',SI) ?>')}}</div>
                         <div class="si-dropdown-panel">
                             <div class="dropdown-item
-                                    {{filter.data.building_max == null ? 'active' : ''}}"
-                                data-ng-click="setArea(null, 'building', 'max', '')">
+                                    {{filter.data.available_max == null ? 'active' : ''}}"
+                                data-ng-click="setArea(null, 'available', 'max', '')">
                                 <?php _e('Max',SI) ?>
                             </div>
                             <div class="dropdown-item
-                                    {{filter.data.building_max == item.value ? 'active' : ''}}"
-                                data-ng-repeat="item in building_areas"
-                                data-ng-click="setArea(item.value, 'building', 'max', 'Building less than {0} sqft')">
+                                    {{filter.data.available_max == item.value ? 'active' : ''}}"
+                                data-ng-repeat="item in available_areas"
+                                data-ng-click="setArea(item.value, 'available', 'max', 'Avail. area less than {0} sqft')">
                                 {{item.caption}}
                             </div>
                         </div>

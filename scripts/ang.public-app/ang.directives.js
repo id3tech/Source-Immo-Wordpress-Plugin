@@ -1030,7 +1030,7 @@ siApp
             }));
 
             // listing building areas
-            $scope.building_areas = Array.from(Array(13)).map(function($e,$i){
+            $scope.available_areas = Array.from(Array(13)).map(function($e,$i){
                 return { caption: '{0} sqft'.translate().format(500 * ($i+1)), value: 500 * ($i+1)}
             });
 
@@ -1663,6 +1663,10 @@ siApp
             
             $scope.setArea = function($value, $areaType, $minMax, $filterLabelFormat){
                 $siFilters.with($scope.alias, function($filter){
+                    const lTypePath = {
+                        'land'      : 'land.dimension.area_sf',
+                        'available' : 'available_area_sf'
+                    }
                     let lOperators = {
                         'min' : 'greater_or_equal_to',
                         'max' : 'less_or_equal_to'
@@ -1678,7 +1682,7 @@ siApp
                     if($value <= 0) $value = null;
 
                     $scope.filter.data[$areaType + '_' + $minMax] = $value; 
-                    $scope.filter.addFilter($areaType + '.dimension.area_sf', lOperators[$minMax], $value, null);
+                    $scope.filter.addFilter(lTypePath[$areaType], lOperators[$minMax], $value, null);
                     
                 });
             }
@@ -1946,9 +1950,6 @@ siApp
                     $siHooks.do('sync-filters-to-ui', $filter);
                 })
                 
-
-               
-                
             }
 
             /**
@@ -2022,7 +2023,7 @@ siApp
                     // prices
                     $scope.buildPriceHint($filter,lResult);
                     $scope.buildAreasHint($filter,'land',lResult);
-                    $scope.buildAreasHint($filter,'building',lResult);
+                    $scope.buildAreasHint($filter,'available',lResult);
 
                     if($filter.query_text!=null){
                         //console.log('query_text has something to say');
@@ -3351,12 +3352,17 @@ siApp
 
                 $scope.list.forEach(function($marker){
                     let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
-                    
+                    const lMarkerClass = ['map-marker-icon', $marker.category_code.replace(' ','_')];
+
+                    if( $marker.status_code != undefined){
+                        lMarkerClass.push($marker.status_code.toLowerCase());
+                    }
+
                     $marker.marker = new SiMarker({
                         position: lngLat,
                         map: $scope.map,
                         obj: $marker,
-                        markerClass: ['map-marker-icon',$marker.category_code.replace(' ','_')],
+                        markerClass: lMarkerClass,
                         onPinClick: $scope.pinClick
                     });
                     

@@ -87,6 +87,13 @@ $desktop : 1440px;
 
     // offices
     --office-item-column-width : 320px;
+
+    // map marker
+    --map-marker-bg : #333;
+    --map-marker-fg : #fff;
+    --map-marker-bg-sold : #af0202;
+    --map-marker-fg-sold : #fff;
+    
 }
 html{
     font-size:14px;
@@ -2234,7 +2241,7 @@ html{
                     font-weight:600;
                     width:40px;
                     text-align:center;
-                    color:#333;
+                    color:var(--map-marker-bg);
                     position: absolute;
                     bottom:0px;left:-20px;
                     opacity:0.8;
@@ -2244,11 +2251,15 @@ html{
                     font-family: "Font Awesome 5 Pro";
                     font-weight:300;
                     content:"\f015";
-                    color:#fff;
+                    color:var(--map-marker-fg);
                     bottom: 15px;
                     font-size:20px;
                     width:40px;left:-20px;
                     text-align:center;
+                }
+                &.sold{
+                    &::before{color:var(--map-marker-bg-sold);}
+                    &::after{color: var(--map-marker-fg-sold);}
                 }
                 &.multi-family{
                     &:after{
