@@ -1,0 +1,18 @@
+md-dialog{
+    &#listings-list-item-edit{
+        width: 80vw;
+        max-width: 1200px;
+        .md-dialog-content{
+            display:grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+
+            .item-layout-configs{
+                display:grid;
+                grid-template-columns:1fr;
+                place-self:start stretch;
+                place-items: stretch;
+            }
+        }
+    }
+}

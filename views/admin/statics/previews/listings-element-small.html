@@ -1,0 +1,11 @@
+<div class="image"><img src="{{wpSiApiSettings.base_path + 'styles/assets/shadow_property.jpg'}}" /></div>
+<div class="address si-label si-background-high-contrast" ng-show="previewLayerHasVar('address')">{{item.address}}</div>
+<div class="city si-label si-background-high-contrast" ng-show="previewLayerHasVar('city')">{{item.city}}</div>
+<div class="price si-label si-background-medium-contrast" ng-show="previewLayerHasVar('price')">{{item.price}}</div>
+<div class="category si-label" ng-show="previewLayerHasVar('category')">{{item.category}}</div>
+<div class="subcategory si-label" ng-show="previewLayerHasVar('subcategory')">{{item.subcategory}}</div>
+<div class="rooms si-label" ng-show="previewLayerHasVar('rooms')">
+    <div><i class="fal fa-bed"></i> {{item.bedrooms}}</div>
+    <div><i class="fal fa-bath"></i> {{item.bathrooms}}</div>
+</div>
+

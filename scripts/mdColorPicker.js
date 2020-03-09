@@ -933,9 +933,10 @@
                         preserveScope: options.preserveScope,
                           skipHide: options.skipHide,
     
-                        targetEvent: options.$event,
+                        targetEvent: null,
                         focusOnOpen: options.focusOnOpen,
                         autoWrap: false,
+                        multiple: true,
                         onShowing: function() {
                     //		console.log( "DIALOG OPEN START", Date.now() - dateClick );
                         },

@@ -1,113 +1,81 @@
-<div class="layouts">
-    <div class="layout" layout="column">
-        <h4><?php _e('List',SI) ?></h4>
-        <md-input-container>
-            <label><?php _e('Model',SI) ?></label>
-            <md-select ng-model="model.list_layout.preset">
-                <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
-            </md-select>
-        </md-input-container>
-       
+<div class="list-layout">
+    <md-input-container>
+        <label><?php _e('Model',SI) ?></label>
+        <md-select ng-model="model.list_layout.preset">
+            <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
+        </md-select>
+    </md-input-container>
+    
+    <md-input-container >
+        <label><?php _e('List class',SI) ?></label>
+        <input ng-model="model.list_layout.scope_class" />
+    </md-input-container>
+
+    <h5 lstr>Preview</h5>
+    <div class="si-style-editor-preview {{model.type}}-preview " si-style-preview="computedStyles">
         
-        <md-input-container >
-            <label><?php _e('List class',SI) ?></label>
-            <input ng-model="model.list_layout.scope_class" />
-        </md-input-container>
+            <div class="viewport list-layout-{{model.list_layout.preset}} search-layout-orientation-{{model.search_engine_options.orientation}}">
+                <div class="si-container search-engine-container search-type-{{model.type}} search-layout-type-{{model.search_engine_options.type}}  search-layout-orientation-{{model.search_engine_options.orientation}}">
+                    <div class="list-components" >
+                        <div class="component  {{!model.searchable ? 'inactive':'' }}">
+                            <md-checkbox ng-model="model.searchable"></md-checkbox>
+                            <div class="component-elements">
+                                <si-include 
+                                    path-format="~/views/admin/statics/previews/{0}-search-{1}.html"
+                                    path-params="[model.type, model.search_engine_options.type]"></si-include>
+                                <md-button class="md-raised md-primary"  ng-click="editSearchEngine(model.type)"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <div  ng-show="model.list_layout.preset | isIn : ['standard','map']" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow search',SI) ?></label>
-            <md-checkbox ng-model="model.searchable"></md-checkbox>
-        </div>
+                <div class="si-container">
+                    <div class="list-components si-grid" >
+                        <div class="component list-map-toggle {{!model.mappable ? 'inactive':'' }}">
+                            <md-checkbox ng-model="model.mappable"></md-checkbox>
+                            <div class="component-elements toggles">
+                                <i class="fal fa-2x fa-list si-highlight"></i>
+                                <i class="fal fa-2x fa-map-marker-alt"></i>
+                                <md-button class="md-raised md-primary" ng-show="false" ng-click="editSearchEngine(model.type)"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                            </div>
+                            
+                        </div>
 
-        <div class="input-container" ng-show="(model.list_layout.preset | isIn : ['standard','map']) && model.searchable"  layout="row" layout-align="space-between center">
-            <label><?php _e('Edit search engine',SI) ?></label>
-            
-            <md-button ng-click="editSearchEngine(model.type)"><i class="fal fa-pen"></i> <?php _e('Edit') ?></md-button>
-        </div>
+                        <div class="component list-meta {{!model.show_list_meta ? 'inactive':'' }}">
+                            <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
+                            <label class="component-elements">25 {{model.type.translate()}}</label>
+                        </div>
 
-        <div  ng-show="(model.list_layout.preset | isIn : ['standard','map']) && model.searchable" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Result page',SI) ?></label>
-            <md-select ng-model="model.result_page">
-                <md-option ng-repeat="item in wp_pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
-            </md-select>
-        </div>
+                        <div class="component list-sort {{!model.sortable ? 'inactive':'' }}">
+                            <md-checkbox ng-model="model.sortable"></md-checkbox>
+                            <div class="component-elements  sort">
+                                <i class="fal fa-2x fa-sort-amount-down"></i>
+                            </div>
+                        </div>
 
-        <div ng-show="model.list_layout.preset | isIn : ['standard']" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow sort',SI) ?></label>
-            <md-checkbox ng-model="model.sortable"></md-checkbox>
-        </div>
+                        <div class="component list-items">
+                            <md-checkbox ng-checked="true" disabled></md-checkbox>
+                            
+                            <div class="component-elements si-grid">
+                                
+                                <div class="si-element 
+                                            layout-{{model.list_item_layout.preset}} 
+                                            img-hover-{{model.list_item_layout.image_hover_effect}} 
+                                            layer-hover-{{model.list_item_layout.secondary_layer_effect}}
+                                            {{$index==0 ? 'editable' : ''}}"
+                                        ng-repeat="item in previewElements track by $index"
+                                        >
+                                    <div ng-include="item.layout"></div>
+                                    <md-button class="md-raised md-primary"  ng-click="editListItem(model.type)"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                                </div>
 
-        <div ng-show="model.list_layout.preset | isIn : ['standard']" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Allow map switch',SI) ?></label>
-            <md-checkbox ng-model="model.mappable"></md-checkbox>
-        </div>
-
-        <div ng-show="(model.list_layout.preset | isIn : ['standard']) && (model.mappable)" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Default zoom level',SI) ?></label>
-            <md-select ng-model="model.default_zoom_level">
-                <md-option value="auto"><?php _e('Automatic',SI) ?></md-option>
-                <md-option value="20"><?php _e('Ground level',SI) ?></md-option>
-                <md-option value="15"><?php _e('Street level',SI) ?></md-option>
-                <md-option value="12"><?php _e('City level',SI) ?></md-option>
-                <md-option value="10"><?php _e('Regional level',SI) ?></md-option>
-                <md-option value="8"><?php _e('State/Province level',SI) ?></md-option>
-                <md-option value="5"><?php _e('Continent level',SI) ?></md-option>
-            </md-select>
-        </div>
-        <div ng-show="(model.list_layout.preset | isIn : ['standard']) && (model.mappable)" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label>
-                <?php _e('Smart focus tolerance',SI) ?>
-                <div class="hint"><?php _e("Use a median location and average distances algorithm to center the map.",SI) ?></div>
-            </label>
-
-            <md-select ng-model="model.smart_focus_tolerance">
-                <md-option value="off"><?php _e("Don't use smart focus",SI) ?></md-option>
-                <md-option value="0"><?php _e('No tolerance',SI) ?></md-option>
-                <md-option value="5">5km</md-option>
-                <md-option value="10">10km</md-option>
-                <md-option value="25">25km</md-option>
-                <md-option value="50">50km</md-option>
-                <md-option value="100">100km</md-option>
-                <md-option value="500">500km</md-option>
-                <md-option value="1000">1000km</md-option>
-                <md-option value="5000">5000km</md-option>
-                <md-option value="10000">10000km</md-option>
-            </md-select>
-        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         
-        <div ng-show="model.list_layout.preset | isIn : ['standard','direct']" 
-            class="input-container" layout="row" layout-align="space-between center">
-            <label><?php _e('Show list metadatas',SI) ?></label>
-            <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
-        </div>
-
-        <div class="custom {{ (model.list_layout.preset=='custom') ? 'editable' : '' }}">
-            <si-layout-edit ng-model="model.list_custom_layout"></si-layout-edit>
-        </div>
     </div>
+    
 
-    <div class="layout" layout="column">
-        <h4><?php _e('List items',SI) ?></h4>
-        <md-input-container>
-            <label><?php _e('Model',SI) ?></label>
-            <md-select ng-model="model.list_item_layout.preset">
-                <md-option ng-repeat="item in global_list.list_item_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
-            </md-select>
-        </md-input-container>
-        
-        <md-input-container ng-show="model.list_item_layout.preset!='custom'">
-            <label><?php _e('Element class',SI) ?></label>
-            <input ng-model="model.list_item_layout.scope_class" />
-        </md-input-container>
-
-        <div class="custom {{ (model.list_item_layout.preset=='custom') ? 'editable' : '' }}">
-            <si-layout-edit ng-model="model.list_item_custom_layout"></si-layout-edit>
-        </div>
-    </div>
 </div>

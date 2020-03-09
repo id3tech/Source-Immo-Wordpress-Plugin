@@ -23,18 +23,30 @@
 
           <md-input-container ng-show="model.type=='full'">
             <label lstr>Focus tabs on</label>
-            <md-select ng-model="model.tab_types" multiple>
-                <md-option value="categories"><lstr>Categories (Residential, Commercial, Others)</lstr></md-option>
-                <md-option value="transaction"><lstr>For sale / For rent</lstr></md-option>
+            <md-select ng-model="model.tabs" multiple>
+                <md-optgroup label="{{'By categories'.translate()}}">
+                  <md-option value="residential"><lstr>Residential</lstr></md-option>
+                  <md-option value="commercial"><lstr>Commercial</lstr></md-option>
+                  <md-option value="others"><lstr>Others</lstr></md-option>
+                </md-optgroup>
+                <md-optgroup label="{{'By transaction'.translate()}}">
+                  <md-option value="for-sale"><lstr>For sale</lstr></md-option>
+                  <md-option value="for-rent"><lstr>For rent</lstr></md-option>
+                </md-optgroup>
             </md-select>
           </md-input-container>
 
           <div class="input-container" ng-show="model.type=='focused'">
             <label lstr>Focus tabs on</label>
             <div class="input">
-              <md-checkbox ng-repeat="field in fieldList track by $index" ng-model="field.selected">{{field.caption}}</md-checkbox>
+              <md-checkbox ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-checked="model.fields.includes(field.key)" ng-click="toggleField(field.key)">{{field.caption}}</md-checkbox>
             </div>
           </div>
+
+          <md-input-container>
+            <label lstr>Search box placeholder</label>
+            <input ng-model="model.search_box_placeholder" />
+          </md-input-container>
 
           <md-input-container>
             <label lstr>Orientation</label>
@@ -45,7 +57,10 @@
           </md-input-container>
 
           <md-input-container>
-            <md-checkbox ng-model="model.sticky"><lstr>Keep the search engine on screen when scrolling</lstr></md-checkbox>
+            <md-checkbox ng-model="model.sticky">
+              <lstr ng-show="model.orientation == 'h'">When scrolling, stick the search engine to viewport top</lstr>
+              <lstr ng-show="model.orientation == 'v'">When scrolling, stick the search engine to viewport side</lstr>
+            </md-checkbox>
           </md-input-container>
         </div>
       </md-dialog-content>

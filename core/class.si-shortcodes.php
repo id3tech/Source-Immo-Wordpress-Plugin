@@ -144,7 +144,8 @@ class SiShorcodes{
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
-                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" ></si-list>');
+
+                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" style="'. SourceImmo::styleToAttr($listConfig->list_item_layout->styles) .'" ></si-list>');
                 if(SourceImmo::current()->configs->prefetch_data){
                     $listData = SourceImmoApi::get_data($listConfig);
                     echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');

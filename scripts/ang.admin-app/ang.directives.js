@@ -30,7 +30,6 @@ siApp
     }
 }]);
 
-
 siApp
 .directive('siRouteBox', function siRouteBox($siUtils, $siList,$siUI){
   return {
@@ -42,7 +41,7 @@ siApp
       type: '@',
       changeHandler: '&siChange'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-route-box.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-route-box.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -282,7 +281,7 @@ siApp
       type: '=siType',
       removeHandler : '&onRemove'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-filter-item.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -417,7 +416,7 @@ siApp
     restrict: 'E',
     replace: true,
     scope: true,
-    templateUrl: wpSiApiSettings.base_path + '/views/ang-templates/si-data-group-editor.html',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-data-group-editor.html',
     link: function($scope, $element, $attrs){
       const lAssoc = {
         'listings' : 'listing',
@@ -645,16 +644,19 @@ siApp
 .directive('siStyleEditor', ['$parse', function siStyleEditor($parse){
   return {
     restrict: 'E',
-    templateUrl: wpSiApiSettings.base_path + '/views/ang-templates/si-style-editor.html',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-style-editor.html',
     replace: true,
     scope: {
       rawModel: '=siModel',
-      changeHandler: '&siChange'
+      changeHandler: '&siChange',
+      preview: '@?siPreview',
+      showPreview: '=siShowPreview',
+      editables: '=siEditables'
     },
     link: function($scope, $element, $attrs){
       
       console.log('siStyleEditor.link',$scope.rawModel);
-
+      
       $scope.init($element[0]);
     },
     controller: function($scope,$timeout){
@@ -687,6 +689,7 @@ siApp
         'element_border_color' : '#aaa',
         'element_border' : 'solid 1px [element_border_color]',
         'element_border_radius' : '5px',
+        'element_padding': '10px',
         'high_contrast_color' : '#333',
         'high_contrast_text_color' : '#fff',
         'medium_contrast_color' : '#b9b9b9',
@@ -717,14 +720,21 @@ siApp
 
       $scope.init = function($element){
         $scope.$element = $element;
+        $scope.previewPath = wpSiApiSettings.base_path + '/views/admin/statics/previews/style-editor-' + ($scope.preview == undefined ? 'general' : $scope.preview) + '.html';
         if($scope._updateWatcherHndl != null){
           //$scope._updateWatcherHndl();
         }
 
         console.log('styleEditor init:', $scope.rawModel);
+
+        if($scope.rawModel) $scope.model = $scope.parseModel($scope.rawModel);
+
         $scope.registerRawModelWatcher();
         $scope.registerModelWatcher();
-        $scope.openGroup('global');
+
+        const lFirstGroup = $scope.editables ? $scope.editables[0] : 'global';
+        console.log('first group', lFirstGroup);
+        $scope.openGroup(lFirstGroup);
       }
 
       $scope.registerRawModelWatcher = function(){
@@ -734,7 +744,7 @@ siApp
             if($new != $old){
               console.log('rawModel new:', $new,'old:', $old);
               $scope.model = $scope.parseModel($scope.rawModel);
-              $scope.updatePreviewBox();
+              //$scope.updatePreviewBox();
 
               $scope._rawModelWatcherHndl();
               $scope._rawModelWatcherHndl = null;
@@ -832,7 +842,7 @@ siApp
           $scope.changeHandler({$styles:lModel});
         }
 
-        $scope.updatePreviewBox();
+        //$scope.updatePreviewBox();
         //$scope.registerModelWatcher();
       }
 
@@ -848,7 +858,7 @@ siApp
           {}
         )
         const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
-        const lPreviewElm = $scope.$element.querySelector('.preview .viewport');
+        const lPreviewElm = $scope.$element.querySelector('.si-style-editor-preview .viewport');
 
         // remove all styles
         lPreviewElm.style.cssText = '';
@@ -870,6 +880,206 @@ siApp
         });
         
       }
+
+      
+      $scope.isEditable = function($item){
+        if($scope.editables == undefined) return true;
+        if(!Array.isArray($scope.editables)) return true;
+        if($scope.editables.length == 0) return true;
+
+        return $scope.editables.includes($item);
+
+      }
     }
   }
 }])
+
+siApp
+.directive('siInclude', ['$parse','$timeout', function siInclude($parse,$timeout){
+  return {
+    restrict: 'E',
+    
+    link: function($scope, $element, $attrs){
+
+      const fnUpdatePath = function($format, $params){
+        if($attrs.path == undefined){
+          if($format != undefined && $params != undefined){
+            const lParams = $params.filter($p => $p != undefined);
+
+            if(lParams.length > 0){
+              $scope.path = $format.format(...lParams);
+            }
+          }
+        }
+  
+        if($scope.path != undefined){
+          $scope.path = $scope.path.replace('~', wpSiApiSettings.base_path);
+        }
+
+        console.log('siInclude', $scope.path);
+      }
+
+      // observe params values for change
+      $scope.$watch($attrs.pathParams, function(){
+        const lParsedParams = $parse($attrs.pathParams)($scope);
+        fnUpdatePath($attrs.pathFormat, lParsedParams);
+      });
+
+    },
+    replace: true,
+    template: '<div ng-include="path"></div>'
+  }
+}])
+
+
+/**
+ * siStylePreview
+ * usage: <tagname si-style-preview="style_model"></tagname>
+*/
+siApp
+.directive('siStylePreview', ['$parse', function siStylePreview($parse){
+  return {
+    restrict: 'A',
+    scope: {
+      model: '=siStylePreview'
+    },
+    link: function($scope, $element, $attrs){
+      $scope.$element = $element[0];
+
+      $scope.init();
+    },
+    controller: function($scope){
+      
+
+      $scope.defaultValues = {
+        'container_width' : '1170px',
+        'font_name' : 'inherit',
+        'highlight' : '#ff9900',
+        'highlight_text_color' : '#333',
+        'text_color' : '#333',
+        'background_color' : '#fff',
+        'input_placeholder_color' : 'rgba(#333,0.5)',
+        'layout_gutter' : '20px',
+        'container_border_color' : '[element_border_color]',
+        'container_border' : ' solid 1px [container_border_color]',
+        'container_border_radius' : '[element_border_radius]',
+        'container_padding' : ' [layout_gutter]',
+        'element_border_color' : '#aaa',
+        'element_border' : 'solid 1px [element_border_color]',
+        'element_border_radius' : '5px',
+        'element_padding': '10px',
+        'high_contrast_color' : '#333',
+        'high_contrast_text_color' : '#fff',
+        'medium_contrast_color' : '#b9b9b9',
+        'medium_contrast_text_color' : '[text_color]',
+        'small_contrast_color' : '#e2e2e2',
+        'small_contrast_text_color' : '[text_color]',
+        
+        'error_color' : '#850000',
+        'button_bg_color' : '#333',
+        'button_text_color' : '#fff',
+        'button_font_name' : '[font_name]',
+        'button_hover_bg_color' : '#ff9900',
+        'button_hover_text_color' : '#333',
+        'button_alt_bg_color' : '#777',
+        'button_alt_text_color' : '#fff',
+        'button_alt_hover_bg_color' : '#9d9d9d',
+        'button_alt_hover_text_color' : '#fff',
+        'uls_label': 'ULS: ',
+        'listing_item_sold_bg_color' : '#ff8800',
+        'listing_item_sold_text_color' : '#fff',
+        'listing_item_column_width' : '340px',
+        'listing_item_picture_ratio' : '0.75',
+        'thumbnail_picture_size' : '100px',
+        'broker_item_column_width' : '210px',
+        'broker_item_picture_ratio' : '1.25',
+        'office_item_column_width' : '320px',
+      }
+
+
+      $scope.init = function(){
+        $scope.$watch('model', function(){
+          $scope.updateElement();
+        })
+      }
+
+
+      $scope.parseModel = function($value){
+        if($value == undefined) return {};
+        if($value == null) return {};
+        if($value == '') return {};
+        let lParsedModel = {};
+
+        if(Array.isArray($value)){
+          $value.forEach($v => {
+            lParsedModel = Object.assign(lParsedModel, JSON.parse($v));
+          })
+        }
+        else{
+          lParsedModel = JSON.parse($value);
+        }
+
+        
+        console.log('rawModel parsed', lParsedModel);
+
+        const lModel = Object.keys(lParsedModel).reduce(
+          ($result, $k) => {
+            const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
+            $result[lNewKey] = lParsedModel[$k]
+            return $result;
+          },{}
+        );
+        console.log('Parsed model',lModel);
+        return lModel;
+      }
+
+
+      $scope.updateElement = function(){
+        const lJSONModel = $scope.parseModel($scope.model);
+
+        const lModel = Object.keys(lJSONModel).reduce(
+          ($result,$key) => {
+            if(lJSONModel[$key] != ''){
+              $result[$key] = lJSONModel[$key];  
+            }
+            
+            return $result;
+          },
+          {}
+        );
+
+        const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
+        console.log('Model',lModel, 'Effective', lEffectiveStyle);
+        
+        const lPreviewElm = $scope.$element.querySelector('.viewport');
+        if(lPreviewElm == null) {
+          console.log('.viewport on', $scope.$element, 'not found');
+          return false;
+        }
+        // remove all styles
+        lPreviewElm.style.cssText = '';
+
+        Object.keys(lEffectiveStyle).forEach($k => {
+
+          const lStyleKey = $k.replace(/_/g,'-');
+          let lValue =  lEffectiveStyle[$k];
+          const lSubVarRegex = /\[(.+)\]/g;
+          //console.log($k,'=', lValue, 'in', lEffectiveStyle);
+          if(lValue!=undefined){   
+            if(lValue.match(lSubVarRegex)){
+              lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
+              lValue = lValue.replace(/_/g,'-');
+            }
+            if($k == 'uls_label'){
+              lValue = '"' + lValue + '"';
+            }
+            lPreviewElm.style.setProperty('--preview-' + lStyleKey, lValue);
+          }
+        });
+
+
+      }
+
+    }
+  }
+}]);

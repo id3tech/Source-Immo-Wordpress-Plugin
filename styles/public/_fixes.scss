@@ -1,0 +1,240 @@
+// enfold fixes
+#top{
+    &.single-listings,
+    &.single-brokers,
+    &.single-offices
+    &.single-cities{
+        .page.entry{
+            .container{
+                margin-top:50px;
+                margin-bottom:50px;
+            }
+        }
+    }
+
+    .si{
+        &.listing-single,
+        &.broker-single{
+            // max-width:1310px;
+            // margin:0 auto;
+
+            .content{border:none;}
+        }
+    }
+
+    .si-list-of-listings,.si-list-of-brokers{
+        a{
+            position:initial !important;
+        
+            .image-overlay{
+                display:none !important;
+                left:2px !important;
+                top:2px !important;
+                width:calc(100% - 4px) !important;
+                height:calc(100% - 4px) !important;
+                //border-radius:var(--element-border-radius);
+                overflow: hidden;
+                position: absolute;
+                background:var(--highlight);
+            }
+        }
+    }
+    
+}
+
+// IE11 fixes
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    #top .si,
+    .si{
+        .search-container{display:none;}
+        .si-list-container{display:block;}
+        &.si-list-of-listings,&.si-list-of-brokers{
+            .si-list-header{
+                display:none;
+            }
+            display:block;
+            .si-list{
+                display:flex;
+                flex-flow: wrap;
+                > div{
+                    display:block;
+                    float:left;
+                    padding:10px;
+                    max-width:20%;
+                    &:nth-child(5n+1){
+                        clear:left;
+                    }
+                }
+                .si-item{
+                    display:block;
+                    .content{
+                        display:block;
+                        .image{width:100%;max-height:250px;}
+                        .description{height:250px;overflow:hidden;}
+                    }
+                }
+            }
+        }
+
+        &.listing-single, &.broker-single{
+            display:block;
+            .si-content,&.loaded .si-content{
+                display:block;
+                .left-column,.left,.previous{display:block;float:left;}
+                .right-column,.right,.next{float:right;display:block;}
+
+                .si-item,.info,.list-header,.list-container,.contact,.office,.cities,.header,.details,
+                .si-listing-navigation,.summary{
+                    display:block;overflow:hidden;
+                }
+                .list-container > div{display:block;}
+                .si-item{
+                    float:left;
+                    width:50%;
+                    padding:20px;
+                    .content{display:block;}
+                }
+                .si-listing-navigation{
+                    .previous,.next{
+                        width:33%;
+                        .content{display:block;}
+                    }
+                }
+            }
+        }
+        &.broker-single{
+            .left-column{width:66%;}
+            .right-column{width:33%;}
+
+            .office{
+                .content{
+                    display:block;
+                    > div{
+                        display:inline-block;
+                        &.title{display:block;}
+                    }
+                }  
+                
+                .icon{float:left;height:80px;width:40px;}
+                
+            }
+        }
+        &.listing-single{
+            .header{
+                .tools{float:left;display:none;}
+                .information_request{float:right;}
+            }
+            .flags{
+                display:flex;
+                flex-direction: row;
+                .flag{
+                    padding:10px;
+                }
+            }
+            .si-calculator{display:block;}
+            .detail-section{
+                .title{
+                    display:block;
+                    position:relative;
+                    .icon{
+                        position: absolute;
+                        right:0px;
+                        top:calc(50% - 10px);
+                    }
+                }
+                .spec-grid{
+                    display:block;
+                }
+                .unit-list{
+                    display:block;
+                    .room-list{
+                        display:block;
+                        .room-item{
+                            display:block;
+                            &.list-header{
+                                display:none;
+                            }
+                        }
+                    }
+                }
+            }
+            .details{
+                clear:both;
+                .left{width:66%;}
+                .right{width:33%;}
+            }
+
+            .medias{
+                float:left;
+                width:66%;
+                display:block;
+                .tabs{display:none;}
+               >.viewport > .trolley{display:block;}
+            }
+            .summary{
+                float:right;
+                width:33%;
+            }
+            
+            .si-image-slider{
+                > .viewport{
+                    > .trolley{
+                        display:block;
+                        white-space: nowrap;
+
+                        .item{
+                            float:left;clear:none;
+                            .caption{
+                                label{color:#fff;}
+                            }
+                        }
+
+                    }
+                }
+                .navigation-controls{
+                    .btn{
+                        color:#fff;
+                    }
+                }
+                .controls{display:none;}
+            }
+        }
+    }
+    #top .si-modal,
+    .si-modal{
+        box-sizing: border-box;
+        *{box-sizing: border-box;}
+
+        .si-modal-dialog{
+            .si-modal-content{
+                background:#fff;
+                
+            }
+            .modal-header{
+                display:block;
+                .close{
+                    position: absolute;
+                    right:0px;top:50%;
+                    transform:translateY(-50%);
+                }
+            }
+            .modal-footer{
+                display:block;
+            }
+            display:block;
+
+        }
+
+        &#information_request{
+            .modal-body{
+                .form{
+                    &.info-request{
+                        display:block;
+                    }       
+                }
+            }
+            
+        }
+    }
+    
+}

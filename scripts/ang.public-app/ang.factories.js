@@ -786,6 +786,9 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
             }
             
             
+            if(!$scope.isNullOrEmpty($item.available_area)){
+                $item.available_area_unit = $scope.getCaption($item.available_area_unit_code,'dimension_unit',true);
+            }
 
             $scope.compileListingRooms($item);
             $item.permalink = $scope.getPermalink($item);
@@ -1224,15 +1227,18 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
     }
 
     $scope.elmOffsetZIndex = function($elm){
-        const lElmZindex = window.getComputedStyle($elm).zIndex;
+        let lElmZindex = window.getComputedStyle($elm).zIndex;
 
-        if($elm.tagName == 'BODY') return lElmZindex;
+        if($elm.tagName == 'BODY') return 1;
 
         if(lElmZindex == 'auto'){
-            return $scope.elmOffsetZIndex($elm.parentNode);
+            lElmZindex = 1;
         }
+        
+        const lParentZIndex = $scope.elmOffsetZIndex($elm.parentNode);
+        if(!isNaN(lParentZIndex)) lElmZindex += lParentZIndex;
 
-        return lElmZindex;
+        return Number(lElmZindex);
     }
 
     return $scope;
@@ -1522,7 +1528,8 @@ function $siFilters($q,$siApi,$siUtils){
                 keyword : '',
                 min_price: null,
                 max_price: null,
-                location: null
+                location: null,
+                transaction_type: null
             },
             configs : null,
             state_loaded: false

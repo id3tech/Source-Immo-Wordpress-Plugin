@@ -171,6 +171,8 @@ siApp
   
   $scope.model = {};
   $scope._original = null;
+  $scope.previewElements = [];
+  $scope.computedStyles = null;
 
   $scope.actions = [
     {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
@@ -200,6 +202,15 @@ siApp
     }
 
     $scope._original = $params;
+
+    $scope.buildPreviewElement();
+    $scope.computeStyles();
+
+    $scope.$watch('model.list_item_layout.preset',  function($new, $old){
+      if($new == $old) return;
+
+      $scope.buildPreviewElement();
+    });
   }
 
   $scope.reset_default_value = function(){
@@ -242,10 +253,49 @@ siApp
         });
     }
   }
+
+  $scope.computeStyles = function(){
+    console.log($scope.configs.styles, $scope.model.style)
+    const lGlobalStyles = $scope.configs.styles == undefined ? {} : JSON.parse($scope.configs.styles);
+    const lLocalStyles = $scope.model.list_item_layout.styles == undefined ? {} : JSON.parse($scope.model.list_item_layout.styles);
+    console.log(lGlobalStyles, lLocalStyles);
+    
+    $scope.computedStyles = JSON.stringify(Object.assign({},lGlobalStyles, lLocalStyles));
+  }
   
   $scope.updateSource = function(){
     $scope.model.source = $scope.data_views.find(function($e){return($e.id==$scope.model.$$source_id)});
+  }
 
+  $scope.buildPreviewElement = function(){
+    $scope.previewElements = [];
+
+    $scope.previewElements = Array.from(new Array(3)).map($e => {
+      const lElement = {
+        layout: wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-element-' + $scope.model.list_item_layout.preset + '.html',
+      }
+      if($scope.model.type == 'listings'){
+        lElement.price = $scope.getPrice();
+        lElement.address = $scope.getAddress();
+        lElement.city = $scope.getCity();
+        lElement.category = $scope.getCategory();
+        lElement.subcategory = $scope.getSubcategory();
+        lElement.ref_number = $scope.getNumber(12345,19999);
+        lElement.bedrooms = $scope.getNumber(2,5);
+        lElement.bathrooms = $scope.getNumber(1,lElement.bedrooms);
+        lElement.region = $scope.getRegion();
+        lElement.avail_area = $scope.getNumber(10,20) * 100;
+      }
+
+      return lElement;
+    });
+
+    console.log('previewElements',$scope.previewElements);
+
+  }
+
+  $scope.buildSearchElement = function(){
+    $scope.model.search_engine_options.layout = wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-search-' + $scope.model.search_engine_options.type + '.html';
   }
 
   $scope.saveOrClose = function(){
@@ -374,6 +424,58 @@ siApp
       $scope.model.search_engine_options = $result;
     });
   }
+
+  $scope.editListItem = function($type){
+
+    $siUI.dialog('~/views/admin/dialogs/' + $type + 'ListItemEdit.html',$scope.model).then($result => {
+      $scope.model = $result;
+      $scope.computeStyles();
+      console.log('editListItem return with', $result);
+    });
+  }
+
+  $scope.previewLayerHasVar = function($item, $layer='main'){
+
+    if($scope.model.list_item_layout.displayed_vars[$layer] == undefined) return false;
+    return $scope.model.list_item_layout.displayed_vars[$layer].includes($item);
+  }
+
+  // ----------------------
+  //#region Randomized list data
+  $scope.getNumber = function($min, $max){
+    return $min + (Math.round(Math.random() * ($max-$min) ));
+  }
+
+  $scope.getAddress = function(){
+    const lNumber = $scope.getNumber(1000,2000);
+    const lStreetName = ['Tolkien','Montpellier','Dumas','Martin', 'Proust', 'Hugo', 'Balzac', 'Rimbaud', 'Camus' ].any();
+
+    return lNumber + ' ' + lStreetName;
+  }
+
+  $scope.getCity = function(){
+    return ['Montréal','Washington','Paris','Springfield','Franklin','Greenville','London'].any();
+  }
+
+  $scope.getRegion = function(){
+    return 'Region';
+  }
+
+  $scope.getPrice = function(){
+    const lPrice = $scope.getNumber(200, 500) * 1000;
+    return lPrice.formatPrice();
+  }
+
+  $scope.getCategory = function(){
+    return 'Residential';
+  }
+
+  $scope.getSubcategory = function(){
+    return ['Two-storey house','Bungalow','Split-level'].any();
+  }
+
+  //#endregion
+  // ---------------------
 });
 
 /**
@@ -383,7 +485,8 @@ siApp
 .controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
-
+  $scope.wpSiApiSettings = wpSiApiSettings;
+  
   $scope.configs = {};
   $scope.lang_codes = {
     fr: 'Français',
@@ -393,7 +496,7 @@ siApp
 
   $scope.wp_languages = null;
 
-  $scope.global_list = {
+  $rootScope.global_list = {
     sources: [],
     list_types: [
       {key: 'listings', label: 'Listings'},
@@ -423,13 +526,14 @@ siApp
         {name: 'standard', label: 'Standard'},
         {name: 'small', label: 'Reduced'},
         {name: 'minimal', label: 'Minimal'},
-        {name: 'picture-only', label: 'Picture only'}
+        {name: 'double-layer', label: 'Double Layers'}
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
         {name: 'standard-with-office', label: 'Standard with office'},
         {name: 'reduced', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'}
+        {name: 'minimal', label: 'Minimal'},
+        {name: 'double-layer', label: 'Double Layers'}
       ],
       cities: [
         {name: 'standard', label: 'Standard'}
@@ -437,6 +541,44 @@ siApp
       offices: [
         {name: 'standard', label: 'Standard'}
       ]
+    },
+    list_item_vars: {
+      listings: [
+        {name:'ref_number',label: 'Ref. number'},
+        {name:'price', label: 'Price'},
+        {name:'address',label: 'Address'},
+        {name:'city', label: 'City'},
+        {name:'description', label: 'Description'},
+        {name:'category', label: 'Category'},
+        {name:'subcategory', label: 'Subcategory'},
+        {name:'rooms', label: 'Rooms'},
+        {name:'region', label: 'Region'},
+        {name:'available_area', label:'Available area'},
+        {name:'flags',label: 'Flags'},
+        {name:'open_houses',label: 'Open houses'}
+      ],
+      brokers: [
+        {name:'firstname',label:'First name'},
+        {name:'lastname',label:'Last name'},
+        {name:'title',label:'Title'},
+        {name:'phone',label:'Phone'},
+        {name:'email',label:'Email'}
+      ]
+    },
+    list_item_image_hover_effects:{
+      listings: [
+        {name: 'none', label: 'None'},
+        {name: 'zoom', label: 'Zoom'},
+        {name: 'gallery', label: 'Gallery'}
+      ]
+    },
+    list_item_show_layer_effects:{
+      listings: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
     },
     detail_layouts:[
       {name: 'standard', label: 'Standard'},

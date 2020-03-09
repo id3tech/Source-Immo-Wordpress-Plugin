@@ -316,6 +316,11 @@ class SourceImmoLayout{
   public $preset = 'standard';
   public $scope_class = '';
   public $page = null;
+  public $image_hover_effect = 'none';
+  public $secondary_layer_effect = 'fade';
+  public $displayed_vars = null;
+  public $styles = null;
+  
   /**
    * Communication method for forms
    */
@@ -330,6 +335,20 @@ class SourceImmoLayout{
     $this->type = $type;
     $this->communication_mode = 'basic';
     
+  }
+
+  public function hasDisplayVar($item, $layer='main'){
+    if($this->displayed_vars == null) return true;
+    if(!isset($this->displayed_vars->{$layer})) return false;
+
+    $layerVars = $this->displayed_vars->{$layer};
+    return in_array($item, $layerVars);
+  }
+
+  public function stylesToAttr(){
+    if($this->styles == null) return '';
+    
+    return str_replace(array('{','}'),'',$this->styles);
   }
 }
 

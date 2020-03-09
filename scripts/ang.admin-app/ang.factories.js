@@ -379,7 +379,7 @@ siApp
         targetEvent: null,
         clickOutsideToClose:true,
         fullscreen: true,
-        preserveScope: false,
+        multiple:true,
         locals : {
           $params: $params
         }

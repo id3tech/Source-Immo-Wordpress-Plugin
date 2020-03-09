@@ -1075,6 +1075,20 @@ class SourceImmo {
 
   }
 
+  public static function styleToAttr($styles){
+    if($styles == null) return '';
+    $result = array();
+    $parsed = json_decode($styles);
+    foreach ($parsed as $key => $value) {
+      if($value != ''){
+        if($key == '--uls-label') $value = "'" . $value . "'";
+        $result[] = $key . ':' . $value;
+      }
+    }
+    
+    return implode(';', $result);
+  }
+
   /**
   PRIVATES
   **/
@@ -1478,6 +1492,8 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     else{
       $item->location->full_address = $item->location->city;
     }
+
+
     
 
     $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
@@ -1488,6 +1504,8 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     else{
       $item->subcategory='';
     }
+
+    // Price
     if($item->status_code == 'SOLD'){
       if(isset($item->price->sell)) {
         $item->price_text = __('Sold', SI);
@@ -1499,6 +1517,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     else{
       $item->price_text = self::formatPrice($item->price);
     }
+
+    // Areas
+    $item->available_area_unit = $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit');
     
     if(isset($item->brokers)){
       $data = (object) array();
