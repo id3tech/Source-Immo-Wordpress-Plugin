@@ -795,7 +795,7 @@ siApp
 
   $scope.setDisplayPages = function(){
     $scope.configuration_step += 1;
-    console.log('setDeisplayPages', $scope.wp_languages);
+    console.log('setDisplayPages', $scope.wp_languages);
     $scope.wp_languages.forEach($l => {
       $scope.addPageLanguage($l);  
     })
@@ -826,8 +826,8 @@ siApp
           Object.keys($scope.default_page[$l.code]).forEach($pKey => {
             if($scope.default_page[$l.code][$pKey] == 'NONE') return; 
 
-            const lMap =lShortcodeMap[$pKey];
-
+            const lMap = lShortcodeMap[$pKey];
+            if(lMap == undefined) return;
             
             if(typeof lMap.list == 'function') {
               lMap.list();
