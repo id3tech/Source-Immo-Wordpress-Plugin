@@ -2,7 +2,7 @@
     <form ng-cloak>
       <md-toolbar>
         <div class="md-toolbar-tools">
-          <h2 lstr>Listing search engine</h2>
+          <h2 lstr>Broker search engine</h2>
           <span flex></span>
           <md-button class="md-icon-button" ng-click="cancel()">
             <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
@@ -13,31 +13,9 @@
       <md-dialog-content>
         <div class="md-dialog-content" layout="column">
           
-          <md-input-container>
-            <label lstr>Display</label>
-            <md-select ng-model="model.type">
-                <md-option value="full"><lstr>Show tabs with respective options</lstr></md-option>
-                <md-option value="focused"><lstr>Focus search for handpicked fields</lstr></md-option>
-            </md-select>
-          </md-input-container>
-
-          <md-input-container ng-show="model.type=='full'">
-            <label lstr>Focus tabs on</label>
-            <md-select ng-model="model.tabs" multiple>
-                <md-optgroup label="{{'By categories'.translate()}}">
-                  <md-option value="residential"><lstr>Residential</lstr></md-option>
-                  <md-option value="commercial"><lstr>Commercial</lstr></md-option>
-                  <md-option value="others"><lstr>Others</lstr></md-option>
-                </md-optgroup>
-                <md-optgroup label="{{'By transaction'.translate()}}">
-                  <md-option value="for-sale"><lstr>For sale</lstr></md-option>
-                  <md-option value="for-rent"><lstr>For rent</lstr></md-option>
-                </md-optgroup>
-            </md-select>
-          </md-input-container>
-
-          <div class="input-container" ng-show="model.type=='focused'">
-            <label lstr>Focus tabs on</label>
+          
+          <div class="input-container" ng-show="model.type=='full'">
+            <label lstr>Shown panels</label>
             <div class="input">
               <md-checkbox ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-checked="model.fields.includes(field.key)" ng-click="toggleField(field.key)">{{field.caption}}</md-checkbox>
             </div>

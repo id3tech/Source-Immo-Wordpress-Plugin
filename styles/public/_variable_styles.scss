@@ -1,0 +1,89 @@
+#top .si, #top .si-modal, // enfold overrides
+.si-modal, .si{
+
+    
+    .si-container{
+        border-radius: var(--container-border-radius);
+        border: var(--container-border);
+        padding: var(--container-padding);
+        display:grid;
+        position: relative;
+    }
+
+    
+    .si-element{
+        position:relative;
+        border-radius: var(--element-border-radius);
+        border: var(--element-border);
+    }
+
+    .si-element-padding{
+      padding: var(--element-padding);
+    }
+
+    .si-container-padding{
+        padding: var(--container-padding);
+    }
+
+
+    .si-highlight-background{
+        background: var(--highlight);
+        --text-color: var(--highlight-text);
+    }
+
+    .si-highlight-text{
+        --text-color: var(--highlight-text);
+    }
+
+    .contrast-container{
+        padding:var(--container-padding);
+    }
+    
+    .si-background-small-contrast{
+        background:var(--small-contrast-color);
+        --text-color: var(--small-contrast-text-color);
+    }
+
+    .si-background-medium-contrast{
+        background:var(--medium-contrast-color);
+        --text-color: var(--medium-contrast-text-color);
+    }
+
+    .si-background-high-contrast{
+        background:var(--high-contrast-color);
+        --text-color: var(--high-contrast-text-color);
+    }
+
+    .si-price-sold{
+      background-color: var(--listing-item-sold-bg-color);
+      --text-color: var(--listing-item-sold-text-color);      
+    }
+
+    .si-button{
+        transition:0.25s;
+        text-decoration: none;
+        display:inline-block;
+        padding: 0.5em 1em;
+        border-radius: var(--element-border-radius);
+        background: var(--button-bg-color);
+        --text-color: var(--button-text-color);
+        font-family: var(--button-font-name);
+
+        &:hover{
+            background: var(--button-hover-bg-color);
+            --text-color: var(--button-hover-text-color);
+        }
+    }
+
+    .si-button.alt{
+      background: var(--button-alt-bg-color);
+      --text-color: var(--button-alt-text-color);
+      &:hover{
+        background: var(--button-alt-hover-bg-color);
+        --text-color: var(--button-alt-hover-text-color);
+      }
+    }
+
+
+
+}

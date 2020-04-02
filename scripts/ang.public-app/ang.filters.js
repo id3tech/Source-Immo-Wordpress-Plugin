@@ -36,14 +36,18 @@ siApp
 .filter('asArray', 
 function asArrayFilter(){
     return function($object){
-        let lResult = [];
+        const lResult = [];
         if($object){
-            for(key in $object){
-                if(typeof $object[key] !== 'function'){
-                    $object[key].__$key = key;
-                    lResult.push($object[key]);
-                }
-            }
+            Object.keys($object).forEach(function($k){
+                $object[$k].__$key = $k;
+                lResult.push($object[$k]);
+            });
+            // for(key in $object){
+            //     if(typeof $object[key] !== 'function'){
+            //         $object[key].__$key = key;
+            //         lResult.push($object[key]);
+            //     }
+            // }
         }
         
         return lResult;
@@ -56,13 +60,13 @@ function orderObjectByFilter(){
     return function(input, attribute) {
         
         if (!angular.isObject(input)) return input;
-        var array = [];
-        for(var objectKey in input) {
-            input[objectKey].__$key = objectKey;
-            array.push(input[objectKey]);
-        }
-   
-        array.sort(function(a, b){
+        const lResult = [];
+        Object.keys(input).forEach(function($k){
+            input[$k].__$key = $k;
+            lResult.push(input[$k]);
+        });
+           
+        lResult.sort(function(a, b){
             if(!isNaN(a[attribute])){
                 a = parseInt(a[attribute]);
                 b = parseInt(b[attribute]);
@@ -76,7 +80,7 @@ function orderObjectByFilter(){
             }
         });
 
-        return array;
+        return lResult;
     }
 });
 

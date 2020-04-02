@@ -16,7 +16,6 @@ class SourceImmo {
 
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
-    
 
     if (!is_admin() ){
       // create an instance of the shortcodes class to force code bindings

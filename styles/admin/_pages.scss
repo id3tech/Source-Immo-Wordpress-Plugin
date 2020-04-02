@@ -104,8 +104,10 @@
 
             
 
-            &.listings-preview{
 
+
+            &.listings-preview,
+            &.brokers-preview{
                 .viewport{
                   &.search-layout-orientation-v{
                     grid-template-columns: auto 1fr;
@@ -116,15 +118,6 @@
                       }
                     }
                   }
-                }
-
-                .list-components{
-                    .component.list-items{
-                        .component-elements{
-                            grid-template-columns: repeat(auto-fill, minmax(var(--preview-listing-item-column-width),1fr));
-                            
-                        }
-                    }
                 }
 
                 .search-engine-container{
@@ -176,10 +169,12 @@
 
                   .inputs{
                     display:grid;
-                    grid-template-columns: 1fr repeat(5, auto);
+                    grid-template-columns: 1fr repeat(var(--input-count), auto);
                     place-items:center stretch;
                     gap: 40px;
-
+                    &.no-searchbox{
+                      grid-template-columns:repeat(var(--input-count), auto)  1fr;
+                    }
                     .search-box{
                       position:relative;
                       &::before{
@@ -231,10 +226,7 @@
                     opacity: 0.75;
                     >[ng-include]{display:contents;}
                     
-                    .image{
-                        height: calc(var(--preview-listing-item-column-width) * var(--preview-listing-item-picture-ratio));
-                        
-                    }
+                    
                     .rooms{
                         display:grid;
                         grid-auto-flow: column;
@@ -347,6 +339,73 @@
                         }
                     }
                 }
+            }
+
+            
+            &.listings-preview{
+              --input-count: 5;
+              .list-components{
+                  .component.list-items{
+                      .component-elements{
+                          grid-template-columns: repeat(auto-fill, minmax(var(--preview-listing-item-column-width),1fr));
+                          
+                          .image{
+                            height: calc(var(--preview-listing-item-column-width) * var(--preview-listing-item-picture-ratio));   
+                          }
+
+                          .address{
+                              font-size:1.2em;
+                              text-transform: uppercase;
+                          }
+                          .city,.region{
+                              font-size:0.8em;
+                          }
+
+                          .category{
+                            font-size:1.2em;
+                          }
+                      }
+                  }
+              }
+              
+              
+            }
+
+            &.brokers-preview{
+              --input-count: 2;
+
+
+              .list-components{
+                grid-template-columns: 1fr 1fr;
+                .list-map-toggle{display:none;}
+                .list-meta{
+                  place-self: center start;
+                }
+                .component.list-items{
+                    .component-elements{
+                        grid-template-columns: repeat(auto-fill, minmax(var(--preview-broker-item-column-width),1fr));
+                        
+                        .image{
+                          height: calc(var(--preview-broker-item-column-width) * var(--preview-broker-item-picture-ratio));   
+                        }
+                    }
+                }
+              }
+
+
+              .si-label{
+                text-align:center;
+                &.firstname, &.lastname{
+                  text-transform: uppercase;
+                }
+                &.firstname{
+                  font-size:1rem;
+                }
+                &.lastname, &.fullname{
+                  font-size:1.25rem;
+                }
+
+              }
             }
           }
 

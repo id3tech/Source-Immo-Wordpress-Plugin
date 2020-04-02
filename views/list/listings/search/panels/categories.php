@@ -12,8 +12,9 @@
                 <div class="list-container">
                     <si-checkbox
                         data-ng-repeat="(key,item) in dictionary.building_category"
-                        data-ng-click="filter.addFilter('building.category_code','in',filter.getSelection(dictionary.building_category))"
-                        data-ng-model="item.selected"
+                        data-si-value="{{key}}"
+                        data-ng-model="filter.data.building_categories"
+                        si-change="filter.update()"
                         data-label="{{item.caption.translate()}}"
                         ></si-checkbox>
                 </div>
@@ -24,9 +25,9 @@
                 <div class="list-container">
                     <si-checkbox
                         data-ng-repeat="item in subcategory_list | filter: mainSubCategoryMatchFilter | orderBy: 'caption'"
-                        data-ng-click="filter.addFilter('subcategory_code','in',getSelection(dictionary.listing_subcategory))"
-                        ng-disabled="category.selected"
-                        data-ng-model="dictionary.listing_subcategory[item.__$obj_key].selected"
+                        data-si-value="{{item.__$key}}"
+                        data-ng-model="filter.data.subcategories"
+                        si-change="filter.update()"
                         data-label="{{item.caption}}"
                                 ></si-checkbox>
                 </div>

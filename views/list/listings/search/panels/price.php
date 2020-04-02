@@ -6,7 +6,6 @@
     
         <div class="filter-panel-content">
             
-
             <div class="price-inputs">
                 <si-price-range-slider 
                     model="priceRange" on-change="updatePrice()" 

@@ -53,8 +53,9 @@ function siList(){
                 $scope.ghost_list = [];
                 for(let $i = 0;$i<12; $i++){
                     $scope.ghost_list.push({
-                        location :{city:'City',civic_address: '00 address'},
+                        location :{city:'City',civic_address: '00 address', region: 'Region'},
                         price: {sell:{amount:0}},
+                        
                         category: 'Category',
                         subcategory: 'Subcategory',
                         ref_number: 'XXXXXX',
@@ -62,7 +63,9 @@ function siList(){
                         last_name: 'Last name',
                         license_type : 'License type',
                         listing_count: 0,
-                        phones:{cell:'555-555-5555'},
+                        office: {name : 'Office'},
+                        email: 'email@example.com',
+                        phones:{mobile:'555-555-5555'},
                         description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.'
                         
                     });
@@ -566,13 +569,24 @@ function siList(){
                 return $siUtils.getTransaction($item, $sanitize);
             }
 
-            $scope.layoutAllowVar = function($item, $layer){
-                $layer = $layer == undefined ? 'main' : $layer;
-                if($scope.configs == null) return false;
-                if($scope.configs.list_item_layout == undefined) return false;
+            $scope.layoutAllowVar = function($item, $layer, $default){
+                $default = ($default != undefined) 
+                                ? $default 
+                                : (typeof $layer === 'boolean') 
+                                    ? $layer 
+                                    : false;
+
+                $layer = $layer == undefined
+                            ? 'main'
+                            : (typeof $layer === 'boolean')
+                                ? 'main' 
+                                : $layer;
+
+                if($scope.configs == null) return $default;
+                if($scope.configs.list_item_layout == undefined) return $default;
                 
-                if($scope.configs.list_item_layout.displayed_vars == undefined) return true;
-                if($scope.configs.list_item_layout.displayed_vars[$layer] == undefined) return false;
+                if($scope.configs.list_item_layout.displayed_vars == undefined) return $default;
+                if($scope.configs.list_item_layout.displayed_vars[$layer] == undefined) return $default;
 
                 return $scope.configs.list_item_layout.displayed_vars[$layer].includes($item);
             }

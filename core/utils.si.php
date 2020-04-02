@@ -470,3 +470,29 @@ if(!function_exists('iifHasValue')){
     return $falseResult;
   }
 }
+
+
+
+function convertObjectClass($array, $final_class) { 
+  return unserialize(sprintf( 
+      'O:%d:"%s"%s', 
+      strlen($final_class), 
+      $final_class, 
+      strstr(serialize($array), ':') 
+  )); 
+}
+
+function parseToObject($data, &$result){
+  foreach($data as $key => $value){
+    if(property_exists($result,$key)){
+      
+      if(is_array($value)){
+      
+        foreach ($value as $item) {
+          
+        }
+      }  
+    }
+    
+  }
+}

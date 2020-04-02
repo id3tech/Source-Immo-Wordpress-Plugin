@@ -13,26 +13,26 @@
                         data-ng-repeat="region in region_list | orderObjectBy: 'caption'" 
                         >
 
-                        <div class="list-item-title region-name " 
-                                data-ng-click="expandSublist(region_list,region)"
-                                data-ng-click-off="changeRegionTab(region.__$obj_key)">
-                            <h5>{{region.caption}}</h5>                                
+                        <div class="list-item-title region-name {{region.expanded ? 'expanded' : ''}}">
+                            <si-checkbox 
+                                data-ng-model="filter.data.regions"
+                                data-si-change="filter.update()"
+                                data-si-value="{{region.__$obj_key}}"
+                                ></si-checkbox> 
+                            <h5 data-ng-click="expandSublist(region_list,region)"
+                                data-ng-click-off="changeRegionTab(region.__$obj_key)"><span>{{region.caption}}</span> <i class="fal fa-plus"></i></h5>                                
                         </div>
 
                         <div class="sublist region-cities {{region.expanded ? 'expanded' : ''}}" 
                             style="--item-count:{{(city_list | filter : {parent: region.__$obj_key}).length}}">
 
                             <div class="sublist-container city-container">
-                                <si-checkbox class="sublist-all"
-                                    data-label="{{'All cities'.translate()}}" 
-                                    data-ng-model="region.selected"
-                                    data-ng-click="filter.addFilter('location.region_code','in',getSelection(region_list))"></si-checkbox>
-
                                 <si-checkbox
                                     data-ng-repeat="city in city_list | filter : {parent: region.__$obj_key} | orderBy: 'caption'"
-                                    data-ng-click="filter.addFilter('location.city_code','in',getSelection(city_list))"
-                                    data-ng-model="city.selected"
-                                    ng-disabled="region.selected"
+                                    data-ng-model="filter.data.cities"
+                                    data-si-change="filter.update()"
+                                    data-si-value="{{city.__$obj_key}}"
+                                    ng-disabled="filter.data.regions.includes(region.__$obj_key)"
                                     data-label="{{city.caption.replace('(' + region.caption +')','')}}"
                                     ></si-checkbox>
                             </div>

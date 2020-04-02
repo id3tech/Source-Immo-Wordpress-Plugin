@@ -151,7 +151,8 @@
         
     </div>
 
-    <div  class="apply-button">
-        <md-button class="md-primary md-raised" ng-click="applyShortCodeHandler()">{{'Finish'.translate()}}</md-button>
+    <div class="apply-button">
+        <md-button class="" ng-click="skipPageBuilding()">{{'Skip'.translate()}}</md-button>
+        <md-button class="md-primary md-raised" ng-click="applyShortCodeHandler()">{{'Apply pages'.translate()}}</md-button>
     </div>
 </div>

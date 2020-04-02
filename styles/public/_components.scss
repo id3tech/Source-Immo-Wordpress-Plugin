@@ -349,16 +349,23 @@ si-checkbox, si-radio{
     overflow:hidden;
     max-height:0px;
     max-width:80vw;
-    transition:max-height 0.25s;
+    transition: max-height 0.25s;
     background-color:var(--background-color);
     transform:translate(-50%,-50%);
     opacity:0;
     //z-index:99999999;
     border:var(--element-border);
     border-radius:var(--element-border-radius);
-    left:0px;
-    width:0px;
+    left:50%;
+    top:50%;
+    
+
     pointer-events: none;
+
+    .si-dropdown-panel-content{
+        padding:10px 0;
+    }
+
     .dropdown-item{
         white-space: nowrap;
         padding:5px 10px;
@@ -376,23 +383,48 @@ si-checkbox, si-radio{
             border-left-color:var(--highlight);
             text-shadow: -0.06ex 0 currentColor, 0.06ex 0 currentColor;
         }
+
+        @include media($phone){
+            font-size: 1.2rem;
+        }
+    }
+
+    @include media($phone){
+        position:fixed;
+        //width:100vw;
+        transition: 0.25s;
+        max-width:unset;
+        left:0px;
+        bottom:0px;
+        width:100%;
+        top:unset;
+        transform:translate(0%, 0%);
     }
 
     &.expanded{
-        max-height:initial;
+        top: calc( var(--relative-cy) + var(--relative-pageYOffset));
+        left: var(--relative-cx);
+        max-height:var(--potential-height);
         opacity:1;
-        padding:10px 0;
         box-shadow: rgba(#000,0.5) 2px 2px 10px;
         pointer-events: auto;
         width:unset;
+
+        @include media($phone){
+
+            top: unset;
+            left:0px;
+            width:100vw;
+            min-height:25vh;
+            max-height:60vh;
+        }
     }
 }
 
 #top .si-input-container,
 .si-input-container{
-    padding: var(--element-padding);
     position:relative;
-    label{
+    > label{
         position: absolute;
         pointer-events: none;
         opacity:0.5;
@@ -400,16 +432,32 @@ si-checkbox, si-radio{
         top:50%;
         transform:translateY(-50%);
         padding:var(--element-padding);
+        left: 0rem;
         transition:0.25s;
         transform-origin: top left;
     }
-    &.si-has-value{
-        label{
+    
+    &.si-has-value, &.si-float-label{
+        > label{
             //top:0px;
             opacity:1;
             transform: translateY(-100%) scale(.85);
             padding-left:0;
         }
+    }
+    &.si-float-label{
+        padding-top:2.25rem;
+        > label{
+            top:0px;
+            transform: translateY(-0%) scale(.85);
+        }
+    }
+    
+    &.si-input-group{
+        display:inline-grid;
+        grid-auto-flow: column;
+        gap: 0.5rem;
+        place-items: center;
     }
 }
 
@@ -428,11 +476,25 @@ si-checkbox, si-radio{
         min-height: 1em;
         line-height:1em;
         color:var(--text-color);
+        .si-label{
+            opacity:0.5;
+            font-style: italic;
+        };
         .fal{
             position: absolute;
             right:0;
             top:50%;
             transform:translateY(-50%);
+        }
+    }
+    &.si-has-value{
+        border-color: var(--highlight);
+
+        .si-selected-value{
+            .si-label{
+                opacity:1;
+                font-style: normal;
+            }
         }
     }
 }
@@ -442,20 +504,91 @@ si-checkbox, si-radio{
     overflow:hidden;
     max-height:0px;
     max-width:80vw;
+    
     transition:
         max-height 0.25s,
         opacity 0.25s;
     background-color:var(--background-color);
     transform:translate(-50%,-50%);
     opacity:0;
-    //z-index:99999999;
+    
     border:var(--element-border);
     border-radius:var(--element-border-radius);
     left:0px;
     width:0px;
     pointer-events: none;
-    si-option{
-        display:block;
+
+    // position from relative var
+    top: calc(var(--relative-cy) + var(--relative-pageYOffset));
+    left: var(--relative-cx);
+    min-width: var(--relative-width);
+    
+    @include media($phone){
+        position:fixed;
+        //width:100vw;
+        
+        max-width:unset;
+        left:0px;
+        bottom:0px;
+        top:unset;
+        transform:translate(0%, 0%);
+    }
+
+    > .fal{
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        padding:0.25rem;
+        transform: translateY(-100%);
+        font-size: 1.4rem;
+        color: #fff;
+        z-index: 50;
+        cursor: pointer;
+        display:none;
+        @include media($phone){
+            display:block;
+        }
+    }
+    .si-panel-child-container{
+        max-height:var(--potential-height);
+        overflow:hidden auto;
+        @include media($phone){
+            padding:0.5rem 0;
+            max-height: 80vh;
+        }
+        &::-webkit-scrollbar-track
+        {
+            border-radius: 10px;
+            background-color: transparent;
+        }
+
+        &::-webkit-scrollbar
+        {
+            width: 0.5rem;
+            background-color: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb
+        {
+            border-radius: 10px;
+            background-color: var(--highlight);
+        }
+    }
+    .si-option-group{
+        .si-group-title{
+            padding: 0.5rem;
+            text-transform: uppercase;
+            background: var(--small-contrast-color);
+            color: var(--small-contrast-text-color);
+            position:sticky;
+            top:0px;
+            z-index:5;
+        }
+    }
+    .si-option{
+        display:flex;
+        align-items: center;
+        flex-direction: row;
         white-space: nowrap;
         padding:5px 10px;
         cursor:pointer;
@@ -465,6 +598,7 @@ si-checkbox, si-radio{
         color:var(--text-color);
         transition:0.25s;
         box-sizing: content-box;
+        z-index:2;
         &.selected{    
             border-left-color: var(--highlight);
             background:none;
@@ -473,16 +607,51 @@ si-checkbox, si-radio{
             border-left-color:var(--highlight);
             text-shadow: -0.06ex 0 currentColor, 0.06ex 0 currentColor;
         }
+
+        @include media($phone){
+            font-size: 1.25rem;
+        }
     }
 
     &.expanded{
         max-height:calc(var(--potential-height) + 20px);
         opacity:1;
-        padding:10px 0;
         box-shadow: rgba(#000,0.5) 2px 2px 10px;
         pointer-events: auto;
         width:unset;
+        overflow: visible;
+
+        @include media($phone){
+            width:100vw;
+            min-height:25vh;
+            max-height:75vh;
+        }
     }
+}
+
+
+#top .si-click-trap,
+.si-click-trap{
+
+    position:fixed;
+    top:0px;left:0px;
+    width:100%;height:100%;
+    pointer-events: none;
+    opacity:0;
+    transition:0.25s;
+    @include media($phone){
+        background: #000000;
+    }
+
+    &.active{
+        opacity:.5;
+        pointer-events: auto;
+    }
+}
+
+.si-click-trap{
+
+    
 }
 
 // Modal

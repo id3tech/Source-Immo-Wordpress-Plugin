@@ -3,7 +3,7 @@
 Plugin Name: Source.immo
 Plugin URI: https://source.immo
 Description: Connect to your Source.immo account and display your real estate venues with easy tools and shortcodes
-Version: 0.3.04
+Version: 0.4.0
 Author: ID-3 Technologies
 Author URI: https://id-3.net/source-immo
 License: GPLv2 or later
@@ -12,7 +12,7 @@ Text Domain: si
 define( 'SI_NAME', 'Source.immo');
 define( 'SI', 'si' );
 define( 'SI_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');
-define( 'SI_VERSION', '0.3.04 BETA' );
+define( 'SI_VERSION', '0.4.0 BETA' );
 define( 'SI_MINIMUM_WP_VERSION', '4.0' );
 define( 'SI_PLUGIN', __FILE__);
 define( 'SI_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );

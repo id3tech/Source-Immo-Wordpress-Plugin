@@ -5,12 +5,18 @@
 siApp
 .controller('publicCtrl', 
 function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig){
+   
+
+
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
     $scope.statics = {
         isNullOrEmpty: function($value) {return $value==null || $value == '' || $value.length == 0}
     };
+
+    
+
 
     $scope.init = function(){
         $siConfig.get().then(function($configs){

@@ -278,6 +278,7 @@ $locales.fr = {};$locales.fr.global =
     , "listings" : "propriétés"
     , "brokers" : "courtiers"
     , "offices" : "bureaux"
+    , "Fullname" : "Nom (complet)"
 
     , "Configure" : "Configurer"
     , "List item edit" : "Édition des éléments de liste"
@@ -344,6 +345,9 @@ $locales.fr = {};$locales.fr.global =
     , "{0} offices" : "{0} bureaux"
     , "1 Bedroom {0}" : "{0} - 1 chambre"
     , "{0} Bedrooms {1}" : "{1} - {0} chambres"
+    , "No listing" : "Aucune inscription"
+    , "1 listing" : "1 inscription"
+    , "{0} listings" : "{0} inscriptions"
     // Public - SEARCH
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"
@@ -369,6 +373,8 @@ $locales.fr = {};$locales.fr.global =
     , "More" : "Plus de critères"
     , "Any" : "Peu importe"
     , "No limit" : "Aucune limite"
+    , "Residential" : "Résidentiel"
+    , "Commercial" : "Commercial"
     , "Always" : "Toujours"
     , "Online for" : "En ligne depuis"
     , "Online since" : "En ligne depuis"
@@ -439,9 +445,15 @@ $locales.fr = {};$locales.fr.global =
     , "Toggle all" : "Basculer tous"
     , "All cities" : "Toutes les villes"
     , "License" : "Permis"
+    , "Licenses" : "Permis"
     , "Alphabetical" : "Alphabétique"
     , "First letter of the last name" : "Première lettre du nom"
     
+    // Licenses type (Preview)
+    , "Real estate broker" : "Courtier immobilier"
+    , "Certified real estate broker" : "Courtier immobilier agréé"
+    , "Residential Real Estate Broker" : "Courtier immobilier résidentiel"
+
     // Public - SINGLE LISTING
     , "Presented by" : "Présenté par"
     , "You will find more informations and tools at the following address" : "Vous trouverez plus d'information et d'outils à l'adresse suivante"
@@ -451,6 +463,7 @@ $locales.fr = {};$locales.fr.global =
     , "for sell for " : "à vendre pour "
     , "for lease for " : "à louer pour "
     , "Sold" : "Vendu"
+    , "On the market" : "Sur le marché"
     , "Rented" : "Loué"
     , "Pictures" : "Photos"
     , "Videos" : "Vidéos"

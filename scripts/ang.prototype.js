@@ -31,8 +31,10 @@ if(typeof [].any === 'undefined'){
         if(this.length < 1) return null;
         if(this.length == 1) return this[0];
 
-        const lIndex = Math.round(Math.random() * this.length);
-        return this[lIndex];
+        const lIndex = Math.round(Math.random() * this.length-1);
+        const lResult = this[lIndex];
+        
+        return isNullOrEmpty(lResult) ? this[0] : lResult;
     }
 }
 
@@ -85,7 +87,12 @@ if(typeof isNullOrEmpty === 'undefined'){
         if(typeof $value == 'undefined') return true;
         if($value == null) return true;
         if($value == '') return true;
-        if(Array.isArray($value) && $value.length == 0) return true;
+        if(Array.isArray($value)){
+            if($value.length == 0) return true;
+            if($value.every(function($e){return $e==null})) return true;
+        }
+        
+        return false;
     }
 }
 

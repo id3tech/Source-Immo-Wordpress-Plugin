@@ -3,12 +3,17 @@
 <div class="city si-label si-background-high-contrast" ng-show="previewLayerHasVar('city')">{{item.city}}</div>
 <div class="region si-label si-background-high-contrast" ng-show="previewLayerHasVar('region')">{{item.region}}</div>
 <div class="price si-label  {{$index > 1 ? 'si-price-sold' : 'si-background-medium-contrast'}}" ng-show="previewLayerHasVar('price')">{{$index > 1 ? 'SOLD'.translate() : item.price}}</div>
+
+<div class="category  si-background-small-contrast si-label" ng-show="previewLayerHasVar('category')">{{item.category}}</div>
+<div class="subcategory si-background-small-contrast si-label" ng-show="previewLayerHasVar('subcategory')">{{item.subcategory}}</div>
+
 <div class="ref-number si-label si-listing-ref-number" ng-show="previewLayerHasVar('ref_number')">{{item.ref_number}}</div>
-<div class="category si-label" ng-show="previewLayerHasVar('category')">{{item.category}}</div>
+
+<div class="area si-label" ng-show="previewLayerHasVar('available_area')">{{item.avail_area}} SF</div>
+
 <div class="rooms si-label" ng-show="previewLayerHasVar('rooms')">
     <div><i class="fal fa-bed"></i> {{item.bedrooms}}</div>
     <div><i class="fal fa-bath"></i> {{item.bathrooms}}</div>
 </div>
-<div class="subcategory si-label" ng-show="previewLayerHasVar('subcategory')">{{item.subcategory}}</div>
-<div class="area si-label" ng-show="previewLayerHasVar('available_area')">{{item.avail_area}} SF</div>
+
 <div class="description si-label" ng-show="previewLayerHasVar('description')">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur condimentum non nibh ut vehicula. Duis faucibus eros id convallis pellentesque. Aenean dictum ultricies massa a pulvinar. Cras eu ligula elit. Proin urna nibh, cursus et auctor eu, cursus lobortis enim.</div>

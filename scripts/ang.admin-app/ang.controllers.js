@@ -163,320 +163,6 @@ siApp
   }
 });
 
-// Edit
-siApp
-.controller('listEditCtrl', function($scope, $rootScope,$q, $siUtils,$siUI){
-  BasePageController('listEdit', $scope,$rootScope);
-
-  
-  $scope.model = {};
-  $scope._original = null;
-  $scope.previewElements = [];
-  $scope.computedStyles = null;
-
-  $scope.actions = [
-    {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
-    {label: 'Cancel'.translate(), action: $scope.cancel},
-  ];
-
-  $scope.init = function($params){
-    console.log('listEdit init',$scope.configs);
-
-    if(typeof $params == 'string'){
-      $scope.model = {
-        alias: 'New {0} list'.translate().format($params.translate()),
-        $$source_id : $scope.configs.default_view,
-        type: $params
-      }
-
-      $scope.reset_default_value();
-    }
-    else{
-
-      $scope.model = angular.copy($params);
-      if($scope.model.source != null){
-        $scope.model.$$source_id =  $scope.model.source.id;
-      }
-      
-      $scope.validate();
-    }
-
-    $scope._original = $params;
-
-    $scope.buildPreviewElement();
-    $scope.computeStyles();
-
-    $scope.$watch('model.list_item_layout.preset',  function($new, $old){
-      if($new == $old) return;
-
-      $scope.buildPreviewElement();
-    });
-  }
-
-  $scope.reset_default_value = function(){
-    $scope.model = angular.merge($scope.model,{
-      sort: 'auto',
-        sort_reverse : false,
-        limit: 0,
-        searchable:true,
-        search_engine_options: {
-          type:'full',
-          focus_category: null,
-          orientation: 'h'
-        },
-        sortable:true,
-        mappable: true,
-        filter_group : {
-          filters : [],
-          filter_groups: [],
-          operator:'and'
-        }
-    });
-
-    switch($scope.model.type){
-      case "listings":
-      case "brokers":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'standard', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-        break;
-      case "cities":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-      case "offices":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-    }
-  }
-
-  $scope.computeStyles = function(){
-    console.log($scope.configs.styles, $scope.model.style)
-    const lGlobalStyles = $scope.configs.styles == undefined ? {} : JSON.parse($scope.configs.styles);
-    const lLocalStyles = $scope.model.list_item_layout.styles == undefined ? {} : JSON.parse($scope.model.list_item_layout.styles);
-    console.log(lGlobalStyles, lLocalStyles);
-    
-    $scope.computedStyles = JSON.stringify(Object.assign({},lGlobalStyles, lLocalStyles));
-  }
-  
-  $scope.updateSource = function(){
-    $scope.model.source = $scope.data_views.find(function($e){return($e.id==$scope.model.$$source_id)});
-  }
-
-  $scope.buildPreviewElement = function(){
-    $scope.previewElements = [];
-
-    $scope.previewElements = Array.from(new Array(3)).map($e => {
-      const lElement = {
-        layout: wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-element-' + $scope.model.list_item_layout.preset + '.html',
-      }
-      if($scope.model.type == 'listings'){
-        lElement.price = $scope.getPrice();
-        lElement.address = $scope.getAddress();
-        lElement.city = $scope.getCity();
-        lElement.category = $scope.getCategory();
-        lElement.subcategory = $scope.getSubcategory();
-        lElement.ref_number = $scope.getNumber(12345,19999);
-        lElement.bedrooms = $scope.getNumber(2,5);
-        lElement.bathrooms = $scope.getNumber(1,lElement.bedrooms);
-        lElement.region = $scope.getRegion();
-        lElement.avail_area = $scope.getNumber(10,20) * 100;
-      }
-
-      return lElement;
-    });
-
-    console.log('previewElements',$scope.previewElements);
-
-  }
-
-  $scope.buildSearchElement = function(){
-    $scope.model.search_engine_options.layout = wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-search-' + $scope.model.search_engine_options.type + '.html';
-  }
-
-  $scope.saveOrClose = function(){
-    if($scope.hasChanged()){
-      
-      
-      $scope.renewSearchToken().then(function($searchToken){
-        $scope.model.search_token = $searchToken;
-
-        const lResult = angular.copy($scope.model);
-
-        lResult.show_list_meta = (lResult.show_list_meta == undefined) ? false : lResult.show_list_meta;
-        
-        // Make sure the source is configured
-        if(lResult.source == undefined){
-          lResult.source = $scope.data_views.find(function($e){ return($e.id == lResult.$$source_id);});
-        }
-        delete lResult.$$source_id;
-
-        console.log('SaveOrClose', lResult, $scope.model);
-        $scope.return(lResult);
-      });
-    }
-    else{
-      console.log('SaveOrClose', $scope.model);
-      $scope.cancel();
-    }
-  }
-
-  $scope.renewSearchToken = function(){
-    let lFilters = $scope.buildFilters();
-            
-    let lPromise =  $q(function($resolve, $reject){
-        if(lFilters != null){
-            $scope.api('',lFilters,{
-              url: wpSiApiSettings.api_root + '/api/utils/search_encode'
-            }).then(function($response){
-                $resolve($response);
-            });
-        }
-        else{
-            $resolve('');
-        }
-        
-    });
-
-    return lPromise;
-  }
-
-  $scope.buildFilters = function(){
-      let lResult = null;
-      
-
-      if($scope.model.limit>0){
-          lResult = {
-              max_item_count : $scope.model.limit
-          }
-      }
-
-      if($scope.model.sort != '' && $scope.model.sort != 'auto'){
-        if(lResult==null) lResult = {};
-        lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
-      }
-
-      if($scope.model.shuffle){
-        if(lResult==null) lResult = {};
-        lResult.shuffle = $scope.model.shuffle;
-      }
-      
-      
-      if($scope.model.filter_group != null){
-        if(lResult==null) lResult = {};
-
-        lResult.filter_group = $scope.normalizeFilterGroup(angular.copy($scope.model.filter_group));
-      }
-      return lResult;
-  }
-
-  $scope.normalizeFilterGroup = function($filter_group){
-      if($filter_group.filters){
-          $filter_group.filters.forEach(function($filter){
-              if(['in','not_in'].indexOf($filter.operator) >= 0){
-                  if(typeof $filter.value.push == 'undefined'){
-                    $filter.value = $filter.value.split(",");
-                    $filter.value.forEach(function($val){
-                        if(!isNaN($val)){
-                            $val = Number($val)
-                        }
-                    });
-                  }
-              }
-              else{
-                  if(!isNaN($filter.value)){
-                      $filter.value = Number($filter.value);
-                  }
-              }
-          });
-      }
-      
-      if($filter_group.filter_groups){
-          $filter_group.filter_groups.forEach(function($group){
-              $scope.normalizeFilterGroup($group);
-          });
-      }
-
-      return $filter_group;
-  }
-
-  $scope.switchSortReverse = function(){
-    $scope.model.sort_reverse = !$scope.model.sort_reverse;
-  }
-
-  $scope.hasChanged = function(){
-    return !$scope.isSame($scope.model,$scope._original);
-  }
-
-  $scope.validate = function(){
-    // if there's a limit but under 100, turn off searchable and pageable flags
-    // if($scope.model.limit.between(1, 100)){
-    //   $scope.model.searchable = false;
-    // }
-  }
-
-  $scope.editSearchEngine = function($type){
-    $siUI.dialog('~/views/admin/dialogs/' + $type + 'SearchEngineEdit.html',$scope.model.search_engine_options).then($result => {
-      $scope.model.search_engine_options = $result;
-    });
-  }
-
-  $scope.editListItem = function($type){
-
-    $siUI.dialog('~/views/admin/dialogs/' + $type + 'ListItemEdit.html',$scope.model).then($result => {
-      $scope.model = $result;
-      $scope.computeStyles();
-      console.log('editListItem return with', $result);
-    });
-  }
-
-  $scope.previewLayerHasVar = function($item, $layer='main'){
-
-    if($scope.model.list_item_layout.displayed_vars[$layer] == undefined) return false;
-    return $scope.model.list_item_layout.displayed_vars[$layer].includes($item);
-  }
-
-  // ----------------------
-  //#region Randomized list data
-  $scope.getNumber = function($min, $max){
-    return $min + (Math.round(Math.random() * ($max-$min) ));
-  }
-
-  $scope.getAddress = function(){
-    const lNumber = $scope.getNumber(1000,2000);
-    const lStreetName = ['Tolkien','Montpellier','Dumas','Martin', 'Proust', 'Hugo', 'Balzac', 'Rimbaud', 'Camus' ].any();
-
-    return lNumber + ' ' + lStreetName;
-  }
-
-  $scope.getCity = function(){
-    return ['Montréal','Washington','Paris','Springfield','Franklin','Greenville','London'].any();
-  }
-
-  $scope.getRegion = function(){
-    return 'Region';
-  }
-
-  $scope.getPrice = function(){
-    const lPrice = $scope.getNumber(200, 500) * 1000;
-    return lPrice.formatPrice();
-  }
-
-  $scope.getCategory = function(){
-    return 'Residential';
-  }
-
-  $scope.getSubcategory = function(){
-    return ['Two-storey house','Bungalow','Split-level'].any();
-  }
-
-  //#endregion
-  // ---------------------
-});
 
 /**
  * MAIN ROOT CONTROLLER
@@ -524,15 +210,10 @@ siApp
     list_item_layouts:{
       listings: [
         {name: 'standard', label: 'Standard'},
-        {name: 'small', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'},
         {name: 'double-layer', label: 'Double Layers'}
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
-        {name: 'standard-with-office', label: 'Standard with office'},
-        {name: 'reduced', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'},
         {name: 'double-layer', label: 'Double Layers'}
       ],
       cities: [
@@ -558,11 +239,14 @@ siApp
         {name:'open_houses',label: 'Open houses'}
       ],
       brokers: [
-        {name:'firstname',label:'First name'},
-        {name:'lastname',label:'Last name'},
+        {name:'fullname', label: 'Fullname'},
+        {name:'first_name',label:'First name'},
+        {name:'last_name',label:'Last name'},
         {name:'title',label:'Title'},
         {name:'phone',label:'Phone'},
-        {name:'email',label:'Email'}
+        {name:'email',label:'Email'},
+        {name:'office',label:'Office'},
+        {name:'listing_count',label:'Listings'},
       ]
     },
     list_item_image_hover_effects:{
@@ -570,10 +254,20 @@ siApp
         {name: 'none', label: 'None'},
         {name: 'zoom', label: 'Zoom'},
         {name: 'gallery', label: 'Gallery'}
+      ],
+      brokers: [
+        {name: 'none', label: 'None'},
+        {name: 'zoom', label: 'Zoom'}
       ]
     },
     list_item_show_layer_effects:{
       listings: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      brokers: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
@@ -963,7 +657,7 @@ siApp
 
   $scope.setDisplayPages = function(){
     $scope.configuration_step += 1;
-    console.log('setDeisplayPages', $scope.wp_languages);
+    console.log('setDisplayPages', $scope.wp_languages);
     $scope.wp_languages.forEach($l => {
       $scope.addPageLanguage($l);  
     })
@@ -990,9 +684,9 @@ siApp
         const lSourcePages = [];
         const lChildPages = [];
 
-        $scope.wp_languages.forEach( ($l, $li) => {
-          Object.keys($scope.default_page[$l.code]).forEach($pKey => {
-            if($scope.default_page[$l.code][$pKey] == 'NONE') return; 
+        $scope.wp_languages.forEach( ($language, $language_index) => {
+          Object.keys($scope.default_page[$language.code]).forEach($pKey => {
+            if($scope.default_page[$language.code][$pKey] == 'NONE') return; 
 
             const lMap =lShortcodeMap[$pKey];
 
@@ -1002,35 +696,41 @@ siApp
             }
 
             const params = {
-              page_id: $scope.default_page[$l.code][$pKey], 
-              title: lMap.title.translate(undefined, $l.code),
+              page_id: $scope.default_page[$language.code][$pKey], 
+              title: lMap.title.translate(undefined, $language.code),
               content: lMap.content,
-              lang: $l.code
+              lang: $language.code
             };
 
             const lCall =_ => {
-              const lLayout = (lMap.layout == undefined) ? null : $scope.configs[lMap.layout].find($layout => $layout.lang==$l.code)
+              const lLayout = (lMap.layout == undefined) ? null : $scope.configs[lMap.layout].find($layout => $layout.lang==$language.code)
 
-              if($li > 0) {
+              if($language_index > 0) {
                 if(lMap.pages != undefined && lMap.pages[$scope.wp_languages[0].code] != undefined){
                   params.original_page_id = lMap.pages[$scope.wp_languages[0].code];
                 }
               }
 
               return $scope.api('page',params).then($response => {
-                if($scope.default_page[$l.code][$pKey] == 'NEW' && !isNaN($response+1)){
+                if($scope.default_page[$language.code][$pKey] == 'NEW' && !isNaN($response+1)){
                   if(lMap.pages == undefined) lMap.pages = {};
-                  lMap.pages[$l.code] = $response;
+                  lMap.pages[$language.code] = $response;
 
                   if(lLayout != null){
                     lLayout.page = $response;
                     lLayout.type = "custom";
                   }
                 }
+                else if($scope.default_page[$language.code][$pKey] != 'NEW'){
+                  if(lLayout != null){
+                    lLayout.page = $scope.default_page[$language.code][$pKey];
+                    lLayout.type = "custom";
+                  }
+                }
               });
             }
 
-            if($li == 0){
+            if($language_index == 0){
               lSourcePages.push(lCall);
             }
             else{
@@ -1076,6 +776,9 @@ siApp
         });
       }
     
+      $scope.skipPageBuilding = function(){
+        $resolve();
+      }
     });
   }
 
@@ -1083,6 +786,13 @@ siApp
     const lExistingList = $scope.configs.lists.find($l => $l.alias == $alias);
     const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
 
+    const lTypedDatas = {
+      'listings' : {
+        search_engine_options : {
+          type_
+        }
+      }
+    }
 
     lList.sort = $sort;
     lList.sort_reverse = $sortReverse;

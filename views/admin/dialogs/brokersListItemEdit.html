@@ -1,0 +1,70 @@
+<md-dialog aria-label="" ng-init="init()" id="brokers-list-item-edit">
+    <form ng-cloak>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2 lstr>List item edit</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="cancel()">
+            <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+  
+      <md-dialog-content>
+        <div class="md-dialog-content">
+          <div class="item-layout-configs">
+            <md-input-container>
+              <label lstr>Image hover effect</label>
+              <md-select ng-model="model.list_item_layout.image_hover_effect">
+                <md-option ng-repeat="item in imageHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+
+            <md-input-container>
+              <label lstr>Layout</label>
+              <md-select ng-model="model.list_item_layout.preset">
+                <md-option ng-repeat="item in layoutList" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container ng-show="model.list_item_layout.preset=='double-layer'">
+              <label lstr>Secondary layer display effect</label>
+              <md-select ng-model="model.list_item_layout.secondary_layer_effect">
+                <md-option ng-repeat="item in layerHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <div class="input-container">
+              <label><lstr>Displayed values</lstr> {{model.list_item_layout.preset=='double-layer' ? '(Main layer)'.translate() : ''}}</label>
+              <div class="">
+                <md-checkbox ng-repeat="item in availVars" ng-checked="varIsChecked(item.name,'main')" ng-click="varToggle(item.name,'main')">{{item.label.translate()}}</md-checkbox>
+              </div>
+            </div>
+
+
+            <div class="input-container" ng-show="model.list_item_layout.preset=='double-layer'">
+              <label><lstr>Displayed values</lstr> <lstr>(Secondary layer)</lstr></label>
+              <div class="">
+                <md-checkbox ng-repeat="item in availVars" ng-checked="varIsChecked(item.name,'secondary')" ng-click="varToggle(item.name,'secondary')">{{item.label.translate()}}</md-checkbox>
+              </div>
+            </div>
+          </div>
+
+          <div class="styles">
+            <si-style-editor 
+              si-model="model.list_item_layout.styles" 
+              si-change="updateStyles($styles)"
+              si-show-preview="false"
+              si-editables="['broker','bg-fg','elements']" ></si-style-editor>
+          </div>
+
+        </div>
+      </md-dialog-content>
+  
+      <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+      </md-dialog-actions>
+    </form>
+  </md-dialog>

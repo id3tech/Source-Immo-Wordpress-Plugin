@@ -200,16 +200,19 @@ class SourceImmoConfig {
 
   public static function load(){
     $instance = new SourceImmoConfig();
-
+    
     $savedConfigs = $instance->loadSavedConfigs();
     
-    if($savedConfigs){
+    if(true){
       $instance->parse(json_decode($savedConfigs));
+      
       $instance->app_version = SI_VERSION;
     
       $instance->normalizeRoutes();
 
-      $instance->saveConfigFile();
+      //$instance->normalizeValues();
+
+      //$instance->saveConfigFile();
     }
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
@@ -218,6 +221,8 @@ class SourceImmoConfig {
     return $instance;
   }
 
+
+
   public function loadSavedConfigs(){
     $lResult = get_option('SourceImmoConfig');
     
@@ -225,15 +230,36 @@ class SourceImmoConfig {
       // Try loading previous version
       $lResult = get_option('ImmoDBConfig');
     }
+
+
+
     return $lResult;
   }
 
   public function parse($data){
+
     foreach ($data as $key => $value) {
       if(property_exists($this, $key)){
-        $this->{$key} = $value;
+        if($key == 'lists'){
+          $this->lists = array();
+          foreach ($value as $item) {
+            $obj = SourceImmoList::parse($item);
+            $obj->normalizeValues();
+            $this->lists[] = $obj;
+          }
+        }
+        else{
+          if(is_object($this->{$key}) && method_exists($this->{$key},'parse')){
+            $this->{$key}->parse($value);
+          }
+          else{
+            $this->{$key} = $value;
+          }
+        }
+        
       }
     }
+
   }
 
   public function save(){
@@ -266,6 +292,7 @@ class SourceImmoConfig {
 
     return $lResult;
   }
+
 
   public function normalizeRoutes(){
     $structure = get_option( 'permalink_structure' );
@@ -330,11 +357,11 @@ class SourceImmoLayout{
    */
   public $form_id = '';
 
-  public function __construct($lang='', $type=''){
+  public function __construct($lang='', $type='', $displayedVars=null){
     $this->lang = $lang;
     $this->type = $type;
     $this->communication_mode = 'basic';
-    
+    $this->displayed_vars = $displayedVars;
   }
 
   public function hasDisplayVar($item, $layer='main'){
@@ -349,6 +376,22 @@ class SourceImmoLayout{
     if($this->styles == null) return '';
     
     return str_replace(array('{','}'),'',$this->styles);
+  }
+
+  public function normalizeValues($displayVars=null){
+    if(isset($displayVars) && $this->displayed_vars == null || !isset($this->displayed_vars->main)){
+      $this->displayed_vars->main = $displayVars;
+    }
+  }
+
+  public static function parse($source){
+    $result = new SourceImmoLayout();
+
+    foreach ($source as $key => $value) {
+      $result->{$key} = $value;
+    }
+
+    return $result;
   }
 }
 
@@ -372,7 +415,7 @@ class SourceImmoList {
   public $smart_focus_tolerance = 5;
   public $search_engine_options = null;
 
-  public function __construct($source='',$alias='listings',$type='listings',$sort=''){
+  public function __construct($source='',$alias='listings',$type='listings',$sort='',$displayedVars=null){
     $this->source = $source;
     $this->alias = $alias;
     $this->type = $type;
@@ -381,21 +424,50 @@ class SourceImmoList {
 
     $this->list_layout = new SourceImmoLayout();
     $this->list_item_layout = new SourceImmoLayout();
+    $this->setDefaultDisplayVars($displayedVars);
 
     $this->filter_group = new SourceImmoFilterGroup();
 
-    $this->search_engine_options = new SourceImmoSearchEngineOptions();
+    $this->search_engine_options = new SourceImmoSearchEngineOptions($type);
   }
 
   static function parse($source){
-    return unserialize(sprintf(
-      'O:%d:"%s"%s',
-      strlen('SourceImmoList'),
-      'SourceImmoList',
-      strstr(strstr(serialize($source), '"'), ':')
-    ));
+    $result = new SourceImmoList();
+
+    foreach ($source as $key => $value) {
+      if(property_exists($result, $key)){
+        if($key == 'list_item_layout'){
+          $result->list_item_layout = SourceImmoLayout::parse($value);
+        }
+        else if($key == 'search_engine_options'){
+          $result->search_engine_options = SourceImmoSearchEngineOptions::parse($value, $result->type);
+        }
+        else{
+          if(is_object($result->{$key}) && method_exists($result->{$key},'parse')){
+            $result->{$key}->parse($value);
+          }
+          else{
+            $result->{$key} = $value;
+          }
+        }
+      }
+    }
+
+    return $result;
   }
 
+  public function normalizeValues(){
+    $lTypedPaths = array(
+      'listings' => array('address','city','region','price','ref_number','category','rooms','subcategory','available_area','description'),
+      'brokers' => array('first_name','last_name','license','phone'),
+    );
+
+    $this->list_item_layout->normalizeValues($lTypedPaths[$this->type]);
+  }
+
+  public function setDefaultDisplayVars($vars){
+    $this->list_item_layout->displayed_vars = (object) array('main', $vars);
+  }
 
   public function getViewEndpoint(){
     $lTypedPaths = array(
@@ -414,8 +486,38 @@ class SourceImmoSearchEngineOptions {
   public $focus_category = null;
   public $sticky = false;
   
-  public function __construct(){
-    $this->focus_category = array();
+  public function __construct($type=null){
+
+    $this->normalizeValues($type);
+
+  }
+
+  public static function parse($source, $type){
+    $result = new SourceImmoSearchEngineOptions();
+    $result->normalizeValues($type);
+
+    foreach ($source as $key => $value) {
+      if(property_exists($result, $key)){
+        if(is_object($result->{$key}) && method_exists($result->{$key},'parse')){
+          $result->{$key}->parse($value);
+        }
+        else{
+          $result->{$key} = $value;
+        }
+      }
+    }
+    return $result;
+  }
+
+  public function normalizeValues($type){
+    switch($type){
+      case 'listings':
+        $this->focus_category = array();
+        break;
+      case 'brokers':
+        $this->fields = array('searchbox','letters','licenses','offices');
+        break;
+    }
   }
 }
 

@@ -2,9 +2,9 @@
     <div class="image"><img src="{{wpSiApiSettings.base_path + 'styles/assets/shadow_property.jpg'}}" /></div>
 
     <div class="layer main-layer si-container-padding">
-        <div class="address si-label si-background-high-contrast" ng-show="previewLayerHasVar('address')">{{item.address}}</div>
-        <div class="city si-label si-background-high-contrast" ng-show="previewLayerHasVar('city')">{{item.city}}</div>
-        <div class="region si-label si-background-high-contrast" ng-show="previewLayerHasVar('region')">{{item.region}}</div>
+        <div class="address si-label" ng-show="previewLayerHasVar('address')">{{item.address}}</div>
+        <div class="city si-label" ng-show="previewLayerHasVar('city')">{{item.city}}</div>
+        <div class="region si-label" ng-show="previewLayerHasVar('region')">{{item.region}}</div>
         <div class="price si-label  {{$index > 1 ? 'si-price-sold' : 'si-background-medium-contrast'}}" ng-show="previewLayerHasVar('price')">{{$index > 1 ? 'SOLD'.translate() : item.price}}</div>
         <div class="ref-number si-label si-listing-ref-number" ng-show="previewLayerHasVar('ref_number')">{{item.ref_number}}</div>
         <div class="category si-label" ng-show="previewLayerHasVar('category')">{{item.category}}</div>
@@ -19,9 +19,9 @@
     </div>
 
     <div class="layer secondary-layer si-container-padding si-background-high-contrast">
-        <div class="address si-label si-background-high-contrast" ng-show="previewLayerHasVar('address','secondary')">{{item.address}}</div>
-        <div class="city si-label si-background-high-contrast" ng-show="previewLayerHasVar('city','secondary')">{{item.city}}</div>
-        <div class="region si-label si-background-high-contrast" ng-show="previewLayerHasVar('region','secondary')">{{item.region}}</div>
+        <div class="address si-label" ng-show="previewLayerHasVar('address','secondary')">{{item.address}}</div>
+        <div class="city si-label" ng-show="previewLayerHasVar('city','secondary')">{{item.city}}</div>
+        <div class="region si-label" ng-show="previewLayerHasVar('region','secondary')">{{item.region}}</div>
         <div class="price si-label  {{$index > 1 ? 'si-price-sold' : 'si-background-medium-contrast'}}" ng-show="previewLayerHasVar('price','secondary')">{{$index > 1 ? 'SOLD'.translate() : item.price}}</div>
         <div class="ref-number si-label si-listing-ref-number" ng-show="previewLayerHasVar('ref_number','secondary')">{{item.ref_number}}</div>
         <div class="category si-label" ng-show="previewLayerHasVar('category','secondary')">{{item.category}}</div>

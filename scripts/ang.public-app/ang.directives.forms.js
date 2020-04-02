@@ -5,6 +5,19 @@ siApp
         transclude: true,
         replace: true,
         template: '<div class="si-input-container" ng-transclude></div>',
+        link: function($scope, $element, $attrs){
+            const lLabel = $element[0].querySelector(':scope > label');
+            const lInput = $element[0].querySelector(':scope > input,:scope > .si-select');
+
+            if(lLabel != null && lInput != null){
+                const lLabelWidth = Number(window.getComputedStyle(lLabel).width.replace('px',''));
+                const lInputStyle = window.getComputedStyle(lInput);
+                const lPaddingH = Number(lInputStyle.paddingLeft.replace('px','')) 
+                                    + Number(lInputStyle.paddingRight.replace('px',''));
+
+                $element[0].style.minWidth = (lLabelWidth + lPaddingH) + 'px';
+            }
+        }
     }
 }]);
 
@@ -17,17 +30,78 @@ siApp
         scope: {
             label: '@',
             model: '=?ngModel',
-            checked:'@?siChecked'
+            checked:'=?siChecked',
+            changeHandler: '&?siChange',
+            checkedValue: '@?siValue'
         },
         link: function($scope, $element, $attrs){
-            if($attrs.siChecked != undefined){
-                const isChecked = $parse($attrs.siChecked)($scope);
-                $scope.model = isChecked;
-                console.log(isChecked,$attrs.siChecked);
+            $scope.selected = $scope.checked;
+            
+            $scope.compareModelToValue();
+
+            $scope.$watch('model', function($new,$old){
+                if ($new == null) return;
+                $scope.compareModelToValue();
+            });
+
+            $scope.$watch('checkedValue', function($new,$old){
+                if ($new == null) return;
+                
+                $scope.compareModelToValue();
+            });
+
+            $scope.$watch('checked', function($new,$old){
+                $scope.selected = $scope.checked;
+            })
+            
+        },
+        controller: function($scope, $timeout){
+            $scope.toggleCheck = function($event){
+                console.log('togleCheck', $scope.model);
+                if($scope.model === undefined){
+                    $event.preventDefault();
+                    return;
+                }
+                
+                $scope.selected = !$scope.selected;
+                console.log('toggleCheck', $scope.model);
+
+                if(Array.isArray($scope.model)){
+                    if($scope.selected) {
+                        $scope.model.push($scope.checkedValue);
+                    }
+                    else{
+                        $scope.model = $scope.model.filter(function($e){ return $e != $scope.checkedValue});
+                    }
+                }
+                else{
+                    $scope.model = $scope.selected ? $scope.checkedValue : null ;
+                }
+                
+                if(typeof $scope.changeHandler == 'function'){
+                    $timeout(function(){
+                        $scope.changeHandler();
+                    });
+                }
+            }
+
+            $scope.compareModelToValue = function(){
+                if($scope.model == null){
+                    $scope.selected = false;
+                }
+
+                $timeout(function(){
+                    if (Array.isArray($scope.model)){
+                        $scope.selected = $scope.model.includes($scope.checkedValue);
+                    }
+                    else{
+                        $scope.selected = $scope.model == $scope.checkedValue;
+                    }
+                });
             }
         },
-        template: '<div class="pretty p-icon p-pulse">' +
-                    '<input type="checkbox" ng-model="model">' +
+        template: '<div class="pretty p-icon p-pulse" ng-click="toggleCheck($event)">' +
+                    '<input type="checkbox" ng-checked="selected">' +
                     '<div class="state">' +
                         '<i class="icon fas fa-check"></i>' +
                         '<label>{{label}}</label>' +
@@ -45,9 +119,11 @@ siApp
             changeCallback : '&?siChange',
         },
         transclude: true,
-        template: '<div class="si-select"><div class="si-selected-value"><span class="si-label">{{selectedValue}}</span> <i class="fal fa-lg fa-fw fa-angle-down"></i></div><div class="si-select-panel" ng-transclude></div></div>',
+        template: '<div class="si-select"><div class="si-selected-value"><span class="si-label">{{selectedCaption}}</span> <i class="fal fa-lg fa-fw fa-angle-down"></i></div><div class="si-select-panel"><i class="fal fa-times" ng-click="closeMenu()"></i><div class="si-panel-child-container" ng-transclude></div></div></div>',
         replace: true,
         link: function($scope, $element, $attrs){
+            $scope.allowMultiple = $attrs.siMultiple != undefined;
+            $scope.placeholder = $attrs.placeholder != undefined ? $attrs.placeholder : '';
             $scope.init($element);
         },
         controller: function($scope,$rootScope, $siUtils, $timeout, $q){
@@ -61,26 +137,65 @@ siApp
                     $scope.clickHandler($event);
                 });
 
-                $scope.$watch('model', $scope.modelChangeHandler);
-
-                $scope.options = [];
+                $scope.$watch('model', $scope.modelChangeHandler, true);
                 console.log('siSelect initialized', $scope.model);
 
-                
+                $scope.selectedCaption = $scope.placeholder;
+
+                $scope.$watch('checked', function(){
+                    $scope.selected = $scope.checked;
+                });
 
                 $scope.applyEvents();
             }
 
             // Methods accessed from child
+            this.allowMultipleSelection = function(){
+                return $scope.allowMultiple;
+            }
+
             this.addToChildList = $scope.addToChildList = function($child){
+                //console.log('Add to select child', $scope.placeholder, $child);
+
                 $scope.options.push($child);
+                
                 if($scope.model != null && $scope.model != undefined){
-                    const lChildValue = $child.getValue();
+                    const lChildValue = (typeof $child.getValue == 'function') ? $child.getValue() : undefined;
                     if($scope.model == lChildValue){
                         $scope.updateValue(lChildValue)
                     }
                 }
+                
             }
+
+            this.toggleValue = $scope.toggleValue = function($value){
+                if(!Array.isArray($scope.model)){
+                    $scope.model = [];
+                }
+
+
+                $timeout(function(){
+                    
+                    
+                    if($scope.model.includes($value)){
+                        $scope.model = $scope.model.filter(function($e){ return $e != $value});
+                    }
+                    else{
+                        $scope.model.push($value);
+                    }
+                    
+                    if(typeof $scope.changeCallback == 'function') $scope.changeCallback();
+                })
+            }
+
+            this.hasValue = $scope.hasValue = function($value){
+                if($value == undefined) return false;
+                if($scope.model == null) return false;
+                if(!Array.isArray($scope.model)) return false;
+
+                return $scope.model.includes($value);
+            }
+
             this.selectValue = $scope.selectValue = function($value){
                 const lChanged = $scope.model != $value;
                 $scope.model = $value;
@@ -98,13 +213,28 @@ siApp
             }
 
             $scope.modelChangeHandler = function($new, $old){
-                $scope.updateValue();
+                console.log('select modelChanged',$new, $old);
+                $scope.updateElementClasses();
+                if($scope.allowMultiple){
+                    $scope.updateValues();
+                }
+                else{
+                    $scope.updateValue();
+                }
+                
             }
 
-            $scope.updateValue = function(){
-                    
+            $scope.updateElementClasses = function(){
                 const lContainerParent = $scope.$element.closest('.si-input-container');
-                const lRemoveValue = ($scope.model == '' || $scope.model == undefined || $scope.model == null);
+                
+                const lRemoveValue = isNullOrEmpty($scope.model);
+
+                if(lRemoveValue){
+                    $scope.$element.classList.remove('si-has-value');
+                }
+                else{
+                    $scope.$element.classList.add('si-has-value');
+                }
 
                 if(lContainerParent != null){
                     if(lRemoveValue){
@@ -114,11 +244,22 @@ siApp
                         lContainerParent.classList.add('si-has-value');
                     }
                 }
+            }
+
+            $scope.updateValues = function(){
+                $scope.updateCaption();
+            }
+
+            $scope.updateValue = function(){
+                    
+                const lRemoveValue = isNullOrEmpty($scope.model);
+
+                let lSelectedElement = null;
 
                 $scope.options.forEach(function($o){
-                    if($o.getValue() == $scope.model){
+                    if(typeof($o.getValue) == 'function' && $o.getValue() == $scope.model){
                         $o.classList.add('selected');
-                        $scope.selectedValue = $o.innerHTML;
+                        lSelectedElement = $o;
                     }
                     else{
                         $o.classList.remove('selected');
@@ -126,9 +267,45 @@ siApp
                 });
 
                 if(lRemoveValue){
-                    $scope.selectedValue = '';
+                    console.log('remove value ', $scope.placeholder, $scope.model);
+
+                    $scope.updateCaption($scope.placeholder);
+                }
+                else if ($scope.options.length == 1){
+                    console.log('getCaption of',$scope.placeholder)
+                    $scope.options[0].getCaption().then(function($caption){
+                        $scope.updateCaption($caption);
+                    });
+                }
+                else if (lSelectedElement != null){
+                    console.log('getCaption of selected element',$scope.placeholder);
+
+                    lSelectedElement.getCaption().then(function($caption){
+                        console.log('select element update value with caption', $caption, lSelectedElement.innerHtml);
+                        $scope.updateCaption($caption);
+                    });
+                }
+                else{
+                    console.log('Would update but...',$scope.placeholder, $scope.options, $scope.model);
+                }
+                
+            }
+
+            $scope.updateCaption =function($caption){
+                if($scope.allowMultiple){
+                    let lCaption = $scope.placeholder;
+
+                    if(Array.isArray($scope.model) && $scope.model.length > 0){
+                        lCaption += ' ({0})'.format($scope.model.length);
+                    }
+                    $scope.selectedCaption = lCaption;
+                }
+                else{
+                    if($caption == null) $caption = $scope.placeholder;
+                    $scope.selectedCaption = $caption;
                 }
             }
+
 
             $scope.applyEvents  = function(){
                 // track click on parents to close the dropdown
@@ -147,19 +324,24 @@ siApp
             }
 
             $scope.getContentHeight = function($element){
+                const lElementBox = $scope.$element.getBoundingClientRect();
                 const lPotentialHeight = [];
+                let lSubElements = Array.from($element.querySelectorAll('.si-panel-child-container'));
+                console.log('getContentHeight', lSubElements);
 
-                $element.querySelectorAll('si-option').forEach(function($e){
+                lSubElements.forEach(function($e){
                     const lItemStyles = window.getComputedStyle($e);
                     const lItemHeight = ['height', 'padding-top', 'padding-bottom','margin-top','margin-bottom']
                                             .map(function (key) { return parseInt(lItemStyles.getPropertyValue(key), 10);})
                                             .reduce(function (prev, cur){return prev + cur});
                     lPotentialHeight.push(lItemHeight);
                 });
-                
-                return lPotentialHeight.reduce(function($result,$cur){
+                const lResult = lPotentialHeight.reduce(function($result,$cur){
                     return $result + $cur;
                 },0);
+
+                console.log('element height', lElementBox.height);
+                return Math.min(lResult,lElementBox.height * 12);
             }
 
             $scope.closeMenu = function(){
@@ -180,16 +362,18 @@ siApp
 
                 $scope.extractMenu($scope.$element).then(function(lMenuElm){
                     lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
-                
+                    
+                    const lClickTrap = $scope.ensureClickTrap();
+                    lClickTrap.classList.add('active');
+
                     lMenuElm.addEventListener('transitionend', function(){
-                        const lClickTrap = $scope.ensureClickTrap();
-                        lClickTrap.classList.add('active');
+                        
                         if(lElmZIndex != 'auto') lClickTrap.style.zIndex = Number(lElmZIndex) + 5;
                         lClickTrap.addEventListener('click',function($event){
                             lMenuElm.classList.remove('expanded');
                             //$rootScope.$broadcast('close-dropdown', null);
                             lClickTrap.classList.remove('active');
-                            lClickTrap.style.removeProperty('z-index');
+                            //lClickTrap.style.removeProperty('z-index');
                             $event.stopPropagation();
                         },{once:true});
         
@@ -230,52 +414,76 @@ siApp
                     
                     $timeout(function() {
                         const lMainElmRect = $scope.$element.getBoundingClientRect();
-                        lMainElmRect.inner_cx = lMainElmRect.width / 2;
-                        lMainElmRect.inner_cy = lMainElmRect.height / 2;
-                        lMainElmRect.cx = lMainElmRect.left + lMainElmRect.inner_cx;
-                        lMainElmRect.cy = lMainElmRect.top + window.pageYOffset + lMainElmRect.inner_cy;
+                        const lRelativeAttr = {}
+                        lRelativeAttr.left = lMainElmRect.left;
+                        lRelativeAttr.top = lMainElmRect.top;
+                        lRelativeAttr.width = lMainElmRect.width;
+                        lRelativeAttr.height = lMainElmRect.height;
+                        
+                        lRelativeAttr.inner_cx = lRelativeAttr.width / 2;
+                        lRelativeAttr.inner_cy = lRelativeAttr.height / 2;
+                        
+                        console.log('lRelativeAttr', angular.copy(lRelativeAttr));
+                        
+
+                        lRelativeAttr.cx = lMainElmRect.left + lRelativeAttr.inner_cx;
+                        lRelativeAttr.cy = lMainElmRect.top + lRelativeAttr.inner_cy
+                        lRelativeAttr.pageYOffset = window.pageYOffset;
                         
                         
                             
-                        $scope._menu_elm.style.width='unset';
-                        $scope._menu_elm.style.minWidth = lMainElmRect.width + 'px';
-                        $scope._menu_elm.style.top = lMainElmRect.cy + 'px';
-                        $scope._menu_elm.style.left = lMainElmRect.cx + 'px';    
+                        // $scope._menu_elm.style.width='unset';
+                        // $scope._menu_elm.style.minWidth = lMainElmRect.width + 'px';
+                        // $scope._menu_elm.style.top = lMainElmRect.cy + 'px';
+                        // $scope._menu_elm.style.left = lMainElmRect.cx + 'px';    
                         //$scope._menu_elm.style.transform = 'translate(-50%,-50%)';
 
                         // position the dropdown menu
                         const lMenuRect = $scope._menu_elm.getBoundingClientRect();
-                        lMenuRect.height = $scope.getContentHeight($scope._menu_elm);
-                        lMenuRect.top = lMainElmRect.cy - (lMenuRect.height/2);
-                        
-                        const lMenuStyle = window.getComputedStyle($scope._menu_elm);
-                        const lMenuWidth = Number(lMenuStyle.width.replace('px',''));
                         const lMenuHeight = $scope.getContentHeight($scope._menu_elm);
-                        const lViewportRect = {
-                            top: Math.min(25,lMainElmRect.top),
-                            left:Math.min(25,lMainElmRect.left),
-                            bottom: window.innerHeight -  Math.min(50,lMenuRect.top * 2),
-                            right: window.innerWidth -  Math.min(50,lMenuRect.left * 2)
-                        }
                         
-                        const lTransform = {x : '-50%',y : '-50%'};
                         
-                        if(lMenuRect.left < lViewportRect.left){
-                            lTransform.x = '0%';
-                        }
-                        else if (lMenuRect.right > lViewportRect.right){
-                            lTransform.x = 'calc(-100% + ' + lMainElmRect.inner_cx + 'px)';
-                        }
+                        //Object.keys($style).map($k => ['--inline-' + $k,$style[$k] + 'px']).forEach($c => $target.style.setProperty($c[0], $c[1]));
 
-                        if(lMenuRect.top < lViewportRect.top){
-                            lTransform.y = (0 - lMainElmRect.inner_cy) + 'px';
-                        }
-                        else if(lMenuRect.bottom > lViewportRect.bottom){
-                            lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
-                        }
-                        //$scope._menu_elm.style.zIndex = 110;
-                        $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
+
+                        Object.keys(lRelativeAttr).forEach(function($k){
+                            $scope._menu_elm.style.setProperty('--relative-' + $k, lRelativeAttr[$k] + 'px');
+                        });
                         $scope._menu_elm.style.setProperty('--potential-height', lMenuHeight + 'px');
+
+                        // lMenuRect.height = lMenuHeight;
+                        // lMenuRect.top = lMainElmRect.cy - (lMenuRect.height/2);
+                        
+                        // const lMenuStyle = window.getComputedStyle($scope._menu_elm);
+                        // const lMenuWidth = Number(lMenuStyle.width.replace('px',''));
+                        
+                        // const lViewportRect = {
+                        //     top: Math.min(25,lMainElmRect.top),
+                        //     left:Math.min(25,lMainElmRect.left),
+                        //     bottom: window.innerHeight -  Math.min(50,lMenuRect.top * 2),
+                        //     right: window.innerWidth -  Math.min(50,lMenuRect.left * 2)
+                        // }
+                        
+                        // const lTransform = {x : '-50%',y : '-50%'};
+                        
+                        // if(lMenuRect.left < lViewportRect.left){
+                        //     lTransform.x = '0%';
+                        // }
+                        // else if (lMenuRect.right > lViewportRect.right){
+                        //     lTransform.x = 'calc(-100% + ' + lMainElmRect.inner_cx + 'px)';
+                        // }
+
+                        // if(lMenuRect.top < lViewportRect.top){
+                        //     lTransform.y = (0 - lMainElmRect.inner_cy) + 'px';
+                        // }
+                        // else if(lMenuRect.bottom > lViewportRect.bottom){
+                        //     lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
+                        // }
+
+                        // console.log('select panel transform',lMainElmRect, lMenuRect, lTransform);
+                        // //$scope._menu_elm.style.zIndex = 110;
+                        // $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
+                        // $scope._menu_elm.style.setProperty('--potential-height', lMenuHeight + 'px');
 
                         $resolve($scope._menu_elm);
                     },20);
@@ -286,26 +494,176 @@ siApp
 }]);
 
 siApp
-.directive('siOption',['$parse', function siOption($parse){
+.directive('siOption',['$parse','$timeout','$q', function siOption($parse, $timeout, $q){
+    return {
+        restrict: 'E',
+        require: ['^siSelect'],
+        transclude: true,
+        replace: true,
+        template: '<div class="si-select-child si-option"><si-checkbox si-checked="isChecked()" ng-show="showCheckbox()"></si-checkbox><div ng-transclude></div></div>',
+        link: function($scope, $element, $attrs, $parentCtls){
+            
+            const lValue = ($attrs.ngValue == undefined) ? $attrs.value : $parse($attrs.ngValue)($scope);
+
+            $scope.showCheckbox = function(){
+                return $parentCtls.some( function($ctl) {
+                    if($ctl != null){
+                        return $ctl.allowMultipleSelection();
+                    }
+                });
+            }
+            $scope.isChecked = function(){
+                return $parentCtls.some( function($ctl) {
+                    if($ctl != null){
+                        return $ctl.hasValue(lValue);
+                    }
+                });
+            }
+            $element[0].getValue = function(){ return lValue };
+            $element[0].getCaption = function(){
+                return $q( function($resolve,$reject) {
+                    $timeout(function(){
+                        $resolve($element[0].innerText);
+                    });
+                })
+            }
+
+            $element[0].addEventListener('click', function($event){
+                
+                $parentCtls.forEach( function($ctl) {
+                    if($ctl != null){
+                        if($ctl.allowMultipleSelection()){
+                            $event.stopPropagation();
+                            $event.preventDefault();
+
+                            $ctl.toggleValue(lValue);
+                        }
+                        else{
+                            $ctl.selectValue(lValue);
+                        }
+                        
+                    }
+                });
+            
+
+            });
+            
+            $parentCtls.forEach(function($ctl){
+                if($ctl != null){
+                    $ctl.addToChildList($element[0], lValue);
+                }
+            })
+            
+
+        }
+    }
+}]);
+
+siApp
+.directive('siOptionGroup', ['$parse', function siOptionGroup($parse){
     return {
         restrict: 'E',
         require: '^siSelect',
+        replace:true,
+        template: '<div class="si-select-child si-option-group"><div class="si-group-title">{{groupTitle}}</div><div class="si-group-child" ng-transclude></div></div>',
+        transclude: true,
+        scope: {
+            groupTitle: '@siLabel'
+        },
         link: function($scope, $element, $attrs, $parentCtl){
-            
-            const lValue = ($attrs.ngValue == undefined) ? $attrs.value : $parse($attrs.ngValue)($scope);
-            $element[0].getValue = function(){ return lValue };
+            $scope.init($element[0],$parentCtl);
+        },
+        controller: function($scope){
+            $scope.init = function($element, $parentCtl){
+                $scope.$element = $element;
+                $scope.$siParent = $parentCtl;
+                $scope.$siParent.addToChildList($element.querySelector('.si-group-title'));
+            }
 
-            $element[0].addEventListener('click', function(){
-                
-                $parentCtl.selectValue(lValue);
-            });
-            
-            $parentCtl.addToChildList($element[0], lValue);
-            
+            this.allowMultipleSelection = function(){
+                return $scope.$siParent.allowMultipleSelection();
+            }
+
+            // Methods accessed from child
+            this.addToChildList = $scope.addToChildList = function($child){
+
+                $scope.$siParent.addToChildList($child);
+            }
+            this.selectValue = $scope.selectValue = function($value){
+                $scope.$siParent.selectValue($value);
+            }
+
+            this.toggleValue = $scope.toggleValue = function($value){
+                $scope.$siParent.toggleValue($value);
+            }
+
+            this.hasValue = $scope.hasValue = function($value){
+                return $scope.$siParent.hasValue($value);
+            }
         }
     }
-}])
+}]);
 
+siApp
+.directive('siOptionPanel', ['$parse', function siOptionGroup($parse){
+    return {
+        restrict: 'E',
+        require: '^siSelect',
+        scope: {
+            captionFormat: '&?siCaptionFormat'
+        },
+        template: '<div class="si-select-child si-option-panel" ng-transclude></div>',
+        transclude: true,
+        replace: true,
+        link: function($scope, $element, $attrs, $parentCtl){
+            $scope.init($element[0], $parentCtl);
+        },
+        controller: function($scope, $timeout, $q){
+            $scope.caption = '';
+            
+            $scope.init = function($element, $parentCtl){
+                $scope.$element = $element;
+                $scope.$siParent = $parentCtl;
+
+                $scope.$element.addEventListener('mousedown', function($event){
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                });
+                $scope.$element.addEventListener('mouseup', function($event){
+                    $event.stopPropagation();
+                    $event.preventDefault();
+                })
+                $scope.$element.getCaption = $scope.getCaption;
+                $scope.$element.getValue = function(){
+                    return $parentCtl.model;
+                }
+
+                $parentCtl.addToChildList($element);
+            }
+
+
+            $scope.getCaption = function(){
+                return $q( function($resolve, $reject) {
+                    console.log('siOptionPanel.getCaption', $scope.captionFormat);
+                    let caption = null;
+                    if(typeof($scope.captionFormat) == 'function'){
+                        caption = $scope.captionFormat();
+                    }
+                    $resolve(caption);
+                });
+            }
+
+            // Methods accessed from child
+            this.addToChildList = $scope.addToChildList = function($child){
+                $scope.$siParent.addToChildList($child);
+            }
+            this.selectValue = $scope.selectValue = function($value){
+                $scope.$siParent.selectValue($value);
+            }
+
+        }
+    }
+}]);
 
 siApp
 .directive('siDropdown',['$rootScope',
@@ -319,31 +677,31 @@ siApp
             link: function($scope,$element,$attr){
                 $scope.init($element);
             },
-            controller: function($scope, $timeout,$siUtils){
+            controller: function($scope,$q, $timeout,$siUtils){
                 $scope._menu_elm = null;
 
                 $scope.$watch('hasValue', function($new, $old){
                     if($new == true){
-                        $scope._elm.classList.add('has-value');
+                        $scope.$element.classList.add('has-value');
                     }
                     else{
-                        $scope._elm.classList.remove('has-value');
+                        $scope.$element.classList.remove('has-value');
                     }
                 });
 
                 $scope.init = function($element){
-                    $scope._elm = $element[0];
+                    $scope.$element = $element[0];
 
                     $scope.showButtonIcon = (typeof $scope.showButtonIcon == 'undefined') ? true : $scope.showButtonIcon;
                     $scope.hasValue = (typeof $scope.hasValue == 'undefined') ? false : $scope.hasValue!=null;
                     $scope.buttonIcon = "anchor-down";
 
                     if($scope.hasValue){
-                        $scope._elm.classList.add('has-value');
+                        $scope.$element.classList.add('has-value');
                     }
 
                     if($scope.showButtonIcon === true || $scope.showButtonIcon != 'false'){
-                        $scope._elm.classList.add('has-button-icon');
+                        $scope.$element.classList.add('has-button-icon');
                         if(typeof $scope.showButtonIcon == 'string' && $scope.showButtonIcon != 'true'){
                             $scope.buttonIcon = $scope.showButtonIcon;
                         }
@@ -361,25 +719,22 @@ siApp
                     })
     
                     // Apply button click event handler
-                    angular.element($scope._elm).find('.dropdown-button').on('click', $scope.clickHandler);
+                    angular.element($scope.$element).find('.dropdown-button').on('click', $scope.clickHandler);
                     
                     // listen to 'close-dropdown' signal to close the menu
                     $scope.$on('close-dropdown', function($event, $source){
-                        if($source != $scope._elm){
+                        if($source != $scope.$element){
                             $scope.closeMenu();
                         }
                     })
                 }
 
                 $scope.getContentHeight = function($element){
-                    let lPotentialHeight = 0;
-                    $element.querySelectorAll('.dropdown-item').forEach(function($e){
-                        lPotentialHeight += Number(window.getComputedStyle($e).height.replace('px',''));
-                    });
-                    //const lMenuElm = $element.querySelector('.si-dropdown-panel');
+                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().height;
+                }
 
-                    //lMenuElm.style.setProperty('--content-height', lPotentialHeight);
-                    return lPotentialHeight;
+                $scope.getContentWidth = function($element){
+                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().width;
                 }
 
                 $scope.closeMenu = function(){
@@ -393,40 +748,45 @@ siApp
                 }
 
                 $scope.clickHandler = function($event){
-                    console.log('button clicked', $scope._elm);
-                    $rootScope.$broadcast('close-dropdown', $scope._elm);
-                    // const lClosestParent = $scope._elm.closest('.modal-body, .filter-panel');
+                    
+                    $event.stopPropagation();
+
+                    console.log('button clicked', $scope.$element);
+                    $rootScope.$broadcast('close-dropdown', $scope.$element);
+                    // const lClosestParent = $scope.$element.closest('.modal-body, .filter-panel');
                     // angular.element(lClosestParent).on('click', function(){
                     //     console.log('Closest parent clicked');
                     //     $rootScope.$broadcast('close-dropdown', null);
                     // })
                     
-                    const lElmZIndex = $siUtils.elmOffsetZIndex($scope._elm);
+                    const lElmZIndex = $siUtils.elmOffsetZIndex($scope.$element);
 
-                    const lMenuElm = $scope.extractMenu($scope._elm);
-                    lMenuElm.classList.add('expanded');
-                    console.log('Elm z-index', lElmZIndex);
-
-                    if(lElmZIndex != 'auto'){
-                        lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
-                    }
-                    else{
-                        lMenuElm.style.zIndex = 100;
-                    }
+                    $scope.extractMenu($scope.$element).then(function($menuElm){
+                        const lMenuElm = $menuElm;
+                        lMenuElm.classList.add('expanded');
+                        console.log('Elm z-index', lElmZIndex);
+    
+                        if(lElmZIndex != 'auto'){
+                            lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
+                        }
+                        else{
+                            lMenuElm.style.zIndex = 100;
+                        }
+                        
+                        
+                        const lClickTrap = $scope.ensureClickTrap();
+                        lClickTrap.classList.add('active');
+                        if(lElmZIndex != 'auto') lClickTrap.style.zIndex = Number(lElmZIndex) + 5;
+                        lClickTrap.addEventListener('click',function($event){
+                            lMenuElm.classList.remove('expanded');
+                            //$rootScope.$broadcast('close-dropdown', null);
+                            lClickTrap.classList.remove('active');
+                            lClickTrap.style.removeProperty('z-index');
+                            $event.stopPropagation();
+                        },{once:true});
+    
+                    });
                     
-                    
-                    const lClickTrap = $scope.ensureClickTrap();
-                    lClickTrap.classList.add('active');
-                    if(lElmZIndex != 'auto') lClickTrap.style.zIndex = Number(lElmZIndex) + 5;
-                    lClickTrap.addEventListener('click',function($event){
-                        lMenuElm.classList.remove('expanded');
-                        //$rootScope.$broadcast('close-dropdown', null);
-                        lClickTrap.classList.remove('active');
-                        lClickTrap.style.removeProperty('z-index');
-                        $event.stopPropagation();
-                    },{once:true});
-
-                    $event.stopPropagation();
                 }
 
                 $scope.ensureClickTrap = function(){
@@ -442,78 +802,144 @@ siApp
                 }
 
                 $scope.extractMenu = function($element){
-                    if($scope._menu_elm == null){
-                        const lMenu = $element.querySelector('.si-dropdown-panel');
-                        document.body.append(lMenu);
-                        $scope._menu_elm = lMenu;
+                    return $q(function($resolve,$reject){
+                        if($scope._menu_elm == null){
+                            const lMenu = $element.querySelector('.si-dropdown-panel');
+                            document.body.append(lMenu);
+                            $scope._menu_elm = lMenu;
+    
+                            $scope._menu_elm.addEventListener('click', function($event){
+                                $event.stopPropagation();
+                                $scope.closeMenu();
+                            })
+                        }
+    
+                        
+                        $timeout(function() {
+                            const lMainElmRect = $scope.$element.getBoundingClientRect();
+                            const lRelativeAttr = {}
+                            lRelativeAttr.left = lMainElmRect.left;
+                            lRelativeAttr.top = lMainElmRect.top;
+                            lRelativeAttr.width = lMainElmRect.width;
+                            lRelativeAttr.height = lMainElmRect.height;
+                            
+                            lRelativeAttr.inner_cx = lRelativeAttr.width / 2;
+                            lRelativeAttr.inner_cy = lRelativeAttr.height / 2;
+                            
+    
+                            lRelativeAttr.cx = lMainElmRect.left + lRelativeAttr.inner_cx;
+                            lRelativeAttr.cy = lMainElmRect.top + lRelativeAttr.inner_cy
+                            lRelativeAttr.pageYOffset = window.pageYOffset;
+                            
+                            // position the dropdown menu
+                            const lMenuHeight = $scope.getContentHeight($scope._menu_elm);
+                            const lMenuWidth = $scope.getContentWidth($scope._menu_elm);
+                            const lScrollbarWidth = 20; // presumed scrollbar width
 
-                        $scope._menu_elm.addEventListener('click', function($event){
-                            $event.stopPropagation();
-                            $scope.closeMenu();
-                        })
-                    }
+                            lRelativeAttr.cx = Math.max(
+                                                    lMenuWidth / 2,
+                                                    Math.min(
+                                                        lRelativeAttr.cx, 
+                                                        (window.innerWidth - lScrollbarWidth) - (lMenuWidth / 2)
+                                                    )
+                                                );
+
+                            //Object.keys($style).map($k => ['--inline-' + $k,$style[$k] + 'px']).forEach($c => $target.style.setProperty($c[0], $c[1]));
+    
+    
+                            Object.keys(lRelativeAttr).forEach(function($k){
+                                $scope._menu_elm.style.setProperty('--relative-' + $k, lRelativeAttr[$k] + 'px');
+                            });
+                            $scope._menu_elm.style.setProperty('--potential-height', lMenuHeight + 'px');
+                            $scope._menu_elm.style.setProperty('--potential-width', lMenuWidth + 'px');
+    
+    
+                            $resolve($scope._menu_elm);
+                        },20);
+                    });
+                }
+
+                // $scope.extractMenu = function($element){
+                //     if($scope._menu_elm == null){
+                //         const lMenu = $element.querySelector('.si-dropdown-panel');
+                //         document.body.append(lMenu);
+                //         $scope._menu_elm = lMenu;
+
+                //         $scope._menu_elm.addEventListener('click', function($event){
+                //             $event.stopPropagation();
+                //             $scope.closeMenu();
+                //         })
+                //     }
 
                     
-                    $timeout(function() {
-                        const lMainElmRect = $scope._elm.getBoundingClientRect();
-                        lMainElmRect.inner_cx = lMainElmRect.width / 2;
-                        lMainElmRect.inner_cy = lMainElmRect.height / 2;
-                        lMainElmRect.cx = lMainElmRect.left + lMainElmRect.inner_cx;
-                        lMainElmRect.cy = lMainElmRect.top + window.pageYOffset + lMainElmRect.inner_cy;
+                //     $timeout(function() {
+                //         const lMainElmRect = $scope.$element.getBoundingClientRect();
+                //         lMainElmRect.inner_cx = lMainElmRect.width / 2;
+                //         lMainElmRect.inner_cy = lMainElmRect.height / 2;
+                //         lMainElmRect.cx = lMainElmRect.left + lMainElmRect.inner_cx;
+                //         lMainElmRect.cy = lMainElmRect.top + window.pageYOffset + lMainElmRect.inner_cy;
                         
                         
                             
-                        $scope._menu_elm.style.width='unset';
-                        $scope._menu_elm.style.minWidth = lMainElmRect.width + 'px';
-                        $scope._menu_elm.style.top = lMainElmRect.cy + 'px';
-                        $scope._menu_elm.style.left = lMainElmRect.cx + 'px';    
-                        //$scope._menu_elm.style.transform = 'translate(-50%,-50%)';
+                //         $scope._menu_elm.style.width='unset';
+                //         $scope._menu_elm.style.minWidth = lMainElmRect.width + 'px';
+                //         $scope._menu_elm.style.top = lMainElmRect.cy + 'px';
+                //         $scope._menu_elm.style.left = lMainElmRect.cx + 'px';    
+                //         //$scope._menu_elm.style.transform = 'translate(-50%,-50%)';
     
-                        // position the dropdown menu
-                        const lMenuRect = $scope._menu_elm.getBoundingClientRect();
-                        lMenuRect.height = $scope.getContentHeight($scope._menu_elm);
-                        lMenuRect.top = lMainElmRect.cy - (lMenuRect.height/2);
+                //         // position the dropdown menu
+                //         const lMenuRect = $scope._menu_elm.getBoundingClientRect();
+                //         lMenuRect.height = $scope.getContentHeight($scope._menu_elm);
+                //         lMenuRect.top = lMainElmRect.cy - (lMenuRect.height/2);
                         
-                        const lMenuStyle = window.getComputedStyle($scope._menu_elm);
-                        const lMenuWidth = Number(lMenuStyle.width.replace('px',''));
-                        const lMenuHeight = $scope.getContentHeight($scope._menu_elm);
-                        const lViewportRect = {
-                            top: Math.min(25,lMainElmRect.top),
-                            left:Math.min(25,lMainElmRect.left),
-                            bottom: window.innerHeight -  Math.min(50,lMenuRect.top * 2),
-                            right: window.innerWidth -  Math.min(50,lMenuRect.left * 2)
-                        }
+                //         const lMenuStyle = window.getComputedStyle($scope._menu_elm);
+                //         const lMenuWidth = Number(lMenuStyle.width.replace('px',''));
+                //         const lMenuHeight = $scope.getContentHeight($scope._menu_elm);
+                //         const lViewportRect = {
+                //             top: Math.min(25,lMainElmRect.top),
+                //             left:Math.min(25,lMainElmRect.left),
+                //             bottom: window.innerHeight -  Math.min(50,lMenuRect.top * 2),
+                //             right: window.innerWidth -  Math.min(50,lMenuRect.left * 2)
+                //         }
                         
-                        const lTransform = {x : '-50%',y : '-50%'};
-                        console.log({
-                            menuRect: lMenuRect,
-                            viewportRect: lViewportRect
-                        });
+                //         const lTransform = {x : '-50%',y : '-50%'};
+                //         console.log({
+                //             menuRect: lMenuRect,
+                //             viewportRect: lViewportRect
+                //         });
     
-                        if(lMenuRect.left < lViewportRect.left){
-                            lTransform.x = '0%';
-                        }
-                        else if (lMenuRect.right > lViewportRect.right){
-                            lTransform.x = 'calc(-100% + ' + lMainElmRect.inner_cx + 'px)';
-                        }
+                //         if(lMenuRect.left < lViewportRect.left){
+                //             lTransform.x = '0%';
+                //         }
+                //         else if (lMenuRect.right > lViewportRect.right){
+                //             lTransform.x = 'calc(-100% + ' + lMainElmRect.inner_cx + 'px)';
+                //         }
     
-                        if(lMenuRect.top < lViewportRect.top){
-                            lTransform.y = (0 - lMainElmRect.inner_cy) + 'px';
-                        }
-                        else if(lMenuRect.bottom > lViewportRect.bottom){
-                            lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
-                        }
-                        //$scope._menu_elm.style.zIndex = 110;
-                        $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
-                    },20);
+                //         if(lMenuRect.top < lViewportRect.top){
+                //             lTransform.y = (0 - lMainElmRect.inner_cy) + 'px';
+                //         }
+                //         else if(lMenuRect.bottom > lViewportRect.bottom){
+                //             lTransform.y = 'calc(-100% + ' + lMainElmRect.inner_cy + 'px)';
+                //         }
+                //         //$scope._menu_elm.style.zIndex = 110;
+                //         $scope._menu_elm.style.transform = 'translate(' + lTransform.x + ',' + lTransform.y +')';
+                //     },20);
                     
 
-                    return $scope._menu_elm;
-                }
+                //     return $scope._menu_elm;
+                // }
             }
         }
     }
 ]);
+siApp
+.directive('siDropdownPanel', [ function siDropdownPanel(){
+    return {
+        restrict: 'C',
+        transclude: true,
+        template: '<div class="si-dropdown-panel-content" ng-transclude></div>'
+    }
+}])
 
 
 siApp
@@ -826,18 +1252,57 @@ siApp
         transclude:true,
         scope: {
             label: '@',
-            checked: '=?ngChecked',
-            name: '@'
+            name: '@',
+            value : '@?siValue',
+            model: '=?ngModel',
+            changeHandler: '&?siChange'
         },
-        link: function(scope){
+        link: function($scope){
+            $scope.init();
         },
         template: '<div class="any-selector pretty p-icon p-pulse p-round">' +
-                    '<input type="radio" name="{{name}}" ng-checked="checked">' +
+                    '<input type="radio" name="{{name}}" ng-click="onClick()" ng-checked="checked">' +
                     '<div class="state">' +
                         '<i class="icon fas fa-circle fa-xs"></i>' +
                         '<label>{{label}}</label>' +
                     '</div>' + 
-                  '</div>'
+                  '</div>',
+        controller: function($scope, $timeout){
+            $scope.init = function(){
+                $timeout(function(){
+                    if($scope.value == '')  $scope.value = null;
+                })
+            }
+
+
+            $scope.$watch('model', function($new, $old){
+                if($new == '') $new = null;               
+                let lSelected = false;
+
+                if($scope.value == $new) {
+                    console.log('Radio values matches');
+                    lSelected = true;
+                }
+                
+                $timeout(function(){
+                    $scope.checked = lSelected;
+                })
+            })
+
+            $scope.onClick = function(){
+                console.log('radio item clicked',$scope.value);
+                $scope.model = $scope.value;
+                $timeout(function(){
+                    
+                    //$scope.checked = true;
+
+                    if(typeof $scope.changeHandler == 'function'){
+                        $scope.changeHandler();
+                    }
+                });
+                
+            }
+        }
     }
 }]);
 

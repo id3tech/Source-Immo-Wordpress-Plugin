@@ -22,12 +22,17 @@
         </div>
 
         <div class="field touched" ng-show="model.search_engine_options.fields.includes('price')">
-            <lstr>150 000 - Max</lstr>
+            <lstr>150 000$ - Max</lstr>
         </div>
 
-        <div class="field" ng-show="model.search_engine_options.fields.includes('rooms')">
-            <lstr>Rooms</lstr>
+        <div class="field" ng-show="model.search_engine_options.fields.includes('bedrooms')">
+            <lstr>Bedrooms</lstr>
         </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('bedrooms')">
+            <lstr>Bathrooms</lstr>
+        </div>
+
 
         <div class="field touched" ng-show="model.search_engine_options.fields.includes('features')">
             <lstr>Features (1)</lstr>
@@ -41,10 +46,12 @@
             <lstr>Parkings</lstr>
         </div>
 
-        
+        <div class="field" ng-show="model.search_engine_options.fields.includes('ages')">
+            <lstr>Age</lstr>
+        </div>
 
-        <div class="field touched" ng-show="model.search_engine_options.fields.includes('extras')">
-            <lstr>Extras (1)</lstr>
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('filters')">
+            <lstr>Filters (1)</lstr>
         </div>
     </div>
 </div>
