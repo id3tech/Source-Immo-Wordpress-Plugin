@@ -27,6 +27,7 @@
         <md-input-container>
             <label><?php _e('Sort by',SI) ?></label>
             <md-select ng-model="model.sort">
+                <md-option ng-value="null"><?php _e('(Default)',SI)?></md-option>
                 <md-option ng-repeat="elm in global_list.list_ordering_field[model.type]" ng-value="elm.name">{{elm.label.translate()}}</md-option>
             </md-select>
             

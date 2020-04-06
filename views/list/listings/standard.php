@@ -11,9 +11,12 @@
                             "configs" => $configs
                         ));
 
+        $itemClasses = apply_filters('si-listing-item-classes', array(
+                            'item-{{item.ref_number}}'
+                        ));
         ?>
         <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
-            <div ng-repeat="item in list track by item.id"  class="item-{{item.ref_number}}">
+            <div ng-repeat="item in list track by item.id"  class="<?php echo(implode(' ',$itemClasses))?>">
             <?php 
                 SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
             ?>

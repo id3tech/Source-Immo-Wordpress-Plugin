@@ -480,8 +480,8 @@ class SourceImmoApi {
     $api_key = SourceImmo::current()->get_api_key();
 
     $lTwoLetterLocale = substr(get_locale(),0,2);
-
-    $lFilters = array("st"=>urlencode($list_config->search_token));
+    $lSearchToken = (isset($list_config->search_token)) ? $list_config->search_token : '';
+    $lFilters = array("st"=>urlencode($lSearchToken));
     
     if($atts != null && count($atts)>1){
       $params = $atts; //shortcode_atts(array(), $atts );

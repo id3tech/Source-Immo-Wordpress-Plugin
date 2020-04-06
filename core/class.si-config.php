@@ -212,11 +212,12 @@ class SourceImmoConfig {
 
       //$instance->normalizeValues();
 
-      //$instance->saveConfigFile();
+      $instance->saveConfigFile();
     }
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
 
+    //__c($instance);
     
     return $instance;
   }
@@ -244,8 +245,14 @@ class SourceImmoConfig {
           $this->lists = array();
           foreach ($value as $item) {
             $obj = SourceImmoList::parse($item);
+            //if($obj->type=='brokers') __c($obj);
+
             $obj->normalizeValues();
-            $this->lists[] = $obj;
+            
+            
+
+            array_push($this->lists, $obj);
+            $obj = null;
           }
         }
         else{
@@ -361,7 +368,7 @@ class SourceImmoLayout{
     $this->lang = $lang;
     $this->type = $type;
     $this->communication_mode = 'basic';
-    $this->displayed_vars = $displayedVars;
+    $this->displayed_vars = new SourceImmoDisplayVars($displayedVars);
   }
 
   public function hasDisplayVar($item, $layer='main'){
@@ -432,12 +439,15 @@ class SourceImmoList {
   }
 
   static function parse($source){
-    $result = new SourceImmoList();
-
+    $result = new SourceImmoList($source->source, $source->alias, $source->type);
+   
     foreach ($source as $key => $value) {
       if(property_exists($result, $key)){
         if($key == 'list_item_layout'){
           $result->list_item_layout = SourceImmoLayout::parse($value);
+        }
+        if($key == 'list_layout'){
+          $result->list_layout = SourceImmoLayout::parse($value);
         }
         else if($key == 'search_engine_options'){
           $result->search_engine_options = SourceImmoSearchEngineOptions::parse($value, $result->type);
@@ -445,6 +455,7 @@ class SourceImmoList {
         else{
           if(is_object($result->{$key}) && method_exists($result->{$key},'parse')){
             $result->{$key}->parse($value);
+            
           }
           else{
             $result->{$key} = $value;
@@ -460,13 +471,15 @@ class SourceImmoList {
     $lTypedPaths = array(
       'listings' => array('address','city','region','price','ref_number','category','rooms','subcategory','available_area','description'),
       'brokers' => array('first_name','last_name','license','phone'),
+      'cities' => array('name','region','listing_count'),
+      'offices' => array('name','region','address','listing_count'),
     );
 
     $this->list_item_layout->normalizeValues($lTypedPaths[$this->type]);
   }
 
   public function setDefaultDisplayVars($vars){
-    $this->list_item_layout->displayed_vars = (object) array('main', $vars);
+    $this->list_item_layout->displayed_vars = new SourceImmoDisplayVars($vars);
   }
 
   public function getViewEndpoint(){
@@ -477,6 +490,16 @@ class SourceImmoList {
       'offices' => 'office'
     );
     return "{$lTypedPaths[$this->type]}/view";
+  }
+}
+
+class SourceImmoDisplayVars {
+  public $main = null;
+  public $secondary = null;
+
+  public function __construct($main=null, $secondary=null){
+    $this->main = $main;
+    $this->secondary = $secondary;
   }
 }
 
@@ -493,19 +516,25 @@ class SourceImmoSearchEngineOptions {
   }
 
   public static function parse($source, $type){
-    $result = new SourceImmoSearchEngineOptions();
-    $result->normalizeValues($type);
+    $result = new SourceImmoSearchEngineOptions($type);
+    //__c('SourceImmoSearchEngineOptions::parse', $source);
 
-    foreach ($source as $key => $value) {
-      if(property_exists($result, $key)){
-        if(is_object($result->{$key}) && method_exists($result->{$key},'parse')){
-          $result->{$key}->parse($value);
-        }
-        else{
-          $result->{$key} = $value;
+    if($source != null){
+      foreach ($source as $key => $value) {
+        if(property_exists($result, $key)){
+          if(is_object($result->{$key}) && method_exists($result->{$key},'parse')){
+            $result->{$key}->parse($value);
+          }
+          else{
+            $result->{$key} = $value;
+          }
         }
       }
     }
+    else{
+      
+    }
+
     return $result;
   }
 

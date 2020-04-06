@@ -688,7 +688,7 @@ siApp
         'container_padding' : ' [layout_gutter]',
         'element_border_color' : '#aaa',
         'element_border' : 'solid 1px [element_border_color]',
-        'element_border_radius' : '5px',
+        'element_border_radius' : '0px',
         'element_padding': '10px',
         'high_contrast_color' : '#333',
         'high_contrast_text_color' : '#fff',

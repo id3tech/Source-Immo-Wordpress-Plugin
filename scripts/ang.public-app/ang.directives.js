@@ -526,7 +526,12 @@ function siList(){
              * @param {object} $item Listing item data
              */
             $scope.getClassList = function($item){
-                return $siUtils.getClassList($item);
+                const lClassList = [$siUtils.getClassList($item)];
+                if($scope.configs != null){
+                    lClassList.push('img-hover-effect-' + $scope.configs.list_item_layout.image_hover_effect);
+                }
+                
+                return lClassList.join(' ');
             }
     
             /**

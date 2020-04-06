@@ -472,6 +472,16 @@ if(!function_exists('iifHasValue')){
 }
 
 
+function layoutAllowVar($var, $layout, $layer='main'){
+  if(!_layoutAllowVar($var,$layout,$layer)) {
+    echo('ng-hide');
+  }
+}
+
+function _layoutAllowVar($var, $layout, $layer='main'){
+  return in_array($var, $layout->displayed_vars->{$layer});
+}
+
 
 function convertObjectClass($array, $final_class) { 
   return unserialize(sprintf( 

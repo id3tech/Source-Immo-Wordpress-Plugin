@@ -16,6 +16,7 @@ $locales.fr = {};$locales.fr.global =
     , "none" : "aucun"
     , "auto" : "automatique"
     , "unlimited" : "illimité"
+    , "(Default)" : "(Défaut)"
     , "Reset to demo settings" : "Réinitialisé aux configurations démo"
     , "Copied to clipboard" : "Copié dans le presse-papier"
     , "Save completed" : "Sauvegarde complétée"

@@ -107,7 +107,9 @@
 
 
             &.listings-preview,
-            &.brokers-preview{
+            &.brokers-preview,
+            &.cities-preview,
+            &.offices-preview{
                 .viewport{
                   &.search-layout-orientation-v{
                     grid-template-columns: auto 1fr;
@@ -246,6 +248,7 @@
 
                     .si-label{
                         padding:var(--preview-element-padding);
+                        line-height: 1em;
                     }
 
                     &.layout-minimal, &.layout-small, &.layout-standard{
@@ -407,7 +410,59 @@
 
               }
             }
+
+            &.cities-preview,
+            &.offices-preview{
+              .list-components{
+                grid-template-columns: 1fr 1fr;
+                .list-map-toggle{display:none;}
+                .list-meta{
+                  place-self: center start;
+                }
+                .component.list-items{
+                    .component-elements{
+                        grid-template-columns: repeat(auto-fill, minmax(var(--preview-broker-item-column-width),1fr));
+                        
+                    }
+                }
+
+                .si-element{
+                  .md-button{
+                    top: 50%;
+                  }
+
+                  .si-label{
+                    text-align:center;
+                    &.name{
+                      font-size: 1.5rem;
+                      text-transform: uppercase;
+                      height: 4em;
+                      display:flex;
+                      flex-direction: column;
+                      justify-content: center;
+                    }
+                  }
+                }
+              }             
+            }
+
+            &.offices-preview{
+              .list-components{
+                .si-element{
+                  .si-label{
+                    &.address{
+                      text-align:left;
+                      display:flex;
+                      flex-direction: row;
+                      .fal{padding: 2.5px 5px}
+                    }
+                  }
+                }
+              }
+            }
           }
+
+          
 
 
           .list-components{

@@ -474,7 +474,25 @@ body.wp-admin #si-app,
                   text-align:center;
                 }
               }
+
+              .city-item{
+                .name, .listings-count, .region, .code{
+                  text-align:center;
+                }
+                .name{
+                  font-size: 2rem;
+                  text-transform: uppercase;
+                }
+              }
             
+              &.list-layout-direct{
+                .search-engine-container{
+                  display:none;
+                }
+                .list-map-toggle, .list-sort{
+                  opacity:0;
+                }
+              }
           }
     }
 

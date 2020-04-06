@@ -43,7 +43,7 @@
 
                         <div class="component list-meta {{!model.show_list_meta ? 'inactive':'' }}">
                             <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
-                            <label class="component-elements">25 {{model.type.translate()}}</label>
+                            <label class="component-elements">{{previewElements.length}} {{model.type.translate()}}</label>
                         </div>
 
                         <div class="component list-sort {{!model.sortable ? 'inactive':'' }}">

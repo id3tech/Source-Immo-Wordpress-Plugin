@@ -50,7 +50,7 @@ siApp
 
   $scope.reset_default_value = function(){
     $scope.model = angular.merge($scope.model,{
-      sort: 'auto',
+        sort: null,
         sort_reverse : false,
         limit: 0,
         searchable:true,
@@ -96,12 +96,23 @@ siApp
       case "cities":
         $scope.model = angular.merge($scope.model, {
           list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
+          list_item_layout : { 
+            preset: 'standard', scope_class : '', custom:null,
+            displayed_vars: {
+              main:['name','region','listing_count']
+            }
+          }
         });
       case "offices":
         $scope.model = angular.merge($scope.model, {
           list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
+          list_item_layout : { 
+            preset: 'standard', scope_class : '', custom:null,
+            displayed_vars: {
+              main:['name','region','listing_count','address']
+            }
+          }
+          
         });
     }
   }
@@ -154,6 +165,22 @@ siApp
                 lElement.listing_count = $scope.getListingCount();
                 lElement.email = lElement.first_name.toLowerCase() + '.' + lElement.last_name.toLowerCase() + '@example.com'
                 break;
+            case 'cities':
+                lElement.name = $scope.getCity();
+                lElement.region = $scope.getRegion();
+                lElement.listings_count = $scope.getListingCount();
+                lElement.code = $scope.getNumber(1234,6543);
+                break;
+            case "offices":
+                lElement.name = $scope.getCity();
+                lElement.region = $scope.getRegion();
+                lElement.listings_count = $scope.getListingCount();
+                lElement.location = {
+                  street_address : $scope.getAddress(),
+                  city: lElement.name,
+                  state: $scope.getSate(),
+                  postal_code: $scope.getPostalCode()
+                }
           default:
               break;
       }
@@ -336,7 +363,7 @@ siApp
   }
 
   $scope.getCity = function(){
-    return ['Montréal','Washington','Paris','Springfield','Franklin','Greenville','London'].any();
+    return ['San Francisco','Montréal','Washington','Paris','Springfield','Franklin','Greenville','London','Los Angeles','New York','Vanconver','Calgary','St-John','Halifax','Ottawa','Toronto','Québec','Victoria','Edmonton','Regina','Winnipeg','Fredericton','Charlottetown'].any();
   }
 
   $scope.getRegion = function(){
@@ -383,6 +410,17 @@ siApp
             '555',
             $scope.getNumber(1234,9876)
         ].join('-');
+    }
+
+    $scope.getPostalCode = function(){
+      return [
+        ['J7H','J0T','H7K','J4B'].any(),
+        ['1B4','3E4','5W2','7N8'].any(),
+      ].join(' ')
+    }
+
+    $scope.getSate = function(){
+      return ['Québec','Ontario','Alberta','Manitoba','Saskatchewan','New-York','Washington','California','Florida','Nova Scotia'].any();
     }
 
   //#endregion

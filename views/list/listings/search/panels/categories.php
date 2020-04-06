@@ -6,7 +6,7 @@
         </div>
         
         <div class="filter-panel-content" >
-            <div class="building-category panel-list" ng-if="!isMainFiltered(['commercial'])">
+            <div class="building-category panel-list" ng-show="dictionary.building_category!=undefined" ng-if="!isMainFiltered(['commercial'])">
                 <h4><?php _e('Building types',SI) ?></h4>
                 
                 <div class="list-container">

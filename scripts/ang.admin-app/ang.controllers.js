@@ -247,18 +247,33 @@ siApp
         {name:'email',label:'Email'},
         {name:'office',label:'Office'},
         {name:'listing_count',label:'Listings'},
+      ],
+      cities :[
+        {name:'name',label: 'Name'},
+        {name:'region', label: 'Region'},
+        {name:'listing_count',label:'Listings'},
+        {name:'code',label: 'Code'}
+      ],
+      offices :[
+        {name:'name',label: 'Name'},
+        {name:'region', label: 'Region'},
+        {name:'listing_count',label:'Listings'},
+        {name:'address',label:'Address'},
+        {name:'code',label: 'Code'}
       ]
     },
     list_item_image_hover_effects:{
       listings: [
         {name: 'none', label: 'None'},
         {name: 'zoom', label: 'Zoom'},
-        {name: 'gallery', label: 'Gallery'}
+        //{name: 'gallery', label: 'Gallery'}
       ],
       brokers: [
         {name: 'none', label: 'None'},
         {name: 'zoom', label: 'Zoom'}
-      ]
+      ],
+      cities: [],
+      offices: [],
     },
     list_item_show_layer_effects:{
       listings: [
@@ -268,6 +283,18 @@ siApp
         {name: 'fade', label: 'Fade'}
       ],
       brokers: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      cities: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      offices: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
@@ -963,8 +990,42 @@ siApp
     
   }
 
-  $scope.generateLayoutPage = function($layout){
+  $scope.generateLayoutPage = function($layout, $groupType){
+   
+    
+    const lTypeMaps = {
+      listings: {
+        title: 'Listing details',
+        content: '[si_listing]',
+        layouts: $scope.configs.listing_layouts
+      },
+      brokers:{
+        title: 'Broker details',
+        content: '[si_broker]',
+        layouts: $scope.configs.broker_layouts
+      },
+      offices:{
+        title: 'Office details',
+        content: '[si_office]',
+        layouts: $scope.configs.office_layouts
+      },
+      cities:{
+        title: 'City details',
+        content: '[si_city]',
+        layouts: $scope.configs.city_layouts
+      }
+    }
 
+    const lLayoutInfos = lTypeMaps[$groupType];
+    const lPageTitle    = $layout.lang == 'en' ? lLayoutInfos.title : lLayoutInfos.title.translate();
+    const lPageContent  = lLayoutInfos.content;
+    const lOriginalPageId = lLayoutInfos.layouts.filter($l => $l.page != null && $l.lang!=$layout.lang).reduce( ($result,$cur) => $cur.page, null);
+
+
+    $scope.api('page',{lang: $layout.lang, page_id: 'NEW', title: lPageTitle, content: lPageContent, original_page_id: lOriginalPageId}).then($response => {
+      $layout.page = $response;
+      $scope.save_configs();
+    });
   }
 
   $scope.clearAllLayoutPage = function(){

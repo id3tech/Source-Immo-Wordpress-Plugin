@@ -30,7 +30,8 @@ class SourceImmo {
     
     // add custom translation
     add_filter( 'gettext', array($this, 'translate'), 20, 3 );
-    
+    add_filter( 'si-city-name', array($this, 'format_city_name'),10,2);
+
     $this->register_filters(array(
       // add route rules
       //'init' => 'apply_routes',
@@ -975,6 +976,19 @@ class SourceImmo {
     
   }
 
+  /**
+    FORMAT
+  */
+  public function format_city_name($city_name, $context){
+    if($context == 'city'){
+      $re = '/(\S+).((\()(.+)(\)))/m';
+      $subst = '$1<em>$4</em>';
+      $city_name = preg_replace($re, $subst, $city_name);
+    }
+
+    return $city_name;
+  }
+
   /** 
    TRANSLATION
   */
@@ -1518,7 +1532,8 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
     }
 
     // Areas
-    $item->available_area_unit = $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit');
+    $item->available_area = (isset($item->available_area)) ? $item->available_area : null;
+    $item->available_area_unit = (isset($item->available_area_unit_code)) ? $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit') : null;
     
     if(isset($item->brokers)){
       $data = (object) array();
@@ -1850,11 +1865,21 @@ class SourceImmoOfficesResult extends SourceImmoAbstractResult {
     global $dictionary;
 
     //$item->location = (object) array();
+    $item->listings_count = 0;
+    
     $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : '';
     $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
     $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
     $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
     $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';
+
+    if(str_null_or_empty($item->location->city) && isset($item->location->address->street_name)){
+      $addressParts = explode(',',$item->location->address->street_name);
+      $item->location->street_address = $addressParts[0];
+      $item->location->city = $addressParts[1];
+      $item->location->state = $addressParts[2];
+      $item->location->address->postal_code = $addressParts[3];
+    }
 
     $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_office_permalink());
   }

@@ -1046,15 +1046,22 @@ siApp
                 const lValueMap = {
                     'listings' : {
                         default: 5,
-                        potentialInputs: null
+                        potentialInputs: function(){return null;}
                     },
                     'brokers' : {
                         default: 3,
                         potentialInputs: function(){
                             if(isNullOrEmpty($scope.configs)) return null;
                             if(isNullOrEmpty($scope.configs.search_engine_options.fields)) return null;
-
-                            return $scope.configs.search_engine_options.fields.length;
+                            
+                            const lEffectiveInputs = $scope.configs.search_engine_options.fields
+                                .filter(function($fieldname){
+                                    if($fieldname == 'licenses') return $scope.siDictionary.count('broker_license_type') > 1;
+                                    if($fieldname == 'offices') return $scope.officeList.length > 1;
+                                    return true;
+                                })
+                            
+                            return lEffectiveInputs.length;
                         }
                     }
                 }

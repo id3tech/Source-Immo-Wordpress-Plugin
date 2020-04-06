@@ -26,6 +26,7 @@ class SiShorcodes{
             'si_listing_part',
             
             // Office - Sub shortcodes
+            'si_office',
             'si_office_part',
             'si_office_listings',
             'si_office_brokers',
@@ -314,6 +315,59 @@ class SiShorcodes{
     #endregion
 
     #region Office - Sub shortcodes
+
+    public function sc_si_office($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'load_text' => 'Loading office'
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+
+        $data = json_decode(SourceImmoApi::get_office_data($ref_number));
+        if($data != null){
+            global $dictionary;
+            $officeWrapper = new SourceImmoOfficesResult();
+            $dictionary = new SourceImmoDictionary($data->dictionary);
+            $officeWrapper->preprocess_item($data);
+        }
+        
+        ob_start();
+        ?>
+        
+        <div data-ng-controller="singleOfficeCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+                class="si office-single {{model.status}} {{model!=null?'loaded':''}}">
+            <?php
+            do_action('si_start_of_template', $load_text);
+            if($content != null){
+                echo(do_shortcode($content));
+            }
+            else{
+                SourceImmo::view('single/offices_layouts/standard');
+            }
+            do_action('si_end_of_template');
+            ?>
+        </div>
+        <?php
+        
+        if(SourceImmo::current()->configs->prefetch_data){
+        ?>                
+        <script type="text/javascript">
+        var siOfficeData = <?php 
+            echo(json_encode($data)); 
+        ?>;
+        </script>
+        <?php
+        }
+
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
+
     public function sc_si_office_part($atts, $content){
         // Extract attributes to local variables
         extract( shortcode_atts(
