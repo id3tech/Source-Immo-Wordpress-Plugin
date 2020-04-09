@@ -22,8 +22,25 @@
                         <sub>source: {{list.source.name}}</sub>
                     </div>
                     
-                    <div class="shortcode" ng-click="copy(getListShortcode(list))">
-                        <i class="fal fa-lg fa-copy"></i> {{getListShortcode(list)}}
+                    <div class="shortcode">
+                        <div ng-click="copy(getListShortcode(list))">
+                            <i class="fal fa-lg fa-copy"></i> {{getListShortcode(list)}}
+                        </div>
+                        <md-menu ng-if="list.type=='listings'">
+                            <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
+                            <md-menu-content>
+                                <md-menu-item>
+                                    <md-button ng-click="copy(getListShortcode(list, 'search'))"><md-icon class="fal fa-search"></md-icon> <lstr>Copy search shortcode</lstr></md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="copy(getListShortcode(list, 'searchbox'))"><md-icon class="fal fa-keyboard"></md-icon> <lstr>Copy searchbox shortcode</lstr></md-button>
+                                </md-menu-item>
+                                <md-divider></md-divider>
+                                <md-menu-item>
+                                    <md-button ng-click="copy(getListShortcode(list, 'gallery'))"><md-icon class="fal fa-images"></md-icon> <lstr>Copy gallery shortcode</lstr></md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
                     </div>
                     <div class="sort"><span>{{list.sort.translate()}}</span> <i class="fal fa-lg fa-sort-amount-{{list.sort_reverse?'down':'up'}}"></i></div>
                     <div class="layout"><span>{{list.list_layout.preset}}/{{list.list_item_layout.preset}}</span></div>

@@ -108,9 +108,14 @@ if($lTwoLetterLocale == ''){
   </script>
   <?php
   if($lTwoLetterLocale != 'en'){
-    ?>
-    <script src="<?php echo plugins_url( 'scripts/locales/global.' . $lTwoLetterLocale . '.js' , SI_PLUGIN ) ?>"></script>
-    <?php
+  
+      $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
+      
+      foreach ($locale_file_paths as $filePath) {
+        $fileUrl = SI_PLUGIN_URL . si_to_plugin_root($filePath);
+        $fileVersion =filemtime($filePath);
+        echo("<script src=\"{$fileUrl}?t={$fileVersion}\"></script>");
+      }
   }
   ?>
   

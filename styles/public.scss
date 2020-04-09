@@ -1273,7 +1273,7 @@ html{
             transition:0.25s;opacity:0;
             @include gridAreas('ref-number','subcategory','price','city','medias', 
             'si-header','si-summary','si-details','si-left','si-right','flags',
-            'description','addendum','information_request',
+            'description','addendum','information_request','links',
             'location','address','near','region','state','country',
             'brokers','name','contact','phone','photo','tools',
             'mortgage-calculator','actions','open-houses','attachments');
@@ -1633,6 +1633,7 @@ html{
                 "description description"
                 "attachments attachments"
                 "flags flags"
+                "links links"
                 "information_request information_request"
             ;
 
@@ -1647,6 +1648,7 @@ html{
                     "description"
                     "attachments"
                     "flags"
+                    "links"
                     "information_request"
                 ;
             }
@@ -1721,7 +1723,14 @@ html{
                 }
                 
             }
-            
+            .links{
+                .link{
+
+                    &.website{
+                        .far::before{content:"\f57d"}
+                    }
+                }
+            }
         }
 
         .flags{

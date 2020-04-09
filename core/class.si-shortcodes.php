@@ -486,7 +486,6 @@ class SiShorcodes{
 
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
-            //$ref_type = get_query_var( 'type' );
         }
         
         $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
@@ -498,14 +497,22 @@ class SiShorcodes{
             $listingWrapper->extendedPreprocess($listing_data);
         }
         
+        // filters
+        $load_text = apply_filters('si_listing_detail_load_text',$load_text);
+        $content = apply_filters('si_listing_detail_content', $content, $ref_number, $listing_data);
+
+
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
         ?>
+
+
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
                 class="si listing-single {{model.status}} {{model!=null?'loaded':''}}">
 
         <?php
+        do_action('si_listing_single_start', $ref_number, $listing_data);
         do_action('si_start_of_template', $load_text);
         if($content != null){
             echo(do_shortcode($content));
@@ -514,6 +521,7 @@ class SiShorcodes{
             SourceImmo::view('single/listings_layouts/standard');
         }
         do_action('si_end_of_template');
+        do_action('si_listing_single_end');
         ?>
         </div>
         <?php

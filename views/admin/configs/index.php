@@ -25,6 +25,12 @@
         <i class="fal fa-fw fa-building"></i> <lstr>Offices</lstr>
       </div>
 
+      
+      <div class="nav-button addons" ng-if="addons.length > 0" ng-click="show('addons')">
+        <i class="fal fa-fw fa-cogs"></i> <lstr>Addons</lstr>
+      </div>
+      
+
       <div class="nav-button advanced" ng-click="show('advanced')">
         <i class="fal fa-fw fa-wrench"></i> <lstr>Advanced</lstr>
       </div>
@@ -50,6 +56,10 @@
 
     <section id="offices">
       <si-data-group-editor si-type="offices"></si-data-group-editor>
+    </section>
+
+    <section id="addons">
+      <?php SourceImmo::view('admin/configs/addons') ?>
     </section>
     
     <section id="advanced">

@@ -966,7 +966,7 @@ siApp
         'container_padding' : ' [layout_gutter]',
         'element_border_color' : '#aaa',
         'element_border' : 'solid 1px [element_border_color]',
-        'element_border_radius' : '5px',
+        'element_border_radius' : '0px',
         'element_padding': '10px',
         'high_contrast_color' : '#333',
         'high_contrast_text_color' : '#fff',
@@ -1083,3 +1083,74 @@ siApp
     }
   }
 }]);
+
+
+siApp
+.directive('siAddonConfig', ['$parse', function siAddonConfig($parse){
+  return {
+    restrict: 'E',
+    scope: {
+      model: '=siModel',
+      active_addons: '=siActiveAddons'
+    },
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-addon-config.html?v' + (new Date()).getTime(),
+    replace: true,
+    link: function($scope, $element, $attrs){
+      $scope.init();
+    },
+    controller: function($scope, $q, $timeout, $rootScope){
+      $scope.modelConfigs = {};
+
+
+      $scope.init = function(){
+        $scope.addonConfigPath = wpSiApiSettings.base_path + 'addons/' + $scope.model.name + '/views/addon.settings.html?v=' + (new Date()).getTime();
+        if($scope.active_addons == null || Array.isArray($scope.active_addons)){
+          $scope.active_addons = {};
+        }
+
+        console.log('addon init', $scope.model, $scope.active_addons);
+
+        $scope.modelConfigs = ($scope.active_addons[$scope.model.name] != undefined) 
+                                  ? Object.assign($scope.model.default_configuration, $scope.active_addons[$scope.model.name].configs)
+                                  : $scope.model.default_configuration;
+      }
+
+      
+      $scope.isActive = function(){
+        if($scope.active_addons == null) return false;
+
+        return $scope.active_addons[$scope.model.name] != undefined;
+      }
+
+      $scope.toggleActive = function(){
+        console.log('toggle active')
+
+        $timeout(_ => {  
+          if($scope.isActive()){
+            console.log('already active, delete settings')
+            delete $scope.active_addons[$scope.model.name];
+          }
+          else{
+            console.log('Add settings to active_addons');
+            $scope.active_addons[$scope.model.name] = {
+              configs : $scope.modelConfigs
+            };
+          }
+          console.log('new active_addons', $scope.active_addons);
+
+          $rootScope.$broadcast('save-request');
+          
+        });
+      }
+
+      $scope.saveAddonSettings = function(){
+        $scope.active_addons[$scope.model.name] = {
+          configs : $scope.modelConfigs
+        };
+      
+        $rootScope.$broadcast('save-request');
+      }
+
+    }
+  }
+}])

@@ -148,6 +148,13 @@ function si_end_of_template(){
   
 }
 
+function si_to_plugin_root($path){
+  $path = str_replace('\\', '/',$path);
+  $path = str_replace(SI_PLUGIN_DIR, '', $path);
+
+  return $path;
+}
+
 /**
  * TODO Check this
  */

@@ -1,0 +1,23 @@
+<div class="addon-setting-item">
+    <label lstr>Listing's details display</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.listing_detail_display" ng-change="saveAddonSettings()">
+            <md-option value="embed"><lstr>Embeded frame</lstr></md-option>
+            <md-option value="button"><lstr>Link button</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+
+<div class="addon-setting-item">
+    <label lstr>Loading details text</label>
+    <div class="addon-input">
+        <input type="text" ng-model="modelConfigs.loading_text" ng-model-options="{updateOn:'blur'}" ng-change="saveAddonSettings()" />
+    </div>
+</div>
+
+<div class="addon-setting-item">
+    <label lstr>Loading timeout</label>
+    <div class="addon-input">
+        <input type="number" ng-model="modelConfigs.switch_timeout" ng-model-options="{updateOn:'blur'}" ng-change="saveAddonSettings()" /><em>sec</em>
+    </div>
+</div>

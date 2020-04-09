@@ -1,7 +1,7 @@
 <div class="si-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
     <div class="viewport"> 
         <div class="trolley" style="{{getTrolleyStyle()}}">
-            <div class="item" data-ng-repeat="img in pictures">
+            <div class="item" data-ng-repeat="img in pictures track by $index">
                 <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" si-image-auto-fit />
                 <div class="caption"><label>{{getImageCaption(img)}}</label></div>
             </div>
@@ -10,7 +10,7 @@
 
     <div class="picture-grid-viewport">
         <div class="trolley">
-        <div class="item" data-ng-repeat="img in pictures" data-ng-click="set($index)">
+        <div class="item" data-ng-repeat="img in pictures track by $index" data-ng-click="set($index)">
             <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
         </div>
     </div>

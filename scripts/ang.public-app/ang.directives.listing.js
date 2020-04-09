@@ -362,7 +362,7 @@ siApp
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=3',
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=4',
         link: function (scope, element, attrs) {
             scope.$element = element[0];
             var mc = new Hammer(element[0]);
@@ -398,6 +398,20 @@ siApp
                     // }
                     
                 }
+
+                var options = {
+                    root: document.documentElement
+                  }
+                var observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                      if(entry.intersectionRatio > 0){
+                          console.log('ImageSlider is visible');
+                          $scope.detectBoxSize();
+                      }
+                    });
+                  }, options);
+                  observer.observe($scope.$element);
+
                 $scope.$on('container-resize', function(){
                     console.log('container-resize');
                     $scope.detectBoxSize();
@@ -620,11 +634,18 @@ siApp
                 else{
                     lList = [];
                 }
+
+                console.log('listingNavigation', lList)
                 return lList;
             }
 
             $scope.getNextAndPrevious = function(){
                 const lList = $scope.loadList();
+                if (lList == null || lList.length == 0){
+                    $scope.list = null;
+                    return;
+                }
+                
                 let lCurrentIndex = lList.findIndex(function($e){
                     return $e.id == $scope.current;
                 });

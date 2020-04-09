@@ -16,7 +16,7 @@ define( 'SI_VERSION', '0.4.0 BETA' );
 define( 'SI_MINIMUM_WP_VERSION', '4.0' );
 define( 'SI_PLUGIN', __FILE__);
 define( 'SI_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );
-define(	'SI_PLUGIN_URL', '/' . str_replace(str_replace('\\', '/',ABSPATH),'',SI_PLUGIN_DIR));
+define(	'SI_PLUGIN_URL', '/' . str_replace(str_replace('\\', '/', ABSPATH),'',SI_PLUGIN_DIR));
 define( 'SI_DEVMODE', false );
 
 register_activation_hook( __FILE__, array( 'SourceImmo', 'plugin_activation' ) );
@@ -26,6 +26,7 @@ require_once( SI_PLUGIN_DIR . '/core/utils.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-config.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-shortcodes.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-page-builder.php' );
+require_once( SI_PLUGIN_DIR . '/core/class.si-addons.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-api.php' );
 

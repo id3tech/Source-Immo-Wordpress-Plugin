@@ -14,8 +14,12 @@ class SourceImmo {
 
   public $locales = null;
 
+  public $addons = null;
+
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
+
+    $this->addons = new SourceImmoAddons;
 
     if (!is_admin() ){
       // create an instance of the shortcodes class to force code bindings
@@ -66,6 +70,8 @@ class SourceImmo {
         add_filter('wp_nav_menu_items',array($this, 'add_favorite_button_to_menu'), 10, 2);
       }
     }
+
+    $this->addons->register_hooks($this->configs->active_addons);
   }
   
   function add_favorite_button_to_menu( $items, $args ) {
@@ -507,9 +513,27 @@ class SourceImmo {
                         );
     
     if($lTwoLetterLocale!='en'){
-      wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
-                null, 
-                filemtime(SI_PLUGIN_DIR . '/scripts/locales/global.'. $lTwoLetterLocale .'.js'), true );
+      $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
+      
+      foreach ($locale_file_paths as $filePath) {
+        
+        // echo(SI_PLUGIN_DIR);
+
+        $fileUrl = si_to_plugin_root($filePath);
+        $localeName = basename($filePath);
+
+        wp_enqueue_script(
+                          'si-locales-' . $localeName, 
+                          SI_PLUGIN_URL . $fileUrl, 
+                          null, 
+                          filemtime($filePath), 
+                          true
+                        );
+      }
+      // wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
+      //           null, 
+      //           filemtime(SI_PLUGIN_DIR . '/scripts/locales/global.'. $lTwoLetterLocale .'.js'), true );
+      
     }
     do_action("si-append-locales");
 
@@ -956,6 +980,14 @@ class SourceImmo {
     self::view('admin/dialog.ui',$args);
   }
 
+
+  /**
+   ADDONS
+   */
+  public function load_addons(){
+    $this->addons->load();
+  }
+
   /**
    MODULES
    */
@@ -1052,6 +1084,7 @@ class SourceImmo {
   public static function init() {
 		if ( ! self::$initiated ) {
       self::$initiated = true;
+      self::current()->load_addons();
       self::current()->load_modules();
       self::current()->init_hooks();
 		}
@@ -1065,7 +1098,7 @@ class SourceImmo {
   */
   public static function current() {
     if(self::$current_instance==null){
-      self::$current_instance = new SourceImmo();
+      self::$current_instance = new SourceImmo;
     }
     return self::$current_instance;
   }

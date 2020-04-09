@@ -127,6 +127,8 @@ class SourceImmoConfig {
 
   public $favorites_button_menu = null;
 
+  public $active_addons = null;
+  
   /**
    * Configuration constructor class
    */
@@ -185,7 +187,7 @@ class SourceImmoConfig {
     );
 
     $listingList = new SourceImmoList();
-    $listingList->sort = 'contract.start_date';
+    $listingList->sort = 'contract_start_date';
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
@@ -421,6 +423,7 @@ class SourceImmoList {
   public $default_zoom_level = "auto";
   public $smart_focus_tolerance = 5;
   public $search_engine_options = null;
+  public $search_token = null;
 
   public function __construct($source='',$alias='listings',$type='listings',$sort='',$displayedVars=null){
     $this->source = $source;

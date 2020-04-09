@@ -98,6 +98,10 @@ class SourceImmoApi {
   }
 
 
+  public static function get_addons(){
+    $lResult = SourceImmo::current()->addons->items;
+    return $lResult;
+  }
 
 
   /**
@@ -752,7 +756,6 @@ class SourceImmoApi {
    */
   private static function _registerRestApiListeners(){
     
-
     // Access Token
     self::_register_access_token_routes();
     
@@ -816,6 +819,10 @@ class SourceImmoApi {
         )
       )
     );
+
+    // Addons
+    self::_register_addons_routes();
+
   }
 
   
@@ -862,6 +869,20 @@ class SourceImmoApi {
     );
   }
 
+  
+  /**
+   * Addons REST routes registration
+   * @static
+   */
+  static function _register_addons_routes(){
+    register_rest_route( 'si-rest','/addons/list',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_addons' ),
+      )
+    );
+  }
 
   /**
    * Access Token REST routes registration

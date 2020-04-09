@@ -253,7 +253,7 @@ siApp
           }
       }
 
-      if($scope.model.sort != '' && $scope.model.sort != 'auto'){
+      if($scope.model.sort != null && $scope.model.sort != '' && $scope.model.sort != 'auto'){
         if(lResult==null) lResult = {};
         lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
       }
@@ -343,7 +343,7 @@ siApp
   }
 
   $scope.previewLayerHasVar = function($item, $layer='main'){
-      console.log('$scope.model.list_item_layout.displayed_vars',$scope.model.list_item_layout.displayed_vars)
+      //console.log('$scope.model.list_item_layout.displayed_vars',$scope.model.list_item_layout.displayed_vars)
     if($scope.model.list_item_layout.displayed_vars == undefined) return false;
     if($scope.model.list_item_layout.displayed_vars[$layer] == undefined) return false;
     return $scope.model.list_item_layout.displayed_vars[$layer].includes($item);

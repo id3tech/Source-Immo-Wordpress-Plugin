@@ -148,8 +148,20 @@ siApp
     });
   }
 
-  $scope.getListShortcode = function($list){
-    return '[si alias="' + $list.alias + '"]';
+  $scope.getListShortcode = function($list, $type=null){
+    switch($type){
+      case 'search':
+        return '[si_search alias="' + $list.alias + '" placeholder="Find a property, city, street, #sia, etc." result_page="/proprietes/" standalone="true"]';
+        break;
+      case 'searchbox':
+          return '[si_searchbox alias="' + $list.alias + '" placeholder="Find a property, city, street, #sia, etc." result_page="/proprietes/"]';
+          break;
+      case 'gallery':
+        return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
+        break;
+      default:
+        return '[si alias="' + $list.alias + '"]';
+    }
   }
 
   $scope.countFilters = function($list){
@@ -311,7 +323,7 @@ siApp
         {name: 'price', label: 'Price'},
       ],
       brokers: [
-        {name: 'name', label: 'Name'},
+        {name: 'last_name', label: 'Name'},
         {name: 'listing_count', label: 'Number of listings'},
       ],
       cities: [
@@ -389,7 +401,8 @@ siApp
         $scope.load_wp_menus(),
         $scope.load_data_views(),
         $scope.load_wp_forms(),
-        $scope.load_dictionary()
+        $scope.load_dictionary(),
+        $scope.load_addons()
       ])
       .then(
         _ => {
@@ -436,6 +449,13 @@ siApp
     });
   }
 
+  $scope.load_addons = function(){
+    $scope.api('addons/list', null, {method: 'GET'}).then(function($response){
+      $scope.loaded_components.push('cogs');
+      $scope.addons = $response;
+    })
+  }
+
   $scope.load_wp_forms = function(){
     $scope.api('form/list',null,{method : 'GET'}).then(function($response){
       $scope.loaded_components.push('clipboard-check');
@@ -461,8 +481,11 @@ siApp
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
       // Make sure there's a default search token for lists
+      
       $scope.validateListConfigs()
         .then(_ => {
+          console.log('saving configs', $scope.configs);
+          
           $scope.api('configs',{settings: $scope.configs}).then(function($response){
             if(!$silent){
               $scope.show_toast('Save completed');
@@ -699,8 +722,22 @@ siApp
       office_details : { title: 'Office details', content: '[si_office]', layout: 'office_layouts'},
       city : { title: 'Cities', content: '[si alias="cities"]', list: _ => { $scope.addList('cities', 'cities','name'); }},
       city_details : { title: 'City details', content: '[si_city]', layout: 'city_layouts'},
-    }
+    };
 
+    // find pages if exists
+    ['listing', 'listing_details','broker','broker_details'].forEach($k => {
+      const lPageEn = $scope.wp_pages.en.find($page => $page.post_title == lShortcodeMap[$k].title);
+      const lPageFr = $scope.wp_pages.fr.find($page => $page.post_title == lShortcodeMap[$k].title.translate());
+      if(lPageEn != null){
+        $scope.default_page.en[$k] = lPageEn.ID;
+      }
+      if(lPageFr != null){
+        $scope.default_page.fr[$k] = lPageFr.ID;
+
+      }
+    });
+    
+    
 
     return $q(function($resolve, $reject){  
       
@@ -716,7 +753,11 @@ siApp
             if($scope.default_page[$language.code][$pKey] == 'NONE') return; 
 
             const lMap =lShortcodeMap[$pKey];
-
+            
+            if(lMap == undefined){
+              console.log('Map undefined', $pKey, $language.code, lShortcodeMap);
+              return;
+            }
             
             if(typeof lMap.list == 'function') {
               lMap.list();
@@ -798,7 +839,7 @@ siApp
             $resolve();
           });
         })
-        .error($error => {
+        .catch($error => {
           console.log('An error occured while creating page', )
         });
       }
@@ -816,12 +857,23 @@ siApp
     const lTypedDatas = {
       'listings' : {
         search_engine_options : {
-          type_
+          type : 'full'
+        },
+        displayed_vars: {
+          main: ["address", "city", "price", "rooms", "subcategory"]
+        }
+      },
+      'brokers' : {
+        search_engine_options : {
+          type : 'full'
+        },
+        displayed_vars: {
+          main: ["first_name", "last_name", "phone", "title"]
         }
       }
     }
 
-    lList.sort = $sort;
+    lList.sort = $sort==''  ? null : $sort;
     lList.sort_reverse = $sortReverse;
     lList.limit = $limit;
     lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
@@ -830,6 +882,11 @@ siApp
     lList.searchable = true;
     lList.sortable = true;
     lList.mappable = true;
+
+    if(lTypedDatas[$type]!=undefined){
+      lList.search_engine_options = lTypedDatas[$type].search_engine_options;
+      lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
+    }
 
     lList.source = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
     lList.search_token = '';

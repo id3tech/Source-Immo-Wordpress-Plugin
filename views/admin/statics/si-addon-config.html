@@ -1,0 +1,7 @@
+<div class="si-addon-config {{isActive() ? 'is-active' : ''}}">
+    <div class="name" layout="row" layout-align="space-between center">
+        <h4>{{model.caption}}</h4>
+        <md-checkbox ng-checked="isActive()" ng-click="toggleActive()"></md-checkbox>
+    </div>
+    <div class="addon-config-container" ng-include="addonConfigPath"></div>
+</div>

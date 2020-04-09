@@ -206,6 +206,9 @@ $locales.fr = {};$locales.fr.global =
     // Lists label
     , "New {0} list" : "Nouvelle liste {0}"
     , "Copy shortcode" : "Copier le code court"
+    , "Copy search shortcode" : "Copier le code court de recherche"
+    , "Copy searchbox shortcode" : "Copier le code court de la boîte de recherche"
+    , "Copy gallery shortcode" : "Copier le code court de la galerie"
     , "Alias of the list" : "Alias de la liste"
     , "Source SourceImmo view" : "Vue SourceImmo d'origine"
     , "List of" : "Liste de"
@@ -225,6 +228,7 @@ $locales.fr = {};$locales.fr.global =
     , "Sort" : "Ordonnement"
     , "Layout" : "Disposition"
     , "Shortcode" : "Code court"
+    
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Layout page" : "Page de gabarit"
     , "Generate" : "Générer"

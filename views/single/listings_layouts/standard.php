@@ -31,6 +31,8 @@
     
     <div class="description">{{model.description}}</div>
     
+    <?php echo do_shortcode('[si_listing_part part="links"]') ?>
+
     <?php echo do_shortcode('[si_listing_part part="documents"]') ?>
 
     <?php echo do_shortcode('[si_listing_part part="flags"]') ?>
