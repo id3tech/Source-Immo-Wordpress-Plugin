@@ -577,17 +577,41 @@ siApp
                     console.timeEnd('getComputedStyle');
                     
                     console.time('setProperty(s)');
+
+                    const lTop = $scope.getElementOffset($scope._element,'offsetTop');
+                    const lLeft = $scope.getElementOffset($scope._element,'offsetLeft');
                     
-                    lContainer.style.setProperty('--relative-top', Math.round(lElmRect.top + window.scrollY) + 'px');
-                    lContainer.style.setProperty('--relative-left', (lElmRect.left + window.scrollX) + 'px');
+                    
+
+                    lContainer.style.setProperty('--relative-top', Math.round(lTop) + 'px');
+                    lContainer.style.setProperty('--relative-left', (lLeft) + 'px');
                     lContainer.style.setProperty('--relative-width', lElmRect.width + 'px');
                     lContainer.style.setProperty('--relative-height', lElmRect.height + 'px');
                     lContainer.style.setProperty('--relative-border-size', lBorderWidth);
                     console.timeEnd('setProperty(s)');
-                    
+                    console.log('new panel pos', lElmRect, lTop, lLeft);
+
                     lContainer._relative_style = true;
                 }
 
+            }
+
+            $scope.getElementOffset = function($elm, $metric){
+                let offsetValue = 0;
+                do {
+                    if ( !isNaN( $elm[$metric] ) ){
+                        offsetValue += $elm[$metric];
+                    }
+                } while( $elm = $elm.offsetParent );
+                
+
+                // if the admin bar is present, add the html margin-top
+                if($metric == 'offsetTop' && document.querySelector('#wpadminbar') != null){
+                    const lAdminBarHeight = document.querySelector('#wpadminbar').offsetHeight;
+                    offsetValue = offsetValue + lAdminBarHeight;
+                }
+
+                return offsetValue;
             }
 
             

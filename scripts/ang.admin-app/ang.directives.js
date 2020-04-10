@@ -888,7 +888,7 @@ siApp
       $scope.validateModelValues = function($model){
         Object.keys($model).forEach($k => {
           const lValue = $model[$k];
-          if(lValue != undefined){
+          if(lValue != undefined && lValue != ''){
             console.log('validate value', $k, lValue)
             if($k.indexOf('padding') > 0 || $k.indexOf('radius') > 0){
               if(lValue.indexOf('px') < 0){

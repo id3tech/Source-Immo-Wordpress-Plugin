@@ -279,7 +279,6 @@ if(typeof $siGlobalHooks == 'undefined'){
 }
 
 
-
 // object.watch
 if (!Object.prototype.watch) {
 	Object.defineProperty(Object.prototype, "watch", {
