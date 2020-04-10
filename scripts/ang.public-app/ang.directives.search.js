@@ -361,7 +361,13 @@ siApp
                         $scope.closePanels();
                     });
 
+
                     window._resizeTimeoutHndl = null;
+                    window.addEventListener('scroll', function(){
+                        const lContainer = $scope.filterPanelContainer[0];
+                        delete lContainer._relative_style;
+                    });
+
                     window.addEventListener('resize', function(){
                         if(window._resizeTimeoutHndl != null){
                             window.clearTimeout(window._resizeTimeoutHndl);

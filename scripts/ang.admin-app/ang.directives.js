@@ -819,6 +819,8 @@ siApp
             return $result;
           },{}
         );
+
+        $scope.validateModelValues(lModel);
         console.log('Parsed model',lModel);
         return lModel;
       }
@@ -829,6 +831,8 @@ siApp
       }
 
       $scope.update = function(){
+
+        $scope.validateModelValues($scope.model);
         
         //$scope._rawModelWatcherHndl();
 
@@ -881,6 +885,20 @@ siApp
         
       }
 
+      $scope.validateModelValues = function($model){
+        Object.keys($model).forEach($k => {
+          const lValue = $model[$k];
+          if(lValue != undefined){
+            console.log('validate value', $k, lValue)
+            if($k.indexOf('padding') > 0 || $k.indexOf('radius') > 0){
+              if(lValue.indexOf('px') < 0){
+                console.log('px missing', $k, lValue)
+                $model[$k] = lValue + 'px';
+              }
+            }
+          }
+        })
+      }
       
       $scope.isEditable = function($item){
         if($scope.editables == undefined) return true;
@@ -1070,6 +1088,7 @@ siApp
               lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
               lValue = lValue.replace(/_/g,'-');
             }
+            
             if($k == 'uls_label'){
               lValue = '"' + lValue + '"';
             }

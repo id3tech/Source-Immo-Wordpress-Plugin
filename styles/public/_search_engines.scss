@@ -482,14 +482,14 @@
 
     &.si-filter-panel-container{
         position:absolute;
-        top:var(--relative-top);
-        left:var(--relative-left);
-        width: var(--relative-width);
+        top:calc(var(--relative-top) - 2px);
+        left:calc(var(--relative-left) - 4px);
+        width: calc(var(--relative-width) + 4px);
         max-width:100%;
-        padding-top: var(--relative-height);
+        padding-top: calc(var(--relative-height) + 2px);
         border-radius:var(--element-border-radius);
         border: var(--element-border);
-        border-top-color:transparent;
+        //border-top-color:transparent;
         opacity:0;
         max-height:0px;
         transition:max-height 0.5s, opacity 0.25s;
@@ -501,10 +501,10 @@
             content:"";
             position: absolute;
             display:block;
-            top:0;
-            left: calc((var(--container-padding) /  2) + var(--container-border-radius));
-            width: calc(var(--relative-width) - (var(--container-padding)) - (2 * var(--container-border-radius)));
-            height:calc(var(--relative-height) - (var(--container-padding)) - (2 * var(--container-border-radius)));
+            top:calc(var(--relative-border-size) * 2);
+            left: calc(4px + var(--container-border-radius));
+            width: calc(100% - 8px - var(--container-border-radius));
+            height:calc( (var(--relative-height) - (var(--relative-border-size) * 2)) + (var(--container-padding) - (2 * var(--container-border-radius))));
             box-shadow: 0 0 0 100vh var(--background-color);
             z-index:1;
         }
