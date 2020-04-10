@@ -607,8 +607,13 @@ siApp
 
                 // if the admin bar is present, add the html margin-top
                 if($metric == 'offsetTop' && document.querySelector('#wpadminbar') != null){
-                    const lAdminBarHeight = document.querySelector('#wpadminbar').offsetHeight;
-                    offsetValue = offsetValue + lAdminBarHeight;
+                    const lBodyStyles = window.getComputedStyle(document.body);
+                    console.log('body position', lBodyStyles.position);
+
+                    if(!['absolute','relative'].includes(lBodyStyles.position)){
+                        const lAdminBarHeight = document.querySelector('#wpadminbar').offsetHeight;
+                        offsetValue = offsetValue + lAdminBarHeight;
+                    }
                 }
 
                 return offsetValue;
