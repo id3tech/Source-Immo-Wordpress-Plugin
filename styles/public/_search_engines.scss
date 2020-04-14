@@ -11,6 +11,7 @@
         
         border:var(--container-border);
         border-radius:var(--container-border-radius);
+        background-color: var(--background-color);`
         
         &.stick{
             position:fixed;
@@ -1255,6 +1256,7 @@
             position:relative;
             z-index: 3;
             padding: 10px;padding-left:40px;
+            margin:0px;
             outline:none;
             background:transparent;
             border:none;
