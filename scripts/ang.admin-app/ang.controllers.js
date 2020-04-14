@@ -278,7 +278,7 @@ siApp
       listings: [
         {name: 'none', label: 'None'},
         {name: 'zoom', label: 'Zoom'},
-        //{name: 'gallery', label: 'Gallery'}
+        {name: 'gallery', label: 'Gallery'}
       ],
       brokers: [
         {name: 'none', label: 'None'},

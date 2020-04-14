@@ -262,11 +262,16 @@ siApp
                 // Wait for late initialization
                 // ie: Dictionnay, configs, etc are all loaded
                 $scope.isReady().then(function(){
+                    console.log('Ready, carry on');
+                    
                     const lSearchEngineOptions = Object.assign({type: 'full', orientation: 'h', focus_category: null},$scope.configs.search_engine_options);
 
                     $scope._element.classList.add('layout-' + lSearchEngineOptions.type);
+                    
                     $scope._element.classList.add('orientation-' + lSearchEngineOptions.orientation);
-                    $scope._element.closest('.si-list-of-' + $scope.configs.type).classList.add('search-orientation-' + lSearchEngineOptions.orientation)
+                    const lListElement = $scope._element.closest('.si-list-of-' + $scope.configs.type);
+                    if(lListElement != null) lListElement.classList.add('search-orientation-' + lSearchEngineOptions.orientation)
+                    
                     $scope._element._rect = $scope._element.getBoundingClientRect();
                     $scope._element._computedStyle = window.getComputedStyle($scope._element);
 
@@ -414,18 +419,22 @@ siApp
                             $scope.configs = $configs;
                             lFilter.configs = $configs;
 
+                            console.log('Loading view meta');
                             // load view meta
                             $siUtils.all({
                                 meta : function(){return $siApi.getViewMeta($configs.type,$configs.source.id)},
                                 offices: function(){
-                                    if($configs.type != 'brokers') return null;
+                                    if($configs.type != 'brokers') return $q.resolve();
                                     return $siApi.call('office/view/' + $configs.source.id + '/fr/items')
                                 }
                             })
                             .then(function($results){
+                                
                                 $scope.dictionary = $results.meta.dictionary;
                                 $scope.officeList = $results.offices ? $results.offices.items : [];
                                 $scope.is_ready = true;
+
+                                console.log('View meta loaded');
                                 $resolve();
                             })                            
                         });
@@ -572,6 +581,8 @@ siApp
                     console.timeEnd('querySelector');
                     
                     console.time('getComputedStyle');
+                    //if($scope._element._computedStyle == undefined) $scope._element._computedStyle = window.getComputedStyle($scope._element);
+
                     const lCompStyle = $scope._element._computedStyle;
                     const lBorderWidth = lCompStyle.borderWidth;
                     console.timeEnd('getComputedStyle');
