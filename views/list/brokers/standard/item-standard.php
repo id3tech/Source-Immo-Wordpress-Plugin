@@ -2,9 +2,15 @@
 /**
  * Standard list item view
  */
+$scope_class = array();
+if(isset($configs)){
+    $scope_class[] = $configs->list_item_layout->scope_class;
+    
+    if(isset( $configs->list_item_layout->use_styles) && $configs->list_item_layout->use_styles) $scope_class[] = 'si-stylized';
+}
 ?>
 <article class="si-item si-broker-item si-standard-item-layout 
-                    <?php echo($configs->list_item_layout->scope_class) ?> {{getClassList(item)}}" 
+        <?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" 
         data-ng-cloak
     >
     <a href="{{item.permalink}}">

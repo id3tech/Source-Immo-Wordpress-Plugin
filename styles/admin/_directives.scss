@@ -102,6 +102,11 @@ body.wp-admin #si-app,
         display:grid;
         grid-template-columns: 1fr 1fr;
         gap:10px;
+        &[disabled]{
+          pointer-events: none;
+          opacity: 0.5;
+        }
+
         &.no-preview{
             grid-template-columns: 1fr;
         }
@@ -219,6 +224,31 @@ body.wp-admin #si-app,
                   position:relative;
                   border-radius: var(--preview-element-border-radius);
                   border: var(--preview-element-border);
+
+                  &.si-no-styles{
+                    .si-element-padding{
+                      padding: unset;
+                    }
+                    .si-background-small-contrast{
+                        background:unset;
+                        --preview-text-color: unset;
+                    }
+        
+                    .si-background-medium-contrast{
+                        background:unset;
+                        --preview-text-color: unset;
+                    }
+        
+                    .si-background-high-contrast{
+                        background:unset;
+                        --preview-text-color: unset;
+                    }
+        
+                    .si-price-sold{
+                      background-color: unset;
+                      --preview-text-color: unset;
+                    }
+                  }
               }
 
               .si-element-placeholder{
@@ -247,7 +277,7 @@ body.wp-admin #si-app,
                         object-position: center;
                     }
               }
-  
+              
               .si-grid{
                   display:grid;
                   gap: var(--preview-layout-gutter);
@@ -263,12 +293,11 @@ body.wp-admin #si-app,
               .si-highlight{
                   --preview-text-color: var(--preview-highlight);
                   padding:var(--preview-container-padding);
-  
               }
 
               .si-highlight-with-text{
                   background: var(--preview-highlight);
-                  color: var(--preview-highlight-text);
+                  --preview-text-color: var(--preview-highlight-text-color);
                   padding:var(--preview-container-padding);
               }
   

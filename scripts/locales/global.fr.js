@@ -195,7 +195,16 @@ $locales.fr = {};$locales.fr.global =
     , "Picture ratio" : "Ratio de l'image"
     , "Column width" : "Largeur de colonne"
 
-
+    // Search engine edit dialog
+    , "Search engine's configuration" : "Configuration de l'engin de recherche"
+    , "Display" : "Affichage"
+    , "Show tabs with respective options" : "Afficher les onglets avec les options respectives"
+    , "Target certain fields of research" : "Cibler certains champs de recherche"
+    , "Tabs to display" : "Onglets à afficher"
+    , "By categories" : "Par catégories"
+    , "By transactions" : "Par transactions"
+    , "Criterias to display" : "Critères à afficher"
+    , "Search box placeholder" : "Texte de substitution pour la case de recherche"
 
     // layouts title
     , "Listing details" : "Détails de propriété"
@@ -288,16 +297,22 @@ $locales.fr = {};$locales.fr.global =
     , "Configure" : "Configurer"
     , "List item edit" : "Édition des éléments de liste"
     , "Image hover effect" : "Effet de survole sur l'image"
-    , "Secondary layer display effect" : "Effet d'affichage de la couche secondaire"
+    , "Display effect" : "Effet d'affichage"
     , "Displayed values" : "Valeurs affichées"
-    , "(Main layer)" : "(Couche principale)"
-    , "(Secondary layer)" : "(Couche secondaire)"
+    , "Main layer" : "Couche principale"
+    , "Primary layer" : "Couche principale"
+    , "Secondary layer" : "Couche secondaire"
     , "Flip" : "Retourner"
     , "Fade" : "Fondu"
     , "Slide" : "Glisser"
     , "None" : "Aucun"
     , "Zoom" : "Zoom"
     , "Gallery" : "Galerie"
+    , "Position" : "Positionnement"
+    , "Fix" : "Fixe"
+    , "Overlay" : "Superposition"
+    , "Background opacity" : "Opacité de l'arrière-plan"
+    , "Use styles" : "Utiliser les styles"
 
     // Listing item values
     , "Price" : "Prix"
@@ -310,6 +325,7 @@ $locales.fr = {};$locales.fr.global =
     , "Flags" : "Indicateurs"
     , "Open houses" : "Visites libres"
     , "Region" : "Région"
+    
 
     // Routes
     , "Shortcut" : "Raccourci"
@@ -370,6 +386,7 @@ $locales.fr = {};$locales.fr.global =
     , "Types" : "Types"
     , "Near me" : "Près de moi"
     , "Price" : "Prix"
+    , "{0}/month" : "{0}/mois"
     , "Minimal price" : "Prix minimum"
     , "Maximal price" : "Prix maximum"
     , "Unlimited" : "Illimité"

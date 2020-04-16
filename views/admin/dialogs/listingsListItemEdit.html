@@ -28,31 +28,50 @@
               </md-select>
             </md-input-container>
 
-            <md-input-container ng-show="model.list_item_layout.preset=='double-layer'">
-              <label lstr>Secondary layer display effect</label>
+            <h4 ng-if="model.list_item_layout.preset=='double-layer'" lstr>Primary layer</h4>
+            <md-input-container ng-if="model.list_item_layout.preset=='double-layer'">
+              <label lstr>Position</label>
+              <md-select ng-model="model.list_item_layout.primary_layer_position">
+                <md-option ng-repeat="item in layerPositions" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container>
+              <label><lstr>Displayed values</lstr></label>
+              <md-select multiple ng-model="model.list_item_layout.displayed_vars.main">
+                <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <h4 ng-if="model.list_item_layout.preset=='double-layer'" lstr>Secondary layer</h4>
+            
+            <md-input-container ng-if="model.list_item_layout.preset=='double-layer'">
+              <label lstr>Display effect</label>
               <md-select ng-model="model.list_item_layout.secondary_layer_effect">
                 <md-option ng-repeat="item in layerHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
               </md-select>
             </md-input-container>
 
-            <div class="input-container">
-              <label><lstr>Displayed values</lstr> {{model.list_item_layout.preset=='double-layer' ? '(Main layer)'.translate() : ''}}</label>
-              <div class="">
-                <md-checkbox ng-repeat="item in availVars" ng-checked="varIsChecked(item.name,'main')" ng-click="varToggle(item.name,'main')">{{item.label.translate()}}</md-checkbox>
-              </div>
-            </div>
+            <md-input-container ng-if="model.list_item_layout.preset=='double-layer' && ['fade','slide'].includes(model.list_item_layout.secondary_layer_effect)">
+              <label lstr>Background opacity</label>
+              <input type="number" min="0" max="100" step="1" ng-model="model.list_item_layout.secondary_layer_bg_opacity" /><md-icon class="fal fa-percent"></md-icon>
+            </md-input-container>
 
 
-            <div class="input-container" ng-show="model.list_item_layout.preset=='double-layer'">
-              <label><lstr>Displayed values</lstr> <lstr>(Secondary layer)</lstr></label>
-              <div class="">
-                <md-checkbox ng-repeat="item in availVars" ng-checked="varIsChecked(item.name,'secondary')" ng-click="varToggle(item.name,'secondary')">{{item.label.translate()}}</md-checkbox>
-              </div>
-            </div>
+            <md-input-container ng-if="model.list_item_layout.preset=='double-layer'">
+              <label><lstr>Displayed values</lstr></label>
+              <md-select multiple ng-model="model.list_item_layout.displayed_vars.secondary">
+                <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+  
           </div>
 
+
+
           <div class="styles">
-            <si-style-editor 
+            <md-checkbox ng-model="model.list_item_layout.use_styles"><lstr>Use styles</lstr></md-checkbox>
+            <si-style-editor ng-disabled="!model.list_item_layout.use_styles"
               si-model="model.list_item_layout.styles" 
               si-change="updateStyles($styles)"
               si-show-preview="false"

@@ -62,7 +62,10 @@
                                             layout-{{model.list_item_layout.preset}} 
                                             img-hover-{{model.list_item_layout.image_hover_effect}} 
                                             layer-hover-{{model.list_item_layout.secondary_layer_effect}}
+                                            primary-layer-{{model.list_item_layout.primary_layer_position}}
+                                            {{model.list_item_layout.use_styles ? 'si-stylized' : 'si-no-styles'}}
                                             {{$index==0 ? 'editable' : ''}}"
+                                        style="{{model.list_item_layout.secondary_layer_bg_opacity > 0 ? '--secondary-layer-bg-opacity:' + (model.list_item_layout.secondary_layer_bg_opacity/100) : ''}}"
                                         ng-repeat="item in previewElements track by $index"
                                         >
                                     <div ng-include="item.layout"></div>

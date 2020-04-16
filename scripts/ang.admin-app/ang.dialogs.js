@@ -61,7 +61,8 @@ $scope.init = function(){
     $scope.availVars = $rootScope.global_list.list_item_vars[$scope.model.type];
     $scope.imageHoverEffects = $rootScope.global_list.list_item_image_hover_effects[$scope.model.type];
     $scope.layerHoverEffects = $rootScope.global_list.list_item_show_layer_effects[$scope.model.type];
-
+    $scope.layerPositions = $rootScope.global_list.list_item_layer_positions[$scope.model.type];
+    
     if(Array.isArray($scope.model.list_item_layout.displayed_vars)) delete $scope.model.list_item_layout.displayed_vars;
     
     if($scope.model.list_item_layout.image_hover_effect == undefined) $scope.model.list_item_layout.image_hover_effect = 'none';
@@ -175,6 +176,7 @@ function listingsListItemEditCtrl($scope, $rootScope, $mdDialog,$siUI,$params){
       $scope.availVars = $rootScope.global_list.list_item_vars[$scope.model.type];
       $scope.imageHoverEffects = $rootScope.global_list.list_item_image_hover_effects[$scope.model.type];
       $scope.layerHoverEffects = $rootScope.global_list.list_item_show_layer_effects[$scope.model.type];
+      $scope.layerPositions = $rootScope.global_list.list_item_layer_positions[$scope.model.type];
 
       if(Array.isArray($scope.model.list_item_layout.displayed_vars)) delete $scope.model.list_item_layout.displayed_vars;
       if($scope.model.list_item_layout.image_hover_effect == undefined) $scope.model.list_item_layout.image_hover_effect = 'none';

@@ -10,7 +10,8 @@
                 <si-price-range-slider 
                     model="priceRange" on-change="updatePrice()" 
                     start-label="Min" 
-                    end-label="<?php _e('Unlimited',SI) ?>"></si-price-range-slider>
+                    end-label="<?php _e('Unlimited',SI) ?>"
+                    ></si-price-range-slider>
                 <div class="min">
                     <em><?php _e('Minimal price', SI) ?></em>
                     <h2 class="price-value">{{getMinPriceLabel('<?php _e('Min',SI) ?>')}}</h2>

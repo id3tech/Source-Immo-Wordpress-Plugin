@@ -2,7 +2,7 @@
     <form ng-cloak>
       <md-toolbar>
         <div class="md-toolbar-tools">
-          <h2 lstr>Broker search engine</h2>
+          <h2 lstr>Search engine's configuration</h2>
           <span flex></span>
           <md-button class="md-icon-button" ng-click="cancel()">
             <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
@@ -13,13 +13,13 @@
       <md-dialog-content>
         <div class="md-dialog-content" layout="column">
           
-          
-          <div class="input-container" ng-show="model.type=='full'">
-            <label lstr>Shown panels</label>
-            <div class="input">
-              <md-checkbox ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-checked="model.fields.includes(field.key)" ng-click="toggleField(field.key)">{{field.caption}}</md-checkbox>
-            </div>
-          </div>
+          <md-input-container ng-show="model.type=='full'">
+            <label lstr>Criterias to display</label>
+            <md-select ng-model="model.fields" multiple>
+              <md-option ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-value="field.key">{{field.caption}}</md-option>
+            </md-select>
+          </md-input-container>
+
 
           <md-input-container>
             <label lstr>Search box placeholder</label>

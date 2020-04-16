@@ -313,6 +313,24 @@ siApp
         {name: 'fade', label: 'Fade'}
       ],
     },
+    list_item_layer_positions:{
+      listings: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      brokers: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      cities: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      offices: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+    },
     detail_layouts:[
       {name: 'standard', label: 'Standard'},
       {name: 'custom_page', label : 'Custom layout from page'}

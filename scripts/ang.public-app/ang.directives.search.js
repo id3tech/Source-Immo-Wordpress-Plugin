@@ -41,7 +41,8 @@ siApp
             
             // const
             $scope.PRICE_RANGE_MAX  = 1000000;
-            $scope.PRICE_RANGE_STEP = 1000;
+            $scope.PRICE_RANGE_PRECISION = 1000;
+            $scope.PRICE_RANGE_FORMAT = '{0}';
 
             // init default values        
             $scope.is_ready = false;    
@@ -306,7 +307,7 @@ siApp
                         // check if there's filters stored
                         if($filter.hasFilters()){
                             // Sync UI with filters
-                            $scope.syncFiltersToUI();
+                            $scope.syncFiltersToUI($filter);
                             
                             // build hints
                             //$scope.buildHints();
@@ -463,24 +464,30 @@ siApp
                 console.log('selectMainFilter', $scope.current_main_filter, $tab);
 
                 if($scope.current_main_filter == $tab) return;
+
+                // when tab is focus on transaction, change the max price and step value
+                if(['for-sale','for-rent'].includes($tab)){
+                    if($tab == 'for-sale'){
+                        $scope.PRICE_RANGE_MAX = 1000000;
+                        $scope.PRICE_RANGE_PRECISION = 1000;
+                        $scope.PRICE_RANGE_FORMAT = '{0}';
+                    }
+                    if($tab == 'for-rent'){
+                        $scope.PRICE_RANGE_MAX = 10000;
+                        $scope.PRICE_RANGE_PRECISION = 100;
+                        $scope.PRICE_RANGE_FORMAT = '{0}/month';
+                    }
+
+                    // Update price range
+                    $scope.updatePrice();
+                }
+
                 $scope.filter.setMainFilter($scope.configs.type, $tab);
                 $scope.filter.update();
 
-                // // remove previous selected filter if any
-                // if($scope.current_main_filter != undefined){
-                //     const lPreviousFilter = $scope.main_filters[$scope.configs.type][$scope.current_main_filter];
-                //     if(lPreviousFilter != undefined){
-                //         $scope.filter.addFilter(lPreviousFilter.field,lPreviousFilter.operator,null);
-                //     }
-                // }
-
                 $scope.current_main_filter = $tab;
-                // const lFilter = $scope.main_filters[$scope.configs.type][$tab];
-                // console.log('new main filter', lFilter);
-                // if(lFilter != undefined){
-                //     $scope.filter.addFilter(lFilter.field,lFilter.operator,lFilter.value);
-                // }
 
+                // save current tab to session
                 sessionStorage.setItem('si.currentMainFilter', $scope.current_main_filter);
             }
 
@@ -508,8 +515,9 @@ siApp
                 return $scope.configs.search_engine_options.fields.includes($field);
             }
 
-
-            // PANELS MANAGEMENT
+            // ----------------------------
+            //#region PANELS MANAGEMENT
+            // ----------------------------
             $scope.closePanels = function(){
                 $timeout(function(){
                     $scope._expandedPanel = null;
@@ -568,39 +576,17 @@ siApp
                 const lContainer = $scope.filterPanelContainer[0];
 
                 if($force || lContainer._relative_style == undefined){
-                    
-                    console.time('getBoundingClientRect');
-                    //if($scope._element._rect == undefined) 
                     const lElmRect = $scope._element._rect; 
-
-                    console.timeEnd('getBoundingClientRect');
-
-                    console.time('querySelector');
-                    // const lSearchBoxElm = $scope._element.querySelector('.search-box');
-                    // if(lSearchBoxElm == null) return;
-                    console.timeEnd('querySelector');
-                    
-                    console.time('getComputedStyle');
-                    //if($scope._element._computedStyle == undefined) $scope._element._computedStyle = window.getComputedStyle($scope._element);
-
                     const lCompStyle = $scope._element._computedStyle;
                     const lBorderWidth = lCompStyle.borderWidth;
-                    console.timeEnd('getComputedStyle');
-                    
-                    console.time('setProperty(s)');
-
                     const lTop = $scope.getElementOffset($scope._element,'offsetTop');
                     const lLeft = $scope.getElementOffset($scope._element,'offsetLeft');
-                    
-                    
 
                     lContainer.style.setProperty('--relative-top', Math.round(lTop) + 'px');
                     lContainer.style.setProperty('--relative-left', (lLeft) + 'px');
                     lContainer.style.setProperty('--relative-width', lElmRect.width + 'px');
                     lContainer.style.setProperty('--relative-height', lElmRect.height + 'px');
                     lContainer.style.setProperty('--relative-border-size', lBorderWidth);
-                    console.timeEnd('setProperty(s)');
-                    console.log('new panel pos', lElmRect, lTop, lLeft);
 
                     lContainer._relative_style = true;
                 }
@@ -664,6 +650,10 @@ siApp
 
                 $item.expanded = ($item.expanded != undefined)? !$item.expanded : true;
             }
+
+            // ----------------------------
+            //#endregion PANELS MANAGEMENT
+            // ----------------------------
 
 
             /**
@@ -954,23 +944,19 @@ siApp
             $scope._priceChangeDebounce = null;
             $scope.updatePrice = function(){
                 if($scope._priceChangeDebounce != null) window.clearTimeout($scope._priceChangeDebounce);
-                const lPriceStep = $siHooks.filter('search-price-step', $scope.PRICE_RANGE_STEP);
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
-                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
-
+                const lRoundPrecision = $siHooks.filter('search-round-precision', $scope.PRICE_RANGE_PRECISION);
+                
                 const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
                 
                 const lMinPrice = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[0]);
                 const lMaxPrice = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]);
-
-                const lPriceRangeValues = [lMinPrice, lMaxPrice];
-
+                
                 $scope._priceChangeDebounce = window.setTimeout(function(){
-                    console.log('updatePrice with',lMinPrice, lMaxPrice);
                     $scope.filter.data.min_price = lMinPrice;
                     $scope.filter.data.max_price = (lMaxPrice < lPriceMaxBoundary) ? lMaxPrice : null;
                     $scope.filter.update();
-                    //$scope.setPriceFromRange(lPriceRangeValues);
+                    
                 },100);
             }
 
@@ -1050,41 +1036,6 @@ siApp
                 }
             }
 
-            // $scope.setFilterFromArea = function($areaType,$minMax){
-            //     const lValue = $scope.filter.data[$areaType + '_' + $minMax];
-
-            //     $scope.setArea(lValue, $areaType,$minMax);
-            // }
-            
-            // $scope.setArea = function($value, $areaType, $minMax, $filterLabelFormat){
-            //     $siFilters.with($scope.alias, function($filter){
-            //         let lOperators = {
-            //             'min' : 'greater_or_equal_to',
-            //             'max' : 'less_or_equal_to'
-            //         }
-
-            //         const lAreaMap = {
-            //             'land' : 'land.dimension.area_sf',
-            //             'available' : 'available_area_sf'
-            //         }
-
-            //         const fnReverse = function(){
-            //             //$timeout(function(){
-            //                 $scope.filter.data[$areaType + '_' + $minMax] = null; 
-            //             //});
-                        
-            //             $scope.filter.addFilter(lAreaMap[$areaType], lOperators[$minMax], null, null);
-            //         }
-
-            //         if($value <= 0) $value = null;
-
-            //         if($value != $scope.filter.data[$areaType + '_' + $minMax]){
-            //             $scope.filter.data[$areaType + '_' + $minMax] = $value; 
-            //         }
-            //         $scope.filter.addFilter(lAreaMap[$areaType], lOperators[$minMax], $value, null);
-                    
-            //     });
-            // }
 
             $scope.getInputCount = function(){
                 if($scope.configs == null) return 5;
@@ -1217,7 +1168,8 @@ siApp
 
             $scope.getMinPriceLabel = function($minLabel){
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
-                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
+                const lRoundPrecision = $siHooks.filter('search-round-precision', $scope.PRICE_RANGE_PRECISION);
+                const lResultFormat = $siHooks.filter('search-price-format', $scope.PRICE_RANGE_FORMAT);
 
                 const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
                 
@@ -1226,19 +1178,21 @@ siApp
                 if($scope.priceRange[0] == 0) return $minLabel;
             
                 const lResult = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[0]);
-                return lResult.formatPrice();
+                return lResultFormat.translate().format(lResult.formatPrice());
             }
 
             $scope.getMaxPriceLabel = function($maxLabel){
                 const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
-                const lRoundPrecision = $siHooks.filter('search-round-precision', 1000);
+                const lRoundPrecision = $siHooks.filter('search-round-precision', $scope.PRICE_RANGE_PRECISION);
+                const lResultFormat = $siHooks.filter('search-price-format', $scope.PRICE_RANGE_FORMAT);
 
                 const fnRoundPrice = function($price){ return Math.round($price / lRoundPrecision) * lRoundPrecision; }
                 
                 $maxLabel = ($maxLabel == undefined) ? lPriceMaxBoundary.formatPrice() : $maxLabel;
 
                 if($scope.priceRange[1]==1) return $maxLabel;
-                return fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]).formatPrice();
+                const lResult = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]);
+                return lResultFormat.translate().format(lResult.formatPrice());
             }
 
             /**
@@ -1318,91 +1272,19 @@ siApp
             //#endregion
             // -------------------------------------------
 
-            $scope.syncFiltersToUI = function(){
-                return;
-
-                let lListSync = {
-                    "category_code" : "listing_category",
-                    "subcategory_code" : "listing_subcategory",
-                    "location.city_code" : "city",
-                    "location.region_code" : "region",
-                    "building.category_code" : "building_category"
+            $scope.syncFiltersToUI = function($filter){
+                const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
+                
+                if($filter.data.min_price != null){
+                    const lPriceRangeMin    = $filter.data.min_price / lPriceMaxBoundary;
+                    $scope.priceRange[0] = lPriceRangeMin;
                 }
 
-                $siFilters.with($scope.alias, function($filter){
-                    if($filter.filter_group!=null && $filter.filter_group.filters != null){
-                        $filter.filter_group.filters.forEach(function($e,$i){
-                            // dictionary sync
-                            if(lListSync[$e.field] != undefined){
-                                let lDictionaryKey = lListSync[$e.field];
-                                if($scope.dictionary[lDictionaryKey]){
-                                    $filter.syncToList($e, $scope.dictionary[lDictionaryKey]);
-                                }
-                            }
-                            else if($e.label){
-                                // sync
-                                $filter.syncToList($e, $scope.listing_attributes);
-                                $filter.syncToList($e, $scope.listing_states);
-                            }
-                        });
-                    }
-
-                    lListSync = {
-                        "main_unit.bedroom_count" : $scope.bedroomSuggestions,
-                        "main_unit.bathroom_count" : $scope.bathroomSuggestions,
-                        "attributes.PARKING" : $scope.parkingSuggestions,
-                        "attributes.PARKING_GARAGE" : $scope.garageSuggestions,
-                        "office_id" : $scope.officeList
-                    }
-                    
-                    for (let key in lListSync) {
-                        let lValue = $filter.getFilterValue(key);
-                        
-                        lListSync[key].some(function($e){
-                            
-                            if(Array.isArray(lValue)){
-                                const lItemKey = 'id';
-                                if(
-                                    lValue.includes($e[lItemKey])
-                                ){
-                                    $e.selected = true;
-                                    return true;
-                                }
-                            }
-                            else if($e.value != undefined){
-                                if($e.value==lValue){
-                                    
-                                    $e.selected = true;
-                                    return true;
-                                }
-                            }
-                        });
-                    }
-                    
-                    
-                    if ($filter.hasFilter('for_sale_flag')) $filter.data.transaction_type = 'sale';
-                    if ($filter.hasFilter('for_rent_flag')) $filter.data.transaction_type = 'rent';
-                    if ($filter.hasFilter('contract.start_date')) $filter.data.contract = $filter.getFilterCaption('contract.start_date');
-
-                    console.log('syncFiltersToUI',$filter.data.transaction_type, $filter.data.contract);
-
-
-                    //console.log('filter data',$filter.data);
-                    const lPriceMaxBoundary = $siHooks.filter('search-max-price-boundary', $scope.PRICE_RANGE_MAX);
-                    
-                    if($filter.data.min_price != null){
-                        const lPriceRangeMin    = $filter.data.min_price / lPriceMaxBoundary;
-                        $scope.priceRange[0] = lPriceRangeMin;
-                    }
-
-                    if($filter.data.max_price != null){
-                        const lPriceRangeMax    = $filter.data.max_price==0 ? 1 : $filter.data.max_price / lPriceMaxBoundary;
-                        $scope.priceRange[1] =  lPriceRangeMax;
-                    }
-
-                    $siHooks.do('sync-filters-to-ui', $filter);
-                })
-                
+                if($filter.data.max_price != null){
+                    const lPriceRangeMax    = $filter.data.max_price==0 ? 1 : $filter.data.max_price / lPriceMaxBoundary;
+                    $scope.priceRange[1] =  lPriceRangeMax;
+                }
+            
             }
 
             /**

@@ -2,7 +2,7 @@
     <form ng-cloak>
       <md-toolbar>
         <div class="md-toolbar-tools">
-          <h2 lstr>Listing search engine</h2>
+          <h2 lstr>Search engine's configuration</h2>
           <span flex></span>
           <md-button class="md-icon-button" ng-click="cancel()">
             <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
@@ -17,12 +17,12 @@
             <label lstr>Display</label>
             <md-select ng-model="model.type">
                 <md-option value="full"><lstr>Show tabs with respective options</lstr></md-option>
-                <md-option value="focused"><lstr>Focus search for handpicked fields</lstr></md-option>
+                <md-option value="focused"><lstr>Target certain fields of research</lstr></md-option>
             </md-select>
           </md-input-container>
 
           <md-input-container ng-show="model.type=='full'">
-            <label lstr>Focus tabs on</label>
+            <label lstr>Tabs to display</label>
             <md-select ng-model="model.tabs" multiple>
                 <md-optgroup label="{{'By categories'.translate()}}">
                   <md-option value="residential"><lstr>Residential</lstr></md-option>
@@ -36,12 +36,12 @@
             </md-select>
           </md-input-container>
 
-          <div class="input-container" ng-show="model.type=='focused'">
-            <label lstr>Focus tabs on</label>
-            <div class="input">
-              <md-checkbox ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-checked="model.fields.includes(field.key)" ng-click="toggleField(field.key)">{{field.caption}}</md-checkbox>
-            </div>
-          </div>
+          <md-input-container ng-show="model.type=='focused'">
+            <label lstr>Criterias to display</label>
+            <md-select ng-model="model.fields" multiple>
+              <md-option ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-value="field.key">{{field.caption}}</md-option>
+            </md-select>
+          </md-input-container>
 
           <md-input-container>
             <label lstr>Search box placeholder</label>

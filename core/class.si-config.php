@@ -356,6 +356,9 @@ class SourceImmoLayout{
   public $secondary_layer_effect = 'fade';
   public $displayed_vars = null;
   public $styles = null;
+  public $use_styles = true;
+  public $primary_layer_position = 'fix';
+  public $secondary_layer_bg_opacity = 75;
   
   /**
    * Communication method for forms
@@ -511,6 +514,7 @@ class SourceImmoSearchEngineOptions {
   public $orientation = 'h';
   public $focus_category = null;
   public $sticky = false;
+  public $tabs = null;
   
   public function __construct($type=null){
 
