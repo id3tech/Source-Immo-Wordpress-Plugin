@@ -1,10 +1,17 @@
 <?php
 $classes = array();
+
 if(isset($item->open_houses) && count($item->open_houses)>0){
     $classes[] = 'has-open-house';
 }
 if($item->status_code=='SOLD'){
     $classes[] = 'sold';
+}
+
+if(isset($configs)){
+    $classes[] = $configs->list_item_layout->scope_class;
+    
+    if(isset( $configs->list_item_layout->use_styles) && $configs->list_item_layout->use_styles) $classes[] = 'si-stylized';
 }
 
 ?>

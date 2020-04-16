@@ -74,8 +74,11 @@ siApp
             list_layout : { preset: 'standard', scope_class : '', custom:null},
             list_item_layout : { 
                 preset: 'standard', scope_class : '', custom:null,
+                primary_layer_position: 'fix',
+                secondary_layer_bg_opacity: 75,
+                use_styles: true,
                 displayed_vars: {
-                    main:['address','city','region','price','ref_number','category','rooms','subcategory','available_area','description']
+                    main:['address','city','region','price','category','rooms','subcategory']
                 }
               }
           });

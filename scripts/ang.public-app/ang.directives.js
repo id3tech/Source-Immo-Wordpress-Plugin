@@ -889,7 +889,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
 
                     if($item.category_code == 'RESIDENTIAL'){
                             
-                        if($item.rooms.bed.count>0){
+                        if($item.rooms.bed != undefined && $item.rooms.bed.count>0){
                             lTitle = $item.rooms.bed.count == 1 ? 
                                         '1 Bedroom {0}'.translate().format($item.subcategory) : 
                                         '{0} Bedrooms {1}'.translate().format($item.rooms.bed.count, $item.subcategory);
