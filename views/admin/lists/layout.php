@@ -1,6 +1,6 @@
 <div class="list-layout">
     <md-input-container>
-        <label><?php _e('Model',SI) ?></label>
+        <label><?php _e('Rendering method',SI) ?></label>
         <md-select ng-model="model.list_layout.preset">
             <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
         </md-select>
@@ -11,9 +11,11 @@
         <input ng-model="model.list_layout.scope_class" />
     </md-input-container>
 
+    <style type="text/css" ng-bind="getCustomCss()"></style>
+    
     <h5 lstr>Preview</h5>
     <div class="si-style-editor-preview {{model.type}}-preview " si-style-preview="computedStyles">
-        
+
             <div class="viewport list-layout-{{model.list_layout.preset}} search-layout-orientation-{{model.search_engine_options.orientation}}">
                 <div class="si-container search-engine-container search-type-{{model.type}} search-layout-type-{{model.search_engine_options.type}}  search-layout-orientation-{{model.search_engine_options.orientation}}">
                     <div class="list-components" >
@@ -59,11 +61,11 @@
                             <div class="component-elements si-grid">
                                 
                                 <div class="si-element 
-                                            layout-{{model.list_item_layout.preset}} 
+                                            layout-{{model.list_item_layout.layout}} 
                                             img-hover-{{model.list_item_layout.image_hover_effect}} 
                                             layer-hover-{{model.list_item_layout.secondary_layer_effect}}
                                             primary-layer-{{model.list_item_layout.primary_layer_position}}
-                                            {{model.list_item_layout.use_styles ? 'si-stylized' : 'si-no-styles'}}
+                                            style-{{model.list_item_layout.preset}}
                                             {{$index==0 ? 'editable' : ''}}"
                                         style="{{model.list_item_layout.secondary_layer_bg_opacity > 0 ? '--secondary-layer-bg-opacity:' + (model.list_item_layout.secondary_layer_bg_opacity/100) : ''}}"
                                         ng-repeat="item in previewElements track by $index"

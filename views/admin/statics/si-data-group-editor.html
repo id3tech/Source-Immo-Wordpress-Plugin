@@ -8,17 +8,15 @@
                     <h3 class="title"><i class="far fa-list"></i> <lstr>Lists</lstr></h3>
                     
                     <div class="shortcode" lstr>Shortcode</div>
-                    <div class="sort" lstr>Sort</div>
                     <div class="layout" lstr>Layout</div>
 
-                    <div class="filters" lstr>Filters</div>
                     <div class="limit" lstr>Limit</div>
                     <div class="actions"></div>
                 </div>
 
                 <div class="list-item data-row" ng-repeat="list in configs.lists | filter : {'type' : groupType}">
                     <div class="title" ng-click="edit(list)">
-                        <div>{{list.alias}} <i class="fal fa-pencil"></i></div>
+                        <div>{{list.alias}}</div>
                         <sub>source: {{list.source.name}}</sub>
                     </div>
                     
@@ -30,36 +28,31 @@
                             <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
                             <md-menu-content>
                                 <md-menu-item>
-                                    <md-button ng-click="copy(getListShortcode(list, 'search'))"><md-icon class="fal fa-search"></md-icon> <lstr>Copy search shortcode</lstr></md-button>
-                                </md-menu-item>
-                                <md-menu-item>
-                                    <md-button ng-click="copy(getListShortcode(list, 'searchbox'))"><md-icon class="fal fa-keyboard"></md-icon> <lstr>Copy searchbox shortcode</lstr></md-button>
+                                    <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-list"></md-icon> <lstr>Copy complete list layout shortcode</lstr></md-button>
                                 </md-menu-item>
                                 <md-divider></md-divider>
+
                                 <md-menu-item>
-                                    <md-button ng-click="copy(getListShortcode(list, 'gallery'))"><md-icon class="fal fa-images"></md-icon> <lstr>Copy gallery shortcode</lstr></md-button>
+                                    <md-button ng-click="copy(getListShortcode(list, 'search'))"><md-icon class="fal fa-search"></md-icon> <lstr>Copy search tool shortcode</lstr></md-button>
+                                </md-menu-item>
+                                <md-menu-item>
+                                    <md-button ng-click="copy(getListShortcode(list, 'searchbox'))"><md-icon class="fal fa-keyboard"></md-icon> <lstr>Copy quick search textbox shortcode</lstr></md-button>
+                                </md-menu-item>
+                                <md-divider></md-divider>
+
+                                <md-menu-item>
+                                    <md-button ng-click="copy(getListShortcode(list, 'gallery'))"><md-icon class="fal fa-images"></md-icon> <lstr>Copy listing slider shortcode</lstr></md-button>
                                 </md-menu-item>
                             </md-menu-content>
                         </md-menu>
                     </div>
-                    <div class="sort"><span>{{list.sort.translate()}}</span> <i class="fal fa-lg fa-sort-amount-{{list.sort_reverse?'down':'up'}}"></i></div>
+                    
                     <div class="layout"><span>{{list.list_layout.preset}}/{{list.list_item_layout.preset}}</span></div>
-
-                    <div class="filters"><span>{{(countFilters(list)==0)? 'none'.translate() : countFilters(list)}}</span></div>
                     <div class="limit">{{(list.limit==0)? 'unlimited'.translate() : list.limit}}</div>
+
                     <div class="actions">
-                        <md-menu>
-                            <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
-                            <md-menu-content>
-                                <md-menu-item>
-                                    <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-code"></md-icon> <lstr>Copy shortcode</lstr></md-button>
-                                </md-menu-item>
-                                <md-divider></md-divider>
-                                <md-menu-item>
-                                    <md-button ng-disabled="configs.lists.length==1" ng-click="remove(list)"><md-icon class="fal fa-times"></md-icon> <lstr>Delete</lstr></md-button>
-                                </md-menu-item>
-                            </md-menu-content>
-                        </md-menu>
+                        <md-button class="md-icon-button" ng-click="edit(list)"><md-icon class="fal fa-pencil"></md-icon></md-button>
+                        <md-button class="md-icon-button" ng-disabled="configs.lists.length==1" ng-click="remove(list)"><md-icon class="fal fa-times"></md-icon></md-button>
                     </div>
                 </div>
             

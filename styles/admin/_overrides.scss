@@ -62,4 +62,9 @@ body.wp-admin{
       z-index: 999998;
     }
   }
+
+  md-optgroup[disabled]{
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }

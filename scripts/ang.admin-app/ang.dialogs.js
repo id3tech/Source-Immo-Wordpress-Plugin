@@ -156,6 +156,10 @@ function listingsSearchEngineEditCtrl($scope, $rootScope, $mdDialog,$siUI,$param
 
       $scope.model.fields.push($key);
     }
+
+    $scope.tabsContains = function($tabToCheck){
+      return $tabToCheck.some($t => $scope.model.tabs.includes($t));
+    }
 }
 
 function listingsListItemEditCtrl($scope, $rootScope, $mdDialog,$siUI,$params){

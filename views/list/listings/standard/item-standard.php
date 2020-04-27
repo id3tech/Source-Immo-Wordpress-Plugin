@@ -2,24 +2,42 @@
 /**
  * Standard list item view
  */
-$scope_class = array();
+$scope_class = array('si-item si-listing-item si-single-layer-item-layout');
+$attrs = array();
+$styleActive = true;
+
 if(isset($configs)){
     $scope_class[] = $configs->list_item_layout->scope_class;
     
-    if(isset( $configs->list_item_layout->use_styles) && $configs->list_item_layout->use_styles) $scope_class[] = 'si-stylized';
+    if(isset( $configs->list_item_layout->preset)) {
+        $scope_class[] = 'style-' . $configs->list_item_layout->preset;
+        $styleActive = $configs->list_item_layout->preset != 'custom';
+    }
+
+    
+    if(isset( $configs->list_item_layout->image_hover_effect)){
+        $scope_class[] = 'img-hover-effect-' . $configs->list_item_layout->image_hover_effect;    
+        if($configs->list_item_layout->image_hover_effect == 'gallery'){
+            $attrs[] = 'si-image-rotator="{{item.ref_number}}:' . $configs->alias . '"';
+        }
+    }
+
+
 }
 ?>
-<article class="si-item si-listing-item si-standard-item-layout <?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak>
+<article 
+    class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak
+        <?php echo(implode(' ', $attrs)) ?> >
     <a href="{{item.permalink}}">
         <div class="item-content">
             <div class="image si-lazy-loading"><img data-si-src="{{item.photo_url}}" data-si-srcset="{{item.photo_url}}" /></div>
-            <div class="si-data-label si-background-high-contrast civic-address" ng-show="layoutAllowVar('address',true)">{{item.location.civic_address}}</div>
-            <div class="si-data-label si-background-high-contrast city" ng-show="layoutAllowVar('city',true)">{{item.location.city}}</div>
-            <div class="si-data-label si-background-high-contrast region" ng-show="layoutAllowVar('region')">{{item.location.region}}</div>
-            <div class="si-data-label si-background-medium-contrast price" ng-show="layoutAllowVar('price',true)">{{formatPrice(item)}}</div>
+            <div class="si-data-label civic-address <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"   ng-show="layoutAllowVar('address',true)">{{item.location.civic_address}}</div>
+            <div class="si-data-label city <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('city',true)">{{item.location.city}}</div>
+            <div class="si-data-label region <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('region')">{{item.location.region}}</div>
+            <div class="si-data-label price  <?php echo($styleActive ? 'si-background-medium-contrast' : '') ?>"  ng-show="layoutAllowVar('price',true)">{{formatPrice(item)}}</div>
 
-            <div class="si-data-label si-background-small-contrast category" ng-show="layoutAllowVar('category')">{{item.category }}</div>
-            <div class="si-data-label si-background-small-contrast subcategory" ng-show="layoutAllowVar('subcategory',true)">{{item.subcategory}}</div>
+            <div class="si-data-label category" ng-show="layoutAllowVar('category')">{{item.category }}</div>
+            <div class="si-data-label subcategory" ng-show="layoutAllowVar('subcategory',true)">{{item.subcategory}}</div>
             <div class="si-data-label ref-number" ng-show="layoutAllowVar('ref_number')">{{item.ref_number}}</div>
 
             <div class="si-data-label available_area" ng-show="layoutAllowVar('available_area')">{{item.available_area}} {{item.available_area_unit}}</div>

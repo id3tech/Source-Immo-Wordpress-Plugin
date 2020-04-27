@@ -5,16 +5,14 @@
 <div id="si-admin-configs" class="config-panel" ng-cloak ng-show="configs.registered && message == null">
   <div class="section-navigations">
     <div class="nav-button-list">
-      <div class="nav-button styles" ng-click="show('styles')">
-        <i class="fal fa-fw fa-palette"></i> <lstr>Styles</lstr>
+      <div class="nav-button general" ng-click="show('general')">
+        <i class="fal fa-fw fa-inbox">
+          <b ng-if="hasErrorNotices()">{{notices.length}}</b>
+        </i> <lstr>General</lstr>
       </div>
 
       <div class="nav-button listings" ng-click="show('listings')">
         <i class="fal fa-fw fa-home"></i> <lstr>Listings</lstr>
-      </div>
-
-      <div class="nav-button cities" ng-click="show('cities')">
-        <i class="fal fa-fw fa-city"></i> <lstr>Cities</lstr>
       </div>
 
       <div class="nav-button brokers" ng-click="show('brokers')">
@@ -23,9 +21,17 @@
 
       <div class="nav-button offices" ng-click="show('offices')">
         <i class="fal fa-fw fa-building"></i> <lstr>Offices</lstr>
+      </div>   
+
+      <div class="nav-button cities" ng-click="show('cities')">
+        <i class="fal fa-fw fa-city"></i> <lstr>Cities</lstr>
       </div>
 
-      
+
+      <div class="nav-button styles" ng-click="show('styles')">
+        <i class="fal fa-fw fa-palette"></i> <lstr>Styles</lstr>
+      </div>
+
       <div class="nav-button addons" ng-if="addons.length > 0" ng-click="show('addons')">
         <i class="fal fa-fw fa-cogs"></i> <lstr>Addons</lstr>
       </div>
@@ -38,6 +44,10 @@
   </div>
 
   <div class="sections">
+    <section id="general">
+      <?php SourceImmo::view('admin/configs/general') ?>
+    </section>
+
     <section id="styles">
       <?php SourceImmo::view('admin/configs/styles') ?>
     </section>

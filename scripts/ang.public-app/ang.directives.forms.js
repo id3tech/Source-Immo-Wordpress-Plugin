@@ -37,10 +37,15 @@ siApp
         link: function($scope, $element, $attrs){
             $scope.selected = $scope.checked;
             
-            $scope.compareModelToValue();
+            $scope.compareModelToValue();            
+        },
+        controller: function($scope, $timeout){
 
             $scope.$watch('model', function($new,$old){
+                console.log('siCheckbox:model changed')
+                
                 if ($new == null) return;
+                
                 $scope.compareModelToValue();
             });
 
@@ -53,18 +58,17 @@ siApp
             $scope.$watch('checked', function($new,$old){
                 $scope.selected = $scope.checked;
             })
-            
-        },
-        controller: function($scope, $timeout){
+
+
             $scope.toggleCheck = function($event){
-                console.log('togleCheck', $scope.model);
+                //console.log('togleCheck', $scope.model);
                 if($scope.model === undefined){
                     $event.preventDefault();
                     return;
                 }
                 
                 $scope.selected = !$scope.selected;
-                console.log('toggleCheck', $scope.model);
+                //console.log('toggleCheck', $scope.model);
 
                 if(Array.isArray($scope.model)){
                     if($scope.selected) {
@@ -92,6 +96,10 @@ siApp
 
                 $timeout(function(){
                     if (Array.isArray($scope.model)){
+                        if($scope.model.length > 0){
+                            //console.log('checkbox:compareModelToValue', $scope.model, $scope.checkedValue);
+                        }
+                        
                         $scope.selected = $scope.model.includes($scope.checkedValue);
                     }
                     else{
@@ -99,9 +107,22 @@ siApp
                     }
                 });
             }
+
+            $scope.isSelected = function(){
+                if (Array.isArray($scope.model)){
+                    if($scope.model.length > 0){
+                        //console.log('checkbox:compareModelToValue', $scope.model, $scope.checkedValue);
+                    }
+                    
+                    return $scope.model.includes($scope.checkedValue);
+                }
+                else{
+                    return $scope.model == $scope.checkedValue;
+                }
+            }
         },
         template: '<div class="pretty p-icon p-pulse" ng-click="toggleCheck($event)">' +
-                    '<input type="checkbox" ng-checked="selected">' +
+                    '<input type="checkbox" ng-checked="isSelected()" title="{{label}}">' +
                     '<div class="state">' +
                         '<i class="icon fas fa-check"></i>' +
                         '<label>{{label}}</label>' +
@@ -138,7 +159,7 @@ siApp
                 });
 
                 $scope.$watch('model', $scope.modelChangeHandler, true);
-                console.log('siSelect initialized', $scope.model);
+                //console.log('siSelect initialized', $scope.model);
 
                 $scope.selectedCaption = $scope.placeholder;
 
@@ -204,7 +225,7 @@ siApp
                     $scope.updateValue();
 
                     if(lChanged){
-                        console.log('select changed',$scope.model, $value);
+                        //console.log('select changed',$scope.model, $value);
                         $timeout(function(){
                             if(typeof $scope.changeCallback == 'function') $scope.changeCallback();
                         })
@@ -213,7 +234,7 @@ siApp
             }
 
             $scope.modelChangeHandler = function($new, $old){
-                console.log('select modelChanged',$new, $old);
+                //console.log('select modelChanged',$new, $old);
                 $scope.updateElementClasses();
                 if($scope.allowMultiple){
                     $scope.updateValues();
@@ -267,26 +288,26 @@ siApp
                 });
 
                 if(lRemoveValue){
-                    console.log('remove value ', $scope.placeholder, $scope.model);
+                    //console.log('remove value ', $scope.placeholder, $scope.model);
 
                     $scope.updateCaption($scope.placeholder);
                 }
                 else if ($scope.options.length == 1){
-                    console.log('getCaption of',$scope.placeholder)
+                    //console.log('getCaption of',$scope.placeholder)
                     $scope.options[0].getCaption().then(function($caption){
                         $scope.updateCaption($caption);
                     });
                 }
                 else if (lSelectedElement != null){
-                    console.log('getCaption of selected element',$scope.placeholder);
+                    //console.log('getCaption of selected element',$scope.placeholder);
 
                     lSelectedElement.getCaption().then(function($caption){
-                        console.log('select element update value with caption', $caption, lSelectedElement.innerHtml);
+                        //console.log('select element update value with caption', $caption, lSelectedElement.innerHtml);
                         $scope.updateCaption($caption);
                     });
                 }
                 else{
-                    console.log('Would update but...',$scope.placeholder, $scope.options, $scope.model);
+                    //console.log('Would update but...',$scope.placeholder, $scope.options, $scope.model);
                 }
                 
             }
@@ -311,7 +332,7 @@ siApp
                 // track click on parents to close the dropdown
                 // will climb the document up to the body
                 angular.element(document).on('click', function(){
-                    console.log('Closest parent clicked');
+                    //console.log('Closest parent clicked');
                     $rootScope.$broadcast('close-dropdown', null);
                 })
 
@@ -327,7 +348,7 @@ siApp
                 const lElementBox = $scope.$element.getBoundingClientRect();
                 const lPotentialHeight = [];
                 let lSubElements = Array.from($element.querySelectorAll('.si-panel-child-container'));
-                console.log('getContentHeight', lSubElements);
+                //console.log('getContentHeight', lSubElements);
 
                 lSubElements.forEach(function($e){
                     const lItemStyles = window.getComputedStyle($e);
@@ -340,7 +361,7 @@ siApp
                     return $result + $cur;
                 },0);
 
-                console.log('element height', lElementBox.height);
+                //console.log('element height', lElementBox.height);
                 return Math.min(lResult,lElementBox.height * 12);
             }
 
@@ -355,7 +376,7 @@ siApp
             }
 
             $scope.clickHandler = function($event){
-                console.log('button clicked', $scope.$element);
+                //console.log('button clicked', $scope.$element);
                 $rootScope.$broadcast('close-dropdown', $scope.$element);
                 
                 const lElmZIndex = $siUtils.elmOffsetZIndex($scope.$element);
@@ -423,7 +444,7 @@ siApp
                         lRelativeAttr.inner_cx = lRelativeAttr.width / 2;
                         lRelativeAttr.inner_cy = lRelativeAttr.height / 2;
                         
-                        console.log('lRelativeAttr', angular.copy(lRelativeAttr));
+                        //console.log('lRelativeAttr', angular.copy(lRelativeAttr));
                         
 
                         lRelativeAttr.cx = lMainElmRect.left + lRelativeAttr.inner_cx;
@@ -644,7 +665,7 @@ siApp
 
             $scope.getCaption = function(){
                 return $q( function($resolve, $reject) {
-                    console.log('siOptionPanel.getCaption', $scope.captionFormat);
+                    //console.log('siOptionPanel.getCaption', $scope.captionFormat);
                     let caption = null;
                     if(typeof($scope.captionFormat) == 'function'){
                         caption = $scope.captionFormat();
@@ -714,7 +735,7 @@ siApp
                     // track click on parents to close the dropdown
                     // will climb the document up to the body
                     angular.element(document).on('click', function(){
-                        console.log('Closest parent clicked');
+                        //console.log('Closest parent clicked');
                         $rootScope.$broadcast('close-dropdown', null);
                     })
     
@@ -751,7 +772,7 @@ siApp
                     
                     $event.stopPropagation();
 
-                    console.log('button clicked', $scope.$element);
+                    //console.log('button clicked', $scope.$element);
                     $rootScope.$broadcast('close-dropdown', $scope.$element);
                     // const lClosestParent = $scope.$element.closest('.modal-body, .filter-panel');
                     // angular.element(lClosestParent).on('click', function(){
@@ -764,7 +785,7 @@ siApp
                     $scope.extractMenu($scope.$element).then(function($menuElm){
                         const lMenuElm = $menuElm;
                         lMenuElm.classList.add('expanded');
-                        console.log('Elm z-index', lElmZIndex);
+                        //console.log('Elm z-index', lElmZIndex);
     
                         if(lElmZIndex != 'auto'){
                             lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
@@ -1201,7 +1222,7 @@ siApp
                     return $result;
                 },p);
 
-                console.log('setP', $scope.model, i, p, lValue);
+                //console.log('setP', $scope.model, i, p, lValue);
 
                 if ($scope.property != null) {
                     return $scope.model[i][$scope.property] = lValue;
@@ -1210,7 +1231,7 @@ siApp
                 }
             };
             $scope.setPs = function($values){
-                console.log('setPs', $values);
+                //console.log('setPs', $values);
 
                 $values.forEach(function($v, $i){
                     if ($scope.property != null) {
@@ -1261,7 +1282,7 @@ siApp
             $scope.init();
         },
         template: '<div class="any-selector pretty p-icon p-pulse p-round">' +
-                    '<input type="radio" name="{{name}}" ng-click="onClick()" ng-checked="checked">' +
+                    '<input type="radio" name="{{name}}"  title="{{label}}" ng-click="onClick()" ng-checked="checked">' +
                     '<div class="state">' +
                         '<i class="icon fas fa-circle fa-xs"></i>' +
                         '<label>{{label}}</label>' +
@@ -1280,7 +1301,7 @@ siApp
                 let lSelected = false;
 
                 if($scope.value == $new) {
-                    console.log('Radio values matches');
+                    //console.log('Radio values matches');
                     lSelected = true;
                 }
                 
@@ -1290,7 +1311,7 @@ siApp
             })
 
             $scope.onClick = function(){
-                console.log('radio item clicked',$scope.value);
+                //console.log('radio item clicked',$scope.value);
                 $scope.model = $scope.value;
                 $timeout(function(){
                     

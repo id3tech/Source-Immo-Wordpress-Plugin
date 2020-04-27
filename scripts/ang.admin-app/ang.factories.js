@@ -326,8 +326,37 @@ siApp
    * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
    * @return {promise}
    */
-  $scope.confirm = function($title, $message, $options){
+  $scope.alert = function($message, $options){
     $message = typeof($message) == 'undefined' ? '' : $message;
+
+    $options = angular.merge({
+      ev: null,
+      ok: 'OK'
+    }, $options);
+    
+    // Appending dialog to document.body to cover sidenav in docs app
+    const lDialog = $mdDialog.alert()
+                    .clickOutsideToClose(false)
+                    .textContent($message.translate())
+                    .ok($options.ok)
+                    .targetEvent($options.ev)
+                    lDialog._options.parent = angular.element(document.body);
+
+    $mdDialog.show(
+      lDialog
+    );
+  }
+
+  /**
+   * Display a confirmation box
+   * @param {string} $title Main confirm message
+   * @param {string} $message Optional. Additionnal information to help understand the main message. Default : empty
+   * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
+   * @return {promise}
+   */
+  $scope.confirm = function($title, $message, $options){
+    const lTitle = ($message == undefined) ? '': $title;
+    const lMessage = ($message == undefined) ? $title : $message;
 
     $options = angular.merge({
       ev: null,
@@ -337,8 +366,8 @@ siApp
     
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
-          .title($title.translate())
-          .textContent($message.translate())
+          .title(lTitle)
+          .htmlContent(lMessage.translate().replace("\n",'<br>'))
           .targetEvent($options.ev)
           .ok($options.ok.translate())
           .cancel($options.cancel.translate());

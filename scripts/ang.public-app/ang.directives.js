@@ -813,7 +813,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
                 $scope._element = $element;
                 
                 $siConfig.get().then(function($configs){
-                    console.log('init slider',$configs);
+                    //console.log('init slider',$configs);
                     $scope.configs = $configs;
                     $scope.fetchList().then(function(){
                         $scope.bindEvents();
@@ -863,7 +863,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
             }
 
             $scope.applyProperties = function(){
-                console.log('apply properties')
+                //console.log('apply properties')
                 const lListConfigs = $scope.configs.lists.find(function($l){
                     return $l.alias == $scope.alias;
                 });
@@ -879,7 +879,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
             }
 
             $scope.postProcessListItem = function($type, $item){
-                console.log('postProcessListItem', $type, $item);
+                //console.log('postProcessListItem', $type, $item);
 
                 $item.photo_url = $item.photo_url.replace('-sm.jpg','-lg.jpg');
                 let lTitle;

@@ -350,6 +350,7 @@ class SourceImmoLayout{
   public $lang = '';
   public $type = 'standard';
   public $preset = 'standard';
+  public $layout = 'standard';
   public $scope_class = '';
   public $page = null;
   public $image_hover_effect = 'none';
@@ -420,7 +421,7 @@ class SourceImmoList {
   public $mappable = true;
   public $show_list_meta = true;
   public $list_layout = null;
-  public $list_item_layout = 'standard';
+  public $list_item_layout = null;
   public $browse_mode = null;
   public $shuffle = false;  
   public $default_zoom_level = "auto";

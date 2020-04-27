@@ -18,19 +18,9 @@ if($lTwoLetterLocale == ''){
     
     
     <div flex layout="row" layout-align="end center" ng-show="configs.registered && current_page=='home'">
-      <div layout="row" layout-align="start center">
-
-      <md-input-container>
-          <label>
-            <?php _e('Data source', SI) ?>   
-          </label>
-          
-          <md-select ng-model="configs.default_view" ng-change="save_configs()">
-              <md-option ng-repeat="item in data_views" value="{{item.id}}">{{item.name}}</md-option>
-          </md-select>
-      </md-input-container>
-          </div>      
-      <md-menu  ng-cloak>
+      <md-button class="md-raised md-primary" ng-click="signout()"><i class="fal fa-sign-out"></i> <?php _e('Sign out',SI) ?></md-button> 
+      
+      <md-menu  ng-cloak ng-if="false">
         <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-cogs"></md-icon></md-button>
         <md-menu-content>
           <md-menu-item>
@@ -96,6 +86,7 @@ if($lTwoLetterLocale == ''){
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-messages.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js"></script>
 
   <!-- Angular Material Library -->
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.js"></script>

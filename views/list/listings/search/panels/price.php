@@ -1,7 +1,11 @@
-<div class="filter-panel price-panel {{isExpanded('price')}}">
-        <div class="panel-header">
+<?php
+$panelKey = 'price';
+?>
+
+<div class="filter-panel price-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
+        <div class="filter-panel-header">
             <h4><?php _e('Price', SI) ?></h4>
-            <button class="button" type="button"  ng-click="toggleExpand($event,'price')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
         </div>
     
         <div class="filter-panel-content">
@@ -25,5 +29,9 @@
                 </div>
 
             </div>
+        </div>
+
+        <div class="filter-panel-actions">
+        <?php include '_actions.php'; ?>
         </div>
     </div>

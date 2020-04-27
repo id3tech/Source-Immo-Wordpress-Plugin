@@ -14,18 +14,26 @@
         $itemClasses = apply_filters('si-listing-item-classes', array(
                             'item-{{item.ref_number}}'
                         ));
+        if($configs->list_item_layout->preset=='custom'){
+            echo('<style>');
+            $styles = explode("\n",$configs->list_item_layout->custom_css);
+            foreach ($styles as $style) {
+                echo('.si-list .si-item .item-content ' . $style);
+            }
+            echo('</style>');
+        }
         ?>
         <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
             <div ng-repeat="item in list track by item.id"  class="<?php echo(implode(' ',$itemClasses))?>">
             <?php 
-                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
+                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
             ?>
             </div>
         </div>
         <div class="si-list si-list-of-ghost" data-ng-show="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
             <div ng-repeat="item in ghost_list">
             <?php 
-                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
+                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
             ?>
             </div>
         </div>

@@ -29,7 +29,7 @@ siApp
 
 
   $scope._pageInit_ = function(){
-    $scope.show('styles');
+    $scope.show('general');
   }
 
   $scope.addRouteElement = function($item,$elm){
@@ -184,7 +184,8 @@ siApp
   $scope._status = 'initializing';
   $scope.loaded_components = [];
   $scope.wpSiApiSettings = wpSiApiSettings;
-  
+  $scope.notices = [];
+
   $scope.configs = {};
   $scope.lang_codes = {
     fr: 'Français',
@@ -204,35 +205,37 @@ siApp
     ],
     list_layouts:{
       listings: [
-        {name: 'standard', label: 'Standard'},
-        {name: 'map', label: 'Map'},
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'standard', label: 'Client side (Default)'},
+        //{name: 'map', label: 'Map'},
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       brokers: [
-        {name: 'standard', label: 'Standard'},
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'standard', label: 'Client side (Default)'},
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       cities: [
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       offices: [
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'direct', label: 'Server side (no search tool)'}
       ]
     },
     list_item_layouts:{
       listings: [
         {name: 'standard', label: 'Standard'},
-        {name: 'double-layer', label: 'Double Layers'}
+        {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
-        {name: 'double-layer', label: 'Double Layers'}
+        {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       cities: [
         {name: 'standard', label: 'Standard'}
+        
       ],
       offices: [
         {name: 'standard', label: 'Standard'}
+        
       ]
     },
     list_item_vars: {
@@ -358,7 +361,7 @@ siApp
   $scope.registration_steps = [
     {name: 'Linked account'},
     {name: 'API key'},
-    {name: 'Data view'},
+    {name: 'Data feed(s)'},
     {name: 'Integration'}
   ]
 
@@ -508,6 +511,7 @@ siApp
             if(!$silent){
               $scope.show_toast('Save completed');
             }
+            $scope.checkIntegrity();
             $resolve();
           });
         });
@@ -598,9 +602,13 @@ siApp
 
 
   $scope.signin = function(){
+    $scope.signin_in = true;
     $scope.portalApi('auth/login', $scope.login_infos).then($response => {
+
+      $scope.signin_in = false;
+
       if([10,20].includes($response.statusCode)){
-        $scope.show_toast($response.message);
+        $siUI.alert($response.message);
         return;
       }
 
@@ -643,7 +651,10 @@ siApp
   }
 
   $scope.signout = function(){
-    $scope.reset_configs();
+    $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
+      $scope.reset_configs();
+    })
+    
   }
 
   $scope.selectAccount = function(){
@@ -1052,17 +1063,54 @@ siApp
   }
 
   $scope.checkIntegrity = function(){
+    $scope.notices = [];
     
-    // check details' layouts
+
     if($scope.hasEmptyLayouts()){
-      $siUI.confirm("Some layout's page are missing. Would you like to create them now?",undefined,{ok: 'Yes', cancel: 'No'}).then(function(){
-        $scope.fillEmptyLayouts();
-      },_ => {});
-    }
-    else{
-      console.log('no empty layout', $scope.configs);
+      const lMissingLayout = $scope.getEmptyLayouts().map(function($l) {
+        return $l.translate();
+      });
+
+      console.log('missing layout', lMissingLayout);
+      
+      $scope.addNotice(
+        'Missing layouts', 
+        'Some list are missing a detail page layout. Please check the following section{1}: {0}'.translate().format(lMissingLayout.join(', '),  lMissingLayout.length>1 ? 's':''), 
+        {
+          actions: {
+            'Create missing pages' : function(){
+              $siUI.confirm('Attention','Creating missing layout may duplicate some page under certain circonstance.\nContinue anyway?',{ok:'Yes',cancel:'No'}).then(function(){
+                $scope.fillEmptyLayouts();
+              })
+              
+            }
+          }
+        }
+      );
     }
     
+    if($scope.notices.length == 0){
+      $scope.addNotice('All good', 'The plugin is properly configured', {type:'success', color: '#4AB448', icon: 'fa-check-circle'});
+    }
+  }
+
+  $scope.hasErrorNotices = function(){
+    return $scope.notices.some(function($n){
+      return $n.type == 'warning';
+    })
+  }
+
+  $scope.addNotice = function($title, $message, $options){
+    const lNotice = Object.assign({
+      title: $title,
+      message: $message,
+      color: '#ff9900',
+      actions: [],
+      icon: 'fa-exclamation-triangle',
+      type: 'warning'
+    }, $options);
+
+    $scope.notices.push(lNotice);
   }
 
   $scope.generateLayoutPage = function($layout, $groupType){
@@ -1120,10 +1168,7 @@ siApp
     $scope.save_configs();
   }
   
-
-  $scope.hasEmptyLayouts = function(){
-    if(!$scope.configs.registered) return false;
-
+  $scope.getEmptyLayouts = function(){
     const lLayoutMap = {
       listings : 'listing_layouts',
       brokers : 'broker_layouts',
@@ -1137,13 +1182,16 @@ siApp
                             return $l.type == $type;
                           })
                         });
-    console.log('hasEmptyLayouts',lFiltered);
+                        
     return lFiltered
-      .some(function($type){
-        return $scope.configs[lLayoutMap[$type]].some(function($layout){
-          return $layout.page==null
-        });
-      });
+              .filter(function($type){
+                return $scope.configs[lLayoutMap[$type]].some(function($layout){
+                  return $layout.page==null
+                });
+              });
+  }
+  $scope.hasEmptyLayouts = function(){
+    return $scope.getEmptyLayouts().length > 0;
   }
 
   $scope.fillEmptyLayouts = function(){

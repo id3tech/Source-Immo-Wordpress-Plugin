@@ -16,7 +16,7 @@
     
     <div class="configs">
         <h4 ng-show="isEditable('listing')"
-            ng-click="openGroup('listing')"><lstr>Listing item</lstr></h4>
+            ng-click="openGroup('listing')" lstr>Listing item</h4>
         <div ng-show="isEditable('listing')" id="style-listing" class="style-group">
             <md-input-container  class="fullrow">
                 <md-icon class="far fa-lg fa-tag"></md-icon> 
@@ -50,7 +50,7 @@
             </md-input-container>
         </div>
 
-        <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')"><lstr>Broker item</lstr></h4>
+        <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')" lstr>Broker item</h4>
         <div  ng-show="isEditable('broker')" id="style-broker" class="style-group">
             <md-input-container  class="fullrow">
                 <md-icon class="far fa-lg fa-ruler-triangle"></md-icon> 
@@ -65,7 +65,7 @@
             </md-input-container>
         </div>
 
-        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')"><lstr>Office item</lstr></h4>
+        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
         <div  ng-show="isEditable('office')" id="style-office" class="style-group">
             <md-input-container  class="fullrow">
                 <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
@@ -74,7 +74,7 @@
             </md-input-container>
         </div>
 
-        <h4 ng-click="openGroup('global')" ng-show="isEditable('global')"><lstr>Global</lstr></h4>
+        <h4 ng-click="openGroup('global')" ng-show="isEditable('global')" lstr>Global</h4>
         <div id="style-global" ng-show="isEditable('global')" class="style-group global-group">
             <md-input-container class="fullrow">
                 <md-icon class="far fa-lg fa-font"></md-icon>
@@ -163,7 +163,7 @@
             </md-input-container>
         </div>
 
-        <h4 ng-click="openGroup('bg-fg')"  ng-show="isEditable('bg-fg')"><lstr>Background / text</lstr></h4>
+        <h4 ng-click="openGroup('bg-fg')"  ng-show="isEditable('bg-fg')" lstr>Background / text</h4>
         <div id="style-bg-fg" class="style-group" ng-show="isEditable('bg-fg')">
             <div
                 md-color-picker="options.colorPicker"
@@ -222,7 +222,7 @@
             ></div>
         </div>
 
-        <h4 ng-click="openGroup('components')" ng-show="isEditable('components')"><lstr>Components</lstr></h4>
+        <h4 ng-click="openGroup('components')" ng-show="isEditable('components')" lstr>Components</h4>
         <div id="style-components" class="style-group" ng-show="isEditable('components')">
             <md-input-container class="fullrow">
                 <label><md-icon class="far fa-lg fa-font"></md-icon> <lstr>Button font name</lstr> (<lstr params="defaultValues.button_font_name">default {0}</lstr>)</label>

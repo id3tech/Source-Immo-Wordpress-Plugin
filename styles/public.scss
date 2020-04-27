@@ -364,17 +364,19 @@ html{
         }
         &.img-hover-effect-gallery{
             .image{
-                img{
-                    transition:0.25s;
-                }
-            }
-            &:hover{
-                .image{
-                    img{
-                        transform:scale(1.05);
+                img.rotator-picture{
+                    transition: opacity 0.75s;
+                    opacity:0;
+                    position: absolute;
+                    top:0;
+                    left:0;
+
+                    &.show{
+                        opacity:1;
                     }
                 }
             }
+            
         }
 
         .item-content{
@@ -412,7 +414,9 @@ html{
         &.si-double-layer-item-layout{
             .item-content{
                 display:block;
-                
+                .image{
+                    transition:0.25s;
+                }
                 .layer-container{
                     height:100%;
                     .layer{
@@ -422,19 +426,28 @@ html{
                         display: flex;
                         flex-direction: column;
                         justify-content: flex-end;
+                        .si-data-label{
+                            transition: 0.1s;
+                            overflow: hidden;
+                        }
                     }
                     .secondary-layer{
                         //padding: var(--container-padding);
                         justify-content: center;
                         overflow:hidden;
+                        z-index:5;
                     }
                 }
             }
 
             &.primary-layer-fix{
-                .layer-container{
-                    //display:contents;
+                .item-content{
+                    display:grid;
                 }
+                .layer-container{
+                    display:contents;
+                }
+                
                 .layer{
                     &.primary-layer{
                         display:contents;
@@ -447,6 +460,7 @@ html{
                     transform:translateY(100%);
                     transition: 0.25s;
                     --text-color: var(--high-contrast-text-color);
+                    z-index:5;
                     > * {position:relative; z-index:1;}
                     &::before{
                         @include absoluteFill();
@@ -456,7 +470,16 @@ html{
                     }
                 }
                 &:hover{
+                    &.primary-layer-fix{
+                        .image{
+                            z-index:2;
+                            transform: translateY(50%) scale(3);    
+                            filter: blur(1px);
+                        }
+                        //.primary-layer .si-data-label{padding:0;height:0;}
+                    }
                     .secondary-layer{
+                        transition: 0.25s;
                         transform:translateY(0%);
                     }
                 }
@@ -467,6 +490,7 @@ html{
                     opacity:0;
                     transition: 0.25s;
                     --text-color: var(--high-contrast-text-color);
+                    
                     > * {position:relative; z-index:1;}
                     &::before{
                         @include absoluteFill();
@@ -476,8 +500,16 @@ html{
                     }
                 }
                 &:hover{
+                    &.primary-layer-fix{
+                        .image{
+                            z-index:2;
+                            transform: translateY(50%) scale(3);    
+                            filter: blur(1px);
+                        }
+                    }
                     .secondary-layer{
                         opacity:1;
+                        transition: 0.25s;
                     }
                 }
             }
@@ -485,6 +517,7 @@ html{
             &.layer-hover-flip{
                 overflow:visible;
                 .layer-container{
+                    display:block;
                     transition: 0.75s;
                     transform-style: preserve-3d;
                 }
@@ -497,6 +530,7 @@ html{
                 .secondary-layer{
                     transform: rotateY(180deg);
                     --text-color: var(--high-contrast-text-color);
+                    
                     > * {position:relative; z-index:1;}
                     &::before{
                         @include absoluteFill();
@@ -529,24 +563,7 @@ html{
 
             .item-content{
                 gap: 0;
-                // grid-template-columns: 3fr 1fr;
-                // grid-template-rows: repeat(7,auto) 1fr;
-                // grid-template-areas: 
-                //     "civic-address civic-address"
-                //     "city city"
-                //     "image image"
-                //     "price price"
-                //     "rooms rooms"
-                //     "open-houses open-houses"
-                //     "category ref-number"
-                //     "subcategory ref-number"
-                //     "description description"
-                //     ;
                 
-                // @include media($phone){
-                //     grid-template-rows: auto;
-                // }
-
 
             }
             
@@ -586,13 +603,8 @@ html{
                     padding:0px;
                 }
             }
-            .civic-address{
-                font-size:1.2em;
-                text-transform: uppercase;
-            }
-            .city{
-                font-size:0.8em;
-            }
+            
+           
             .image{
                 height:calc(var(--listing-item-column-width) * var(--listing-item-picture-ratio));
                 text-align: unset;
@@ -605,22 +617,13 @@ html{
                     object-position: center;
                 }
             }
-            
-            .price{
-            }
-            .city{
-                //font-size:0.8em;
-                &::after{content:"\00a0";}
-            }
-            .civic-address{}
-            .description,
-            .region{
-                font-size:0.8em;
-            }
+
             .rooms{
                 display:grid;
-                grid-template-columns: auto 1fr auto;
+                grid-template-columns:auto 1fr auto;
                 place-items: center;
+                height: 2.5em;
+                
                 .room.hand-holding-water{grid-row:1;grid-column:2;}
                 .room.bath{grid-column: 3;}
                 .room{
@@ -629,11 +632,7 @@ html{
                     .label{display:none;}
                 }
             }
-            .ref-number{
-                font-size:0.8em;
-                &::before{content:var(--uls-label);}
-            }
-            .category{font-size:1.2em;}
+
             .subcategory{}
             
             &.has-open-house{
@@ -660,6 +659,35 @@ html{
             //     }       
             // }
 
+            &:not(.style-custom){
+                .civic-address{
+                    text-transform: uppercase;
+                }
+                .city{
+                    font-size:0.8em;
+                }
+                
+                
+                .price{
+                }
+                .city{
+                    //font-size:0.8em;
+                    &::after{content:"\00a0";}
+                }
+                
+                .description,
+                .region{
+                    font-size:0.8em;
+                }
+                
+                .ref-number{
+                    font-size:0.8em;
+                    &::before{content:var(--uls-label);}
+                }
+                .category{font-size:1.2em;}
+            }
+
+
             &.si-small-item-layout{
                 .item-content{
                     // grid-template-areas: 
@@ -682,6 +710,76 @@ html{
                     //     "price price"
                     //     "rooms rooms"
                     //     "open-houses open-houses";
+                }
+            }
+
+           
+            &.style-standard{
+                &.si-single-layer-item-layout .item-content,
+                &.si-double-layer-item-layout .layer.primary-layer{
+                    @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
+                    'description','address','region','state','country','civic-address',
+                    'open-houses','flags');
+                }
+                &.si-double-layer-item-layout{
+                    .image{grid-area:image;}
+                    &.layer-hover-flip{
+                        .item-content{display:block;}
+                        .layer-container{
+                            display:grid;
+                            grid-template-columns: 3fr 1fr;
+                            grid-template-rows: repeat(7,auto) 1fr auto;
+                            grid-template-areas: 
+                                "civic-address civic-address"
+                                "city city"
+                                "image image"
+                                "price price"
+                                "open-houses open-houses"
+                                "category rooms"
+                                "subcategory subcategory"
+                                "region region"
+                                ;
+                        }
+                    }
+                }
+                .civic-address{
+                    padding-bottom:0;
+                }
+                .city{
+                    padding-top:0;
+                }
+                .price{
+                    text-align:center;
+                    font-size: 1.2em;
+                    font-weight: 700;
+                }
+                .category,.rooms{
+                    padding-bottom:0;
+                }
+                .subcategory{
+                    padding-top:0;
+                }
+                
+                .item-content{
+                    //gap: 0;
+                    grid-template-columns: 3fr 1fr;
+                    grid-template-rows: repeat(7,auto) 1fr auto;
+                    grid-template-areas: 
+                        "civic-address civic-address"
+                        "city city"
+                        "image image"
+                        "price price"
+                        "open-houses open-houses"
+                        "category rooms"
+                        "subcategory subcategory"
+                        "region region"
+                        ;
+                    
+                    @include media($phone){
+                        grid-template-rows: auto;
+                    }
+    
+    
                 }
             }
 

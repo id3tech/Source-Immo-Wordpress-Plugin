@@ -541,6 +541,8 @@ siApp
                       $scope.$element.msRequestFullscreen();
                     }
                     console.log('enter fullscreen');
+
+                    
                     $scope.expand_mode = true;
                   }
     
@@ -594,6 +596,199 @@ siApp
     };
 });
 
+siApp
+.directive('siImageRotator',[ '$parse', function siImageRotator($parse){
+    return {
+        restrict: 'A',
+        scope:true,
+        link: function($scope, $element, $attrs){
+            const lAttrsPairValues = $attrs.siImageRotator.split(':');
+            const lOptions = {
+                ref_number: lAttrsPairValues[0],
+                alias: lAttrsPairValues[1]
+            }
+            $scope.init($element, lOptions);
+        },
+        controller: function($scope, $timeout, $q, $siApi, $siConfig){
+            $scope.rotator_start_timeout_hndl = null;
+            $scope.rotator_stop_timeout_hndl = null;
+            $scope.rotator_interval_hndl = null;
+
+            $scope.image_list = null;
+            $scope.picture_index = 0;
+            $scope.rotator_active = false;
+            $scope.start_delay = 750;
+
+            $scope.init = function($element, $options){
+                $scope.$element = $element[0];
+                $scope.options = $options;
+
+                $scope.$element.addEventListener('mouseout', function($event){
+                    if($scope.rotator_start_timeout_hndl != null){
+                        window.clearTimeout($scope.rotator_start_timeout_hndl);
+                    }
+
+                    $scope.stopRotator();
+
+                });
+
+                $scope.$element.addEventListener('mouseover', function($event){
+                    if($scope.rotator_stop_timeout_hndl != null){
+                        window.clearTimeout($scope.rotator_stop_timeout_hndl);
+                    }
+
+                    if($scope.rotator_active) return;
+
+                    $scope.rotator_start_timeout_hndl = window.setTimeout(function(){
+                        $scope.startRotator();
+                    },$scope.start_delay);
+                });
+
+                
+            }
+
+            $scope.getPictures = function(){
+                if($scope.image_list != null) return $q.resolve($scope.image_list);
+
+                return $q(function($resolve, $reject){
+                    $siConfig.get().then(function($configs){
+                        
+                        const lList = $configs.lists.find(function($l){ return $l.alias == $scope.options.alias});
+                        if(lList != null){
+                            $siApi.call('listing/view/' + lList.source.id + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
+                                $scope.image_list = $response;
+                                $resolve($response);
+                            });
+                        }
+                    })
+                    
+                });
+            }
+
+            $scope.startRotator = function(){
+                $scope.getPictures().then(function($pictures){
+                    if($pictures.length == 1) return;
+                    
+                    let lPictureIndex = 0;
+                    $scope.rotator_active = true;
+                    const lPictureColl = $pictures.slice(1);
+                    
+                    const lShowNext = function(){
+                        const lPreviousImage = $scope.$element.querySelector('.image .rotator-picture');
+                        
+                        $scope.showPicture(lPictureColl[lPictureIndex]).then(function(){
+                            lPictureIndex = (lPictureIndex + 1) % lPictureColl.length;
+                            if(lPreviousImage != null){
+                                // remove previous picture to keep on 2 in the z-buffer
+                                $scope.removePicture(lPreviousImage).then(function(){
+                                    if($scope.rotator_active){
+                                        lShowNext();
+                                    }
+                                });
+                            }
+                            else{
+                                // if this is the second picture, delay display to keep the transition fluidity
+                                $timeout(function(){
+                                    if($scope.rotator_active){
+                                        lShowNext();
+                                    }
+                                    
+                                }, 500);
+                            }
+                        })
+                        
+                    }
+
+                    lShowNext();
+                });
+            }
+
+            $scope.stopRotator = function(){
+
+                if($scope.rotator_stop_timeout_hndl != null){
+                    window.clearTimeout($scope.rotator_stop_timeout_hndl);
+                }
+
+                $scope.rotator_stop_timeout_hndl = window.setTimeout(function(){
+                    $scope.removePictures();
+                    $scope.rotator_active = false;
+
+                    if($scope.rotator_interval_hndl != null){
+                        window.clearInterval($scope.rotator_interval_hndl);
+                    }
+                    
+                },250);
+
+            }
+
+            $scope.showPicture = function($picture){
+                // add picture with opacity 0, fade in, then remove previous picture if any
+                const lImgElm = document.createElement('IMG');
+                
+                lImgElm.classList.add('rotator-picture');
+
+                lImgElm.setAttribute('src',$picture.url);
+                
+                const lImgContainerElm = $scope.$element.querySelector('.image');
+                lImgContainerElm.append(lImgElm);
+                console.log('rotator:showPicture',lImgContainerElm, lImgElm, $picture);
+
+                return new Promise(function($resolve,$reject){
+                
+                    lImgElm.addEventListener('transitionend', function(){
+                        console.log('display transition ended');
+                        $resolve();
+                    },{once:true});
+    
+                    lImgElm.addEventListener('load', function(){
+                        lImgElm.classList.add('show');
+                        console.log('rotator:showPicture:onLoad');
+                    });
+                    
+                });
+            }
+
+            $scope.removePicture = function($pictureElm){
+                return new Promise(function($resolve,$reject){
+                    // fade out picture, then remove it
+                    $pictureElm = ($pictureElm == undefined) 
+                        ? $scope.$element.querySelector('.image .rotator-picture')
+                        : $pictureElm;
+                    
+                    if($pictureElm != null){
+                        $pictureElm.addEventListener('transitionend', function(){
+                            console.log('removePicture', $pictureElm);
+                            $pictureElm.remove(true);
+                            $resolve();
+                        },{once:true});
+
+                        if($pictureElm.classList.contains('show')){
+                            $pictureElm.classList.remove('show');
+                        }
+                        else{
+                            $pictureElm.remove(true);
+                            $resolve();
+                        }
+                        
+                    }
+                })
+            }
+
+            $scope.removePictures = function(){
+                const lPictureElmColl = Array.from($scope.$element.querySelectorAll('.image .rotator-picture'));
+
+                lPictureElmColl.forEach(function($elm,$i){
+                    if($i == lPictureElmColl.length -1){
+                        $scope.removePicture($elm);
+                    }
+                    else{
+                        $elm.remove(true);
+                    }
+                })
+            }
+        }
+    }
+}])
 
 
 siApp

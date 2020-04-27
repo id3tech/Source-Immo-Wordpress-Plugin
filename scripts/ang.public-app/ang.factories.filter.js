@@ -10,7 +10,7 @@ function $siFilters($q,$siApi,$siUtils){
         if(typeof $alias == 'undefined') return new FilterManager();
 
         if(typeof $scope.filters[$alias] == 'undefined'){
-            console.log('with return FilterManager', $alias, $context);
+            //console.log('with return FilterManager', $alias, $context);
             $scope.filters[$alias] = new FilterManager($alias,$context);
         }
 
@@ -68,9 +68,8 @@ function $siFilters($q,$siApi,$siUtils){
 
         $fm.mainFilterMap = {
             listings : {
-                'residential' : {field: 'category_code', operator: 'in', value: ['RESIDENTIAL'], type: 'category'},
-                'commercial' : {field: 'category_code', operator: 'in', value: ['COM'], type: 'category'},
-                'others' : {field: 'category_code', operator: 'in', value: ['IND','LOT','MULTI-FAMILY','FARM','REVENUE PROP'], type: 'category'},
+                'RES' : {field: 'market_codes', operator: 'array_contains', value: 'RES', type: 'market'},
+                'COM' : {field: 'market_codes', operator: 'array_contains', value: 'COM', type: 'market'},
                 'for-sale' : {field: 'for_sale_flag', operator: 'equal', value: true, shadows: 'transaction_type'},
                 'for-rent' : {field: 'for_rent_flag', operator: 'equal', value: true, shadows: 'transaction_type'}
             }
@@ -92,7 +91,7 @@ function $siFilters($q,$siApi,$siUtils){
             available_min: {field:'available_area_sf', operator: 'greater_or_equal_to'},
             available_max: {field:'available_area_sf', operator: 'less_or_equal_to'},
             min_price: function($value){
-                            console.log('min_price filter',$value);
+                            //console.log('min_price filter',$value);
                             return {field: ['price.sell.amount','price.lease.amount'], operator: 'greater_or_equal_to', value: $value}
                         },
             max_price: function($value){
@@ -190,6 +189,18 @@ function $siFilters($q,$siApi,$siUtils){
         // #region FILTERS HANDLING
         // --------------------------------------
 
+        $fm.count = function(){
+            return Object.keys($fm.data).reduce(function($acc, $k){
+                if(Array.isArray($fm.data[$k])){
+                    return ($fm.data[$k].length > 0) ? $acc+1 : $acc;
+                }
+                if($k == 'min_price'){
+                    return ($fm.data[$k] != null && $fm.data[$k] > 0) ? $acc + 1 : $acc;
+                }
+                return ($fm.data[$k] != null && $fm.data[$k] != '') ? $acc + 1 : $acc;
+            },0);
+        }
+
         /**
          * Check wether there's any filter or not
          * @return {boolean}
@@ -200,22 +211,13 @@ function $siFilters($q,$siApi,$siUtils){
                 if(Array.isArray($fm.data[$k])){
                     return $fm.data[$k].length > 0;
                 }
-
+                if($k == 'min_price'){
+                    return $fm.data[$k] != null && $fm.data[$k] > 0;
+                }
                 return $fm.data[$k] != null && $fm.data[$k] != '';
             });
-
-            if($fm.filter_group.filter_groups != null && $fm.filter_group.filter_groups.length>0) return true;
-            if($fm.filter_group.filters != null && $fm.filter_group.filters.length>0) return true;
-
-            if($fm.query_text != null) return true;
-            if($fm.data.location != null) return true;
-            //if($fm.data.keyword != '') return true;
-            if($fm.data.min_price != null && $fm.data.min_price > 0) return true;
-            if($fm.data.max_price != null && $fm.data.max_price > 0) return true;
-
-
-            return false;
         }
+
 
         /**
          * Check if a filter matches a name
@@ -232,8 +234,13 @@ function $siFilters($q,$siApi,$siUtils){
                 return lFields.some(function($f) {
                     if($fm.data[$f] != undefined){
                         if(Array.isArray($fm.data[$f])) return $fm.data[$f].length > 0;
+                        if(!isNaN($fm.data[$f])){
+                            return $fm.data[$f] > 0 ;
+                        }
+
                         return $fm.data[$f] != null;
                     }
+                    
                     return $fm.getFilterByFieldName($f) != null
                 });
             }
@@ -242,17 +249,20 @@ function $siFilters($q,$siApi,$siUtils){
             }
         }
 
-        $fm.sublistHasFilters = function($parent_code, $list){
-            for(let lKey in $list){
-                let lItem = $list[lKey];
-                
-                if(lItem.parent==$parent_code){
-                    
-                    if(lItem.selected){
-                        return true;
-                    }
-                }
-            }
+        $fm.sublistHasFilters = function($parent_code, $list, $selections){
+            
+            if($selections == null) return false;
+            if(!Array.isArray($selections)) return false;
+            if($selections.length == 0) return false;
+
+
+            return $list
+                .filter(function($item){
+                    return $item.parent == $parent_code;
+                })
+                .some(function($item){
+                    return $selections.includes($item.__$obj_key)
+                });
         }
 
         /**
@@ -525,21 +535,21 @@ function $siFilters($q,$siApi,$siUtils){
 
             if(lFilterIndex >= 0){
                 if($value==='' || $value==null){
-                    console.log('remove filter', $field);
+                    //console.log('remove filter', $field);
                     $fm.removeFilter(lFilterIndex, $group);
                 }
                 else if (Array.isArray($value) && $value.length == 0){
-                    console.log('remove filter (array)', $field);
+                    //console.log('remove filter (array)', $field);
                     $fm.removeFilter(lFilterIndex, $group);
                 }
                 else{
-                    console.log('update filter', $field);
+                    //console.log('update filter', $field);
                     $fm.updateFilter(lNewFilter, lFilterIndex, $group);
                 }
             }
             else {
                 if($value !== '' && $value !== null){
-                    console.log('add filter', $field,$operator,$value);
+                    //console.log('add filter', $field,$operator,$value);
                     $group.filters.push(lNewFilter);
                 }
             }
@@ -599,7 +609,7 @@ function $siFilters($q,$siApi,$siUtils){
          */
         $fm.update = function(){
             const lDataKeys = Object.keys($fm.data);
-            console.log('filterManager update');
+            //console.log('filterManager update');
             const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
             if(lMainFilter != null){
                 // remove other main filter
@@ -607,12 +617,12 @@ function $siFilters($q,$siApi,$siUtils){
                 .forEach(function($k){
                     const lOtherFilter = $fm.mainFilterMap[$fm.main_filter.type][$k];
                     if(lOtherFilter.field != lMainFilter.field){
-                        console.log('remove other filter', lOtherFilter.field);
+                        //console.log('remove other filter', lOtherFilter.field);
                         $fm.addFilter(lOtherFilter.field, lOtherFilter.operator, '');
                     }
                 });
                 
-                console.log('Add main filter', lMainFilter);
+                //console.log('Add main filter', lMainFilter);
                 $fm.addFilter(lMainFilter.field, lMainFilter.operator, lMainFilter.value);
             }
 
@@ -658,7 +668,7 @@ function $siFilters($q,$siApi,$siUtils){
         * Reset all filter to nothing
         */
         $fm.resetFilters = function($triggerUpdate){
-            console.log('resetFilters');
+            //console.log('resetFilters');
             const lArrayAttr = ['attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
             
@@ -744,7 +754,7 @@ function $siFilters($q,$siApi,$siUtils){
                         && $fm.data.location == null
                         && $fm.main_filter == null
                     ){
-                        console.log('reset filters for no real filters exists')
+                        //console.log('reset filters for no real filters exists')
                         $fm.clearState();
                         $fm.resetFilters();
                         return;
@@ -942,7 +952,7 @@ function $siFilters($q,$siApi,$siUtils){
 
         }
         $fm.clearState = function($item_key){
-            console.log('filterManager.clearState');
+            //console.log('filterManager.clearState');
             let lKey = 'si.' + $fm.alias + '.{0}';
 
             if($item_key == undefined){
@@ -959,7 +969,7 @@ function $siFilters($q,$siApi,$siUtils){
         }
 
         $fm.loadState = function($item_key){
-            console.log('filterManager.loadState');
+            //console.log('filterManager.loadState');
             $key = 'si.' + $fm.alias + '.{0}';
             if($item_key == undefined && !$fm.state_loaded){
                 const lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));

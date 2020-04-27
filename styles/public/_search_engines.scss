@@ -4,7 +4,7 @@
         grid-area: search;
         display:grid;
         grid-template-columns: 1fr auto;
-        
+        gap: var(--layout-gutter);
         position:relative;
         align-items:center;
         padding: var(--container-padding);
@@ -13,6 +13,15 @@
         border-radius:var(--container-border-radius);
         background-color: var(--background-color);
 
+        @include media($phone){
+            grid-template-columns: 1fr;
+            padding: calc(var(--container-padding) / 2);
+            gap:1rem;
+        }
+
+        &.expanded{
+            border:none;
+        }
         &.stick{
             position:fixed;
             top:0px;
@@ -38,17 +47,26 @@
         .search-action{
             display:grid;
             grid-auto-flow: column;
+            
             gap: 0.5rem;
-
+            place-items: center stretch;
+            @include media($phone){
+                gap:1rem;
+                grid-auto-columns: 1fr;
+            }
             .si-button{
                 margin:0;
                 &:first-child{
                     margin-left: var(--layout-gutter);
+                    @include media($phone){
+                        margin-left:0;
+                    }
                 }
             }
 
             .filter-menu{
                 display:none;
+                .si-dropdown{width:100%;}
                 .si-button.active{
                     i{font-weight: 700;}
                     color: var(--highlight);
@@ -57,6 +75,7 @@
 
             @include media($phone){
                 .filter-menu{display:block;}
+                .reset-button{display:none;}
             }
         }
 
@@ -68,7 +87,9 @@
                 font-weight: 700;
             }
         }
-
+        &.si-has-tabs{
+            margin-top: 3.5rem;
+        }
         .main-filter-tabs{
             position: absolute;
             top:0px;
@@ -80,19 +101,20 @@
             grid-auto-flow: column;
             gap: 1rem;
             z-index: 100;
-            @include media($phone){
-                grid-template-columns: 1fr;
-                grid-auto-flow:unset;
-                place-items: stretch;
-                place-self: stretch;
-                left:0px;
-                width:100%;
-            }
+            // @include media($phone){
+            //     grid-template-columns: 1fr;
+            //     grid-auto-flow:unset;
+            //     place-items: stretch;
+            //     place-self: stretch;
+            //     left:0px;
+            //     width:100%;
+            // }
 
-            .tab{
-                padding: 0.5rem 1rem;
+            .si-tab{
+                padding: 0.5em 1em;
                 text-transform: uppercase;
                 position:relative;
+                font-size: 0.8rem;
                 &::before{
                     content:"";
                     position: absolute;
@@ -103,6 +125,7 @@
                     background: var(--highlight);
                     transition: 0.25s;
                     transform:translate(-50%,-100%);
+                    
                 }
 
                 &:not(.active){
@@ -119,9 +142,9 @@
                     }
                 }
 
-                @include media($phone){
-                    display:none;
-                }
+                // @include media($phone){
+                //     display:none;
+                // }
             }
 
             .si-select{
@@ -130,10 +153,10 @@
                 .si-selected-value{
                     .si-label{text-transform: uppercase;}
                 }
-                @include media($phone){
-                    display:block;
-                    border-style: none none solid none;
-                }
+                // @include media($phone){
+                //     display:block;
+                //     border-style: none none solid none;
+                // }
             }
         }
 
@@ -181,12 +204,23 @@
             
             @include media($phone){
                 grid-template-columns: 1fr auto;
+                
                 > .si-panel-button {display:none!important;}
                 .filter-menu{display:block;}
             }
 
             
         }
+
+        &.searchbox-has-focus{
+            @include media($phone){
+                .search-action{
+                    max-width:0px;
+                    overflow:hidden;
+                }
+            }
+        }
+
 
         .advanced{
             padding:0 10px;
@@ -438,19 +472,19 @@
         }
 
         &.show-trigger{
-            grid-template-columns: 1fr auto auto;
-            grid-template-areas: 
-                "input advanced trigger"
-                "filters filters filters"
-                "client_filters client_filters client_filters";
-            @include media($phone){
-                grid-template-columns: 1fr auto;
-                grid-template-areas: 
-                    "input advanced"
-                    "trigger trigger"
-                    "filters filters "
-                    "client_filters client_filters";
-            }
+            // grid-template-columns: 1fr auto auto;
+            // grid-template-areas: 
+            //     "input advanced trigger"
+            //     "filters filters filters"
+            //     "client_filters client_filters client_filters";
+            // @include media($phone){
+            //     grid-template-columns: 1fr auto;
+            //     grid-template-areas: 
+            //         "input advanced"
+            //         "trigger trigger"
+            //         "filters filters "
+            //         "client_filters client_filters";
+            // }
             .advanced{
                 // @include media($phone){
                 //     grid-template-columns: 1fr;
@@ -462,12 +496,20 @@
                 // }
             }
 
-            .search-trigger{
-                display:block;
-                grid-area: trigger;
-                padding:0 1rem;
-                @include media($phone){
-                    place-self: center;
+            // .search-trigger{
+            //     display:block;
+            //     grid-area: trigger;
+            //     padding:0 1rem;
+            //     @include media($phone){
+            //         place-self: center;
+            //     }
+            // }
+
+            .si-searchbox{
+                .input{
+                    .fal{display:none;}
+                    input{padding-left:10px;}
+                    .suggestion-placeholder{padding-left:10px;}
                 }
             }
 
@@ -490,8 +532,6 @@
                 
             }
         }
-
-        
 
     }
 
@@ -528,17 +568,19 @@
         &.expanded{
             opacity:1;
             max-height:100vh;
-            
             box-shadow:0 10px 10px #00000055;   
-            
         }
+
         @include media($tablet){
             position:fixed;
             border-radius: var(--element-border-radius);
             top:50%;left:50%;
             width:calc(100% - 1rem);
             height:calc(100% - 1rem);
-            transform: translate(-50%,-50%)
+            transform: translate(-50%,-50%);
+            &.expanded{
+                pointer-events: auto!important;
+            }
         }
         @include media($phone){
             top:0px;left:0px;
@@ -548,6 +590,7 @@
             transform:translate(0,0);
             z-index: 9999;
             border: none;
+            
         }
     }
     
@@ -560,6 +603,7 @@
             position:absolute;
             width:100%;
         }
+
         h4{
             font-size:20px;font-weight: 400;
             @include media($phone){
@@ -569,7 +613,7 @@
         }
 
         pointer-events:none;
-        .panel-header{
+        .filter-panel-header{
             display:none;
             background: var(--high-contrast-color);
             --text-color: var(--high-contrast-text-color);
@@ -585,6 +629,15 @@
             }
         }
 
+        .filter-panel-actions{
+            //display:flex;
+            display:none;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0.5rem;
+            pointer-events: auto;
+        }
         //grid-area:filters;    
         .filter-panel-content{
             max-height:0px;
@@ -599,7 +652,7 @@
                     padding-bottom: 1rem;
                     &:last-child{border:none;margin-bottom:0;}
                     .list-item-title{
-                        padding:0 1rem;
+                        //padding:0 1rem;
                         h3,h5{cursor:pointer;margin:0px;}
                     }
                     .sublist{
@@ -607,7 +660,7 @@
                         overflow:hidden;
                         transition:0.25s;
                         .sublist-container{
-                            padding:1rem;
+                            padding-top:1rem;
                             display:grid;
                             grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
                         }
@@ -643,9 +696,16 @@
             }
         }
         &.expanded{
-
+            .filter-panel-actions{
+                display:flex;
+            }
             @include media($tablet){
-                .panel-header{
+                height:100%;
+                display:grid;
+                grid-template-columns: 1fr;
+                place-items: stretch;
+                padding-bottom: 3rem;
+                .filter-panel-header{
                     display:flex;
                     flex-direction:row;
                     justify-content: space-between;
@@ -656,6 +716,16 @@
                     z-index:100;
                     padding:0.5rem;
                     pointer-events: auto;
+                }
+
+                .filter-panel-actions{
+                    display:flex;
+                    position: absolute;
+                    bottom:0px;left:0px;
+                    width:100%;
+                    z-index:100;
+                    background: var(--small-contrast-color);
+                    --text-color: var(--small-contrast-text-color);
                 }
             }
 
@@ -694,8 +764,16 @@
         .area-filters{
             display:grid;
             grid-template-columns: 1fr 1fr;
+            gap: 2rem;
             place-items: center stretch;
-
+            .si-input-container{
+                grid-template-columns: auto 1fr auto 1fr;
+                width:100%;
+                
+            }
+            .si-select{
+                min-width: 100%;
+            }
             @include media($phone){
                 grid-template-columns: 1fr;
                 text-align:left;
@@ -861,6 +939,17 @@
                             }
                         }
                     }
+                    &.has-filters{
+                        .region-name{
+                            h5 span{
+                                &::after{
+                                    content:"\f0b0";
+                                    font-family:"Font Awesome 5 Pro";
+                                    font-weight: 700;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -885,11 +974,46 @@
                 .list-container{
                     display:grid;
                     grid-template-columns: repeat(3,1fr);
-                    gap: 1rem;
+                    gap: 0rem;
+                    &.categories{
+                        grid-template-columns: 1fr;
+                        gap: 0rem;
+                        .category-name{
+                            display:flex;
+                            flex-direction: row;
+                            align-items:center;
+                            h5{
+                                display:flex;
+                                flex-direction: row;
+                                justify-content: space-between;
+                                align-items: center;
+                                flex:1;
+                                padding:0px;
+                                .fal{transition:0.25s;}
+                            }
+                            &.expanded{
+                                h5 .fal{
+                                    transform: rotate(135deg);
+                                }
+                            }
+                        }
 
+                        &.has-filters{
+                            .category-name{
+                                h5 span{
+                                    &::after{
+                                        content:"\f0b0";
+                                        font-family:"Font Awesome 5 Pro";
+                                        font-weight: 700;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     @include media($phone){
                         grid-template-columns: 1fr;
-                        place-items: center;
+                        place-items: center stretch;
                     }
                 }
             }
@@ -911,6 +1035,7 @@
                     min-height: 46px;
                     .grid-layout-column{
                         padding-top: 5px;
+                        gap:0px;
                     }
                 }
                 h4{
@@ -922,7 +1047,7 @@
                 
 
                 .grid-layout-column{
-                    grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+                    grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
                 }
                 .transaction,.age,.parkings{
                     .si-dropdown{
@@ -996,11 +1121,11 @@
                 .bedrooms,.bathrooms{
                     display:grid;
                     grid-template-columns: 150px 1fr 1fr;
-                    grid-gap:10px 20px;
                     h4{
                         grid-column:1;
                         grid-row: 1 / span 3;
                         text-align:right;
+                        margin:0.5rem 0;
                     }
                     @include media($tablet){
                         grid-template-columns:1fr 1fr;
@@ -1032,14 +1157,14 @@
         }
 
         &.price-panel{
+            @include gridAreas('price-inputs','price-suggestions');
             
 
-            @include gridAreas('price-inputs','price-suggestions');
-            grid-template-areas : 
-                "slider"
-                "price-inputs"
-                "price-suggestions"
-                ;
+            @include media($phone){
+                .filter-panel-content{
+                    place-self: center stretch;
+                }
+            }
             .si-price-range-slider,
             .si-slider{
                 place-self:stretch;
@@ -1177,6 +1302,17 @@
     }
 }
 
+.si-tab-cursor{
+    position: absolute;
+    transform:translate(-50%,-50%);
+    height: 0.5rem;
+    background-color: var(--background-color);
+    z-index:100;
+    @include media($phone){
+        display:none !important;
+    }
+}
+
 .si-option-panel{
     &.price-option-panel{
         @include gridAreas('price-inputs','price-suggestions');
@@ -1260,8 +1396,25 @@
             }
     }
 }
+#top .si-dropdown-panel,
+.si-dropdown-panel{
+    .dropdown-item{
+        &.has-filters{
+            &::after{
+                content:"\f0b0";
+                font-family:"Font Awesome 5 Pro";
+                font-weight: 700;
+            }
+        }
 
-
+        &.reset-option{
+            padding: 1em 1.5em;
+            background:var(--button-bg-color);
+            color:var(--button-text-color);
+            text-align:center;
+        }
+    }
+}
 
 #top .si-searchbox,
 .si-searchbox{
@@ -1283,7 +1436,8 @@
             height:unset;
             box-sizing: border-box;
             box-shadow:none;
-
+            width:100%;
+            
             &::placeholder{
                 color:var(--input-placeholder-color);
                 opacity:0.6;
@@ -1314,9 +1468,10 @@
     }
     &.suggestion-list{
         position: absolute;
-        top:0px;
-        //padding-top: 100%;
-        width:100%;
+        top:calc(var(--input-top) + var(--input-offset) - 1px);
+        left: calc(var(--input-left) - 1px);
+        width: calc(var(--input-width) + 2px);
+
         border:solid 1px var(--highlight);
         border-radius:var(--element-border-radius);
         
@@ -1337,12 +1492,17 @@
         z-index:999;
         //background:#fff;
         box-shadow:rgba(#000,0.5) 0 0px 0px;
+        
         .list{
             display:grid;
             grid-template-columns:1fr;
             overflow-y:auto;
             max-height:calc(80vh - 100px);
             border-radius: 0 0 var(--element-border-radius) var(--element-border-radius);
+            pointer-events: auto;
+            position:relative;
+            z-index: 2;
+
             &::-webkit-scrollbar{
                 background:var(--background-color);
                 border:none;
@@ -1356,9 +1516,6 @@
                 opacity:0.25;
             }
 
-            &::-webkit-scrollbar-track{
-
-            }
         }
         .keyword-suggestion{
             padding:10px;
@@ -1401,6 +1558,22 @@
                 max-height 0.25s,
                 box-shadow 0.25s 0.15s
                 ;
+            @include media($phone){
+                left:10px;
+                width:calc(100vw - 20px)!important;
+                &::before{
+                    pointer-events: none;
+                    z-index: 1;
+                    content: "";
+                    position: absolute;
+                    left:var(--input-left);
+                    top:0;
+                    width: var(--input-width);
+                    height: var(--input-height);
+                    background: transparent;
+                    box-shadow: 0 0 0 100vh var(--background-color);
+                }
+            }
         }
     }
 

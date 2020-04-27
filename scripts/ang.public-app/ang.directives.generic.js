@@ -200,7 +200,7 @@ siApp
 
 
 siApp
-.directive('includeReplace', function () {
+.directive('includeReplace', function includeReplace() {
     return {
         require: 'ngInclude',
         restrict: 'A', /* optional */
@@ -215,7 +215,7 @@ siApp
     return {
         restrict: 'A',
         link: function($scope, $element, $attrs){
-            console.log('siImageAutoFit', $element[0].tagName);
+            //console.log('siImageAutoFit', $element[0].tagName);
             if($element[0].tagName !=  'IMG') return;
 
             
@@ -427,7 +427,7 @@ siApp
         },
         controller: function($scope){
             $scope.$on('si-list-loaded', function(){
-                console.log('list loaded triggered');
+                //console.log('list loaded triggered');
                 $timeout(function(){
                     if($scope.observer != undefined){
                         $scope.applyObserver();
@@ -459,7 +459,7 @@ siApp
                 if($imgElm.getBoundingClientRect().width > 400){
                     lImgSource = lImgSource.replace("-sm.","-md.");
                 }
-                console.log('siLazyLoad', lImgSource, lImgSourceset);
+                //console.log('siLazyLoad', lImgSource, lImgSourceset);
 
                 if(lImgSource != undefined) $imgElm.setAttribute('src', lImgSource);
                 if(lImgSourceset != undefined) $imgElm.setAttribute('srcset', lImgSourceset);

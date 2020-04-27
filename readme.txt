@@ -1,4 +1,4 @@
-<h2>Version 0.4.0 Beta</h2>
+<h2>Version 0.4.1 Beta</h2>
 
 <h3>Admin interface changes</h3>
 <ul>

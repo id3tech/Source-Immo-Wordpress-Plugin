@@ -1,7 +1,11 @@
-<div class="filter-panel areas-panel {{isExpanded('areas')}}">
-    <div class="panel-header">
+<?php
+$panelKey = 'areas';
+?>
+
+<div class="filter-panel areas-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
+    <div class="filter-panel-header">
         <h4><?php _e('Areas', SI) ?></h4>
-        <button class="button" type="button"  ng-click="toggleExpand($event,'areas')"><i class="fal fa-times"></i></button>
+        <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
     </div>
 
     <div class="filter-panel-content">
@@ -44,5 +48,8 @@
                 </si-input-container>
             </div>  
         </div>
+    </div>
+    <div class="filter-panel-actions">
+    <?php include '_actions.php'; ?>
     </div>
 </div>

@@ -1,4 +1,4 @@
-var siApp = angular.module('siApplication', ['ngRoute','ngMaterial', 'ngMessages','mdColorPicker']);
+var siApp = angular.module('siApplication', ['ngRoute','ngMaterial', 'ngMessages','mdColorPicker','ngSanitize']);
 
 siApp
 .config(function ($routeProvider, $mdThemingProvider, $httpProvider, $mdAriaProvider) {

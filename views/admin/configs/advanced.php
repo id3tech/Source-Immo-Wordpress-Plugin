@@ -2,9 +2,32 @@
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Information',SI)?></h2>
 
-        <div class="block-content" layout="column" layout-align="start stretch">
-            <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
-            <div><?php echo(SI_API_HOST)?></div>
+        <div class="block-content" layout="row" layout-align="space-between center">
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
+                <div><?php echo(SI_API_HOST)?></div>
+            </div>
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-user-circle"></i> <?php _e('Account ID',SI)?></h4>
+                <div>{{configs.account_id}}</div>
+            </div>
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-key"></i> <?php _e('API key',SI)?></h4>
+                <div>{{configs.api_key}}</div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Available data feeds',SI)?></h2>
+
+        <div class="block-content">
+            <div class="data-view-list">
+                <div ng-repeat="item in data_views" class="data-view-item {{configs.default_view == item.id ? 'default' : ''}}">
+                    {{item.name}}
+                </div>
+            </div>
         </div>
     </div>
 

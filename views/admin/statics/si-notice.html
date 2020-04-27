@@ -1,0 +1,11 @@
+<div class="si-notice type-{{model.type}}" style="--notice-color: {{model.color}}">
+    <h3>{{model.title.translate()}}</h3>
+    <p>{{model.message.translate()}}</p>
+
+    <div class="icon" ng-if="model.icon">
+        <i class="fal {{model.icon}}"></i>
+    </div>
+    <div class="si-notice-actions">
+        <md-button ng-repeat="(key,action) in model.actions" ng-click="action()">{{key.translate()}}</md-button>
+    </div>
+</div>

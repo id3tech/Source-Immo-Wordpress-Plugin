@@ -45,6 +45,7 @@ siApp
             $scope.PRICE_RANGE_FORMAT = '{0}';
 
             // init default values        
+            $scope.tabCursor = null;
             $scope.is_ready = false;    
             $scope.tab_category = null;
             $scope.tab_region = '';
@@ -90,9 +91,8 @@ siApp
 
             $scope.main_filters = {
                 listings : {
-                    'residential' : {field: 'category_code', operator: 'in', value: ['RESIDENTIAL'], type: 'category'},
-                    'commercial' : {field: 'category_code', operator: 'in', value: ['COM'], type: 'category'},
-                    'others' : {field: 'category_code', operator: 'in', value: ['IND','LOT','MULTI-FAMILY','FARM','REVENUE PROP'], type: 'category'},
+                    'RES' : {field: 'market_codes', operator: 'array_contains', value: 'RES', type: 'market'},
+                    'COM' : {field: 'market_codes', operator: 'array_contains', value: 'COM', type: 'market'},
                     'for-sale' : {field: 'for_sale_flag', operator: 'equal', value: true, type: 'flag'},
                     'for-rent' : {field: 'for_rent_flag', operator: 'equal', value: true, type: 'flag'}
                 }
@@ -270,6 +270,9 @@ siApp
                     $scope._element.classList.add('layout-' + lSearchEngineOptions.type);
                     
                     $scope._element.classList.add('orientation-' + lSearchEngineOptions.orientation);
+                    if(lSearchEngineOptions.tabs != undefined && lSearchEngineOptions.tabs.length > 0){
+                        $scope._element.classList.add('si-has-tabs');
+                    }
                     const lListElement = $scope._element.closest('.si-list-of-' + $scope.configs.type);
                     if(lListElement != null) lListElement.classList.add('search-orientation-' + lSearchEngineOptions.orientation)
                     
@@ -398,6 +401,32 @@ siApp
                 });
 
                 
+                $scope.$on('si-searchbox-focus', function(){
+                    $scope._element.classList.add('searchbox-has-focus');
+                });
+
+                $scope.$on('si-searchbox-blur', function(){
+                    $scope._element.classList.remove('searchbox-has-focus');
+                })
+
+                $scope.$on('si-searchbox-add-filter', function($event, $item){
+                    const lTypeMap = {
+                        'city' : 'cities',
+                        'region': 'regions'
+                    }
+                    const lDataProp = lTypeMap[$item.type];
+                    $timeout(function(){
+                        $scope.filter.data[lDataProp].push($item.ref_number);
+                        
+                        $scope.filter.update();
+
+                        console.log('si-searchbox-add-filter:triggered',lDataProp, $scope.filter.data);
+                        // if this is a standalone search tool, trigger search immediately
+                        if($scope.standalone){
+                            $scope.showResultPage();
+                        }
+                    });
+                });
             }
     
             /**
@@ -486,16 +515,20 @@ siApp
                 $scope.filter.update();
 
                 $scope.current_main_filter = $tab;
+                $timeout(function(){
+                    $scope.alignPanelTabCursor();
+                });
+                
 
                 // save current tab to session
                 sessionStorage.setItem('si.currentMainFilter', $scope.current_main_filter);
             }
 
             $scope.isMainFiltered = function($values){
-                
                 if(Array.isArray($values)) return $values.includes($scope.current_main_filter);
                 return $values == $scope.current_main_filter;
             }
+
             $scope.mainSubCategoryMatchFilter = function($item){
                 const $category_code = $item.parent;
                 if($scope.current_main_filter == undefined) return true;
@@ -524,8 +557,10 @@ siApp
                 });
 
                 if($scope.filterPanelContainer == null) return;
-                
+
+                $scope._element.classList.remove('expanded');     
                 $scope.filterPanelContainer.removeClass('expanded');
+                if($scope.tabCursor != null) $scope.tabCursor.style.display = 'none';
             }
 
 
@@ -537,13 +572,18 @@ siApp
                 $scope.extractFilterPanels($key).then(function(){
                     $scope._expandedPanel = ($scope._expandedPanel == $key) ? null : $key;
                     
-                    if($scope._expandedPanel){                   
+                    if($scope._expandedPanel){            
+                        $scope._element.classList.add('expanded');       
                         $scope.filterPanelContainer.addClass('expanded');
                         $scope.ensureClickTrap();
+                        $scope.ensureTabCursor();
                     }
                     else{
+                        $scope._element.classList.remove('expanded');       
                         $scope.filterPanelContainer.removeClass('expanded');
-                    }   
+                        if($scope.tabCursor != null) $scope.tabCursor.style.display = 'none';
+                    }
+                    
                 });
             }
 
@@ -552,18 +592,15 @@ siApp
                     const lContainer = $scope.filterPanelContainer[0];
                     
                     if(lContainer.querySelectorAll('.filter-panel').length == 0){
-                        //console.time('panels move');
                         $scope._element.querySelectorAll('.filter-panel').forEach(function($e, $i){
-                            //console.time('node move' + $i);
-        
+                        
                             lContainer.appendChild($e);
-                            //console.timeEnd('node move' + $i);
+                        
                         });    
-                        //console.timeEnd('panels move');
+                        
                     }
                     
-                    //$scope._expandedPanel = ($scope._expandedPanel == $key) ? null : $key;
-
+                    
                     $resolve();
                 })
                 
@@ -628,6 +665,17 @@ siApp
                 return lClickTrap;
             }
 
+            $scope.ensureTabCursor = function(){
+                if($scope.tabCursor == null){
+                    const lCursor = document.createElement('DIV');
+                    lCursor.classList.add('si-tab-cursor');
+                    document.body.appendChild(lCursor);
+                    
+                    $scope.tabCursor = lCursor;
+                }
+                
+                $scope.alignPanelTabCursor();
+            }
 
             $scope.isExpanded = function($key){
                 if($scope._expandedPanel == $key){
@@ -649,6 +697,28 @@ siApp
                 });
 
                 $item.expanded = ($item.expanded != undefined)? !$item.expanded : true;
+            }
+
+            $scope.alignPanelTabCursor = function(){
+                
+
+                if($scope.tabCursor == null) return;
+                const lTab = $scope._element.querySelector('.main-filter-tabs .si-tab.active');
+                const lCursor = $scope.tabCursor;
+
+                // If there's no tab, hide the cursor and bail out
+                if(lTab == null) {lCursor.style.display = 'none';return;}
+                lCursor.style.display = 'block';
+                console.log('alignPanelTabCursor');
+                
+                const lLeft         = $scope.getElementOffset(lTab,'offsetLeft');
+                const lTop          = $scope.getElementOffset(lTab,'offsetTop');
+                const lTabRect      = lTab.getBoundingClientRect();
+
+                lCursor.style.left  = (lLeft + Math.floor(lTabRect.width/2)) + 'px';
+                lCursor.style.top   = lTop + 'px';
+                lCursor.style.width = (lTabRect.width - 2) + 'px';
+
             }
 
             // ----------------------------
@@ -1818,7 +1888,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
            
             $scope.init();
         },
-        controller: function($scope, $q, $siApi, $rootScope,$siDictionary, $siUtils,$timeout){
+        controller: function($scope, $q, $siApi, $rootScope, $siDictionary, $siUtils,$timeout){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -1853,10 +1923,23 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
                     lInput.bind('focus', function(){
                         angular.element($scope._el).addClass('has-focus');
+                        if(window.innerWidth <= 800){
+                            
+                            const lInputRect = $scope._el.getBoundingClientRect();
+                            window.scroll({
+                                top: lInputRect.top + window.scrollY - 30,
+                                behavior: 'smooth'
+                            });
+                            
+                        }
+
                         if($scope.filter.data.keyword != null && $scope.filter.data.keyword != ''){
                             $scope.buildSuggestions();
                             $scope.$apply();
+                            
                         }
+
+                        
                     })
                     lInput.bind('blur', function(){
                         $timeout(function(){ 
@@ -1866,6 +1949,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                 $scope.suggestions = [];
                                 $scope.stored_suggestions = null;
                                 //$scope.$apply();    
+                                $scope.$emit('si-searchbox-blur');
                             });
                         }, 200);
                     });
@@ -1957,7 +2041,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                     let lType = '';
                                     if(typeof $scope.$parent.getListType == 'function'){
                                         lType = $scope.$parent.getListType();
-                                        lType = (lType == 'listings') ? 'listing-city' : lType.replace('s','');
+                                        lType = (lType == 'listings') ? 'listing-city-region' : lType.replace('s','');
                                     }
                                     $siApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then(function($qsItems){
                                         // add extra in caption
@@ -2004,19 +2088,34 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
 
             $scope.openSuggestionPanel = function(){
+                $scope.$emit('si-searchbox-focus');
+                
                 if($scope._suggestion_list_el == null){
                     $scope._suggestion_list_el =  $scope._el.querySelector('.suggestion-list');
                     angular.element('body').append($scope._suggestion_list_el);
                 }
                 
                 const lMainElmRect = $scope._el.getBoundingClientRect();
+                const lRect = {
+                    width: lMainElmRect.width,
+                    height: lMainElmRect.height,
+                    top: lMainElmRect.top,
+                    left: lMainElmRect.left
+                }
+                
+                Object.keys(lRect).forEach(function($k){
+                    $scope._suggestion_list_el.style.setProperty('--input-' + $k, lMainElmRect[$k] + 'px');
+                });
+                $scope._suggestion_list_el.style.setProperty('--input-offset', window.pageYOffset + 'px');
 
-                $scope._suggestion_list_el.style.top = (-1 + lMainElmRect.top + window.pageYOffset) + 'px';
-                $scope._suggestion_list_el.style.left = (-1 + lMainElmRect.left) + 'px';
-                $scope._suggestion_list_el.style.width = (lMainElmRect.width) + 'px';
-                $scope._suggestion_list_el.style.setProperty('--input-height', lMainElmRect.height + 'px');
+
+                // $scope._suggestion_list_el.style.top = (-1 + lMainElmRect.top + window.pageYOffset) + 'px';
+                // $scope._suggestion_list_el.style.left = (-1 + lMainElmRect.left) + 'px';
+                // $scope._suggestion_list_el.style.width = (lMainElmRect.width) + 'px';
+                // $scope._suggestion_list_el.style.setProperty('--input-height', lMainElmRect.height + 'px');
 
                 $scope._suggestion_list_el.classList.add('expanded');
+                
             }
 
             $scope.closeSuggestionPanel = function(){
@@ -2327,16 +2426,24 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
 
             $scope.openItem = function($item){
-                const lInput = angular.element($scope._el).find('input');
-                lInput.val('');
-                lInput.attr('placeholder','Opening...'.translate())
+                // When selected item is a listing or a broker, open the page directly
+                if(['listing','broker'].includes($item.type)){        
+                    const lInput = angular.element($scope._el).find('input');
+                    lInput.val('');
+                    lInput.attr('placeholder','Opening...'.translate())
 
-                $siConfig.get().then(function($global_configs){
-                    let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
-                    let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
-                    console.log('Open item @', lPath);
-                    window.location = '/' + lPath;
-                });
+                    $siConfig.get().then(function($global_configs){
+                        let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
+                        let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
+                        console.log('Open item @', lPath);
+                        window.location = '/' + lPath;
+                    });
+                    return;
+                }
+
+                // otherwise, try to add to filter
+                $scope.$emit('si-searchbox-add-filter', $item);
+
             }
             
             $scope.getItemLinkShortcut = function($type, $configs){

@@ -46,6 +46,8 @@ siApp
 
       $scope.buildPreviewElement();
     });
+
+    
   }
 
   $scope.reset_default_value = function(){
@@ -73,12 +75,14 @@ siApp
         $scope.model = angular.merge($scope.model, {
             list_layout : { preset: 'standard', scope_class : '', custom:null},
             list_item_layout : { 
-                preset: 'standard', scope_class : '', custom:null,
+                preset: 'standard', 
+                scope_class : '', 
+                custom:null,
                 primary_layer_position: 'fix',
-                secondary_layer_bg_opacity: 75,
-                use_styles: true,
+                secondary_layer_bg_opacity: 80,
+                layout: 'standard',
                 displayed_vars: {
-                    main:['address','city','region','price','category','rooms','subcategory']
+                    main:['address','city','price','category','rooms','subcategory']
                 }
               }
           });
@@ -144,7 +148,7 @@ siApp
 
     $scope.previewElements = Array.from(new Array(lModelCount[$scope.model.type])).map($e => {
       const lElement = {
-        layout: wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-element-' + $scope.model.list_item_layout.preset + '.html',
+        layout: wpSiApiSettings.base_path + '/views/admin/statics/previews/' + $scope.model.type + '-element-' + $scope.model.list_item_layout.layout + '.html',
       }
       switch ($scope.model.type) {
             case 'listings':
@@ -193,6 +197,16 @@ siApp
 
     console.log('previewElements',$scope.previewElements);
 
+  }
+
+  $scope.getCustomCss = function(){
+    if($scope.model.list_item_layout == undefined) return '';
+    if($scope.model.list_item_layout.preset != 'custom') return '';
+    const lStyles = $scope.model.list_item_layout.custom_css.split("\n");
+    const lScopedStyles = lStyles.map($s => {
+      return '.component-elements .si-element ' + $s;
+    });
+    return lScopedStyles.join("\n");
   }
 
   $scope.buildSearchElement = function(){

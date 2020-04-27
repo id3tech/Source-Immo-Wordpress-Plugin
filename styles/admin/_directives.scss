@@ -15,7 +15,7 @@ body.wp-admin #si-app,
           .lists{
             .list{
               display:grid;
-              grid-template-columns: 1fr max-content max-content max-content auto auto auto;
+              grid-template-columns: 1fr max-content max-content auto auto;
               place-items: center start;
               gap:10px 20px;
               
@@ -113,6 +113,8 @@ body.wp-admin #si-app,
   
         .configs{
           [ng-click]{cursor: pointer;}
+          grid-row: 1;
+          grid-column: 1;
           h4{
             outline:none;
             position:relative;
@@ -180,6 +182,10 @@ body.wp-admin #si-app,
               transition: 0.75s;
             }
           }
+        }
+        .si-style-editor-preview{
+          grid-row: 1;
+          grid-column: 2;
         }
     }
 
@@ -596,5 +602,32 @@ body.wp-admin #si-app,
         }
       }
 
+    }
+
+    .si-notice{
+      border-left: solid 0.5rem var(--notice-color);
+      background-color: #f8f8f8;
+      padding: 1rem;
+      padding-right: 4rem;
+      position:relative;
+
+      h3{margin:0px;
+      }
+      .icon{
+        position: absolute;
+        top:50%;
+        right:1rem;
+        transform: translateY(-50%);
+        i{
+          font-size: 3rem;
+          color: var(--notice-color);
+        }
+      }
+      .si-notice-actions{
+        display:inline-grid;
+        text-align:right;
+        gap: 1rem;
+        grid-auto-flow: column;
+      }
     }
 }

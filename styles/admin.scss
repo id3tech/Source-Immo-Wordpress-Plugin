@@ -134,6 +134,22 @@ body.wp-admin{
             cursor:pointer;
             i{
               margin-right: 5px;
+              position:relative;
+              b{
+                position: absolute;
+                top:0;
+                right:0px;
+                font-family: Arial, Helvetica, sans-serif;
+                transform: translate(50%,-50%);
+                font-size: 10px;
+                line-height: 14px;
+                border-radius: 50%;
+                width:14px;
+                height:14px;
+                background: #D01637;
+                color:#fff;
+                text-align:center;
+              }
             }
             &::after{
               content:"";
@@ -475,11 +491,19 @@ body.wp-admin{
       }
     }
 
-    .basics-settings{
+    .general-infos{
       display:grid;
-      grid-gap: 20px;
-      grid-template-columns: 1fr 4fr;
-      
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+      .welcome-message{
+        padding: 0 1rem;
+      }
+
+      .notice-list{
+        display:grid;
+        gap:1rem;
+        padding: 1rem 0;
+      }
     }
 
     .permalink-settings{
@@ -539,7 +563,25 @@ body.wp-admin{
       }
     }
 
+    .advanced-settings{
+      .data-view-list{
+        display:flex;
+        flex-wrap: wrap;
+        flex-direction: row;
 
+        .data-view-item{
+          padding: 0.5em 1.25em;
+          margin: 0.5em;
+          font-size: 1rem;
+          &.default{
+            
+            color: $primary;
+            font-weight: 700;
+            border-bottom: solid 2px $primary;
+          }
+        }
+      }
+    }
 
   }
 

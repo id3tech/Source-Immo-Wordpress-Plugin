@@ -381,17 +381,42 @@
                             height: calc(var(--preview-listing-item-column-width) * var(--preview-listing-item-picture-ratio));   
                           }
 
-                          .address{
-                              font-size:1.2em;
-                              text-transform: uppercase;
-                          }
-                          .city,.region{
-                              font-size:0.8em;
-                          }
+                          
 
-                          .category{
-                            font-size:1.2em;
+                          .si-element{
+                            &:not(.style-custom){
+                              .address{
+                                font-size:1.2em;
+                                text-transform: uppercase;
+                              }
+                              .city,.region{
+                                  font-size:0.8em;
+                              }
+    
+                              .category{
+                                font-size:1.2em;
+                              }
+                            }
+                            &.style-standard{
+                              grid-template-columns: 3fr 1fr;
+                              grid-template-areas: 
+                                  "address address"
+                                  "city city"
+                                  "image image"
+                                  "price price"
+                                  "category rooms"
+                                  "subcategory subcategory";
+                              
+                              .price{text-align:center;grid-area:price;}
+                              .address{grid-area:address;padding-bottom:0px;}
+                              .city{grid-area:city;padding-top:0px;}
+                              .image{grid-area:image;}
+                              .category{grid-area:category;padding-bottom:0px;}
+                              .subcategory{grid-area:subcategory;padding-top:0px;}
+                              .room{grid-area:rooms;padding-bottom:0px;}
+                            }
                           }
+                          
                       }
                   }
               }

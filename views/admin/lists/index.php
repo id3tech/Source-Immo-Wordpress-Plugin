@@ -11,18 +11,12 @@
         </md-input-container>
 
         <md-input-container>
-            <label><?php _e('Source SourceImmo view',SI) ?></label>
+            <label><?php _e('Feed this list from',SI) ?></label>
             <md-select ng-model="model.$$source_id" ng-change="updateSource()">
                 <md-option ng-repeat="item in data_views" value="{{item.id}}">{{item.name}}</md-option>
             </md-select>
         </md-input-container>
 
-        <md-input-container>
-            <label><?php _e('List of',SI) ?></label>
-            <md-select ng-model="model.type" ng-change="reset_default_value()">
-                <md-option ng-repeat="item in global_list.list_types" ng-value="item.key">{{item.label.translate()}}</md-option>
-            </md-select>
-        </md-input-container>
 
         <md-input-container>
             <label><?php _e('Sort by',SI) ?></label>

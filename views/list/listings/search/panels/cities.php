@@ -1,15 +1,17 @@
+<?php
+$panelKey = 'cities';
+?>
 
-    <div class="filter-panel cities-panel {{isExpanded('cities')}}">
-        <div class="panel-header">
+    <div class="filter-panel cities-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
+        <div class="filter-panel-header">
             <h4><?php _e('Cities', SI) ?></h4>
-            <button class="button" type="button"  ng-click="toggleExpand($event,'cities')"><i class="fal fa-times"></i></button>
+            <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
         </div>
         
         <div class="filter-panel-content">
-            
             <div class="panel-list region-city-list">                 
                 <div class="list-container regions">
-                    <div class="list-item region {{region.selected || filter.sublistHasFilters(region.__$obj_key, city_list) ? 'has-filters' : ''}}" 
+                    <div class="list-item region {{filter.sublistHasFilters(region.__$obj_key, city_list, filter.data.cities) ? 'has-filters' : ''}}" 
                         data-ng-repeat="region in region_list | orderObjectBy: 'caption'" 
                         >
 
@@ -43,5 +45,9 @@
 
 
             </div>
+        </div>
+
+        <div class="filter-panel-actions">
+        <?php include '_actions.php'; ?>
         </div>
     </div>

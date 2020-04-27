@@ -33,6 +33,8 @@ class SourceImmoAddons{
     }
 
     public function register_hooks($active_addons){
+        if($active_addons == null) return;
+        
         foreach($this->items as $addon){
             if(array_key_exists($addon->name, $active_addons)){
                 $addon->active_configs = $active_addons->{$addon->name}->configs;

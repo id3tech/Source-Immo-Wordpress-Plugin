@@ -659,7 +659,7 @@ siApp
       
       $scope.init($element[0]);
     },
-    controller: function($scope,$timeout){
+    controller: function($scope,$timeout,$siUI){
 
       $scope.options = {
         colorPicker : {
@@ -826,8 +826,10 @@ siApp
       }
 
       $scope.reset = function(){
-        $scope.model = {};
-        $scope.update();
+        $siUI.confirm('Attention','All style customisation will be lost.\nDo you want to continue?',{ok:'Yes',cancel:'No'}).then(function(){
+          $scope.model = {};
+          $scope.update();
+        });
       }
 
       $scope.update = function(){
@@ -1102,6 +1104,24 @@ siApp
     }
   }
 }]);
+
+siApp
+.directive('siNotice', [function siNotice(){
+  return {
+    restrict: 'E',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-notice.html',
+    replace: true,
+    scope: {
+      model: '=siModel'
+    },
+    link: function($scope, $element, $attrs){
+
+    },
+    controller: function($scope){
+
+    }
+  }
+}])
 
 
 siApp

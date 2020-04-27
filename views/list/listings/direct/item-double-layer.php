@@ -1,28 +1,41 @@
 <?php
-$classes = array();
+$scope_class = array('si-item si-listing-item si-double-layer-item-layout');
+$attrs = array();
+$styleActive = true;
+
 if(isset($item->open_houses) && count($item->open_houses)>0){
     $classes[] = 'has-open-house';
 }
-
 if($item->status_code=='SOLD'){
     $classes[] = 'sold';
 }
 
 if(isset($configs)){
-    $classes[] = $configs->list_item_layout->scope_class;
-    if(isset( $configs->list_item_layout->image_hover_effect)) $classes[] = 'img-hover-' . $configs->list_item_layout->image_hover_effect;
-    if(isset( $configs->list_item_layout->secondary_layer_effect)) $classes[] = 'layer-hover-' . $configs->list_item_layout->secondary_layer_effect;
-    if(isset( $configs->list_item_layout->primary_layer_position)) $classes[] = 'primary-layer-' . $configs->list_item_layout->primary_layer_position;
-    if(isset( $configs->list_item_layout->use_styles) ){
-        $classes[] = ($configs->list_item_layout->use_styles == true) ? 'si-stylized' : 'si-no-styles';
+    $scope_class[] = $configs->list_item_layout->scope_class;
+
+    if(isset( $configs->list_item_layout->image_hover_effect)) $scope_class[] = 'img-hover-' . $configs->list_item_layout->image_hover_effect;
+    if(isset( $configs->list_item_layout->secondary_layer_effect)) $scope_class[] = 'layer-hover-' . $configs->list_item_layout->secondary_layer_effect;
+    if(isset( $configs->list_item_layout->primary_layer_position)) $scope_class[] = 'primary-layer-' . $configs->list_item_layout->primary_layer_position;
+
+    if(isset( $configs->list_item_layout->preset) && $configs->list_item_layout->preset) {
+        $scope_class[] = 'style-' . $configs->list_item_layout->preset;
+        $styleActive = $configs->list_item_layout->preset != 'custom';
+    }
+
+    if(isset( $configs->list_item_layout->image_hover_effect)){
+        if($configs->list_item_layout->image_hover_effect == 'gallery'){
+            $attrs[] = 'si-image-rotator="'. $item->ref_number . ':' . $configs->alias . '"';
+        }
     }
 }
+
 ?>
 
-<article class="si-item si-listing-item si-double-layer-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
-    itemscope itemtype="http://schema.org/Residence">
+<article class="<?php echo implode(' ',$scope_class) ?>"
+    <?php echo(implode(' ', $attrs)) ?> itemscope itemtype="http://schema.org/Residence">
+
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
-        <div class="item-content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
+        <div class="item-content">
             <div class="layer-container">
                 <div class="image si-lazy-loading"><img si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
 
@@ -33,8 +46,8 @@ if(isset($configs)){
 
                     <div class="si-data-label si-background-medium-contrast price" <?php layoutAllowVar('price', $configs->list_item_layout) ?>><?php echo($item->price_text);?></div>
                     
-                    <div class="si-data-label si-background-small-contrast category" <?php layoutAllowVar('category', $configs->list_item_layout) ?>><?php echo($item->category);?></div>
-                    <div class="si-data-label si-background-small-contrast subcategory" <?php layoutAllowVar('subcategory', $configs->list_item_layout) ?>><?php echo($item->subcategory);?></div>
+                    <div class="si-data-label category" <?php layoutAllowVar('category', $configs->list_item_layout) ?>><?php echo($item->category);?></div>
+                    <div class="si-data-label subcategory" <?php layoutAllowVar('subcategory', $configs->list_item_layout) ?>><?php echo($item->subcategory);?></div>
                     
                     <div class="si-data-label ref-number" <?php layoutAllowVar('ref_number', $configs->list_item_layout) ?>><?php echo($item->ref_number);?></div>
                     
@@ -62,10 +75,7 @@ if(isset($configs)){
                     </div>
                 </div>
 
-                <div class="layer secondary-layer"
-                        style="<?php 
-                        if(isset( $configs->list_item_layout->secondary_layer_bg_opacity)) echo('--bg-opacity:' . ($configs->list_item_layout->secondary_layer_bg_opacity/100));
-                        ?>">
+                <div class="layer secondary-layer" style="<?php if(isset( $configs->list_item_layout->secondary_layer_bg_opacity)) echo('--bg-opacity:' . ($configs->list_item_layout->secondary_layer_bg_opacity/100));?>">
                     <div class="si-data-label civic-address" <?php layoutAllowVar('address', $configs->list_item_layout,'secondary') ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
                     <div class="si-data-label city" <?php layoutAllowVar('city', $configs->list_item_layout,'secondary') ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>
                     <div class="si-data-label region" <?php layoutAllowVar('region', $configs->list_item_layout,'secondary') ?>><?php echo($item->location->region);?></div>
@@ -100,7 +110,7 @@ if(isset($configs)){
                         <?php } ?>
                     </div>
                 </div>
+            </div>
         </div>
-        
     </a>
 </article>

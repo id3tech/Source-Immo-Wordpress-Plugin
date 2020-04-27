@@ -24,12 +24,11 @@
           <md-input-container ng-show="model.type=='full'">
             <label lstr>Tabs to display</label>
             <md-select ng-model="model.tabs" multiple>
-                <md-optgroup label="{{'By categories'.translate()}}">
-                  <md-option value="residential"><lstr>Residential</lstr></md-option>
-                  <md-option value="commercial"><lstr>Commercial</lstr></md-option>
-                  <md-option value="others"><lstr>Others</lstr></md-option>
+                <md-optgroup ng-disabled="tabsContains(['for-sale','for-rent'])" label="{{'By markets'.translate()}}">
+                  <md-option value="RES"><lstr>Residential</lstr></md-option>
+                  <md-option value="COM"><lstr>Commercial</lstr></md-option>
                 </md-optgroup>
-                <md-optgroup label="{{'By transaction'.translate()}}">
+                <md-optgroup ng-disabled="tabsContains(['RES','COM','IND'])" label="{{'By transactions'.translate()}}">
                   <md-option value="for-sale"><lstr>For sale</lstr></md-option>
                   <md-option value="for-rent"><lstr>For rent</lstr></md-option>
                 </md-optgroup>
