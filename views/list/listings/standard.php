@@ -2,7 +2,12 @@
     <?php 
     if($configs->searchable){ 
         echo('<si-search data-si-alias="'. $configs->alias . '" data-si-configs="configs" data-si-dictionary="dictionary" class="search-container"></si-search>');
+    
+        if($configs->search_engine_options->filter_tags == 'outside'){
+            echo('<si-search-filter-tags si-alias="' .  $configs->alias . '"></si-search-filter-tags>');
+        }
     }
+    
     ?>
 
     <div class="si-list-container display-mode-{{display_mode}}" si-lazy-load>

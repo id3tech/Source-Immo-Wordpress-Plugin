@@ -934,6 +934,11 @@ body.si-modal-open{
                         background-color:var(--high-contrast-color);
                         opacity:0.5;
                     }
+                    @include media($phone){
+                        label{
+                            font-size: 1rem;
+                        }
+                    }
                     @include media($small-phone){
                         bottom:unset;
                         top:0px;

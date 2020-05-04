@@ -516,6 +516,7 @@ class SourceImmoSearchEngineOptions {
   public $focus_category = null;
   public $sticky = false;
   public $tabs = null;
+  public $filter_tags = 'none';
   
   public function __construct($type=null){
 

@@ -18,7 +18,7 @@ $panelKey = 'cities';
                         <div class="list-item-title region-name {{region.expanded ? 'expanded' : ''}}">
                             <si-checkbox 
                                 data-ng-model="filter.data.regions"
-                                data-si-change="filter.update()"
+                                data-si-change="filter.sublistClearFilters(region.__$obj_key, city_list, filter.data.cities);filter.update()"
                                 data-si-value="{{region.__$obj_key}}"
                                 ></si-checkbox> 
                             <h5 data-ng-click="expandSublist(region_list,region)"

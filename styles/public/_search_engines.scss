@@ -1,10 +1,12 @@
 #top .si,
 .si{ 
     .search-container{
-        grid-area: search;
+        //grid-area: search;
+        grid-row: 1;
+        grid-column: 1 / span 3;
         display:grid;
         grid-template-columns: 1fr auto;
-        gap: var(--layout-gutter);
+        gap: 0 var(--layout-gutter);
         position:relative;
         align-items:center;
         padding: var(--container-padding);
@@ -1300,6 +1302,53 @@
         }
 
     }
+
+    .si-search-filter-tags{
+        .si-tag-list{
+            display:flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            .si-tag-item{
+                border: solid 1px var(--highlight);
+                --text-color: var(--highlight);
+                position:relative;
+                padding: 0.25em 0.5em;
+                font-size:0.75rem;
+                font-weight: 700;
+                border-radius: var(--element-border-radius);
+                cursor: pointer;
+                margin: 0.25em;
+                span,i{
+                    position:relative;
+                    z-index:2;
+                    color:var(--text-color);
+                }
+                &::before{
+                    @include absoluteFill;
+                    z-index:1;
+                    background:var(--highlight);
+                    opacity:0.25;
+                }
+                .fa-times{
+                    transition:0.25s;
+                    transform-origin: center center;
+                    &::before{
+                        
+                    }
+                }
+                &:hover{
+                    .fa-times{
+                        transform:rotate(360deg);
+                        &::before{
+                            
+                            
+                            content:"\f068";
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 .si-tab-cursor{
@@ -1597,4 +1646,5 @@
     }
     
 }
+
 

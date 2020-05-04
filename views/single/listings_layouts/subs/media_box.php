@@ -1,1 +1,1 @@
-<si-mediabox si-model="model"></si-mediabox>
+<si-mediabox si-model="model" si-picture-list-as="grid"></si-mediabox>

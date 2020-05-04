@@ -17,7 +17,7 @@
         <div class="list">
             <div class="keyword-suggestion {{item.selected?'selected':''}}" 
                     data-ng-repeat="item in suggestions" data-ng-click="openItem(item)">
-                <i class="fal fa-{{item.type | iconFromType}}"></i>
+                <i class="fal fa-fw fa-{{item.type | iconFromType}}"></i>
                 <label ng-bind-html="item.caption | wrapWith : 'em' : getWrapRegex() : 1"></label>
             </div>
         </div>

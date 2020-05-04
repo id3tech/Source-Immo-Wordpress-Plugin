@@ -55,6 +55,15 @@
             </md-select>
           </md-input-container>
 
+          <md-input-container ng-if="model.type == 'full'">
+            <label lstr>Filter tags</label>
+            <md-select ng-model="model.filter_tags">
+                <md-option value="none"><lstr>None</lstr></md-option>
+                <md-option value="inside"><lstr>Inside search box</lstr></md-option>
+                <md-option value="outside"><lstr>Outside search box</lstr></md-option>
+            </md-select>
+          </md-input-container>
+
           <md-input-container ng-if="false">
             <md-checkbox ng-model="model.sticky">
               <lstr ng-show="model.orientation == 'h'">When scrolling, stick the search engine to viewport top</lstr>

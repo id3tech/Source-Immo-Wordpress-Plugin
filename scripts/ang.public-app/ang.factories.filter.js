@@ -265,6 +265,23 @@ function $siFilters($q,$siApi,$siUtils){
                 });
         }
 
+        $fm.sublistClearFilters = function($parent_code, $list, $selections){
+            if($selections == null) return;
+            if(!Array.isArray($selections)) return;
+            if($selections.length == 0) return;
+
+            $list
+                .filter(function($item){
+                    return $item.parent == $parent_code;
+                })
+                .forEach(function($item){
+                    const lItemIndex = $selections.findIndex(function($i){ return $i == $item.__$obj_key});
+                    if(lItemIndex >= 0 ){
+                        $selections.splice(lItemIndex, 1);
+                    }
+                })
+        }
+
         /**
          * Get the value stored in a filter
          * @param {string} $fieldname Name of the filter

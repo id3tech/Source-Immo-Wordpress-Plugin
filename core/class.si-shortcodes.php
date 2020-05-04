@@ -110,6 +110,12 @@ class SiShorcodes{
         echo('<div class="si standard-layout">');
         echo('<si-search si-alias="'. $alias . '" class="' . implode(' ', $searchContainerClasses) . '" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
 
+        
+        if($listConfig->search_engine_options->filter_tags == 'outside'){
+            echo('<si-search-filter-tags si-alias="' . $alias . '"></si-search-filter-tags>');
+        }
+        
+
         echo('<script type="text/ng-template" id="si-search-for-'. $alias . '">');
         SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
         echo('</script>');

@@ -21,10 +21,9 @@ if(isset($configs)){
             $attrs[] = 'si-image-rotator="{{item.ref_number}}:' . $configs->alias . '"';
         }
     }
-
-
 }
 ?>
+
 <article 
     class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak
         <?php echo(implode(' ', $attrs)) ?> >

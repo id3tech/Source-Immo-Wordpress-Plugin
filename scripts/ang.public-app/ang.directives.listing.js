@@ -365,6 +365,7 @@ siApp
         templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=4',
         link: function (scope, element, attrs) {
             scope.$element = element[0];
+            
             var mc = new Hammer(element[0]);
             let lPanHndl = null;
             scope.init();
@@ -379,6 +380,7 @@ siApp
     
             $scope.init = function($element){
                 $scope.index = 0;   
+                
                 
                 $scope.$on('thumbnails-slider-select', function($event, $picture){
                     const lIndex = $scope.pictures.findIndex(function($e){return $e.url == $picture.url});
@@ -692,7 +694,7 @@ siApp
                                     if($scope.rotator_active){
                                         lShowNext();
                                     }
-                                    
+
                                 }, 500);
                             }
                         })
@@ -1400,6 +1402,7 @@ function siMediabox(){
             pictureListDisplay: '@siPictureListAs'
         },
         link: function ($scope,$elm, $attrs){
+            $scope.$element = $elm;
             $scope.init();
         },
         templateUrl: siCtx.base_path + 'views/ang-templates/si-mediabox.html?v=2',

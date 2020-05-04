@@ -86,7 +86,6 @@ $panelKey = 'others';
             <si-input-container class="si-float-label">
                 <label>
                     <?php _e('Caracteristics',SI) ?>
-                    <span ng-repeat="item in filter.data.attributes">{{item}}</span>
                 </label>
                 <div class="grid-layout-column">
                     <si-checkbox

@@ -300,12 +300,14 @@ function $siApi($http,$q,$siConfig,$rootScope){
 
 
 siApp
-.factory('$siDictionary', 
-function $siDictionary(){
+.factory('$siDictionary',['$q', 
+function $siDictionary($q){
     let $scope = {};
 
 
     $scope.source = null;
+    $scope._loadCallbacks = [];
+
     $scope.init = function($source){
         if($scope.source == null){
             $scope.source = $source;
@@ -315,7 +317,25 @@ function $siDictionary(){
             //console.log($scope.source);
         }
         
+        $scope._loadCallbacks.forEach(function($fn){
+            $fn();
+        })
+
         //$scope.sortData();
+    }
+
+    $scope.onLoad = function(){
+        if($scope.source != null){
+            return $q.resolve();
+        }
+        
+        const lDeferred = $q.defer();
+
+        $scope._loadCallbacks.push(function(){
+            lDeferred.resolve();
+        });
+
+        return lDeferred.promise;
     }
 
     $scope.sortData = function(){
@@ -423,7 +443,7 @@ function $siDictionary(){
     }
 
     return $scope;
-});
+}]);
 
 siApp
 .factory('$siList', [

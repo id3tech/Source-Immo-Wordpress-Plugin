@@ -263,7 +263,8 @@ html{
         text-align: center;
     }
     .si-list-container{
-        grid-area: list;
+        //grid-area: list;
+        grid-column: 1 / span 3;
         display:grid;
         gap:var(--layout-gutter);
         padding: var(--container-padding);
@@ -287,7 +288,7 @@ html{
     }
 
     .si-list{
-        grid-area: list;
+        grid-column: 1 / span 3;
         -ms-grid-column: 1;
         -ms-grid-column-span: 3;
         display:grid;
@@ -298,6 +299,8 @@ html{
         > div{
             display:grid;place-items:stretch;
         }
+
+
     }
     .si-item{
         //max-width:360px;
@@ -1027,6 +1030,10 @@ html{
     
     si-small-list.si-list-of-listings,
     &.si-list-of-listings{
+        > .si-search-filter-tags{
+            grid-row: 2;
+            grid-column: 1 / span 3;
+        }
         > .list-container,
         .si-list{
             grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
@@ -1100,10 +1107,10 @@ html{
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
         gap:var(--layout-gutter);
-        grid-template-areas: 
-            "search search search"
-            "list list list"
-            ;
+        // grid-template-areas: 
+        //     "search search search"
+        //     "list list list"
+        //     ;
         .si-list-of-ghost{
             .si-item{
                 pointer-events: none;
@@ -1568,12 +1575,18 @@ html{
             position:relative;    
             place-self: stretch;
             @include media($phone){
-                // width: 100vw;
-                // margin-left: -50vw;
+                width: 100vw;
+                margin-left: -50vw;
                 height: 40vh;
-                // left: 50%;
-
+                left: 50%;
+                min-height:400px;
             }
+            &.picture-list-thumbnails{
+                @include media($phone){
+                    min-height: 475px;
+                }
+            }
+
             .tabs{
                 @include media($phone){
                     display: flex;

@@ -98,6 +98,12 @@
         <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="<?php _e('Search', SI) ?>"><span class="label"><?php _e('Search',SI) ?></span> <i class="fal fa-search"></i></button>
     </div>
 
+    <?php
+    if($configs->search_engine_options->filter_tags == 'inside'){
+        echo('<si-search-filter-tags si-alias="' . $configs->alias . '"></si-search-filter-tags>');
+    }
+    ?>
+
 
     <!-- Cities -->
     <?php

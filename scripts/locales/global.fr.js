@@ -170,6 +170,7 @@ $locales.fr = {};$locales.fr.global =
     , "Edit search engine" : "Modifier le moteur de recherche"
     , "Use a median location and average distances algorithm to center the map." : "Utilizer un algorithme de localisation médiane et de distances moyennes pour centrer la carte."
     , "Are you sure you want to remove this list?" : "Voulez-vous vraiment supprimer cette liste?"
+
     // Style editor
     , "Preview" : "Aperçu"
     , "Search box" : "Boîte de recherche"
@@ -226,6 +227,9 @@ $locales.fr = {};$locales.fr.global =
     , "By transactions" : "Par transactions"
     , "Criterias to display" : "Critères à afficher"
     , "Search box placeholder" : "Texte de substitution pour la case de recherche"
+    , "Filter tags" : "Étiquettes de filtre"
+    , "Inside search box" : "À l'intérieur de la boite de recherche"
+    , "Outside search box" : "À l'extérieur de la boite de recherche"
 
     // layouts title
     , "Listing details" : "Détails de propriété"
@@ -399,6 +403,12 @@ $locales.fr = {};$locales.fr.global =
     , "Search" : "Recherche"
     , "{0}+ bedrooms" : "{0}+ chambres"
     , "{0}+ bathrooms" : "{0}+ salles de bains"
+    , "{0} bedroom" : "{0} chambre"
+    , "{0} bedrooms" : "{0} chambres"
+    , "{0} bathroom" : "{0} salle de bain"
+    , "{0} bathrooms" : "{0} salles de bains"
+    , "Land of {0} - {1}" : "Terrain de {0} - {1}"
+    , "Available area of {0} - {1}" : "Superficie de {0} - {1}"
     , "1 result found" : "1 résultat trouvé"
     , "No result found" : "Aucun résultat trouvé"
     , "Regions" : "Régions"
