@@ -492,9 +492,9 @@ siApp
   }
 
   $scope.reset_configs = function(){
-    $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
+    return $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
       $scope.configs = $response;
-      $scope.show_toast('Configuration reset to demo mode');
+      
     });
   }
 
@@ -652,7 +652,9 @@ siApp
 
   $scope.signout = function(){
     $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
-      $scope.reset_configs();
+      $scope.reset_configs().then( function(){
+        $scope.show_toast('Configuration reset');
+      });
     })
     
   }

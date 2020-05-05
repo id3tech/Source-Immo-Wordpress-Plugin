@@ -943,6 +943,9 @@ class SourceImmo {
     if(file_exists($file)){
   		include( $file );
     }
+    else if(file_exists($path)){
+      include( $path );
+    }
 
   }
 

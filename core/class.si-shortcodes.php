@@ -498,7 +498,7 @@ class SiShorcodes{
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
         }
-        
+        global $listing_data;
         $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
         if($listing_data != null){
             global $dictionary;
@@ -564,7 +564,9 @@ class SiShorcodes{
         if($part != ''){
             ob_start();
 
-            SourceImmo::view('single/listings_layouts/subs/' . $part); 
+            $part_path = apply_filters('si_listing_part_path','single/listings_layouts/subs/' . $part,$part);
+            $part_params = apply_filters('si_listing_part_params', array(), $part);
+            SourceImmo::view($part_path, $part_params); 
 
             $lResult = ob_get_clean();
         }

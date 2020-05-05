@@ -216,7 +216,8 @@ $locales.fr = {};$locales.fr.global =
     , "Sold label flag text color" : "Texte de l'étiquette Vendu"
     , "Picture ratio" : "Ratio de l'image"
     , "Column width" : "Largeur de colonne"
-
+    , "Search account" : "Cherchez un compte"
+    
     // Search engine edit dialog
     , "Search engine's configuration" : "Configuration de l'engin de recherche"
     , "Display" : "Affichage"

@@ -1,4 +1,4 @@
-<h2>Version 0.4.1 Beta</h2>
+<h2>Version 0.4.3 Beta</h2>
 
 <h3>Admin interface changes</h3>
 <ul>
@@ -22,7 +22,8 @@ You can also select which field are searchable
 Addons are now supported and will be add periodically.
 In this release:
 <ul>
-<li>RE/MAX Québec addon</li>
+<li>RE/MAX Québec addon - Display an inner frame from remax-quebec.com website for listing details</li>
+<li>Prospect integration addon - Show lead form in listing details</li>
 </ul>
 
 
