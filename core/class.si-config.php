@@ -276,8 +276,7 @@ class SourceImmoConfig {
 
     update_option('SourceImmoConfig', json_encode($this));
     SourceImmo::current()->apply_routes();
-    $this->saveConfigFile();
-
+    return $this->saveConfigFile();
   }
 
   public function saveConfigFile(){
@@ -291,6 +290,8 @@ class SourceImmoConfig {
     $filePointer = fopen($lConfigFilePath,'w');
     fwrite($filePointer, json_encode($this->getSecuredVersion()));
     fclose($filePointer);
+
+    return $lConfigFilePath;
   }
 
 

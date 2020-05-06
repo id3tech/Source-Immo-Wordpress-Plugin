@@ -358,7 +358,11 @@ siApp
                                 return $scope.filter.data;
                             }, 
                             function($new, $old){
-                                
+                                if($new.min_price != $old.min_price || $new.max_price != $old.max_price){
+                                    if($new.min_price == 0 && $new.max_price == null){
+                                        $scope.resetPriceRange();
+                                    }
+                                }
                             },
                             true
                         );
@@ -435,7 +439,9 @@ siApp
                     const lDataProp = lTypeMap[$item.type];
                     $timeout(function(){
                         $scope.filter.data[lDataProp].push($item.ref_number);
-                        
+                        if($item.type == 'region'){
+                            $scope.filter.sublistClearFilters($item.ref_number, $scope.city_list, $scope.filter.data.cities);
+                        }
                         $scope.filter.update();
 
                         console.log('si-searchbox-add-filter:triggered',lDataProp, $scope.filter.data);
@@ -534,6 +540,8 @@ siApp
                 $scope.filter.update();
 
                 $scope.current_main_filter = $tab;
+                $scope.buildDropdownSuggestions();
+
                 $timeout(function(){
                     $scope.alignPanelTabCursor();
                 });
@@ -811,16 +819,33 @@ siApp
              */
             $scope.buildDropdownSuggestions = function(){
                 // Prices' dropdowns
-                $scope.updatePriceSuggestions();
+                //a$scope.updatePriceSuggestions();
                 
+                const fnGetSuggestion = function($i,$labelFormat,$singleLabelFormat){
+                    $singleLabelFormat = $singleLabelFormat == undefined ? $labelFormat : $singleLabelFormat;
+                    return {
+                        value: $i,
+                        label : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().format($i),
+                        caption : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().format($i)
+                    }
+                }
+
                 // Other dropdowns
+                // Bedrooms
+                $scope.bedroomSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion($i+1,'{0}+ bedrooms') });
+
+                const lParkingMul = $scope.current_main_filter == 'COM' ? 5 : 1;
+                console.log('Parking x', lParkingMul, 'for', $scope.current_main_filter);
+                $scope.parkingSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion(($i+1)*lParkingMul,'{0} spaces or +','1 space or +') });
+
+
                 for(let i=1; i<6; i++){
                     // Bedrooms
-                    $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i), caption: '{0}+ bedrooms'.translate().format(i)});
+                //    $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i), caption: '{0}+ bedrooms'.translate().format(i)});
                     // Bathrooms
                     $scope.bathroomSuggestions.push({value:i, label: '{0}+ bathrooms'.translate().format(i), caption: '{0}+ bathrooms'.translate().format(i)});
                     // Parking
-                    $scope.parkingSuggestions.push({value:i, label: (i==1 ? '1 space or +' : '{0} spaces or +').translate().format(i), caption: '{0}+ parking spaces'.translate().format(i)});
+                //    $scope.parkingSuggestions.push({value:i, label: (i==1 ? '1 space or +' : '{0} spaces or +').translate().format(i), caption: '{0}+ parking spaces'.translate().format(i)});
                     // Parking
                     $scope.garageSuggestions.push({value:i, label: '{0}+ garages'.translate().format(i), caption: '{0}+ garages'.translate().format(i)});
                 }
@@ -2475,7 +2500,8 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
                 // otherwise, try to add to filter
                 $scope.$emit('si-searchbox-add-filter', $item);
-
+                $scope.suggestions = [];
+                $scope.stored_suggestions = null;
             }
             
             $scope.getItemLinkShortcut = function($type, $configs){
@@ -2586,6 +2612,15 @@ siApp
                         text: (($value > 1) ? '{0} bathrooms' : '{0} bathroom').translate().format($value),
                         remove(){
                             $scope.filter.data.bathrooms = null;
+                            $scope.filter.update();
+                        }
+                    }
+                },
+                'parkings' : function($value){
+                    return {
+                        text: (($value > 1) ? '{0} parkings' : '{0} parking').translate().format($value),
+                        remove(){
+                            $scope.filter.data.parkings = null;
                             $scope.filter.update();
                         }
                     }

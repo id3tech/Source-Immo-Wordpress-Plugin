@@ -1,6 +1,6 @@
 
 
-    <div class="main-filter-tabs">
+    <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}">
         <div class="si-tab {{current_main_filter == 'for-sale' ? 'active' : ''}}"
                 ng-click="selectMainFilter('for-sale')" 
                 ng-if="configs.search_engine_options.tabs.includes('for-sale')"><?php _e('For sale',SI) ?></div>

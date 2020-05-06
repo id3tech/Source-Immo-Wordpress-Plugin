@@ -408,6 +408,8 @@ $locales.fr = {};$locales.fr.global =
     , "{0} bedrooms" : "{0} chambres"
     , "{0} bathroom" : "{0} salle de bain"
     , "{0} bathrooms" : "{0} salles de bains"
+    , "{0} parking" : "{0} stationnement"
+    , "{0} parkings" : "{0} stationnements"
     , "Land of {0} - {1}" : "Terrain de {0} - {1}"
     , "Available area of {0} - {1}" : "Superficie de {0} - {1}"
     , "1 result found" : "1 résultat trouvé"

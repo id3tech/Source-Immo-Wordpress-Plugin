@@ -489,12 +489,16 @@ class SourceImmo {
                             filemtime(SI_PLUGIN_DIR . '/scripts/ang.prototype.js'), true );
 
     $lUploadDir   = wp_upload_dir();
-    $lConfigFilePath = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
-    if(!file_exists(str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFilePath))){
-      SourceImmoConfig::load()->save();
+    $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
+    $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
+    $lConfigVersion = '';
+    
+    if(!file_exists($lConfigFilePath)){
+      $lConfigFilePath = SourceImmoConfig::load()->save();
+      $lConfigVersion = filemtime($lConfigFilePath);
     }
-    $lConfigVersion = filemtime(str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFilePath));
-    $lConfigPath  = $lConfigFilePath . '?v=' . $lConfigVersion;
+    
+    $lConfigPath  = $lConfigFileUrl . '?v=' . $lConfigVersion;
 
     $currentPagePath = $_SERVER['REQUEST_URI'];
     
