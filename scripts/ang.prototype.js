@@ -1,4 +1,4 @@
-if(typeof String.format === 'undefined'){
+if(typeof String.prototype.format === 'undefined'){
     
     String.prototype.format = function(){
         let lResult = this.toString();
