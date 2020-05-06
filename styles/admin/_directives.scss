@@ -119,6 +119,9 @@ body.wp-admin #si-app,
             outline:none;
             position:relative;
             padding-left: 20px;
+            &.si-group-start{
+              margin-top: 2rem;
+            }
             &::before{
               content:"\f061";
               font-family: "Font Awesome 5 Pro";

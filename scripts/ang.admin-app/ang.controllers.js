@@ -745,7 +745,7 @@ siApp
 
     
     const lShortcodeMap = {
-      listing : { title: 'Our listings', content: '[si alias="listings"]', list: _ => { $scope.addList('listings', 'listings', 'contract.start_date', true, 30); } },
+      listing : { title: 'Our listings', content: '[si alias="listings"]', list: _ => { $scope.addList('listings', 'listings', 'contract_start_date', true, 30); } },
       listing_details : { title: 'Listing details', content: '[si_listing]', layout: 'listing_layouts'},
       broker : { title: 'Our team', content: '[si alias="brokers"]', list: _ => { $scope.addList('brokers', 'brokers', 'last_name'); }},
       broker_details : { title: 'Broker details', content: '[si_broker]', layout: 'broker_layouts'},

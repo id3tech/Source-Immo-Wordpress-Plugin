@@ -178,7 +178,7 @@ $locales.fr = {};$locales.fr.global =
     , "Background / text" : "Arrière-plan / texte"
     , "Components" : "Composants"
     , "Listing item" : "Élément propriété"
-    , "Broker item" : "Élément broker"
+    , "Broker item" : "Élément courtier"
     , "Office item" : "Élément bureau"
     , "Font name" : "Nom de police"
     , "Grid spacing" : "Espacement de grille"

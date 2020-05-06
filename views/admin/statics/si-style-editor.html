@@ -15,64 +15,7 @@
 
     
     <div class="configs">
-        <h4 ng-show="isEditable('listing')"
-            ng-click="openGroup('listing')" lstr>Listing item</h4>
-        <div ng-show="isEditable('listing')" id="style-listing" class="style-group">
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-tag"></md-icon> 
-                <label><lstr>ULS label</lstr> (<lstr params="defaultValues.uls_label">default {0}</lstr>)</label>
-                <input ng-model="model.uls_label" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-            
-            <div
-                md-color-picker="options.colorPicker"
-                ng-model="model.listing_item_sold_bg_color"
-                label="{{'Sold label flag background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_bg_color)}})"
-                icon="far fa-flag"
-            ></div>
-            <div
-                md-color-picker="options.colorPicker"
-                ng-model="model.listing_item_sold_text_color"
-                label="{{'Sold label flag text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_text_color)}})"
-                icon="far fa-text"
-            ></div>
-
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon>
-                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.listing_item_picture_ratio">default {0}</lstr>)</label>
-                <input ng-model="model.listing_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
-                <label><lstr>Column width</lstr> (<lstr params="defaultValues.listing_item_column_width">default {0}</lstr>)</label>
-                <input ng-model="model.listing_item_column_width" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-        </div>
-
-        <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')" lstr>Broker item</h4>
-        <div  ng-show="isEditable('broker')" id="style-broker" class="style-group">
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon> 
-                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.broker_item_picture_ratio">default {0}</lstr>)</label>
-                <input ng-model="model.broker_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
-                <label><lstr>Column width</lstr> (<lstr params="defaultValues.broker_item_column_width">default {0}</lstr>)</label>
-                <input ng-model="model.broker_item_column_width" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-        </div>
-
-        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
-        <div  ng-show="isEditable('office')" id="style-office" class="style-group">
-            <md-input-container  class="fullrow">
-                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
-                <label><lstr>Column width</lstr> (<lstr params="defaultValues.office_item_column_width">default {0}</lstr>)</label>
-                <input ng-model="model.office_item_column_width" ng-model-options="{updateOn:'blur'}" />
-            </md-input-container>
-        </div>
+        
 
         <h4 ng-click="openGroup('global')" ng-show="isEditable('global')" lstr>Global</h4>
         <div id="style-global" ng-show="isEditable('global')" class="style-group global-group">
@@ -287,7 +230,64 @@
             ></div>
         </div>
 
-        
+        <h4 class="si-group-start" ng-show="isEditable('listing')"
+            ng-click="openGroup('listing')" lstr>Listing item</h4>
+        <div ng-show="isEditable('listing')" id="style-listing" class="style-group">
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-tag"></md-icon> 
+                <label><lstr>ULS label</lstr> (<lstr params="defaultValues.uls_label">default {0}</lstr>)</label>
+                <input ng-model="model.uls_label" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+            
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.listing_item_sold_bg_color"
+                label="{{'Sold label flag background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_bg_color)}})"
+                icon="far fa-flag"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.listing_item_sold_text_color"
+                label="{{'Sold label flag text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon>
+                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.listing_item_picture_ratio">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.listing_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')" lstr>Broker item</h4>
+        <div  ng-show="isEditable('broker')" id="style-broker" class="style-group">
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon> 
+                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.broker_item_picture_ratio">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.broker_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
+        <div  ng-show="isEditable('office')" id="style-office" class="style-group">
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.office_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.office_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
 
     </div>
 
