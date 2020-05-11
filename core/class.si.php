@@ -74,6 +74,7 @@ class SourceImmo {
     $this->addons->register_hooks($this->configs->active_addons);
   }
   
+
   function add_favorite_button_to_menu( $items, $args ) {
       if( $args->theme_location == $this->configs->favorites_button_menu )
           return $items."<li class='menu-item'><si-favorites-button></si-favorites-button></li>";
@@ -252,12 +253,12 @@ class SourceImmo {
   */
   public function update_routes($rules) {
     // check if routes exists
-    //Debug::write($rules);
     $newrules = array();
 
     // add routes
     foreach($this->configs->listing_routes as $route){
       $ruleKey=array();$matches=array();
+      
       $this->getRulesAndMatches($route->route,$ruleKey,$matches);
 
       if(count($ruleKey)>0){
@@ -478,9 +479,10 @@ class SourceImmo {
     // swipe-touch handling library
     wp_enqueue_script( 'hammerjs', 'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js', null, null, true );
     // google map API library
-    wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?' . $mapKeyParams . '&libraries=places', null, null, true );
-    wp_enqueue_script( 'google-map-cluster', 'https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js', 'google-map', null, true );
-    
+    if(!empty($mapKeyParams)){
+      wp_enqueue_script( 'google-map', 'https://maps.googleapis.com/maps/api/js?' . $mapKeyParams . '&libraries=places', null, null, true );
+      wp_enqueue_script( 'google-map-cluster', 'https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js', 'google-map', null, true );
+    }
 
     // wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('si-style'), "1", "all");
 	  // wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
@@ -1141,6 +1143,9 @@ class SourceImmo {
     
     return implode(';', $result);
   }
+
+
+
 
   /**
   PRIVATES

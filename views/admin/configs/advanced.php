@@ -128,7 +128,7 @@
             </div>
 
             <div layout="row" layout-align="start center">
-                <md-button ng-click="reset_configs()"><?php _e('Reset to demo settings',SI) ?></md-button>
+                <md-button ng-click="reset_all_configs()"><?php _e('Reset all settings',SI) ?></md-button>
             </div>
         </div>
     </div>

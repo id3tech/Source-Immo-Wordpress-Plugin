@@ -20,6 +20,8 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
 
     $scope.init = function(){
         $siConfig.get().then(function($configs){
+            $scope.configs = $configs;
+
             if($configs.styles != undefined){
                 if(!isNullOrEmpty($configs.styles)){
                     const lStyles = JSON.parse($configs.styles);
@@ -115,6 +117,14 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
     $scope.$on('modal-closed', function(){
         angular.element(document.body).removeClass('si-modal-open');
     });
+
+    $scope.hasMapKeyApi = function(){
+        if($scope.configs == undefined) return false;
+        if($scope.configs == null) return false;
+        if($scope.configs.map_api_key == '') return false;
+
+        return true;
+    }
 });
 
 /**

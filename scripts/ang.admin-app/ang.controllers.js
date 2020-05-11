@@ -491,6 +491,16 @@ siApp
     });
   }
 
+  $scope.reset_all_configs = function(){
+    $siUI.confirm('All your configurations will be lost.\nAre you sure you want to reset all settings?')
+    .then(function(){
+      return $scope.reset_configs()
+    })
+    .then(function(){
+      $siUI.show_toast('Configurations cleared');
+    })
+  }
+
   $scope.reset_configs = function(){
     return $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
       $scope.configs = $response;
@@ -611,6 +621,8 @@ siApp
         $siUI.alert($response.message);
         return;
       }
+
+      console.log('signin configs', $scope.configs);
 
       $scope.credentials = $response;
       $scope.configs.account_id = null;
@@ -1084,16 +1096,20 @@ siApp
               $siUI.confirm('Attention','Creating missing layout may duplicate some page under certain circonstance.\nContinue anyway?',{ok:'Yes',cancel:'No'}).then(function(){
                 $scope.fillEmptyLayouts();
               })
-              
             }
           }
         }
       );
     }
+
+    if(isNullOrEmpty($scope.configs.map_api_key)){
+      $scope.addNotice('Map API key', 'The map API key is not configured. Maps will not be available in list or details.');
+    }
     
     if($scope.notices.length == 0){
       $scope.addNotice('All good', 'The plugin is properly configured', {type:'success', color: '#4AB448', icon: 'fa-check-circle'});
     }
+
   }
 
   $scope.hasErrorNotices = function(){

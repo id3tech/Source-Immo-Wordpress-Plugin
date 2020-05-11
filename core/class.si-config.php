@@ -1,8 +1,12 @@
 <?php
+define('SI_OPTION_KEY', 'SourceImmoConfig');
+
 /**
 * Stores data from
 */
 class SourceImmoConfig {
+
+  public $state = 'inital';
 
   /**
   * Required properties for API call
@@ -138,8 +142,8 @@ class SourceImmoConfig {
     $this->app_version    = SI_VERSION;
 
     // set defaut DEMO value
-    $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
-    $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
+    // $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
+    // $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     
     $this->registered     = false;
 
@@ -203,10 +207,16 @@ class SourceImmoConfig {
   public static function load(){
     $instance = new SourceImmoConfig();
     
-    $savedConfigs = $instance->loadSavedConfigs();
+    //$savedConfigs = $instance->loadSavedConfigs();
+    $savedConfigs = $instance->loadConfigFile();
     
-    if(true){
-      $instance->parse(json_decode($savedConfigs));
+    if($savedConfigs !== false){
+      if($instance->parse(json_decode($savedConfigs, true))){
+        $instance->state = 'loaded';
+      }
+      else{
+        $instance->state = 'parse_failed';
+      }
       
       $instance->app_version = SI_VERSION;
     
@@ -214,7 +224,10 @@ class SourceImmoConfig {
 
       //$instance->normalizeValues();
 
-      $instance->saveConfigFile();
+      //$instance->saveConfigFile();
+    }
+    else{
+      $instance->state = 'load_failed';
     }
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
@@ -224,10 +237,15 @@ class SourceImmoConfig {
     return $instance;
   }
 
+  public function clearEverything(){
+    delete_option(SI_OPTION_KEY);
+    delete_option('ImmoDBConfig');
 
+    $this->deleteFile();
+  }
 
   public function loadSavedConfigs(){
-    $lResult = get_option('SourceImmoConfig');
+    $lResult = get_option(SI_OPTION_KEY);
     
     if($lResult === false){
       // Try loading previous version
@@ -240,21 +258,21 @@ class SourceImmoConfig {
   }
 
   public function parse($data){
+    if(!is_array($data)) return false;
 
     foreach ($data as $key => $value) {
       if(property_exists($this, $key)){
         if($key == 'lists'){
           $this->lists = array();
-          foreach ($value as $item) {
-            $obj = SourceImmoList::parse($item);
-            //if($obj->type=='brokers') __c($obj);
-
-            $obj->normalizeValues();
-            
-            
-
-            array_push($this->lists, $obj);
-            $obj = null;
+          if(is_array($value)){   
+            foreach ($value as $item) {
+              $obj = SourceImmoList::parse($item);
+             
+              $obj->normalizeValues();
+             
+              array_push($this->lists, $obj);
+              $obj = null;
+            }
           }
         }
         else{
@@ -262,19 +280,27 @@ class SourceImmoConfig {
             $this->{$key}->parse($value);
           }
           else{
-            $this->{$key} = $value;
+            $this->{$key} = json_decode(json_encode($value));
           }
         }
         
       }
     }
+    return true;
+  }
 
+  public function deleteFile(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    unlink($lConfigFilePath);
+    rmdir($lConfigPath);  
   }
 
   public function save(){
     $this->normalizeRoutes();
 
-    update_option('SourceImmoConfig', json_encode($this));
+    //update_option(SI_OPTION_KEY, json_encode($this));
     SourceImmo::current()->apply_routes();
     return $this->saveConfigFile();
   }
@@ -287,11 +313,33 @@ class SourceImmoConfig {
       wp_mkdir_p( $lConfigPath );
     }
     $lConfigFilePath = $lConfigPath . '/_configs.json';
-    $filePointer = fopen($lConfigFilePath,'w');
+    $filePointer = fopen($lConfigFilePath,'w+');
     fwrite($filePointer, json_encode($this->getSecuredVersion()));
     fclose($filePointer);
 
     return $lConfigFilePath;
+  }
+
+  public function loadConfigFile(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) return false;
+
+    $fileContent = false;
+
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    try {
+      $filePointer = fopen($lConfigFilePath,'r');
+      $fileContent = fread($filePointer,max(filesize($lConfigFilePath),1));
+
+      fclose($filePointer);
+    } 
+    catch (\Throwable $th) {
+      
+    }
+    
+
+    return $fileContent;
   }
 
 
@@ -345,6 +393,7 @@ class SourceImmoRoute{
     $this->route = $route;
     $this->shortcut = $shortcut;
   }
+
 }
 
 class SourceImmoLayout{
@@ -399,6 +448,7 @@ class SourceImmoLayout{
   }
 
   public static function parse($source){
+    if(is_array($source)) $source = json_decode(json_encode($source));
     $result = new SourceImmoLayout();
 
     foreach ($source as $key => $value) {
@@ -447,6 +497,7 @@ class SourceImmoList {
   }
 
   static function parse($source){
+    if(is_array($source)) $source = json_decode(json_encode($source));
     $result = new SourceImmoList($source->source, $source->alias, $source->type);
    
     foreach ($source as $key => $value) {

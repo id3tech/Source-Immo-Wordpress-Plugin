@@ -345,6 +345,10 @@ class SourceImmoApi {
    * @return Object global configuration
    */
   public static function reset_configs($request){
+    // clear data
+    SourceImmo::current()->configs->clearEverything();
+
+
     $new_config_value = new SourceImmoConfig();
     SourceImmo::current()->configs = $new_config_value;
     SourceImmo::current()->configs->save();
@@ -355,6 +359,9 @@ class SourceImmoApi {
   public static function get_dictionary($request){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
+
+    if($account_id == '' || $api_key == '') return null;
+    
     $viewId = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();

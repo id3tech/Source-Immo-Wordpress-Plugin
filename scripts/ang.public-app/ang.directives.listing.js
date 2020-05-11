@@ -36,13 +36,15 @@ siApp
                 $scope.process();
             }
     
-            $scope.changeDownpaymentMethod = function($value){
-                if($value != $scope.data.downpayment_method){
-                    $scope['convertDownpaymentTo_' + $value]();
-                    $scope.data.downpayment_method = $value;
+            $scope.changeDownpaymentMethod = function(){
+                console.log('changeDownpaymentMethod:triggered');
+                
+                //if($value != $scope.data.downpayment_method){
+                    $scope['convertDownpaymentTo_' + $scope.data.downpayment_method]();
+                    //$scope.data.downpayment_method = $value;
     
                     $scope.process();
-                }
+                //}
             }
     
             $scope.convertDownpaymentTo_cash = function(){
@@ -1407,7 +1409,7 @@ function siMediabox(){
         },
         templateUrl: siCtx.base_path + 'views/ang-templates/si-mediabox.html?v=2',
         replace: true,
-        controller : function($scope){
+        controller : function($scope, $siConfig){
             $scope.selected_media = $scope.defaultTab || 'pictures';
             $scope.video_player = null;
             $scope._initialized = false;
@@ -1415,13 +1417,20 @@ function siMediabox(){
             $scope.init = function(){
                 const cFirstTab = $scope.tabs ? $scope.tabs[0] : 'pictures';
                 $scope.selectMedia($scope.defaultTab || cFirstTab);
-
-                $scope._initialized = true;
+                $siConfig.get().then(function($configs){
+                    $scope._initialized = true;
+                    $scope.configs = $configs;
+                });
             }
         
             $scope.tabIsAvailable = function($name){
-                if(!$scope.tabs) return true;
+                if($scope.configs){
+                    if(['map','streetview'].includes($name)){
+                        if($scope.configs.map_api_key == '') return false;
+                    }
+                }
 
+                if(!$scope.tabs) return true;
                 return $scope.tabs.some(function($t) {return $t == $name});
             }
 

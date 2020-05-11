@@ -123,7 +123,7 @@ siApp
         },
         template: '<div class="pretty p-icon p-pulse" ng-click="toggleCheck($event)">' +
                     '<input type="checkbox" ng-checked="isSelected()" title="{{label}}">' +
-                    '<div class="state">' +
+                    '<div class="si-input-state">' +
                         '<i class="icon fas fa-check"></i>' +
                         '<label>{{label}}</label>' +
                     '</div>' + 
@@ -1283,7 +1283,7 @@ siApp
         },
         template: '<div class="any-selector pretty p-icon p-pulse p-round">' +
                     '<input type="radio" name="{{name}}"  title="{{label}}" ng-click="onClick()" ng-checked="checked">' +
-                    '<div class="state">' +
+                    '<div class="si-input-state">' +
                         '<i class="icon fas fa-circle fa-xs"></i>' +
                         '<label>{{label}}</label>' +
                     '</div>' + 

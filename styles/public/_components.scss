@@ -1575,7 +1575,7 @@ body.si-modal-open{
 .si{
     .pretty{
         margin-right:0px;
-        .state{
+        .si-input-state{
             position:relative;
             display:grid;
             grid-template-columns: auto 1fr;
@@ -1585,7 +1585,7 @@ body.si-modal-open{
             .icon{
                 position:relative;
                 //top:50%;transform:translateY(-50%);
-                width:16px;height:16px;
+                //width:16px;height:16px;
                 top:unset;
                 color:#fff;
                 &.fa-xs{
@@ -1599,7 +1599,8 @@ body.si-modal-open{
                 white-space: nowrap;
                 text-indent: unset;
                 min-width:0px;
-
+                grid-area: unset!important;
+                
                 &::before,
                 &::after{
                     width:16px;height:16px;
