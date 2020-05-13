@@ -517,6 +517,10 @@ siApp
             // TABS / MAIN FILTERS
             $scope.selectMainFilter = function($tab){
                 console.log('selectMainFilter', $scope.current_main_filter, $tab);
+                if($tab == undefined){
+                    $scope.current_main_filter = null;
+                    return;
+                };
 
                 if($scope.current_main_filter == $tab) return;
 
@@ -553,8 +557,9 @@ siApp
             }
 
             $scope.isMainFiltered = function($values){
-                if(Array.isArray($values)) return $values.includes($scope.current_main_filter);
-                return $values == $scope.current_main_filter;
+                const lMainFilter = $scope.current_main_filter == undefined ? null : $scope.current_main_filter;
+                if(Array.isArray($values)) return $values.includes(lMainFilter);
+                return $values == lMainFilter;
             }
 
             $scope.mainSubCategoryMatchFilter = function($item){
@@ -1142,6 +1147,8 @@ siApp
             // -------------------------------------------
             
             $scope.applyDefaultMainFilter = function(){
+                $scope.current_main_filter == null;
+
                 if($scope.configs.search_engine_options.type=='focused') return;
                 if($scope.configs.search_engine_options.tabs==undefined) return;
 

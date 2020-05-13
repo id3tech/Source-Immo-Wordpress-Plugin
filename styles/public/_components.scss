@@ -1589,6 +1589,9 @@ body.si-modal-open{
                 top:unset;
                 color:transparent;
                 z-index: 2;
+                width:1.75em;
+                text-align:center;
+                
                 &.fa-xs{
                     font-size:0.65em;
                     
@@ -1613,6 +1616,15 @@ body.si-modal-open{
                     opacity:0.20;
                     position: absolute;
                     left: 0;
+                }
+            }
+        }
+        &.p-round{
+            .si-input-state{
+                label{
+                    &::before,&::after{
+                        border-radius: 100%;
+                    }
                 }
             }
         }
