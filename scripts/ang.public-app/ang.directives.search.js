@@ -1710,22 +1710,22 @@ siApp
              * Reset all filter to nothing
              */
             $scope.resetFilters = function(){
-                for(let $key in $scope.dictionary){
-                    $scope.filter.resetListSelections($scope.dictionary[$key]);
-                }
-                for(let $key in $scope.listing_states){
-                    delete $scope.listing_states[$key].selected;
-                }
-                $scope.filterHints = [];
+                // for(let $key in $scope.dictionary){
+                //     $scope.filter.resetListSelections($scope.dictionary[$key]);
+                // }
+                // for(let $key in $scope.listing_states){
+                //     delete $scope.listing_states[$key].selected;
+                // }
+                // $scope.filterHints = [];
                
-                $scope.filter.resetListSelections($scope.listing_attributes);
-                $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
-                $scope.officeList.forEach(function($e){delete $e.selected;});
-                $scope.data.transaction_type = null;
-                $scope.data.contract = null;
+                // $scope.filter.resetListSelections($scope.listing_attributes);
+                // $scope.bedroomSuggestions.forEach(function($e){delete $e.selected;});
+                // $scope.bathroomSuggestions.forEach(function($e){delete $e.selected;});
+                // $scope.parkingSuggestions.forEach(function($e){delete $e.selected;});
+                // $scope.garageSuggestions.forEach(function($e){delete $e.selected;});
+                // $scope.officeList.forEach(function($e){delete $e.selected;});
+                // $scope.data.transaction_type = null;
+                // $scope.data.contract = null;
 
                 $scope.priceRange = [0,1,0];
                 
@@ -1750,6 +1750,7 @@ siApp
                         if($scope.onTokenChange!=undefined){
                             $scope.onTokenChange();
                         }
+                        
                     }
                     else{
                         // reset the filter manager last

@@ -685,7 +685,7 @@ function $siFilters($q,$siApi,$siUtils){
         * Reset all filter to nothing
         */
         $fm.resetFilters = function($triggerUpdate){
-            //console.log('resetFilters');
+            console.log('resetFilters',$triggerUpdate);
             const lArrayAttr = ['categories','attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
             
@@ -714,23 +714,23 @@ function $siFilters($q,$siApi,$siUtils){
             
             //$fm.buildFilters();
             if($triggerUpdate){
-                $fm.trigger('update');
-
+                //$fm.trigger('update');
+                
                 $fm.getConfigs().then(function($configs){
-                    //$fm.trigger('filterTokenChanged');
-                    if($configs.search_token!=''){
-                        $fm.trigger('filterTokenChanged');
-                        //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $configs.search_token);
+                    $fm.trigger('filterTokenChanged');
+                    // if($configs.search_token!=''){
+                    //     //$fm.trigger('filterTokenChanged');
+                    //     //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $configs.search_token);
 
-                        // if($scope.onTokenChange!=undefined){
-                        //     $scope.onTokenChange();
-                        // }
-                    }
-                    else{
-                        // reset the filter manager last
-                        // this will trigger the UI update
+                    //     // if($scope.onTokenChange!=undefined){
+                    //     //     $scope.onTokenChange();
+                    //     // }
+                    // }
+                    // else{
+                    //     // reset the filter manager last
+                    //     // this will trigger the UI update
                         
-                    }
+                    // }
                     $fm.trigger('update');
                 });
             }
