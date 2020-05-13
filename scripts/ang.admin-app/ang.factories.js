@@ -129,6 +129,50 @@ function $siUtils($siApi,$q){
     return $filter_group;
   }
 
+  $scope.createList = function($view, $type, $alias, $sort = '', $sortReverse = false, $limit = 0,$list=null){
+    const lList = $list == null ? {alias : $alias, type: $type} : $list;
+
+    const lTypedDatas = {
+      'listings' : {
+        search_engine_options : {
+          type : 'full',
+          filter_tags: 'none'
+        },
+        displayed_vars: {
+          main: ["address", "city", "price", "rooms", "subcategory"]
+        }
+      },
+      'brokers' : {
+        search_engine_options : {
+          type : 'full'
+        },
+        displayed_vars: {
+          main: ["first_name", "last_name", "phone", "title"]
+        }
+      }
+    }
+
+    lList.sort = $sort==''  ? null : $sort;
+    lList.sort_reverse = $sortReverse;
+    lList.limit = $limit;
+    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
+    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    
+    lList.searchable = true;
+    lList.sortable = true;
+    lList.mappable = true;
+
+    if(lTypedDatas[$type]!=undefined){
+      lList.search_engine_options = lTypedDatas[$type].search_engine_options;
+      lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
+    }
+
+    lList.source = $view;
+    lList.search_token = '';
+
+    return lList;
+  }
+
   
   return $scope;
 }]);
@@ -275,7 +319,7 @@ siApp
       return lPromise;
     }
 
-    $scope.call = function($path, $data, $options){
+    $scope.call = function($path, $data, $options, $credentialInfos){
       $path = (typeof $path.push == 'function') ? $path.join('/') : $path;
       $options = angular.merge({
         url     : wpSiApiSettings.api_root + '/api/' + $path,
@@ -287,6 +331,15 @@ siApp
       }
       else{
         $options.data = $data;
+      }
+
+      if($credentialInfos != undefined){
+        $options.headers = {
+          "x-si-account": $credentialInfos.account_id,
+          "x-si-api" : $credentialInfos.api_key,
+          "x-si-appId" : $credentialInfos.app_id,
+          "x-si-appVersion" : $credentialInfos.app_version
+        }
       }
 
       let lPromise = $q(function($resolve,$reject){
@@ -307,6 +360,45 @@ siApp
       });
 
       return lPromise;
+    }
+
+    $scope.portal = function($path, $data, $options, $credentialInfos){
+      const lOptions = Object.assign({
+        method: 'POST'
+      }, $options);
+  
+      lOptions.url = 'https://portal-api.source.immo/api/' + $path;
+  
+      if($data != null){
+        if(lOptions.method=='POST'){
+          lOptions.data = $data;
+        }
+        else{
+          lOptions.params = $path;
+        }
+      }
+  
+      if($credentialInfos != undefined){
+        if(!lOptions.params) lOptions.params = {};
+        
+        lOptions.params.at = $credentialInfos.credentials.authTokenKey;
+  
+        if($credentialInfos.account_id != null){
+          lOptions.params.la = $credentialInfos.account_id;
+        }
+      }
+      
+  
+      return $q(($resolve,$reject) => {
+        $http(lOptions).then($response => {
+          //$scope.dialog('signin', null);
+          if($response.status==200){
+            $resolve($response.data);
+          }
+        })
+        .catch($err => { console.log($path, 'call failed', $err) });
+      })
+      
     }
 
     return $scope;

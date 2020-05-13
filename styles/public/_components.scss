@@ -1587,7 +1587,8 @@ body.si-modal-open{
                 //top:50%;transform:translateY(-50%);
                 //width:16px;height:16px;
                 top:unset;
-                color:#fff;
+                color:transparent;
+                z-index: 2;
                 &.fa-xs{
                     font-size:0.65em;
                     
@@ -1603,15 +1604,20 @@ body.si-modal-open{
                 
                 &::before,
                 &::after{
+                    content:"";
+                    display:block;
                     width:16px;height:16px;
                     top:50%;transform:translateY(-50%);
+                    border: 1px solid transparent;
                     border-color:var(--text-color);
                     opacity:0.20;
+                    position: absolute;
+                    left: 0;
                 }
             }
         }
-        input:checked~.state{
-            icon{color:var(--highlight-text-color);}
+        input:checked~.si-input-state{
+            .icon{color:var(--highlight-text-color);}
             label{
                 &::after{
                     background-color:var(--highlight);

@@ -35,7 +35,7 @@
                     <div class="level"><?php _e('Level',SI) ?></div>
                     <div class="floor"><?php _e('Flooring',SI) ?></div>
                 </div>
-                <div class="room-item" data-ng-repeat="room in model.rooms track by $index | filter : {'unit_sequence' : unit.sequence}">
+                <div class="room-item" data-ng-repeat="room in model.rooms | filter : {'unit_sequence' : unit.sequence} track by $index">
                     <div class="type">{{room.category}}</div>
                     <div class="level">{{room.level!=undefined ? room.level.formatRank() : ''}} {{room.level_category}}</div>
                     <div class="area">{{room.short_dimension}}</div>

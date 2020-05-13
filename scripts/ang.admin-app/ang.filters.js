@@ -21,4 +21,11 @@ siApp
 
         return lResult;
     }
+});
+
+siApp
+.filter('siRelativePath', function(){
+    return function($path){
+        return $path.replace('~', wpSiApiSettings.base_path)
+    }
 })

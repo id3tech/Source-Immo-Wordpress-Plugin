@@ -40,7 +40,7 @@ $panelKey = 'categories';
                         </div>
 
                         <div class="sublist category-subcategories {{category.expanded ? 'expanded' : ''}}" 
-                            style="--item-count:{{(city_list | filter : {parent: category.__$obj_key}).length}}">
+                            style="--item-count:{{(subcategory_list | filter : {parent: category.__$obj_key}).length}}">
 
                             <div class="sublist-container subcategory-container">
                                 <si-checkbox

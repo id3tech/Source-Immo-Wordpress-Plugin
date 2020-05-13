@@ -44,7 +44,7 @@ function $siFilters($q,$siApi,$siUtils){
                 attributes:  [],
                 states:[],
                 building_categories: [],
-                categories: null,
+                categories: [],
                 subcategories: [],
                 cities: [],
                 regions: [],
@@ -124,7 +124,7 @@ function $siFilters($q,$siApi,$siUtils){
                                 return {field: lItem.field, operator : lItem.operator, value: lValue}
                             });                     
                         },
-            categories: {field: 'category_code','operator': 'equal'},
+            categories: {field: 'category_code','operator': 'in'},
             subcategories : {field: 'subcategory_code',operator: 'in'},
             bedrooms: {field: 'main_unit.bedroom_count',operator: 'greater_or_equal_to'},
             bathrooms: {field: 'main_unit.bathroom_count',operator: 'greater_or_equal_to'},
@@ -686,7 +686,7 @@ function $siFilters($q,$siApi,$siUtils){
         */
         $fm.resetFilters = function($triggerUpdate){
             //console.log('resetFilters');
-            const lArrayAttr = ['attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
+            const lArrayAttr = ['categories','attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
             
             $fm.main_filter = null;

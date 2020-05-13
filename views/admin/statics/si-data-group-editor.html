@@ -84,7 +84,7 @@
                     <md-button ng-click="$mdMenu.open()"><i class="fal fa-plus"></i> <lstr>Add</lstr></md-button>
                     <md-menu-content>
                         <md-menu-item ng-repeat="(key, value) in lang_codes">
-                            <md-button ng-click="addRoute(configs[routes])">{{value}}</md-button>
+                            <md-button ng-click="addRoute(configs[routes],key)">{{value}}</md-button>
                         </md-menu-item>
                     </md-menu-content>
                 </md-menu>
@@ -99,13 +99,14 @@
                     <div></div>
                     <div lstr>Method used to build forms and manage results</div>
                     <div lstr>Form to use</div>
+                    <div></div>
                 </div>
 
-                <div class="layout-item" ng-repeat="layout in configs[layout]">
-                    <h4>{{lang_codes[layout.lang]}}</h4>
+                <div class="layout-item" ng-repeat="layoutItem in configs[layout]">
+                    <h4>{{lang_codes[layoutItem.lang]}}</h4>
 
-                    <md-select ng-model="layout.page" ng-change="save_configs()">
-                        <md-option ng-repeat="item in wp_pages[layout.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
+                    <md-select ng-model="layoutItem.page" ng-change="save_configs()">
+                        <md-option ng-repeat="item in wp_pages[layoutItem.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
                     </md-select>
 
                     <div>
@@ -113,29 +114,55 @@
                             <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-ellipsis-h"></md-icon></md-button>
                             <md-menu-content>
                                 <md-menu-item>
-                                    <md-button ng-click="showPage(layout)"> <i class="fal fa-eye"></i> <lstr>Show in site</lstr></md-button>
+                                    <md-button ng-click="showPage(layoutItem)"> <i class="fal fa-eye"></i> <lstr>Show in site</lstr></md-button>
                                 </md-menu-item>
                                 <md-menu-item>
-                                    <md-button ng-click="generateLayoutPage(layout, groupType)"><i class="fal fa-file-plus"></i> <lstr>Generate</lstr></md-button>
+                                    <md-button ng-click="generateLayoutPage(layoutItem, groupType)"><i class="fal fa-file-plus"></i> <lstr>Generate</lstr></md-button>
                                 </md-menu-item>
                                 <md-menu-item>
-                                    <md-button ng-click="clearLayoutPage(layout)"><i class="fal fa-times"></i> <lstr>Clear</lstr> </md-button>
+                                    <md-button ng-click="clearLayoutPage(layoutItem)"><i class="fal fa-times"></i> <lstr>Clear</lstr> </md-button>
                                 </md-menu-item>
                             </md-menu-content>
                         </md-menu>
                     </div>
 
-                    <md-select ng-disabled="layout.type!='standard'" ng-model="layout.communication_mode" ng-change="save_configs()" >
+                    <md-select ng-model="layoutItem.communication_mode" ng-change="save_configs()" >
                         <md-option value="basic" lstr>Basic</md-option>
                         <md-option value="wpcf7_contact_form">Contact Form 7</md-option>
                         <md-option value="gravity_form">Gravity Form</md-option>
                     </md-select>
                         
-                    <md-select ng-disabled="!['wpcf7_contact_form','gravity_form'].includes(layout.communication_mode)" ng-model="layout.form_id" ng-change="save_configs()" >
-                        <md-option ng-repeat="item in formList | filter : {'type':layout.communication_mode} " value="{{item.id}}">{{item.title}}</md-option>
+                    <md-select ng-disabled="!['wpcf7_contact_form','gravity_form'].includes(layoutItem.communication_mode)" ng-model="layoutItem.form_id" ng-change="save_configs()" >
+                        <md-option ng-repeat="item in formList | filter : {'type':layoutItem.communication_mode} " value="{{item.id}}">{{item.title}}</md-option>
                     </md-select>
 
+                    <div class="layout-actions">
+                        <md-menu>
+                            <md-button class="md-icon-button" 
+                              ng-disabled="configs[layout].length <= 1"
+                              ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-v"></i></md-button>
+                            <md-menu-content>
+                            <md-menu-item>
+                                <md-button
+                                  ng-click="removeLayout($index, configs[layout])">
+                                  <md-icon class="fal fa-times"></md-icon>
+                                  <lstr>Remove this layout</lstr>
+                              </md-button>
+                            </md-menu-item>
+                          </md-menu-content>
+                        </md-menu>
+                    </div>
                 </div>
+            </div>
+            <div class="list-action">
+                <md-menu>
+                    <md-button ng-click="$mdMenu.open()"><i class="fal fa-plus"></i> <lstr>Add</lstr></md-button>
+                    <md-menu-content>
+                        <md-menu-item ng-repeat="(key, value) in lang_codes">
+                            <md-button ng-click="addLayout(configs[layout],key)">{{value}}</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
             </div>
         </div>
     </div>

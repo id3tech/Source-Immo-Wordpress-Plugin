@@ -1,0 +1,23 @@
+<div class="message">
+    <p lstr>Please sign in using your Source.Immo account credentials</p>
+    <p class="error-message">{{signin_message}}</p>
+</div>
+
+<div class="login-box">
+    <md-input-container>
+        <label lstr>Email</label>
+        <input ng-model="login_infos.email" si-on-enter="signin()" />
+    </md-input-container>
+
+    <md-input-container>
+        <label lstr>Password</label>
+        <input ng-model="login_infos.password" type="password" si-on-enter="signin()" />
+    </md-input-container>
+
+    
+
+    <div layout="row" layout-align="center center">
+        <md-button class="md-raised md-primary" ng-disabled="signin_in===true || login_infos.password=='' || login_infos.email == ''" ng-click="signin()"><lstr>Sign in</lstr></md-button>
+        <md-button class="" href="https://portal.source.immo/" target="_blank"><lstr>Create an account</lstr></md-button>
+    </div>
+</div>

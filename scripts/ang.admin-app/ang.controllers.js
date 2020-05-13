@@ -2,7 +2,7 @@
  * Main Configuration Controller
  */
 siApp
-.controller('homeCtrl', function($scope, $rootScope){
+.controller('homeCtrl', function($scope, $rootScope,$timeout){
 
   console.log('configs controller loaded');
 
@@ -36,26 +36,33 @@ siApp
     $item.route += $elm;
   }
 
-  $scope.addRoute = function($list){
-    let lLocale = '';
-    for (let $key in $scope.lang_codes) {
-      if($list.map(function(e) {return e.lang}).indexOf($key)<0){
-        lLocale = $key;
-      }
-    }
-
+  $scope.addRoute = function($list,$lang){
+    let lLocale = $lang;
+    if($list.some(function($e){return $e.lang == $lang})) return;
+    
     $list.push({lang: lLocale, route : ''});
   }
 
-  $scope.removeRoute = function($route,$list_name){
-    let lNewRoutes = [];
-    let lList = $scope.configs[$list_name];
-    lList.forEach(function($e){
-      if($e!=$route){
-        lNewRoutes.push($e);
-      }
+  $scope.removeRoute = function($index,$list_name){
+    $scope.configs[$list_name].splice($index,1);
+  }
+
+  $scope.addLayout = function($list, $lang){
+    if($list.some(function($e){return $e.lang == $lang})) return;
+
+    $list.push({
+      lang: $lang,
+      page: null,
+      communication_mode:'basic'
+    })
+  }
+
+  $scope.removeLayout = function($index,$list){
+    $timeout(_ => {
+      $list.splice($index,1);
+      $scope.save_configs();
     });
-    $scope.configs[$list_name] = lNewRoutes;
+    
   }
 
   //
@@ -430,7 +437,11 @@ siApp
           //$siList.init($scope.configs.default_view);
 
           $scope._status = 'ready';
-
+          if($scope.configs.registered == false){
+            $scope.startRegistration();
+            return;
+          }
+          
           $scope.checkIntegrity();
         },
         _ => {
@@ -494,10 +505,13 @@ siApp
   $scope.reset_all_configs = function(){
     $siUI.confirm('All your configurations will be lost.\nAre you sure you want to reset all settings?')
     .then(function(){
-      return $scope.reset_configs()
+      return $scope.reset_configs();
     })
     .then(function(){
       $siUI.show_toast('Configurations cleared');
+    })
+    .then(function(){
+      $scope.startRegistration();
     })
   }
 
@@ -664,11 +678,21 @@ siApp
 
   $scope.signout = function(){
     $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
-      $scope.reset_configs().then( function(){
-        $scope.show_toast('Configuration reset');
-      });
-    })
-    
+      $scope.reset_configs()
+        .then( function(){
+          $scope.show_toast('Configuration reset');
+        })
+        .then(function(){
+          $scope.startRegistration();
+        });
+    }) 
+  }
+
+  $scope.startRegistration = function(){
+    console.log('startRegistration');
+    $siUI.dialog('~/views/admin/dialogs/register.html',null,{multiple: true, clickOutsideToClose:false,hasBackdrop: false}).then(function(){
+      window.location.reload(true);
+    });
   }
 
   $scope.selectAccount = function(){
@@ -895,44 +919,46 @@ siApp
 
   $scope.addList = function($type, $alias, $sort = '', $sortReverse = false, $limit = 0){
     const lExistingList = $scope.configs.lists.find($l => $l.alias == $alias);
-    const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
+    //const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
+    const lView = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
+    const lList = $siUtils.createList(lView, $type, $alias, $sort,$sortReverse,$limit, lExistingList);
 
-    const lTypedDatas = {
-      'listings' : {
-        search_engine_options : {
-          type : 'full'
-        },
-        displayed_vars: {
-          main: ["address", "city", "price", "rooms", "subcategory"]
-        }
-      },
-      'brokers' : {
-        search_engine_options : {
-          type : 'full'
-        },
-        displayed_vars: {
-          main: ["first_name", "last_name", "phone", "title"]
-        }
-      }
-    }
+    // const lTypedDatas = {
+    //   'listings' : {
+    //     search_engine_options : {
+    //       type : 'full'
+    //     },
+    //     displayed_vars: {
+    //       main: ["address", "city", "price", "rooms", "subcategory"]
+    //     }
+    //   },
+    //   'brokers' : {
+    //     search_engine_options : {
+    //       type : 'full'
+    //     },
+    //     displayed_vars: {
+    //       main: ["first_name", "last_name", "phone", "title"]
+    //     }
+    //   }
+    // }
 
-    lList.sort = $sort==''  ? null : $sort;
-    lList.sort_reverse = $sortReverse;
-    lList.limit = $limit;
-    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
-    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    // lList.sort = $sort==''  ? null : $sort;
+    // lList.sort_reverse = $sortReverse;
+    // lList.limit = $limit;
+    // lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
+    // lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
     
-    lList.searchable = true;
-    lList.sortable = true;
-    lList.mappable = true;
+    // lList.searchable = true;
+    // lList.sortable = true;
+    // lList.mappable = true;
 
-    if(lTypedDatas[$type]!=undefined){
-      lList.search_engine_options = lTypedDatas[$type].search_engine_options;
-      lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
-    }
+    // if(lTypedDatas[$type]!=undefined){
+    //   lList.search_engine_options = lTypedDatas[$type].search_engine_options;
+    //   lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
+    // }
 
-    lList.source = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
-    lList.search_token = '';
+    // lList.source = 
+    // lList.search_token = '';
 
     if(lExistingList == null){
       $scope.configs.lists.push(lList);

@@ -36,6 +36,10 @@ $locales.fr = {};$locales.fr.global =
     , "Between" : "Entre"
     , "Unknown email address" : "Adresse courriel inconnue"
     , "Invalid password" : "Mot de passe invalide"
+    , "Previous step" : "Étape précédante"
+    , "Next step" : "Étape suivante"
+    , "Finish" : "Terminer"
+    
     // Time
     , "in" : "dans"
     , "year" : "année"
@@ -366,6 +370,8 @@ $locales.fr = {};$locales.fr.global =
     , "Are you sure you want to remove this route?" : "Êtes-vous certain de vouloir supprimer ce chemin ?"
     , "Remove this route" : "Retirer ce chemin"
     , "Reset to default" : "Remettre la valeur par défault"
+    // Layout
+    , "Remove this layout" : "Retirer cette page"
     // Operators
     , "and" : "et"
     , "or"  : "ou"

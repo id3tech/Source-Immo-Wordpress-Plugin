@@ -70,7 +70,7 @@
 
 <?php //echo do_shortcode('[gravityform id="1" title="false" description="false" ajax="true"]'); ?>
 
-<?php// echo do_shortcode('[si_listing_part part="info_request"]') ?>
+<?php // echo do_shortcode('[si_listing_part part="info_request"]') ?>
 
 <?php echo do_shortcode('[si_listing_part part="list_navigation"]') ?>
 

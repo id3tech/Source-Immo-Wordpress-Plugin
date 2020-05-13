@@ -174,20 +174,20 @@ class SourceImmoConfig {
 
     // init layouts
     $this->listing_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->broker_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->city_layouts   = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->office_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
 
     $listingList = new SourceImmoList();
@@ -394,6 +394,12 @@ class SourceImmoRoute{
     $this->shortcut = $shortcut;
   }
 
+}
+
+class SourceImmoLayoutPage{
+  public $page = null;
+  public $communication_mode = 'basic';
+  public $lang = null;
 }
 
 class SourceImmoLayout{

@@ -1,5 +1,4 @@
 
-<?php SourceImmo::view('admin/configs/registration/index'); ?>
 
 <form autocomplete="off">
 <div id="si-admin-configs" class="config-panel" ng-cloak ng-show="configs.registered && message == null">

@@ -168,7 +168,7 @@ class SourceImmoApi {
     $lang = $request->get_param('locale');
     $type = $request->get_param('type');
 
-    if($sitepress){
+    if($sitepress && $lang!=null){
       $sitepress->switch_lang( $lang, true );
     }
 
@@ -648,10 +648,15 @@ class SourceImmoApi {
   /**
    * Get account information
    */
-  public static function get_account(){
-    $account_id = SourceImmo::current()->get_account_id();
-    $api_key = SourceImmo::current()->get_api_key();
+  public static function get_account($request){
     
+    $account_id = $request->get_param('account_id');
+    if($account_id == null) $account_id = SourceImmo::current()->get_account_id();
+
+    $api_key =  $request->get_param('api_key');
+    if($api_key == null) $api_key = SourceImmo::current()->get_api_key();
+    
+
     $lResult = HttpCall::to('~','account')
                     ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get(null, true);
@@ -872,6 +877,18 @@ class SourceImmoApi {
         'methods' => WP_REST_Server::READABLE,
         //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
         'callback' => array( 'SourceImmoApi', 'get_account' ),
+        'args' => array(
+          'account_id' => array(
+            'required' => false,
+            'type' => 'string',
+            'description' => __( 'Account id', SI ),
+          ),
+          'api_key' => array(
+            'required' => false,
+            'type' => 'string',
+            'description' => __( 'API key', SI ),
+          ),
+        )
       )
     );
   }
@@ -1069,7 +1086,7 @@ class SourceImmoApi {
         'callback' => array( 'SourceImmoApi', 'get_page_list' ),
         'args' => array(
           'locale' => array(
-            'required' => true,
+            'required' => false,
             'type' => 'String',
             'description' => __( 'Page language filter', SI ),
           ),

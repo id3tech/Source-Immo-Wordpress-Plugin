@@ -251,6 +251,7 @@ siApp
              * Directive initialization
              */
             $scope.init = function($element){
+                 
                 $scope._element = $element[0];
                 
 
@@ -645,7 +646,7 @@ siApp
 
             $scope.updateExpandPanelPosition = function($force){
                 $force = ($force == undefined) ? false : $force;
-
+                
                 if($scope._element == null) return;
                 const lContainer = $scope.filterPanelContainer[0];
 

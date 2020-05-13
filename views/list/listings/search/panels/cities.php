@@ -10,7 +10,7 @@ $panelKey = 'cities';
         
         <div class="filter-panel-content">
             <div class="panel-list region-city-list">                 
-                <div class="list-container regions">
+                <div class="list-container regions" ng-if="isExpanded('<?php echo($panelKey) ?>')">
                     <div class="list-item region {{filter.sublistHasFilters(region.__$obj_key, city_list, filter.data.cities) ? 'has-filters' : ''}}" 
                         data-ng-repeat="region in region_list | orderObjectBy: 'caption'" 
                         >

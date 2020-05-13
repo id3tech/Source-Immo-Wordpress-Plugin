@@ -1708,9 +1708,9 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
         
       }
       
-
-
       if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'))){
+        if(!isset($item->other)) $item->other = (object) array();
+        if(!isset($item->other->attributes)) $item->other->attributes = array();
         $item->other->attributes[] = $attr;
       }
 

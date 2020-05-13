@@ -350,7 +350,7 @@ class HttpCall{
     
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
-    } 
+    }
     curl_close($lCurlHandle);
     
     if($as_json){

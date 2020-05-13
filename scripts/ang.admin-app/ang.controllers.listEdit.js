@@ -59,7 +59,8 @@ siApp
         search_engine_options: {
           type:'full',
           focus_category: null,
-          orientation: 'h'
+          orientation: 'h',
+          filter_tags: 'none'
         },
         sortable:true,
         mappable: true,

@@ -400,6 +400,7 @@ siApp
     return {
         restrict: 'A',
         link: function($scope, $element, $attrs){
+            
             if (typeof window.IntersectionObserver == 'undefined') {
                 $scope.applyAllImageSource();
             }
@@ -427,7 +428,9 @@ siApp
         },
         controller: function($scope){
             $scope.$on('si-list-loaded', function(){
-                //console.log('list loaded triggered');
+                console.log('list loaded triggered');
+                
+
                 $timeout(function(){
                     if($scope.observer != undefined){
                         $scope.applyObserver();
@@ -450,6 +453,8 @@ siApp
             }
 
             $scope.applyImageSource = function($imgElm){
+                console.log('applyImageSource:triggered');
+
                 let lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
                 const lImgSourceset = $scope.getSourceSet($imgElm); //.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
 
@@ -467,13 +472,16 @@ siApp
             }
 
             $scope.applyObserver = function(){
-                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img')
+                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img');
+                
                 if(lLazyLoadImages.forEach == undefined){
                     lLazyLoadImages = Array.from(lLazyLoadImages);
                 }
+                console.log('LazyLoad images', lLazyLoadImages.length);
                 
                 lLazyLoadImages.forEach(function($element){
                     if($element.getAttribute('src') != null) return;
+                    
                     $scope.observer.observe($element);
                 });
             
