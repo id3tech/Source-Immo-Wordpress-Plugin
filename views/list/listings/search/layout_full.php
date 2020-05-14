@@ -64,6 +64,7 @@
                 {{ isMainFiltered(['COM']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract']) ? 'has-filters' : '' : ''}}
                 {{ isMainFiltered(['RES']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
                 {{ isMainFiltered(['for-rent','for-sale']) ? filter.hasFilter(['states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
+                {{ isMainFiltered([null]) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
                 "
                 ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
     

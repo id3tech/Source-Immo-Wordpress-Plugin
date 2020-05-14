@@ -1,5 +1,5 @@
 <div class="filter-panel offices-panel {{isExpanded('offices')}}">
-    <div class="panel-header">
+    <div class="filter-panel-header">
         <h3><?php _e('Office', SI) ?></h3>
         <button class="button" type="button"  ng-click="toggleExpand($event,'offices')"><i class="fal fa-times"></i></button>
     </div>

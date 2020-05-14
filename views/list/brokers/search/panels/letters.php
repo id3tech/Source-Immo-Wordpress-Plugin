@@ -1,6 +1,6 @@
 
 <div class="filter-panel letters-panel {{isExpanded('letters')}}">
-    <div class="panel-header">
+    <div class="filter-panel-header">
         <h3><?php _e('First letter of the last name', SI) ?></h3>
         <button class="button" type="button"  ng-click="toggleExpand($event,'letters')"><i class="fal fa-times"></i></button>
     </div>
@@ -13,5 +13,9 @@
                 <span>{{letter.toUpperCase()}}</span>
             </div>
         </div>
+    </div>
+
+    <div class="filter-panel-actions">
+        <?php include '_actions.php'; ?>
     </div>
 </div>

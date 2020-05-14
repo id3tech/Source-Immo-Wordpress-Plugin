@@ -1,5 +1,5 @@
 <div class="filter-panel licenses-panel {{isExpanded('licenses')}}">
-    <div class="panel-header">
+    <div class="filter-panel-header">
         <h3><?php _e('License', SI) ?></h3>
         <button class="button" type="button"  ng-click="toggleExpand($event,'licenses')"><i class="fal fa-times"></i></button>
     </div>
