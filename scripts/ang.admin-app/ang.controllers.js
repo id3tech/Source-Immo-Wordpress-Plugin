@@ -54,7 +54,9 @@ siApp
       lang: $lang,
       page: null,
       communication_mode:'basic'
-    })
+    });
+
+    $scope.save_configs();
   }
 
   $scope.removeLayout = function($index,$list){
