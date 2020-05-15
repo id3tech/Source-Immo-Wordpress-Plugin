@@ -1,7 +1,11 @@
-<div class="filter-panel offices-panel {{isExpanded('offices')}}">
+<?php
+$panelKey = 'offices';
+?>
+
+<div class="filter-panel offices-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
     <div class="filter-panel-header">
         <h3><?php _e('Office', SI) ?></h3>
-        <button class="button" type="button"  ng-click="toggleExpand($event,'offices')"><i class="fal fa-times"></i></button>
+        <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
     </div>
     
     <div class="filter-panel-content">
@@ -16,5 +20,10 @@
                 ></si-checkbox>
                 
         </div>
+    </div>
+
+    
+    <div class="filter-panel-actions">
+        <?php include '_actions.php'; ?>
     </div>
 </div>

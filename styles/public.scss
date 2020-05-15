@@ -108,6 +108,11 @@ $desktop : 1440px;
 
     // offices
     --office-item-column-width : 320px;
+
+    --desktop-column-width : 4;
+    --laptop-column-width : 4;
+    --tablet-column-width: 2;
+    --mobile-column-width: 1;
 }
 html{
     font-size:14px;
@@ -1131,6 +1136,7 @@ html{
 #top .si,
 .si{
     &.standard-layout{
+        
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
         gap:var(--layout-gutter);
