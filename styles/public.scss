@@ -292,12 +292,35 @@ html{
         -ms-grid-column: 1;
         -ms-grid-column-span: 3;
         display:grid;
+        // display:flex;
+        // flex-wrap:wrap;
+        // flex-direction: row;
+        // margin: calc(-1 * (var(--layout-gutter) / 2));
         gap:var(--layout-gutter);
-        
+        grid-template-columns: repeat(var(--desktop-column-width),1fr);
         place-items: stretch;
-        
+        @include media($laptop){
+            grid-template-columns: repeat(var(--laptop-column-width),1fr);
+        }
+        @include media($tablet){
+            width: repeat(var(--tablet-column-width),1fr);
+        }
+        @include media($phone){
+            width: repeat(var(--mobile-column-width),1fr);
+        }
         > div{
             display:grid;place-items:stretch;
+            // margin: calc(var(--layout-gutter) / 2);
+            // width: calc(var(--desktop-column-width) - var(--layout-gutter));
+            // @include media($laptop){
+            //     width: var(--laptop-column-width);
+            // }
+            // @include media($tablet){
+            //     width: var(--tablet-column-width);
+            // }
+            // @include media($phone){
+            //     width: var(--mobile-column-width);
+            // }
         }
 
 
@@ -1036,10 +1059,10 @@ html{
         }
         > .list-container,
         .si-list{
-            grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
-            @include media($tablet){
-                grid-template-columns: repeat(auto-fill, minmax(calc(var(--listing-item-column-width) * 0.8), 1fr));
-            }
+            // grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
+            // @include media($tablet){
+            //     grid-template-columns: repeat(auto-fill, minmax(calc(var(--listing-item-column-width) * 0.8), 1fr));
+            // }
         }
     }
 
@@ -1047,32 +1070,32 @@ html{
     &.si-list-of-brokers{
         > .list-container,
         .si-list{
-            grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );
-            @include media($tablet){
-                --broker-item-picture-ratio: 1.6;
-                grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
-            }
+            // grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );
+            // @include media($tablet){
+            //     --broker-item-picture-ratio: 1.6;
+            //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
+            // }
 
-            @include media($phone){
-                grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
-            }
+            // @include media($phone){
+            //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
+            // }
         }
 
     }
 
     &.si-list-of-cities{
         .si-list{
-            grid-template-columns: repeat( auto-fill, minmax(var(--city-item-column-width), 1fr) );
+            //grid-template-columns: repeat( auto-fill, minmax(var(--city-item-column-width), 1fr) );
         }
     }
 
     
     &.si-list-of-offices{
         .si-list{
-            grid-template-columns: repeat( auto-fill, minmax(var(--office-item-column-width), 1fr) );
-            @include media($tablet){
-                grid-template-columns: repeat( auto-fill, minmax(calc(var(--office-item-column-width) * 0.8), 1fr) );
-            }
+            // grid-template-columns: repeat( auto-fill, minmax(var(--office-item-column-width), 1fr) );
+            // @include media($tablet){
+            //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--office-item-column-width) * 0.8), 1fr) );
+            // }
             .si-office-item{
                 
                 .name{
@@ -1346,13 +1369,12 @@ html{
 #top .si,
  .si{
     &.direct-layout{
-        grid-template-columns: 120px 1fr 60px 60px;
+        grid-template-columns: 120px 1fr 60px;
         grid-template-rows: auto;
         gap:var(--layout-gutter);
         grid-template-areas: 
-            "list list list list"
-            "meta meta meta meta"
-            "empty empty empty empty"
+            "list list list"
+            "meta meta meta"
         ;
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;

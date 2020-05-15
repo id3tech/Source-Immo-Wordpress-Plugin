@@ -275,6 +275,11 @@ $locales.fr = {};$locales.fr.global =
     , "Layout" : "Disposition"
     , "Shortcode" : "Code court"
     , "Rendering method" : "Méthode de rendu"
+    , "Client side (default)" : "Côté client (normal)"
+    , "Server side (no search tool)" : "Côté serveur (sans outils de recherche)"
+    , "Item's space on the row" : "Espace de l'élément sur la ligne"
+    , "Ajust the space taken by an item on the row, for each device's scope." : "Ajustez l'espace occupé par un élément sur la ligne, pour la portée de chaque appareil."
+
 
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Layout page" : "Page de gabarit"

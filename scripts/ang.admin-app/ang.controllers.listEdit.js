@@ -74,7 +74,17 @@ siApp
     switch($scope.model.type){
       case "listings":
         $scope.model = angular.merge($scope.model, {
-            list_layout : { preset: 'standard', scope_class : '', custom:null},
+            list_layout : { 
+              preset: 'standard', 
+              scope_class : '', 
+              custom:null,
+              item_row_space: {
+                desktop: 33,
+                laptop:33,
+                tablet: 50,
+                mobile:100
+              }
+            },
             list_item_layout : { 
                 preset: 'standard', 
                 scope_class : '', 
@@ -91,7 +101,17 @@ siApp
 
       case "brokers":
         $scope.model = angular.merge($scope.model, {
-            list_layout : { preset: 'standard', scope_class : '', custom:null},
+            list_layout : { 
+              preset: 'standard', 
+              scope_class : '', 
+              custom:null,
+              item_row_space: {
+                desktop: 25,
+                laptop:25,
+                tablet: 50,
+                mobile:100
+              }
+            },
             list_item_layout : { 
                 preset: 'standard', scope_class : '', custom:null,
                 displayed_vars: {
@@ -103,7 +123,17 @@ siApp
 
       case "cities":
         $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
+          list_layout: {
+              preset: 'direct',
+              scope_class: '',
+              custom: null,
+              item_row_space: {
+                desktop: 25,
+                laptop:25,
+                tablet: 50,
+                mobile:100
+              }
+          },
           list_item_layout : { 
             preset: 'standard', scope_class : '', custom:null,
             displayed_vars: {
@@ -113,7 +143,17 @@ siApp
         });
       case "offices":
         $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
+          list_layout: {
+              preset: 'direct',
+              scope_class: '',
+              custom: null,
+              item_row_space: {
+                desktop: 25,
+                laptop:25,
+                tablet: 50,
+                mobile:100
+              }
+          },
           list_item_layout : { 
             preset: 'standard', scope_class : '', custom:null,
             displayed_vars: {

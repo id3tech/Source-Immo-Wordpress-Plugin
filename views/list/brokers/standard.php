@@ -14,9 +14,15 @@
                         'item-{{item.ref_number}}'
                     ));
             
-
+        $list_styles = array();
+        foreach ($configs->list_layout->item_row_space as $key => $value) {
+            $width = round(100 / $value);
+            $list_styles[] = "--{$key}-column-width:{$width}";
+        }
         ?>
-        <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
+        <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" 
+            style="<?php echo(implode(';', $list_styles)) ?>"
+            data-on-bottom-reached="checkNextPage()">      
             <div data-ng-repeat="item in list track by item.id" class="<?php echo(implode(' ',$itemClasses))?>">
         <?php 
             SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));

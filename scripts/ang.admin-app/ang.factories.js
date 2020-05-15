@@ -139,7 +139,7 @@ function $siUtils($siApi,$q){
           filter_tags: 'none'
         },
         displayed_vars: {
-          main: ["address", "city", "price", "rooms", "subcategory"]
+          main: ["address", "city", "price", "rooms","category", "subcategory"]
         }
       },
       'brokers' : {

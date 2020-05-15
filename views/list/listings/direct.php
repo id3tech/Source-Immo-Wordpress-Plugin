@@ -13,9 +13,14 @@ $data = SourceImmoApi::get_data($configs, $sc_atts);
 
 $resultView = new SourceImmoListingsResult($data);
 
-
+$list_styles = array();
+foreach ($configs->list_layout->item_row_space as $key => $value) {
+    $width = round(100 / $value);
+    $list_styles[] = "--{$key}-column-width:{$width}";
+}
 ?>
-<div class="<?php echo(implode(' ' , $global_container_classes)) ?>"  si-lazy-load>
+<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" 
+    style="<?php echo(implode(';', $list_styles)) ?>"  si-lazy-load>
     <?php
     SourceImmo::staticDataController($configs, $resultView->listings);
 
@@ -25,7 +30,16 @@ $resultView = new SourceImmoListingsResult($data);
             SourceImmo::view("list/{$configs->type}/direct/list-meta",
                 array("configs" => $configs, "global_meta" => $meta, "result"=> $resultView));
         }
-        
+
+        if($configs->list_item_layout->preset=='custom'){
+            echo('<style>');
+            $styles = explode("\n",$configs->list_item_layout->custom_css);
+            foreach ($styles as $style) {
+                echo('.si-list .si-item .item-content ' . $style);
+            }
+            echo('</style>');
+        }
+
         echo('<div class="si-list">');
             
             foreach ($resultView->listings as $item) {

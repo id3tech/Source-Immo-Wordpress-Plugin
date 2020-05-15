@@ -8,9 +8,14 @@
         }
     }
     
+    $list_styles = array();
+    foreach ($configs->list_layout->item_row_space as $key => $value) {
+        $width = round(100 / $value);
+        $list_styles[] = "--{$key}-column-width:{$width}";
+    }
     ?>
 
-    <div class="si-list-container display-mode-{{display_mode}}" si-lazy-load>
+    <div class="si-list-container display-mode-{{display_mode}}" style="<?php echo(implode(';', $list_styles)) ?>" si-lazy-load>
         <?php
         SourceImmo::view("list/{$configs->type}/standard/header", array(
                             "configs" => $configs

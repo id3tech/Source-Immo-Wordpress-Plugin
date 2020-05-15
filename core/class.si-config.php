@@ -416,7 +416,8 @@ class SourceImmoLayout{
   public $use_styles = true;
   public $primary_layer_position = 'fix';
   public $secondary_layer_bg_opacity = 75;
-  
+  public $item_row_space = array();
+
   /**
    * Communication method for forms
    */
@@ -431,6 +432,7 @@ class SourceImmoLayout{
     $this->type = $type;
     $this->communication_mode = 'basic';
     $this->displayed_vars = new SourceImmoDisplayVars($displayedVars);
+    $this->item_row_space = (object) array('desktop'=>25,'laptop'=>33,'tablet'=>50,'mobile'=>100);
   }
 
   public function hasDisplayVar($item, $layer='main'){
