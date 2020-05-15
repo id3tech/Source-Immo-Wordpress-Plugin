@@ -12,8 +12,10 @@ if($lTwoLetterLocale == ''){
   class="{{isInitializing() ? 'warming-up' : 'ready'}}">
   <div class="app-header" layout="row" layout-align="space-between center">
     <h1  flex class="md-display-1">
-      <si-svg class="logo" src="~/styles/assets/logo.svg"></si-svg>
-      Source.Immo <span class="version">v.<?php echo SI_VERSION?></span>
+      <div class="app-info" ng-if="!isInitializing()">
+        <si-svg class="logo" src="~/styles/assets/logo.svg"></si-svg>
+        Source.Immo <span class="version">v.<?php echo SI_VERSION?></span>
+      </div>
     </h1>
     
     
@@ -55,6 +57,9 @@ if($lTwoLetterLocale == ''){
   <div class="loading-screen">
     <div class="loading-anim">
       <si-svg src="~/styles/assets/logo-anim.svg"></si-svg>
+    </div>
+    <div class="loading-message">
+      <lstr>Loading</lstr> Source.Immo <span class="version">v.<?php echo SI_VERSION?></span>
     </div>
     <div class="loaded-components">
       <div class="comp-item" ng-repeat="item in loaded_components track by $index"><i class="fas fa-{{item}}"></i></div>

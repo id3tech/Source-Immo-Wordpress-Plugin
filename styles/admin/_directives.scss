@@ -272,6 +272,18 @@ body.wp-admin #si-app,
                   padding: var(--preview-container-padding);
               }
 
+              .si-list-container{
+                .si-list-item{
+                  border-bottom: var(--preview-list-item-separator);
+                  margin-bottom: var(--preview-list-item-padding);
+                  padding-bottom: var(--preview-list-item-padding);
+                  &:last-child{
+                    border-bottom:unset;
+                    margin-bottom:unset;
+                  }
+                }
+              }
+
               .si-listing-ref-number{
                   &::before{
                       content: var(--preview-uls-label);

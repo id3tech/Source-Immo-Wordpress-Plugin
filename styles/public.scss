@@ -63,6 +63,10 @@ $desktop : 1440px;
     --container-border-radius: var(--element-border-radius);
     --container-padding: var(--layout-gutter);
 
+    --list-item-padding: var(--layout-gutter);
+    --list-item-separator-color: #aaa;
+    --list-item-separator: solid 1px var(--list-item-separator-color);
+
     --high-contrast-color:#333;
     --high-contrast-text-color: #fff;
     --medium-contrast-color:#b9b9b9;

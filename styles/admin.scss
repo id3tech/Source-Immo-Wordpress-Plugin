@@ -29,6 +29,15 @@ body.wp-admin{
     .md-headline{margin-top:40px;margin-bottom:10px;}
     .md-text-warn{color:$warn;}
     .app-header{
+      @keyframes info-slide-in {
+        0% {opacity:0;transform:translateX(-100%);}
+        100% {opacity:1;transform:translateX(0);}
+      }
+      .app-info{
+        animation: info-slide-in 1s;
+        animation-delay: 2s;
+        animation-fill-mode: forwards;
+      }
       .logo{
         width:50px;height:50px;
         float:left;
@@ -47,29 +56,36 @@ body.wp-admin{
 
     .loading-screen{
       position: fixed;
-      top:0px;left:50%;
+      top:50%;left:50%;
       transform:translate(-50%,-50%);
       transition:0.25s;
       transition-delay: opacity 0.5s;
       
-      background:#fff;
-      box-shadow: 
-        0 0 5px #00000088,
-        0 0 15px #00000088;
-      
       z-index:99;
       opacity:0;
       pointer-events: none;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+
       .loading-anim{
         padding:40px;
         width: 200px;height:200px;
         overflow: hidden;
         svg{width:100%;height:100%;}
+        // box-shadow: 
+        //   0 0 5px #00000088,
+        //   0 0 15px #00000088;
+      }
+      .loading-message{
+        text-align:center;
+        text-transform: uppercase;
+        opacity:0.5;
       }
       .loaded-components{
-        background:#ddd;
+        //background:#ddd;
         padding:20px;
-        min-height:40px;
+        min-height:80px;
         display: flex;
         flex-direction: row;
         justify-content: center;

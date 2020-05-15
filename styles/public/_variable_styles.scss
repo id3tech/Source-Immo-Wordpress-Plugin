@@ -1,6 +1,16 @@
 #top .si, #top .si-modal, // enfold overrides
 .si-modal, .si{
     
+    .list-container{
+        .list-item{
+            --list-item-separator-color : var(--list-item-separator-color);
+            border-bottom: var(--list-item-separator);
+            margin-bottom: var(--list-item-padding);
+            padding-bottom: var(--list-item-padding);
+            &:last-child{border:none;margin-bottom:0;}
+        }
+    }
+
     .si-container{
         border-radius: var(--container-border-radius);
         border: var(--container-border);

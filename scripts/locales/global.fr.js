@@ -39,7 +39,7 @@ $locales.fr = {};$locales.fr.global =
     , "Previous step" : "Étape précédante"
     , "Next step" : "Étape suivante"
     , "Finish" : "Terminer"
-    
+    , "Loading" : "Chargement de"
     // Time
     , "in" : "dans"
     , "year" : "année"
@@ -185,6 +185,7 @@ $locales.fr = {};$locales.fr.global =
     , "Global" : "Global"
     , "Background / text" : "Arrière-plan / texte"
     , "Components" : "Composants"
+    , "Panels - List items" : "Panneaux - Éléments de liste"
     , "Listing item" : "Élément propriété"
     , "Broker item" : "Élément courtier"
     , "Office item" : "Élément bureau"

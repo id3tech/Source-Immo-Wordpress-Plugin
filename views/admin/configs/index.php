@@ -78,7 +78,4 @@
 
 </div>
 </form>
-<?php
-  SourceImmo::dialog('admin/dialogs/signin','signin');
-?>
 

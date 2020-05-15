@@ -76,6 +76,28 @@
             </md-input-container>
         </div>
 
+        <h4 class="fullrow" ng-click="openGroup('list-container')"  ng-show="isEditable('list-container')" lstr>Panels - List items</h4>
+        <div id="style-list-container" ng-show="isEditable('list-container')" class="style-group global-group">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.list_item_separator_color"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.list_item_separator_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.list_item_separator">default {0}</lstr>)</label>
+                <input ng-model="model.list_item_separator" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-outer"></md-icon>
+                <label><lstr>Padding</lstr> (<lstr params="defaultValues.list_item_padding">default {0}</lstr>)</label>
+                <input ng-model="model.list_item_padding" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
         <h4 class="fullrow" ng-click="openGroup('elements')"  ng-show="isEditable('elements')" lstr>Elements</h4>
         <div id="style-elements" ng-show="isEditable('elements')" class="style-group global-group">
             <div>
