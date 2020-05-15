@@ -312,10 +312,10 @@ html{
             grid-template-columns: repeat(var(--laptop-column-width),1fr);
         }
         @include media($tablet){
-            width: repeat(var(--tablet-column-width),1fr);
+            grid-template-columns: repeat(var(--tablet-column-width),1fr);
         }
         @include media($phone){
-            width: repeat(var(--mobile-column-width),1fr);
+            grid-template-columns: repeat(var(--mobile-column-width),1fr);
         }
         > div{
             display:grid;place-items:stretch;
@@ -826,7 +826,7 @@ html{
             .item-content{
                 // grid-gap: 0;
                 grid-template-columns: 1fr;
-                grid-template-rows: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio)) auto;
+                grid-template-rows: var(--broker-item-picture-ratio) auto;
                 // grid-template-areas: 
                 //     "image image"
                 //     "name name"
@@ -1194,6 +1194,7 @@ html{
                     }
                 }
             }
+
         }
 
         &.search-orientation-v{
@@ -1309,6 +1310,14 @@ html{
            .search-container{
             .search-trigger{display:none;}
            }
+
+           .si-list-of-ghost{
+               .si-item{
+                   .image{
+                        padding-bottom: calc(100% * var(--listing-item-picture-ratio));
+                   }
+               }
+           }
         }
 
         &.si-list-of-brokers{
@@ -1353,6 +1362,13 @@ html{
             }
             label.placeholder{
                 padding:20px;font-weight: 400;opacity:0.5;text-align:center;text-transform: uppercase;
+            }
+            .si-list-of-ghost{
+                .si-item{
+                    .image{
+                         padding-bottom: calc(100% * var(--broker-item-picture-ratio));
+                    }
+                }
             }
 
             // .filter-panel{
