@@ -1031,7 +1031,7 @@
                 
                 //@include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
 
-                gap:var(--layout-gutter);
+                //gap:var(--layout-gutter);
                 grid-template-columns: 1fr;
             
                 .filter-row{

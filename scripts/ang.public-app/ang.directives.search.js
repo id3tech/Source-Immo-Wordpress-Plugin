@@ -839,23 +839,11 @@ siApp
                 // Other dropdowns
                 // Bedrooms
                 $scope.bedroomSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion($i+1,'{0}+ bedrooms') });
+                $scope.bathroomSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion($i+1,'{0}+ bathrooms') });
+                $scope.garageSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion($i+1,'{0}+ garages') });
 
                 const lParkingMul = $scope.current_main_filter == 'COM' ? 5 : 1;
-                console.log('Parking x', lParkingMul, 'for', $scope.current_main_filter);
                 $scope.parkingSuggestions = Array.from(new Array(5)).map(function($e,$i){ return fnGetSuggestion(($i+1)*lParkingMul,'{0} spaces or +','1 space or +') });
-
-
-                for(let i=1; i<6; i++){
-                    // Bedrooms
-                //    $scope.bedroomSuggestions.push({value:i, label: '{0}+ bedrooms'.translate().format(i), caption: '{0}+ bedrooms'.translate().format(i)});
-                    // Bathrooms
-                    $scope.bathroomSuggestions.push({value:i, label: '{0}+ bathrooms'.translate().format(i), caption: '{0}+ bathrooms'.translate().format(i)});
-                    // Parking
-                //    $scope.parkingSuggestions.push({value:i, label: (i==1 ? '1 space or +' : '{0} spaces or +').translate().format(i), caption: '{0}+ parking spaces'.translate().format(i)});
-                    // Parking
-                    $scope.garageSuggestions.push({value:i, label: '{0}+ garages'.translate().format(i), caption: '{0}+ garages'.translate().format(i)});
-                }
-                
             }
     
             /**

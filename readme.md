@@ -1,4 +1,4 @@
-# Version 0.4.54 Beta
+# Version 0.4.55 Beta
 
 ## Admin interface changes
 
