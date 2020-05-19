@@ -350,7 +350,7 @@ body.wp-admin #si-app,
                   text-decoration: none;
                   display:inline-block;
                   padding: 0.5em 1em;
-                  border-radius: var(--preview-element-border-radius);
+                  border-radius: var(--preview-component-border-radius);
                   background: var(--preview-button-bg-color);
                   --preview-text-color: var(--preview-button-text-color);
                   font-family: var(--preview-button-font-name);
@@ -367,6 +367,27 @@ body.wp-admin #si-app,
                 &:hover{
                   background: var(--preview-button-alt-hover-bg-color);
                   --preview-text-color: var(--preview-button-alt-hover-text-color);
+                }
+              }
+
+              .si-component{
+                padding: 0.5em 1em;
+                border: var(--preview-component-border);
+                border-radius: var(--preview-component-border-radius);
+              }
+
+              .dropdown-mockup{
+                position:relative;
+                &::after{
+                  content:"\f107";
+                  font-family: "Font Awesome 5 Pro";
+                  position: absolute;
+                  top:50%;
+                  right:1em;
+                  text-align:center;
+                  width: 20px;
+                  transform: translateY(-50%);
+                  
                 }
               }
   

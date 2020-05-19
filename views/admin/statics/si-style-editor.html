@@ -189,6 +189,26 @@
 
         <h4 ng-click="openGroup('components')" ng-show="isEditable('components')" lstr>Components</h4>
         <div id="style-components" class="style-group" ng-show="isEditable('components')">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.component_border_color"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.component_border_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.component_border">default {0}</lstr>)</label>
+                <input ng-model="model.component_border" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+            
+            <md-input-container>
+                <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.component_border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.component_border_radius" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+
             <md-input-container class="fullrow">
                 <label><md-icon class="far fa-lg fa-font"></md-icon> <lstr>Button font name</lstr> (<lstr params="defaultValues.button_font_name">default {0}</lstr>)</label>
                 <input ng-model="model.button_font_name" ng-model-options="{updateOn:'blur'}" />

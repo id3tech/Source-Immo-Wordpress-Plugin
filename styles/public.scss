@@ -63,7 +63,7 @@ $desktop : 1440px;
     --container-border-radius: var(--element-border-radius);
     --container-padding: var(--layout-gutter);
 
-    --list-item-padding: var(--layout-gutter);
+    --list-item-padding: 10px;
     --list-item-separator-color: #aaa;
     --list-item-separator: solid 1px var(--list-item-separator-color);
 
@@ -76,6 +76,11 @@ $desktop : 1440px;
     --highlight: #ff9900;
     --highlight-text-color: #333;
     --error-color: #850000;
+
+    --component-border-color: #aaa;
+    --component-border: solid 1px var(--component-border-color);
+    --component-border-radius: var(--element-border-radius);
+
     --button-bg-color: #333;
     --button-text-color: #fff;
     --button-font-name: var(--font-name);

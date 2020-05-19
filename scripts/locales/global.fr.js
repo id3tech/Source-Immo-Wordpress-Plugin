@@ -185,6 +185,7 @@ $locales.fr = {};$locales.fr.global =
     , "Global" : "Global"
     , "Background / text" : "Arrière-plan / texte"
     , "Components" : "Composants"
+    , "Component" : "Composant"
     , "Panels - List items" : "Panneaux - Éléments de liste"
     , "Listing item" : "Élément propriété"
     , "Broker item" : "Élément courtier"

@@ -114,19 +114,22 @@
 
             .si-tab{
                 padding: 0.5em 1em;
+                padding-top: calc(0.5em + 3px);
                 text-transform: uppercase;
                 position:relative;
                 font-size: 0.8rem;
+                overflow:hidden;
+
                 &::before{
                     content:"";
                     position: absolute;
                     top:0px;
                     left:50%;
                     width:0;
-                    height: 3px;
+                    height: 4px;
                     background: var(--highlight);
                     transition: 0.25s;
-                    transform:translate(-50%,-100%);
+                    transform:translate(-50%,-1px);
                     
                 }
 
@@ -136,9 +139,11 @@
                 }
                 &.active{
                     border: var(--container-border);
-                    border-radius: var(--element-border-radius) var(--element-border-radius) 0 0;
+                    border-radius: var(--component-border-radius) var(--component-border-radius) 0 0;
                     background: var(--background-color);
-                    border-bottom-color: var(--background-color);
+                    border-top-color: var(--highlight);
+                    //border-top-width: 2px;
+                    border-bottom-color: transparent;
                     &::before{
                         width:100%;
                     }
@@ -612,6 +617,7 @@
 
         h4{
             font-size:20px;font-weight: 400;
+            margin-bottom: var(--layout-gutter);
             @include media($phone){
                 margin:0px;
             }
@@ -734,7 +740,7 @@
 
             .filter-panel-content{
                 opacity:1;
-                max-height:50vh;
+                max-height:60vh;
                 padding:var(--layout-gutter);
                 pointer-events:auto;
                 transition:0.25s;
@@ -1037,8 +1043,10 @@
                 .filter-row{
                     min-height: 46px;
                     .grid-layout-column{
-                        padding-top: 5px;
                         gap:0px;
+                    }
+                    &.land-area, &.building-area, &.attribute, &.filters{
+                        margin-top: calc(var(--layout-gutter) / 2);
                     }
                 }
                 h4{
@@ -1354,7 +1362,10 @@
 
 .si-tab-cursor{
     position: absolute;
-    transform:translate(-50%,-50%);
+    top: var(--ref-top);
+    left: var(--ref-left);
+    width: var(--ref-width);
+    transform:translate(-1px,-2px);
     height: 0.5rem;
     background-color: var(--background-color);
     z-index:100;

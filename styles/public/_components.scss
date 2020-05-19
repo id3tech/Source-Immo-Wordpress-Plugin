@@ -503,8 +503,8 @@ si-checkbox, si-radio{
     padding:0.5em;
     padding-right: 25px;
     cursor: pointer;
-    border: var(--element-border);
-    border-radius: var(--element-border-radius);
+    border: var(--component-border);
+    border-radius: var(--component-border-radius);
     
     .si-selected-value{
         min-height: 1em;
@@ -546,8 +546,8 @@ si-checkbox, si-radio{
     transform:translate(-50%,-50%);
     opacity:0;
     
-    border:var(--element-border);
-    border-radius:var(--element-border-radius);
+    border: var(--component-border);
+    border-radius: var(--component-border-radius);
     left:0px;
     width:0px;
     pointer-events: none;
@@ -1651,7 +1651,7 @@ body.si-modal-open{
         font-weight: 600;
         background-color: var(--button-bg-color);
         color: var(--button-text-color);
-        border-radius:var(--element-border-radius);
+        border-radius:var(--component-border-radius);
         outline:none;
         font-family: var(--button-font-name);
         cursor: pointer;
@@ -1672,6 +1672,8 @@ body.si-modal-open{
         input,select,textarea{
             font-size:15px;padding:10px;
             transition:0.25s;
+            border: var(--component-border);
+            border-radius: var(--component-border-radius);
         }
     
         &.is-required{

@@ -754,17 +754,29 @@ siApp
 
                 // If there's no tab, hide the cursor and bail out
                 if(lTab == null) {lCursor.style.display = 'none';return;}
-                lCursor.style.display = 'block';
-                console.log('alignPanelTabCursor');
                 
-                const lLeft         = $scope.getElementOffset(lTab,'offsetLeft');
-                const lTop          = $scope.getElementOffset(lTab,'offsetTop');
+                console.log('alignPanelTabCursor');
                 const lTabRect      = lTab.getBoundingClientRect();
+                const lRef = {
+                    left: $scope.getElementOffset(lTab,'offsetLeft'),
+                    top: $scope.getElementOffset(lTab,'offsetTop'),
+                    width: lTabRect.width
+                }
 
-                lCursor.style.left  = (lLeft + Math.floor(lTabRect.width/2)) + 'px';
-                lCursor.style.top   = lTop + 'px';
-                lCursor.style.width = (lTabRect.width - 2) + 'px';
+                // const lLeft         = $scope.getElementOffset(lTab,'offsetLeft');
+                // const lTop          = $scope.getElementOffset(lTab,'offsetTop');
+                // const lTabRect      = lTab.getBoundingClientRect();
 
+                lCursor.setAttribute('style',Object.keys(lRef)
+                    .map(function($k){
+                        return '--ref-' + $k + ':' + lRef[$k] + 'px'
+                    })
+                    .join(';'));
+
+                // lCursor.style.left  = lLeft;
+                // lCursor.style.top   = lTop + 'px';
+                // lCursor.style.width = Math.floor(lTabRect.width - 2) + 'px';
+                lCursor.style.display = 'block';
             }
 
             // ----------------------------
