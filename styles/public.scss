@@ -702,6 +702,9 @@ html{
             &:not(.style-custom){
                 .civic-address{
                     text-transform: uppercase;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    overflow: hidden;
                 }
                 .city{
                     font-size:0.8em;
@@ -798,6 +801,12 @@ html{
                 }
                 .subcategory{
                     padding-top:0;
+                }
+                .flags{
+                    grid-column: 2;
+                    grid-row: 3;
+                    padding: 0.25rem;
+                    place-self: start end;
                 }
                 
                 .item-content{

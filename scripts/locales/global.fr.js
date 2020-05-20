@@ -613,7 +613,7 @@ $locales.fr = {};$locales.fr.global =
     , "Assessment ({0})" : "Évaluation ({0})"
     , "Assessments" : "Évaluations"
     , "Incomes" : "Revenus"
-    
+    , "More infos" : "Plus d'infos"
     , "Building ({0})" : "Bâtiment ({0})"
     , "Land ({0})" : "Terrain ({0})"
     , "Municipal assessment" : "Évaluation municipal"
