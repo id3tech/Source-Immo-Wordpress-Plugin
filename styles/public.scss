@@ -762,7 +762,7 @@ html{
                 &.si-double-layer-item-layout .layer.primary-layer{
                     @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
                     'description','address','region','state','country','civic-address',
-                    'open-houses','flags');
+                    'open-houses');
                 }
                 &.si-double-layer-item-layout{
                     .image{grid-area:image;}
