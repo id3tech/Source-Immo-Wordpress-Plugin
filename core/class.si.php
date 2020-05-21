@@ -518,13 +518,13 @@ class SourceImmo {
           array_splice($style,0,1);
           $style = implode(':',$style);
           //__c($style);
-          wp_add_inline_style('si-custom-style',$style);
+          wp_add_inline_style('si-custom-style',str_replace('\n', "", $style));
         }
         
       }
       
     }
-    
+
     wp_add_inline_script( 'si-prototype', 
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
                           '$locales.init("' . $lTwoLetterLocale . '");' .

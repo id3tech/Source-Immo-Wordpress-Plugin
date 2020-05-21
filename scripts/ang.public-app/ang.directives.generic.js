@@ -442,19 +442,19 @@ siApp
             });
 
             $scope.applyAllImageSource = function(){
-                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img')
-                if(lLazyLoadImages.forEach == undefined){
-                    lLazyLoadImages = Array.from(lLazyLoadImages);
-                }
+                let lLazyLoadImages = Array.from(document.querySelectorAll('.si-lazy-loading'));
+                console.log('applyAllImageSource',lLazyLoadImages.length);
+                
                 lLazyLoadImages.forEach(function($element){
-                    if($element.getAttribute('src') != null) return;
+                    const lImg = $element.querySelector('img');
+                    if(lImg.getAttribute('src') != null) return;
                     $scope.applyImageSource($element);
                 });
             }
 
-            $scope.applyImageSource = function($imgElm){
+            $scope.applyImageSource = function($lazyContainerElm){
                 console.log('applyImageSource:triggered');
-
+                const $imgElm = $lazyContainerElm.querySelector('img');
                 let lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
                 const lImgSourceset = $scope.getSourceSet($imgElm); //.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
 
@@ -472,15 +472,16 @@ siApp
             }
 
             $scope.applyObserver = function(){
-                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading img');
+                let lLazyLoadImages = document.querySelectorAll('.si-lazy-loading');
                 
                 if(lLazyLoadImages.forEach == undefined){
                     lLazyLoadImages = Array.from(lLazyLoadImages);
                 }
-                console.log('LazyLoad images', lLazyLoadImages.length);
+                console.log('applyObserver for ', lLazyLoadImages.length, 'elements');
                 
                 lLazyLoadImages.forEach(function($element){
-                    if($element.getAttribute('src') != null) return;
+                    const lImg = $element.querySelector('img');
+                    if(lImg.getAttribute('src') != null) return;
                     
                     $scope.observer.observe($element);
                 });
