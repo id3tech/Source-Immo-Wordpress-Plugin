@@ -651,7 +651,7 @@ siApp
       changeHandler: '&siChange',
       preview: '@?siPreview',
       showPreview: '=siShowPreview',
-      editables: '=siEditables'
+      editables: '=?siEditables'
     },
     link: function($scope, $element, $attrs){
       
@@ -738,6 +738,9 @@ siApp
         $scope.registerRawModelWatcher();
         $scope.registerModelWatcher();
 
+        if($scope.editables == null){
+          $scope.editables = ['global','containers','list-container','elements','bg-fg','components','listing','broker','office','custom-css'];
+        }
         const lFirstGroup = $scope.editables ? $scope.editables[0] : 'global';
         console.log('first group', lFirstGroup);
         $scope.openGroup(lFirstGroup);
@@ -1055,8 +1058,12 @@ siApp
         
         console.log('rawModel parsed', lParsedModel);
 
-        const lModel = Object.keys(lParsedModel).reduce(
-          ($result, $k) => {
+        const lModel = Object.keys(lParsedModel).filter(
+          function($k){
+            return $k != '_custom_css';
+          }
+        ).reduce(
+          function ($result, $k){
             const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
             $result[lNewKey] = lParsedModel[$k]
             return $result;

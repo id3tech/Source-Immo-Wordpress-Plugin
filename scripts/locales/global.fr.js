@@ -227,7 +227,8 @@ $locales.fr = {};$locales.fr.global =
     , "Picture ratio" : "Ratio de l'image"
     , "Column width" : "Largeur de colonne"
     , "Search account" : "Cherchez un compte"
-    
+    , "Custom style" : "Style personnalisé"
+    , "Enter your custom style here" : "Inscrivez votre style personnalisé ici"
     // Search engine edit dialog
     , "Search engine's configuration" : "Configuration de l'engin de recherche"
     , "Display" : "Affichage"

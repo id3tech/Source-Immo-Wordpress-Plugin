@@ -503,6 +503,27 @@ class SourceImmo {
     $lConfigPath  = $lConfigFileUrl . '?v=' . $lConfigVersion;
 
     $currentPagePath = $_SERVER['REQUEST_URI'];
+    $configs = SourceImmo::current()->configs;
+
+    // add custom styles
+    if(isset($configs->styles)){
+      
+      $styles = explode(',',trim($configs->styles,"{}"));
+      foreach($styles as $styleRaw){
+        $style = explode(':', str_replace('"','', $styleRaw));
+        wp_register_style( 'si-custom-style', false, array('si-style') );
+        wp_enqueue_style( 'si-custom-style');
+        
+        if('---custom-style' === $style[0]){
+          array_splice($style,0,1);
+          $style = implode(':',$style);
+          //__c($style);
+          wp_add_inline_style('si-custom-style',$style);
+        }
+        
+      }
+      
+    }
     
     wp_add_inline_script( 'si-prototype', 
                           //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .

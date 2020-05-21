@@ -28,6 +28,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.highlight"
+                ng-model-options="{updateOn:'blur'}"
                 label="{{'Highlight color'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight)}})"
                 icon="far fa-highlighter"
             ></div>
@@ -35,6 +36,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.highlight_text_color"
+                ng-model-options="{updateOn:'blur'}"
                 label="{{'Highlight color - text'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight_text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -331,6 +333,17 @@
             </md-input-container>
         </div>
 
+        <h4 class="si-group-start" ng-show="isEditable('custom-css')"
+            ng-click="openGroup('custom-css')" lstr>Custom style</h4>
+        <div  ng-show="isEditable('custom-css')" id="style-custom-css" class="style-group">
+            <md-input-container class="fullrow">
+                <md-icon class="far fa-lg fa-file-alt"></md-icon>
+                <textarea 
+                    placeholder="{{'Enter your custom style here'.translate()}}" 
+                    ng-model="model._custom_style" 
+                    ng-model-options="{updateOn:'blur'}" rows="15"></textarea>
+            </md-input-container>
+        </div>
     </div>
 
    

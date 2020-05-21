@@ -26,15 +26,20 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
                 if(!isNullOrEmpty($configs.styles)){
                     const lStyles = JSON.parse($configs.styles);
                     
-                    const lFormatStyles = Object.keys(lStyles).map(function($key){
-                        console.log('style', $key, lStyles[$key]);
-                        const lRawStyle = lStyles[$key];
-                        const lStyle = (lRawStyle.indexOf('[')>=0)
-                                            ? lRawStyle.replace(/(\[)(.+)(\])/gm, 'var(--$2)').replace(/_/g,'-')
-                                            : lRawStyle;
-                        
-                        return $key + ':' + lStyle;
-                    });
+                    const lFormatStyles = Object.keys(lStyles)
+                        .filter(function($key){
+                            console.log('body style filter',$key);
+                            return $key != '---custom-style';
+                        })
+                        .map(function($key){
+                            console.log('style', $key, lStyles[$key]);
+                            const lRawStyle = lStyles[$key];
+                            const lStyle = (lRawStyle.indexOf('[')>=0)
+                                                ? lRawStyle.replace(/(\[)(.+)(\])/gm, 'var(--$2)').replace(/_/g,'-')
+                                                : lRawStyle;
+                            
+                            return $key + ':' + lStyle;
+                        });
                     const lCurrentBodyStyle = document.body.getAttribute('style');
                     lFormatStyles.push(lCurrentBodyStyle);
                     document.body.setAttribute('style',lFormatStyles.join(';'))

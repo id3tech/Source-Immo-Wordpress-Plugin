@@ -313,6 +313,7 @@ html{
         gap:var(--layout-gutter);
         grid-template-columns: repeat(var(--desktop-column-width),1fr);
         place-items: stretch;
+        
         @include media($laptop){
             grid-template-columns: repeat(var(--laptop-column-width),1fr);
         }
@@ -1439,8 +1440,16 @@ html{
     // Listing
     // ---------------
     &.listing-single{
+        min-height:60vh;
+        position:relative;
+
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+
             .fa-spinner-third{
                 display:block;
                 font-size:250px;
@@ -2328,8 +2337,14 @@ html{
     // Broker
     // ---------------
     &.broker-single{
+        min-height:50vh;
+        position:relative;
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
         }
         .si-custom-content, .si-content{display:none;}
         .si-content{
@@ -2584,6 +2599,8 @@ html{
     // Office
     // ---------------
     &.office-single{
+        min-height:50vh;
+        
         label.placeholder{
             padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
         }
