@@ -11,8 +11,8 @@ class SourceImmoPageBuilder{
         remove_filter( 'the_content', 'wpautop' );
         remove_filter( 'the_content', 'wptexturize');
         
-        add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
-        add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
+        // add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
+        // add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
 
         add_filter( 'the_content', array($this, 'get_page_content'), 0);
         add_filter( 'body_class', function($classes){
@@ -111,17 +111,17 @@ class SourceImmoPageBuilder{
     public function start_of_template($loadingText = null){
         if($this->page_template_rendered) return;
         if(did_action('si_start_of_template') === 1){
-        if($loadingText != null){
-            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($loadingText,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
-        }
-        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+            if($loadingText != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($loadingText,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
         }
     }
 
     public function end_of_template(){
         if($this->page_template_rendered) return;
         if(did_action('si_end_of_template') === 1){
-        echo('</div>'); 
+            echo('</div>'); 
         }
     }
 

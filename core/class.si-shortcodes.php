@@ -263,12 +263,19 @@ class SiShorcodes{
                 class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
+            if($load_text != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
+            
             if($content != null){
                 echo(do_shortcode($content));
             }
             else{
                 SourceImmo::view('single/brokers_layouts/standard');
             }
+            echo('</div>');
             do_action('si_end_of_template');
             ?>
         </div>
@@ -355,12 +362,20 @@ class SiShorcodes{
                 class="si office-single {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
+            if($load_text != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
+            
             if($content != null){
                 echo(do_shortcode($content));
             }
             else{
                 SourceImmo::view('single/offices_layouts/standard');
             }
+
+            echo('</div>');
             do_action('si_end_of_template');
             ?>
         </div>
@@ -471,6 +486,11 @@ class SiShorcodes{
             $lAlias = $lListConfig->alias;
         }
         do_action('si_start_of_template', null);
+        if($load_text != null){
+            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+        }
+        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
         SourceImmo::view('single/cities_layouts/standard', array(
             'model' => array(
                 'ref_number' => $ref_number,
@@ -478,6 +498,9 @@ class SiShorcodes{
                 'name' => $city_data->name,
             )
         ));
+
+        echo('</div>');
+        
         do_action('si_end_of_template');
 
         $result = ob_get_contents();
@@ -527,12 +550,22 @@ class SiShorcodes{
         <?php
         do_action('si_listing_single_start', $ref_number, $listing_data);
         do_action('si_start_of_template', $load_text);
+
+        if($load_text != null){
+            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+        }
+        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
         if($content != null){
+            
             echo(do_shortcode($content));
         }
         else{
+            
             SourceImmo::view('single/listings_layouts/standard');
         }
+        echo('</div>');
+
         do_action('si_end_of_template');
         do_action('si_listing_single_end');
         ?>

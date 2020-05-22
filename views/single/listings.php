@@ -13,3 +13,4 @@ $ref_type = get_query_var( 'type' );
 
 $pageBuilder->close_page();
 $pageBuilder->render();
+
