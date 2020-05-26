@@ -6,30 +6,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 function si_elementor_get_page_template($page_template){
-        /**
-         * Elementor Canvas template name.
-         */
-        $TEMPLATE_CANVAS = 'elementor_canvas';
+    /**
+     * Elementor Canvas template name.
+     */
+    $TEMPLATE_CANVAS = 'elementor_canvas';
 
-        /**
-         * Elementor Header & Footer template name.
-         */
-        $TEMPLATE_HEADER_FOOTER = 'elementor_header_footer';
+    /**
+     * Elementor Header & Footer template name.
+     */
+    $TEMPLATE_HEADER_FOOTER = 'elementor_header_footer';
 
-        
-    	$template_path = '';
-		switch ( $page_template ) {
-			case $TEMPLATE_CANVAS:
-				$template_path = ELEMENTOR_PATH . 'modules/page-templates/templates/canvas.php';
-				break;
-			case $TEMPLATE_HEADER_FOOTER:
-				$template_path = ELEMENTOR_PATH . 'modules/page-templates/templates/header-footer.php';
-				break;
-		}
-
-		return $template_path;
-	
+    
+    $template_path = '';
+    switch ( $page_template ) {
+        case $TEMPLATE_CANVAS:
+            $template_path = ELEMENTOR_PATH . 'modules/page-templates/templates/canvas.php';
+            break;
+        case $TEMPLATE_HEADER_FOOTER:
+            $template_path = ELEMENTOR_PATH . 'modules/page-templates/templates/header-footer.php';
+            break;
+    }
+    if($template_path != ''){
+        return $template_path;
+    }
+    
+    return $page_template;
 }
+
 add_filter('si_get_page_template', 'si_elementor_get_page_template',10,1);
 
 

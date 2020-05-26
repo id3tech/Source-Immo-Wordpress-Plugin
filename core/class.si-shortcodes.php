@@ -241,7 +241,8 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => 'Loading broker'
+                'load_text' => 'Loading broker',
+                'class' => ''
             ), $atts )
         );
         if($ref_number == ''){
@@ -260,7 +261,7 @@ class SiShorcodes{
         ?>
         
         <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -517,6 +518,7 @@ class SiShorcodes{
             array(
                 'ref_number' => '',
                 'load_text' => "Loading listing",
+                'class' => ''
             ), $atts )
         );
 
@@ -538,15 +540,13 @@ class SiShorcodes{
         $load_text = apply_filters('si_listing_detail_load_text',$load_text);
         $content = apply_filters('si_listing_detail_content', $content, $ref_number, $listing_data);
 
-
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
         ?>
 
-
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si listing-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si listing-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
 
         <?php
         do_action('si_listing_single_start', $ref_number, $listing_data);

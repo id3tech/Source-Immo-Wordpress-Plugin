@@ -2337,6 +2337,8 @@ html{
     // Broker
     // ---------------
     &.broker-single{
+        --left-column : 1;
+        --right-column: 2;
         min-height:50vh;
         position:relative;
         label.placeholder{
@@ -2371,7 +2373,7 @@ html{
         }
 
         .head{
-            grid-column: 1;
+            grid-column: var(--left-column);
             grid-row: 1;
             .name{margin-bottom:0px;}
             .license-title{
@@ -2382,7 +2384,7 @@ html{
         }
 
         .bio{
-            grid-column: 1;
+            grid-column: var(--left-column);
             grid-row: 2;
 
             .button{display:none;}
@@ -2404,7 +2406,7 @@ html{
 
 
         .info{
-            grid-column: 1;
+            grid-column: var(--left-column);
             grid-row: 1;
 
             @include gridAreas('head','bio','languages','expertises');
@@ -2433,7 +2435,7 @@ html{
             
         }
         .picture{
-            grid-column: 2;
+            grid-column: var(--right-column);
             grid-row: 1 / span 3;
             background: url('assets/shadow_broker.jpg') no-repeat;
             background-size: cover;
@@ -2448,7 +2450,7 @@ html{
             }
         }
         .contact{
-            grid-column: 2;
+            grid-column: var(--right-column);
             grid-row: 4;
             display:grid;
             gap:var(--layout-gutter);
@@ -2470,7 +2472,7 @@ html{
         
 
         .listing-list{
-            grid-column: 1;
+            grid-column: var(--left-column);
             grid-row: 3 / span 4;
 
             .list-container{
@@ -2485,7 +2487,7 @@ html{
             }
         }
         .office{
-            grid-column: 2;
+            grid-column: var(--right-column);
             grid-row: 5;
             padding:10px;
             .item-content{
@@ -2508,7 +2510,7 @@ html{
             }
         }
         .cities{
-            grid-column: 2;
+            grid-column: var(--right-column);
             grid-row: 6 / span 2;
             padding:10px;
             .city{
@@ -2583,6 +2585,14 @@ html{
             .listing-list{grid-column:1;grid-row:5;}
             .cities{grid-column:1;grid-row:7;}
             .office{grid-column:1;grid-row:6;}
+        }
+
+        &.si-invert-layout{
+            .si-content{
+                grid-template-columns: 1fr 2fr;
+                --left-column: 2;
+                --right-column: 1;
+            }
         }
 
         &.loaded{
