@@ -1,4 +1,4 @@
-# Version 0.4.58 Beta
+# Version 0.4.60 Beta
 
 ## Admin interface changes
 
@@ -8,7 +8,7 @@
 
 
 ## Adaptative search engine
-We added tabs to the search engine to allow focus on different attributes based on property type.
+Use views to add tabs to the search engine
 You can also select which field are searchable
 
 ## List item changes
@@ -28,6 +28,7 @@ In this release:
 
 ## Other things
 
+*Minor support for Elementor
 *Minor bugs fixes
 
 

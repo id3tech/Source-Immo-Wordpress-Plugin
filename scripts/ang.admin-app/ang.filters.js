@@ -9,6 +9,16 @@ siApp
 });
 
 siApp
+.filter('translate', function(){
+    return function($value){
+        if($value[$locales._current_lang_] != undefined){
+            return $value[$locales._current_lang_];
+        }
+        return $value.toString().translate();
+    }
+});
+
+siApp
 .filter('truncate', function(){
     return function($source, $limit){
         let lResult = $source;

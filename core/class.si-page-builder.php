@@ -49,6 +49,7 @@ class SourceImmoPageBuilder{
 
     public function get_page_template($page_id){
         $page_template = get_page_template_slug($page_id);
+        
         if($page_template != '') return $page_template;
 
         $templateFiles = wp_get_theme()->get_files('php',0,true);
@@ -94,11 +95,21 @@ class SourceImmoPageBuilder{
             return $classes; 
         });
 
+        $pageTemplate = apply_filters('si_get_page_template', $pageTemplate);
+
         if($pageTemplate != null){
+            if(file_exists($pageTemplate)){
+                include($pageTemplate);
+                return;
+            }
+
             $templateDir = get_template_directory();
             if(strpos($pageTemplate, $templateDir ) !== false) $pageTemplate = str_replace($templateDir,'',$pageTemplate);
             
-            include  $templateDir . '/' . $pageTemplate;
+            if(file_exists($templateDir . '/' . $pageTemplate)){
+                include  $templateDir . '/' . $pageTemplate;
+            }
+            
         }
         
         if($pageTemplate == null){

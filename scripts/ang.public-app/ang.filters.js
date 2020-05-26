@@ -173,6 +173,19 @@ function wrapWith(){
     }
 }]);
 
+siApp
+.filter('translate', function(){
+    return function($text){
+        if($text == null) return '';
+        if($text == undefined) return '';
+
+        const lCurrentLocale = $locales._current_lang_;
+        if($text[lCurrentLocale] != undefined) return $text[lCurrentLocale];
+
+        return lCurrentLocale.toString().translate();
+    }
+})
+
 
 function $lateBind($callback){
     let $scope = {

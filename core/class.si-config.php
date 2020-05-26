@@ -432,7 +432,14 @@ class SourceImmoLayout{
     $this->type = $type;
     $this->communication_mode = 'basic';
     $this->displayed_vars = new SourceImmoDisplayVars($displayedVars);
-    $this->item_row_space = (object) array('desktop'=>25,'laptop'=>33,'tablet'=>50,'mobile'=>100);
+    
+
+    if($type == 'listing'){
+      $this->item_row_space = (object) array('desktop'=>33,'laptop'=>33,'tablet'=>50,'mobile'=>100);
+    }
+    else{
+      $this->item_row_space = (object) array('desktop'=>25,'laptop'=>33,'tablet'=>50,'mobile'=>100);
+    }
   }
 
   public function hasDisplayVar($item, $layer='main'){
@@ -495,7 +502,7 @@ class SourceImmoList {
     $this->sort = $sort;
 
 
-    $this->list_layout = new SourceImmoLayout();
+    $this->list_layout = new SourceImmoLayout($type);
     $this->list_item_layout = new SourceImmoLayout();
     $this->setDefaultDisplayVars($displayedVars);
 
@@ -576,6 +583,7 @@ class SourceImmoSearchEngineOptions {
   public $focus_category = null;
   public $sticky = false;
   public $tabs = null;
+  public $tabbed = false;
   public $filter_tags = 'none';
   
   public function __construct($type=null){

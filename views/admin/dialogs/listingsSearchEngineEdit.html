@@ -13,63 +13,52 @@
       <md-dialog-content>
         <div class="md-dialog-content" layout="column">
           
-          <md-input-container>
-            <label lstr>Display</label>
-            <md-select ng-model="model.type">
-                <md-option value="full"><lstr>Show tabs with respective options</lstr></md-option>
-                <md-option value="focused"><lstr>Target certain fields of research</lstr></md-option>
-            </md-select>
-          </md-input-container>
+            <md-input-container>
+              <label lstr>Display</label>
+              <md-select ng-model="model.type">
+                  <md-option value="full"><lstr>Standard</lstr></md-option>
+                  <md-option value="focused"><lstr>Target certain fields of research</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container>
+              <label lstr>Search box placeholder</label>
+              <input ng-model="model.search_box_placeholder" />
+            </md-input-container>
+  
+            <md-input-container ng-if="false">
+              <label lstr>Orientation</label>
+              <md-select ng-model="model.orientation">
+                  <md-option value="h"><lstr>Horizontal</lstr></md-option>
+                  <md-option value="v"><lstr>Vertical</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container ng-if="model.type == 'full'">
+              <label lstr>Filter tags</label>
+              <md-select ng-model="model.filter_tags">
+                  <md-option value="none"><lstr>None</lstr></md-option>
+                  <md-option value="inside"><lstr>Inside search box</lstr></md-option>
+                  <md-option value="outside"><lstr>Outside search box</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container ng-if="false">
+              <md-checkbox ng-model="model.sticky">
+                <lstr ng-show="model.orientation == 'h'">When scrolling, stick the search engine to viewport top</lstr>
+                <lstr ng-show="model.orientation == 'v'">When scrolling, stick the search engine to viewport side</lstr>
+              </md-checkbox>
+            </md-input-container>
+            
+            <md-input-container ng-if="model.type=='focused'">
+              <label lstr>Criterias to display</label>
+              <md-select ng-model="model.fields" multiple>
+                <md-option ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-value="field.key">{{field.caption}}</md-option>
+              </md-select>
+            </md-input-container>
 
-          <md-input-container ng-show="model.type=='full'">
-            <label lstr>Tabs to display</label>
-            <md-select ng-model="model.tabs" multiple>
-                <md-optgroup ng-disabled="tabsContains(['for-sale','for-rent'])" label="{{'By markets'.translate()}}">
-                  <md-option value="RES"><lstr>Residential</lstr></md-option>
-                  <md-option value="COM"><lstr>Commercial</lstr></md-option>
-                </md-optgroup>
-                <md-optgroup ng-disabled="tabsContains(['RES','COM','IND'])" label="{{'By transactions'.translate()}}">
-                  <md-option value="for-sale"><lstr>For sale</lstr></md-option>
-                  <md-option value="for-rent"><lstr>For rent</lstr></md-option>
-                </md-optgroup>
-            </md-select>
-          </md-input-container>
 
-          <md-input-container ng-show="model.type=='focused'">
-            <label lstr>Criterias to display</label>
-            <md-select ng-model="model.fields" multiple>
-              <md-option ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-value="field.key">{{field.caption}}</md-option>
-            </md-select>
-          </md-input-container>
-
-          <md-input-container>
-            <label lstr>Search box placeholder</label>
-            <input ng-model="model.search_box_placeholder" />
-          </md-input-container>
-
-          <md-input-container ng-if="false">
-            <label lstr>Orientation</label>
-            <md-select ng-model="model.orientation">
-                <md-option value="h"><lstr>Horizontal</lstr></md-option>
-                <md-option value="v"><lstr>Vertical</lstr></md-option>
-            </md-select>
-          </md-input-container>
-
-          <md-input-container ng-if="model.type == 'full'">
-            <label lstr>Filter tags</label>
-            <md-select ng-model="model.filter_tags">
-                <md-option value="none"><lstr>None</lstr></md-option>
-                <md-option value="inside"><lstr>Inside search box</lstr></md-option>
-                <md-option value="outside"><lstr>Outside search box</lstr></md-option>
-            </md-select>
-          </md-input-container>
-
-          <md-input-container ng-if="false">
-            <md-checkbox ng-model="model.sticky">
-              <lstr ng-show="model.orientation == 'h'">When scrolling, stick the search engine to viewport top</lstr>
-              <lstr ng-show="model.orientation == 'v'">When scrolling, stick the search engine to viewport side</lstr>
-            </md-checkbox>
-          </md-input-container>
+          
         </div>
       </md-dialog-content>
   

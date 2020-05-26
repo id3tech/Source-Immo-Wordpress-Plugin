@@ -672,7 +672,7 @@ siApp
         {lang: lLocale, route: lTypeMap.listing[lLocale].route, shortcut: lTypeMap.listing[lLocale].route_shortcut}
       ],
       listing_layouts: [
-        {lang: lLocale, communication_mode:'basic',  page: $scope.model.layouts.find($l => $l.type=='listing').detail_page}
+        {lang: lLocale, communication_mode:'basic', item_row_space: [33,33,50,100], page: $scope.model.layouts.find($l => $l.type=='listing').detail_page}
       ],
       broker_routes : [
         {lang: lLocale, route: lTypeMap.broker[lLocale].route, shortcut: lTypeMap.broker[lLocale].route_shortcut}

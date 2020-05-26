@@ -229,6 +229,10 @@ $locales.fr = {};$locales.fr.global =
     , "Search account" : "Cherchez un compte"
     , "Custom style" : "Style personnalisé"
     , "Enter your custom style here" : "Inscrivez votre style personnalisé ici"
+    
+    // Tab editor
+    , "Add tab" : "Ajouter un onglet"
+
     // Search engine edit dialog
     , "Search engine's configuration" : "Configuration de l'engin de recherche"
     , "Display" : "Affichage"

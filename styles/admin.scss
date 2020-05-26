@@ -1,3 +1,7 @@
+:root{
+  --si-highlight: #ff9900;
+}
+
 body.wp-admin{
   $primary : #2196F3;
   $warn: #ff0000;
@@ -5,6 +9,8 @@ body.wp-admin{
   $primary_text: #fff;
   $warn_text: #fff;
   $accent_text: #fff;
+
+
   
   #si-app{
     padding-right: 20px;

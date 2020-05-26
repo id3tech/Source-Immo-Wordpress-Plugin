@@ -1,7 +1,15 @@
 
 
     <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}">
-        <div class="si-tab {{current_main_filter == 'for-sale' ? 'active' : ''}}"
+        <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
+                class="si-tab {{current_view == tab.view_id ? 'active' : ''}}"
+                ng-click="selectView(tab.view_id)"
+                >
+                {{tab.caption | translate}}
+        </div>
+
+
+        <!-- <div class="si-tab {{current_main_filter == 'for-sale' ? 'active' : ''}}"
                 ng-click="selectMainFilter('for-sale')" 
                 ng-if="configs.search_engine_options.tabs.includes('for-sale')"><?php _e('For sale',SI) ?></div>
         <div class="si-tab {{current_main_filter == 'for-rent' ? 'active' : ''}}" 
@@ -15,7 +23,7 @@
                 ng-if="configs.search_engine_options.tabs.includes('COM')"><?php _e('Commercial',SI) ?></div>
         <div class="si-tab {{current_main_filter == 'IND' ? 'active' : ''}}" 
                 ng-click="selectMainFilter('IND')"
-                ng-if="configs.search_engine_options.tabs.includes('IND')"><?php _e('Industrial',SI) ?></div>
+                ng-if="configs.search_engine_options.tabs.includes('IND')"><?php _e('Industrial',SI) ?></div> -->
         
         <si-select si-model="current_main_filter" si-change="selectMainFilter(current_main_filter)">
                 <si-option value="for-sale"

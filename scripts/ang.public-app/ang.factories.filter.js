@@ -83,6 +83,7 @@ function $siFilters($q,$siApi,$siUtils){
                             },
             parkings: {field:'attributes.PARKING', operator:'greater_than'},
             contract: function($value){
+                            if($context.listing_ages == null) return null;
                             if($value == null) return {field: 'contract.start_date', operator:'greater_than', value: ''};
                             return $context.listing_ages.find(function($age){ return $age.key == $value}).filter;
                         },
@@ -101,6 +102,8 @@ function $siFilters($q,$siApi,$siUtils){
                             return {field: 'building.category_code', operator: 'in', value: $values};
                         },
             attributes: function($value){
+                            if($context.listing_attributes == null) return null;
+
                             return Object.keys($context.listing_attributes).map(function($k){
                                 const lItem = $context.listing_attributes[$k];
                                 const lValue = $value == null 
@@ -113,6 +116,7 @@ function $siFilters($q,$siApi,$siUtils){
                             });                     
                         },
             states: function($value){
+                            if($context.listing_flags == null) return null;
                             return Object.keys($context.listing_flags).map(function($k){
                                 const lItem = $context.listing_flags[$k].filter;
                                 const lValue = $value == null 
@@ -625,10 +629,12 @@ function $siFilters($q,$siApi,$siUtils){
          * Update filters from data object
          */
         $fm.update = function(){
+            
             const lDataKeys = Object.keys($fm.data);
             //console.log('filterManager update');
             const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
             if(lMainFilter != null){
+               
                 // remove other main filter
                 Object.keys($fm.mainFilterMap[$fm.main_filter.type])
                 .forEach(function($k){
@@ -643,23 +649,28 @@ function $siFilters($q,$siApi,$siUtils){
                 $fm.addFilter(lMainFilter.field, lMainFilter.operator, lMainFilter.value);
             }
 
+            
             lDataKeys.forEach(function($key){ 
-
+                
                 const lFilterMap = $fm.dataFilterMap[$key];
                 const lDataValue = $fm.data[$key];
                 if(lFilterMap == undefined) return;
                 if(lMainFilter != null && lMainFilter.shadows === $key) return; // skip this filter if MainFilter shadows it
-
-                const lFilter = typeof(lFilterMap) == 'function' ? lFilterMap(lDataValue) : lFilterMap;
                 
+                const lFilter = typeof(lFilterMap) == 'function' ? lFilterMap(lDataValue) : lFilterMap;
+                if(lFilter == null) return;
+
                 if(isNullOrEmpty(lDataValue)){
+                    
                     // remove filter
                     if(Array.isArray(lFilter)){
                         lFilter.forEach(function($f){
+                            
                             $fm.addFilter($f.field,$f.operator,'');
+                            
                         });
                     }
-                    else{
+                    else{   
                         $fm.addFilter(lFilter.field,lFilter.operator,'');
                     }
                     

@@ -516,9 +516,10 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => "Loading listing"
+                'load_text' => "Loading listing",
             ), $atts )
         );
+
 
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');

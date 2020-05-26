@@ -28,6 +28,8 @@ function siList(){
         },
         controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $siUtils,$siFavorites,$siConfig,$siList) {
             $scope.configs = null;
+            $scope._global_configs = null;
+            $scope.current_view = null;
             $scope.list = null;
             $scope.page = 1;
             $scope.meta = null;
@@ -82,6 +84,11 @@ function siList(){
                     $scope.display_mode = 'list';
                 });
 
+                $scope.$on('si-{0}-view-change'.format($scope.alias), function($event, $newView){
+                    $scope.current_view = $newView;
+                    $scope.getList();
+                })
+
                 $scope.$on('auth_token_refresh', function(){
                     sessionStorage.removeItem('si.list.{0}.{1}'.format($scope.configs.type,siCtx.locale));
                     sessionStorage.removeItem('si.listMeta.{0}.{1}'.format($scope.configs.type,siCtx.locale));
@@ -90,6 +97,8 @@ function siList(){
 
                 $siApi.getListConfigs($scope.alias).then(function($configs){
                     $scope.configs = $configs;
+                    $scope.current_view = $configs.source.id;
+
                     let lClientSearchToken = sessionStorage.getItem("si.{0}.st".format($scope.configs.alias));
                     if(lClientSearchToken!=undefined){
                         $scope.client.search_token = lClientSearchToken;
@@ -100,6 +109,16 @@ function siList(){
                     });
                 });
             }
+
+            $scope.getCurrentView = function(){
+                if($scope.current_view != null) return $scope.current_view;
+                if($scope.configs != null){
+                    return $scope.configs.source.id;
+                }
+                if($scope._global_configs != null){
+                    return $scope._global_configs.default_view
+                }
+            }
     
             /**
              * Start the loading process
@@ -108,6 +127,8 @@ function siList(){
                 //return;
                 $siConfig.get().then(function($global_configs){
                     // Prepare Api
+                    $scope._global_configs = $global_configs;
+
                     const lPrerequisites = {};
                     lPrerequisites.meta = function(){return $siApi.getViewMeta($scope.configs.type,$scope.configs.source.id)};
                     lPrerequisites.pages = function() {
@@ -116,7 +137,8 @@ function siList(){
                     };
                     lPrerequisites.offices = function(){
                         if($scope.configs.type!='brokers') return null;
-                        return $siApi.call('office/view/' + $global_configs.default_view + '/fr/items');
+                        const lViewId = $scope.current_view != null ? $scope.current_view : $global_configs.default_view;
+                        return $siApi.call('office/view/' + lViewId + '/fr/items');
                     }
 
                     $siUtils.all(lPrerequisites)
@@ -132,27 +154,6 @@ function siList(){
                         // load data
                         $scope.getList();
                     })
-
-
-                    // .then(function($response){
-                        
-                    //     if($global_configs.enable_custom_page){
-                    //         $siApi.rest_call('pages',{locale: siCtx.locale, type: $scope.configs.type},{method:'GET'}).then(function($site_page_list){
-                    //             $siUtils.page_list = $site_page_list;
-                    //             $scope.dictionary = $response.dictionary;
-                    //             $scope.is_ready = true;
-                    //             // load data
-                    //             $scope.getList();
-                    //         });
-                    //     }
-                    //     else{
-                    //         $siUtils.page_list = [];
-                    //         $scope.dictionary = $response.dictionary;
-                    //         $scope.is_ready = true;
-                    //         // load data
-                    //         $scope.getList();
-                    //     }
-                    // });
                 });
             }
             /**
@@ -445,7 +446,8 @@ function siList(){
                     case 'cities':
                         lOrigin = 'city';break;
                 }
-                return lOrigin.concat('/view/',$scope.configs.source.id,'/',siApiSettings.locale);
+                const lViewId = $scope.getCurrentView();
+                return lOrigin.concat('/view/',lViewId,'/',siApiSettings.locale);
             }
     
     

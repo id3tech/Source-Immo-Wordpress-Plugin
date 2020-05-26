@@ -193,7 +193,8 @@ siApp
             
 
             $scope.siDictionary = $siDictionary;
-            
+            $scope.current_view = null;
+
             // const
             $scope.PRICE_RANGE_MAX  = 1000000;
             $scope.PRICE_RANGE_PRECISION = 1000;
@@ -433,6 +434,10 @@ siApp
                 })
 
                 $scope.$on('si-searchbox-add-filter', function($event, $item){
+                    console.log($event);
+                    console.log('siSearch:si-searchbox-add-filter triggered');
+                    $item._treated = true;
+
                     const lTypeMap = {
                         'city' : 'cities',
                         'region': 'regions'
@@ -474,25 +479,13 @@ siApp
                         $scope.getConfigs().then(function($configs){
                             $scope.configs = $configs;
                             lFilter.configs = $configs;
+                            $scope.current_view = $configs.source.id;
 
-                            console.log('Loading view meta');
-                            // load view meta
-                            $siUtils.all({
-                                meta : function(){return $siApi.getViewMeta($configs.type,$configs.source.id)},
-                                offices: function(){
-                                    if($configs.type != 'brokers') return $q.resolve();
-                                    return $siApi.call('office/view/' + $configs.source.id + '/fr/items')
-                                }
-                            })
-                            .then(function($results){
-                                
-                                $scope.dictionary = $results.meta.dictionary;
-                                $scope.officeList = $results.offices ? $results.offices.items : [];
+                            $scope.loadViewMeta($configs.source.id,$configs.type).then(function(){
                                 $scope.is_ready = true;
-
                                 console.log('View meta loaded');
                                 $resolve();
-                            })                            
+                            })
                         });
                     }
                     else{
@@ -572,6 +565,46 @@ siApp
                 
                 return lFilter.value.includes($category_code);
             }
+
+
+            //#region VIEW MANAGEMENT
+            
+
+            $scope.selectView = function($view_id){
+                $scope.current_view = $view_id;
+                $scope.loadViewMeta($view_id, $scope.configs.type).then(function(){
+                    console.log('meta loaded');
+
+                    $rootScope.$broadcast('si-{0}-view-change'.format($scope.alias), $view_id);
+
+                    $timeout(function(){
+                        $scope.alignPanelTabCursor();
+                    });
+                })
+            }
+
+            $scope.loadViewMeta = function($view_id, $type){
+                console.log('Loading view meta');
+                // load view meta
+                const fnOffices = function(){
+                    if($type != 'brokers') return $q.resolve();
+                    return $siApi.call('office/view/' + $view_id + '/fr/items')
+                }
+
+                return $q.all([
+                    $siApi.getViewMeta($type,$view_id),
+                    fnOffices() 
+                ])
+                .then(function($results){
+                    
+                    $scope.dictionary = $results[0].dictionary;
+                    
+                    //$scope.officeList = $results.offices ? $results.offices.items : [];
+                    $scope.officeList = $results[1] ? $results[1].items : [];
+                })              
+            }
+
+            //#endregion
 
             // FIELDS FILTERS
             $scope.isFieldFiltered = function($field){
@@ -1948,13 +1981,14 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             persistantKeyword : '@persistantKeyword'
         },
         templateUrl: siCtx.base_path + 'views/ang-templates/si-searchbox.html?v=6',
-        link : function($scope,element, attrs){
+        link : function($scope,element, attrs, siSearch){
             $scope.persistantKeyword = $scope.persistantKeyword == 'true';
             $scope._el = element[0];
+            
            
             $scope.init();
         },
-        controller: function($scope, $q, $siApi, $rootScope, $siDictionary, $siUtils,$timeout){
+        controller: function($scope, $q, $siApi, $rootScope, $siDictionary, $siUtils,$timeout,$siFilters){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -2506,12 +2540,34 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     });
                     return;
                 }
-
+               
                 // otherwise, try to add to filter
-                $scope.$emit('si-searchbox-add-filter', $item);
+                $rootScope.$broadcast('si-searchbox-add-filter', $item);
+            
                 $scope.suggestions = [];
                 $scope.stored_suggestions = null;
+
+                
             }
+
+            $scope.$on('si-searchbox-add-filter', function($event, $item){
+                if($item._treated == true) return;
+
+                console.log('siSearchBox:si-searchbox-add-filter received');
+               const lTypeMap = {
+                    'city' : 'cities',
+                    'region': 'regions'
+                }
+                const lDataProp = lTypeMap[$item.type];
+                $timeout(function(){
+                    $scope.filter.data[lDataProp].push($item.ref_number);
+                    if($item.type == 'region'){
+                        //$scope.filter.sublistClearFilters($item.ref_number, $scope.city_list, $scope.filter.data.cities);
+                    }
+                    $scope.filter.update();
+                    //$scope.showResultPage();
+                });
+            });
             
             $scope.getItemLinkShortcut = function($type, $configs){
                 let lRoute = $configs[$type + '_routes'].find(function($r){return $r.lang == siApiSettings.locale}) || 
@@ -2532,6 +2588,10 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
             $scope.getEndpoint = function(){
                 return 'view/'.concat($scope.configs.source.id,'/', siApiSettings.locale + '/quick_search');
+            }
+
+            $scope.showResultPage = function(){
+                window.location = $scope.result_page;
             }
 
 

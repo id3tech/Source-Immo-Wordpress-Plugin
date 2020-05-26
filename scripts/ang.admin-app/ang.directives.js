@@ -1143,6 +1143,141 @@ siApp
   }
 }])
 
+siApp
+.directive('siSearchTabsEditor', [function siSearchTabsEditor(){
+  return {
+    restrict: 'E',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-search-tabs-editor.html',
+    replace: true,
+    scope: {
+      model: '=siModel'
+    },
+    link: function($scope, $element, $attrs){
+      $scope.init($element[0]);
+    },
+    controller: function($scope,$rootScope, $siApi, $siUI, $timeout){
+      $scope.$element = null;
+      
+      $scope.init = function($element){
+        $scope.$element = $element;
+
+        $scope.$watch(function(){ return $scope.model }, 
+          function($new,$old){
+            if($new == null) return;
+            if($scope.model.tabs == undefined) $scope.model.tabs = [];
+        })
+        $scope.fetchData();
+      }
+
+      $scope.fetchData = function(){
+        $siApi
+            .rest('account',null,{method:'GET'})
+            .then($response => {
+                $scope.data_views = $response.data_views;
+                
+              });
+      }
+
+      $scope.addTab = function($item){
+        
+        $scope.model.tabs.push({
+          view_id : $item.id,
+          caption: {
+            fr: $item.name,
+            en: $item.name
+          }
+        });
+      }
+
+      $scope.removeTab = function($index){
+        $scope.model.tabs.splice($index,1);
+      }
+
+      $scope.edit = function($event, $index){
+        
+        $event.stopPropagation();
+        $event.preventDefault();
+
+        document.addEventListener('click', function($event){
+          $scope.apply();
+        },{once:true});
+
+        $scope.editingIndex = $index;
+        $timeout(function(){
+          const lInput = $scope.$element.querySelector('.si-tab.edit-mode input');
+          lInput.focus();
+        },500);
+
+        
+        
+      }
+      $scope.preventClickTrap = function($event){
+        $event.preventDefault();
+        $event.stopPropagation();
+      }
+
+      $scope.checkKey = function($event){
+        if($event.keyCode == 13){
+          $scope.apply();
+        }
+
+        $event.stopPropagation();
+      }
+
+      $scope.apply = function(){
+        $timeout(function(){
+          delete $scope.editingIndex;
+        })
+      }
+
+      $scope.isUsed = function($item){
+        const lTab = $scope.model.tabs.find($t => $t.view_id == $item.id);
+        return lTab != undefined;
+      }
+
+      $scope.isEditing = function($index){
+        return $index == $scope.editingIndex;
+      }
+
+      $scope.moveTab = function($index, $moveBy){
+        const lNewIndex = $index + $moveBy;
+        const lElm =     $scope.model.tabs.splice($index,1)[0];
+        if(lNewIndex > $scope.model.tabs.length){
+          $scope.model.tabs.push(lElm);
+        }
+        
+        $scope.model.tabs.splice(lNewIndex,0,lElm);
+      }
+
+    }
+  }
+}])
+
+siApp
+.directive('siLocalized', ['$parse', '$compile', function siLocalized($parse,$compile){
+  return {
+    restrict: 'E',
+    transclude:true,
+    replace:true,
+    template: '<div class="si-localized-input"><ng-transclude></ng-transclude><md-menu class="si-locale-selector"><md-button ng-click="$mdMenu.open()">{{$localized.current}}</md-button><md-menu-content><md-menu-item ng-repeat="locale in locales"><md-button ng-click="changeLocale(locale)">{{locale}}</md-button></md-menu-item></md-menu-content></md-menu></div>',
+    link: function($scope, $element, $attrs){
+      
+    },
+    controller: function($scope, $rootScope){
+      this.$onInit = function(){
+        $scope.locales = $locales.supported_languages;
+      }
+
+      $scope.$localized = {
+        current: $locales._current_lang_
+      }
+
+      $scope.changeLocale = function($new){
+        $scope.$localized.current = $new;
+      }
+    }
+  }
+}])
 
 siApp
 .directive('siAddonConfig', ['$parse', function siAddonConfig($parse){

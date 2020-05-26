@@ -629,6 +629,11 @@ class SourceImmo {
   // ----------------------
   //#region TEMPLATE HANDLING
 
+  static function getModel(){
+    global $siCurrentModel;
+    return $siCurrentModel;
+  }
+
 	function template_redirect(){
     $ref_number = get_query_var( 'ref_number' );
     //__c($ref_number);
@@ -658,9 +663,11 @@ class SourceImmo {
     
     // load data
     global $listing_data;
-    $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
+    global $siCurrentModel;
+    $siCurrentModel = $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
     if($listing_data != null){
       do_action('si_listing_detail_begin');
+
       // hook to sharing tools
       $share_tool = new SiSharing($listing_data);
       $share_tool->addHook('listing');
@@ -714,6 +721,7 @@ class SourceImmo {
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
       $listingWrapper->extendedPreprocess($model);
+      $model = apply_filters('si_listing_print_post_process', $model);
 
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
       $model->tiny_url = SourceImmoTools::get_tiny_url('http://' . $_SERVER['HTTP_HOST'] . $model->permalink);
@@ -745,9 +753,10 @@ class SourceImmo {
 
   function include_brokers_detail_template(){
     $ref_number = get_query_var( 'ref_number' );
+    global $siCurrentModel;
     global $broker_data,$post;
     // load data
-    $broker_data = json_decode(SourceImmoApi::get_broker_data($ref_number));
+    $siCurrentModel = $broker_data = json_decode(SourceImmoApi::get_broker_data($ref_number));
 
     if($broker_data != null){
       header('http/1.0 200 found');
@@ -1029,6 +1038,16 @@ class SourceImmo {
       if(!isset($name) || $name == null || $name == '') continue;
 
       $moduleName = str_replace(' ','-',strtolower($name));
+      $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
+      
+      if(file_exists($modulePath)){
+        include $modulePath;
+      }
+    }
+
+    $the_plugs = get_option('active_plugins'); 
+    foreach($the_plugs as $key => $value) {
+      $moduleName = explode("/", $value)[0];
       $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
       
       if(file_exists($modulePath)){
@@ -1446,8 +1465,16 @@ class SourceImmoBrokersResult extends SourceImmoAbstractResult {
 
   public function preprocess_item(&$item){
     global $dictionary;
+  
 
     $item->fullname = $item->first_name . ' ' . $item->last_name;
+    if(isset($item->office)) {
+      $item->office->location->city = $dictionary->getCaption($item->office->location->city_code , 'city');
+      $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
+    }
+
+    $item->main_phone = $item->phones->office;
+
     if(isset($item->license_type_code)){
       $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
     }

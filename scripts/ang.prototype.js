@@ -91,6 +91,7 @@ if(typeof isNullOrEmpty === 'undefined'){
             if($value.length == 0) return true;
             if($value.every(function($e){return $e==null})) return true;
         }
+        if($value.toString() === '[object Object]' && Object.keys($value).length == 0) return true;
         
         return false;
     }
