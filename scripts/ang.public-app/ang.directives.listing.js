@@ -1072,11 +1072,15 @@ siApp
 
                 $scope.list.forEach(function($marker){
                     let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
+                    if($marker.category_code == undefined) { 
+                        console.log('invalid map marker', $marker);
+                        return;
+                    }
+
                     const lMarkerClass = ['map-marker-icon',$marker.category_code.replace(' ','_')];
                     if($marker.status_code != undefined){
                         lMarkerClass.push($marker.status_code.toLowerCase());
                     }
-                    222222222222222222222222222222222
                     $marker.marker = new SiMarker({
                         position: lngLat,
                         map: $scope.map,

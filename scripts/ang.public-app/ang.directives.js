@@ -119,7 +119,15 @@ function siList(){
                     return $scope._global_configs.default_view
                 }
             }
-    
+
+            $scope.hasMapKeyApi = function(){
+                if($scope._global_configs == undefined) return false;
+                if($scope._global_configs == null) return false;
+                if($scope._global_configs.map_api_key == '') return false;
+
+                return true;
+            }
+            
             /**
              * Start the loading process
              */

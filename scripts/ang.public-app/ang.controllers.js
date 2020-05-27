@@ -132,14 +132,6 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         angular.element(document.body).removeClass('si-modal-open');
     });
 
-    $scope.hasMapKeyApi = function(){
-        console.log('hasMapKeyApi',$scope.configs);
-        if($scope.configs == undefined) return false;
-        if($scope.configs == null) return false;
-        if($scope.configs.map_api_key == '') return false;
-
-        return true;
-    }
 });
 
 /**
