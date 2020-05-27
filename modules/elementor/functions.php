@@ -69,7 +69,8 @@ add_action( 'elementor/dynamic_tags/register_tags', function( $dynamic_tags ) {
                         'subcategory' => __( 'Subcategory', SI ),
                         'location.city' => __( 'City', SI ),
                         'location.region' => __( 'Region', SI ),
-                        'location.full_address' => __('Address', SI),
+                        'location.full_address' => __('Full address', SI),
+                        'location.civic_address' => __('Civic address', SI),
                     ],
 				]
             );
