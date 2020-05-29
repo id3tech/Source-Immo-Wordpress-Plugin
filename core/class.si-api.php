@@ -356,6 +356,56 @@ class SourceImmoApi {
     return self::get_configs();
   }
 
+  public static function backup_configs(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    if(file_exists($lConfigFilePath)){
+      copy($lConfigFilePath, $lConfigPath . '/_configs_backup.json');
+    }
+    
+  }
+
+  public static function get_configs_backup(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs_backup.json';
+    $fileContent = null;
+
+    if(file_exists($lConfigFilePath)){
+      try {
+        $filePointer = fopen($lConfigFilePath,'r');
+        $fileContent = fread($filePointer,max(filesize($lConfigFilePath),1));
+  
+        fclose($filePointer);
+      } 
+      catch (\Throwable $th) {
+        
+      }
+    }
+    return $fileContent;
+  }
+
+  public static function clear_backup(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs_backup.json';
+    if(file_exists($lConfigFilePath)){
+      unlink($lConfigFilePath);
+    }
+  }
+
+
+
   public static function get_dictionary($request){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
@@ -969,6 +1019,26 @@ class SourceImmoApi {
           'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
           'callback' => array( 'SourceImmoApi', 'reset_configs' ),
         ), // End POST
+      )
+    );
+
+    // Reset
+    register_rest_route( 'si-rest','/configs/backup',array(
+        array(
+          'methods' => WP_REST_Server::READABLE,
+          'permission_callback' => array( 'SourceImmoApi','privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'get_configs_backup')
+        ), // End GET
+        array(
+          'methods' => WP_REST_Server::EDITABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'backup_configs' ),
+        ), // End POST
+        array(
+          'methods' => WP_REST_Server::DELETABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'clear_backup' ),
+        ) // End POST
       )
     );
   }

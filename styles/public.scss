@@ -1468,7 +1468,7 @@ html{
             'mortgage-calculator','actions','open-houses','attachments');
 
             padding: 1rem 0;
-            grid-gap:  1rem;
+            gap:var(--layout-gutter);
             grid-template-columns: 2fr 1fr;
             grid-template-rows: auto;
             align-items: start;
@@ -1505,7 +1505,7 @@ html{
         }
         .si-header{
             display:grid;
-            grid-gap: 0 10px;
+            gap:0 var(--layout-gutter);
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: auto;
             grid-template-areas: 
@@ -2000,7 +2000,7 @@ html{
 
         .si-details{
             display:grid;
-            grid-gap: 1rem;
+            gap:var(--layout-gutter);
             grid-template-columns: 2fr 1fr;
             grid-template-rows: auto;
             grid-template-areas: "si-left si-right";
@@ -2146,9 +2146,9 @@ html{
             background-color:var(--medium-contrast-color);
             color:var(--medium-contrast-text-color);
 
-            .si-calculator{padding:20px;}
+            .si-calculator{padding:1.5rem;}
             .title{
-                font-size:1.6em;padding:20px;
+                font-size:1.6em;padding:1.5rem;
                 @include media($small-phone){
                     text-align:center;
                     i{display:block;}
@@ -2158,7 +2158,7 @@ html{
             .result{
                 background:var(--high-contrast-color);
                 color:var(--high-contrast-text-color);
-                padding:20px;
+                padding:1.5rem;
                 text-align:center;
                 .mortgage,.transfer-taxes{
                     font-size:1.2em;

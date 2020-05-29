@@ -24,7 +24,7 @@
 
         <div class="block-content">
             <div class="data-view-list">
-                <div ng-repeat="item in data_views" class="data-view-item {{configs.default_view == item.id ? 'default' : ''}}">
+                <div ng-repeat="item in data_views" ng-click="changeDefaultView(item)" class="data-view-item {{configs.default_view == item.id ? 'default' : ''}}">
                     {{item.name}}
                 </div>
             </div>
@@ -121,15 +121,14 @@
     </div>
 
     <div class="config-grid-block">
-        <h2 class="md-headline"><?php _e('Reset',SI)?></h2>
+        <h2 class="md-headline"><?php _e('Configs tools',SI)?></h2>
         <div class="block-content">
             <div layout="row" layout-align="start center">
                 <md-button ng-click="clearAllLayoutPage()"><?php _e('Clear all layouts',SI) ?></md-button>
-            </div>
-
-            <div layout="row" layout-align="start center">
+                <md-button ng-click="backupConfigs()"><?php _e('Backup settings',SI) ?></md-button>
                 <md-button ng-click="reset_all_configs()"><?php _e('Reset all settings',SI) ?></md-button>
             </div>
+
         </div>
     </div>
 </div>

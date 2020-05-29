@@ -1,5 +1,10 @@
 body.wp-admin{
   /* Material Overrides */
+
+  md-toast{
+    position:fixed;
+    top: 50px;
+  }
   md-icon{
     &.fas, &.fal, &.far{
       line-height: 1.2em;

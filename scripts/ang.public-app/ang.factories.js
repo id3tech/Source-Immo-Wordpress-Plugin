@@ -686,17 +686,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
      * @param {object} $item Listing data object
      */
     $scope.getPermalink = function($item, $type, $configs){
-        let lRoute = '';
         $type = (typeof $type=='undefined') ? 'listing' : $type;
         if(siCtx[$type + '_routes'] == undefined) return '';
         
         $scope.item = angular.copy($item);
-        
-        siCtx[$type + '_routes'].forEach(function($r){
-            if($r.lang==siCtx.locale){
-                lRoute=$r;
-            }
+        const lLocaleRoute = siCtx[$type + '_routes'].find(function($r){
+            return $r.lang==siCtx.locale
         });
+        const lRoute = lLocaleRoute == null ? siCtx[$type + '_routes'][0] : lLocaleRoute;
 
 
         let lMandatoryLocationData = ['country','state','region','city'];

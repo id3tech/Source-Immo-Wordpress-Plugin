@@ -245,11 +245,11 @@ si-checkbox, si-radio{
     box-sizing: border-box;
     *{    box-sizing: border-box;}
     display:grid;
-        gap: var(--layout-gutter);
+        gap:  1rem;
         grid-template-rows: auto;
     .input-container{
         display:grid;
-        gap:var(--layout-gutter);
+        gap: 1rem;
         grid-template-columns: 3fr 2fr;
         grid-template-areas: "label input";
         input{

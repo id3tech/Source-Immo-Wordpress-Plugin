@@ -388,7 +388,8 @@ body.wp-admin{
         display:flex;
         flex-wrap: wrap;
         flex-direction: row;
-
+        align-items:center;
+        
         .data-view-item{
           padding: 0.5em 1.25em;
           margin: 0.5em;
@@ -397,7 +398,7 @@ body.wp-admin{
             
             color: $primary;
             font-weight: 700;
-            border-bottom: solid 2px $primary;
+            border: solid 2px $primary;
           }
         }
       }

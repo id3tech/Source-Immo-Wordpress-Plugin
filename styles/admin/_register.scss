@@ -28,6 +28,11 @@
                 grid-template-columns:1fr;
                 place-items:stretch; 
             }
+
+            .backup-restore{
+                margin-top: 50px;
+                text-align:center;
+            }
         }
         
         &.complete{

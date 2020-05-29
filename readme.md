@@ -1,4 +1,4 @@
-# Version 0.4.60 Beta
+# Version 0.4.61 Beta
 
 ## Admin interface changes
 
@@ -8,7 +8,7 @@
 
 
 ## Adaptative search engine
-Use views to add tabs to the search engine
+Use views to add tabs to the search engine from views you've created
 You can also select which field are searchable
 
 ## List item changes
@@ -16,6 +16,7 @@ You can also select which field are searchable
 * Selective data to display
 * New double layer mode with hover effect (fade, slide, flip)
 * Single layer mode now shows the pictures of the property on hover
+* Server side renders for broker list
 
 
 ## Addons support
@@ -24,13 +25,15 @@ In this release:
 * [RE/MAX Québec](https://www.remax-quebec.com/) addon - Display an inner frame from remax-quebec.com website for listing details
 * [Prospects Software](https://www.prospects.com) integration addon - Show lead form in listing details
 
+## Elementor support
 
 
 ## Other things
 
-*Minor support for Elementor
+*You can change the default view which will update every list that used the previous one
 *Minor bugs fixes
-
+*Disconnection now make a backup of the settings to be restored upon credentials update
+*Fix Yoast support
 
 
 requires: 5.1.1

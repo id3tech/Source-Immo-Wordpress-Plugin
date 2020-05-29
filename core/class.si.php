@@ -671,7 +671,6 @@ class SourceImmo {
       // hook to sharing tools
       $share_tool = new SiSharing($listing_data);
       $share_tool->addHook('listing');
-      
       $permalink = $share_tool->getPermalink();
       add_filter('si_page_title', function($title) use ($share_tool){
         return $share_tool->title();
@@ -694,6 +693,7 @@ class SourceImmo {
       // Add hook to data
       $listing_data = apply_filters(hook_from_key('listing','single'), $listing_data);
       
+
       self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));
       die();
     }
@@ -1473,7 +1473,7 @@ class SourceImmoBrokersResult extends SourceImmoAbstractResult {
       $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
     }
 
-    $item->main_phone = $item->phones->office;
+    $item->main_phone = (isset($item->phones->mobile)) ? $item->phones->mobile : $item->phones->office;
 
     if(isset($item->license_type_code)){
       $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
@@ -1756,7 +1756,7 @@ class SourceImmoListingsResult extends SourceImmoAbstractResult {
         
       }
       
-      if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'))){
+      if(in_array($attr->code,array('HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL','KIND COMMERCE','DISTINCT. FEAT.'))){
         if(!isset($item->other)) $item->other = (object) array();
         if(!isset($item->other->attributes)) $item->other->attributes = array();
         $item->other->attributes[] = $attr;

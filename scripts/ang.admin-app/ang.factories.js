@@ -405,7 +405,127 @@ siApp
   }
 ])
 
+siApp
+.factory('$siConfigs',['$rootScope','$q','$siApi','$siUI','$timeout', function $siConfigs($rootScope,$q,$siApi,$siUI,$timeout){
+  const $scope = {
+    configsBackup: null
+  }
 
+  $scope.load = function(){
+    return $q( function($resolve,$reject){
+      $siApi.rest('configs')
+        .then(function($configs){
+          $scope.configs = $configs;
+        })
+        .then(function(){
+          return $scope.loadBackup()
+        })
+        .then($backup => {
+          if($backup != null && $backup != ''){
+            $scope.configsBackup = JSON.parse($backup);
+          }
+          
+          $resolve($scope.configs);
+        });
+    });
+  }
+
+  $scope.save = function($configs){
+    $scope.configs = $configs;
+    return $siApi.rest('configs',{settings: $configs},{method: 'POST'})
+  }
+
+  $scope.backup = function(){
+    $scope.configsBackup = angular.copy($scope.configs);
+    return $siApi.rest('configs/backup',null,{method: 'POST'});
+  }
+
+  $scope.loadBackup = function(){
+    return $siApi.rest('configs/backup');
+  }
+
+  $scope.clearBackup = function(){
+    $scope.configsBackup = null;
+    return $siApi.rest('configs/backup',null, {method: 'DELETE'});
+  }
+
+  $scope.restoreBackup = function($options){
+    $options = Object.assign({
+      directMethod: null
+    },$options);
+
+    if($options.directMethod != null && typeof $scope[$options.directMethod] == 'function'){
+      return $scope[$options.directMethod]();
+    }
+
+    const fnConfirm = _ => $siUI.confirm('Attention','Are you sure?\nThis will replace your current configuration');
+    $siUI.confirm('Attention','Would you like to restore everything (including credentials token) or merge with the current configuration?',{ok: 'Merge',cancel: 'Everything'})
+      .then(
+        function merge(){
+          fnConfirm().then(_ => {
+            $scope.restoreMerge();
+          });
+        },
+        function everything(){
+          fnConfirm().then(_ => {
+            $scope.restoreEverything();
+          })
+        }
+      )
+  }
+
+  $scope.restoreEverything = function(){
+    console.log('restoring everything from',$scope.configsBackup);
+    
+    const lConfigs = angular.copy($scope.configsBackup);
+
+    $scope.clearBackup()
+      .then(_ => {
+        return $scope.save(lConfigs);
+      })
+      .then(_ => {
+        $scope.configsBackup = null;
+        $siUI.show_toast('Settings restored');
+        window.location.reload(true);
+      });
+  }
+
+  $scope.restoreMerge = function(){
+    const lNewConfigs = $scope.mergeBackupToConfigs($scope.configs);
+   
+    $scope.clearBackup()
+      .then(_ => {
+        return $scope.save(lNewConfigs);
+      })
+      .then(_ => {
+        $scope.configsBackup = null;
+        $siUI.show_toast('Settings restored');
+        window.location.reload(true);
+      })
+    
+  }
+
+  $scope.mergeBackupToConfigs = function($configs){
+    const lBackup = angular.copy($scope.configsBackup);
+    const lExceptionKeys = ['account_id','api_key','app_id','app_version','default_view'];
+    const lDefaultView = $scope.data_views.find($e => $e.id == $configs.default_view);
+    
+    Object.keys($configs)
+      .filter($k => lExceptionKeys.includes($k))  // take only the keys that we want to keep from new settings
+      .forEach($k => {
+        lBackup[$k] = $configs[$k];
+      });
+    
+    lBackup.lists.forEach($l => {
+      $l.source = lDefaultView;
+    });
+
+    return lBackup;
+
+  }
+
+  return $scope;
+}]);
 
 siApp
 .factory('$siUI',['$mdDialog','$mdToast','$q','$rootScope', function $siUI($mdDialog,$mdToast,$q,$rootScope){
@@ -453,13 +573,15 @@ siApp
     $options = angular.merge({
       ev: null,
       ok: 'OK',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
+      multiple: true
     }, $options);
     
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
           .title(lTitle)
           .htmlContent(lMessage.translate().replace("\n",'<br>'))
+          .multiple($options.multiple)
           .targetEvent($options.ev)
           .ok($options.ok.translate())
           .cancel($options.cancel.translate());
@@ -478,7 +600,7 @@ siApp
         $mdToast.simple()
           .textContent($message.translate())
           .position('top right')
-          .hideDelay(3000)
+          .hideDelay(2000)
       );
     }
     catch($ex){

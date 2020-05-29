@@ -2,7 +2,7 @@
  * Main Configuration Controller
  */
 siApp
-.controller('homeCtrl', function($scope, $rootScope,$timeout){
+.controller('homeCtrl', function($scope, $rootScope,$timeout, $siConfigs){
 
   console.log('configs controller loaded');
 
@@ -113,7 +113,7 @@ siApp
 
  // List
 siApp
-.controller('listCollectionCtrl', function($scope, $rootScope){
+.controller('listCollectionCtrl', function($scope, $rootScope, $siConfigs){
   $scope.init = function(){
 
   }
@@ -189,7 +189,7 @@ siApp
  * MAIN ROOT CONTROLLER
  */
 siApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils, $siConfigs){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
   $scope.wpSiApiSettings = wpSiApiSettings;
@@ -466,7 +466,7 @@ siApp
 
   $scope.load_configs = function(){
     return $q(function($resolve, $reject){
-      $scope.api('configs').then(function($response){
+      $siConfigs.load().then(function($response){
         $scope.configs = $response;
         
         if($scope.configs.default_view == null){
@@ -524,6 +524,32 @@ siApp
     });
   }
 
+  $scope.hasBackup = function(){
+    return $siConfigs.configsBackup != null;
+  }
+  
+  $scope.backupConfigs = function($silent){
+    $silent = (typeof $silent == undefined) ? false : $silent;
+    return $siConfigs.backup().then(function(){
+      if(!$silent){
+        $siUI.show_toast('Settings backup done');
+      }
+      $scope.checkIntegrity();
+    });
+  }
+
+
+  $scope.changeDefaultView = function($view){
+    $scope.configs.lists
+      .filter($l => $l.source.id == $scope.configs.default_view)
+      .forEach($l => {
+        $l.source = $view;
+      });
+
+    $scope.configs.default_view = $view.id;
+    $scope.save_configs();
+  }
+
   $scope.save_configs = function($silent){
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
@@ -533,7 +559,7 @@ siApp
         .then(_ => {
           console.log('saving configs', $scope.configs);
           
-          $scope.api('configs',{settings: $scope.configs}).then(function($response){
+          $siConfigs.save($scope.configs).then(function($response){
             if(!$silent){
               $scope.show_toast('Save completed');
             }
@@ -680,13 +706,16 @@ siApp
 
   $scope.signout = function(){
     $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
-      $scope.reset_configs()
+      $scope.backupConfigs(true).then(function(){
+        $scope.reset_configs()
         .then( function(){
           $scope.show_toast('Configuration reset');
         })
         .then(function(){
           $scope.startRegistration();
         });
+      });
+      
     }) 
   }
 
@@ -1138,6 +1167,30 @@ siApp
       $scope.addNotice('All good', 'The plugin is properly configured', {type:'success', color: '#4AB448', icon: 'fa-check-circle'});
     }
 
+    if($scope.hasBackup()){
+      $scope.addNotice(
+        'Backup detected',
+        'A settings backup has been detected. Select one of the following options:', 
+        {
+          type: 'success', color: '#41A5EE', icon: 'fa-database',
+          actions: {
+            'Restore' : function(){
+              $siConfigs.data_views = $scope.data_views;
+              $siConfigs.restoreBackup();
+            },
+            'Clear' : function(){
+              $siUI.confirm('Attention','Are you sure you want to delete this backup?',{ok:'Yes',cancel:'No'}).then(
+                function(){
+                  $siConfigs.clearBackup().then(_ => {
+                    $scope.checkIntegrity();
+                  });
+                }
+              )
+            }
+          }
+        }
+      )
+    }
   }
 
   $scope.hasErrorNotices = function(){

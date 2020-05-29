@@ -152,7 +152,6 @@ class SiShorcodes{
             $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
             if(in_array($listConfig->list_layout->preset, array('direct'))){
-                
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{

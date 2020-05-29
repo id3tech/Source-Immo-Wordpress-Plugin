@@ -14,7 +14,7 @@ class SourceImmoPageBuilder{
         // add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
         // add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
 
-        add_filter( 'the_content', array($this, 'get_page_content'), 0);
+        //add_filter( 'the_content', array($this, 'get_page_content'), 0);
         add_filter( 'body_class', function($classes){
             $classes[] = '';
         
@@ -25,12 +25,12 @@ class SourceImmoPageBuilder{
 
     public function start_page(){
         
-        ob_start();
+        //ob_start();
     }
 
     public function close_page(){
         $this->inline_content = ob_get_contents();
-        ob_clean();
+        //ob_clean();
 
         
     }
@@ -96,8 +96,11 @@ class SourceImmoPageBuilder{
         });
 
         $pageTemplate = apply_filters('si_get_page_template', $pageTemplate);
+        
 
         if($pageTemplate != null){
+            $templateDir = get_template_directory();
+
             if(file_exists($pageTemplate)){
                 include($pageTemplate);
                 return;
@@ -108,6 +111,7 @@ class SourceImmoPageBuilder{
             
             if(file_exists($templateDir . '/' . $pageTemplate)){
                 include  $templateDir . '/' . $pageTemplate;
+                
             }
             
         }

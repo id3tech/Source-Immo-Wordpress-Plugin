@@ -373,7 +373,7 @@ siApp
 
 
 siApp
-.controller('registerCtrl', function registerCtrl($scope, $rootScope,$timeout, $mdDialog,$q,$siUtils, $siUI, $siApi){
+.controller('registerCtrl', function registerCtrl($scope, $rootScope,$timeout, $mdDialog,$q,$siUtils, $siUI, $siApi, $siConfigs){
   BaseDialogController($scope, $mdDialog, $rootScope);
 
   $scope.login_infos = {
@@ -478,6 +478,13 @@ siApp
     });
   }
 
+  $scope.restorePreviousInstallation = function(){
+    $siConfigs.restoreBackup({directMethod: 'restoreEverything'});
+  }
+  $scope.hasBackup = function(){
+    return $siConfigs.configsBackup != null;
+  }
+
   $scope.selectAccount = function($account){
     $scope.model.global_account_id = $account.id;
     $scope.nextStep();
@@ -491,7 +498,56 @@ siApp
 
   $scope.selectDefaultView = function($view){
     $scope.model.default_view = $view;
-    $scope.nextStep();
+
+    if($scope.hasBackup()){
+      $siUI.confirm('','A backup of your old configuration has been detected.\nWould you like to keep these settings?',{ok: 'Yes',cancel:'No'})
+        .then(
+          function keep(){
+            $scope.finishWithBackupMerge();
+          },
+          function continueNext(){
+            $scope.nextStep();
+          }
+        )
+    }
+    else{
+      $scope.nextStep();
+    }
+  }
+
+  $scope.finishWithBackupMerge = function(){
+    $siConfigs.data_views = $scope.data_views;
+    $scope.wizard_step = 0;
+    
+    const lConfigs = $scope.buildConfig();
+    const lMergeConfigs = $siConfigs.mergeBackupToConfigs(lConfigs);
+
+    // const lBackup = JSON.parse(localStorage.getItem('si.configs.backup'));
+    // const lExceptionKeys = ['api_key','app_id','app_version','default_view'];
+    // const lConfigs = $scope.buildConfig();
+    // const lDefaultView = $scope.data_views.find($e => $e.id == lConfigs.default_view);
+    
+    // Object.keys(lConfigs)
+    //   .filter($k => lExceptionKeys.includes($k))  // take only the keys that we want to keep from new settings
+    //   .forEach($k => {
+    //     lBackup[$k] = lConfigs[$k];
+    //   });
+    
+    // lBackup.lists.forEach($l => {
+    //   $l.source = lDefaultView;
+    // });
+
+    $scope.model.state = 'complete';
+    console.log('configs',lMergeConfigs);
+    
+    $siConfigs.clearBackup().then(_ => {
+      $siApi.rest('configs',{settings : lMergeConfigs}).then(_ => {
+        $timeout(_ => {
+          window.location.reload(true);
+        },1000);
+      });
+    })
+    
   }
 
   $scope.applyPageShortcodes = function(){

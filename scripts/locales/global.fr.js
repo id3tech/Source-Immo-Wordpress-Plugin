@@ -39,6 +39,7 @@ $locales.fr = {};$locales.fr.global =
     , "Previous step" : "Étape précédante"
     , "Next step" : "Étape suivante"
     , "Finish" : "Terminer"
+    , "Restore" : "Restaurer"
     , "Loading" : "Chargement de"
     // Time
     , "in" : "dans"
@@ -178,6 +179,25 @@ $locales.fr = {};$locales.fr.global =
     , "Edit search engine" : "Modifier le moteur de recherche"
     , "Use a median location and average distances algorithm to center the map." : "Utilizer un algorithme de localisation médiane et de distances moyennes pour centrer la carte."
     , "Are you sure you want to remove this list?" : "Voulez-vous vraiment supprimer cette liste?"
+    , "Configs tools" : "Outils de réglages"
+
+    // Backups
+    , "Backup settings" : "Sauvgarder les réglages"
+    , "Backup detected" : "Sauvegarde détectée"
+    , "A settings backup has been detected. Select one of the following options:" : "Une sauvegarde des réglages a été détectée. Sélectionnez l'une des options suivantes:"
+    , "Are you sure you want to delete this backup?" : "Voulez-vous vraiment supprimer cette sauvegarde?"
+    , "Settings backup done" : "Sauvegarde des réglages effectuée"
+    , "Would you like to restore everything (including credentials token) or merge with the current configuration?"
+            : "Souhaitez-vous tout restaurer (y compris le jeton d'identification) ou fusionner avec les réglages actuels?"
+    , "Everything" : "Tout"
+    , "Merge" : "Fusionner"
+    , "Are you sure?\nThis will replace your current configuration" : "Êtes-vous sûr?\nCela remplacera vos réglages actuels"
+    , "Configuration backup detected" : "Sauvegarde de la réglage détectée"
+    , "Would you like to restore it?" : "Voulez-vous le restaurer?"
+    , "Restore settings" : "Restaurer les réglages"
+    , "A backup of your old configuration has been detected.\nWould you like to keep these settings?" 
+            : "Une sauvegarde de vos anciens réglages a été détectée.\nVoulez-vous conserver ces paramètres?"
+    , "Settings restored" : "Réglages restaurés"
 
     // Style editor
     , "Preview" : "Aperçu"
