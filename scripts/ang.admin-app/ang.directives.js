@@ -753,18 +753,18 @@ siApp
             if($new != $old){
               console.log('rawModel new:', $new,'old:', $old);
               $scope.model = $scope.parseModel($scope.rawModel);
-              //$scope.updatePreviewBox();
+              $scope.updatePreviewBox();
 
               $scope._rawModelWatcherHndl();
               $scope._rawModelWatcherHndl = null;
 
-              //if($scope._updateWatcherHndl != null) $scope._updateWatcherHndl();
+              if($scope._updateWatcherHndl != null) $scope._updateWatcherHndl();
 
-              //$scope.registerModelWatcher();
+              $scope.registerModelWatcher();
             }
           }
 
-        });
+        },true);
 
         
       }

@@ -28,7 +28,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.highlight"
-                ng-model-options="{updateOn:'blur'}"
+                ng-model-options="{debounce:500}"
                 label="{{'Highlight color'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight)}})"
                 icon="far fa-highlighter"
             ></div>
@@ -36,7 +36,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.highlight_text_color"
-                ng-model-options="{updateOn:'blur'}"
+                ng-model-options="{debounce:500}"
                 label="{{'Highlight color - text'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight_text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -54,6 +54,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.container_border_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.container_border_color)}})"
                 icon="fad fa-border-all"
             ></div>
@@ -83,6 +84,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.list_item_separator_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.list_item_separator_color)}})"
                 icon="fad fa-border-all"
             ></div>
@@ -106,6 +108,7 @@
                 <div
                     md-color-picker="options.colorPicker"
                     ng-model="model.element_border_color"
+                    ng-model-options="{debounce:500}"
                     label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.element_border_color)}})"
                     icon="fad fa-border-all"
                 ></div>
@@ -135,6 +138,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.background_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Default background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.background_color)}})"
                 icon="fad fa-send-back"
             ></div>
@@ -142,6 +146,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.text_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Default text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -149,6 +154,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.small_contrast_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Small contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.small_contrast_color)}})"
                 icon="fad fa-send-back"
             ></div>
@@ -156,6 +162,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.small_contrast_text_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Small contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.small_contrast_text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -163,6 +170,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.medium_contrast_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Medium contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.medium_contrast_color)}})"
                 icon="fad fa-send-back"
             ></div>
@@ -170,6 +178,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.medium_contrast_text_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Medium contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.medium_contrast_text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -177,6 +186,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.high_contrast_color"
+                ng-model-options="{debounce:500}"
                 label="{{'High contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.high_contrast_color)}})"
                 icon="fad fa-send-back"
             ></div>
@@ -184,6 +194,7 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.high_contrast_text_color"
+                ng-model-options="{debounce:500}"
                 label="{{'High contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.high_contrast_text_color)}})"
                 icon="far fa-text"
             ></div>
@@ -286,12 +297,14 @@
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.listing_item_sold_bg_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Sold label flag background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_bg_color)}})"
                 icon="far fa-flag"
             ></div>
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.listing_item_sold_text_color"
+                ng-model-options="{debounce:500}"
                 label="{{'Sold label flag text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_text_color)}})"
                 icon="far fa-text"
             ></div>
