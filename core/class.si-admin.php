@@ -51,18 +51,19 @@ class SourceImmoAdmin {
   * Generate Admin menu item
   */
   public function load_menu() {
-		// $hook = add_options_page(
-    //           __('Source Immo', SI),
-    //           __('Source Immo', SI),
-    //           'manage_options',
-    //           self::CONFIG_PAGE_KEY,
-    //           array( $this, 'render_page' )
-    // );
+		
     $logoContent = file_get_contents(SI_PLUGIN_DIR . '/styles/assets/logo.svg');
     $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
+    $warnings = '';
+
+    $last_warnings = get_transient('si-last-error-count');
+    if($last_warnings != null){
+      $warnings = sprintf(' <span class="awaiting-mod">%d</span>',$last_warnings);
+    }
+
     add_menu_page(
       __('Source Immo',SI) // page title  
-      , __('Source Immo',SI) // menu title
+      , __('Source Immo',SI) . $warnings // menu title
       , 'manage_options'     // capabilities
       , 'source-immo' //menu_slug
       , array( $this, 'render_page' ) // function
@@ -90,6 +91,21 @@ class SourceImmoAdmin {
       }
     }
     ksort( $menu );
+  }
+
+  public function add_admin_menu_bubble($content){
+    global $menu;
+
+
+    foreach ( $menu as $key => $value ) {
+
+      if ( $menu[$key][2] == 'source-immo' ) {
+        $problem_count = 2;
+        $menu[$key][0] .= ' ' . $problem_count . '';
+
+        return;
+      }
+    }
   }
 
   /**
