@@ -16,6 +16,7 @@ class SourceImmoAdmin {
       'rightnow_end'=>'',
     ));
 
+    
     $this->register_filters(array(
       'plugin_action_links_'.plugin_basename(SI_PLUGIN_DIR. 'source-immo.php') => 'admin_plugin_settings_link', // little "settings" link in the plugin page
     ));
@@ -50,18 +51,46 @@ class SourceImmoAdmin {
   * Generate Admin menu item
   */
   public function load_menu() {
-		$hook = add_options_page(
-              __('Source Immo', SI),
-              __('Source Immo', SI),
-              'manage_options',
-              self::CONFIG_PAGE_KEY,
-              array( $this, 'render_page' )
+		// $hook = add_options_page(
+    //           __('Source Immo', SI),
+    //           __('Source Immo', SI),
+    //           'manage_options',
+    //           self::CONFIG_PAGE_KEY,
+    //           array( $this, 'render_page' )
+    // );
+    $logoContent = file_get_contents(SI_PLUGIN_DIR . '/styles/assets/logo.svg');
+    $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
+    add_menu_page(
+      __('Source Immo',SI) // page title  
+      , __('Source Immo',SI) // menu title
+      , 'manage_options'     // capabilities
+      , 'source-immo' //menu_slug
+      , array( $this, 'render_page' ) // function
+      , $logoBase64 // icon_url
+      , 59 // position, just before Apparence separator(59)
     );
+    
+    $this->add_admin_menu_separator(58);
+    $this->add_admin_menu_separator(60);
 
-    if ( $hook ) {
+    if ( isset($hook) ) {
 			add_action( "load-$hook", array( $this, 'admin_help' ) );
 		}
-	}
+  }
+  
+  public function add_admin_menu_separator($position){
+    global $menu;
+    $index = 0;
+    foreach($menu as $offset => $section) {
+      if (substr($section[2],0,9)=='separator')
+        $index++;
+      if ($offset>=$position) {
+        $menu[$position] = array('','read',"separator{$index}",'','wp-menu-separator');
+        break;
+      }
+    }
+    ksort( $menu );
+  }
 
   /**
   * Initialization on admin
