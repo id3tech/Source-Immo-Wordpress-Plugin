@@ -1,7 +1,7 @@
 <?php 
-if(isset($model->land->attributes)){
+if(isset($model->land->attributes) || (isset($model->land->short_dimension) && ($model->land->short_dimension != ''))){
 ?>
-<div class="panel other-specs">
+<div class="panel land-specs">
     <h3><?php _e('Lot and exterior',SI) ?></h3>
     <?php 
     if(isset($model->land->dimension)){
@@ -12,6 +12,8 @@ if(isset($model->land->attributes)){
     </div>
     <?php 
     }
+
+    if(isset($model->land->attributes)){
     ?>
     <div class="content spec-grid">
         <?php 
@@ -29,6 +31,9 @@ if(isset($model->land->attributes)){
         }
         ?>
     </div>
+    <?php
+    }
+    ?>
 </div>
 <?php
 }

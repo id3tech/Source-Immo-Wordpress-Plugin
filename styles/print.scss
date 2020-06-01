@@ -31,6 +31,15 @@ html.print{
         h3{font-size: 1.375rem;}
         h4{font-size: 1.25rem;}
         h5{font-size: 1.15rem;}
+
+        .info-panel{
+            position:fixed;
+            top:0px;
+            left:0;
+            bottom:0;
+            width: 25vw;
+            overflow:hidden auto;
+        }
         .print-button{
             position:fixed;
             display:block;
@@ -178,6 +187,40 @@ html.print{
             &.dock-bottom{
                 left:0;right:0;
                 bottom:0;
+            }
+
+            .list{
+                display:grid;
+                grid-template-columns: 1fr auto;
+                grid-gap:0.25in;
+                place-items:center stretch;
+                .list-item{
+                    display:contents;
+                    label{
+                        //grid-area:label;
+                        margin:0;
+                        font-weight: 400;
+                    }
+                    .value{
+                        //grid-area:value;
+                        font-size:1rem;
+                        text-align:right;
+                    }
+                }
+            }
+
+            .spec-grid{
+                display:grid;
+                grid-gap:0.01in;
+                grid-template-columns: repeat(2,1fr);
+
+                .spec{
+                    margin-bottom:0.5rem;
+                    label{
+                        margin-bottom:0;
+
+                    }
+                }
             }
         }
 
@@ -380,14 +423,50 @@ html.print{
                         label{text-transform:uppercase;margin:0;}
                         .value{margin-right:0.25in;font-weight: 700;}
                     }
-                    .spec-grid{
+                    
+                    
+
+                }
+            }
+
+            &.commercial-details{
+                padding:0;
+
+                .page-layout{
+                    display:grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-rows: auto auto auto 1fr;
+                    place-items:start stretch;
+                    gap: 0.25in;
+
+                    .panel{
+                        padding:0.25in;
+
+                        &.other-specs{
+                            grid-row: 1 / span 6;
+
+                            .spec-grid{
+                                grid-template-columns: 1fr;
+                                gap:0.1in;
+                            }
+                        }
+
+                        .area{
+                            display:grid;
+                            grid-template-columns: auto 1fr;
+                            place-items: center end;
+                            margin-bottom:0.1in;
+                            label{text-transform:uppercase;margin:0;}
+                            .value{margin-right:0.25in;font-weight: 700;}
+                        }
+                    }
+                    .financial{
                         display:grid;
-                        grid-gap:0.01in;
-                        grid-template-columns: repeat(2,1fr);
+                        grid-template-columns: 1fr;
+                        grid-gap:0.25in;
+                        
                     }
                 }
-                
-
             }
 
             &.details-part2{
@@ -436,32 +515,7 @@ html.print{
                     display:grid;
                     grid-template-columns: 1fr;
                     grid-gap:0.25in;
-                    .list{
-                        display:grid;
-                        grid-template-columns: 1fr auto;
-                        grid-gap:0.25in;
-                        place-items:center stretch;
-                        .list-item{
-                            display:contents;
-                        }
-                    }
-
-                    .assessment,.expense,.income{
-                        // display:grid;
-                        // grid-template-columns: 1fr;
-                        // grid-template-areas: "value" "label";
-                        // place-items:center;
-                        label{
-                            //grid-area:label;
-                            margin:0;
-                            font-weight: 400;
-                        }
-                        .value{
-                            //grid-area:value;
-                            font-size:1rem;
-                            text-align:right;
-                        }
-                    }
+                    
                 }
             }
             &.rooms{

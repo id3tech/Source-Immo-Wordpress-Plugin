@@ -1,7 +1,7 @@
 <?php 
-if(isset($model->building->attributes)){
+if(isset($model->building->attributes) || (isset($model->building->short_dimension) && ($model->building->short_dimension != ''))){
 ?>
-<div class="panel other-specs">
+<div class="panel building-specs">
     <h3><?php _e('Building and interior',SI) ?></h3>
     <?php 
     if(isset($model->building->dimension)){
@@ -12,6 +12,8 @@ if(isset($model->building->attributes)){
     </div>
     <?php 
     }
+
+    if(isset($model->building->attributes)){
     ?>
     <div class="content spec-grid">
         <?php 
@@ -29,6 +31,9 @@ if(isset($model->building->attributes)){
         }
         ?>
     </div>
+    <?php
+    }
+    ?>
 </div>
 <?php
 }

@@ -7,6 +7,11 @@
     </head>
     <body>
 
+        <?php if(isset($_GET['infos'])) {
+            echo('<div class="info-panel">');
+            __json($model);
+            echo('</div>');
+        }?>
 
 
         <page class="front-page">
@@ -23,12 +28,15 @@
                     <div class="city"><?php echo($model->location->city) ?></div>
                     
                     <div class="ref_number"><?php echo($model->ref_number) ?></div>
-                    <div class="description"><?php echo($model->description) ?></div>
+                    <div class="description"><?php if(isset($model->description)) echo($model->description) ?></div>
                 </div>
             </div>
             
         </page>
 
+        <?php
+        if($model->category_code == 'RES'){
+        ?>
         <page class="details">
             
             
@@ -67,7 +75,36 @@
         </page>
 
         <?php 
-        
+        }
+        else{
+        ?>
+            <page class="commercial-details">
+                <div class="page-layout">
+                    <?php SourceImmo::view('single/listings_layouts/print/caracteristics', array('model'=>$model, 'all' => true))?>
+
+                    <?php SourceImmo::view('single/listings_layouts/print/units', array('model'=>$model))?>
+                    <?php SourceImmo::view('single/listings_layouts/print/financial', array('model'=>$model))?>
+                    
+                    <?php
+                    if(isset($model->building->attributes)) unset($model->building->attributes);
+                    if(isset($model->land->attributes)) unset($model->land->attributes);
+                    ?>
+                    <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
+                    <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
+
+
+                    <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
+                    <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+
+                    <?php SourceImmo::view('single/listings_layouts/print/map', array('model'=>$model))?>  
+                </div>
+
+                <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
+                <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
+            </page>
+        <?php
+        }
+
         if(isset($model->rooms) && is_array($model->rooms) && count($model->rooms) > 0){
             SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }

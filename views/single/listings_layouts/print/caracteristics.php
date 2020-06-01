@@ -1,11 +1,17 @@
 <?php 
-if(isset($model->other->attributes)){
+
+$lGlobalAttributes = $model->other->attributes;
+if($all === true){
+    $lGlobalAttributes = $model->attributes;
+}
+
+if(isset($lGlobalAttributes) && is_array($lGlobalAttributes) && count($lGlobalAttributes)>0){
 ?>
 <div class="panel other-specs">
     <h3><?php _e('Characteristics',SI) ?></h3>
     <div class="content spec-grid">
         <?php 
-        foreach ($model->other->attributes as $spec) {
+        foreach ($lGlobalAttributes as $spec) {
             echo('<div class="spec">');
             echo("<label>{$spec->caption}</label>");
             echo('<div>');

@@ -47,6 +47,14 @@ function __c(...$data){
   $c->write(...$data);
 }
 
+function __json(...$data){
+  foreach ($data as $item) {
+    echo('<pre>');
+    echo(json_encode($item,JSON_PRETTY_PRINT));
+    echo('</pre>');
+  }
+}
+
 /**
  * String prototype utilities
  */

@@ -113,7 +113,10 @@ siApp
               }
             },
             list_item_layout : { 
-                preset: 'standard', scope_class : '', custom:null,
+                preset: 'standard', 
+                scope_class : '', 
+                custom:null,
+                layout: 'standard',
                 displayed_vars: {
                     main:['first_name','last_name','licence','phone']
                 }
