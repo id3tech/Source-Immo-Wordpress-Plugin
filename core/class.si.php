@@ -202,7 +202,7 @@ class SourceImmo {
   /**
    * @param string $type Type of the layout
    */
-  function get_detail_layout($type){
+  public function get_detail_layout($type){
     $locale = substr(get_locale(),0,2);
     $lResult = null;
     
@@ -509,20 +509,32 @@ class SourceImmo {
     if(isset($configs->styles)){
       
       $styles = explode(',',trim($configs->styles,"{}"));
+      $configStyles = array();
+      $customStyles = null;
       foreach($styles as $styleRaw){
         $style = explode(':', str_replace('"','', $styleRaw));
-        wp_register_style( 'si-custom-style', false, array('si-style') );
-        wp_enqueue_style( 'si-custom-style');
         
         if('---custom-style' === $style[0]){
           array_splice($style,0,1);
-          $style = implode(':',$style);
+          if($style != ''){
+            $style = implode(':',$style);
+            $customStyles = $style;
+          }
           //__c($style);
-          wp_add_inline_style('si-custom-style',str_replace('\n', "", $style));
+        }
+        else{
+          $configStyles[] = str_replace('"','', $styleRaw);
         }
         
       }
-      
+      if(count($configStyles) > 0 ){
+        $configStyles = 'body{' . implode(';',$configStyles) . '}';
+        if($customStyles != null) $configStyles = $configStyles . $customStyles;
+
+        wp_register_style( 'si-custom-style', false, array('si-style') );
+        wp_enqueue_style( 'si-custom-style');
+        wp_add_inline_style('si-custom-style',str_replace('\n', "", $configStyles));
+      }
     }
 
     wp_add_inline_script( 'si-prototype', 

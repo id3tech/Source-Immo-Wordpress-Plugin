@@ -1,7 +1,8 @@
-# Version 0.4.63 RC1
+# Version 0.4.64 RC1
 
 ## Admin interface changes
 
+* Access admin interface directly from the wordpress menu
 * Style editor for colors, borders, spacings, etc
 * Search engine designer
 * Choose which information to display for list items

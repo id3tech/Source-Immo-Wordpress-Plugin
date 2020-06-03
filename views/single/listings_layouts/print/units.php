@@ -9,7 +9,7 @@ if(isset($model->units)){
         foreach ($model->units as $unit) {
         ?>
         <div class="unit-item list-item">
-            <label class="category"><?php echo($unit->category)?> <?php _e('unit',SI) ?></label>
+            <label class="category"><?php echo StringPrototype::format(__('{0} unit',SI), $unit->category)?> </label>
             <div class="dimension value">
                 <?php echo(SourceImmoListingsResult::formatDimension($unit->dimension)) ?>
             </div>

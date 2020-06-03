@@ -550,6 +550,11 @@ siApp
     $scope.save_configs();
   }
 
+  $scope.logoChanged = function($logo){
+    $scope.configs.site_logo = $logo;
+    $scope.save_configs();
+  }
+
   $scope.save_configs = function($silent){
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){

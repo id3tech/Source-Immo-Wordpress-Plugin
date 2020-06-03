@@ -52,16 +52,18 @@ class SourceImmoPageBuilder{
         
         if($page_template != '') return $page_template;
 
-        $templateFiles = wp_get_theme()->get_files('php',0,true);
-        $priorityList = array('page','single','index');
+        //$templateFiles = wp_get_theme()->get_files('php',0,true);
+        $path = locate_template(array('page.php','single.php','index.php'));
+        if($path != '') return $path;
+        // $priorityList = array('page','single','index');
 
-        foreach ($priorityList as $pageName) {
-            foreach($templateFiles as $template => $path){
-                if($template== $pageName . '.php'){
-                    return $path;
-                }
-            }
-        }
+        // foreach ($priorityList as $pageName) {
+        //     foreach($templateFiles as $template => $path){
+        //         if($template== $pageName . '.php'){
+        //             return $path;
+        //         }
+        //     }
+        // }
 
         return null;
     }

@@ -180,7 +180,9 @@ $locales.fr = {};$locales.fr.global =
     , "Use a median location and average distances algorithm to center the map." : "Utilizer un algorithme de localisation médiane et de distances moyennes pour centrer la carte."
     , "Are you sure you want to remove this list?" : "Voulez-vous vraiment supprimer cette liste?"
     , "Configs tools" : "Outils de réglages"
-
+    , "Your logo" : "Votre logo"
+    , "Choose an image" : "Sélectionner une image"
+    
     // Backups
     , "Backup settings" : "Sauvgarder les réglages"
     , "Backup detected" : "Sauvegarde détectée"

@@ -4,7 +4,8 @@ Admin management class
 */
 
 class SourceImmoAdmin {
-  const CONFIG_PAGE_KEY = 'si-config';
+  const CONFIG_PAGE_KEY = 'source-immo';
+  const CONFIG_MENU_LOCATION = 'settings';
 
   public function init_hooks() {
     $this->register_actions(array(
@@ -36,10 +37,20 @@ class SourceImmoAdmin {
 
   }
 
-  public function load_resources(){
-    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
-    wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
-    wp_enqueue_style( 'si-color-picker-style', plugins_url('/styles/mdColorPicker.min.css', SI_PLUGIN) );
+  public function load_resources($page){
+    $ressource_location = 'settings_page_';
+    if(self::CONFIG_MENU_LOCATION == 'root'){
+      $ressource_location = 'toplevel_page_';
+    }
+
+    //__c($page);
+
+    if($page == $ressource_location  . self::CONFIG_PAGE_KEY){
+      wp_enqueue_media();
+      wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
+      wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
+      wp_enqueue_style( 'si-color-picker-style', plugins_url('/styles/mdColorPicker.min.css', SI_PLUGIN) );
+    }
   }
 
 
@@ -51,32 +62,41 @@ class SourceImmoAdmin {
   * Generate Admin menu item
   */
   public function load_menu() {
-		
-    $logoContent = file_get_contents(SI_PLUGIN_DIR . '/styles/assets/logo.svg');
-    $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
-    $warnings = '';
+    $hook = false;
 
-    $last_warnings = get_transient('si-last-error-count');
-    if($last_warnings != null){
-      $warnings = sprintf(' <span class="awaiting-mod">%d</span>',$last_warnings);
+    if(self::CONFIG_MENU_LOCATION != 'root'){
+      $hook = add_options_page(
+            __('Source Immo', SI),
+            __('Source Immo', SI),
+            'manage_options',
+            self::CONFIG_PAGE_KEY,
+            array( $this, 'render_page' )
+      );
+    }
+    else{
+      $logoContent = file_get_contents(SI_PLUGIN_DIR . '/styles/assets/logo.svg');
+      $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
+      $warnings = '';
+  
+      $last_warnings = get_transient('si-last-error-count');
+      if($last_warnings != null){
+        $warnings = sprintf(' <span class="awaiting-mod">%d</span>',$last_warnings);
+      }
+  
+      add_menu_page(
+        __('Source.Immo',SI) // page title  
+        , __('Source.Immo',SI) . $warnings // menu title
+        , 'manage_options'     // capabilities
+        , 'source-immo' //menu_slug
+        , array( $this, 'render_page' ) // function
+        , $logoBase64 // icon_url
+       // , 50 // position, just before Apparence separator(59)
+      );
     }
 
-    add_menu_page(
-      __('Source Immo',SI) // page title  
-      , __('Source Immo',SI) . $warnings // menu title
-      , 'manage_options'     // capabilities
-      , 'source-immo' //menu_slug
-      , array( $this, 'render_page' ) // function
-      , $logoBase64 // icon_url
-      , 59 // position, just before Apparence separator(59)
-    );
-    
-    $this->add_admin_menu_separator(58);
-    $this->add_admin_menu_separator(60);
-
-    if ( isset($hook) ) {
-			add_action( "load-$hook", array( $this, 'admin_help' ) );
-		}
+    if ( $hook ) {
+      add_action( "load-$hook", array( $this, 'admin_help' ) );
+    }
   }
   
   public function add_admin_menu_separator($position){
@@ -150,7 +170,7 @@ class SourceImmoAdmin {
 
 		$args = array( 'page' => self::CONFIG_PAGE_KEY );
 		//$url = add_query_arg( $args, admin_url( 'admin.php' ) );
-    $url = add_query_arg( $args, admin_url( 'options-general.php' ) );
+    $url = add_query_arg( $args, admin_url( 'admin.php' ) );
 
 		return $url;
 	}

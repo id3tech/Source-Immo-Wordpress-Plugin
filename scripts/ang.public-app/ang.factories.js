@@ -802,9 +802,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
                 $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
             }
             
-            
             if(!$scope.isNullOrEmpty($item.available_area)){
-                $item.available_area_unit = $scope.getCaption($item.available_area_unit_code,'dimension_unit',true);
+                $item.available_area_unit = $scope.getCaption($item.available_area_unit_code,'dimension_unit');
             }
 
             $scope.compileListingRooms($item);

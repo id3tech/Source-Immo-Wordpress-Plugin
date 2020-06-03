@@ -49,11 +49,11 @@ if(isset($configs)){
             
             <div class="si-data-label description" ng-show="layoutAllowVar('description')">{{item.description}}</div>
             
-            <div class="flags" ng-show="layoutAllowVar('flags',true)">
+            <div class="flags">
                 <i class="video far fa-video"></i>
                 <i class="virtual-tour far fa-street-view"></i>
             </div>
-            <div class="si-data-label open-houses" ng-show="layoutAllowVar('open_houses',true)">
+            <div class="si-data-label open-houses">
                 <div class="open-house-item">
                     <i class="fal fa-calendar-alt"></i> <span>{{'Open house'.translate()}}</span> <span am-time-ago="item.open_houses[0].start_date"></span>
                 </div>

@@ -1,4 +1,5 @@
 <div class="advanced-settings">
+    
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Information',SI)?></h2>
 
@@ -20,7 +21,7 @@
     </div>
 
     <div class="config-grid-block">
-        <h2 class="md-headline"><?php _e('Available data feeds',SI)?></h2>
+        <h2 class="md-headline"><?php _e('Data feeds',SI)?></h2>
 
         <div class="block-content">
             <div class="data-view-list">
@@ -42,6 +43,13 @@
                     <md-option ng-repeat="item in wp_menus" value="{{item.key}}">{{item.name}}</md-option>
                 </md-select>
             </md-input-container>
+
+            
+            <si-wp-media type="image" 
+                            si-model="configs.site_logo" 
+                            si-change="logoChanged($media)"
+                            caption="Your logo" placeholder="Choose an image"></si-wp-media>
+            
         </div>
     </div>
 

@@ -711,11 +711,17 @@ function $siFilters($q,$siApi,$siUtils){
             // $fm.data.max_price = null;
             // $fm.data.location = null;
             Object.keys($fm.data).forEach(function($k){
-                $fm.data[$k] = null;
+                if(Array.isArray($fm.data[$k])){
+                    $fm.data[$k] = [];
+                }
+                else{
+                    $fm.data[$k] = null;
+                }
+                
             });
-            lArrayAttr.forEach(function($k){
-                $fm.data[$k] = [];
-            })
+            // lArrayAttr.forEach(function($k){
+            //     $fm.data[$k] = [];
+            // })
 
             $fm.data.keyword = '';
             $fm.trigger('reset');

@@ -1,4 +1,8 @@
 /* DIRECTIVES */
+siAdminDirectiveTemplatePath = function($path, $useTimeVersioning){
+  return wpSiApiSettings.base_path + '/views/admin/statics/' + $path + '.html?t=' + (new Date()).getTime();
+}
+
 // siApp
 // .directive('siAutocomplete')
 /**
@@ -28,6 +32,101 @@ siApp
             }
         }
     }
+}]);
+
+siApp
+.directive('siWpMedia', ['$parse', function siWpMedia($parse){
+  return {
+    restrict: 'E',
+    templateUrl: siAdminDirectiveTemplatePath('si-wp-media'),
+    replace: true,
+    scope: {
+      model: '=siModel',
+      type: '@?',
+      caption: '@?',
+      placeholder: '@?',
+      onChange: '&?siChange'
+    },
+    link: function($scope, $elm, $attr){
+      if($scope.type == undefined) $scope.type = 'image';
+      $scope.init($elm[0]);
+    },
+    controller: function($scope, $rootScope,$timeout,$q, $siUI, $siUtils){
+      $scope._wpDialog = null;
+
+      $scope.init = function(){
+
+      }
+
+      $scope.selectMedia = function(){
+        $scope.openMedia();
+      }
+
+      $scope.openMedia = function(){
+        const lDialog = $scope.getDialog();
+        lDialog.open();
+      }
+
+      $scope.getDialog = function(){
+        if($scope._wpDialog != null) return $scope._wpDialog;
+
+        const wpDialog = wp.media({
+                  title: 'Select Media',
+                  multiple : false,
+                  library : {
+                      type : $scope.type,
+                  }
+              });
+        wpDialog.on('close', function(){
+            const lSelection =  wpDialog.state().get('selection');
+            const lMedia = [];
+            lSelection.each(function($item) {
+                console.log('attachement', $item);
+                const lAttr = $item.attributes;
+                lMedia.push(lAttr);
+            });
+            
+            if(lMedia.length > 0){
+              
+
+              $timeout(function(){
+                $scope.model = lMedia[0];
+                $scope.triggerChange();
+              });
+            }
+        });
+
+        //wpDialog.on('open',function() {
+          // On open, get the id from the hidden input
+          // and select the appropiate images in the media manager
+          // var selection =  wpDialog.state().get('selection');
+          // var ids = jQuery('input#myprefix_image_id').val().split(',');
+
+          // ids.forEach(function(id) {
+          //   var attachment = wp.media.attachment(id);
+          //   attachment.fetch();
+          //   selection.add( attachment ? [ attachment ] : [] );
+          // });
+
+        //});
+
+        $scope._wpDialog = wpDialog;
+        return wpDialog;
+      }
+
+      $scope.clearMedia =function(){
+        $scope.model = null;
+        $scope.triggerChange();
+      }
+
+      $scope.triggerChange = function(){
+        if(typeof($scope.onChange) == 'function'){
+          $scope.onChange({$media: $scope.model});
+        }
+
+      }
+    }
+  }
 }]);
 
 siApp

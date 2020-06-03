@@ -16,19 +16,49 @@
 
         <page class="front-page">
             
-            <div class="page-background opacity-75"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
+            <div class="page-background"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
             
-            <div class="panel overlay center">
-                <div class="address"><?php echo($model->location->civic_address)?></div>
+            <div class="panel overlay dock-bottom padding-0">
+                
+                <div class="broker-infos padding-5">
+                    
+                    <div class="broker-list">
+                    <?php
+                    foreach ($model->brokers as $broker) {
+                        SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
+                    }
+                    ?>
+                    </div>
 
-                <div class="information grid-layout">
-                    <div class="main-picture"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
+                    <div class="logo">
+                        <?php SourceImmo::view('single/listings_layouts/print/logo');?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="address-civic"><?php echo($model->location->civic_address)?></div>
+
+            <?php 
+            if(isset($model->description)){
+                echo('<div class="description">' . $model->description . '</div>');
+            }
+            ?>
+            
+
+            <div class="panel overlay dock-top padding-0">
+                
+                <div class="information padding-5 grid-layout">
+                    <div class="address">
+                        <div class="civic"><?php echo($model->location->civic_address)?></div>
+                        <div class="city"><?php echo($model->location->city) ?></div>
+                    </div>
+
                     <div class="transaction"><?php echo($model->subcategory . ' ' . $model->transaction) ?></div>
                     <div class="price"><?php echo($model->price_text) ?></div>
-                    <div class="city"><?php echo($model->location->city) ?></div>
+                    
                     
                     <div class="ref_number"><?php echo($model->ref_number) ?></div>
-                    <div class="description"><?php if(isset($model->description)) echo($model->description) ?></div>
+                    
                 </div>
             </div>
             

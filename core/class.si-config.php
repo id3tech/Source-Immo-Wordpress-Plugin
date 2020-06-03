@@ -69,7 +69,11 @@ class SourceImmoConfig {
    */
   public $prefetch_data = false;
 
-  
+  /**
+   * Site logo to use in appropriate places (ex: Print)
+   * @var string
+   */
+  public $site_logo = null;
 
   /**
    * Form from name
@@ -190,8 +194,7 @@ class SourceImmoConfig {
       //new SourceImmoLayout('en','standard')
     );
 
-    $listingList = new SourceImmoList();
-    $listingList->sort = 'contract_start_date';
+    $listingList = new SourceImmoList('','listings','listings','contract_start_date');
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
@@ -380,6 +383,18 @@ class SourceImmoConfig {
     }
   }
   
+  public function stylesToAttr(){
+    if($this->styles == null) return '';
+    $lAttrList = explode(',', $this->styles);
+    $lAttrList = array_filter($lAttrList, function($item){
+      return strpos($item,'--custom-style')===false;
+    });
+
+    foreach ($lAttrList as &$attr) {
+      $attr = str_replace(array('{','}','"'),'',$attr);
+    }
+    return implode(';',$lAttrList);
+  }
 }
 
 
@@ -434,7 +449,7 @@ class SourceImmoLayout{
     $this->displayed_vars = new SourceImmoDisplayVars($displayedVars);
     
 
-    if($type == 'listing'){
+    if($type == 'listings'){
       $this->item_row_space = (object) array('desktop'=>33,'laptop'=>33,'tablet'=>50,'mobile'=>100);
     }
     else{

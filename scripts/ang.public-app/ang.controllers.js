@@ -22,29 +22,6 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         $siConfig.get().then(function($configs){
             $scope.configs = $configs;
 
-            if($configs.styles != undefined){
-                if(!isNullOrEmpty($configs.styles)){
-                    const lStyles = JSON.parse($configs.styles);
-                    
-                    const lFormatStyles = Object.keys(lStyles)
-                        .filter(function($key){
-                            console.log('body style filter',$key);
-                            return $key != '---custom-style';
-                        })
-                        .map(function($key){
-                            console.log('style', $key, lStyles[$key]);
-                            const lRawStyle = lStyles[$key];
-                            const lStyle = (lRawStyle.indexOf('[')>=0)
-                                                ? lRawStyle.replace(/(\[)(.+)(\])/gm, 'var(--$2)').replace(/_/g,'-')
-                                                : lRawStyle;
-                            
-                            return $key + ':' + lStyle;
-                        });
-                    const lCurrentBodyStyle = document.body.getAttribute('style');
-                    lFormatStyles.push(lCurrentBodyStyle);
-                    document.body.setAttribute('style',lFormatStyles.join(';'))
-                }
-            }
         });
     }
 
