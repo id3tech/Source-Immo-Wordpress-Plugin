@@ -1052,6 +1052,7 @@ class SourceImmo {
       $moduleName = str_replace(' ','-',strtolower($name));
       $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
       
+
       if(file_exists($modulePath)){
         include $modulePath;
       }
@@ -1059,7 +1060,7 @@ class SourceImmo {
 
     $the_plugs = get_option('active_plugins'); 
     foreach($the_plugs as $key => $value) {
-      $moduleName = explode("/", $value)[0];
+      $moduleName = strtolower(explode("/", $value)[0]);
       $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
       
       if(file_exists($modulePath)){

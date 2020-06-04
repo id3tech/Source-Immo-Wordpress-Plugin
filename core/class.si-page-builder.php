@@ -70,6 +70,10 @@ class SourceImmoPageBuilder{
 
     public function render(){
         $page_id = $this->layout->page;
+        global $post; 
+        $post = get_post($page_id);
+
+        do_action('si_page_builder_prerender', $page_id);
 
         $pageTemplate = $this->get_page_template($page_id);
         //__c($pageTemplate);
@@ -121,7 +125,7 @@ class SourceImmoPageBuilder{
         if($pageTemplate == null){
             wp_footer();
         }
-
+        do_action('si_page_builder_postrender', $page_id);
     }
 
     

@@ -328,6 +328,7 @@ html.print{
         page{
             &.front-page{
                 .page-background{
+                    height:calc(100% - 2in);
                     &::after{
                         background-color:var(--highlight);
                         opacity:0.25;

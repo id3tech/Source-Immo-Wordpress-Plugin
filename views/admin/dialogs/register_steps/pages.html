@@ -19,6 +19,7 @@
         <div class="list-pages">
             <md-select ng-model="layout.page">
                 <md-option value="NEW" lstr>(Create a new page)</md-option>
+                <md-option value="NONE" lstr>(None)</md-option>
                 <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
             </md-select>
         </div>
@@ -26,6 +27,7 @@
         <div class="detail-pages">
             <md-select ng-model="layout.detail_page">
                 <md-option value="NEW" lstr>(Create a new page)</md-option>
+                <md-option value="NONE" lstr>(None)</md-option>
                 <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
             </md-select>
         </div>

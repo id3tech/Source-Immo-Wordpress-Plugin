@@ -1,4 +1,4 @@
-# Version 0.4.64 RC1
+# Version 0.4.65 RC1
 
 ## Admin interface changes
 
@@ -35,6 +35,7 @@ In this release:
 *Minor bugs fixes
 *Disconnection now make a backup of the settings to be restored upon credentials update
 *Fix Yoast support
+*Add minor support for Avada's Fusion theme
 
 
 requires: 5.1.1
