@@ -1482,7 +1482,7 @@ class SourceImmoBrokersResult extends SourceImmoAbstractResult {
 
     $item->fullname = $item->first_name . ' ' . $item->last_name;
     if(isset($item->office)) {
-      $item->office->location->city = $dictionary->getCaption($item->office->location->city_code , 'city');
+      $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
       $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
     }
 

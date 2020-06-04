@@ -780,6 +780,20 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                     return $l.type == $type;
                 })
             }
+
+            /**
+             * Shorthand to $siUtils.getClassList
+             * see $siUtils factory for details
+             * @param {object} $item Listing item data
+             */
+            $scope.getClassList = function($item){
+                const lClassList = [$siUtils.getClassList($item)];
+                if($scope.configs != null && $scope.configs.list_item_layout != null){
+                    lClassList.push('img-hover-effect-' + $scope.configs.list_item_layout.image_hover_effect);
+                }
+                
+                return lClassList.join(' ');
+            }
         }
     }
 }]);
