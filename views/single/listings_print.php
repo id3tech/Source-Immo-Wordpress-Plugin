@@ -65,7 +65,7 @@
         </page>
 
         <?php
-        if($model->category_code == 'RES'){
+        if($model->category_code == 'RESIDENTIAL'){
         ?>
         <page class="details">
             
