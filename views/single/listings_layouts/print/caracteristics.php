@@ -1,7 +1,7 @@
 <?php 
 
 $lGlobalAttributes = $model->other->attributes;
-if($all === true){
+if(isset($all) && $all === true){
     $lGlobalAttributes = $model->attributes;
 }
 
