@@ -861,6 +861,7 @@ html{
                 .image{
                     background: url('assets/shadow_broker.jpg') no-repeat;
                     background-size: cover;
+                    height: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio));
                     img{text-indent: -1000px;}
                 }
                 .email{
