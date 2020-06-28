@@ -3,7 +3,7 @@
         >
     <div class="inputs {{!model.search_engine_options.fields.includes('searchbox') ? 'no-searchbox' : ''}}">
         <div class="search-box" ng-show="model.search_engine_options.fields.includes('searchbox')">
-            <input placeholder="{{model.search_engine_options.search_box_placeholder}}" />
+            <input placeholder="{{model.search_engine_options.search_box_placeholder  | translate}}" />
         </div>
 
         

@@ -74,8 +74,8 @@ class SiShorcodes{
     public function sc_si_searchbox($atts, $content=null){
         extract( shortcode_atts(
             array(
-                'alias' => 'default',
-                'placeholder' => 'Find a property from city, street, id, etc',
+                'alias' => '',
+                'placeholder' => 'Type here to begin your search...',
                 'on_enter' => '',
                 'result_page' => ''
             ), $atts )
@@ -151,6 +151,14 @@ class SiShorcodes{
 
             $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
+            if(!str_null_or_empty($listConfig->list_layout->custom_css)){
+                echo('<style for="' . $alias . '">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') , $listConfig->list_layout->custom_css) . '</style>');
+            }
+            if(!str_null_or_empty($listConfig->list_item_layout->custom_css)){
+                echo('<style for="' . $alias . '_item">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') . ' .si-item' , $listConfig->list_item_layout->custom_css) . '</style>');
+            }
+
+
             if(in_array($listConfig->list_layout->preset, array('direct'))){
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
@@ -315,7 +323,9 @@ class SiShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'part' => ''
+                'part' => '',
+                'align' => 'align-stretch',
+                'class' => '',
             ), $atts )
         );
 
@@ -328,6 +338,10 @@ class SiShorcodes{
 
             $lResult = ob_get_clean();
         }
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+
+        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';
         
         return $lResult;
     }
@@ -590,7 +604,9 @@ class SiShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'part' => ''
+                'part' => '',
+                'align' => 'align-stretch',
+                'class' => '',
             ), $atts )
         );
 
@@ -605,7 +621,11 @@ class SiShorcodes{
 
             $lResult = ob_get_clean();
         }
-        
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+
+        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';
+
         return $lResult;
     }
 

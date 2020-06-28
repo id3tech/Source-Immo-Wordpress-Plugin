@@ -97,6 +97,16 @@ if(typeof isNullOrEmpty === 'undefined'){
     }
 }
 
+if(typeof isNullOrUndefined === 'undefined'){
+    
+    isNullOrUndefined = function($value){
+        if($value == undefined) return true;
+        if(typeof $value == 'undefined') return true;
+        
+        return false;
+    }
+}
+
 
 if(typeof String.translate === 'undefined'){
     var $locales = {};

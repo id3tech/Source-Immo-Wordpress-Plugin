@@ -1,4 +1,7 @@
 // enfold fixes
+.responsive{
+    #wpadminbar{width:100vw;overflow:hidden;}
+}
 #top{
     &.single-listings,
     &.single-brokers,

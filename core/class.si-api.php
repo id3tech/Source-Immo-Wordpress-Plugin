@@ -589,10 +589,14 @@ class SourceImmoApi {
     $api_key = SourceImmo::current()->get_api_key();
     $lTwoLetterLocale = substr(get_locale(),0,2);
     
-    if(!isset(SourceImmo::current()->configs->default_view)) return '';
+    $view_id = (isset($_GET['view'])) ? $_GET['view'] : null;
 
-    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
+    if($view_id == null){
+      if(!isset(SourceImmo::current()->configs->default_view)) return '';
+      $view_id = si_view_id(SourceImmo::current()->configs->default_view);  
+    }
 
+    
     $lResult = HttpCall::to('~', $type, 'view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
                   ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get();

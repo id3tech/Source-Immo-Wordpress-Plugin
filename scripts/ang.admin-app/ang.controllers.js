@@ -160,10 +160,10 @@ siApp
   $scope.getListShortcode = function($list, $type=null){
     switch($type){
       case 'search':
-        return '[si_search alias="' + $list.alias + '" placeholder="Find a property, city, street, #sia, etc." result_page="/proprietes/" standalone="true"]';
+        return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
         break;
       case 'searchbox':
-          return '[si_searchbox alias="' + $list.alias + '" placeholder="Find a property, city, street, #sia, etc." result_page="/proprietes/"]';
+          return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
           break;
       case 'gallery':
         return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
@@ -214,12 +214,12 @@ siApp
     ],
     list_layouts:{
       listings: [
-        {name: 'standard', label: 'Client side (Default)'},
+        {name: 'standard', label: 'Client side (default)'},
         //{name: 'map', label: 'Map'},
         {name: 'direct', label: 'Server side (no search tool)'}
       ],
       brokers: [
-        {name: 'standard', label: 'Client side (Default)'},
+        {name: 'standard', label: 'Client side (default)'},
         {name: 'direct', label: 'Server side (no search tool)'}
       ],
       cities: [

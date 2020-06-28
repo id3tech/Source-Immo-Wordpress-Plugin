@@ -32,6 +32,7 @@ body.wp-admin{
         font-size:0.8em;
       }
     }
+    
     .md-headline{margin-top:40px;margin-bottom:10px;}
     .md-text-warn{color:$warn;}
     .app-header{
@@ -544,6 +545,15 @@ body.wp-admin{
       h2{color:inherit;}
     }
 
+  }
+
+  #si-app,
+  .md-dialog-container{
+    note{
+      font-size: 0.8em;
+      font-style: italic;
+      em{font-weight: 700; color: $primary;}
+    }
   }
 }
 

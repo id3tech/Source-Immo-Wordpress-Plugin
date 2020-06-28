@@ -297,7 +297,7 @@ class SourceImmoConfig {
     $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
     $lConfigFilePath = $lConfigPath . '/_configs.json';
     unlink($lConfigFilePath);
-    rmdir($lConfigPath);  
+    //rmdir($lConfigPath);  
   }
 
   public function save(){
@@ -432,6 +432,7 @@ class SourceImmoLayout{
   public $primary_layer_position = 'fix';
   public $secondary_layer_bg_opacity = 75;
   public $item_row_space = array();
+  public $custom_css = '';
 
   /**
    * Communication method for forms
@@ -600,6 +601,7 @@ class SourceImmoSearchEngineOptions {
   public $tabs = null;
   public $tabbed = false;
   public $filter_tags = 'none';
+  public $search_box_placeholder = array('en'=> 'Type here to begin your search...', 'fr' => 'Tapez ici pour commencer votre recherche ...');
   
   public function __construct($type=null){
 

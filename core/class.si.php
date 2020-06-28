@@ -16,15 +16,18 @@ class SourceImmo {
 
   public $addons = null;
 
+  public $modules = null;
+
+
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
 
     $this->addons = new SourceImmoAddons;
 
-    if (!is_admin() ){
+    //if (!is_admin() ){
       // create an instance of the shortcodes class to force code bindings
       new SiShorcodes();
-    }
+    //}
   }
 
   /**
@@ -456,7 +459,7 @@ class SourceImmo {
   * Add styles and scripts file to the page
   */
   public function load_resources(){
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    
     $mapKeyParams = '';
     if(!empty($this->configs->map_api_key)){
       $mapKeyParams = 'key=' . $this->configs->map_api_key;
@@ -490,6 +493,35 @@ class SourceImmo {
     wp_enqueue_script( 'si-prototype', plugins_url('/scripts/ang.prototype.js', SI_PLUGIN), null, 
                             filemtime(SI_PLUGIN_DIR . '/scripts/ang.prototype.js'), true );
 
+    $this->load_module_resources();
+
+    
+    // add custom styles
+    $this->load_config_style();
+
+    $this->load_script_context();
+
+    $this->load_locale_file();
+    
+    if(SI_DEVMODE){
+      wp_register_script( 'si-public-app', plugins_url('/scripts/ang.public-app.js', SI_PLUGIN), 
+              array('angular', 'angular-sanitize','si-prototype'), 
+              filemtime(SI_PLUGIN_DIR . '/scripts/ang.public-app.js'), true );
+
+    }
+    else{
+      wp_register_script( 'si-public-app', plugins_url('/scripts/ang.public-app.min.js', SI_PLUGIN), 
+            array('angular', 'angular-sanitize','si-prototype'), 
+            filemtime(SI_PLUGIN_DIR . '/scripts/ang.public-app.min.js'), true );
+    }
+    wp_enqueue_script('si-public-app'); 
+  }
+
+  /**
+   * Add JS script context object to the document
+   */
+  public function load_script_context(){
+    $lTwoLetterLocale = substr(get_locale(),0,2);
     $lUploadDir   = wp_upload_dir();
     $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
     $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
@@ -503,9 +535,62 @@ class SourceImmo {
     $lConfigPath  = $lConfigFileUrl . '?v=' . $lConfigVersion;
 
     $currentPagePath = $_SERVER['REQUEST_URI'];
+
+    wp_add_inline_script( 'si-prototype', 
+        //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
+        '$locales.init("' . $lTwoLetterLocale . '");' .
+        'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
+        'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
+                  'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' .
+                  'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' .
+                  'broker_routes : ' . json_encode($this->configs->broker_routes) . ', ' .
+                  'city_routes : ' . json_encode($this->configs->city_routes) . ', ' .
+                  'office_routes : ' . json_encode($this->configs->office_routes) . ', ' .
+                  'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . 
+                '};'
+      );
+
+  }
+
+  /**
+   * Add locale (language) JSON file reference to the document
+   */
+  public function load_locale_file(){
+    $lTwoLetterLocale = substr(get_locale(),0,2);
+
+    if($lTwoLetterLocale!='en'){
+      $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
+      
+      foreach ($locale_file_paths as $filePath) {
+        
+        // echo(SI_PLUGIN_DIR);
+
+        $fileUrl = si_to_plugin_root($filePath);
+        $localeName = basename($filePath);
+
+        wp_enqueue_script(
+                          'si-locales-' . $localeName, 
+                          SI_PLUGIN_URL . $fileUrl, 
+                          null, 
+                          filemtime($filePath), 
+                          true
+                        );
+      }
+      // wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
+      //           null, 
+      //           filemtime(SI_PLUGIN_DIR . '/scripts/locales/global.'. $lTwoLetterLocale .'.js'), true );
+      
+    }
+    do_action("si-append-locales");
+
+  }
+
+  /**
+   * Add inline style from the configs' custom css box
+   */
+  public function load_config_style(){
     $configs = SourceImmo::current()->configs;
 
-    // add custom styles
     if(isset($configs->styles)){
       
       $styles = explode(',',trim($configs->styles,"{}"));
@@ -536,58 +621,28 @@ class SourceImmo {
         wp_add_inline_style('si-custom-style',str_replace('\n', "", $configStyles));
       }
     }
+  }
 
-    wp_add_inline_script( 'si-prototype', 
-                          //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
-                          '$locales.init("' . $lTwoLetterLocale . '");' .
-                          'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
-                          'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
-                                    'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' .
-                                    'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' .
-                                    'broker_routes : ' . json_encode($this->configs->broker_routes) . ', ' .
-                                    'city_routes : ' . json_encode($this->configs->city_routes) . ', ' .
-                                    'office_routes : ' . json_encode($this->configs->office_routes) . ', ' .
-                                    'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . 
-                                  '};'
-                        );
-    
-    if($lTwoLetterLocale!='en'){
-      $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
-      
-      foreach ($locale_file_paths as $filePath) {
-        
-        // echo(SI_PLUGIN_DIR);
+  /**
+   * Add modules resource dependances
+   */
+  public function load_module_resources(){
+    if($this->has_modules()){
+      $modStyles = [];
+      $modScripts = [];
 
-        $fileUrl = si_to_plugin_root($filePath);
-        $localeName = basename($filePath);
-
-        wp_enqueue_script(
-                          'si-locales-' . $localeName, 
-                          SI_PLUGIN_URL . $fileUrl, 
-                          null, 
-                          filemtime($filePath), 
-                          true
-                        );
+      foreach($this->modules as $module){
+        $modStyles += $module->get_style_depends();
+        $modScripts += $module->get_script_depends();
       }
-      // wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
-      //           null, 
-      //           filemtime(SI_PLUGIN_DIR . '/scripts/locales/global.'. $lTwoLetterLocale .'.js'), true );
       
+      foreach ($modStyles as $style){
+        wp_enqueue_style(...$style);
+      }
+      foreach ($modScripts as $script){
+        wp_enqueue_script(...$script);
+      }
     }
-    do_action("si-append-locales");
-
-    if(SI_DEVMODE){
-      wp_register_script( 'si-public-app', plugins_url('/scripts/ang.public-app.js', SI_PLUGIN), 
-              array('angular', 'angular-sanitize','si-prototype'), 
-              filemtime(SI_PLUGIN_DIR . '/scripts/ang.public-app.js'), true );
-
-    }
-    else{
-      wp_register_script( 'si-public-app', plugins_url('/scripts/ang.public-app.min.js', SI_PLUGIN), 
-            array('angular', 'angular-sanitize','si-prototype'), 
-            filemtime(SI_PLUGIN_DIR . '/scripts/ang.public-app.min.js'), true );
-    }
-    wp_enqueue_script('si-public-app'); 
   }
 
   
@@ -676,7 +731,8 @@ class SourceImmo {
     // load data
     global $listing_data;
     global $siCurrentModel;
-    $siCurrentModel = $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
+    $rawModel = SourceImmoApi::get_listing_data($ref_number);
+    $siCurrentModel = $listing_data = json_decode( $rawModel);
     if($listing_data != null){
       do_action('si_listing_detail_begin');
 
@@ -1042,7 +1098,12 @@ class SourceImmo {
   /**
    MODULES
    */
+  public function has_modules(){
+    return $this->modules != null && count($this->modules)>0;
+  }
   public function load_modules(){
+    include SI_PLUGIN_DIR . '/core/class.si-bases.php';
+
     $theme = wp_get_theme();
 
     $themeNames = array($theme->name, $theme->parent_theme);
@@ -1067,7 +1128,19 @@ class SourceImmo {
         include $modulePath;
       }
     }
-    
+
+    if($this->has_modules()){
+      foreach($this->modules as $module){
+        $module->includes();
+        $module->register_actions();
+      }
+    }
+  }
+  public function register_modules($moduleInstance){
+    if($this->modules == null){
+      $this->modules = [];
+    }
+    $this->modules[] = $moduleInstance;
   }
 
   /**

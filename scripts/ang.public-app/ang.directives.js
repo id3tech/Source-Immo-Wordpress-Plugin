@@ -26,7 +26,9 @@ function siList(){
         link : function($scope){
             $scope.init();
         },
-        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $siUtils,$siFavorites,$siConfig,$siList) {
+        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, 
+                                $siUtils,$siFavorites,$siConfig,$siList,$siHooks,
+                                $siCompiler) {
             $scope.configs = null;
             $scope._global_configs = null;
             $scope.current_view = null;
@@ -95,9 +97,19 @@ function siList(){
                     sessionStorage.removeItem('si.pageIndex.{0}.{1}'.format($scope.configs.type,siCtx.locale));
                 });
 
-                $siApi.getListConfigs($scope.alias).then(function($configs){
+                $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                    if(isNullOrUndefined($scope._global_configs)) return $result;
+                    if(isNullOrUndefined($scope.configs)) return $result;
+
+                    if($scope.configs.current_view != $scope._global_configs.default_view){
+                        $result += '?view=' + $scope.configs.current_view;
+                    }
+                    return $result
+                });
+
+                $siConfig.getList($scope.alias).then(function($configs){
                     $scope.configs = $configs;
-                    $scope.current_view = $configs.source.id;
+                    //if(isNullOrUndefined($scope.configs.current_view)) $scope.configs.current_view = $configs.source.id;
 
                     let lClientSearchToken = sessionStorage.getItem("si.{0}.st".format($scope.configs.alias));
                     if(lClientSearchToken!=undefined){
@@ -181,10 +193,10 @@ function siList(){
                     if(typeof $scope._preloadedList == 'undefined'){
                         //console.log('compile list');
                         if($scope.configs.type=='listings'){
-                            $scope._preloadedList = $siUtils.compileListingList(lItems);
+                            $scope._preloadedList = $siCompiler.compileListingList(lItems);
                         }
                         else{
-                            $scope._preloadedList = $siUtils.compileBrokerList(lItems);
+                            $scope._preloadedList = $siCompiler.compileBrokerList(lItems);
                         }
                         //console.log('compile done');
                     }
@@ -299,8 +311,8 @@ function siList(){
                             const lSingularType = $siUtils.getSingularType($scope.configs.type,false);
                             if(lSingularType != null){
                                 const lCompileMethod = 'compile{0}List'.format(lSingularType);
-                                if(typeof $siUtils[lCompileMethod] == 'function'){
-                                    $siUtils[lCompileMethod]($response.items);
+                                if(typeof $siCompiler[lCompileMethod] == 'function'){
+                                    $siCompiler[lCompileMethod]($response.items);
                                 }
                             }
                             $scope.list = $response.items;
@@ -364,10 +376,16 @@ function siList(){
                     $siApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                         let lNewItems = $response.items;
                         if($scope.configs.type=='listings'){
-                            lNewItems = $siUtils.compileListingList(lNewItems);
+                            lNewItems = $siCompiler.compileListingList(lNewItems);
                         }
                         else{
-                            lNewItems = $siUtils.compileBrokerList(lNewItems);
+                            lNewItems = $siCompiler.compileBrokerList(lNewItems);
+                        }
+
+                        if($scope.configs.current_view != $scope._global_configs.default_view){
+                            lNewItems.forEach(function($item){
+                                $item.permalink += '?view=' + $scope.configs.current_view;
+                            });
                         }
 
                         $scope.list = $scope.list.concat(lNewItems);
@@ -454,7 +472,7 @@ function siList(){
                     case 'cities':
                         lOrigin = 'city';break;
                 }
-                const lViewId = $scope.getCurrentView();
+                const lViewId = $scope.configs.current_view;
                 return lOrigin.concat('/view/',lViewId,'/',siApiSettings.locale);
             }
     
@@ -612,9 +630,8 @@ function siList(){
 
 
 siApp
-.directive('siSmallList', ['$sce','$compile','$siFavorites', '$siConfig', '$siUtils','$siApi',
-                            '$siFilters','$siDictionary','$q','$siList','$timeout',
-function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList,$timeout){
+.directive('siSmallList', ['$sce','$compile',
+function siSmallList($sce,$compile){
     return {
         restrict: 'E',
         scope: {
@@ -631,7 +648,9 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
         link: function($scope, $element, $attrs){
             $scope.init($element);
         },
-        controller:function($scope,$rootScope){
+        controller:function($scope,$rootScope,$siHooks,$siFavorites, $siConfig, 
+                            $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList,$timeout,
+                            $siCompiler){
             $scope.view_id = null;
             $scope.list = [];
             $scope._element = null;
@@ -674,7 +693,17 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
 
                 $siApi.getDefaultDataView().then(function($view_id){
                     $scope.view_id = $view_id;
+                    
+                    $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                        if(isNullOrUndefined($scope._global_configs)) return $result;
+                        if(isNullOrUndefined($scope.configs)) return $result;
                         
+                        if($scope.configs.current_view != $scope._global_configs.default_view){
+                            $result += '?view=' + $scope.configs.current_view;
+                        }
+                        return $result
+                    });
+
                     $scope.fetchList();
                     
                 });
@@ -705,7 +734,8 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                         $siDictionary.init($results.lexicon);
                         $scope.meta = $results.list.metadata;
                         $siList.offices = $results.offices ? $results.offices.items : [];
-                        $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
+
+                        $scope.list = $siCompiler['compile' + lSingularType + 'List']($results.list.items);
 
                         $scope._element.addClass("loaded");
                         $timeout(function(){
@@ -718,7 +748,7 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
                     //     .then(function($dictionaryData){
                     //         $siDictionary.init($dictionaryData);
                     //         $scope.meta = $response.metadata;
-                    //         $scope.list = $siUtils['compile' + lSingularType + 'List']($response.items);
+                    //         $scope.list = $siCompiler['compile' + lSingularType + 'List']($response.items);
 
                     //         $scope._element.addClass("loaded");
                     //     });
@@ -810,8 +840,8 @@ function siSmallList($sce,$compile,$siFavorites, $siConfig, $siUtils,$siApi, $si
  *                     }
  */
 siApp
-.directive('siListSlider', ['$compile', '$siConfig', '$siApi','$siUtils','$siDictionary', '$siHooks', '$timeout',
-function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,$timeout){
+.directive('siListSlider', ['$compile',
+function siListSlider($compile){
     return {
         restrict: 'E',
         templateUrl: siCtx.base_path + 'views/ang-templates/si-list-slider.html',
@@ -824,7 +854,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
         link: function($scope, $element, $attrs){
             $scope.init($element);
         },
-        controller: function($scope, $q){
+        controller: function($scope,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,$timeout, $q,$siCompiler){
             $scope.configs = null;
             $scope.typesHash = {
                 'listings' : 'Listing',
@@ -865,7 +895,7 @@ function siListSlider($compile,$siConfig,$siApi,$siUtils,$siDictionary,$siHooks,
 
                         $siDictionary.init($results.lexicon);
                         $scope.meta = $results.list.metadata;
-                        $scope.list = $siUtils['compile' + lSingularType + 'List']($results.list.items);
+                        $scope.list = $siCompiler['compile' + lSingularType + 'List']($results.list.items);
 
                         $scope.list = $scope.list
                             .filter(function($e,$i){

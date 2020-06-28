@@ -26,8 +26,8 @@ function $siTemplate($http, $q, $interpolate, $sce){
 }]);
 
 siApp
-.factory('$siApi', ["$http","$q","$siConfig","$rootScope", 
-function $siApi($http,$q,$siConfig,$rootScope){
+.factory('$siApi', ["$http","$q","$siConfig","$rootScope","$siUtils",
+function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     let $scope = {};
     
     $scope.viewMetas = {};
@@ -42,9 +42,15 @@ function $siApi($http,$q,$siConfig,$rootScope){
         // check token
         let lPromise = $q(function($resolve, $reject){
             //$scope.renewToken().then(function(){
-                $scope.call($path, $data, $options).then(function($result){
-                    $resolve($result);
-                });
+                $scope.call($path, $data, $options)
+                .then(
+                    function success($result){
+                        $resolve($result);
+                    },
+                    function rejected(){
+                        $reject();
+                    }
+                );
             //});
         });
 
@@ -96,6 +102,11 @@ function $siApi($http,$q,$siConfig,$rootScope){
     }
 
     $scope.getDefaultDataView = function(){
+        console.log('getDefaultDataView', $siUtils.search());
+        if($siUtils.search().view != undefined){
+            return $q.resolve($siUtils.search().view);
+        }
+
         let lPromise = $q(function($resolve, $reject){
             $siConfig.get().then(function($config){
                 if($config.default_view.indexOf('{')>=0){
@@ -150,7 +161,7 @@ function $siApi($http,$q,$siConfig,$rootScope){
      * @param {string} $type Data type contains in the view
      * @param {string} $view_id ID of the view to get metas from
      */
-    $scope.getViewMeta = function($type, $view_id){
+    $scope.getViewMeta = function($type, $view_id, $fallback_view_id){
         let lOrigin = $type;
         let lViewMetaKey = $type + '::' + $view_id;
         switch(lOrigin){
@@ -165,12 +176,15 @@ function $siApi($http,$q,$siConfig,$rootScope){
         
         let lPromise = $q(function($resolve, $reject){
             // View is defined, therefor loaded
-            if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==undefined){
+            if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading===undefined){
+                console.log('view meta is already loaded',lViewMetaKey);
                 $resolve($scope.viewMetas[lViewMetaKey]);
             }
             // View is currently loading, wait for data
             else if ($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==true){
+                console.log('view meta is already loading',lViewMetaKey);
                 let fnWait = function(){
+                    console.log('waiting...');
                     if($scope.viewMetas[lViewMetaKey].loading==true){
                         window.setTimeout(fnWait, 15);
                     }
@@ -181,11 +195,22 @@ function $siApi($http,$q,$siConfig,$rootScope){
                 fnWait();
             }
             else{
+                console.log('view meta get infos',lViewMetaKey);
                 $scope.viewMetas[lViewMetaKey] = {loading:true};
-                $scope.api(lEndPoint).then(function($response){
-                    $scope.viewMetas[lViewMetaKey] = $response;
-                    $resolve($response);
-                });
+                $scope.api(lEndPoint)
+                    .then(
+                        function success($response){
+                            $scope.viewMetas[lViewMetaKey] = $response;
+                            $resolve($response);
+                        },
+                        function rejected($err){
+                            $reject($err);
+                        }
+                    )
+                    .catch(function($err){
+                        console.log('can\'t view', lViewMetaKey);
+                        
+                    });
             }
             
         });
@@ -233,7 +258,8 @@ function $siApi($http,$q,$siConfig,$rootScope){
                     'x-si-appVersion'   : $configs.app_version
                 }
 
-                $http($options).then(
+                $http($options)
+                .then(
                     // On success
                     function success($result){
                         if($result.status=='200'){
@@ -246,8 +272,12 @@ function $siApi($http,$q,$siConfig,$rootScope){
                     // On fail
                     function fail($error){
                         //console.log($error);
+                        $reject($error);
                     }
                 )
+                .catch(function($err){
+                    $reject($err)
+                })
                 
             })
         });
@@ -300,16 +330,19 @@ function $siApi($http,$q,$siConfig,$rootScope){
 
 
 siApp
-.factory('$siDictionary',['$q', 
-function $siDictionary($q){
+.factory('$siDictionary',['$q','$rootScope',
+function $siDictionary($q,$rootScope){
     let $scope = {};
 
 
     $scope.source = null;
     $scope._loadCallbacks = [];
 
-    $scope.init = function($source){
+    $scope.init = function($source, $overwrite){
         if($scope.source == null){
+            $scope.source = $source;
+        }
+        else if($overwrite === true){
             $scope.source = $source;
         }
         else{
@@ -321,6 +354,7 @@ function $siDictionary($q){
             $fn();
         })
 
+        $rootScope.$broadcast('$siDictionary/init',$source);
         //$scope.sortData();
     }
 
@@ -447,13 +481,17 @@ function $siDictionary($q){
 
 siApp
 .factory('$siList', [
-  '$siApi',
-  function $siList($siApi){
+  '$siApi','$siDictionary','$rootScope',
+  function $siList($siApi,$siDictionary, $rootScope){
     let $scope ={};
     $scope.dictionary = null;
-
+    
     $scope.init = function($view_id){
-      $scope.fetchDictionary($view_id);
+      //$scope.fetchDictionary($view_id);
+        $rootScope.$on('$siDictionary/init', function($event){
+            console.log('$siList/init -> siDictionary:onLoad')
+            $scope.dictionary = $siDictionary.source;
+        });
     }
 
     $scope.fetchDictionary = function($view_id){
@@ -464,6 +502,15 @@ siApp
       $siApi.rest('dictionary').then(function($response){
         $scope.dictionary = $response;
       });
+    }
+
+    $scope.contains = function($value, $list){
+        if($list == null) return false;
+        if($list.length == 0) return false;
+
+        return $list.some(function($item){
+            return $item.key == $value;
+        });
     }
 
     $scope.getCountryList = function(){
@@ -525,14 +572,172 @@ siApp
       return lResult;
     }
 
+    $scope.init();
+
     return $scope;
   }
 ]);
 
 
 siApp
-.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$sce', '$siConfig', '$siHooks', '$siList', '$q',
-function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHooks,$siList,$q){
+.factory('$siCompiler', ['$siConfig','$siList', '$siUtils',
+function $siCompiler($siConfig,$siList, $siUtils){
+    const $scope = {};
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of listing item
+     */
+    $scope.compileListingList = function($list){
+        
+        $list.forEach(function($e){
+            $scope.compileListingItem($e);
+        });
+
+        return $list;
+    }
+
+    $scope.compileListingItem = function($item){
+        
+        if($item.category == undefined){
+            
+            $item.location.city = $siUtils.getCaption($item.location.city_code, 'city');
+            $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
+            $item.subcategory = $siUtils.getCaption($item.subcategory_code, 'listing_subcategory');
+            $item.category = $siUtils.getCaption($item.category_code, 'listing_category');
+            $item.transaction = $siUtils.getTransaction($item);
+            
+            $item.short_price = $siUtils.formatPrice($item);
+            $item.location.civic_address = '{0} {1}'.format(
+                                                        $item.location.address.street_number,
+                                                        $item.location.address.street_name
+                                                    ).trim();
+            if(!isNullOrEmpty($item.location.address.door)){
+                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
+            }
+            
+            if(!isNullOrEmpty($item.available_area)){
+                $item.available_area_unit = $siUtils.getCaption($item.available_area_unit_code,'dimension_unit');
+            }
+
+            $scope.compileListingRooms($item);
+            $item.permalink = $siUtils.getPermalink($item);
+
+        }
+
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of broker item
+     */
+    $scope.compileBrokerList = function($list){
+        $siConfig.get().then(function ($configs){
+            $siList.getOfficeList($configs.default_view);
+        });
+
+        $list.forEach(function($e){
+            $scope.compileBrokerItem($e);
+        });
+
+        return $list;
+    }
+
+    $scope.compileBrokerItem = function($item){
+        if($item.permalink == undefined){
+            $item.license_type = $siUtils.getCaption($item.license_type_code, 'broker_license_type');
+            $item.permalink = $siUtils.getPermalink($item,'broker');
+            
+            if($item.office_ref_number != undefined){
+                $officeList = $siList.getOfficeList();
+                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
+                $scope.compileOfficeItem($item.office);
+            }
+        }
+    }
+
+    $scope.compileListingRooms = function($item){
+        if(typeof $item.main_unit != 'undefined'){
+            
+            const lIconRef = {
+                'bathroom_count' : 'bath',
+                'bedroom_count' : 'bed',
+                'waterroom_count' : 'hand-holding-water'
+            }
+            const lLabelRef = {
+                'bathroom_count' : 'Bathroom',
+                'bedroom_count' : 'Bedroom',
+                'waterroom_count' : 'Powder room'
+            }
+            const lPluralLabelRef = {
+                'bathroom_count' : 'Bathrooms',
+                'bedroom_count' : 'Bedrooms',
+                'waterroom_count' : 'Powder rooms'
+            }
+
+            $item.rooms = {};
+            Object.keys($item.main_unit).forEach(function($k){
+                if($item.main_unit[$k] > 0){
+                    const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
+                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
+                }
+            });
+        }
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of office item
+     */
+    $scope.compileOfficeList = function($list){
+        $list.forEach(function($e){
+            $scope.compileOfficeItem($e);
+        })
+    }
+    
+    $scope.compileOfficeItem = function($item){
+        if($item == undefined) return;
+        if($item.phones != null){
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
+        }
+        $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
+        $item.location.country = $siUtils.getCaption($item.location.country_code, 'country');
+        $item.location.state     = $siUtils.getCaption($item.location.state_code, 'state');
+        $item.location.city     = $siUtils.getCaption($item.location.city_code, 'city');
+        $item.location.street_address = '{0} {1}'.format(
+                                                    $item.location.address.street_number,
+                                                    $item.location.address.street_name
+                                                );
+        $item.location.full_address = '{0} {1}, {2}'.format(
+                                                $item.location.address.street_number,
+                                                $item.location.address.street_name,
+                                                $item.location.city
+                                            );
+
+        $item.permalink = $siUtils.getPermalink($item,'office');
+    }
+
+    $scope.compileCityList = function($list){
+        $list.forEach(function($e){
+            $scope.compileCityItem($e);
+        });
+    }
+
+    $scope.compileCityItem = function($item){
+        $item.region    = $siUtils.getCaption($item.region_code, 'region');
+        $item.country   = $siUtils.getCaption($item.country_code, 'country');
+        $item.state     = $siUtils.getCaption($item.state_code, 'state');
+        $item.city      = $siUtils.getCaption($item.city_code, 'city');
+
+        $item.permalink = $siUtils.getPermalink($item,'city');
+    }
+
+    return $scope;
+}]);
+
+siApp
+.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$siConfig', '$siHooks', '$q',
+function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q){
     let $scope = {};
     $scope.page_list = [];
 
@@ -571,6 +776,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         }
         return null
     }
+
 
     /**
      * Format the price of the listing for pretty reading
@@ -685,7 +891,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
      * Get permalink of the listing item
      * @param {object} $item Listing data object
      */
-    $scope.getPermalink = function($item, $type, $configs){
+    $scope.getPermalink = function($item, $type){
         $type = (typeof $type=='undefined') ? 'listing' : $type;
         if(siCtx[$type + '_routes'] == undefined) return '';
         
@@ -739,6 +945,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         if(siCtx.use_lang_in_path) lResult = '/' + siCtx.locale + lResult;
 
         // add hook for custom permalink for type
+        lResult = $siHooks.filter('si/list/item/permalink', lResult, $item);
         lResult = $siHooks.filter($type + '_permalink', lResult, $item);
 
         return lResult;
@@ -770,155 +977,6 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         return 'phone';
     }
 
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of listing item
-     */
-    $scope.compileListingList = function($list){
-        
-        $list.forEach(function($e){
-            $scope.compileListingItem($e);
-        });
-
-        return $list;
-    }
-
-    $scope.compileListingItem = function($item){
-        
-        if($item.category == undefined){
-            
-            $item.location.city = $scope.getCaption($item.location.city_code, 'city');
-            $item.location.region = $scope.getCaption($item.location.region_code, 'region');
-            $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
-            $item.category = $scope.getCaption($item.category_code, 'listing_category');
-            $item.transaction = $scope.getTransaction($item);
-            
-            $item.short_price = $scope.formatPrice($item);
-            $item.location.civic_address = '{0} {1}'.format(
-                                                        $item.location.address.street_number,
-                                                        $item.location.address.street_name
-                                                    ).trim();
-            if(!$scope.isNullOrEmpty($item.location.address.door)){
-                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
-            }
-            
-            if(!$scope.isNullOrEmpty($item.available_area)){
-                $item.available_area_unit = $scope.getCaption($item.available_area_unit_code,'dimension_unit');
-            }
-
-            $scope.compileListingRooms($item);
-            $item.permalink = $scope.getPermalink($item);
-
-            
-        }
-
-    }
-
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of broker item
-     */
-    $scope.compileBrokerList = function($list){
-        $siConfig.get().then(function ($configs){
-            $siList.getOfficeList($configs.default_view);
-        });
-
-        $list.forEach(function($e){
-            $scope.compileBrokerItem($e);
-        });
-
-        return $list;
-    }
-
-    $scope.compileBrokerItem = function($item){
-        if($item.permalink == undefined){
-            $item.license_type = $siDictionary.getCaption($item.license_type_code, 'broker_license_type');
-            $item.permalink = $scope.getPermalink($item,'broker');
-            
-            if($item.office_ref_number != undefined){
-                $officeList = $siList.getOfficeList();
-                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
-                $scope.compileOfficeItem($item.office);
-            
-            }
-        }
-    }
-
-    $scope.compileListingRooms = function($item){
-        if(typeof $item.main_unit != 'undefined'){
-            
-            const lIconRef = {
-                'bathroom_count' : 'bath',
-                'bedroom_count' : 'bed',
-                'waterroom_count' : 'hand-holding-water'
-            }
-            const lLabelRef = {
-                'bathroom_count' : 'Bathroom',
-                'bedroom_count' : 'Bedroom',
-                'waterroom_count' : 'Powder room'
-            }
-            const lPluralLabelRef = {
-                'bathroom_count' : 'Bathrooms',
-                'bedroom_count' : 'Bedrooms',
-                'waterroom_count' : 'Powder rooms'
-            }
-
-            $item.rooms = {};
-            Object.keys($item.main_unit).forEach(function($k){
-                if($item.main_unit[$k] > 0){
-                    const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
-                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
-                }
-            });
-        }
-    }
-
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of office item
-     */
-    $scope.compileOfficeList = function($list){
-        $list.forEach(function($e){
-            $scope.compileOfficeItem($e);
-        })
-    }
-    
-    $scope.compileOfficeItem = function($item){
-        if($item == undefined) return;
-        if($item.phones != null){
-            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $scope.formatPhone($item.phones[$key]);}); 
-        }
-        $item.location.region = $scope.getCaption($item.location.region_code, 'region');
-        $item.location.country = $scope.getCaption($item.location.country_code, 'country');
-        $item.location.state     = $scope.getCaption($item.location.state_code, 'state');
-        $item.location.city     = $scope.getCaption($item.location.city_code, 'city');
-        $item.location.street_address = '{0} {1}'.format(
-                                                    $item.location.address.street_number,
-                                                    $item.location.address.street_name
-                                                );
-        $item.location.full_address = '{0} {1}, {2}'.format(
-                                                $item.location.address.street_number,
-                                                $item.location.address.street_name,
-                                                $item.location.city
-                                            );
-
-        $item.permalink = $scope.getPermalink($item,'office');
-    }
-
-    $scope.compileCityList = function($list){
-        $list.forEach(function($e){
-            $scope.compileCityItem($e);
-        });
-    }
-
-    $scope.compileCityItem = function($item){
-        $item.region    = $scope.getCaption($item.region_code, 'region');
-        $item.country   = $scope.getCaption($item.country_code, 'country');
-        $item.state     = $scope.getCaption($item.state_code, 'state');
-        $item.city      = $scope.getCaption($item.city_code, 'city');
-
-        $item.permalink = $scope.getPermalink($item,'city');
-    }
 
 
     /**
@@ -1127,18 +1185,21 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
     /**
      * Return an object containing all query string data
      */
-    $scope.search = function(){
-        let lResult = {};
-        let lSearch = location.search.replace('?','');
-        if(lSearch!=''){
-            let lQueryArr = lSearch.split('&');
-            lQueryArr.forEach(function($item){
-                lKeyValue = $item.split("=");
-                lResult[lKeyValue[0]] = lKeyValue[1];
-            });
-        }
+    $scope.search = function($key){
+        const lSearch = window.location.search
+                            .replace('?','')
+                            .split('&')
+                            .map(function($item){
+                                return $item.split('=');
+                            });
+        if(lSearch.length == 0) return null;
+        const lSearchObject = lSearch.reduce(function($acc, $cur){
+            $acc[$cur[0]] = $cur.slice(1).join('');
+            return $acc;
+        },{});
 
-        return lResult;
+        if($key == undefined) return lSearchObject;
+        return lSearchObject[$key];
     }
 
     $scope.absolutePosition = function(element) {
@@ -1266,6 +1327,7 @@ function $siConfig($http, $q){
     let $scope = {};
 
     $scope._data = null;
+    $scope._listData = null;
     $scope._loading = false;
 
     $scope.init = function(){
@@ -1312,8 +1374,27 @@ function $siConfig($http, $q){
         return lPromise;
     }
 
-    $scope.init();
+    $scope.getList = function($alias){
+        if($scope._listData != null && $scope._listData[$alias] != undefined){
+            return $q.resolve($scope._listData[$alias]);
+        }
+        
+        return $scope.get().then(function($configs){
+            //console.log($configs);
+            return $configs.lists.find(function($e){
+                return $e.alias == $alias;
+            });
+        }).then(function($configs){
+            if($configs == null) return null;
+            if($scope._listData == null) $scope._listData = {};
 
+            $scope._listData[$alias] = $configs
+            if(isNullOrUndefined($configs.current_view)) $configs.current_view = $configs.source.id;
+            return $configs;
+        });
+    }
+
+    $scope.init();
 
     return $scope;
 }

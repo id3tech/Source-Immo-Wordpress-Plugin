@@ -308,8 +308,8 @@ $locales.fr = {};$locales.fr.global =
     , "Server side (no search tool)" : "Côté serveur (sans outils de recherche)"
     , "Item's space on the row" : "Espace de l'élément sur la ligne"
     , "Ajust the space taken by an item on the row, for each device's scope." : "Ajustez l'espace occupé par un élément sur la ligne, pour la portée de chaque appareil."
-
-
+    , "Customize" : "Personnaliser"
+    , "Use the keyword <em>selector</em> to target the element wrapper" : "Utilisez le mot clé <em>selector</em> pour cibler le conteneur de l'élément"
     , "Custom layout from page" : "Gabarit personnalisé venant d'une page"
     , "Layout page" : "Page de gabarit"
     , "Generate" : "Générer"
@@ -655,6 +655,8 @@ $locales.fr = {};$locales.fr.global =
     , "Click on the social media you want to share this page." : "Cliquez sur le média social où vous voulez partager cette page."
     , "This amount is displayed for information only. The calculation of the transfer tax is based on the basic calculations generally in effect in Québec. This amount may vary depending on the city. Consult your real estate broker for the exact amount." : 
             "Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact."
+    , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
+    
     // PUBLIC - SINGLE BROKER
     , "Sorry, this broker could not be found." : "Désolé, ce courtier est introuvable."
     , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder à cette page soit invalide."
@@ -692,4 +694,11 @@ $locales.fr = {};$locales.fr.global =
     , "Quickly access your favorites" : "Accédez rapidement à vos coups de coeur"
     , "You don't have any favorites yet" : "Vous n'avez aucun coups de coeur pour l'instant"
     , "Use the <i class=\"fal fa-2x fa-heart\"></i> button in the descriptive page to add a property in your favorites" : "Utilisez le bouton <i class=\"fal fa-2x fa-heart\"></i> dans la page descriptive pour ajouter une propriété à vos coups de coeur"
+
+    // MODULES
+
+    // Elementor
+    , "List alias" : "Alias de liste"
+    , "Placeholder" : "Espace réservé"
+    , "The page to display the result" : "La page d'affichage de résultat"
 }

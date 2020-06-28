@@ -1,16 +1,4 @@
 <div class="list-layout">
-    <md-input-container>
-        <label><?php _e('Rendering method',SI) ?></label>
-        <md-select ng-model="model.list_layout.preset">
-            <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
-        </md-select>
-    </md-input-container>
-    
-    <md-input-container >
-        <label><?php _e('List class',SI) ?></label>
-        <input ng-model="model.list_layout.scope_class" />
-    </md-input-container>
-
     <h5><?php _e("Item's space on the row",SI) ?></h5>
     <div><?php _e("Ajust the space taken by an item on the row, for each device's scope.",SI) ?></div>
     <div layout="row" layout-align="space-between center">
@@ -101,7 +89,7 @@
                         <div class="component list-items">
                             <md-checkbox ng-checked="true" disabled></md-checkbox>
                             
-                            <div class="component-elements si-grid">
+                            <div class="component-elements si-grid" style="--item-row-space:{{100 / model.list_layout.item_row_space.desktop | math_floor}}">
                                 
                                 <div class="si-element 
                                             layout-{{model.list_item_layout.layout}} 
@@ -125,5 +113,4 @@
         
     </div>
     
-
 </div>

@@ -258,7 +258,7 @@ si-checkbox, si-radio{
             max-width: 100%;
             transition:0.25s;
             height:auto;
-            
+            margin:0px;
             &:focus{
                 border-color: var(--highlight);
             }

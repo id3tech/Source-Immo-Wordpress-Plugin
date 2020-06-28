@@ -306,7 +306,6 @@ class HttpCall{
     $lInstance->endpoint = implode('/',$endpoint_parts);
     $lInstance->endpoint = str_replace('~', $normHost . '/api', $lInstance->endpoint);
 
-    
 
     return $lInstance;
   }
@@ -341,6 +340,7 @@ class HttpCall{
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
+
     $queryOptions = array_merge(
       array(
         'CURLOPT_HTTPGET' => true,
@@ -353,8 +353,8 @@ class HttpCall{
 
     $lCurlHandle = $this->_setup_curl( $queryOptions );
     $lResult = curl_exec($lCurlHandle);
-    //$information = curl_getinfo($lCurlHandle);
-    //print_r($information);
+    // $information = curl_getinfo($lCurlHandle);
+    // print_r($information);
     
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
@@ -451,7 +451,7 @@ class HttpCall{
   }
 
   private function _handle_error($curlHdl){
-    Debug::write(curl_error($curlHdl));
+    __c(curl_error($curlHdl));
   }
 
 }

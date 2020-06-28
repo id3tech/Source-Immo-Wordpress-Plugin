@@ -37,6 +37,25 @@
             <label><?php _e('Limit the number of displayed elements',SI) ?></label>
             <input type="number" ng-model="model.limit" ng-change="validate()" />
         </md-input-container>
+
+        <md-input-container>
+            <label><?php _e('Rendering method',SI) ?></label>
+            <md-select ng-model="model.list_layout.preset">
+                <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
+            </md-select>
+        </md-input-container>
+
+        
+        <md-input-container >
+            <label><?php _e('List class',SI) ?></label>
+            <input ng-model="model.list_layout.scope_class" />
+        </md-input-container>
+
+        <md-input-container>
+            <label lstr>Custom style</label>
+            <textarea rows="15" ng-model="model.list_layout.custom_css"></textarea>
+        </md-input-container>
+        <note lstr>Use the keyword <em>selector</em> to target the element wrapper</note>
     </div>
 
     <div class="other-stuff">

@@ -35,6 +35,7 @@ function $siFilters($q,$siApi,$siUtils){
                 filter_groups: null
             },
             main_filter: null,
+            price_parts: ['sell','lease'],
             data: {
                 keyword : '',
                 min_price: null,
@@ -93,10 +94,10 @@ function $siFilters($q,$siApi,$siUtils){
             available_max: {field:'available_area_sf', operator: 'less_or_equal_to'},
             min_price: function($value){
                             //console.log('min_price filter',$value);
-                            return {field: ['price.sell.amount','price.lease.amount'], operator: 'greater_or_equal_to', value: $value}
+                            return {field: $fm.price_parts.map(function($p) {return 'price.' + $p + '.amount'}), operator: 'greater_or_equal_to', value: $value}
                         },
             max_price: function($value){
-                            return {field: ['price.sell.amount','price.lease.amount'], operator: 'less_or_equal_to', value: $value}
+                            return {field: $fm.price_parts.map(function($p) {return 'price.' + $p + '.amount'}), operator: 'less_or_equal_to', value: $value}
                         },
             building_categories: function($values){
                             return {field: 'building.category_code', operator: 'in', value: $values};
@@ -188,6 +189,8 @@ function $siFilters($q,$siApi,$siUtils){
             $fm.update();
             $fm.trigger('update');
         }
+
+        
 
         // --------------------------------------
         // #region FILTERS HANDLING
@@ -629,25 +632,26 @@ function $siFilters($q,$siApi,$siUtils){
          * Update filters from data object
          */
         $fm.update = function(){
-            
+            console.log('$siFilter/update');
+
             const lDataKeys = Object.keys($fm.data);
             //console.log('filterManager update');
-            const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
-            if(lMainFilter != null){
-               
-                // remove other main filter
-                Object.keys($fm.mainFilterMap[$fm.main_filter.type])
-                .forEach(function($k){
-                    const lOtherFilter = $fm.mainFilterMap[$fm.main_filter.type][$k];
-                    if(lOtherFilter.field != lMainFilter.field){
-                        //console.log('remove other filter', lOtherFilter.field);
-                        $fm.addFilter(lOtherFilter.field, lOtherFilter.operator, '');
-                    }
-                });
+            // const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
+            // if(lMainFilter != null){
+            //     // remove other main filter
+            //     Object.keys($fm.mainFilterMap[$fm.main_filter.type])
+            //     .forEach(function($k){
+            //         const lOtherFilter = $fm.mainFilterMap[$fm.main_filter.type][$k];
+            //         if(lOtherFilter.field != lMainFilter.field){
+            //             //console.log('remove other filter', lOtherFilter.field);
+            //             $fm.addFilter(lOtherFilter.field, lOtherFilter.operator, '');
+            //         }
+            //     });
                 
-                //console.log('Add main filter', lMainFilter);
-                $fm.addFilter(lMainFilter.field, lMainFilter.operator, lMainFilter.value);
-            }
+            //     //console.log('Add main filter', lMainFilter);
+            //     $fm.addFilter(lMainFilter.field, lMainFilter.operator, lMainFilter.value);
+            // }
+
 
             
             lDataKeys.forEach(function($key){ 
@@ -655,25 +659,21 @@ function $siFilters($q,$siApi,$siUtils){
                 const lFilterMap = $fm.dataFilterMap[$key];
                 const lDataValue = $fm.data[$key];
                 if(lFilterMap == undefined) return;
-                if(lMainFilter != null && lMainFilter.shadows === $key) return; // skip this filter if MainFilter shadows it
+                //if(lMainFilter != null && lMainFilter.shadows === $key) return; // skip this filter if MainFilter shadows it
                 
                 const lFilter = typeof(lFilterMap) == 'function' ? lFilterMap(lDataValue) : lFilterMap;
                 if(lFilter == null) return;
 
                 if(isNullOrEmpty(lDataValue)){
-                    
                     // remove filter
                     if(Array.isArray(lFilter)){
                         lFilter.forEach(function($f){
-                            
                             $fm.addFilter($f.field,$f.operator,'');
-                            
                         });
                     }
                     else{   
                         $fm.addFilter(lFilter.field,lFilter.operator,'');
                     }
-                    
                 }
                 else{
                     // add filter
@@ -687,7 +687,6 @@ function $siFilters($q,$siApi,$siUtils){
                         const lFilterValue = lFilter.value == undefined ? lDataValue : lFilter.value;
                         $fm.addFilter(lFilter.field,lFilter.operator, lFilterValue);  
                     }
-                    
                 }
             });
         }
@@ -762,6 +761,32 @@ function $siFilters($q,$siApi,$siUtils){
             sessionStorage.removeItem(lKey.format('query'));
         }
 
+        $fm.resetSpecificFilters = function($filters, $update){
+            $update = $update === undefined ? true : $update;
+
+            Object
+                .keys($fm.data)
+                .filter(function($k){
+                    return $filters.includes($k);
+                })
+                .forEach(function($k){
+                    if(Array.isArray($fm.data[$k])){
+                        $fm.data[$k] = [];
+                    }
+                    else{
+                        $fm.data[$k] = null;
+                    }
+                });
+
+            if($update){
+                $fm.getConfigs().then(function($configs){
+                    $fm.trigger('filterTokenChanged');
+                    $fm.trigger('update');
+                    $fm.update();
+                });
+            }
+        }
+
         /**
          * Remove all 'selected' attribute from list elements
          * @param {object} $list List to reset
@@ -772,11 +797,20 @@ function $siFilters($q,$siApi,$siUtils){
             }
         }
 
+        $fm.setPricePart = function($pricePart){
+            $fm.addFilter($fm.price_parts.map(function($p) {return 'price.' + $p + '.amount'}), 'greater_or_equal_to', '');
+            $fm.addFilter($fm.price_parts.map(function($p) {return 'price.' + $p + '.amount'}), 'less_or_equal_to', '');
+
+            $fm.price_parts = $pricePart;
+        }
+
         /**
          * Build the object to send as search parameters
          */
         
         $fm.buildFilters = function(){
+            console.log('$siFilter/buildFilters');
+
             let lResult = null;
             let lPromise = $q(function($resolve, $reject){
                 
@@ -802,7 +836,9 @@ function $siFilters($q,$siApi,$siUtils){
                     
                     if($configs.filter_group != null || $fm.hasFilters() || $fm.main_filter != null){
                         $fm.clean();
+                    }
 
+                    if($fm.hasFilters()){
                         if(lResult==null) lResult = {};
                         lResult.filter_group = {filters:[]};
                         if($configs.filter_group != null){

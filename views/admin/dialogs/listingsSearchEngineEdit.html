@@ -23,7 +23,9 @@
   
             <md-input-container>
               <label lstr>Search box placeholder</label>
-              <input ng-model="model.search_box_placeholder" />
+              <si-localized>
+                <input type="text" ng-model="model.search_box_placeholder[$localized.current]" />
+              </si-localized>
             </md-input-container>
   
             <md-input-container ng-if="false">

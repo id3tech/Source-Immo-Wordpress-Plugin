@@ -2,7 +2,7 @@
 
     <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}">
         <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
-                class="si-tab {{current_view == tab.view_id ? 'active' : ''}}"
+                class="si-tab {{configs.current_view == tab.view_id ? 'active' : ''}}"
                 ng-click="selectView(tab.view_id)"
                 >
                 {{tab.caption | translate}}
@@ -25,18 +25,11 @@
                 ng-click="selectMainFilter('IND')"
                 ng-if="configs.search_engine_options.tabs.includes('IND')"><?php _e('Industrial',SI) ?></div> -->
         
-        <si-select si-model="current_main_filter" si-change="selectMainFilter(current_main_filter)">
-                <si-option value="for-sale"
-                        ng-if="configs.search_engine_options.tabs.includes('for-sale')"><?php _e('For sale',SI) ?></si-option>
-                <si-option value="for-rent"
-                        ng-if="configs.search_engine_options.tabs.includes('for-rent')"><?php _e('For rent',SI) ?></si-option>
-                <si-option value="RES"
-                        ng-if="configs.search_engine_options.tabs.includes('RES')"><?php _e('Residential',SI) ?></si-option>
-                <si-option value="COM"
-                        ng-if="configs.search_engine_options.tabs.includes('COM')"><?php _e('Commercial',SI) ?></si-option>
-                <si-option value="IND"
-                        ng-if="configs.search_engine_options.tabs.includes('IND')"><?php _e('Others',SI) ?></si-option>
-                
+        <si-select si-model="current_view_id" si-change="selectView(current_view_id)">
+                <si-option ng-repeat="tab in configs.search_engine_options.tabs track by $index"
+                        ng-value="tab.view_id">
+                        {{tab.caption | translate}}
+                </si-option>
         </si-select>
     </div>
 
@@ -44,36 +37,34 @@
         <div class="search-box">
             
             <si-search-box 
-                    alias="<?php echo $configs->alias ?>" 
-                    placeholder="<?php _e('Search a region, city, street',SI) ?>"></si-search-box>
+                    alias="<?php echo $configs->alias ?>"></si-search-box>
             
             <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="filter.addGeoFilter()"></i>
         </div>
 
         <div class="si-panel-button cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}"  
+                ng-if="allowPanel('cities')"
                 ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
     
         <div class="si-panel-button price-button {{isExpanded('price')}} {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}"  
+                ng-if="allowPanel('price')"
                 ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
     
         <div class="si-panel-button category-button {{isExpanded('categories')}} {{filter.hasFilter(['categories','building_categories','subcategories']) ? 'has-filters' : ''}}"  
+                ng-if="allowPanel('categories')"
                 ng-click="toggleExpand($event,'categories')"><?php _e('Types', SI) ?></div>
         
         <div class="si-panel-button rooms-button {{isExpanded('rooms')}} {{filter.hasFilter(['bedrooms','bathrooms']) ? 'has-filters' : ''}}"
-                ng-if="isMainFiltered([null, 'RES','for-sale','for-rent'])"
+                ng-if="allowPanel('rooms')"
                 ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></div>
 
         <div class="si-panel-button areas-button {{isExpanded('areas')}} {{filter.hasFilter(['available_min','available_max','land_min','land_max']) ? 'has-filters' : ''}}" 
-                ng-if="isMainFiltered(['COM'])"
+                ng-if="allowPanel('areas')"
                 ng-click="toggleExpand($event,'areas')"><?php _e('Areas', SI) ?></div>
 
         
         <div class="si-panel-button more-button {{isExpanded('others')}} 
-                {{ isMainFiltered(['COM']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract']) ? 'has-filters' : '' : ''}}
-                {{ isMainFiltered(['RES']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
-                {{ isMainFiltered(['for-rent','for-sale']) ? filter.hasFilter(['states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
-                {{ isMainFiltered([null]) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
-                "
+                {{ filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}"
                 ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
     
 

@@ -1,0 +1,7 @@
+<div class="bio  ">
+    <div class="text ng-binding">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Scripta periculis ei eam, te pro movet reformidans. Offendit eleifend moderatius ex vix, quem odio mazim et qui, purto expetendis cotidieque quo cu, veri persius vituperata ei nec. Pri posse graeco definitiones cu, id eam populo quaestio adipiscing, usu quod malorum te. Erroribus adipiscing id eam. Vivendum intellegat et qui, ei denique consequuntur vix. Per ea omnis decore, eu mei appareat tincidunt. Vivendum intellegat et qui, ei denique consequuntur vix. No epicuri hendrerit consetetur sit, sit dicta adipiscing ex, in facete detracto deterruisset duo. Te quo atqui libris, dicta aeque usu an. Offendit eleifend moderatius ex vix, quem odio mazim et qui, purto expetendis cotidieque quo cu, veri persius vituperata ei nec. Pri posse graeco definitiones cu, id eam populo quaestio adipiscing, usu quod malorum te. His an amet petentium voluptatibus, modo malis error nec no.
+    </div>
+
+    <button class="button ng-binding" ng-click="bio.expanded = !bio.expanded">Lire plus</button>
+</div>

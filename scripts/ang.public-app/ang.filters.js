@@ -180,9 +180,17 @@ siApp
         if($text == undefined) return '';
 
         const lCurrentLocale = $locales._current_lang_;
-        if($text[lCurrentLocale] != undefined) return $text[lCurrentLocale];
+        if(typeof($text) == 'object'){
+            //console.log('translate object of', $text);
 
-        return lCurrentLocale.toString().translate();
+            if($text[lCurrentLocale] != undefined) return $text[lCurrentLocale];
+            return $text[Object.keys($text)[0]];
+        }
+        else{
+            //console.log('translate string of', $text, );
+        }
+
+        return $text.toString().translate();
     }
 })
 

@@ -6,7 +6,6 @@
         grid-column: 1 / span 3;
         display:grid;
         grid-template-columns: 1fr auto;
-        gap: 0 var(--layout-gutter);
         position:relative;
         align-items:center;
         padding: var(--container-padding);
@@ -103,14 +102,14 @@
             grid-auto-flow: column;
             gap: 1rem;
             z-index: 100;
-            // @include media($phone){
-            //     grid-template-columns: 1fr;
-            //     grid-auto-flow:unset;
-            //     place-items: stretch;
-            //     place-self: stretch;
-            //     left:0px;
-            //     width:100%;
-            // }
+            @include media($phone){
+                grid-template-columns: 1fr;
+                grid-auto-flow:unset;
+                place-items: stretch;
+                place-self: stretch;
+                left:0px;
+                width:100%;
+            }
 
             .si-tab{
                 padding: 0.5em 1em;
@@ -118,8 +117,9 @@
                 text-transform: uppercase;
                 position:relative;
                 font-size: 0.8rem;
+                white-space: nowrap;
                 overflow:hidden;
-
+                text-overflow: ellipsis;
                 &::before{
                     content:"";
                     position: absolute;
@@ -149,9 +149,9 @@
                     }
                 }
 
-                // @include media($phone){
-                //     display:none;
-                // }
+                @include media($phone){
+                    display:none;
+                }
             }
 
             .si-select{
@@ -160,10 +160,10 @@
                 .si-selected-value{
                     .si-label{text-transform: uppercase;}
                 }
-                // @include media($phone){
-                //     display:block;
-                //     border-style: none none solid none;
-                // }
+                @include media($phone){
+                    display:block;
+                    border-style: none none solid none;
+                }
             }
 
             &.si-tab-count-1{
@@ -190,18 +190,23 @@
                 place-self: stretch;
                 display: flex;
                 align-items: center;
+                transition:0.25s;
+                color:var(--text-color);
 
                 &::before{
                     content:"";
                     position: absolute;
-                    top:calc(var(--container-padding) *-1);
+                    bottom:0px;
                     left:50%;
                     transform:translateX(-50%);
                     transition:0.25s;
                     display:block;
                     width:0px;
-                    height:3px;
+                    height:6px;
                     background-color:var(--highlight);
+                    max-width: 4rem;
+                    //clip-path: polygon(0% 0%, calc(50% - 3px) 0%, 50% 100%, calc(50% + 3px) 0%, 100% 0%, 100% 100%, 0% 100%);
+                    clip-path: polygon(0% 0%, 100% 0%, 100% 50%, calc(50% + 3px) 50%, 50% 100%, calc(50% - 3px) 50%, 0% 50%);
                 }
 
                 &.expanded{
@@ -483,6 +488,8 @@
         }
 
         &.show-trigger{
+            gap: 0 var(--layout-gutter);
+        
             // grid-template-columns: 1fr auto auto;
             // grid-template-areas: 
             //     "input advanced trigger"
@@ -1363,12 +1370,30 @@
 .si-tab-cursor{
     position: absolute;
     top: var(--ref-top);
-    left: var(--ref-left);
+    left: calc(var(--ref-left));
     width: var(--ref-width);
-    transform:translate(-1px,-2px);
-    height: 0.5rem;
-    background-color: var(--background-color);
+    height:1px;
+    overflow:visible;
     z-index:100;
+    pointer-events: none;
+    padding:0 var(--ref-border);
+
+    &::before, &::after{
+        content:"";
+        background-color: var(--background-color);
+        width:100%;
+        display:block;
+        height:0.5rem;
+    }
+    &::before{
+        margin-top: calc(-0.5rem - 1px);
+        width: 100%;
+    }
+    &::after{
+        width: 120%;
+        transform: translateX(-8%);
+    }
+
     @include media($phone){
         display:none !important;
     }

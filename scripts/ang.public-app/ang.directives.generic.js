@@ -7,25 +7,24 @@
 siApp
 .directive('siAdaptativeClass', [
     '$parse','$timeout',
-    function($parse,$timeout){
+    function($parse){
         return {
             restrict: 'A',
             scope: true,
             link: function($scope, $element, $attrs){
                 $scope.$element = $element[0]
-                
-                $timeout(function(){
-                    $scope.init();
-                },500);
-                
             },
-            controller : function($scope, $rootScope){
+            controller : function($scope, $rootScope,$timeout){
                 $scope._resizeTimeoutHndl = null;
                 
                 $scope.init = function(){
                     $scope.updateClass();
                     $scope.addResizeListener();
                 }
+
+                $timeout(function(){
+                    $scope.init();
+                },1000);
 
                 $scope.addResizeListener = function(){
                     window.addEventListener("resize", function($event){
@@ -36,7 +35,7 @@ siApp
                         $scope._resizeTimeoutHndl = window.setTimeout(function(){
                             $scope.updateClass();
                         }, 100);
-                    })
+                    });
                 }
 
                 $scope.updateClass = function(){
@@ -58,20 +57,35 @@ siApp
                     // get element size
                     let lReferenceElement = $scope.$element;
                     if(!lReferenceElement.classList.contains('si-content')){
-                        lReferenceElement = lReferenceElement.closest('.si-content');
+                        console.log('no .si-content', lReferenceElement);
+
+                        lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
+                            return lReferenceElement || $scope.$element.closest($cur);
+                        }, null);
                     }
-                    const lElementBox = lReferenceElement.parentNode.getBoundingClientRect();
-                    if(lElementBox.width == 0) return;  // bail out if the element has no width
+                    else{
+                        console.log('.si-content detected', lReferenceElement);
+                    }
+
+                    const lElementBox = lReferenceElement.getBoundingClientRect();
+                    console.log('AdaptativeResize/updateClass',lElementBox);
+                    if(lElementBox.width == 0){
+                        console.log('Element box width is 0', lReferenceElement);
+                        // $timeout(function(){
+                        //     $scope.updateClass();
+                        // },500);
+                        return;  // bail out if the element has no width
+                    }
 
                     // find the first size greater than the element box width
-                    const lClass = Object.keys(lSizeMap)
+                    const lFilteredMap = Object.keys(lSizeMap)
                                             .filter(function($k){
                                                 return lSizeMap[$k] <= window.innerWidth;
                                             })
-                                            .find(function($k){
-                                                return lSizeMap[$k] >= lElementBox.width;
+                    const lClass = lFilteredMap.reverse().find(function($k){
+                                                return lSizeMap[$k] <= lElementBox.width;
                                             });
-
+                    console.log('added class', lClass,lFilteredMap,lElementBox.width);
                     if(lClass != null){
                         // apply class if found
                         $scope.$element.classList.add(lClass)

@@ -431,6 +431,7 @@ body.wp-admin #si-app,
     
               .listing-list{
                 grid-template-columns: repeat(auto-fill, minmax(var(--preview-listing-item-column-width),1fr));
+                
               }
     
               .broker-list{
@@ -723,8 +724,11 @@ body.wp-admin #si-app,
     .si-localized-input{
       ng-transclude{display:contents;}
       display:grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(auto, 1fr);
+      grid-template-columns: 1fr auto;
+      place-items: center stretch;
+
+      input{grid-column: 1;grid-row:1}
+      md-menu{grid-column: 2;grid-row:1}
     }
 
     .si-wp-media{

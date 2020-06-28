@@ -1,0 +1,1 @@
+<div class="description">{{model.description}}</div>

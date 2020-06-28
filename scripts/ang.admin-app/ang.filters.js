@@ -19,6 +19,13 @@ siApp
 });
 
 siApp
+.filter('math_floor', function(){
+    return function($value){
+        return Math.floor($value);
+    }
+})
+
+siApp
 .filter('truncate', function(){
     return function($source, $limit){
         let lResult = $source;

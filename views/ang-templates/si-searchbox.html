@@ -6,7 +6,7 @@
             ng-bind-html="getSelectionPlaceholder()"
             >
         </div>
-        <input type="text" placeholder="{{placeholder.translate()}}"
+        <input type="text" placeholder="{{placeholder | translate}}"
             ng-disabled="!is_ready"
             data-ng-model="filter.data.keyword" data-ng-keyup="buildSuggestions($event)">
         <i class="clear-button far fa-times" ng-click="resetFilters()"></i>

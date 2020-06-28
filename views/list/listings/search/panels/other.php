@@ -8,7 +8,7 @@ $panelKey = 'others';
     </div>
     
     <div class="filter-panel-content">
-        <div class="transaction filter-row" ng-if="!isMainFiltered(['for-sale','for-rent'])">
+        <div class="transaction filter-row" ng-if="listing_states">
             <si-input-container>
                 <label><?php _e('Transaction type',SI) ?></label>
                 <si-select si-model="filter.data.transaction_type" si-change="filter.update()">
@@ -18,7 +18,7 @@ $panelKey = 'others';
             </si-input-container>
         </div>
 
-        <div class="age filter-row">
+        <div class="age filter-row" ng-if="listing_ages">
             <si-input-container>
                 <label><?php _e('Online since',SI) ?></label>
                 <si-select si-model="filter.data.contract" si-change="filter.update()">
@@ -29,7 +29,7 @@ $panelKey = 'others';
 
         </div>
 
-        <div class="parkings filter-row">
+        <div class="parkings filter-row" ng-if="parkingSuggestions">
             <si-input-container>
                 <label><?php _e('Parkings',SI) ?></label>
                 <si-select si-model="filter.data.parkings" si-change="filter.update()">
@@ -43,7 +43,7 @@ $panelKey = 'others';
 
         <div class="area-filters">
 
-            <div class="land-area filter-row" ng-if="!isMainFiltered(['COM'])">
+            <div class="land-area filter-row" ng-if="!allowPanel('areas')">
                 <si-input-container class="si-float-label si-input-group">
                     <label><?php _e('Land area',SI) ?></label>
                     
@@ -62,7 +62,7 @@ $panelKey = 'others';
                 
             </div>
 
-            <div class="building-area filter-row" ng-if="!isMainFiltered(['COM'])">
+            <div class="building-area filter-row" ng-if="!allowPanel('areas')">
                 <si-input-container class="si-float-label si-input-group">
                     <label><?php _e('Available area',SI) ?></label>
                     
@@ -89,7 +89,7 @@ $panelKey = 'others';
                 </label>
                 <div class="grid-layout-column">
                     <si-checkbox
-                        data-ng-repeat="(key,item) in listing_attributes"
+                        data-ng-repeat="item in listing_attributes"
                         ng-model="filter.data.attributes"
                         si-value="{{item.field}}"
                         si-change="filter.update()"
@@ -104,9 +104,9 @@ $panelKey = 'others';
                 <label><?php _e('Filters',SI) ?></label>
                 <div class="grid-layout-column">
                     <si-checkbox
-                        data-ng-repeat="(key,item) in listing_flags"
+                        data-ng-repeat="item in listing_flags"
                         ng-model="filter.data.states"
-                        si-value="{{key}}"
+                        si-value="{{item.key}}"
                         si-change="filter.update()"
                         data-label="{{item.caption.translate()}}"
                         ></si-checkbox>

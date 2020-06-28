@@ -85,15 +85,16 @@
               si-show-preview="false"
               si-editables="['office','bg-fg','elements']" ></si-style-editor>
 
-            <md-input-container ng-if="model.list_item_layout.preset=='custom'">
+            <md-input-container>
               <label lstr>Custom class</label>
               <input ng-model="model.list_item_layout.scope_class" />
             </md-input-container>
 
-            <md-input-container ng-if="model.list_item_layout.preset=='custom'">
+            <md-input-container>
               <label lstr>Custom style</label>
               <textarea rows="15" ng-model="model.list_item_layout.custom_css"></textarea>
             </md-input-container>
+            <note lstr>Use the keyword <em>selector</em> to target the element wrapper</note>
           </div>
 
         </div>
