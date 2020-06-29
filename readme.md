@@ -31,11 +31,11 @@ In this release:
 
 ## Other things
 
-*You can change the default view which will update every list that used the previous one
-*Minor bugs fixes
-*Disconnection now make a backup of the settings to be restored upon credentials update
-*Fix Yoast support
-*Add minor support for Avada's Fusion theme
+* You can change the default view which will update every list that used the previous one
+* Minor bugs fixes
+* Disconnection now make a backup of the settings to be restored upon credentials update
+* Fix Yoast support
+* Add minor support for Avada's Fusion theme
 
 
 requires: 5.1.1
