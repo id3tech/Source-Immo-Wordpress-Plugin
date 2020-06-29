@@ -854,16 +854,14 @@ function $siFilters($q,$siApi,$siUtils){
                         lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
                     }
                     
-                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter(function($f) {return $f.field!=''}).length > 0){
-                        lResult.sort_fields = $fm.sort_fields.filter(function($f){return $f.field!=''});
+                    lResult.sort_fields = null;
+                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter(function($f) {return !isNullOrEmpty($f.field)}).length > 0){
+                        lResult.sort_fields = $fm.sort_fields.filter(function($f){return !isNullOrEmpty($f.field)});
                     }
-                    else if($configs.sort != 'auto' && $configs.sort != ''){
+                    else if($configs.sort != 'auto' &&  !isNullOrEmpty($configs.sort) ){
                         lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
                     }
-                    else{
-                        lResult.sort_fields = null;
-                    }
-
+                    
                     
                     if($fm.query_text != null){
                         lResult.query_text = $fm.query_text;
