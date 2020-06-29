@@ -14,7 +14,18 @@ class SI_Elementor_Module extends \SI\Bases\Module{
         add_action( 'elementor/elements/categories_registered', array($this, 'addWidgetCategory'));
         add_action( 'elementor/dynamic_tags/register_tags', array($this, 'registerDynamicTags'));
         add_action( 'elementor/widgets/widgets_registered',  array($this, 'registerWidgets'));
-        add_action( 'elementor/elements/elements_registered',  array($this, 'registerElements'));
+        add_action( 'elementor/elements/elements_registered',  array($this, 'registerElements'));   
+    }
+
+    function register_filters(){
+        add_filter( 'si/page_builder/get_page_template', function( $page_template ) {
+            //echo($page_template);
+            if(strpos($page_template,'elementor_') !== false){
+                $newPageTemplate = str_replace(['elementor_','_'],['','-'],$page_template);
+                $page_template = ELEMENTOR_PATH . 'modules/page-templates/templates/' . $newPageTemplate . '.php';
+            }
+            return $page_template;
+        } );
     }
 
     function get_style_depends(){

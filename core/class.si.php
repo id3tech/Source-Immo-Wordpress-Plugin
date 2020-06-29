@@ -1133,6 +1133,7 @@ class SourceImmo {
       foreach($this->modules as $module){
         $module->includes();
         $module->register_actions();
+        $module->register_filters();
       }
     }
   }
@@ -2331,7 +2332,7 @@ class BrokerSchema extends BaseDataSchema{
     
     $this->_schema['email'] = $broker->email;
     $this->_schema['telephone'] = isset($broker->phones->cell) ? $broker->phones->cell 
-                                : isset($broker->phones->office) ? $broker->phones->office : '';
+                                : (isset($broker->phones->office) ? $broker->phones->office : '');
 
     $this->_schema['url'] = $this->currentPageUrl();
   }

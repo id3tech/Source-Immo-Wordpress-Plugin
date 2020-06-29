@@ -255,6 +255,7 @@ class SiShorcodes{
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
         }
+        if($ref_number == '') return '';
 
         $data = json_decode(SourceImmoApi::get_broker_data($ref_number));
         if($data != null){
@@ -360,6 +361,7 @@ class SiShorcodes{
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
         }
+        if($ref_number == '') return '';
 
         $data = json_decode(SourceImmoApi::get_office_data($ref_number));
         if($data != null){
@@ -489,6 +491,8 @@ class SiShorcodes{
             ), $atts )
         );
 
+        if($ref_number == '') return '';
+        
         ob_start();
         
         global $city_data;
@@ -539,6 +543,8 @@ class SiShorcodes{
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
         }
+        if($ref_number == '') return '';
+
         global $listing_data;
         $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
         if($listing_data != null){

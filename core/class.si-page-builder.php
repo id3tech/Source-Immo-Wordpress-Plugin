@@ -49,7 +49,8 @@ class SourceImmoPageBuilder{
 
     public function get_page_template($page_id){
         $page_template = get_page_template_slug($page_id);
-        
+        $page_template = apply_filters('si/page_builder/get_page_template',$page_template);
+        //echo($page_template);
         if($page_template != '') return $page_template;
 
         //$templateFiles = wp_get_theme()->get_files('php',0,true);
