@@ -1051,7 +1051,7 @@ function $siFilters($q,$siApi,$siUtils){
                 }
                 if(lSessionData != null){
                     let lData = JSON.parse(lSessionData);
-                    $fm.data = Object.assign($fm.data, lData); 
+                    $fm.data = angular.merge($fm.data, lData); 
                 }
 
                 if(lMainFilterData != null){
@@ -1119,7 +1119,7 @@ function $siFilters($q,$siApi,$siUtils){
             $format = ($format == undefined) ? '{0}' : $format;
 
             if(Array.isArray($attr)){
-                return $format.format(...$attr);
+                return $format.format.apply(null, $attr);
             }
             else{
                 return $format.format($attr);

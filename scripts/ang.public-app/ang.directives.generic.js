@@ -40,10 +40,10 @@ siApp
 
                 $scope.updateClass = function(){
                     const lSizeMap = {
-                        'si-adapt-small-phone-size': 320,
-                        'si-adapt-phone-size': 640,
-                        'si-adapt-tablet-size': 800,
-                        'si-adapt-laptop-size': 1000
+                        'si-adapt-small-phone-size': [0,320],
+                        'si-adapt-phone-size': [321,640],
+                        'si-adapt-tablet-size': [641,800],
+                        'si-adapt-laptop-size': [801,1000]
                     }
                     
                     // remove any class previously applied by a resize or initial parse
@@ -55,37 +55,51 @@ siApp
                     
 
                     // get element size
-                    let lReferenceElement = $scope.$element;
-                    if(!lReferenceElement.classList.contains('si-content')){
-                        console.log('no .si-content', lReferenceElement);
+                    let lReferenceElement = $scope.$element.parentElement;
+                    // if(!lReferenceElement.classList.contains('si-content')){
+                    //     console.log('no .si-content', lReferenceElement);
 
-                        lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
-                            return lReferenceElement || $scope.$element.closest($cur);
-                        }, null);
+                    //     lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
+                    //         console.log('search for', $result, $cur, $scope.$element.closest($cur))
+                    //         return $result || $scope.$element.closest($cur);
+                    //     }, null);
+
+                    // }
+
+                    let lReferenceWidth = null;
+                    if(lReferenceElement != null){
+                        console.log('valid container detected for',$scope.$element,':', lReferenceElement);
+
+                        const lElementBox = lReferenceElement.getBoundingClientRect();
+                        console.log('AdaptativeResize/updateClass',lElementBox);
+                        if(lElementBox.width == 0){
+                            console.log('Element box width is 0', lReferenceElement);
+                            // $timeout(function(){
+                            //     $scope.updateClass();
+                            // },500);
+                            return;  // bail out if the element has no width
+                        }
+
+                        lReferenceWidth = lElementBox.width;
                     }
                     else{
-                        console.log('.si-content detected', lReferenceElement);
-                    }
-
-                    const lElementBox = lReferenceElement.getBoundingClientRect();
-                    console.log('AdaptativeResize/updateClass',lElementBox);
-                    if(lElementBox.width == 0){
-                        console.log('Element box width is 0', lReferenceElement);
-                        // $timeout(function(){
-                        //     $scope.updateClass();
-                        // },500);
-                        return;  // bail out if the element has no width
+                        console.log('no valid referece element detected');
                     }
 
                     // find the first size greater than the element box width
                     const lFilteredMap = Object.keys(lSizeMap)
                                             .filter(function($k){
-                                                return lSizeMap[$k] <= window.innerWidth;
-                                            })
-                    const lClass = lFilteredMap.reverse().find(function($k){
-                                                return lSizeMap[$k] <= lElementBox.width;
+                                                return lSizeMap[$k][1] <= window.innerWidth || lSizeMap[$k][1] <= lReferenceWidth;
                                             });
-                    console.log('added class', lClass,lFilteredMap,lElementBox.width);
+                    console.log('AdaptativeResize/updateClass',lFilteredMap, lReferenceWidth);
+                    const lClass = (lReferenceWidth == null)
+                                            ? lFilteredMap.reverse()[0]
+                                            : lFilteredMap.reverse().find(function($k){
+                                                return (
+                                                    (lSizeMap[$k][0] <= lReferenceWidth)
+                                                );
+                                            });
+                    console.log('added class', lClass);
                     if(lClass != null){
                         // apply class if found
                         $scope.$element.classList.add(lClass)
@@ -109,7 +123,7 @@ siApp
             const raw = element[0];
             let doc = $document[0];
             //console.log('loading directive on ');
-            if (typeof window.IntersectionObserver == 'undefined') {
+            if (typeof(IntersectionObserver) === 'undefined') {
 
                 $document.bind('scroll', function () {
                     let lTop = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
@@ -415,7 +429,7 @@ siApp
         restrict: 'A',
         link: function($scope, $element, $attrs){
             
-            if (typeof window.IntersectionObserver == 'undefined') {
+            if (typeof(IntersectionObserver) === 'undefined') {
                 $scope.applyAllImageSource();
             }
             else {

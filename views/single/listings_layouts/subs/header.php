@@ -1,4 +1,4 @@
-<div class="si-header {{model.status=='SOLD'? 'is-sold':''}}" si-adaptative-class>
+<div class="si-header {{model.status=='SOLD'? 'is-sold':''}}">
     <?php echo do_shortcode('[si_listing_part part="header_price"]') ?>
     
     <div class="subcategory">{{model.subcategory}}</div>

@@ -143,6 +143,8 @@ body, #top{
                         place-items: end center;
                     }
                     &.align-center-end#{$size}{
+                        justify-content: end;
+                        align-content:center;
                         place-items: center end;
                     }
                     &.align-end#{$size}{

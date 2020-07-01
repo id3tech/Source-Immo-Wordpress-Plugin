@@ -492,7 +492,7 @@ class SiShorcodes{
         );
 
         if($ref_number == '') return '';
-        
+
         ob_start();
         
         global $city_data;
@@ -612,12 +612,14 @@ class SiShorcodes{
             array(
                 'part' => '',
                 'align' => 'align-stretch',
+                'adapt' => false,
                 'class' => '',
             ), $atts )
         );
 
         $lResult = '';
-        
+        $partAttr = [];
+
         if($part != ''){
             ob_start();
 
@@ -629,8 +631,10 @@ class SiShorcodes{
         }
         $sanitizedPart = sanitize_title(str_replace('_','-',$part));
         $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+        
+        if($adapt) $partAttr[] = 'si-adaptative-class';
 
-        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';
+        $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $partAttr) .'>' . $lResult . '</div>';
 
         return $lResult;
     }

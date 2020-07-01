@@ -42,7 +42,6 @@ siApp
         controller: function($scope, $timeout){
 
             $scope.$watch('model', function($new,$old){
-                console.log('siCheckbox:model changed')
                 
                 if ($new == null) return;
                 

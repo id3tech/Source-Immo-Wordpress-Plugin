@@ -406,15 +406,17 @@ siApp
                 var options = {
                     root: document.documentElement
                   }
-                var observer = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                      if(entry.intersectionRatio > 0){
-                          console.log('ImageSlider is visible');
-                          $scope.detectBoxSize();
-                      }
-                    });
-                  }, options);
-                  observer.observe($scope.$element);
+                if (typeof(IntersectionObserver) !== 'undefined') {
+                    var observer = new IntersectionObserver(function(entries, observer){
+                        entries.forEach(function(entry){
+                        if(entry.intersectionRatio > 0){
+                            console.log('ImageSlider is visible');
+                            $scope.detectBoxSize();
+                        }
+                        });
+                    }, options);
+                    observer.observe($scope.$element);
+                }
 
                 $scope.$on('container-resize', function(){
                     console.log('container-resize');
@@ -479,7 +481,7 @@ siApp
     
                 $scope.picture_grid_mode =false;
                 
-                $scope.updateTrolley();
+                $scope.updateTrolley(lViewportWidth,$index);
     
                 if($triggerEvents){
                     const lItem = $scope.pictures[$index];
@@ -571,13 +573,21 @@ siApp
                 return lResult;
             }
     
-            $scope.updateTrolley = function(){
+            $scope.updateTrolley = function($viewportWidth,$index){
+                
                 return;
             }
     
             $scope.getTrolleyStyle = function(){
                 if($scope.pictures == null) return {};
-    
+                if($siUtils.isBrowser('Edge',null,18)){
+                    // this is a crappy browser, we must apply transformation directly to the element
+                    const lViewport = $scope.$element.querySelector('.viewport');
+                    const lViewportWidth =lViewport.getBoundingClientRect().width;
+                    const lTransformation = 'translateX(-' + ($scope.index * lViewportWidth) + 'px)';
+                    return '--item-count:' + $scope.pictures.length + ';transform:' + lTransformation;
+                }
+
                 return '--item-count:' + $scope.pictures.length + ';--item-index:' + $scope.index;
             }
 

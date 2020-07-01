@@ -334,3 +334,139 @@ if (!Object.prototype.unwatch) {
 		}
 	});
 }
+
+// POLYFILL
+if (!Element.prototype.closest) {
+	if (!Element.prototype.matches) {
+		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+	}
+	Element.prototype.closest = function (s) {
+		var el = this;
+		var ancestor = this;
+		if (!document.documentElement.contains(el)) return null;
+		do {
+			if (ancestor.matches(s)) return ancestor;
+			ancestor = ancestor.parentElement;
+		} while (ancestor !== null);
+		return null;
+	};
+}
+
+if (!Object.assign) {
+    Object.defineProperty(Object, 'assign', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: function(target) {
+        'use strict';
+        if (target === undefined || target === null) {
+          throw new TypeError('Cannot convert first argument to object');
+        }
+  
+        var to = Object(target);
+        for (var i = 1; i < arguments.length; i++) {
+          var nextSource = arguments[i];
+          if (nextSource === undefined || nextSource === null) {
+            continue;
+          }
+          nextSource = Object(nextSource);
+  
+          var keysArray = Object.keys(Object(nextSource));
+          for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+            var nextKey = keysArray[nextIndex];
+            var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+            if (desc !== undefined && desc.enumerable) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+        return to;
+      }
+    });
+  }
+
+  /**
+ * ChildNode.append() polyfill
+ * https://gomakethings.com/adding-an-element-to-the-end-of-a-set-of-elements-with-vanilla-javascript/
+ * @author Chris Ferdinandi
+ * @license MIT
+ */
+(function (elem) {
+
+	// Check if element is a node
+	// https://github.com/Financial-Times/polyfill-service
+	var isNode = function (object) {
+
+		// DOM, Level2
+		if (typeof Node === 'function') {
+			return object instanceof Node;
+		}
+
+		// Older browsers, check if it looks like a Node instance)
+		return object &&
+			typeof object === "object" &&
+			object.nodeName &&
+			object.nodeType >= 1 &&
+			object.nodeType <= 12;
+
+	};
+
+	// Add append() method to prototype
+	for (var i = 0; i < elem.length; i++) {
+		if (!window[elem[i]] || 'append' in window[elem[i]].prototype) continue;
+		window[elem[i]].prototype.append = function () {
+			var argArr = Array.prototype.slice.call(arguments);
+			var docFrag = document.createDocumentFragment();
+
+			for (var n = 0; n < argArr.length; n++) {
+				docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+			}
+
+			this.appendChild(docFrag);
+		};
+	}
+
+})(['Element', 'CharacterData', 'DocumentType']);
+
+/**
+ * ChildNode.prepend() polyfill
+ * Adapted from https://github.com/jserz/js_piece/blob/master/DOM/ParentNode/prepend()/prepend().md
+ * @author Chris Ferdinandi
+ * @license MIT
+ */
+(function (elem) {
+
+	// Check if element is a node
+	// https://github.com/Financial-Times/polyfill-service
+	var isNode = function (object) {
+
+		// DOM, Level2
+		if (typeof Node === 'function') {
+			return object instanceof Node;
+		}
+
+		// Older browsers, check if it looks like a Node instance)
+		return object &&
+			typeof object === "object" &&
+			object.nodeName &&
+			object.nodeType >= 1 &&
+			object.nodeType <= 12;
+
+	};
+
+	// Add append() method to prototype
+	for (var i = 0; i < elem.length; i++) {
+		if (!window[elem[i]] || 'prepend' in window[elem[i]].prototype) continue;
+		window[elem[i]].prototype.prepend = function () {
+			var argArr = Array.prototype.slice.call(arguments);
+			var docFrag = document.createDocumentFragment();
+
+			for (var n = 0; n < argArr.length; n++) {
+				docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+			}
+
+			this.appendChild(docFrag);
+		};
+	}
+
+})(['Element', 'CharacterData', 'DocumentType']);

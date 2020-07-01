@@ -429,7 +429,7 @@ siApp
                 $scope.isReady().then(function(){
                     console.log('Ready, carry on');
                     
-                    const lSearchEngineOptions = Object.assign({type: 'full', orientation: 'h', focus_category: null},$scope.configs.search_engine_options);
+                    const lSearchEngineOptions = angular.merge({type: 'full', orientation: 'h', focus_category: null},$scope.configs.search_engine_options);
 
                     $scope._element.classList.add('layout-' + lSearchEngineOptions.type);
                     
@@ -451,20 +451,21 @@ siApp
                             //root: document.querySelector('#scrollArea'),
                             rootMargin: '0px',
                             threshold: 1.0
-                          }
-                          
-                          const observer = new IntersectionObserver(function(entries, observer){
-                            entries.forEach(entry => {
-                                console.log(entry.isIntersecting);
-                                if(entry.isIntersecting){
-                                    $scope._element.classList.remove('stick');
-                                }
-                                else{
-                                    $scope._element.classList.add('stick');
-                                }
-                            });
-                          }, options);
-                          observer.observe(lAnchorElement);
+                        }
+                        if (typeof(IntersectionObserver) !== 'undefined') {
+                            const observer = new IntersectionObserver(function(entries, observer){
+                                entries.forEach(function(entry){
+                                    console.log(entry.isIntersecting);
+                                    if(entry.isIntersecting){
+                                        $scope._element.classList.remove('stick');
+                                    }
+                                    else{
+                                        $scope._element.classList.add('stick');
+                                    }
+                                });
+                            }, options);
+                            observer.observe(lAnchorElement);
+                        }
                     }
 
                     
@@ -2963,8 +2964,8 @@ siApp
             $scope.reverseFilterMap = {
                 'bedrooms' : function($value){
                     return {
-                        text: (($value > 1) ? '{0} bedrooms' : '{0} bedroom').translate().format($value),
-                        remove(){
+                        text : (($value > 1) ? '{0} bedrooms' : '{0} bedroom').translate().format($value),
+                        remove: function(){
                             $scope.filter.data.bedrooms = null;
                             $scope.filter.update();
                         }
@@ -2973,7 +2974,7 @@ siApp
                 'bathrooms' : function($value){
                     return {
                         text: (($value > 1) ? '{0} bathrooms' : '{0} bathroom').translate().format($value),
-                        remove(){
+                        remove: function(){
                             $scope.filter.data.bathrooms = null;
                             $scope.filter.update();
                         }
@@ -2982,7 +2983,7 @@ siApp
                 'parkings' : function($value){
                     return {
                         text: (($value > 1) ? '{0} parkings' : '{0} parking').translate().format($value),
-                        remove(){
+                        remove: function(){
                             $scope.filter.data.parkings = null;
                             $scope.filter.update();
                         }
@@ -2992,7 +2993,7 @@ siApp
                     return $values.map(function($val){
                         return {
                             text : $scope.getCaptionOfFilter($val,$scope.listing_attributes,'field').translate(),
-                            remove(){
+                            remove: function(){
                                 const lIndex = $scope.filter.data.attributes.indexOf($val);
                                 $scope.filter.data.attributes.splice(lIndex,1);
                                 $scope.filter.update();
@@ -3010,7 +3011,7 @@ siApp
                         .map(function($val){
                             return {
                                 text: $scope.getCaptionOfFilter($val, $siList.getCityList(),'key'),
-                                remove(){
+                                remove: function(){
                                     const lIndex = $scope.filter.data.cities.indexOf($val);
                                     $scope.filter.data.cities.splice(lIndex,1);
                                     $scope.filter.update();
@@ -3024,7 +3025,7 @@ siApp
                         
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getRegionList(),'key'),
-                            remove(){
+                            remove:function(){
                                 const lIndex = $scope.filter.data.regions.indexOf($val);
                                 $scope.filter.data.regions.splice(lIndex,1);
                                 $scope.filter.update();
@@ -3037,7 +3038,7 @@ siApp
                         console.log('subcategories', $val);
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getSubcategoryList(),'key'),
-                            remove(){
+                            remove:function(){
                                 const lIndex = $scope.filter.data.subcategories.indexOf($val);
                                 $scope.filter.data.subcategories.splice(lIndex,1);
                                 $scope.filter.update();
@@ -3050,7 +3051,7 @@ siApp
                         console.log('building_categories', $val);
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getBuildingCategoryList(),'key'),
-                            remove(){
+                            remove:function(){
                                 const lIndex = $scope.filter.data.building_categories.indexOf($val);
                                 $scope.filter.data.building_categories.splice(lIndex,1);
                                 $scope.filter.update();
@@ -3061,7 +3062,7 @@ siApp
                 'transaction_type': function($value){
                     return {
                         text: 'For {0}'.format($value).translate(),
-                        remove(){
+                        remove:function(){
                             $scope.filter.data.transaction_type = null;
                             $scope.filter.update();
                         }
@@ -3070,7 +3071,7 @@ siApp
                 'contract' : function($value){
                     return {
                         text: 'Online since'.translate() + ' ' + $scope.getCaptionOfFilter($value, $siSearchContext.listing_ages,'key'),
-                        remove(){
+                        remove:function(){
                             $scope.filter.data.contract = null;
                             $scope.filter.update();
                         }
@@ -3080,7 +3081,7 @@ siApp
                     return $values.map(function($val){
                         return {
                             text: $scope.getCaptionOfFilter($val, $siSearchContext.listing_flags,'key').translate(),
-                            remove(){
+                            remove:function(){
                                 const lIndex = $scope.filter.data.states.indexOf($val);
                                 $scope.filter.data.states.splice(lIndex,1);
                                 $scope.filter.update();
@@ -3092,7 +3093,7 @@ siApp
 
             $scope.getCaptionOfFilter = function($filter, $list, $valueAccessor){
                 const lList = Object.keys($list).map(function($k){
-                    return Object.assign({key: $k}, $list[$k]);
+                    return angular.merge({key: $k}, $list[$k]);
                 });
 
                 const lItem = lList.find(function($item){
@@ -3135,7 +3136,7 @@ siApp
                             lList.push({
                                 key: 'price',
                                 text: lTextFormat,
-                                remove(){
+                                remove:function(){
                                     $scope.filter.data.min_price = 0;
                                     $scope.filter.data.max_price = null;
                                     $scope.filter.update();
@@ -3165,7 +3166,9 @@ siApp
                     if($scope.reverseFilterMap[$k] != undefined){
                         const lItems = $scope.reverseFilterMap[$k](lFilters[$k]);
                         if(Array.isArray(lItems)){
-                            lList.push(...lItems)
+                            lItems.forEach(function($e){
+                                lList.push($e);
+                            })
                         }
                         else{
                             lList.push(lItems);
@@ -3177,7 +3180,7 @@ siApp
             }
 
             $scope.addRangeItem = function($keys, $targetList, $options){
-                $options = Object.assign({
+                $options = angular.merge({
                         srcList: [], 
                         listKey: 'value', 
                         textFormat: '{0} - {1}',
@@ -3203,7 +3206,7 @@ siApp
                     $targetList.push({
                         key: lListKey,
                         text: lTextFormat,
-                        remove(){
+                        remove:function(){
                             $scope.filter.data[lKeyMin] = null;
                             $scope.filter.data[lKeyMax] = null;
                             $scope.filter.update();

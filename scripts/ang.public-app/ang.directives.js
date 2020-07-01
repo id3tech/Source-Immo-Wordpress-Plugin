@@ -1003,12 +1003,14 @@ function siListSlider($compile){
                     rootMargin: "0px -40%",
                     thresholds: 1
                 }
-                const lSlideObserver = new IntersectionObserver($scope.slideIntersectHandle,lObserverOptions);
+                if (typeof(IntersectionObserver) !== 'undefined') {
+                    const lSlideObserver = new IntersectionObserver($scope.slideIntersectHandle,lObserverOptions);
 
-                const lSlides = Array.from(lObserverRoot.querySelectorAll(".si-slide"));
-                lSlides.forEach(function($elm){
-                    lSlideObserver.observe($elm);
-                });
+                    const lSlides = Array.from(lObserverRoot.querySelectorAll(".si-slide"));
+                    lSlides.forEach(function($elm){
+                        lSlideObserver.observe($elm);
+                    });
+                }
 
                 window.addEventListener('resize', function(){
                     $scope.applyProperties();

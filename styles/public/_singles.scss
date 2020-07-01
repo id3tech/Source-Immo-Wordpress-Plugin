@@ -57,36 +57,44 @@
                 &.si-part-details{
                     grid-column: 1 / span 2;
                 }
+                &.si-part-list-navigation{
+                    grid-column: 1 / span 2;
+                }
             }
 
             &.si-adapt-tablet-size,
             &.si-adapt-phone-size,
             &.si-adapt-small-phone-size{
                 grid-template-columns: 1fr;
-                // grid-template-areas:
-                //     "si-header"
-                //     "medias"
-                //     "si-summary"
-                //     "si-details"
-                // ;
                 .si-part{
-                    &.si-part-header,&.si-part-details{
+                    &.si-part-header{
+                        grid-column: 1;
+                    }
+                    &.si-part-list-navigation{
                         grid-column: 1;
                     }
                 }
                 .si-listing-navigation{
                     grid-column:1;
                 }
+                .si-details{
+                    grid-column:1;
+                }
             }
 
             @include media($tablet){
                 grid-template-columns: 1fr;
-                // grid-template-areas:
-                //     "si-header"
-                //     "medias"
-                //     "si-summary"
-                //     "si-details"
-                // ;
+                .si-part{
+                    &.si-part-header{
+                        grid-column: 1;
+                    }
+                }
+                .si-listing-navigation{
+                    grid-column:1;
+                }
+                .si-details{
+                    grid-column:1;
+                }
             }
             
             
@@ -108,7 +116,7 @@
                 }
                 &.si-part-header-tools{
                     grid-column: 1 / span 5;
-                    place-self: self-end;
+                    justify-self: end;
                 }
                 &.si-part-info-request-button{
                     grid-column: 6 / span 2;
@@ -136,45 +144,6 @@
                     }
                 }
             }
-
-            &.si-adapt-tablet-size,
-            &.si-adapt-phone-size,
-            &.si-adapt-small-phone-size{
-                place-items:center;
-                text-align:center;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-                // grid-template-areas:
-                //     "subcategory subcategory"
-                //     "city city"
-                //     "price price"
-                //     "information_request tools"
-                // ;
-                // .city,.subcategory,.price{
-                //     place-self:unset;
-                // }
-                // .price{
-                //     text-align:center;
-                // }
-                // .information_request{place-self:center start;}
-                
-            }
-            
-            
-            &.si-adapt-phone-size,
-            &.si-adapt-small-phone-size{
-                place-items:center;
-                text-align:center;
-                grid-template-columns: 1fr;
-                grid-template-areas:
-                    "subcategory"
-                    "city"
-                    "price"
-                    "tools"
-                    "information_request"
-                ;
-            }
-            
 
             @include media($tablet){
                 grid-template-columns: 1fr;
@@ -248,6 +217,41 @@
                 }
             }
             
+        }
+        .si-part-header{
+            &.si-adapt-tablet-size,
+            &.si-adapt-phone-size,
+            &.si-adapt-small-phone-size{
+                .si-header{
+                place-items:center;
+                text-align:center;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                
+                
+                .si-part{
+                    &.si-part-header-price{
+                        grid-column: 1 / span 2;
+                        grid-row:2;
+                    }
+                    &.si-part-header-tools{
+                        grid-column: 1;
+                        place-self: center start;
+                    }
+                    &.si-part-info-request-button{
+                        grid-column: 2;
+                        place-self: center end;
+                    }
+                }
+                > .subcategory{
+                    grid-column: 1 / span 2;
+                }
+                > .city{
+                    grid-column: 1 / span 2;
+                    place-self: center;
+                }
+            }
+            }
         }
 
         .price{
@@ -643,11 +647,13 @@
             &.si-adapt-small-phone-size{
                 grid-template-columns: 1fr;
                 grid-template-areas: "si-left" "si-right";
+                grid-column:1;
             }
             
             @include media($tablet){
                 grid-template-columns: 1fr;
                 grid-template-areas: "si-left" "si-right";
+                grid-column:1;
             }
         }
 

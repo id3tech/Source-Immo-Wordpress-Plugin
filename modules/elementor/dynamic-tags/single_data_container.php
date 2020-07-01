@@ -77,20 +77,20 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
             'ng-class' => "'si si-single {$type}-single'",
             'style' => 'display:none;'
         ];
-
-        $lResult = "";
+        
+        
+        $lResult = [];
         array_walk(
             $attrs, 
             function ($item, $key) use (&$lResult) {
                 if($item == ''){
-                    $lResult .= $key . ' ';  
+                    $lResult[] = $key;  
                 }
                 else{
-                    $lResult .= $key . '="' . $item . '" ';  
+                    $lResult[] = $key . '|' . $item;  
                 }
             }
         );
-        echo($lResult);
-        //echo('ng-controller="single'. $controller .'Ctrl" ng-init="init(\'' . $ref_number . '\', true,\'' . $loading_text . '\')" ng-class="\'si si-single listing-single\'" ng-cloak');
+        echo(implode("\n", $lResult));
     }
 }

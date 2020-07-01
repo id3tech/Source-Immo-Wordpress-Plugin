@@ -346,7 +346,7 @@ function $siDictionary($q,$rootScope){
             $scope.source = $source;
         }
         else{
-            Object.assign($scope.source, $source);
+            angular.merge($scope.source, $source);
             //console.log($scope.source);
         }
         
@@ -1260,10 +1260,39 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
     $scope.isLegacyBrowser = function(){
         const lUA = window.navigator.userAgent;
+        
         if(!['Chrome','Safari','Firefox'].some(function($e){return lUA.indexOf($e)>=0;})){
             return true;
         }
+
+
         return false;
+    }
+    $scope.browserSupports = function($supportKey, $supportValue){
+        if(typeof(CSS.supports) !== undefined){
+            return CSS.supports($supportKey, $supportValue);
+        }
+        return false;
+    }
+
+    $scope.isBrowser = function($name, $minVersion, $maxVersion){
+        $minVersion = $minVersion == undefined ? null : $minVersion;
+        $maxVersion = $maxVersion == undefined ? null : $maxVersion;
+
+        const lUA = window.navigator.userAgent;
+        const lRegEx = new RegExp($name + '\/([1-9][0-9]+)','gi');
+        const lMatches = lRegEx.exec(lUA);
+        if(lMatches.length == 0) return false;
+
+        // There's a match, but we don't check version
+        if($minVersion == null && $maxVersion == null) return true;
+
+        // check versions
+        const lVersion = Number(lMatches[1]);
+        console.log(lVersion, $minVersion, $maxVersion, lMatches);
+        if($minVersion != null && $minVersion > lVersion) return false;
+        if($maxVersion != null && $maxVersion < lVersion) return false;
+        return true;
     }
 
     $scope.all = function($promises){
