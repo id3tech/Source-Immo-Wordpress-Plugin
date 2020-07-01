@@ -1282,6 +1282,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         const lUA = window.navigator.userAgent;
         const lRegEx = new RegExp($name + '\/([1-9][0-9]+)','gi');
         const lMatches = lRegEx.exec(lUA);
+        if(lMatches == null) return false;
         if(lMatches.length == 0) return false;
 
         // There's a match, but we don't check version
