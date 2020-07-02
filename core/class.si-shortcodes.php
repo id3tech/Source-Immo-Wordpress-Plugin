@@ -558,7 +558,8 @@ class SiShorcodes{
         // filters
         $load_text = apply_filters('si_listing_detail_load_text',$load_text);
         $content = apply_filters('si_listing_detail_content', $content, $ref_number, $listing_data);
-
+        $class = apply_filters('si/single-listing/class', $class);
+        
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
@@ -568,9 +569,10 @@ class SiShorcodes{
                 class="si listing-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
 
         <?php
+        
         do_action('si_listing_single_start', $ref_number, $listing_data);
         do_action('si_start_of_template', $load_text);
-
+        
         if($load_text != null){
             echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
         }

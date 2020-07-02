@@ -5,6 +5,7 @@ $locales.fr.global = Object.assign($locales.fr.global,
     , "Loading timeout" : "Délais de chargement"
     , "Embeded frame" : "Cadre intégré"
     , "Link button" : "Bouton de lien"
+    , "Button text" : "Texte du button"
     
 }
 )

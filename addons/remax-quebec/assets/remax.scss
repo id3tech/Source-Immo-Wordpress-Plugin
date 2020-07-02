@@ -1,0 +1,23 @@
+#top .si, .si{
+    &.single-listing-remax{
+        .si-details{
+            grid-template-areas: unset;
+            grid-template-columns: 1fr;
+            
+            &.si-adapt-laptop-size{
+                .broker-list{
+                    .list-container{
+                        grid-template-columns: 1fr 1fr;
+                        margin-bottom: var(--layout-gutter);
+                    }
+                }
+            }
+        }
+        
+    }
+    &.single-listing-remax-framed{
+        iframe{
+            border:none;
+        }
+    }
+}

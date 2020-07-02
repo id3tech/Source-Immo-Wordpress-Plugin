@@ -1365,6 +1365,12 @@ siApp
     controller: function($scope, $rootScope){
       this.$onInit = function(){
         $scope.locales = $locales.supported_languages;
+
+        $scope.$watch('model', function($new,$old){
+          if($new != null && $new != ''){
+            $scope.validateModel();
+          }
+        })
       }
 
       $scope.$localized = {
@@ -1373,6 +1379,12 @@ siApp
 
       $scope.changeLocale = function($new){
         $scope.$localized.current = $new;
+      }
+
+      $scope.validateModel = function(){
+        if(typeof $scope.model == 'string' ){
+          
+        }
       }
     }
   }
@@ -1426,7 +1438,7 @@ siApp
           else{
             console.log('Add settings to active_addons');
             $scope.active_addons[$scope.model.name] = {
-              configs : $scope.modelConfigs
+              configs : $scope.getModelConfigs()
             };
           }
           console.log('new active_addons', $scope.active_addons);
@@ -1434,6 +1446,11 @@ siApp
           $rootScope.$broadcast('save-request');
           
         });
+      }
+
+      $scope.getModelConfigs = function(){
+        const lConfigs = $scope.model.default_configuration;
+        return lConfigs;
       }
 
       $scope.saveAddonSettings = function(){

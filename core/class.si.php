@@ -1195,13 +1195,19 @@ class SourceImmo {
       
       $locale = substr(get_locale(),0,2);
       
-      if($translated_text)
+      if($translated_text){
+        if(is_object($translated_text)){
+          if(isset($translated_text->{$locale})){
+            return $translated_text->{$locale};
+          }
+        }
+        
+        // this is most likely not translated
+        if($translated_text == $text && $locale != 'en'){
 
-      // this is most likely not translated
-      if($translated_text == $text && $locale != 'en'){
-
-        if(isset($this->locales[$text])){
-          $translated_text = $this->locales[$text];
+          if(isset($this->locales[$text])){
+            $translated_text = $this->locales[$text];
+          }
         }
       }
     }

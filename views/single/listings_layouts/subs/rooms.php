@@ -1,5 +1,5 @@
 <div class="rooms detail-section {{sectionOpened('rooms')?'opened':''}}" 
-        data-ng-show="[model.rooms, model.units] | siHasValue">
+        data-ng-if="(model.rooms | siHasValue) || ( (model.units | siHasValue) && model.units[0].dimension | siHasValue)">
     <div class="title" data-ng-click="toggleSection('rooms')">
         <div>
             {{

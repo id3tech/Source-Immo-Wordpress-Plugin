@@ -11,13 +11,13 @@ class siRemaxQuebecAddon extends SourceImmoAddon{
             // Used method to display listings' details
             'listing_detail_display' => 'embed', // embed|button
             // Loading text while waiting for server to responds
-            'loading_text' => 'Connecting to RE/MAX Québec server',
+            'loading_text' => [
+                'en' => "Connecting to RE/MAX Quebec server",
+                'fr' => "Connexion au serveur RE/MAX Québec",
+            ],
             // Timeout before switching back to local details (in sec)
             'switch_timeout' => 5
         );
-
-        
-        
     }
 
     public function register_hooks(){
@@ -27,7 +27,16 @@ class siRemaxQuebecAddon extends SourceImmoAddon{
 
             add_action('si_listing_single_start', array($this,'listing_single_start'),5,2);
             add_action('si_listing_single_end', array($this,'listing_single_end'),5,0);
+
+            add_filter('si/single-listing/links-filters', [$this, 'listing_links_filters']);
+            add_filter('si/single-listing/class', [$this, 'listing_single_class']);
+
+            add_action('wp_enqueue_scripts', [$this, 'register_resources']);
         }
+    }
+
+    public function register_resources(){
+        wp_enqueue_style( 'si-remax-addon-style', plugins_url('/addons/remax-quebec/assets/remax.min.css', SI_PLUGIN), null, filemtime(SI_PLUGIN_DIR . '/addons/remax-quebec/assets/remax.min.css') );
     }
 
 
@@ -41,6 +50,23 @@ class siRemaxQuebecAddon extends SourceImmoAddon{
 
     public function listing_single_end(){
         echo '</div>';
+    }
+
+    public function listing_links_filters($filters){
+        if($this->active_configs->listing_detail_display == 'button'){
+            $filters = ['matterport','youtube','vimeo'];
+        }
+        return $filters;
+    }
+    public function listing_single_class($class){
+        if($this->active_configs->listing_detail_display == 'button'){
+            $class .= ' single-listing-remax';
+        }
+        else{
+            $class .= ' single-listing-remax-framed';
+        }
+
+        return $class;
     }
 
     public function render_listing_content($content, $ref_number, $listing_data){

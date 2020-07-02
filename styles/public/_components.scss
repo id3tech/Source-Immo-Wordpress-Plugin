@@ -68,6 +68,10 @@ si-checkbox, si-radio{
                 }
             }
         }
+        input{
+            height:100%!important;
+            z-index:5;
+        }
     }
 }
 
@@ -266,7 +270,10 @@ si-checkbox, si-radio{
         place-items: center stretch;
         label{
             grid-area:label;color:inherit;
-            
+            pointer-events: none;
+            .alt-method{
+                si-radio{pointer-events: auto;}
+            }
         }
         .dropdown{
             > .btn{color:inherit;}

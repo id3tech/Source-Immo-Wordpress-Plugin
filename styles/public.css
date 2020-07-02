@@ -1753,6 +1753,8 @@ html { font-size: 14px; }
 
 @media screen and (max-width: 800px) { #top si-checkbox .pretty .state label, #top si-radio .pretty .state label, si-checkbox .pretty .state label, si-radio .pretty .state label { text-indent: unset; padding-left: 1.5em; white-space: normal; } }
 
+#top si-checkbox .pretty input, #top si-radio .pretty input, si-checkbox .pretty input, si-radio .pretty input { height: 100% !important; z-index: 5; }
+
 #top .si-price-range-slider, .si-price-range-slider { height: 50px; border-radius: var(--element-border-radius); position: relative; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr auto; grid-template-columns: auto 1fr auto; grid-gap: 10px; }
 
 #top .si-price-range-slider .label, .si-price-range-slider .label { place-self: center; padding: 10px; }
@@ -1805,7 +1807,9 @@ html { font-size: 14px; }
 
 #top .si-calculator .input-container input:focus, .si-calculator .input-container input:focus { border-color: var(--highlight); }
 
-#top .si-calculator .input-container label, .si-calculator .input-container label { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: label; color: inherit; }
+#top .si-calculator .input-container label, .si-calculator .input-container label { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: label; color: inherit; pointer-events: none; }
+
+#top .si-calculator .input-container label .alt-method si-radio, .si-calculator .input-container label .alt-method si-radio { pointer-events: auto; }
 
 #top .si-calculator .input-container .dropdown > .btn, .si-calculator .input-container .dropdown > .btn { color: inherit; }
 
