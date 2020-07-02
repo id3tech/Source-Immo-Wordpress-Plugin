@@ -1119,7 +1119,10 @@
             
             background: url('assets/shadow_broker.jpg') no-repeat;
             background-size: cover;
-            place-self: stretch;
+            align-self: stretch;
+            justify-self: stretch;
+            
+            min-height: 380px;
             img{
                 display:block;
                 text-indent: -1000px;
@@ -1127,6 +1130,7 @@
                 width: 100%;
                 object-fit: cover;
                 object-position: center;
+                min-height: inherit;
             }
         }
         .contact{

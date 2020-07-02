@@ -1,9 +1,11 @@
-// IE 10+ compatibility fixes
+
 @mixin unset($attrs...){
     @each $att in $attrs{
         #{$att} : unset;
     }
 }
+
+// IE 10+ compatibility fixes
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
     main{display:block;}
 
@@ -36,6 +38,50 @@
                         .image{width:100%;height:250px;}
                         .description{height:250px;overflow:hidden;}
                     }
+                    &.si-double-layer-item-layout{
+                        >a{
+                            display:inherit;
+                            height:100%;
+                            color:inherit;
+                            &:visited{
+                                color:inherit;
+                            }
+                        }
+                        .layer-container{
+                            display:inherit;
+                            grid-template-columns:inherit;
+                            grid-template-rows:inherit;
+                            grid-template-areas:inherit;
+                            grid-column-start: 1;
+                            grid-column-end: max;
+                            
+                            .layer{
+                                &.primary-layer{
+                                    position:relative;
+                                    @include unset(top,left,bottom,right);
+                                    display:inherit;
+                                    grid-template-columns:inherit;
+                                    grid-template-rows:inherit;
+                                    grid-template-areas:inherit;
+                                    grid-column-start: 1;
+                                    grid-column-end: max;
+                                    grid-row:max;
+                                }
+
+                                
+                            }
+                        }
+                        &.layer-hover-fade {
+                            .secondary-layer{
+                                padding:10px;
+                                div,span{color: #fff;}
+                                &::before{
+                                    background: rgba(0,0,0,.5);
+                                    
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -47,17 +93,12 @@
                 // .left-column,.si-left,.previous{display:block;float:left;}
                 // .right-column,.si-right,.next{float:right;display:block;}
                 .si-part{overflow:hidden;}
-                .si-item,.info,.list-header,.list-container,.contact,.office,.cities,.header,.details,
+                .si-item,.info,.list-header,.contact,.office,.cities,.header,.details,
                 .si-listing-navigation,.summary{
                     display:block;overflow:hidden;
                 }
-                .list-container > div{display:block;}
-                .si-item{
-                    float:left;
-                    width:50%;
-                    padding:20px;
-                    .content{display:block;}
-                }
+                
+                
                 .si-listing-navigation{
                     .previous,.next{
                         width:33%;
@@ -67,11 +108,46 @@
             }
         }
         &.broker-single{
+            .si-part{
+                &.si-part-name{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-picture{
+                    float:right;
+                    width:33%;
+                }
+                &.si-part-contact{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-office{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-cities, &.si-part-listings{
+                    float:none;
+                    clear:both;
+                }
+                
+            }
             .left-column{width:66%;}
             .right-column{width:33%;}
-
+            .listing-list{
+                .list-container{
+                    max-height:9000vh;
+                    display:flex;
+                    flex-direction: row;
+                    flex-wrap:wrap;
+                    
+                    .si-item{
+                        margin:10px;
+                        width: calc(50% - 20px);
+                    }
+                }
+            }
             .office{
-                .si-content{
+                .item-content{
                     display:block;
                     > div{
                         display:inline-block;
@@ -130,9 +206,13 @@
                 &.si-part-brokers{
                     .list-container{
                         max-height:100vh;
+                        display:flex;
+                        flex-direction: row;
+                        flex-wrap:wrap;
                         .si-item{
                             display:grid;
-                            width:100%;
+                            margin:10px;
+                            width: calc(50% - 20px);
                             .actions{
                                 grid-row:4;
                                 grid-column:2;
@@ -140,6 +220,30 @@
                         }
                     }
                 }
+                &.si-part-list-navigation{
+                    .si-listing-list{
+                        display:block;
+                        opacity:1;
+                        overflow:hidden;
+                        a{color:#fff;}
+                        .previous{
+                            float:left;
+                        }
+                        .next{
+                            float:right;
+                        }
+                        .item-content{
+                            div{color:#fff;}
+                        }
+                    }
+                }
+            }
+            .list-container > div{display:block;}
+            .si-item{
+                float:left;
+                width:50%;
+                padding:20px;
+                .content{display:block;}
             }
             .elementor-widget-container {
                 > .si-part{
@@ -182,8 +286,6 @@
                 .si-left{grid-column:1;}
                 .si-right{grid-column:2;}
             }
-
-            
             
             .si-image-slider{
                 > .viewport{

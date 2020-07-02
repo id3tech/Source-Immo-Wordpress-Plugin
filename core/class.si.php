@@ -1443,7 +1443,7 @@ class SiSharing{
     $this->object->permalink = $objectWrapper->buildPermalink($this->object, SourceImmo::current()->get_broker_permalink());
 
     $this->title = $this->object->first_name . ' ' . $this->object->last_name;
-    $this->desc = $this->object->license_type;
+    $this->desc = isset($this->object->license_type) ? $this->object->license_type : '';
     $this->image = isset($this->object->photo->url) ? $this->object->photo->url : '';
     $this->url = '/' . $this->object->permalink;
   }

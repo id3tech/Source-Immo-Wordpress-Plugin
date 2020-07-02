@@ -588,9 +588,12 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                 return $scope.loadSingleData($ref_number);
             })
             .then(function(){
-                $scope.$loadingElement.remove();
-                $element[0].style.removeProperty('display');
+                if($scope.$loadingElement === undefined) return;
+                $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
 
+                $element[0].style.removeProperty('display');
+            })
+            .then(function(){
                 $scope.$on('si-list-loaded', function($event, $type,$list){
                     console.log('si-list-loaded', $type, $list);
                     if($type == 'listings'){
@@ -627,7 +630,6 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                         })
                     }
                 })
-
             });
             
             
