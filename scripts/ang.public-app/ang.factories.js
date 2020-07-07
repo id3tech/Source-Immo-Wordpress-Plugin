@@ -1278,7 +1278,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
     $scope.isBrowser = function($name, $minVersion, $maxVersion){
         $minVersion = $minVersion == undefined ? null : $minVersion;
         $maxVersion = $maxVersion == undefined ? null : $maxVersion;
-
+        
         const lUA = window.navigator.userAgent;
         const lRegEx = new RegExp($name + '\/([1-9][0-9]+)','gi');
         const lMatches = lRegEx.exec(lUA);

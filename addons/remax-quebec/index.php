@@ -28,6 +28,8 @@ class siRemaxQuebecAddon extends SourceImmoAddon{
             add_action('si_listing_single_start', array($this,'listing_single_start'),5,2);
             add_action('si_listing_single_end', array($this,'listing_single_end'),5,0);
 
+            add_action('si/listing/print', [$this,'listing_print'],5,1);
+
             add_filter('si/single-listing/links-filters', [$this, 'listing_links_filters']);
             add_filter('si/single-listing/class', [$this, 'listing_single_class']);
 
@@ -50,6 +52,15 @@ class siRemaxQuebecAddon extends SourceImmoAddon{
 
     public function listing_single_end(){
         echo '</div>';
+    }
+
+    public function listing_print($model){
+        $lTwoLetterLocale = $lang!=null ? $lang : substr(get_locale(),0,2);
+        $lListingId = preg_replace('/\D/','', $model->ref_number);
+        $printUrl = "https://media.remax-quebec.com/inscription/PDF/{$lListingId}_{$lTwoLetterLocale}_photos.pdf";
+        
+        header('location:' . $printUrl,true, 301);
+        die();
     }
 
     public function listing_links_filters($filters){

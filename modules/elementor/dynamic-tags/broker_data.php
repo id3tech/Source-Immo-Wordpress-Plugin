@@ -21,7 +21,7 @@ class SourceImmoBrokerDataTags extends \Elementor\Core\DynamicTags\Tag {
         $this->add_control(
             'field',
             [
-                'label' => __( 'Field', 'text-domain' ),
+                'label' => __( 'Field', SI ),
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'default' => 'fullname',
                 'options' => [

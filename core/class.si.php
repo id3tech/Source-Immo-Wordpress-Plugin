@@ -774,10 +774,12 @@ class SourceImmo {
   }
   function include_listings_print(){
     $ref_number = get_query_var( 'ref_number' );
-   
+    
     // load data
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
     if($model != null){
+      do_action('si/listing/print', $model);
+
       header('http/1.0 200 found');
       global $dictionary;
       // hook to sharing tools
@@ -794,15 +796,8 @@ class SourceImmo {
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
       $model->tiny_url = SourceImmoTools::get_tiny_url('http://' . $_SERVER['HTTP_HOST'] . $model->permalink);
 
-      add_action('wp_enqueue_scripts', function(){
-        wp_dequeue_style('avia-grid');
-        wp_dequeue_style('avia-base');
-        wp_deregister_style('avia-grid');
-        wp_deregister_style('avia-base');
-      }, 20 );
-      
       wp_enqueue_style('listing-print', SI_PLUGIN_URL . 'styles/print.min.css', null, filemtime(SI_PLUGIN_DIR . '/styles/print.min.css'));
-      do_action('si_listing_print_begin');
+      do_action('si/listing/print:begin');
 
       $filePath = self::file('single/listings_print');
       if($filePath != null){

@@ -137,7 +137,7 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
                     <em><?php echo($this->get_title())?></em>
                 </div>
                 <div class="hint-list">
-                <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
+                    <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
                 </div>
             </div>
         </div>
