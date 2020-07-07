@@ -37,7 +37,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
         $this->add_control(
             'content_type',
             [
-                'label' => __('Content type', SI),
+                'label' => __('Element type', SI),
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'placeholder' => '',
                 'options' => [
@@ -73,7 +73,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                             'in_exclusions' => __('Inclusion/Exclusions', SI),
                             'info_request_button' => __('Info request button', SI),
                             'links' => __('Links', SI),
-                            'list_navigation' => __('Result navigation', SI),
+                            'list_navigation' => __('Search result navigation', SI),
                             'location' => __('Location', SI),
                             'lot_specs' => __('Lot specs', SI),
                             'media_box' => __('Media box (Pictures, Video, Map)', SI),
@@ -190,6 +190,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
         $classes = [
             'si',
             'si-single',
+            'si-elementor-widget',
             $contentType . '-single',
         ];
         $partClasses = [
@@ -208,6 +209,17 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             echo('</div>');
         }
         //echo('</div>');
+        ?>
+        <div class="si-control-preview-hint">
+            <div class="hint-info">
+                <i class="icon <?php echo($this->get_icon())?>"></i>
+                <em><?php echo($this->get_title())?></em>
+            </div>
+            <div class="hint-list">
+                <div class="hint-item"><i class="fal fa-puzzle-piece"></i> <em><?php _e($contentPart,SI)?></em></div>
+            </div>
+        </div>
+        <?php
         echo('</div>');
     }
 }

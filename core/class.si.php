@@ -1134,6 +1134,7 @@ class SourceImmo {
         $module->includes();
         $module->register_actions();
         $module->register_filters();
+        $module->register_locales();
       }
     }
   }

@@ -14,14 +14,14 @@ class SourceImmoListingDataTags extends \Elementor\Core\DynamicTags\Tag {
     }
 
     public function get_title() {
-        return __('Listing data',SI);
+        return __('Source.Immo - Listing data',SI);
     }
 
     protected function _register_controls() {
         $this->add_control(
             'field',
             [
-                'label' => __( 'Field', 'text-domain' ),
+                'label' => __( 'Field', SI ),
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'default' => 'price_text',
                 'options' => [

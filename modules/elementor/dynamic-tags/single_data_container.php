@@ -14,7 +14,7 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
     }
 
     public function get_title() {
-        return __('Single container',SI);
+        return __('Source.Immo - Single container',SI);
     }
 
     protected function _register_controls() {
@@ -58,8 +58,8 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
         $type = strtolower($controller);
 
         if(is_admin()){
-            // $admin_print = "[{$field}]";
-            // echo($admin_print);
+            $admin_print = 'data-si-controller|' . $controller;
+            echo($admin_print);
             return;
         }
         

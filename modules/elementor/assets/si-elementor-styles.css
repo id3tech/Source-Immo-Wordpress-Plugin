@@ -4,6 +4,8 @@ body .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-lis
 
 body .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image i.fal, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image i.fal { color: #333; opacity: 0.25; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
 
+body .elementor-element .elementor-widget-container .si.si-list-slider, #top .elementor-element .elementor-widget-container .si.si-list-slider { overflow: hidden; }
+
 body .elementor-element .elementor-widget-container .si.si-list-slider .si-slide .slide-background, #top .elementor-element .elementor-widget-container .si.si-list-slider .si-slide .slide-background { background: #adadad; position: relative; }
 
 body .elementor-element .elementor-widget-container .si.si-list-slider .si-slide .slide-background i.fal, #top .elementor-element .elementor-widget-container .si.si-list-slider .si-slide .slide-background i.fal { color: #ffffff !important; opacity: 0.25; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
@@ -14,11 +16,25 @@ body .elementor-element .elementor-widget-container .si.si-list-slider .si-slide
 
 body .elementor-element .elementor-widget-container .si.si-list-slider .si-slider-navigation .slider-bullet-container, #top .elementor-element .elementor-widget-container .si.si-list-slider .si-slider-navigation .slider-bullet-container { opacity: 1 !important; bottom: 0 !important; }
 
-body .elementor-element .elementor-widget-container .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-control-preview-hint { background: #68C8C5; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; padding: 5px 10px; border-radius: 5px; font-size: 12px; color: #fff; margin-top: 5px; opacity: 0.25; -webkit-transition: 0.25s; transition: 0.25s; pointer-events: auto; }
+body .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint { -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); opacity: 1; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-control-preview-hint { background: #68C8C5; -webkit-box-shadow: 0 0 8px 2px #fff, 0 0 50px 5px #68C8C5; box-shadow: 0 0 8px 2px #fff, 0 0 50px 5px #68C8C5; border-radius: 5px; font-size: 12px; color: #fff; opacity: 0; -webkit-transition: 0.25s; transition: 0.25s; pointer-events: auto; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%) scale(0); transform: translate(-50%, -50%) scale(0); z-index: 5; }
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint:hover, #top .elementor-element .elementor-widget-container .si-control-preview-hint:hover { opacity: 1; }
 
-body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-item em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-item em { font-weight: 700; }
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; background: #00000055; padding: 5px; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item { text-align: center; padding: 5px; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item i, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item i { margin-right: 3px; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item em { font-weight: 700; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info { text-align: center; padding: 10px; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info i.icon, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info i.icon { font-size: 20px; }
+
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em { margin-left: 10px; font-size: 15px; text-transform: uppercase; }
 
 body .si.si-single, #top .si.si-single { min-height: 0px !important; }
 

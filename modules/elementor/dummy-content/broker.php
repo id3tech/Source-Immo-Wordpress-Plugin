@@ -1,4 +1,4 @@
-<div class="si broker-single loaded">
+<div class="si broker-single loaded si-elementor-widget">
     <div class="si-content">
         <?php si_dummy_include('broker/name.php') ?>
         

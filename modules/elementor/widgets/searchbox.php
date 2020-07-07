@@ -6,7 +6,7 @@ class Elementor_SI_Searchbox_Widget extends \Elementor\Widget_Base {
     }
 
 	public function get_title() {
-        return __('Searchbox',SI);
+        return __('Search box',SI);
     }
 
 	public function get_icon() {
@@ -108,18 +108,27 @@ class Elementor_SI_Searchbox_Widget extends \Elementor\Widget_Base {
 
 	function _content_template() {
         ?>
-        <div class="si">
-            <div class="si-searchbox">
-                <div class="input">
-                    <i class="fal fa-search"></i>
-                    <input type="text" placeholder="{{{settings.placeholder}}}">
-                    <i class="clear-button far fa-times"></i>
+        <div class="si-elementor-widget">
+            <div class="si">
+                <div class="si-searchbox">
+                    <div class="input">
+                        <i class="fal fa-search"></i>
+                        <input type="text" placeholder="{{{settings.placeholder}}}">
+                        <i class="clear-button far fa-times"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="si-control-preview-hint">
-            <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
-            <div class="hint-item"><i class="fal fa-link"></i> <em>{{{settings.result_page=='' ? '?' : settings.result_page}}}</em></div>
+            
+            <div class="si-control-preview-hint">
+                <div class="hint-info">
+                    <i class="icon <?php echo($this->get_icon())?>"></i>
+                    <em><?php echo($this->get_title())?></em>
+                </div>
+                <div class="hint-list">
+                    <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
+                    <div class="hint-item"><i class="fal fa-link"></i> <em>{{{settings.result_page=='' ? '?' : settings.result_page}}}</em></div>
+                </div>
+            </div>
         </div>
         <?php
     }

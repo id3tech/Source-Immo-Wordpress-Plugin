@@ -14,7 +14,7 @@ class SourceImmoBrokerDataTags extends \Elementor\Core\DynamicTags\Tag {
     }
 
     public function get_title() {
-        return __('Broker data',SI);
+        return __('Source.Immo - Broker data',SI);
     }
 
     protected function _register_controls() {

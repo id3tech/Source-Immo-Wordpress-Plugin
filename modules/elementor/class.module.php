@@ -2,6 +2,8 @@
 
 class SI_Elementor_Module extends \SI\Bases\Module{
 
+    public $_module_path = SI_ELEMENTOR_MODULE_PATH;
+
     function __construct(){
     }
 
@@ -73,9 +75,11 @@ class SI_Elementor_Module extends \SI\Bases\Module{
 
     function registerDynamicTags($dynamic_tags){
         $dynTags = [
-            'listing_data' => 'SourceImmoListingDataTags',
-            'broker_data' => 'SourceImmoBrokerDataTags',
-            'single_data_container' => 'SourceImmoSingleDataContainerTags'
+            //'listing_data' => 'SourceImmoListingDataTags',
+            //'broker_data' => 'SourceImmoBrokerDataTags',
+            'single_data' => 'SourceImmoSingleDataTags',
+            'single_data_container' => 'SourceImmoSingleDataContainerTags',
+            'list_meta' => 'SourceImmoListMetaTags'
         ];
 
         foreach ($dynTags as $key => $instanceName) {

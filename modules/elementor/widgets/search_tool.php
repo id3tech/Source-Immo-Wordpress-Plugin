@@ -96,51 +96,60 @@ class Elementor_SI_SearchTool_Widget extends \Elementor\Widget_Base {
 
 	function _content_template() {
         ?>
-        <div class="si standard-layout">
-            <div class="search-container ng-isolate-scope show-trigger layout-full orientation-h" si-standalone="true">
+        <div class="si-elementor-widget">
+            <div class="si standard-layout">
+                <div class="search-container ng-isolate-scope show-trigger layout-full orientation-h" si-standalone="true">
 
-                <div class="inputs" style="--input-count: 3">
-                    <div class="search-box">
-                        
-                        <div class="si-searchbox" alias="listings">
-                            <div class="input">
-                                <i class="fal fa-search"></i>
-                                <input type="text" placeholder="Lorem ipsum">
-                                <i class="clear-button far fa-times"></i>
+                    <div class="inputs" style="--input-count: 3">
+                        <div class="search-box">
+                            
+                            <div class="si-searchbox" alias="listings">
+                                <div class="input">
+                                    <i class="fal fa-search"></i>
+                                    <input type="text" placeholder="Lorem ipsum">
+                                    <i class="clear-button far fa-times"></i>
+                                </div>
+
                             </div>
-
+                            
+                            <i class="geo-btn far fa-crosshairs"></i>
                         </div>
-                        
-                        <i class="geo-btn far fa-crosshairs"></i>
+
+                        <div class="si-panel-button cities-button">Consectetur</div>
+
+                        <div class="si-panel-button price-button">Adipiscing</div>
                     </div>
 
-                    <div class="si-panel-button cities-button">Consectetur</div>
 
-                    <div class="si-panel-button price-button">Adipiscing</div>
-                </div>
-
-
-                <div class="search-action">
-                    
-                    <div class="filter-menu">
-                        <div class="si-dropdown ng-isolate-scope" data-show-button-icon="false">
-                            <div class="dropdown-button "><span class="label">Filter</span></div>
-                            <div class="si-dropdown-panel">
-                                <div class="si-dropdown-panel-content" ng-transclude="">
-                                    <div class="dropdown-item ">Consectetur</div>
-                                    <div class="dropdown-item ">Adipiscing</div>
+                    <div class="search-action">
+                        
+                        <div class="filter-menu">
+                            <div class="si-dropdown ng-isolate-scope" data-show-button-icon="false">
+                                <div class="dropdown-button "><span class="label">Filter</span></div>
+                                <div class="si-dropdown-panel">
+                                    <div class="si-dropdown-panel-content" ng-transclude="">
+                                        <div class="dropdown-item ">Consectetur</div>
+                                        <div class="dropdown-item ">Adipiscing</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-        
-                    <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="Recherche"><span class="label"><?php _e('Search',SI) ?></span> <i class="fal fa-search"></i></button>
-                </div>  
+            
+                        <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="Recherche"><span class="label"><?php _e('Search',SI) ?></span> <i class="fal fa-search"></i></button>
+                    </div>  
+                </div>
             </div>
-        </div>
-        <div class="si-control-preview-hint">
-            <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
-            <div class="hint-item"><i class="fal fa-link"></i> <em>{{{settings.result_page=='' ? '?' : settings.result_page}}}</em></div>
+            <div class="si-control-preview-hint">
+                <div class="hint-info">
+                    <i class="icon <?php echo($this->get_icon())?>"></i>
+                    <em><?php echo($this->get_title())?></em>
+                </div>
+                <div class="hint-list">
+                    <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
+                    <div class="hint-item"><i class="fal fa-link"></i> <em>{{{settings.result_page=='' ? '?' : settings.result_page}}}</em></div>
+                </div>
+            </div>
+            
         </div>
         <?php
     }

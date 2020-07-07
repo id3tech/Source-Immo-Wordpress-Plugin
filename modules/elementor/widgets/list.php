@@ -90,48 +90,56 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 
     function _content_template(){
     ?>
-        <div class="si direct-layout si-list-of-ghost" style="--desktop-column-width:3;--laptop-column-width:3;--tablet-column-width:2;--mobile-column-width:1" si-lazy-load="">
-            <div class="si-list">
-                <div>
-                    <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
-                        <a href="#">
-                        <div class="item-content">
-                                <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                <div class="si-data-label">Excepteur sint occaecat</div>
-                            </div>
-                        </a>
-                    </article>
-                </div>
-                <div>
-                    <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
-                        <a href="#">
-                        <div class="item-content">
-                                <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                <div class="si-data-label">Excepteur sint occaecat</div>
-                            </div>
-                        </a>
-                    </article>
-                </div>
-                <div>
-                <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
-                        <a href="#">
+        <div class="si-elementor-widget">
+            <div class="si direct-layout si-list-of-ghost" style="--desktop-column-width:3;--laptop-column-width:3;--tablet-column-width:2;--mobile-column-width:1" si-lazy-load="">
+                <div class="si-list">
+                    <div>
+                        <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
+                            <a href="#">
                             <div class="item-content">
-                                <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                <div class="si-data-label">Excepteur sint occaecat</div>
-                            </div>
-                        </a>
-                    </article>
+                                    <div class="image"><i class="fal fa-5x fa-image"></i></div>
+                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
+                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
+                                    <div class="si-data-label">Excepteur sint occaecat</div>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
+                    <div>
+                        <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
+                            <a href="#">
+                            <div class="item-content">
+                                    <div class="image"><i class="fal fa-5x fa-image"></i></div>
+                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
+                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
+                                    <div class="si-data-label">Excepteur sint occaecat</div>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
+                    <div>
+                    <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
+                            <a href="#">
+                                <div class="item-content">
+                                    <div class="image"><i class="fal fa-5x fa-image"></i></div>
+                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
+                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
+                                    <div class="si-data-label">Excepteur sint occaecat</div>
+                                </div>
+                            </a>
+                        </article>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="si-control-preview-hint">
-            <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
+            <div class="si-control-preview-hint">
+                <div class="hint-info">
+                    <i class="icon <?php echo($this->get_icon())?>"></i>
+                    <em><?php echo($this->get_title())?></em>
+                </div>
+                <div class="hint-list">
+                <div class="hint-item"><i class="fal fa-at"></i> <em>{{{settings.alias}}}</em></div>
+                </div>
+            </div>
         </div>
     <?php
     }
