@@ -27,6 +27,17 @@ In this release:
 * [Prospects Software](https://www.prospects.com) integration addon - Show lead form in listing details
 
 ## Elementor support
+Build custom page for listings and brokers with Elementor's widget
+* List of data - Display a list from an alias
+* List slider - Renders a listings picture slider
+* Search tools - Show the complete search tools
+* Search box - Display the simple search input box
+* Single data - Show the default data layout for listings or brokers
+* Single data part - Render specific part of the default layout, where you want to
+
+Add some specific information with Dynamic Tags (Elementor Pro Only)
+* Broker data
+
 
 
 ## Other things
