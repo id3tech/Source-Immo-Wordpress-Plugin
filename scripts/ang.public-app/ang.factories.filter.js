@@ -221,6 +221,9 @@ function $siFilters($q,$siApi,$siUtils){
                 if($k == 'min_price'){
                     return $fm.data[$k] != null && $fm.data[$k] > 0;
                 }
+                if($k == 'max_price'){
+                    return $fm.data[$k] != null && $fm.data[$k] > 0;
+                }
                 return $fm.data[$k] != null && $fm.data[$k] != '';
             });
         }
@@ -632,8 +635,8 @@ function $siFilters($q,$siApi,$siUtils){
          * Update filters from data object
          */
         $fm.update = function(){
-            console.log('$siFilter/update');
-
+            console.log('$siFilter/update',$fm.data);
+            console.trace();
             const lDataKeys = Object.keys($fm.data);
             //console.log('filterManager update');
             // const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
@@ -696,6 +699,8 @@ function $siFilters($q,$siApi,$siUtils){
         */
         $fm.resetFilters = function($triggerUpdate){
             console.log('resetFilters',$triggerUpdate);
+            
+
             const lArrayAttr = ['categories','attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
             
@@ -820,9 +825,8 @@ function $siFilters($q,$siApi,$siUtils){
                         && $fm.query_text == null
                         && $fm.sort_fields.length == 0
                         && $fm.data.location == null
-                        && $fm.main_filter == null
                     ){
-                        //console.log('reset filters for no real filters exists')
+                        console.log('reset filters for no real filters exists')
                         $fm.clearState();
                         $fm.resetFilters();
                         return;
@@ -834,7 +838,7 @@ function $siFilters($q,$siApi,$siUtils){
                         }
                     }
                     
-                    if($configs.filter_group != null || $fm.hasFilters() || $fm.main_filter != null){
+                    if($configs.filter_group != null || $fm.hasFilters()){
                         $fm.clean();
                     }
 
@@ -845,7 +849,7 @@ function $siFilters($q,$siApi,$siUtils){
                             lResult.filter_group = angular.copy($configs.filter_group)
                         }
         
-                        if($fm.hasFilters() || $fm.main_filter != null){
+                        if($fm.hasFilters()){
                             if(lResult.filter_group.filter_groups == undefined) lResult.filter_group.filter_groups = [];
 
                             lResult.filter_group.filter_groups.push($fm.filter_group);

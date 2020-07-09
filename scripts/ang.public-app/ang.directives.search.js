@@ -493,7 +493,7 @@ siApp
 
 
                         $filter.loadState();
-                        
+                        console.log('siSearch/init/isReady/$siFilters=>$filter.loadState',$filter.data);
                         // set default tab
                         //$scope.applyDefaultMainFilter()
                         
@@ -506,7 +506,10 @@ siApp
                                 return $scope.filter.data;
                             }, 
                             function($new, $old){
+                                if(!$scope.is_ready) return;
+
                                 if($new.min_price != $old.min_price || $new.max_price != $old.max_price){
+                                    console.log('$watch(filter.data)/changed', $new, $old);
                                     if($new.min_price == 0 && $new.max_price == null){
                                         $scope.resetPriceRange();
                                     }
@@ -516,6 +519,8 @@ siApp
                         );
 
                         $filter.on('update').then(function(){
+                            if(!$scope.is_ready) return;
+
                             console.log('filter', $scope.alias, 'update trigger');
                             lfSyncFilter($filter);
 
@@ -525,6 +530,8 @@ siApp
                         });
 
                         $filter.on('filterTokenChanged').then(function($token){
+                            if(!$scope.is_ready) return;
+
                             //console.log('filter', $scope.alias, 'filterTokenChanged trigger');
                             lfSyncFilter($filter);
                             $rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $token);
@@ -696,7 +703,7 @@ siApp
                     }
                 });    
 
-                $scope.$on('si/viewMeta:change', function($event){
+                $scope.$on('si/viewMeta:change', function viewMetaChangeHandler($event){
                     
 
                     const lNewPriceParts = $scope.getPriceParts();
@@ -715,7 +722,7 @@ siApp
                         $scope.PRICE_RANGE_FORMAT = '{0}/month';
                     }
 
-                    if(lPriceChanged){
+                    if(lPriceChanged && $scope.is_ready){
                         $scope.updatePrice();
                     }
 
@@ -2303,7 +2310,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope.init = function(){
                 
                 $scope.isReady().then(function(){
-                    $siFilters.with($scope.alias, $scope, function($filter){
+                    $siFilters.with($scope.alias, $scope, function ($filter){
                         $scope.filter = $filter;
                         $scope.filter.result_url = $scope.result_page;
                         

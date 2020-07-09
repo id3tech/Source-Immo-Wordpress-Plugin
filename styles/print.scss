@@ -557,8 +557,8 @@ html.print{
                                 img{object-fit: cover;width:100%;height:100%;}
                             }
     
-                            .name{font-family: var(--title-font);font-size:0.85rem;font-weight: 700;}
-                            .license{font-size:0.6rem;}
+                            .name{font-family: var(--title-font);font-size:0.85rem;font-weight: 700;text-transform: uppercase;}
+                            .license{font-size:0.7rem;}
                             .contact{
                                 
                                 .phone{
@@ -567,13 +567,11 @@ html.print{
                                     place-items:end start;
                                     border-bottom:solid 0.01in var(--element-border-color);
                                     span{
-                                        font-size:0.6rem;
-                                        &::after{
-                                            content:" ";
-                                        }
+                                        font-size:0.7rem;
+                                        padding-right:0.5em;
                                     }
                                     em{
-                                        font-size:0.7rem;
+                                        font-size:0.75rem;
                                         font-style:normal;
                                         place-self:end;
                                     }

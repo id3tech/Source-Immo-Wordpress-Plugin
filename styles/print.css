@@ -342,17 +342,15 @@ html.print.listings page.front-page .broker-infos .broker-list .broker .photo { 
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .name { font-family: var(--title-font); font-size: 0.85rem; font-weight: 700; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .name { font-family: var(--title-font); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .license { font-size: 0.6rem; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .license { font-size: 0.7rem; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--element-border-color); }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span { font-size: 0.6rem; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span { font-size: 0.7rem; padding-right: 0.5em; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span::after { content: " "; }
-
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone em { font-size: 0.7rem; font-style: normal; place-self: end; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone em { font-size: 0.75rem; font-style: normal; place-self: end; }
 
 html.print.listings page.front-page .information { z-index: 10; color: var(--text-color); background-color: var(--background-color); -ms-grid-columns: 1fr 2fr; grid-template-columns: 1fr 2fr; -ms-grid-rows: auto; grid-template-rows: auto; grid-template-areas: "transaction price"  "ref_number price"; gap: 0 0.25in; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; padding-bottom: 0.75in; min-height: 1in; }
 
