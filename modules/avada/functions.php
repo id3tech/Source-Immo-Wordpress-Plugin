@@ -5,3 +5,4 @@ function avada_page_builder_prerender($page_id){
     }
 }
 add_action('si_page_builder_prerender', 'avada_page_builder_prerender');
+

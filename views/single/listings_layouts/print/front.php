@@ -20,9 +20,22 @@
 
             <div class="address-civic"><?php echo($model->location->civic_address)?></div>
 
+            
+            
+
             <?php 
-            if(isset($model->description)){
-                echo('<div class="description">' . $model->description . '</div>');
+            if(hasValue([$model->description, $model->important_flags])){
+                
+                echo('<div class="description">');
+                SourceImmo::view('single/listings_layouts/print/icon_ribbon', array('model'=>$model));
+                if(hasValue([$model->description, $model->important_flags],'all')){
+                    echo('<div class="separator"></div>');
+                }
+
+                if(isset($model->description)){
+                    echo($model->description);
+                }
+                echo('</div>');
             }
             ?>
             

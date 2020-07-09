@@ -586,6 +586,7 @@ $locales.fr = {};$locales.fr.global =
     , "Contruction year" : "Année de construction"
     , "Lot and exterior" : "Terrain et extérieur"
     , "Other characteristics" : "Autres caractéristiques"
+    , "Near" : "À proximité"
     , "Characteristics" : "Caractéristiques"
     , "Included & excluded" : "Inclusions et exclusions"
     , "Inclusions & exclusions" : "Inclusions et exclusions"

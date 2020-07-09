@@ -1,11 +1,13 @@
-<?php 
-if(isset($model->exclusions)){
-?>
-<div class="panel">
+
+<div class="panel bordered">
     <h3><?php _e('Excluded',SI) ?></h3>
-    <div class="spec" data-ng-show="model.inclusions!=undefined">
+    <div class="content spec">
+        <?php 
+        if(isset($model->exclusions)){
+        ?>
         <div><?php echo($model->exclusions) ?></div>
+        <?php
+        }
+        ?>
     </div>
 </div>
-<?php
-}

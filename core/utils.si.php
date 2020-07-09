@@ -456,7 +456,7 @@ class HttpCall{
 
 }
 if(!function_exists('hasValue')){
-  function hasValue($expression){
+  function hasValue($expression, $allOrAny='any'){
     if(!isset($expression))return false;
     if($expression === null) return false;
     if(is_array($expression) && count($expression)==0)return false;
@@ -464,9 +464,17 @@ if(!function_exists('hasValue')){
     if($expression === false) return false;
 
     if(is_array($expression)){
-      foreach ($expression as $value) {
-        if($value === null) return false;
-        if($value === '') return false;
+      $successExps = array_filter($expression, function($subExpression){
+        if($subExpression === null) return false;
+        if($subExpression === '') return false;
+        if(is_array($subExpression) && count($subExpression) == 0) return false;
+        return true;
+      });
+      
+      if(count($successExps)==0) return false;
+
+      if($allOrAny == 'all' && (count($successExps) < count($expression))){
+        return false;
       }
     }
     

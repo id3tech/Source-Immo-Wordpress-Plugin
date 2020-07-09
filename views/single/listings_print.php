@@ -9,7 +9,7 @@
 
         <?php if(isset($_GET['infos'])) {
             echo('<div class="info-panel">');
-            __json($model);
+            __json($model->attributes);
             echo('</div>');
         }?>
 
@@ -20,24 +20,18 @@
             
         </page>
 
-        <?php
-        if($model->category_code == 'RESIDENTIAL'){
-        ?>
         <page class="details">
             
             
             <div class="page-layout">
+                <?php SourceImmo::view('single/listings_layouts/print/proximity_flags', array('model'=>$model))?>
+                
+                <?php SourceImmo::view('single/listings_layouts/print/addendum', array('model'=>$model))?>
 
-                <?php SourceImmo::view('single/listings_layouts/print/icon_ribbon', array('model'=>$model))?>
-
-                <?php SourceImmo::view('single/listings_layouts/print/partial_addendum', array('model'=>$model))?>
-
-                <?php SourceImmo::view('single/listings_layouts/print/caracteristics', array('model'=>$model))?>
-
-                <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
-
-                <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
-
+                
+                <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+    
             </div>
             <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
             <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
@@ -47,50 +41,21 @@
             
             
             <div class="page-layout">
-                <div class="in-ex">
-                    <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
-                    <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
-                </div>
 
+                <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/other', array('model'=>$model))?>
+                <?php SourceImmo::view('single/listings_layouts/print/units', array('model'=>$model))?>
                 <?php SourceImmo::view('single/listings_layouts/print/financial', array('model'=>$model))?>
                 
-                <?php SourceImmo::view('single/listings_layouts/print/map', array('model'=>$model))?>                
+                
             </div>
             <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
             <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
         </page>
 
         <?php 
-        }
-        else{
-        ?>
-            <page class="commercial-details">
-                <div class="page-layout">
-                    <?php SourceImmo::view('single/listings_layouts/print/caracteristics', array('model'=>$model, 'all' => true))?>
-
-                    <?php SourceImmo::view('single/listings_layouts/print/units', array('model'=>$model))?>
-                    <?php SourceImmo::view('single/listings_layouts/print/financial', array('model'=>$model))?>
-                    
-                    <?php
-                    if(isset($model->building->attributes)) unset($model->building->attributes);
-                    if(isset($model->land->attributes)) unset($model->land->attributes);
-                    ?>
-                    <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
-                    <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
-
-
-                    <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
-                    <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
-
-                    <?php SourceImmo::view('single/listings_layouts/print/map', array('model'=>$model))?>  
-                </div>
-
-                <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
-                <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
-            </page>
-        <?php
-        }
-
+        
         if(isset($model->rooms) && is_array($model->rooms) && count($model->rooms) > 0){
             SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
         }
@@ -146,43 +111,9 @@
         <page class="last-page">
             <?php SourceImmo::view('single/listings_layouts/print/back', array('model'=>$model))?>
         
-            
+                           
         </page>
 
-        <?php 
-        if(isset($model->addendum) && $model->addendum != '' && (strlen($model->addendum)>620)){
-        ?>
-        <page class="annex">
-            <div class="page-layout">
-                <h3><?php _e('Annex - Addendum',SI) ?></h3>
-                <?php
-                
-                $addendumLines = explode("\n",$model->addendum);
-                $addendumBlockSize = ceil( count($addendumLines) / 2 );
-
-                $addendumBlocks = array();
-                $addendumBlocks[] = array_slice($addendumLines,0,$addendumBlockSize);
-                if(count($addendumLines) > $addendumBlockSize){
-                    $addendumBlocks[] = array_slice($addendumLines,$addendumBlockSize,$addendumBlockSize);
-                }
-                
-                foreach ($addendumBlocks as $block) {
-                ?>
-                <div class="page-panel">
-                    <div class="addendum"><?php echo(trim(implode("\n", $block))); ?></div>
-                </div>
-                <?php
-                }
-                ?>
-               
-            </div>
-
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'annex'))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'annex'))?></footer>
-        </page>
-        <?php
-        }
-        ?>
 
         <button class="print-button" onclick="fnPrint()"><i class="fal fa-print"></i></button>
         <script type="text/javascript">

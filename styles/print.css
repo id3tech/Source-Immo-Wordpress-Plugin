@@ -156,6 +156,14 @@ html.print body .panel.hidden { display: none; }
 
 html.print body .panel.small-contrast { background-color: var(--small-contrast-color); }
 
+html.print body .panel.bordered { padding-top: 0; padding-bottom: 0.15in; }
+
+html.print body .panel.bordered::after { content: ""; position: absolute; top: 0.15in; left: 0.1in; width: calc(100% - 0.2in); bottom: 0; pointer-events: none; border: solid 1px var(--highlight); border-radius: var(--element-border-radius); z-index: 2; }
+
+html.print body .panel.bordered h3 { position: relative; z-index: 4; display: inline-block; padding: 0 0.15in; left: -0.05in; place-self: start; }
+
+html.print body .panel.bordered .content { position: relative; padding-top: 0.15in; padding-bottom: 0; }
+
 html.print body .panel.overlay { position: absolute; }
 
 html.print body .panel.overlay.center { top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
@@ -170,19 +178,47 @@ html.print body .panel.dock-right { right: 0; top: 0; bottom: 0; }
 
 html.print body .panel.dock-bottom { left: 0; right: 0; bottom: 0; }
 
-html.print body .panel .list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; grid-gap: 0.25in; place-items: center stretch; }
+html.print body .panel .list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; grid-gap: 0.1in; overflow: hidden; }
 
 html.print body .panel .list .list-item { display: contents; }
 
-html.print body .panel .list .list-item label { margin: 0; font-weight: 400; }
+html.print body .panel .list .list-item label { position: relative; margin: 0; font-weight: 400; place-self: center start; }
 
-html.print body .panel .list .list-item .value { font-size: 1rem; text-align: right; }
+html.print body .panel .list .list-item label::after { content: ''; position: absolute; width: 3in; height: 0; border-top: dashed 1px var(--text-color); right: -0.1in; top: 50%; -webkit-transform: translate(100%, 0); transform: translate(100%, 0); z-index: 2; opacity: 0.2; }
+
+html.print body .panel .list .list-item .value { font-size: 1rem; text-align: right; place-self: start end; position: relative; z-index: 5; }
+
+html.print body .panel .list .list-item .value span { padding-left: 0.1in; background: var(--background-color); }
 
 html.print body .panel .spec-grid { display: -ms-grid; display: grid; grid-gap: 0.01in; -ms-grid-columns: (1fr)[2]; grid-template-columns: repeat(2, 1fr); }
 
 html.print body .panel .spec-grid .spec { margin-bottom: 0.5rem; }
 
 html.print body .panel .spec-grid .spec label { margin-bottom: 0; }
+
+html.print body .panel .spec-grid.list-layout { -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; grid-gap: 0.1in 0in; overflow: hidden; }
+
+html.print body .panel .spec-grid.list-layout .icon-grid { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; }
+
+html.print body .panel .spec-grid.list-layout h4 { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; margin-top: 0.1in; }
+
+html.print body .panel .spec-grid.list-layout h4:first-child { margin-top: 0; }
+
+html.print body .panel .spec-grid.list-layout .spec { display: contents; }
+
+html.print body .panel .spec-grid.list-layout .spec label { position: relative; place-self: start; }
+
+html.print body .panel .spec-grid.list-layout .spec label::after { content: ''; position: absolute; width: 3in; height: 0; border-top: dashed 1px var(--text-color); right: -0.1in; top: 50%; -webkit-transform: translate(100%, 0); transform: translate(100%, 0); z-index: 2; opacity: 0.2; }
+
+html.print body .panel .spec-grid.list-layout .spec > div { text-align: right; place-self: start end; position: relative; z-index: 5; }
+
+html.print body .panel .spec-grid.list-layout .spec > div span { padding-left: 0.1in; background: var(--background-color); }
+
+html.print body .icon-grid { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[5]; grid-template-columns: repeat(5, 1fr); gap: 0.05in; }
+
+html.print body .icon-grid .item { position: relative; text-align: center; }
+
+html.print body .icon-grid .item label { font-weight: 400; margin-top: 0.1in; }
 
 html.print body .panel.padding-i, html.print body .padding-0 { padding: 0in; }
 
@@ -236,33 +272,23 @@ html.print body .panel.padding-i, html.print body .padding-24 { padding: 1.2in; 
 
 html.print body .page-layout { position: absolute; top: 0.5in; bottom: 0.5in; left: 0; width: 100%; }
 
-html.print body .page-layout h1 { position: relative; margin: 0in 0; text-align: right; padding: 0.05in 0in; }
-
-html.print body .page-layout h1::before { content: ""; position: absolute; top: 50%; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); width: 100%; margin-left: -0.05in; height: 0.02in; border-radius: var(--element-border-radius); background-color: var(--highlight); }
+html.print body .page-layout h1 { position: relative; margin: 0in 0; text-align: left; padding: 0.05in 0in; background: #fff; }
 
 html.print body .page-layout > h1 { padding: 0.05in 0.25in; }
 
-html.print body .page-layout h2 { position: relative; margin: 0in 0; text-align: right; padding: 0.05in 0in; }
-
-html.print body .page-layout h2::before { content: ""; position: absolute; top: 50%; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); width: 100%; margin-left: -0.05in; height: 0.02in; border-radius: var(--element-border-radius); background-color: var(--highlight); }
+html.print body .page-layout h2 { position: relative; margin: 0in 0; text-align: left; padding: 0.05in 0in; background: #fff; }
 
 html.print body .page-layout > h2 { padding: 0.05in 0.25in; }
 
-html.print body .page-layout h3 { position: relative; margin: 0in 0; text-align: right; padding: 0.05in 0in; }
-
-html.print body .page-layout h3::before { content: ""; position: absolute; top: 50%; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); width: 100%; margin-left: -0.05in; height: 0.02in; border-radius: var(--element-border-radius); background-color: var(--highlight); }
+html.print body .page-layout h3 { position: relative; margin: 0in 0; text-align: left; padding: 0.05in 0in; background: #fff; }
 
 html.print body .page-layout > h3 { padding: 0.05in 0.25in; }
 
-html.print body .page-layout h4 { position: relative; margin: 0in 0; text-align: right; padding: 0.05in 0in; }
-
-html.print body .page-layout h4::before { content: ""; position: absolute; top: 50%; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); width: 100%; margin-left: -0.05in; height: 0.02in; border-radius: var(--element-border-radius); background-color: var(--highlight); }
+html.print body .page-layout h4 { position: relative; margin: 0in 0; text-align: left; padding: 0.05in 0in; background: #fff; }
 
 html.print body .page-layout > h4 { padding: 0.05in 0.25in; }
 
-html.print body .page-layout h5 { position: relative; margin: 0in 0; text-align: right; padding: 0.05in 0in; }
-
-html.print body .page-layout h5::before { content: ""; position: absolute; top: 50%; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); width: 100%; margin-left: -0.05in; height: 0.02in; border-radius: var(--element-border-radius); background-color: var(--highlight); }
+html.print body .page-layout h5 { position: relative; margin: 0in 0; text-align: left; padding: 0.05in 0in; background: #fff; }
 
 html.print body .page-layout > h5 { padding: 0.05in 0.25in; }
 
@@ -274,6 +300,8 @@ html.print body .notepad .handwrite-zone { opacity: 0.25; position: absolute; to
 
 html.print body .site-logo img { width: 100%; height: 100%; -o-object-fit: contain; object-fit: contain; -o-object-position: center; object-position: center; }
 
+html.print body div.separator { height: 1px; background: var(--text-color); opacity: 0.25; width: 80%; display: block; margin: 0.1in auto; }
+
 html.print.listings .ref_number::before { content: var(--uls-label); }
 
 html.print.listings page header { border-left: 0.5in solid var(--highlight); display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center start; }
@@ -284,23 +312,27 @@ html.print.listings page header .ref_number { font-size: 0.6em; }
 
 html.print.listings page footer .more-info label { display: block; font-weight: 400; margin: 0px; padding: 0px; opacity: 0.8; }
 
-html.print.listings page.front-page .page-background { height: calc(100% - 2in); }
+html.print.listings page.front-page .page-background { height: 9in; left: 0; top: 1in; -webkit-transform: unset; transform: unset; }
 
-html.print.listings page.front-page .page-background::after { background-color: var(--highlight); opacity: 0.25; }
+html.print.listings page.front-page .page-background::after { background-color: var(--highlight); opacity: 0.25; mix-blend-mode: multiply; }
 
 html.print.listings page.front-page .panel { overflow: visible; }
 
-html.print.listings page.front-page .address-civic { position: absolute; bottom: 1.75in; left: 0; font-size: 1.2in; line-height: 0.8em; letter-spacing: 0; width: 30%; font-weight: 700; color: #fff; mix-blend-mode: overlay; opacity: 0.5; }
+html.print.listings page.front-page .address-civic { position: absolute; bottom: 1.75in; left: 0.1in; font-size: 1in; text-transform: uppercase; line-height: 0.8em; letter-spacing: -0.1in; width: 30%; font-weight: 700; color: #fff; mix-blend-mode: soft-light; opacity: 1; text-shadow: 0 0 0.1in #000; }
 
-html.print.listings page.front-page .description { background: var(--background-color); position: absolute; bottom: 1.75in; right: 0; width: 50%; text-align: justify; padding: 0.2in; padding-right: 0.4in; z-index: 5; }
+html.print.listings page.front-page .icon-ribbon .icon-grid { -ms-grid-columns: unset; grid-template-columns: unset; grid-auto-columns: 1fr; grid-auto-flow: column; }
 
-html.print.listings page.front-page .description::before { content: ""; background-color: var(--highlight); border-radius: var(--element-border-radius); position: absolute; bottom: 0.1in; right: 0in; width: 0.05in; height: 2in; }
+html.print.listings page.front-page .icon-ribbon .icon-grid sup.badge { position: absolute; top: 0; left: 50%; font-size: 1rem; width: 1.5em; height: 1.5em; line-height: 1.5em; text-align: center; background: var(--text-color); color: var(--background-color); border-radius: 50%; -webkit-transform: translate(100%, -50%); transform: translate(100%, -50%); }
+
+html.print.listings page.front-page .description { background: var(--background-color); position: absolute; bottom: 2.75in; right: 0; width: 60%; text-align: justify; padding: 0.2in; padding-right: 0.4in; z-index: 5; }
+
+html.print.listings page.front-page .description::before { content: ""; background-color: var(--highlight); border-radius: var(--element-border-radius); position: absolute; bottom: 0.1in; right: 0in; width: 0.05in; height: 125%; }
 
 html.print.listings page.front-page .broker-infos { color: var(--text-color); background-color: var(--background-color); display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center start; gap: 1rem; height: 1.5in; }
 
 html.print.listings page.front-page .broker-infos .logo { place-self: stretch; }
 
-html.print.listings page.front-page .broker-infos .broker-list { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; grid-gap: 0.1in; place-items: stretch; }
+html.print.listings page.front-page .broker-infos .broker-list { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: auto; grid-gap: 0.1in; place-items: stretch; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker { background-color: var(--background-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--element-border-radius); grid-gap: 0.1in; }
 
@@ -310,17 +342,17 @@ html.print.listings page.front-page .broker-infos .broker-list .broker .photo { 
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .name { font-family: var(--title-font); font-size: 1.25rem; font-weight: 700; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .name { font-family: var(--title-font); font-size: 0.85rem; font-weight: 700; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .license { font-size: 0.8rem; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .license { font-size: 0.6rem; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--element-border-color); }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span { font-size: 0.8rem; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span { font-size: 0.6rem; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone span::after { content: " "; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone em { font-size: 1.15rem; font-style: normal; place-self: end; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .phone em { font-size: 0.7rem; font-style: normal; place-self: end; }
 
 html.print.listings page.front-page .information { z-index: 10; color: var(--text-color); background-color: var(--background-color); -ms-grid-columns: 1fr 2fr; grid-template-columns: 1fr 2fr; -ms-grid-rows: auto; grid-template-rows: auto; grid-template-areas: "transaction price"  "ref_number price"; gap: 0 0.25in; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; padding-bottom: 0.75in; min-height: 1in; }
 
@@ -338,23 +370,19 @@ html.print.listings page.front-page .information .ref_number { -ms-grid-row: 2; 
 
 html.print.listings page.front-page .information .transaction { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: transaction; }
 
-html.print.listings page.details { padding: 0; }
-
 html.print.listings page.details .page-background::after { background-color: var(--background-color); opacity: 0.75; }
 
-html.print.listings page.details .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[2]; grid-template-columns: repeat(2, 1fr); grid-gap: 0.25in 0; -ms-grid-rows: auto auto auto 1fr; grid-template-rows: auto auto auto 1fr; place-items: start stretch; }
+html.print.listings page.details .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto 1fr auto; grid-template-rows: auto 1fr auto; place-items: stretch; grid-gap: 0.25in 0; padding: 0.1in; padding-bottom: 0.2in; }
 
-html.print.listings page.details .panel { padding: 0 0.25in; }
+html.print.listings page.details .panel.addendum { -ms-grid-column: 1; grid-column-start: 1; grid-column-end: max; }
+
+html.print.listings page.details .panel.addendum .content { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0.25in; }
+
+html.print.listings page.details .panel.proximity { -ms-grid-column: 1; grid-column-start: 1; grid-column-end: max; }
 
 html.print.listings page.details .panel.icon-ribbon { margin: 0.25in; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; border-radius: var(--element-border-radius); background-color: var(--highlight); --text-color:var(--highlight-text-color); color: var(--text-color); }
 
 html.print.listings page.details .panel.icon-ribbon .item { margin: 0.05in; padding: 0.05in; text-align: center; }
-
-html.print.listings page.details .panel .area { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: center end; margin-bottom: 0.1in; }
-
-html.print.listings page.details .panel .area label { text-transform: uppercase; margin: 0; }
-
-html.print.listings page.details .panel .area .value { margin-right: 0.25in; font-weight: 700; }
 
 html.print.listings page.commercial-details { padding: 0; }
 
@@ -376,19 +404,21 @@ html.print.listings page.commercial-details .page-layout .financial { display: -
 
 html.print.listings page.details-part2 .page-background::after { background-color: var(--background-color); opacity: 0.75; }
 
-html.print.listings page.details-part2 .panel.map { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; grid-gap: 0.25in; place-items: stretch; }
+html.print.listings page.details-part2 .panel .area { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: center end; -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; margin-bottom: 0.1in; }
+
+html.print.listings page.details-part2 .panel .area label { text-transform: uppercase; margin: 0; }
+
+html.print.listings page.details-part2 .panel .area .value { font-weight: 700; }
+
+html.print.listings page.details-part2 .panel.map { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0.25in; place-items: stretch; }
 
 html.print.listings page.details-part2 .panel.map .static-map { width: 4in; height: 4in; }
 
 html.print.listings page.details-part2 .panel.map .notepad .handwrite-zone { top: 0.5in; right: 0in; }
 
-html.print.listings page.details-part2 .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 2fr 1fr; grid-template-columns: 2fr 1fr; grid-template-areas: "financial inc-exc"; place-items: start stretch; }
+html.print.listings page.details-part2 .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto 1fr auto; grid-template-rows: auto 1fr auto; grid-gap: 0.25in 0; padding: 0.1in; padding-bottom: 0.2in; place-items: stretch; }
 
-html.print.listings page.details-part2 .in-ex { -ms-grid-row: 1; -ms-grid-column: 2; grid-area: inc-exc; }
-
-html.print.listings page.details-part2 .financial { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: financial; }
-
-html.print.listings page.details-part2 .financial { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.25in; }
+html.print.listings page.details-part2 .financial { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.25in; -ms-grid-row: 2; -ms-grid-row-span: 2; grid-row: 2 / span 2; -ms-grid-column: 2; grid-column: 2; }
 
 html.print.listings page.rooms::after { width: 0.05in; height: 10.25in; top: 0.25in; background: red; position: absolute; left: 0px; }
 
@@ -430,33 +460,51 @@ html.print.listings page.photos .photo-list .item .photo img { -o-object-fit: co
 
 html.print.listings page.photos .photo-list .item label { opacity: 0.75; text-align: center; text-transform: uppercase; padding: 0.1in; margin-bottom: 0px; }
 
-html.print.listings page.last-page .brokers { width: 4.25in; }
+html.print.listings page.last-page .dock-left { width: 4.25in; display: -ms-grid; display: grid; -ms-grid-rows: 1fr auto auto; grid-template-rows: 1fr auto auto; gap: 0.25in; }
 
-html.print.listings page.last-page .broker-list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.1in; place-items: stretch; }
+html.print.listings page.last-page .brokers .broker-list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.1in; place-items: stretch; }
 
-html.print.listings page.last-page .broker-list .broker { background-color: var(--background-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--element-border-radius); grid-gap: 0.1in; }
+html.print.listings page.last-page .brokers .broker-list .broker { background-color: var(--background-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--element-border-radius); grid-gap: 0.1in; }
 
-html.print.listings page.last-page .broker-list .broker .infos { width: 100%; padding: 0.1in; }
+html.print.listings page.last-page .brokers .broker-list .broker .infos { width: 100%; padding: 0.1in; }
 
-html.print.listings page.last-page .broker-list .broker .photo { width: 1in; height: 1.4in; -ms-grid-column: 1; grid-column: 1; }
+html.print.listings page.last-page .brokers .broker-list .broker .photo { width: 1in; height: 1.4in; -ms-grid-column: 1; grid-column: 1; }
 
-html.print.listings page.last-page .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
+html.print.listings page.last-page .brokers .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
 
-html.print.listings page.last-page .broker-list .broker .name { font-family: var(--title-font); font-size: 1.25rem; font-weight: 700; }
+html.print.listings page.last-page .brokers .broker-list .broker .name { font-family: var(--title-font); font-size: 1.25rem; font-weight: 700; }
 
-html.print.listings page.last-page .broker-list .broker .license { font-size: 0.8rem; }
+html.print.listings page.last-page .brokers .broker-list .broker .license { font-size: 0.8rem; }
 
-html.print.listings page.last-page .broker-list .broker .contact .phone { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--element-border-color); }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .phone { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--element-border-color); }
 
-html.print.listings page.last-page .broker-list .broker .contact .phone span { font-size: 0.8rem; }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .phone span { font-size: 0.8rem; }
 
-html.print.listings page.last-page .broker-list .broker .contact .phone span::after { content: " "; }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .phone span::after { content: " "; }
 
-html.print.listings page.last-page .broker-list .broker .contact .phone em { font-size: 1.15rem; font-style: normal; place-self: end; }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .phone em { font-size: 1.15rem; font-style: normal; place-self: end; }
 
 html.print.listings page.last-page .notepad { width: 4.125in; }
 
-html.print.listings page.last-page .notepad .handwrite-zone { top: 1in; right: 0.25in; }
+html.print.listings page.last-page .notepad .handwrite-zone { top: 1in; right: 0.25in; bottom: 4.25in; }
+
+html.print.listings page.last-page .notepad .static-map { position: absolute; bottom: 0.25in; right: 0.25in; }
+
+html.print.listings page.last-page .static-map { width: 4in; height: 4in; }
+
+html.print.listings page.last-page .recap { position: absolute; bottom: 0.25in; left: 0.25in; }
+
+html.print.listings page.last-page .recap .price { font-size: 2rem; position: relative; }
+
+html.print.listings page.last-page .recap .price::before { content: ""; position: absolute; background: var(--highlight); top: 50%; left: 0; height: 120%; width: 1in; -webkit-transform: translate(-1.15in, -50%); transform: translate(-1.15in, -50%); }
+
+html.print.listings page.last-page .recap .transaction { font-size: 1rem; text-transform: uppercase; }
+
+html.print.listings page.last-page .recap .address { padding: 0.05in 0; }
+
+html.print.listings page.last-page .recap .address .civic { font-size: 1.25rem; }
+
+html.print.listings page.last-page .recap .address .city { opacity: 0.75; }
 
 html.print.listings page.annex .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; grid-gap: 0.05in; padding: 0.25in; place-items: start stretch; }
 

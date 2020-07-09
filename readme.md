@@ -1,4 +1,4 @@
-# Version 0.4.70 RC1
+# Version 0.4.71 RC1
 
 ## Admin interface changes
 
@@ -43,6 +43,7 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 ## Other things
 
 * You can change the default view which will update every list that used the previous one
+* Sprinkle hooks here and there
 * Minor bugs fixes
 * Disconnection now make a backup of the settings to be restored upon credentials update
 * Fix Yoast support
