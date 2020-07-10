@@ -179,29 +179,96 @@ siApp
 .directive('siSideScroll', function siSideScroll(){
     return {
         restrict: 'A',
-        link: function($scope, $element,$attrs){
-            const lTarget = $element[0].parentElement;
-            const lTargetWidth = lTarget.getBoundingClientRect().width;
-            const lPadding = (window.innerWidth - lTargetWidth) / 2;
+        scope:true,
+        link: function($scope, $element, $attrs){
+            
+            
+            $scope.init($element);
+            
+        },
+        controller: function($scope, $element){
+            $scope.$scrollContainer = null;
+            $scope.$element = null;
+            $scope._resizeDebounce = null;
+            $scope.sizeBreakPoint = 720;
 
-            const sideScrollStyles = {
-                width: '100vw',
-                marginLeft: '-50vw',
-                marginRight: '-50vw',
-                left: '50%',
-                right: '50%',
-                position: 'relative',
-                padding: '0 ' + lPadding + 'px',
-                overflow: 'auto hidden'
-            };
-            console.log('siSideScroll',lTarget);
-            
-            Object.keys(sideScrollStyles).forEach(function($k){
-                lTarget.style[$k] = sideScrollStyles[$k];
-            });
-            
-            $element[0].style.setProperty('--side-scroll-padding', lPadding + 'px');
-            $element[0].style.setProperty('--side-scroll-width', lTargetWidth + 'px');
+            $scope.init = function($element){
+                $scope.$element = $element[0];
+                $scope.$scrollContainer = $element[0].parentElement;
+                $scope.addResizeListener(window);
+
+                if(window.innerWidth <= $scope.sizeBreakPoint){
+                    $scope.applySideScroll();
+                }
+                console.log('siSideScroll/init',$scope.$element, window.innerWidth);
+            }
+
+
+            $scope.addResizeListener = function($elm){
+                $elm.addEventListener('resize', $scope.resize);
+            }
+
+            $scope.resize = function($event){
+                console.log('siSideScroll/window@onResize',$scope.$element, window.innerWidth);
+                // apply SideScroll when window width is smaller than 720px
+                if($scope._resizeDebounce != null){
+                    window.clearTimeout($scope._resizeDebounce);
+                }
+
+                $scope._resizeDebounce = window.setTimeout(function debouncedApplySideScroll(){
+                    if(window.innerWidth <= $scope.sizeBreakPoint){
+                        
+
+                        
+                            $scope.applySideScroll();
+                        
+                    }
+                    else{
+                        $scope.removeSideScroll();
+                    }
+                },100);
+            }
+
+            $scope.applySideScroll = function(){
+                console.log('siSideScroll/applySideScroll');
+                const lContainerWidth = $scope.$scrollContainer.getBoundingClientRect().width;
+                const lPadding = (window.innerWidth - lContainerWidth) / 2;
+    
+                const sideScrollStyles = $scope.getContainerStyles();
+                sideScrollStyles.padding = '0 ' + lPadding + 'px';
+                console.log('siSideScroll/applySideScroll:', sideScrollStyles,$scope.$scrollContainer);
+                Object.keys(sideScrollStyles).forEach(function($k){
+                    $scope.$scrollContainer.style[$k] = sideScrollStyles[$k];
+                });
+                
+                $scope.$element.style.setProperty('--side-scroll-padding', lPadding + 'px');
+                $scope.$element.style.setProperty('--side-scroll-width', lContainerWidth + 'px');
+            }
+
+            $scope.removeSideScroll = function(){
+                console.log('siSideScroll/removeSideScroll',$scope.$scrollContainer);
+                const sideScrollStyles = $scope.getContainerStyles();
+                
+                Object.keys(sideScrollStyles).forEach(function($k){
+                    $scope.$scrollContainer.removeAttribute('style');
+                });
+                
+                $scope.$element.style.removeProperty('--side-scroll-padding');
+            }
+
+            $scope.getContainerStyles = function(){
+                const sideScrollStyles = {
+                    width: '100vw',
+                    marginLeft: '-50vw',
+                    marginRight: '-50vw',
+                    left: '50%',
+                    right: '50%',
+                    position: 'relative',
+                    padding: '0px',
+                    overflow: 'auto hidden'
+                };
+                return sideScrollStyles;
+            }
         }
     }
 })
