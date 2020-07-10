@@ -1,5 +1,12 @@
 <?php 
 //Debug::write($configs);
+extract( shortcode_atts(
+    array(
+        'side_scroll' => false
+    ), $sc_atts )
+);
+unset($sc_atts['side_scroll']);
+
 $global_container_classes = array('si', 'direct-layout', "si-list-of-{$configs->type}",$configs->list_layout->scope_class);
 $global_container_attr = array();
 
@@ -14,13 +21,23 @@ $data = SourceImmoApi::get_data($configs, $sc_atts);
 $resultView = new SourceImmoListingsResult($data);
 
 $list_styles = array();
+$list_attrs = [];
+if($side_scroll){
+    $list_attrs[] = 'si-side-scroll';
+    $configs->list_layout->item_row_space->mobile = $configs->list_layout->item_row_space->desktop;
+}
+
 foreach ($configs->list_layout->item_row_space as $key => $value) {
     $width = round(100 / $value);
     $list_styles[] = "--{$key}-column-width:{$width}";
 }
+
+
 ?>
 <div class="<?php echo(implode(' ' , $global_container_classes)) ?>" 
-    style="<?php echo(implode(';', $list_styles)) ?>"  si-lazy-load>
+    style="<?php echo(implode(';', $list_styles)) ?>"  
+    <?php echo(implode(' ', $list_attrs)) ?>
+    si-lazy-load>
     <?php
     SourceImmo::staticDataController($configs, $resultView->listings);
 

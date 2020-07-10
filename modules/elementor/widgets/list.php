@@ -51,6 +51,16 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
                 'default' => ''
             ]
         );
+        $this->add_control(
+            'allow_side_scroll',
+            [
+                'label' => __('Allow side scrolling (mobile only)', SI),
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'placeholder' => '',
+                'return_value' => 'true',
+                'default' => 'false'
+            ]
+        );
 
 
         $this->end_controls_section();
@@ -76,10 +86,14 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
         
 
         $alias = $settings['alias'];
+        $sideScroll = $settings['allow_side_scroll'];
 
         $shortcode_attrs = [];
         if ($alias != '') {
             $shortcode_attrs[] = 'alias="' . $alias . '"';
+        }
+        if($sideScroll=='true'){
+            $shortcode_attrs[] = 'side_scroll="true"';
         }
         
         $shortcode = do_shortcode(shortcode_unautop('[si ' . implode(' ', $shortcode_attrs) . ']'));

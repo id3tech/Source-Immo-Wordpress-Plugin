@@ -175,6 +175,37 @@ siApp
     };
 });
 
+siApp
+.directive('siSideScroll', function siSideScroll(){
+    return {
+        restrict: 'A',
+        link: function($scope, $element,$attrs){
+            const lTarget = $element[0].parentElement;
+            const lTargetWidth = lTarget.getBoundingClientRect().width;
+            const lPadding = (window.innerWidth - lTargetWidth) / 2;
+
+            const sideScrollStyles = {
+                width: '100vw',
+                marginLeft: '-50vw',
+                marginRight: '-50vw',
+                left: '50%',
+                right: '50%',
+                position: 'relative',
+                padding: '0 ' + lPadding + 'px',
+                overflow: 'auto hidden'
+            };
+            console.log('siSideScroll',lTarget);
+            
+            Object.keys(sideScrollStyles).forEach(function($k){
+                lTarget.style[$k] = sideScrollStyles[$k];
+            });
+            
+            $element[0].style.setProperty('--side-scroll-padding', lPadding + 'px');
+            $element[0].style.setProperty('--side-scroll-width', lTargetWidth + 'px');
+        }
+    }
+})
+
 
 /**
  * Delayed renderer
@@ -523,21 +554,36 @@ siApp
                 if(lSrcset.indexOf('-sm.') < 0) return lSrcset;
                 
                 
-                const lOriginalPicture = lSrcset;                
+                const lOriginalPictureSets = lSrcset.split(', ');
                 const lPictureSets = [];
 
-                if($imgElm.getBoundingClientRect().width < 400){
-                    lPictureSets.push(lOriginalPicture + ' 1x');
+                
+
+                if($imgElm.getBoundingClientRect().width < 200){
+                    // Don't need to add a source set on very small picture
+                    return;
                 }
+                
+                if(lOriginalPictureSets.length > 1) {
+                    return lOriginalPictureSets.map(function($set,$i){
+                        return $scope.normalizeSourceSetItem($set,$i+1);
+                    }).join(', ');
+                }
+                
+                // ['md'].forEach(function($size,$index){
+                //     lPictureSets.push(lOriginalPictureSets.replace('-sm.','-' + $size + '.'));// + ' ' + ($index + lPictureSets.length + 1) + 'x');
+                // });
 
-                ['md'].forEach(function($size,$index){
-                    lPictureSets.push(lOriginalPicture.replace('-sm.','-' + $size + '.') + ' ' + ($index + lPictureSets.length + 1) + 'x');
-                });
-
-                return lPictureSets.join(', ');
+                //return lPictureSets.join(', ');
                 // console.log('si-srcset',lPictureSets.join(', '));
 
                 // $element[0].setAttribute('data-si-srcset', lPictureSets.join(', '));
+            }
+
+            $scope.normalizeSourceSetItem = function($source, $mul){
+                if($source.indexOf($mul+'x')>0) return $source;
+                
+                return $source + ' ' + $mul + 'x';
             }
             
         }

@@ -1439,6 +1439,19 @@ html{
         .list-meta{
             .list-count{text-align:center;};
         }
+
+        &[si-side-scroll]{
+            @include media($phone){
+                .si-list{
+                    grid-template-columns: repeat(var(--mobile-column-width), var(--side-scroll-width));
+                    > div:last-child{
+                        padding-right: var(--side-scroll-padding);
+                        width: calc(100% + var(--side-scroll-padding));
+                    }
+                }
+            }
+            
+        }
     }
  }
 

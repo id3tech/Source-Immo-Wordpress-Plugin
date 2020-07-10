@@ -131,11 +131,14 @@ class SiShorcodes{
             array(
                 'alias' => 'default',
                 'layout' => null,
-                'show_list_meta' => null
+                'show_list_meta' => null,
+                'side_scroll' => false
             ), $atts )
         );
 
         ob_start();
+
+        
         $listConfig = SourceImmo::current()->get_list_configs($alias);
         
 
@@ -164,7 +167,10 @@ class SiShorcodes{
             }
             else{
                 $styles = array(SourceImmo::styleToAttr($listConfig->list_item_layout->styles));
-                
+                $attr = [];
+                if($side_scroll){
+                    $attr = ['si-side-scroll'];
+                }
                 
                 echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" style="'. implode(';',$styles) .'" ></si-list>');
                 if(SourceImmo::current()->configs->prefetch_data){

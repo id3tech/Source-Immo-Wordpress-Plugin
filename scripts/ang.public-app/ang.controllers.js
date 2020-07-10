@@ -116,12 +116,24 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
  */
 siApp
 .controller('staticDataCtrl', 
-function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks){
+function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$element){
     $scope.init = function($alias){
         const $configs = $statics[$alias].configs;
         const $data = $statics[$alias].data;
         
-        console.log($configs, $data);
+        /*
+        
+    width: 100vw;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    left: 50%;
+    right: 50%;
+    position: relative;
+    padding: 0 40px;
+    overflow: auto hidden;
+
+ */
+
         $scope.$emit('si-static-data', $configs, $data);
     }
 })

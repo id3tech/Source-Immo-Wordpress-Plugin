@@ -483,6 +483,7 @@ class SourceImmoApi {
     if($lResult['max_item_count']==0){
       unset($lResult['max_item_count']);
     }
+
     
     $filters = array();
     foreach ($params as $key => $value) {
@@ -545,6 +546,7 @@ class SourceImmoApi {
     $lFilters = array("st"=>urlencode($lSearchToken));
     
     if($atts != null && count($atts)>1){
+      
       $params = $atts; //shortcode_atts(array(), $atts );
       
       $lFilters = array("st"=>urlencode(self::get_search_token($params,$list_config)));

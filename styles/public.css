@@ -1069,6 +1069,9 @@ html { font-size: 14px; }
 
 #top .si.direct-layout .list-meta .list-count, .si.direct-layout .list-meta .list-count { text-align: center; }
 
+@media screen and (max-width: 640px) { #top .si.direct-layout[si-side-scroll] .si-list, .si.direct-layout[si-side-scroll] .si-list { -ms-grid-columns: (var(--side-scroll-width))[var]; grid-template-columns: repeat(var(--mobile-column-width), var(--side-scroll-width)); }
+  #top .si.direct-layout[si-side-scroll] .si-list > div:last-child, .si.direct-layout[si-side-scroll] .si-list > div:last-child { padding-right: var(--side-scroll-padding); width: calc(100% + var(--side-scroll-padding)); } }
+
 #top .si.listing-single, .si.listing-single { min-height: 60vh; position: relative; }
 
 #top .si.listing-single label.placeholder, .si.listing-single label.placeholder { padding: 20px; font-weight: 400; opacity: 0.75; text-align: center; text-transform: uppercase; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
