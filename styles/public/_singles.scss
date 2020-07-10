@@ -1027,36 +1027,37 @@
         }
 
         .si-part{
-            &.si-part-name{
-                grid-column: var(--left-column);
-                grid-row: 1;
+            @include media-gt($tablet){
+                &.si-part-name{
+                    grid-column: var(--left-column);
+                    grid-row: 1;
+                }
+                &.si-part-bio{
+                    grid-column: var(--left-column);
+                    grid-row: 2;
+        
+                }
+                &.si-part-picture{
+                    grid-column: var(--right-column);
+                    grid-row: 1 / span 3;
+                }
+                &.si-part-contact{
+                    grid-column: var(--right-column);
+                    grid-row: 4;
+                }
+                &.si-part-cities{
+                    grid-column: var(--right-column);
+                    grid-row: 6 / span 2;
+                }
+                &.si-part-listings{
+                    grid-column: var(--left-column);
+                    grid-row: 3 / span 4;
+                }
+                &.si-part-office{
+                    grid-column: var(--right-column);
+                    grid-row: 5;
+                }
             }
-            &.si-part-bio{
-                grid-column: var(--left-column);
-                grid-row: 2;
-    
-            }
-            &.si-part-picture{
-                grid-column: var(--right-column);
-                grid-row: 1 / span 3;
-            }
-            &.si-part-contact{
-                grid-column: var(--right-column);
-                grid-row: 4;
-            }
-            &.si-part-cities{
-                grid-column: var(--right-column);
-                grid-row: 6 / span 2;
-            }
-            &.si-part-listings{
-                grid-column: var(--left-column);
-                grid-row: 3 / span 4;
-            }
-            &.si-part-office{
-                grid-column: var(--right-column);
-                grid-row: 5;
-            }
-
         }
 
         .head{

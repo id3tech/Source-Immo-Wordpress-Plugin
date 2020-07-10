@@ -1498,19 +1498,13 @@ html { font-size: 14px; }
 
 #top .si.broker-single .si-content .left-column, .si.broker-single .si-content .left-column { display: -ms-grid; display: grid; gap: var(--layout-gutter); }
 
-#top .si.broker-single .si-part.si-part-name, .si.broker-single .si-part.si-part-name { grid-column: var(--left-column); -ms-grid-row: 1; grid-row: 1; }
-
-#top .si.broker-single .si-part.si-part-bio, .si.broker-single .si-part.si-part-bio { grid-column: var(--left-column); -ms-grid-row: 2; grid-row: 2; }
-
-#top .si.broker-single .si-part.si-part-picture, .si.broker-single .si-part.si-part-picture { grid-column: var(--right-column); -ms-grid-row: 1; -ms-grid-row-span: 3; grid-row: 1 / span 3; }
-
-#top .si.broker-single .si-part.si-part-contact, .si.broker-single .si-part.si-part-contact { grid-column: var(--right-column); -ms-grid-row: 4; grid-row: 4; }
-
-#top .si.broker-single .si-part.si-part-cities, .si.broker-single .si-part.si-part-cities { grid-column: var(--right-column); -ms-grid-row: 6; -ms-grid-row-span: 2; grid-row: 6 / span 2; }
-
-#top .si.broker-single .si-part.si-part-listings, .si.broker-single .si-part.si-part-listings { grid-column: var(--left-column); -ms-grid-row: 3; -ms-grid-row-span: 4; grid-row: 3 / span 4; }
-
-#top .si.broker-single .si-part.si-part-office, .si.broker-single .si-part.si-part-office { grid-column: var(--right-column); -ms-grid-row: 5; grid-row: 5; }
+@media screen and (min-width: 801px) { #top .si.broker-single .si-part.si-part-name, .si.broker-single .si-part.si-part-name { grid-column: var(--left-column); -ms-grid-row: 1; grid-row: 1; }
+  #top .si.broker-single .si-part.si-part-bio, .si.broker-single .si-part.si-part-bio { grid-column: var(--left-column); -ms-grid-row: 2; grid-row: 2; }
+  #top .si.broker-single .si-part.si-part-picture, .si.broker-single .si-part.si-part-picture { grid-column: var(--right-column); -ms-grid-row: 1; -ms-grid-row-span: 3; grid-row: 1 / span 3; }
+  #top .si.broker-single .si-part.si-part-contact, .si.broker-single .si-part.si-part-contact { grid-column: var(--right-column); -ms-grid-row: 4; grid-row: 4; }
+  #top .si.broker-single .si-part.si-part-cities, .si.broker-single .si-part.si-part-cities { grid-column: var(--right-column); -ms-grid-row: 6; -ms-grid-row-span: 2; grid-row: 6 / span 2; }
+  #top .si.broker-single .si-part.si-part-listings, .si.broker-single .si-part.si-part-listings { grid-column: var(--left-column); -ms-grid-row: 3; -ms-grid-row-span: 4; grid-row: 3 / span 4; }
+  #top .si.broker-single .si-part.si-part-office, .si.broker-single .si-part.si-part-office { grid-column: var(--right-column); -ms-grid-row: 5; grid-row: 5; } }
 
 #top .si.broker-single .head .name, .si.broker-single .head .name { margin-bottom: 0px; }
 
