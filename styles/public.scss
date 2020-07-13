@@ -95,7 +95,7 @@ $desktop : 1440px;
     --listing-item-sold-bg-color: #ff8800;
     --listing-item-sold-text-color: #fff;
     --listing-item-column-width : 340px;
-    --listing-item-picture-ratio : 0.75;
+    --listing-item-picture-ratio : 0.6;
 
     --thumbnail-picture-size: 100px;
 
@@ -144,6 +144,10 @@ html{
     :root{
         --container-width:  100%;
     }
+}
+
+.si-list-of-item{
+    --list-element-width: 1120px;
 }
 
 #top .si, // enfold overrides
@@ -300,12 +304,12 @@ html{
     [class^=item]{
         perspective: 100vw;
     }
-
     .si-list{
         grid-column: 1 / span 3;
         -ms-grid-column: 1;
         -ms-grid-column-span: 3;
         display:grid;
+        
         // display:flex;
         // flex-wrap:wrap;
         // flex-direction: row;
@@ -601,11 +605,25 @@ html{
             // @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
             //                     'description','address','region','state','country','civic-address',
             //                     'open-houses','flags');
-
+            
             .item-content{
-                gap: 0;
-                
+                gap: 0; 
+                --row-space: calc( 
+                        var(--list-element-width) - ( 
+                            var(--layout-gutter) * var(--desktop-column-width)
+                        )
+                    );
+                --item-column-width : calc(var(--row-space) / var(--desktop-column-width));
 
+                @include media($laptop){
+                    --item-column-width : calc( var(--row-space) / var(--laptop-column-width));
+                }
+                @include media($tablet){
+                    --item-column-width : calc( var(--row-space) / var(--tablet-column-width));
+                }
+                @include media($phone){
+                    --item-column-width : calc( var(--row-space) / var(--phone-column-width));
+                }
             }
             
             .open-houses{
@@ -647,7 +665,8 @@ html{
             
            
             .image{
-                height:calc(var(--listing-item-column-width) * var(--listing-item-picture-ratio));
+                
+                height:calc(var(--item-column-width) * var(--listing-item-picture-ratio));
                 text-align: unset;
                 background: url('assets/shadow_property.jpg') no-repeat;
                 background-size: cover;
@@ -843,19 +862,23 @@ html{
             .item-content{
                 // grid-gap: 0;
                 grid-template-columns: 1fr;
-                grid-template-rows: var(--broker-item-picture-ratio) auto;
+                grid-template-rows: auto;
                 // grid-template-areas: 
                 //     "image image"
                 //     "name name"
                 //     "title title"
                 //     "contact contact";
-
+                --item-column-width : calc( var(--list-element-width) / var(--desktop-column-width));
+                @include media($laptop){
+                    --item-column-width : calc( var(--list-element-width) / var(--laptop-column-width));
+                }
                 @include media($tablet){
-                    //grid-template-rows: calc(40% * var(--broker-item-picture-ratio)) auto;
+                    --item-column-width : calc( var(--list-element-width) / var(--tablet-column-width));
                 }
                 @include media($phone){
-                    //grid-template-rows: calc(50% * var(--broker-item-picture-ratio)) auto;
+                    --item-column-width : calc( var(--list-element-width) / var(--phone-column-width));
                 }
+
                 .si-data-label{
                     text-align:center;
                 }
@@ -863,7 +886,21 @@ html{
                 .image{
                     background: url('assets/shadow_broker.jpg') no-repeat;
                     background-size: cover;
-                    height: calc(var(--broker-item-column-width) * var(--broker-item-picture-ratio));
+                    height: calc(var(--item-column-width) * var(--broker-item-picture-ratio));
+
+                    // height: calc((var(--list-element-width) / var(--desktop-column-width)) * var(--broker-item-picture-ratio)) auto;
+                    // @include media($laptop){
+                    //     height: calc((var(--list-element-width) / var(--laptop-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+                    // }
+                    // @include media($tablet){
+                    //     height: calc((var(--list-element-width) / var(--tablet-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+                    // }
+                    // @include media($phone){
+                    //     height: calc((var(--list-element-width) / var(--phone-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+                    // }
                     img{text-indent: -1000px;}
                 }
                 .email{
@@ -1097,8 +1134,12 @@ html{
 
     si-small-list.si-list-of-brokers,
     &.si-list-of-brokers{
+        
+        
+
         > .list-container,
         .si-list{
+            
             // grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );
             // @include media($tablet){
             //     --broker-item-picture-ratio: 1.6;
@@ -1348,6 +1389,18 @@ html{
         }
 
         &.si-list-of-brokers{
+            .si-list-header{
+                grid-template-areas: "meta . sort";
+                .list-meta{
+                    .list-count{
+                        text-align:left;
+                    }
+                }
+                @include media($phone){
+                    grid-template-areas: "meta sort";
+                }
+            }
+            
             .si-item{
                 // .item-content{
                 //     grid-template-areas: 

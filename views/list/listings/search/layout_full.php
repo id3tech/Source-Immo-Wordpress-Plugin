@@ -42,6 +42,9 @@
             <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="filter.addGeoFilter()"></i>
         </div>
 
+        <div class="si-filter-label">
+                <span class="label"><?php _e("Filter by",SI) ?></span>
+        </div>
         <div class="si-panel-button cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}"  
                 ng-if="allowPanel('cities')"
                 ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
@@ -78,7 +81,7 @@
         
         <div class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
-                <div class="dropdown-button {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php _e('Filter',SI) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
+                <div class="dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php _e("Filters",SI) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
                 <div class="si-dropdown-panel">
                     <div class="dropdown-item {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>

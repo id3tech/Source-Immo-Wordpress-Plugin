@@ -186,26 +186,27 @@ siApp
             $scope.init($element);
             
         },
-        controller: function($scope, $element){
+        controller: function($scope){
             $scope.$scrollContainer = null;
             $scope.$element = null;
             $scope._resizeDebounce = null;
             $scope.sizeBreakPoint = 720;
 
             $scope.init = function($element){
+                if($element == undefined) return;
+                
                 $scope.$element = $element[0];
                 $scope.$scrollContainer = $element[0].parentElement;
                 $scope.addResizeListener(window);
-
-                if(window.innerWidth <= $scope.sizeBreakPoint){
-                    $scope.applySideScroll();
-                }
-                console.log('siSideScroll/init',$scope.$element, window.innerWidth);
+                
             }
 
 
             $scope.addResizeListener = function($elm){
                 $elm.addEventListener('resize', $scope.resize);
+                window.addEventListener('load', function(){
+                    $scope.resize();
+                })
             }
 
             $scope.resize = function($event){
@@ -607,6 +608,8 @@ siApp
                 
                 lLazyLoadImages.forEach(function($element){
                     const lImg = $element.querySelector('img');
+                    if(lImg == null) return;
+
                     if(lImg.getAttribute('src') != null) return;
                     
                     $scope.observer.observe($element);

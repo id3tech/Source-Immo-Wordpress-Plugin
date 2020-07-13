@@ -15,13 +15,13 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         isNullOrEmpty: function($value) {return $value==null || $value == '' || $value.length == 0}
     };
 
-    
-
 
     $scope.init = function(){
+        
+
         $siConfig.get().then(function($configs){
             $scope.configs = $configs;
-
+            
         });
     }
 
@@ -121,18 +121,6 @@ function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$ele
         const $configs = $statics[$alias].configs;
         const $data = $statics[$alias].data;
         
-        /*
-        
-    width: 100vw;
-    margin-left: -50vw;
-    margin-right: -50vw;
-    left: 50%;
-    right: 50%;
-    position: relative;
-    padding: 0 40px;
-    overflow: auto hidden;
-
- */
 
         $scope.$emit('si-static-data', $configs, $data);
     }

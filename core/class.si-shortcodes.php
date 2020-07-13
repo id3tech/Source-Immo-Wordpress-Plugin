@@ -171,8 +171,8 @@ class SiShorcodes{
                 if($side_scroll){
                     $attr = ['si-side-scroll'];
                 }
-                
-                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" style="'. implode(';',$styles) .'" ></si-list>');
+                echo('<div class="si-list-of-item">');
+                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" style="'. implode(';',$styles) .'"></si-list>');
                 if(SourceImmo::current()->configs->prefetch_data){
                     $listData = SourceImmoApi::get_data($listConfig);
                     echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
@@ -187,6 +187,7 @@ class SiShorcodes{
                     SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig, "sc_atts" => $atts)); 
                     echo('</script>');
                 }
+                echo('</div>');
             }
         }
 
@@ -227,7 +228,8 @@ class SiShorcodes{
 
         ob_start();
         ?>
-        <si-small-list class="<?php echo($class) ?>" 
+        
+        <si-small-list class="<?php echo($class) ?>"
                 si-options="{show_header:<?php echo $show_header ?>, filter:{max_item_count: <?php echo($limit) ?>,sort_fields:[<?php echo($sortFields)?>]}}" si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
         <?php
         echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');

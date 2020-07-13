@@ -23,7 +23,7 @@ function siList(){
         },
         controllerAs: 'ctrl',
         template: '<div ng-include="\'si-template-for-\' + alias" class="{{class}}"></div>',
-        link : function($scope){
+        link : function($scope, $element, $attrs){
             $scope.init();
         },
         controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, 
@@ -54,26 +54,7 @@ function siList(){
              * Initialize the controller
              */
             $scope.init = function(){
-                $scope.ghost_list = [];
-                for(let $i = 0;$i<12; $i++){
-                    $scope.ghost_list.push({
-                        location :{city:'City',civic_address: '00 address', region: 'Region'},
-                        price: {sell:{amount:0}},
-                        
-                        category: 'Category',
-                        subcategory: 'Subcategory',
-                        ref_number: 'XXXXXX',
-                        first_name: 'First name',
-                        last_name: 'Last name',
-                        license_type : 'License type',
-                        listing_count: 0,
-                        office: {name : 'Office'},
-                        email: 'email@example.com',
-                        phones:{mobile:'555-555-5555'},
-                        description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.'
-                        
-                    });
-                }
+                $scope.buildGhostList();
                 
 
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
@@ -217,6 +198,29 @@ function siList(){
                 }
 
                 $scope.search(lSearchToken);
+            }
+
+            $scope.buildGhostList = function(){
+                $scope.ghost_list = [];
+                for(let $i = 0;$i<12; $i++){
+                    $scope.ghost_list.push({
+                        location :{city:'City',civic_address: '00 address', region: 'Region'},
+                        price: {sell:{amount:0}},
+                        
+                        category: 'Category',
+                        subcategory: 'Subcategory',
+                        ref_number: 'XXXXXX',
+                        first_name: 'First name',
+                        last_name: 'Last name',
+                        license_type : 'License type',
+                        listing_count: 0,
+                        office: {name : 'Office'},
+                        email: 'email@example.com',
+                        phones:{mobile:'555-555-5555'},
+                        description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.'
+                        
+                    });
+                }
             }
     
             /**
@@ -627,6 +631,38 @@ function siList(){
         }
     }
 }]);
+
+siApp
+.directive('siListOfItem', 
+function siListOfItem(){
+    return {
+        restrict: 'C',
+        scope:true,
+        link: function($scope, $element, $attrs){
+            
+            $scope.$element = $element[0];
+            $scope.init();
+        },
+        controller: function($scope){
+            this.$onInit = function(){
+                window.addEventListener('resize', function($event){
+                    $scope.updateSize();
+                });
+                window.addEventListener("load", function($event){
+                    $scope.updateSize();
+                },false);
+            }
+
+            $scope.updateSize = function(){
+                const lRect = $scope.$element.getBoundingClientRect();
+                if(lRect.width == 0){
+                    window.setTimeout($scope.updateSize,500);
+                }
+                $scope.$element.style.setProperty('--list-element-width', lRect.width + 'px');
+            }
+        }
+    }
+})
 
 
 siApp

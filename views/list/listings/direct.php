@@ -7,7 +7,7 @@ extract( shortcode_atts(
 );
 unset($sc_atts['side_scroll']);
 
-$global_container_classes = array('si', 'direct-layout', "si-list-of-{$configs->type}",$configs->list_layout->scope_class);
+$global_container_classes = array('si', 'si-list-of-item','direct-layout', "si-list-of-{$configs->type}",$configs->list_layout->scope_class);
 $global_container_attr = array();
 
 global $dictionary;

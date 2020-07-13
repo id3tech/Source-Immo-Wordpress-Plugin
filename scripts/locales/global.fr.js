@@ -446,6 +446,7 @@ $locales.fr = {};$locales.fr.global =
     // Public - SEARCH
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"
+    , "Filter by" : "Filtrez par"
     , "{0}+ bedrooms" : "{0}+ chambres"
     , "{0}+ bathrooms" : "{0}+ salles de bains"
     , "{0} bedroom" : "{0} chambre"
@@ -551,6 +552,7 @@ $locales.fr = {};$locales.fr.global =
     , "License" : "Permis"
     , "Licenses" : "Permis"
     , "Alphabetical" : "Alphabétique"
+    , "Letter" : "Lettre"
     , "First letter of the last name" : "Première lettre du nom"
     
     // Licenses type (Preview)

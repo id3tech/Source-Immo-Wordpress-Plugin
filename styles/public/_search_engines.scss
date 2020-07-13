@@ -17,7 +17,7 @@
         @include media($phone){
             grid-template-columns: 1fr;
             padding: calc(var(--container-padding) / 2);
-            gap:1rem;
+            gap:0rem;
         }
 
         &.expanded{
@@ -67,7 +67,10 @@
 
             .filter-menu{
                 display:none;
-                .si-dropdown{width:100%;}
+                .si-dropdown{
+                    width:100%;
+                    .label{padding-right:0.5rem;}
+                }
                 .si-button.active{
                     i{font-weight: 700;}
                     color: var(--highlight);
@@ -109,6 +112,10 @@
                 place-self: stretch;
                 left:0px;
                 width:100%;
+
+                &.si-tab-count-0{
+                    display:none;
+                }
             }
 
             .si-tab{
@@ -177,10 +184,20 @@
             grid-template-columns: 1fr repeat(var(--input-count), auto);
             gap:var(--layout-gutter);
             place-items: center stretch;
+            
             &.no-searchbox{
                 grid-template-columns: repeat(var(--input-count), auto) 1fr;
             }
 
+            .si-filter-label{
+                pointer-events: none;
+                opacity:0.5;
+                .label{
+                    font-size:0.8rem;
+                    font-style: italic;
+                }
+            }
+            
             .si-panel-button{
                 padding: var(--element-padding);
                 font-weight:500;
@@ -217,10 +234,18 @@
                 }
             }
 
-            
+            @include media($laptop){
+                gap:calc(var(--layout-gutter) * 0.25);
+            }
+            @include media($tablet){
+                gap:0;
+                .si-filter-label{
+                    display:none;
+                }
+            }
             @include media($phone){
                 grid-template-columns: 1fr auto;
-                
+                gap:0;
                 > .si-panel-button {display:none!important;}
                 .filter-menu{display:block;}
             }
@@ -598,6 +623,7 @@
             transform: translate(-50%,-50%);
             &.expanded{
                 pointer-events: auto!important;
+                z-index: 1000;
             }
         }
         @include media($phone){
@@ -720,7 +746,8 @@
                 display:grid;
                 grid-template-columns: 1fr;
                 place-items: stretch;
-                padding-bottom: 3rem;
+                padding-bottom: 4.75rem;
+                
                 .filter-panel-header{
                     display:flex;
                     flex-direction:row;
@@ -1146,7 +1173,7 @@
                         margin:0.5rem 0;
                     }
                     @include media($tablet){
-                        grid-template-columns:1fr 1fr;
+                        //grid-template-columns:1fr 1fr;
                     }   
                     @include media($phone){
                         grid-template-columns:1fr;
