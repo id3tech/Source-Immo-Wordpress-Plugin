@@ -445,7 +445,7 @@ html { font-size: 14px; }
 
 #top .si .search-container, .si .search-container { -ms-grid-row: 1; grid-row: 1; -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; position: relative; -webkit-box-align: center; -ms-flex-align: center; align-items: center; padding: var(--container-padding); border: var(--container-border); border-radius: var(--container-border-radius); background-color: var(--background-color); }
 
-@media screen and (max-width: 640px) { #top .si .search-container, .si .search-container { -ms-grid-columns: 1fr; grid-template-columns: 1fr; padding: calc(var(--container-padding) / 2); gap: 0rem; } }
+@media screen and (max-width: 640px) { #top .si .search-container, .si .search-container { -ms-grid-columns: 1fr; grid-template-columns: 1fr; padding: calc(var(--container-padding) / 2); gap: calc(var(--container-padding) / 2); } }
 
 #top .si .search-container.expanded, .si .search-container.expanded { border: none; }
 

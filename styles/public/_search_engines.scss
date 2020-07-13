@@ -17,7 +17,7 @@
         @include media($phone){
             grid-template-columns: 1fr;
             padding: calc(var(--container-padding) / 2);
-            gap:0rem;
+            gap:calc(var(--container-padding) / 2);
         }
 
         &.expanded{
