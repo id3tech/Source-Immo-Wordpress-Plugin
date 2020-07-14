@@ -19,7 +19,7 @@ if(isset($configs)){
             <div class="layer-container">
                 <div class="image  si-lazy-loading"><img data-ng-if="item.photo_url" data-si-src="{{item.photo_url}}" /></div>
             
-                <div class="layer primary-layer">
+                <div class="layer primary-layer  si-background">
                     <div class="si-data-label si-background-high-contrast fullname" ng-show="layoutAllowVar('fullname')">{{item.first_name + ' ' + item.last_name}}</div> 
                     <div class="si-data-label si-background-high-contrast first-name" ng-show="layoutAllowVar('first_name', true)">{{item.first_name}}</div> 
                     <div class="si-data-label si-background-high-contrast last-name" ng-show="layoutAllowVar('last_name', true)">{{item.last_name}}</div>

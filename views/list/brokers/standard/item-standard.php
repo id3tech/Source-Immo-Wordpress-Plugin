@@ -14,7 +14,7 @@ if(isset($configs)){
         data-ng-cloak
     >
     <a href="{{item.permalink}}">
-        <div class="item-content">
+        <div class="item-content si-background">
             <div class="image  si-lazy-loading"><img data-ng-if="item.photo_url" data-si-src="{{item.photo_url}}" /></div>
             <div class="si-data-label si-background-high-contrast fullname" ng-show="layoutAllowVar('fullname')">{{item.first_name + ' ' + item.last_name}}</div> 
             <div class="si-data-label si-background-high-contrast first-name" ng-show="layoutAllowVar('first_name', true)">{{item.first_name}}</div> 
