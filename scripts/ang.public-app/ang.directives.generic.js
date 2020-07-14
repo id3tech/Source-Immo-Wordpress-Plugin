@@ -194,6 +194,8 @@ siApp
 
             $scope.init = function($element){
                 if($element == undefined) return;
+
+                $scope.state = 'off';
                 
                 $scope.$element = $element[0];
                 $scope.$scrollContainer = $element[0].parentElement;
@@ -206,7 +208,7 @@ siApp
                 $elm.addEventListener('resize', $scope.resize);
                 window.addEventListener('load', function(){
                     $scope.resize();
-                })
+                });
             }
 
             $scope.resize = function($event){
@@ -218,30 +220,28 @@ siApp
 
                 $scope._resizeDebounce = window.setTimeout(function debouncedApplySideScroll(){
                     if(window.innerWidth <= $scope.sizeBreakPoint){
-                        
+                        if($scope.state == 'off'){
+                            $scope.expandContainer();    
+                            $scope.state = 'on';
+                        }
 
-                        
-                            $scope.applySideScroll();
-                        
+                        $scope.applySideScroll();
                     }
                     else{
                         $scope.removeSideScroll();
+                        $scope.state = 'off';
                     }
                 },100);
             }
 
             $scope.applySideScroll = function(){
                 console.log('siSideScroll/applySideScroll');
-                const lContainerWidth = $scope.$scrollContainer.getBoundingClientRect().width;
-                const lPadding = (window.innerWidth - lContainerWidth) / 2;
-    
-                const sideScrollStyles = $scope.getContainerStyles();
-                sideScrollStyles.padding = '0 ' + lPadding + 'px';
-                console.log('siSideScroll/applySideScroll:', sideScrollStyles,$scope.$scrollContainer);
-                Object.keys(sideScrollStyles).forEach(function($k){
-                    $scope.$scrollContainer.style[$k] = sideScrollStyles[$k];
-                });
-                
+                // const lContainerWidth = $scope.$scrollContainer.getBoundingClientRect().width;
+                // const lPadding = (window.innerWidth - lContainerWidth) / 2;
+                const lContainerStyle = window.getComputedStyle($scope.$scrollContainer);
+                const lPadding = lContainerStyle.paddingLeft.replace('px','');
+                const lContainerWidth = window.innerWidth - (lPadding * 2);
+
                 $scope.$element.style.setProperty('--side-scroll-padding', lPadding + 'px');
                 $scope.$element.style.setProperty('--side-scroll-width', lContainerWidth + 'px');
             }
@@ -255,6 +255,18 @@ siApp
                 });
                 
                 $scope.$element.style.removeProperty('--side-scroll-padding');
+            }
+
+            $scope.expandContainer = function(){
+                const lContainerWidth = $scope.$scrollContainer.getBoundingClientRect().width;
+                const lPadding = (window.innerWidth - lContainerWidth) / 2;
+    
+                const sideScrollStyles = $scope.getContainerStyles();
+                sideScrollStyles.padding = '0 ' + lPadding + 'px';
+                console.log('siSideScroll/applySideScroll:', sideScrollStyles,$scope.$scrollContainer);
+                Object.keys(sideScrollStyles).forEach(function($k){
+                    $scope.$scrollContainer.style[$k] = sideScrollStyles[$k];
+                });
             }
 
             $scope.getContainerStyles = function(){
