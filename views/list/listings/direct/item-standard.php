@@ -31,7 +31,7 @@ if(isset($configs)){
 <article class="<?php echo implode(' ',$scope_class) ?>"
     <?php echo(implode(' ', $attrs)) ?> itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
-        <div class="item-content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
+        <div class="item-content si-background" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">
             <div class="image si-lazy-loading"><img si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
             <div class="si-data-label si-background-high-contrast civic-address" <?php layoutAllowVar('address', $configs->list_item_layout) ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
             <div class="si-data-label si-background-high-contrast city" <?php layoutAllowVar('city', $configs->list_item_layout) ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>

@@ -24,7 +24,7 @@ if(isset($configs)){
                     <img data-si-src="{{item.photo_url}}" data-si-srcset="{{item.photo_url}}" />
                 </div>
                 
-                <div class="layer primary-layer">
+                <div class="layer primary-layer si-background">
                     <div class="si-data-label <?php echo($styleActive ? 'si-background-high-contrast':'') ?> civic-address" ng-show="layoutAllowVar('address',true)">{{item.location.civic_address}}</div>
                     <div class="si-data-label <?php echo($styleActive ? 'si-background-high-contrast':'') ?> city" ng-show="layoutAllowVar('city',true)">{{item.location.city}}</div>
                     <div class="si-data-label <?php echo($styleActive ? 'si-background-high-contrast':'') ?> region" ng-show="layoutAllowVar('region')">{{item.location.region}}</div>

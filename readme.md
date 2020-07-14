@@ -1,4 +1,4 @@
-# Version 0.4.71 RC1
+# Version 0.4.72 RC1
 
 ## Admin interface changes
 

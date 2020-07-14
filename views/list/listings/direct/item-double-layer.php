@@ -39,7 +39,7 @@ if(isset($configs)){
             <div class="layer-container">
                 <div class="image si-lazy-loading"><img si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_listing_srcset',$item->photo_url))?>" itemprop="image" /></div>
 
-                <div class="layer primary-layer">
+                <div class="layer primary-layer si-background">
                     <div class="si-data-label si-background-high-contrast civic-address" <?php layoutAllowVar('address', $configs->list_item_layout) ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="streetAddress"><?php echo($item->location->civic_address);?></span></div>
                     <div class="si-data-label si-background-high-contrast city" <?php layoutAllowVar('city', $configs->list_item_layout) ?> itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><span itemprop="addressLocality"><?php echo($item->location->city);?></span></div>
                     <div class="si-data-label si-background-high-contrast region" <?php layoutAllowVar('region', $configs->list_item_layout) ?>><?php echo($item->location->region);?></div>

@@ -13,7 +13,7 @@ Text Domain: si
 define( 'SI_NAME', 'Source.immo');
 define( 'SI', 'si' );
 define( 'SI_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');
-define( 'SI_VERSION', '0.4.71 RC1' );
+define( 'SI_VERSION', '0.4.72 RC1' );
 define( 'SI_MINIMUM_WP_VERSION', '4.0' );
 define( 'SI_PLUGIN', __FILE__);
 define( 'SI_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );

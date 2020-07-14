@@ -28,7 +28,7 @@ if(isset($configs)){
     class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak
         <?php echo(implode(' ', $attrs)) ?> >
     <a href="{{item.permalink}}">
-        <div class="item-content">
+        <div class="item-content si-background">
             <div class="image si-lazy-loading"><img data-si-src="{{item.photo_url}}" data-si-srcset="{{item.photo_url}}" /></div>
             <div class="si-data-label civic-address <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"   ng-show="layoutAllowVar('address',true)">{{item.location.civic_address}}</div>
             <div class="si-data-label city <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('city',true)">{{item.location.city}}</div>

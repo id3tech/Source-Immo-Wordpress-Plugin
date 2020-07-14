@@ -56,5 +56,3 @@ SourceImmo::view("list/brokers/search/panels/licenses");
 <!-- OFFICES -->
 <?php
 SourceImmo::view("list/brokers/search/panels/offices");
-?>
-

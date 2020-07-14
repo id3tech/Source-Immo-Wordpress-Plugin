@@ -654,11 +654,20 @@ function siListOfItem(){
             }
 
             $scope.updateSize = function(){
-                const lRect = $scope.$element.getBoundingClientRect();
-                if(lRect.width == 0){
-                    window.setTimeout($scope.updateSize,500);
+                
+                if($scope._resize_debounce != null){
+                    window.clearTimeout($scope._resize_debounce);
                 }
-                $scope.$element.style.setProperty('--list-element-width', lRect.width + 'px');
+
+                $scope._resize_debounce = window.setTimeout(function resizeDebounce(){
+                    const lRect = $scope.$element.getBoundingClientRect();
+                    if(lRect.width == 0){
+                        window.setTimeout($scope.updateSize,500);
+                        return;
+                    }
+
+                    $scope.$element.style.setProperty('--list-element-width', lRect.width + 'px');
+                }, 250);
             }
         }
     }

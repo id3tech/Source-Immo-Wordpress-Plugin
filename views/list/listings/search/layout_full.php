@@ -141,6 +141,3 @@
     <!-- Mores -->
     <?php
     SourceImmo::view("list/listings/search/panels/other");
-    ?>
-        
-

@@ -152,7 +152,7 @@ class SiShorcodes{
 
             $scopeClass = $listConfig->list_layout->scope_class;
 
-            $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}", $scopeClass);
+            $global_container_classes = array('si', $listConfig->list_layout->preset . '-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
             if(!str_null_or_empty($listConfig->list_layout->custom_css)){
                 echo('<style for="' . $alias . '">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') , $listConfig->list_layout->custom_css) . '</style>');

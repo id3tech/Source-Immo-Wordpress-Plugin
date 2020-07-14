@@ -253,7 +253,7 @@ siApp
                 Object.keys(sideScrollStyles).forEach(function($k){
                     $scope.$scrollContainer.removeAttribute('style');
                 });
-                
+
                 $scope.$element.style.removeProperty('--side-scroll-padding');
             }
 
@@ -278,7 +278,7 @@ siApp
                     right: '50%',
                     position: 'relative',
                     padding: '0px',
-                    overflow: 'auto hidden'
+                    overflow: 'auto'
                 };
                 return sideScrollStyles;
             }

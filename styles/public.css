@@ -45,39 +45,41 @@ html { font-size: 14px; }
 
 #top .si .layout-space-between-end, #top .si-modal .layout-space-between-end, .si-modal .layout-space-between-end, .si .layout-space-between-end { -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; -webkit-box-align: end; -ms-flex-align: end; align-items: flex-end; }
 
-#top .si .list-container .list-item, #top .si-modal .list-container .list-item, .si-modal .list-container .list-item, .si .list-container .list-item { --list-item-separator-color: var(--list-item-separator-color); border-bottom: var(--list-item-separator); margin-bottom: var(--list-item-padding); padding-bottom: var(--list-item-padding); }
+.si-modal .list-container .list-item, .si .list-container .list-item { --list-item-separator-color: var(--list-item-separator-color); border-bottom: var(--list-item-separator); margin-bottom: var(--list-item-padding); padding-bottom: var(--list-item-padding); }
 
-#top .si .list-container .list-item:last-child, #top .si-modal .list-container .list-item:last-child, .si-modal .list-container .list-item:last-child, .si .list-container .list-item:last-child { border: none; margin-bottom: 0; }
+.si-modal .list-container .list-item:last-child, .si .list-container .list-item:last-child { border: none; margin-bottom: 0; }
 
-#top .si .si-container, #top .si-modal .si-container, .si-modal .si-container, .si .si-container { border-radius: var(--container-border-radius); border: var(--container-border); padding: var(--container-padding); display: -ms-grid; display: grid; position: relative; }
+.si-modal .si-container, .si .si-container { border-radius: var(--container-border-radius); border: var(--container-border); padding: var(--container-padding); display: -ms-grid; display: grid; position: relative; }
 
-#top .si .si-element, #top .si-modal .si-element, .si-modal .si-element, .si .si-element { position: relative; border-radius: var(--element-border-radius); border: var(--element-border); }
+.si-modal .si-element, .si .si-element { position: relative; border-radius: var(--element-border-radius); border: var(--element-border); }
 
-#top .si .si-element-padding, #top .si-modal .si-element-padding, .si-modal .si-element-padding, .si .si-element-padding { padding: var(--element-padding); }
+.si-modal .si-element-padding, .si .si-element-padding { padding: var(--element-padding); }
 
-#top .si .si-container-padding, #top .si-modal .si-container-padding, .si-modal .si-container-padding, .si .si-container-padding { padding: var(--container-padding); }
+.si-modal .si-container-padding, .si .si-container-padding { padding: var(--container-padding); }
 
-#top .si .si-highlight-background, #top .si-modal .si-highlight-background, .si-modal .si-highlight-background, .si .si-highlight-background { background: var(--highlight); --text-color: var(--highlight-text); }
+.si-modal .si-background, .si .si-background { background: var(--background-color); }
 
-#top .si .si-highlight-text, #top .si-modal .si-highlight-text, .si-modal .si-highlight-text, .si .si-highlight-text { --text-color: var(--highlight-text); }
+.si-modal .si-highlight-background, .si .si-highlight-background { background: var(--highlight); --text-color: var(--highlight-text); }
 
-#top .si .contrast-container, #top .si-modal .contrast-container, .si-modal .contrast-container, .si .contrast-container { padding: var(--container-padding); }
+.si-modal .si-highlight-text, .si .si-highlight-text { --text-color: var(--highlight-text); }
 
-#top .si .si-background-small-contrast, #top .si-modal .si-background-small-contrast, .si-modal .si-background-small-contrast, .si .si-background-small-contrast { background: var(--small-contrast-color); --text-color: var(--small-contrast-text-color); }
+.si-modal .contrast-container, .si .contrast-container { padding: var(--container-padding); }
 
-#top .si .si-background-medium-contrast, #top .si-modal .si-background-medium-contrast, .si-modal .si-background-medium-contrast, .si .si-background-medium-contrast { background: var(--medium-contrast-color); --text-color: var(--medium-contrast-text-color); }
+.si-modal .si-background-small-contrast, .si .si-background-small-contrast { background: var(--small-contrast-color); --text-color: var(--small-contrast-text-color); }
 
-#top .si .si-background-high-contrast, #top .si-modal .si-background-high-contrast, .si-modal .si-background-high-contrast, .si .si-background-high-contrast { background: var(--high-contrast-color); --text-color: var(--high-contrast-text-color); }
+.si-modal .si-background-medium-contrast, .si .si-background-medium-contrast { background: var(--medium-contrast-color); --text-color: var(--medium-contrast-text-color); }
 
-#top .si .si-price-sold, #top .si-modal .si-price-sold, .si-modal .si-price-sold, .si .si-price-sold { background-color: var(--listing-item-sold-bg-color); --text-color: var(--listing-item-sold-text-color); }
+.si-modal .si-background-high-contrast, .si .si-background-high-contrast { background: var(--high-contrast-color); --text-color: var(--high-contrast-text-color); }
 
-#top .si .si-button, #top .si-modal .si-button, .si-modal .si-button, .si .si-button { -webkit-transition: 0.25s; transition: 0.25s; text-decoration: none; display: inline-block; padding: 0.5em 1em; border-radius: var(--element-border-radius); background: var(--button-bg-color); --text-color: var(--button-text-color); font-family: var(--button-font-name); }
+.si-modal .si-price-sold, .si .si-price-sold { background-color: var(--listing-item-sold-bg-color); --text-color: var(--listing-item-sold-text-color); }
 
-#top .si .si-button:hover, #top .si-modal .si-button:hover, .si-modal .si-button:hover, .si .si-button:hover { background: var(--button-hover-bg-color); --text-color: var(--button-hover-text-color); }
+.si-modal .si-button, .si .si-button { -webkit-transition: 0.25s; transition: 0.25s; text-decoration: none; display: inline-block; padding: 0.5em 1em; border-radius: var(--element-border-radius); background: var(--button-bg-color); --text-color: var(--button-text-color); font-family: var(--button-font-name); }
 
-#top .si .si-button.alt, #top .si-modal .si-button.alt, .si-modal .si-button.alt, .si .si-button.alt { background: var(--button-alt-bg-color); --text-color: var(--button-alt-text-color); }
+.si-modal .si-button:hover, .si .si-button:hover { background: var(--button-hover-bg-color); --text-color: var(--button-hover-text-color); }
 
-#top .si .si-button.alt:hover, #top .si-modal .si-button.alt:hover, .si-modal .si-button.alt:hover, .si .si-button.alt:hover { background: var(--button-alt-hover-bg-color); --text-color: var(--button-alt-hover-text-color); }
+.si-modal .si-button.alt, .si .si-button.alt { background: var(--button-alt-bg-color); --text-color: var(--button-alt-text-color); }
+
+.si-modal .si-button.alt:hover, .si .si-button.alt:hover { background: var(--button-alt-hover-bg-color); --text-color: var(--button-alt-hover-text-color); }
 
 #top .si .sticky-anchor, .si .sticky-anchor { position: absolute; }
 
