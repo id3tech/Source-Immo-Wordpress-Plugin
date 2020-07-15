@@ -1,8 +1,14 @@
-body .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content { grid-template-areas: unset; }
-
 body .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image { height: 250px; background: #efefef; position: relative; }
 
 body .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image i.fal, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost .si-list .si-item .item-content .image i.fal { color: #333; opacity: 0.25; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
+
+body .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost .si-data-label.brokers, body .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost .si-data-label.listings, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost .si-data-label.brokers, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost .si-data-label.listings { display: none; }
+
+body .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-listings .si-data-label.listings, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-listings .si-data-label.listings { display: initial; }
+
+body .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-brokers .image i.fal.fa-image::before, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-brokers .image i.fal.fa-image::before { content: '\f007'; }
+
+body .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-brokers .si-data-label.brokers, #top .elementor-element .elementor-widget-container .si.si-list-of-ghost.elementor-ghost.si-list-of-brokers .si-data-label.brokers { display: initial; }
 
 body .elementor-element .elementor-widget-container .si.si-list-slider, #top .elementor-element .elementor-widget-container .si.si-list-slider { overflow: hidden; }
 
@@ -16,9 +22,9 @@ body .elementor-element .elementor-widget-container .si.si-list-slider .si-slide
 
 body .elementor-element .elementor-widget-container .si.si-list-slider .si-slider-navigation .slider-bullet-container, #top .elementor-element .elementor-widget-container .si.si-list-slider .si-slider-navigation .slider-bullet-container { opacity: 1 !important; bottom: 0 !important; }
 
-body .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint { -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); opacity: 1; }
+body .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint { opacity: 1; }
 
-body .elementor-element .elementor-widget-container .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-control-preview-hint { background: #68C8C5; -webkit-box-shadow: 0 0 8px 2px #fff, 0 0 50px 5px #68C8C5; box-shadow: 0 0 8px 2px #fff, 0 0 50px 5px #68C8C5; border-radius: 5px; font-size: 12px; color: #fff; opacity: 0; -webkit-transition: 0.25s; transition: 0.25s; pointer-events: auto; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%) scale(0); transform: translate(-50%, -50%) scale(0); z-index: 5; }
+body .elementor-element .elementor-widget-container .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-control-preview-hint { background: #47CAF4; font-size: 10px; color: #fff; opacity: 0; -webkit-transition: 0.25s; transition: 0.25s; pointer-events: none; position: absolute; top: 0; left: 0; z-index: 5; display: -webkit-box; display: -ms-flexbox; display: flex; }
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint:hover, #top .elementor-element .elementor-widget-container .si-control-preview-hint:hover { opacity: 1; }
 

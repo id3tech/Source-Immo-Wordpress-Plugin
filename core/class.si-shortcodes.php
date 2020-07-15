@@ -49,6 +49,7 @@ class SiShorcodes{
                 'limit' => 5,
                 'detail_label' => 'View detail',
                 'show_navigation' => 'true',
+                'height' => '500px'
             ), $atts )
         );
 
@@ -60,7 +61,7 @@ class SiShorcodes{
         ?>
         <si-list-slider class="<?php echo($class) ?> slider-type-<?php echo($type) ?>" 
                 si-alias="<?php echo($alias) ?>"
-                si-options="{show_navigation:<?php echo $show_navigation ?>, limit: <?php echo $limit ?>}">
+                si-options="{show_navigation:<?php echo $show_navigation ?>, limit: <?php echo $limit ?>, minHeight: '<?php echo $height ?>'}">
                 </si-list-slider>
         <?php
         echo('<script type="text/ng-template" id="si-list-slider-for-'. $alias . '">');

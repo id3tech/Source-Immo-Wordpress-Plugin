@@ -969,8 +969,12 @@ function siListSlider($compile){
 
                 const lSlideContainer = $scope._element[0].querySelector('.si-slide-container');
                 const lElmBoundingRect = $scope._element[0].getBoundingClientRect();
+                const lElmParentBoundingRect = $scope._element[0].parentElement.getBoundingClientRect();
 
                 $scope._element[0].style.setProperty('--slider-width', lElmBoundingRect.width + 'px');
+                if($scope.options.minHeight != undefined){
+                    $scope._element[0].style.minHeight = $scope.options.minHeight;
+                }
                 lSlideContainer.style.setProperty('--list-count', $scope.list.length);
                 lSlideContainer.style.setProperty('--current-index', 0);
 

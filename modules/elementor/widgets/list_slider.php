@@ -60,7 +60,28 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
                 'default' => ''
             ]
         );
-
+        
+        $this->add_control(
+			'height',
+			[
+				'label' => __( 'Height', 'plugin-domain' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => [ 'px', 'vh' ],
+                'default' => ['unit' => 'px', 'size' => 500],
+                'range' =>  [
+					'px' => [
+						'min' => 500,
+						'max' => 1000,
+						'step' => 5,
+					],
+                    'vh' => [
+						'min' => 0,
+						'max' => 100,
+                    ],
+                ]
+			]
+        );
+        
         $this->end_controls_section();
     }
 
@@ -82,6 +103,7 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
         $alias = $settings['alias'];
 
         $limit = $settings['limit'];
+        $height = $settings['height'];
 
         $shortcode_attrs = [];
         if ($alias != '') {
@@ -92,6 +114,10 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
             $shortcode_attrs[] = 'limit="' . $limit . '"';
         }
 
+        if ($height != '') {
+            $shortcode_attrs[] = ' height="' . $height['size'] . $height['unit'] . '"';
+        }
+
         $shortcode = do_shortcode(shortcode_unautop('[si_list_slider ' . implode(' ', $shortcode_attrs) . ']'));
         echo ($shortcode);
     }
@@ -100,7 +126,7 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
     {
     ?>
         <div class="si-elementor-widget">
-            <div class="slider-type-hero si si-list-slider ng-isolate-scope list-of-listings loaded" si-alias="listings" si-options="{show_navigation:true, limit: 5}" style="--slider-width:1120px;">
+            <div class="slider-type-hero si si-list-slider ng-isolate-scope list-of-listings loaded" si-alias="listings" si-options="{show_navigation:true, limit: 5}" style="--slider-width:100%;">
                 <div class="si-slide-container" style="--list-count:5; --current-index:0;">
                     
                     <div ng-include="getItemTemplateInclude()" class="si-slide ng-scope in-viewport" ng-repeat="item in list">

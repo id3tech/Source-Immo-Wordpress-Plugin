@@ -9,7 +9,7 @@ body, #top{
                     .si-list{
                         .si-item{
                             .item-content{
-                                grid-template-areas: unset;
+                                //grid-template-areas: unset;
                                 .image{
                                     height: 250px;
                                     background: #efefef;
@@ -23,6 +23,25 @@ body, #top{
 
                                 }
                             }
+                        }
+                    }
+                    
+                    &.elementor-ghost{
+                        .si-data-label{
+                            &.brokers,&.listings{display:none;}
+                        }
+                        &.si-list-of-listings{
+                            .si-data-label.listings{display:initial;}
+                        }
+                        &.si-list-of-brokers{
+                            .image{
+                                i.fal.fa-image{
+                                    &::before{
+                                        content:'\f007';
+                                    }
+                                }
+                            }
+                            .si-data-label.brokers{display:initial;}
                         }
                     }
                 }
@@ -62,29 +81,23 @@ body, #top{
             .si-elementor-widget{
                 &:hover{
                     .si-control-preview-hint{
-                        transform:translate(-50%,-50%);
                         opacity:1;
-                        
                     }
                 }
             }
 
             
             .si-control-preview-hint{
-                background: #68C8C5;
-                box-shadow: 
-                    0 0 8px 2px #fff, 0 0 50px 5px #68C8C5;
-                    ;
-                border-radius: 5px;
-                font-size: 12px;
+                background: #47CAF4;
+                font-size: 10px;
                 color:#fff;
                 opacity:0;
                 transition:0.25s;
-                pointer-events: auto;
+                pointer-events: none;
                 position: absolute;
-                top:50%;left:50%;
-                transform:translate(-50%,-50%) scale(0);
+                top:0;left:0;
                 z-index:5;
+                display:flex;
                 &:hover{
                     opacity:1;
                 }

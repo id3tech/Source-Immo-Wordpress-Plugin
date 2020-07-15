@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\map;
+
 class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 {
 
@@ -36,21 +39,46 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
             ]
         );
 
-        $aliasList = array();
+        $aliasList = [
+            'listings'   => [],
+            'brokers'    => []
+        ];
         foreach ($siConfigs->lists as $list) {
-            $aliasList[$list->alias] = $list->alias;
+            if(isset($aliasList[$list->type])){
+                $aliasList[$list->type][$list->alias] = $list->alias;
+            }
         }
 
         $this->add_control(
-            'alias',
+            'type',
             [
-                'label' => __('List alias', SI),
+                'label' => __('Type', SI),
                 'type' => \Elementor\Controls_Manager::SELECT,
                 'placeholder' => '',
-                'options' => $aliasList,
-                'default' => ''
+                'options' => [
+                    'listings' => __('Listing', SI),
+                    'brokers' => __('Broker', SI)
+                ],
+                'default' => 'listings'
             ]
         );
+
+        foreach ($aliasList as $key => $list) {
+            $this->add_control(
+                'alias_' . $key,
+                [
+                    'label' => __('List alias', SI),
+                    'type' => \Elementor\Controls_Manager::SELECT,
+                    'placeholder' => '',
+                    'options' => $list,
+                    'default' => '',
+                    'condition' => [
+                        'type' => $key
+                    ]
+                ]
+            );
+        }
+        
         $this->add_control(
             'allow_side_scroll',
             [
@@ -84,8 +112,8 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
         if (strpos($_SERVER['REQUEST_URI'],'admin-ajax') !== false) return;
 
         
-
-        $alias = $settings['alias'];
+        $type = $settings['type'];
+        $alias = $settings['alias_' . $type];
         $sideScroll = $settings['allow_side_scroll'];
 
         $shortcode_attrs = [];
@@ -102,47 +130,38 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 
 
 
-    function _content_template(){
+    function _content_template(){  
     ?>
+    <#
+        const type = settings.type;
+        const type_singular = type.slice(0, -1);
+    #>
         <div class="si-elementor-widget">
-            <div class="si direct-layout si-list-of-ghost" style="--desktop-column-width:3;--laptop-column-width:3;--tablet-column-width:2;--mobile-column-width:1" si-lazy-load="">
+            <div class="si direct-layout elementor-ghost si-list-of-{{{type}}} si-list-of-ghost" style="--desktop-column-width:3;--laptop-column-width:3;--tablet-column-width:2;--mobile-column-width:1" si-lazy-load="">
                 <div class="si-list">
+                    <# _.each([1,2,3], function(){ #>
                     <div>
-                        <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
+                        <article class="si-item si-single-layer-item-layout si-{{{type_singular}}}-item style-standard img-hover-effect-none">
                             <a href="#">
-                            <div class="item-content">
+                            <div class="item-content si-background">
                                     <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                    <div class="si-data-label">Excepteur sint occaecat</div>
+                                    <div class="si-data-label brokers first-name si-background-high-contrast">John</div>
+                                    <div class="si-data-label brokers last-name si-background-high-contrast">Powers</div>
+                                    <div class="si-data-label brokers phone">123-555-8721</div>
+                                    <div class="si-data-label listings civic-address si-background-high-contrast">201 Lorem ipsum</div>
+                                    <div class="si-data-label listings city si-background-high-contrast">Loremville</div>
+                                    <div class="si-data-label listings price si-background-medium-contrast">525 000$</div>
+                                    <div class="si-data-label listings category">Excepteur</div>
+                                    <div class="si-data-label listings rooms">
+                                        <div class="room bed"><i class="icon fal fa-fw fa-bed"></i> <span class="count">2</span></div>
+                                        <div class="room bath"><i class="icon fal fa-fw fa-bath"></i> <span class="count">1</span></div>
+                                    </div>
+                                    <div class="si-data-label listings subcategory">Sint occaecat</div>
                                 </div>
                             </a>
                         </article>
                     </div>
-                    <div>
-                        <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
-                            <a href="#">
-                            <div class="item-content">
-                                    <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                    <div class="si-data-label">Excepteur sint occaecat</div>
-                                </div>
-                            </a>
-                        </article>
-                    </div>
-                    <div>
-                    <article class="si-item si-single-layer-item-layout  style-standard img-hover-effect-none">
-                            <a href="#">
-                                <div class="item-content">
-                                    <div class="image"><i class="fal fa-5x fa-image"></i></div>
-                                    <div class="si-data-label si-background-low-contrast">quis nostrud exercitation</div>
-                                    <div class="si-data-label si-background-high-contrast">Lorem ipsum</div>
-                                    <div class="si-data-label">Excepteur sint occaecat</div>
-                                </div>
-                            </a>
-                        </article>
-                    </div>
+                    <# }) #>
                 </div>
             </div>
             <div class="si-control-preview-hint">
