@@ -878,9 +878,9 @@ siApp
 
 
 siApp
-.directive('siMap', function siMap( $siTemplate, $siUtils, $siDictionary,$siHooks,$siConfig){
+.directive('siMap', function siMap( ){
     const dir_controller = 
-    function($scope, $q, $siApi, $rootScope){
+    function($scope, $q, $siApi, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
         $scope.ready = false;
         $scope.is_visible = false;
         $scope.zoom = 8;
@@ -1217,9 +1217,11 @@ siApp
 
         $scope.pinClick = function($marker){
             //console.log('Marker clicked', $marker);
+            //$scope.showListing($marker.obj.id);
 
             $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
-                let lInfoWindowScope = $siUtils;
+                
+                let lInfoWindowScope = $siCompiler;
                 $siDictionary.source = $response.dictionary;
 
                 lInfoWindowScope.compileListingItem($response);
@@ -1237,6 +1239,10 @@ siApp
             });
 
             
+        }
+
+        $scope.showListing = function(){
+
         }
 
 
@@ -1395,7 +1401,7 @@ siApp
             zoom: '@'
         },
         controllerAs: 'ctrl',
-        template: '<div><div id="map-{{alias}}" class="viewport"></div></div>',
+        template: '<div class="si-map-container"><div id="map-{{alias}}" class="viewport"></div></div>',
         controller: dir_controller,
         link: function($scope, element){
             $scope.viewport_element = element.children()[0];
