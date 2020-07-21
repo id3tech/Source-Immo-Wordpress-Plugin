@@ -185,7 +185,7 @@
             --input-count: 5;
             display:grid;
             grid-template-columns: 1fr auto repeat(var(--input-count), auto);
-            gap:var(--layout-gutter);
+            gap:calc(var(--layout-gutter) / 4);
             place-items: center stretch;
             
             &.no-searchbox{

@@ -514,7 +514,7 @@ html { font-size: 14px; }
 
 #top .si .search-container .main-filter-tabs.si-tab-count-1, .si .search-container .main-filter-tabs.si-tab-count-1 { display: none; }
 
-#top .si .search-container .inputs, .si .search-container .inputs { --input-count: 5; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto (auto)[var]; grid-template-columns: 1fr auto repeat(var(--input-count), auto); gap: var(--layout-gutter); place-items: center stretch; }
+#top .si .search-container .inputs, .si .search-container .inputs { --input-count: 5; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto (auto)[var]; grid-template-columns: 1fr auto repeat(var(--input-count), auto); gap: calc(var(--layout-gutter) / 4); place-items: center stretch; }
 
 #top .si .search-container .inputs.no-searchbox, .si .search-container .inputs.no-searchbox { -ms-grid-columns: auto (auto)[var] 1fr; grid-template-columns: auto repeat(var(--input-count), auto) 1fr; }
 
