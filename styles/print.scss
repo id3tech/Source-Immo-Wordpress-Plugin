@@ -327,6 +327,7 @@ html.print{
             }
 
             
+            
         }
         .icon-grid{
             display:grid;
@@ -368,7 +369,12 @@ html.print{
         .grid-layout{
             display:grid;
         }
-
+        .si-auto-columns{
+            display:grid;
+            grid-auto-flow: column;       
+            grid-auto-columns: 1fr;
+        }
+        
         .notepad{
             position:relative;
             overflow:hidden;

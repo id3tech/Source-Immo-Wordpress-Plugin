@@ -1089,7 +1089,7 @@
                 //@include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
 
                 gap: 0 var(--layout-gutter);
-                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-columns: 1fr;
                 @include media($tablet){
                     grid-template-columns: unset;
                     grid-auto-flow: row;
@@ -1106,13 +1106,6 @@
                     }
                 }
                 
-                .rooms, .area-filters, .attribute, .filters{
-                    grid-column: 1 / span 3;
-                    @include media($tablet){
-                        grid-column: 1;
-                    }
-                }
-
                 h4{
                     text-align:right;
                 }

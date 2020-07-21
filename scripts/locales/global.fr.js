@@ -448,6 +448,7 @@ $locales.fr = {};$locales.fr.global =
     , "Search" : "Recherche"
     , "Filter by" : "Filtrez par"
     , "Toggle proximity search" : "Basculer la recherche de proximité"
+    , "Reset filters" : "Effacer les filtres"
     , "{0}+ bedrooms" : "{0}+ chambres"
     , "{0}+ bathrooms" : "{0}+ salles de bains"
     , "{0} bedroom" : "{0} chambre"

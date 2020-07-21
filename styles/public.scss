@@ -1634,6 +1634,17 @@ html{
     text-align:center;
 }
 
+.si-auto-columns{
+    display:grid;
+    grid-auto-flow: column;       
+    grid-auto-columns: 1fr;
+    gap: var(--layout-gutter);
+
+    @include media($phone){
+        grid-auto-flow:row;
+        gap:calc(var(--layout-gutter) / 2);
+    }
+}
 
 
 @import "public/_components";

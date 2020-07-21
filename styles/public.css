@@ -801,7 +801,7 @@ html { font-size: 14px; }
 
 @media screen and (max-width: 640px) { #top .si .filter-panel.categories-panel .filter-panel-content .list-container, .si .filter-panel.categories-panel .filter-panel-content .list-container { -ms-grid-columns: 1fr; grid-template-columns: 1fr; place-items: center stretch; } }
 
-#top .si .filter-panel.others-panel .filter-panel-content, .si .filter-panel.others-panel .filter-panel-content { display: -ms-grid; display: grid; place-items: start stretch; gap: 0 var(--layout-gutter); -ms-grid-columns: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; }
+#top .si .filter-panel.others-panel .filter-panel-content, .si .filter-panel.others-panel .filter-panel-content { display: -ms-grid; display: grid; place-items: start stretch; gap: 0 var(--layout-gutter); -ms-grid-columns: 1fr; grid-template-columns: 1fr; }
 
 @media screen and (max-width: 800px) { #top .si .filter-panel.others-panel .filter-panel-content, .si .filter-panel.others-panel .filter-panel-content { -ms-grid-columns: unset; grid-template-columns: unset; grid-auto-flow: row; grid-auto-rows: -webkit-max-content; grid-auto-rows: max-content; } }
 
@@ -810,10 +810,6 @@ html { font-size: 14px; }
 #top .si .filter-panel.others-panel .filter-panel-content .filter-row .grid-layout-column, .si .filter-panel.others-panel .filter-panel-content .filter-row .grid-layout-column { gap: 0px; }
 
 #top .si .filter-panel.others-panel .filter-panel-content .filter-row.land-area, #top .si .filter-panel.others-panel .filter-panel-content .filter-row.building-area, #top .si .filter-panel.others-panel .filter-panel-content .filter-row.attribute, #top .si .filter-panel.others-panel .filter-panel-content .filter-row.filters, .si .filter-panel.others-panel .filter-panel-content .filter-row.land-area, .si .filter-panel.others-panel .filter-panel-content .filter-row.building-area, .si .filter-panel.others-panel .filter-panel-content .filter-row.attribute, .si .filter-panel.others-panel .filter-panel-content .filter-row.filters { margin-top: calc(var(--layout-gutter) / 2); }
-
-#top .si .filter-panel.others-panel .filter-panel-content .rooms, #top .si .filter-panel.others-panel .filter-panel-content .area-filters, #top .si .filter-panel.others-panel .filter-panel-content .attribute, #top .si .filter-panel.others-panel .filter-panel-content .filters, .si .filter-panel.others-panel .filter-panel-content .rooms, .si .filter-panel.others-panel .filter-panel-content .area-filters, .si .filter-panel.others-panel .filter-panel-content .attribute, .si .filter-panel.others-panel .filter-panel-content .filters { -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; }
-
-@media screen and (max-width: 800px) { #top .si .filter-panel.others-panel .filter-panel-content .rooms, #top .si .filter-panel.others-panel .filter-panel-content .area-filters, #top .si .filter-panel.others-panel .filter-panel-content .attribute, #top .si .filter-panel.others-panel .filter-panel-content .filters, .si .filter-panel.others-panel .filter-panel-content .rooms, .si .filter-panel.others-panel .filter-panel-content .area-filters, .si .filter-panel.others-panel .filter-panel-content .attribute, .si .filter-panel.others-panel .filter-panel-content .filters { -ms-grid-column: 1; grid-column: 1; } }
 
 #top .si .filter-panel.others-panel .filter-panel-content h4, .si .filter-panel.others-panel .filter-panel-content h4 { text-align: right; }
 
@@ -1762,6 +1758,10 @@ html { font-size: 14px; }
 #top .si-favorites-panel.opened .list-container .si-item .remove-button, .si-favorites-panel.opened .list-container .si-item .remove-button { opacity: 1; pointer-events: auto; }
 
 #top .si-loading, .si-loading { text-align: center; }
+
+.si-auto-columns { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--layout-gutter); }
+
+@media screen and (max-width: 640px) { .si-auto-columns { grid-auto-flow: row; gap: calc(var(--layout-gutter) / 2); } }
 
 #top .si-tabs .si-tab-button-container, .si-tabs .si-tab-button-container { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; border-bottom: solid 1px var(--element-border-color); }
 

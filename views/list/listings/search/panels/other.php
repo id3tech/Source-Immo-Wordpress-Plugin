@@ -36,40 +36,40 @@ $panelKey = 'others';
             </div>
         </div>
 
+        <div class="si-auto-columns">
+            <div class="transaction filter-row" ng-if="listing_states">
+                <si-input-container>
+                    <label><?php _e('Transaction type',SI) ?></label>
+                    <si-select class="si-input" si-model="filter.data.transaction_type" si-change="filter.update()">
+                        <si-option value=""><?php _e('Any',SI) ?></si-option>
+                        <si-option ng-repeat="item in listing_states" value="{{item.key}}">{{item.caption}}</si-option>
+                    </si-select>
+                </si-input-container>
+            </div>
 
-        <div class="transaction filter-row" ng-if="listing_states">
-            <si-input-container>
-                <label><?php _e('Transaction type',SI) ?></label>
-                <si-select class="si-input" si-model="filter.data.transaction_type" si-change="filter.update()">
-                    <si-option value=""><?php _e('Any',SI) ?></si-option>
-                    <si-option ng-repeat="item in listing_states" value="{{item.key}}">{{item.caption}}</si-option>
-                </si-select>
-            </si-input-container>
+            <div class="age filter-row" ng-if="listing_ages">
+                <si-input-container>
+                    <label><?php _e('Online since',SI) ?></label>
+                    <si-select class="si-input" si-model="filter.data.contract" si-change="filter.update()">
+                        <si-option value=""><?php _e('Any',SI) ?></si-option>
+                        <si-option ng-repeat="item in listing_ages" value="{{item.key}}">{{item.caption}}</si-option>
+                    </si-select>
+                </si-input-container>
+
+            </div>
+
+            <div class="parkings filter-row" ng-if="parkingSuggestions">
+                <si-input-container>
+                    <label><?php _e('Parkings',SI) ?></label>
+                    <si-select class="si-input" si-model="filter.data.parkings" si-change="filter.update()">
+                        <si-option value=""><?php _e('Any',SI) ?></si-option>
+                        <si-option ng-repeat="item in parkingSuggestions" value="{{item.value}}">{{item.label}}</si-option>
+                    </si-select>
+                </si-input-container>
+            </div>
+
+            
         </div>
-
-        <div class="age filter-row" ng-if="listing_ages">
-            <si-input-container>
-                <label><?php _e('Online since',SI) ?></label>
-                <si-select class="si-input" si-model="filter.data.contract" si-change="filter.update()">
-                    <si-option value=""><?php _e('Any',SI) ?></si-option>
-                    <si-option ng-repeat="item in listing_ages" value="{{item.key}}">{{item.caption}}</si-option>
-                </si-select>
-            </si-input-container>
-
-        </div>
-
-        <div class="parkings filter-row" ng-if="parkingSuggestions">
-            <si-input-container>
-                <label><?php _e('Parkings',SI) ?></label>
-                <si-select class="si-input" si-model="filter.data.parkings" si-change="filter.update()">
-                    <si-option value=""><?php _e('Any',SI) ?></si-option>
-                    <si-option ng-repeat="item in parkingSuggestions" value="{{item.value}}">{{item.label}}</si-option>
-                </si-select>
-            </si-input-container>
-
-
-        </div>
-
         <div class="area-filters">
 
             <div class="land-area filter-row" ng-if="!allowPanel('areas')">
