@@ -443,10 +443,13 @@ siApp
         $scope.closeWithValue = function(){
             //console.log('close with value',typeof($scope.onOK))
             
-            if($scope.forms.modalForm.$valid){
+            if($scope.forms.modalForm != undefined && $scope.forms.modalForm.$valid){
                 if(typeof($scope.onOK)=='function'){
                     $scope.onOK();
                 }
+                $scope.close();
+            }
+            else{
                 $scope.close();
             }
         }

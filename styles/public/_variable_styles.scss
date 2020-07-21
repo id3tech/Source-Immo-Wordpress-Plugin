@@ -94,4 +94,14 @@
       }
     }
 
+    .si-hover-shade{
+        transition:0.25s;
+        
+        &:hover{
+            border-radius: var(--element-border-radius);
+            background:var(--small-contrast-color);
+            --text-color: var(--small-contrast-text-color);
+        }
+    }
+
 }

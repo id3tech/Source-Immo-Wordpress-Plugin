@@ -8,29 +8,16 @@
                 {{tab.caption | translate}}
         </div>
 
-
-        <!-- <div class="si-tab {{current_main_filter == 'for-sale' ? 'active' : ''}}"
-                ng-click="selectMainFilter('for-sale')" 
-                ng-if="configs.search_engine_options.tabs.includes('for-sale')"><?php _e('For sale',SI) ?></div>
-        <div class="si-tab {{current_main_filter == 'for-rent' ? 'active' : ''}}" 
-                ng-click="selectMainFilter('for-rent')"
-                ng-if="configs.search_engine_options.tabs.includes('for-rent')"><?php _e('For rent',SI) ?></div>
-        <div class="si-tab {{current_main_filter == 'RES' ? 'active' : ''}}" 
-                ng-click="selectMainFilter('RES')"
-                ng-if="configs.search_engine_options.tabs.includes('RES')"><?php _e('Residential',SI) ?></div>
-        <div class="si-tab {{current_main_filter == 'COM' ? 'active' : ''}}"
-                ng-click="selectMainFilter('COM')" 
-                ng-if="configs.search_engine_options.tabs.includes('COM')"><?php _e('Commercial',SI) ?></div>
-        <div class="si-tab {{current_main_filter == 'IND' ? 'active' : ''}}" 
-                ng-click="selectMainFilter('IND')"
-                ng-if="configs.search_engine_options.tabs.includes('IND')"><?php _e('Industrial',SI) ?></div> -->
+        <div class="si-dropdown" data-show-button-icon="false">
+            <div class="dropdown-button"><i class="far fa-ellipsis-h"></i></div>
+            <div class="si-dropdown-panel">
+                <div class="dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
+                        ng-repeat="tab in configs.search_engine_options.tabs track by $index"
+                        ng-click="selectView(tab.view_id)">
+                        {{tab.caption | translate}}</div>
+            </div>
+        </div>
         
-        <si-select si-model="current_view_id" si-change="selectView(current_view_id)">
-                <si-option ng-repeat="tab in configs.search_engine_options.tabs track by $index"
-                        ng-value="tab.view_id">
-                        {{tab.caption | translate}}
-                </si-option>
-        </si-select>
     </div>
 
     <div class="inputs" style="--input-count: {{getInputCount()}}">
@@ -39,36 +26,32 @@
             <si-search-box 
                     alias="<?php echo $configs->alias ?>"></si-search-box>
             
-            <i class="geo-btn far fa-crosshairs {{data.location!=null ? 'active' : ''}}" data-ng-show="geolocation_available" data-ng-click="filter.addGeoFilter()"></i>
+            
         </div>
 
-        <div class="si-filter-label">
-                <span class="label"><?php _e("Filter by",SI) ?></span>
-        </div>
-        <div class="si-panel-button cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}"  
+        <si-geo-filter si-alias="<?php echo $configs->alias ?>"></si-geo-filter>
+
+        <div class="si-panel-button si-hover-shade cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}"  
                 ng-if="allowPanel('cities')"
-                ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
+                ng-click="toggleExpand($event,'cities')"><span><?php _e('Cities', SI) ?></span> <i class="fal fa-angle-down"></i></div>
     
-        <div class="si-panel-button price-button {{isExpanded('price')}} {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}"  
+        <div class="si-panel-button si-hover-shade price-button {{isExpanded('price')}} {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}"  
                 ng-if="allowPanel('price')"
-                ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
+                ng-click="toggleExpand($event,'price')"><span><?php _e('Price', SI) ?></span> <i class="fal fa-angle-down"></i></div>
     
-        <div class="si-panel-button category-button {{isExpanded('categories')}} {{filter.hasFilter(['categories','building_categories','subcategories']) ? 'has-filters' : ''}}"  
+        <div class="si-panel-button si-hover-shade category-button {{isExpanded('categories')}} {{filter.hasFilter(['categories','building_categories','subcategories']) ? 'has-filters' : ''}}"  
                 ng-if="allowPanel('categories')"
-                ng-click="toggleExpand($event,'categories')"><?php _e('Types', SI) ?></div>
+                ng-click="toggleExpand($event,'categories')"><span><?php _e('Types', SI) ?></span> <i class="fal fa-angle-down"></i></div>
         
-        <div class="si-panel-button rooms-button {{isExpanded('rooms')}} {{filter.hasFilter(['bedrooms','bathrooms']) ? 'has-filters' : ''}}"
-                ng-if="allowPanel('rooms')"
-                ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></div>
-
-        <div class="si-panel-button areas-button {{isExpanded('areas')}} {{filter.hasFilter(['available_min','available_max','land_min','land_max']) ? 'has-filters' : ''}}" 
+        
+        <div class="si-panel-button si-hover-shade areas-button {{isExpanded('areas')}} {{filter.hasFilter(['available_min','available_max','land_min','land_max']) ? 'has-filters' : ''}}" 
                 ng-if="allowPanel('areas')"
-                ng-click="toggleExpand($event,'areas')"><?php _e('Areas', SI) ?></div>
+                ng-click="toggleExpand($event,'areas')"><span><?php _e('Areas', SI) ?></span> <i class="fal fa-angle-down"></i></div>
 
         
-        <div class="si-panel-button more-button {{isExpanded('others')}} 
+        <div class="si-panel-button si-hover-shade more-button {{isExpanded('others')}} 
                 {{ filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}"
-                ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
+                ng-click="toggleExpand($event,'others')"><i class="fal fa-ellipsis-h-alt"></i></div>
     
 
         
@@ -114,11 +97,6 @@
     ?>
 
 
-    <!-- Price -->
-    <?php
-    SourceImmo::view("list/listings/search/panels/price");
-    ?>
-
     
     <!-- Category -->
     <?php
@@ -126,11 +104,11 @@
     ?>
 
 
-    <!-- Rooms -->
+    
+    <!-- Price -->
     <?php
-    SourceImmo::view("list/listings/search/panels/rooms");
+    SourceImmo::view("list/listings/search/panels/price");
     ?>
-
 
     <!-- Areas -->
     <?php

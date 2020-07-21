@@ -778,7 +778,7 @@ siApp
                     //     console.log('Closest parent clicked');
                     //     $rootScope.$broadcast('close-dropdown', null);
                     // })
-                    
+                    const lBaseZIndex = 1000;
                     const lElmZIndex = $siUtils.elmOffsetZIndex($scope.$element);
 
                     $scope.extractMenu($scope.$element).then(function($menuElm){
@@ -787,16 +787,16 @@ siApp
                         //console.log('Elm z-index', lElmZIndex);
     
                         if(lElmZIndex != 'auto'){
-                            lMenuElm.style.zIndex = Number(lElmZIndex) + 10;
+                            lMenuElm.style.zIndex = lBaseZIndex + Number(lElmZIndex) + 10;
                         }
                         else{
-                            lMenuElm.style.zIndex = 100;
+                            lMenuElm.style.zIndex = lBaseZIndex + 100;
                         }
                         
                         
                         const lClickTrap = $scope.ensureClickTrap();
                         lClickTrap.classList.add('active');
-                        if(lElmZIndex != 'auto') lClickTrap.style.zIndex = Number(lElmZIndex) + 5;
+                        if(lElmZIndex != 'auto') lClickTrap.style.zIndex = lBaseZIndex + Number(lElmZIndex) + 5;
                         lClickTrap.addEventListener('click',function($event){
                             lMenuElm.classList.remove('expanded');
                             //$rootScope.$broadcast('close-dropdown', null);

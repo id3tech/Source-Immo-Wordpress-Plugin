@@ -1,10 +1,11 @@
-<div class="in-exclusions detail-section {{sectionOpened('in_exclusions')?'opened':''}}"  
+<div class="in-exclusions si-detail-section {{sectionOpened('in_exclusions')?'opened':''}}"
+    data-ng-if="isAvailableSection('in_exclusions')"
     data-ng-show="[model.inclusions, model.exclusions] | siHasValue">
-    <div class="title" data-ng-click="toggleSection('in_exclusions')">
+    <div class="si-title" data-ng-click="toggleSection('in_exclusions')">
         <div><?php _e('Inclusions & exclusions',SI) ?></div> 
-        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
-    <div class="detail-section-content">
+    <div class="si-detail-section-content">
         <div class="spec" data-ng-show="model.inclusions!=undefined">
             <label><?php _e('Inclusions',SI) ?></label>
             <div>{{model.inclusions}}</div>

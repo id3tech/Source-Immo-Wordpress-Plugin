@@ -139,16 +139,7 @@ function singleListingCtrl(
     $scope.permalinks = null;
     $scope.configs = null;
     
-    // ui - section toggles
-    $scope.sections = {
-        addendum : {opened:false},
-        building : {opened:false},
-        lot : {opened:false},
-        other: {opened: false},
-        in_exclusions:{opened:false},
-        rooms:{opened:false},
-        financials: {opened:false}
-    }
+    
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
     // calculator result
@@ -445,21 +436,7 @@ function singleListingCtrl(
         return $data;
     }
 
-    /**
-     * Check if a section is opened
-     * @param {string} $section Section key
-     */
-    $scope.sectionOpened = function($section){
-        if($scope.sections[$section] == undefined) return false;
-        return $scope.sections[$section].opened;
-    }
-    /**
-     * Toggle section open/close
-     * @param {string} $section Section key
-     */
-    $scope.toggleSection = function($section){
-        $scope.sections[$section].opened = !$scope.sections[$section].opened;
-    }
+    
 
     /**
      * Event handler for Mortgage Calculator onChange
@@ -784,20 +761,20 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
         return false;
     }
 
-    /**
-     * Check if a section is opened
-     * @param {string} $section Section key
-     */
-    $scope.sectionOpened = function($section){
-        return $scope.sections[$section].opened;
-    }
-    /**
-     * Toggle section open/close
-     * @param {string} $section Section key
-     */
-    $scope.toggleSection = function($section){
-        $scope.sections[$section].opened = !$scope.sections[$section].opened;
-    }
+    // /**
+    //  * Check if a section is opened
+    //  * @param {string} $section Section key
+    //  */
+    // $scope.sectionOpened = function($section){
+    //     return $scope.sections[$section].opened;
+    // }
+    // /**
+    //  * Toggle section open/close
+    //  * @param {string} $section Section key
+    //  */
+    // $scope.toggleSection = function($section){
+    //     $scope.sections[$section].opened = !$scope.sections[$section].opened;
+    // }
 
     /**
      * Event handler for Mortgage Calculator onChange

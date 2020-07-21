@@ -1,7 +1,14 @@
 
     <?php 
     if($configs->searchable){ 
-        echo('<si-search data-si-alias="'. $configs->alias . '" data-si-configs="configs" data-si-dictionary="dictionary" class="search-container"></si-search>');
+        $searchContainerClasses = ['search-container'];
+        if(isset($configs->search_engine_options)){
+            if(isset($configs->search_engine_options->tabs) && count($configs->search_engine_options->tabs)>0){
+                $searchContainerClasses[] = 'si-has-tabs';
+            }
+        }
+
+        echo('<si-search data-si-alias="'. $configs->alias . '" data-si-configs="configs" data-si-dictionary="dictionary" class="'. implode(' ', $searchContainerClasses) .'"></si-search>');
     
         if($configs->search_engine_options->filter_tags == 'outside'){
             echo('<si-search-filter-tags si-alias="' .  $configs->alias . '"></si-search-filter-tags>');

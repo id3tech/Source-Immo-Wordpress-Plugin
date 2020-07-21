@@ -25,6 +25,7 @@ $locales.fr.global = Object.assign($locales.fr.global,
         , "Format text" : "Texte de formattage"
 
         , "Source.Immo - Single container" : "Source.Immo - Conteneur d'un élément"
+        , "Part" : "Partie"
         , "Loading text" : "Texte de chargement"
         , "Broker" : "Courtier"
         , "Listing" : "Propriété"

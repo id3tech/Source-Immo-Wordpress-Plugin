@@ -20,5 +20,4 @@
 
 <?php echo do_shortcode('[si_listing_part part="list_navigation"]'); ?>
 
-<?php echo do_shortcode('[si_listing_part part="info_request_modal"]'); ?>
-<?php echo do_shortcode('[si_listing_part part="share_modal"]'); ?>
+

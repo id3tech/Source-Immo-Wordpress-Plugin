@@ -1405,36 +1405,208 @@ siApp
 });
 
 
+siApp
+.directive('siDataAccordeon',['$parse',
+function siDataAccordeon($parse){
+    return {
+        restrict: 'E',
+        scope:true,
+        link: function($scope,$element,$attrs){
+            $scope.$element = $element[0];
+
+            $scope.allowToggle = $parse($attrs.siAllowToggle)($scope);
+            const lTabs = $parse($attrs.siTabs)($scope);
+            if(lTabs != null){
+                $scope.tabs = lTabs.filter(function($t){ return $t != ''});
+            }
+            
+
+            $scope.init();
+        },
+        controller: function($scope,$rootScope){
+            // ui - section toggles
+            $scope.sections = {
+                addendum : {opened:false},
+                building : {opened:false},
+                lot : {opened:false},
+                other: {opened: false},
+                in_exclusions:{opened:false},
+                rooms:{opened:false},
+                expenses: {opened:false},
+                financials: {opened:false}
+            }
+
+            $scope.init = function(){
+                console.log('siDataAccordeon/init');
+                
+                window.addEventListener('load', function(){
+                    $scope.applyAllowToggles();
+                });
+
+                window.addEventListener('resize', function(){
+                    $scope.applyAllowToggles();
+                });
+                
+            }
+
+            $scope.isAvailableSection = function($section){
+                if($scope.tabs == undefined) return true;
+                if($scope.tabs.length == 0) return true;
+
+                return $scope.tabs.includes($section);
+            }
+            
+
+            $scope.applyAllowToggles = function(){
+                console.log('applyAllowToggles',$scope.allowToggle, window.innerWidth);
+                let lAllowToggle = true;
+                if($scope.allowToggle != undefined){
+                    lAllowToggle = $scope.allowToggle.desktop === 'yes';
+                    if(window.innerWidth <= 800 && $scope.allowToggle.tablet === 'yes'){
+                        lAllowToggle = true;
+                    }
+                    if(window.innerWidth <= 640 && $scope.allowToggle.mobile === 'yes'){
+                        lAllowToggle = true;
+                    }
+                }
+                console.log('applyAllowToggles',lAllowToggle);
+
+                if(lAllowToggle != true){
+                    
+                    Array.from($scope.$element.querySelectorAll('.si-detail-section')).forEach(
+                        function($elm){
+                            $elm.classList.add('opened');
+                            $elm.classList.add('no-toggle');
+                        }
+                    );
+                }
+                else{
+                    Array.from($scope.$element.querySelectorAll('.si-detail-section')).forEach(
+                        function($elm){
+                            $elm.classList.remove('opened');
+                            $elm.classList.remove('no-toggle');
+                        }
+                    );
+                }
+            }
+
+            /**
+             * Check if a section is opened
+             * @param {string} $section Section key
+             */
+            $scope.sectionOpened = function($section){
+                //console.log('siDataAccordeon/sectionOpened',$section);
+
+                if($scope.sections[$section] == undefined) return false;
+                return $scope.sections[$section].opened;
+            }
+            /**
+             * Toggle section open/close
+             * @param {string} $section Section key
+             */
+            $scope.toggleSection = function($section){
+                //console.log('siDataAccordeon/toggleSection',$section);
+
+                $scope.sections[$section].opened = !$scope.sections[$section].opened;
+            }
+        }
+    }
+}])
+
 
 siApp
-.directive('siMediabox',[
-function siMediabox(){
+.directive('siMediabox',['$parse',
+function siMediabox($parse){
     return {
         restrict : 'E',
         scope : {
             model: '=siModel',
             defaultTab: '@siDefaultTab',
-            tabs: '=siTabs',
+            height: '@siHeight',
             pictureListDisplay: '@siPictureListAs'
         },
         link: function ($scope,$elm, $attrs){
             $scope.$element = $elm;
+            const lTabs = $parse($attrs.siTabs)($scope);
+            if(lTabs != null){
+                $scope.tabs = lTabs.filter(function($t){ return $t != ''});
+                if($scope.tabs.length == 0){
+                    $scope.tabs = ['pictures','video','virtual-tours','streetview','map'];
+                }
+            }
+
             $scope.init();
         },
         templateUrl: siCtx.base_path + 'views/ang-templates/si-mediabox.html?v=2',
         replace: true,
-        controller : function($scope, $siConfig){
+        controller : function($scope, $siConfig,$timeout){
             $scope.selected_media = $scope.defaultTab || 'pictures';
             $scope.video_player = null;
             $scope._initialized = false;
 
             $scope.init = function(){
-                const cFirstTab = $scope.tabs ? $scope.tabs[0] : 'pictures';
-                $scope.selectMedia($scope.defaultTab || cFirstTab);
+                $scope.height = (isNullOrEmpty($scope.height)) ? '{"desktop":"460px","tablet":"460px","mobile":"500px"}' : $scope.height;
+                
+                if($scope.height.indexOf('{') < 0){
+                    $scope.$element[0].style.setProperty('--viewport-height', $scope.height);
+                }
+                else{
+                    const lHeight = JSON.parse($scope.height.replace(/'/g,'"'));
+                    Object.keys(lHeight).forEach(function($k){
+                        if($k == 'desktop'){
+                            $scope.$element[0].style.setProperty('--viewport-height', lHeight.desktop);
+                        }
+                        else{
+                            $scope.$element[0].style.setProperty('--viewport-height-' + $k, lHeight[$k]);
+                        }
+                    })
+                }
+                
+                window.addEventListener('resize', function(){
+                    $timeout(function(){
+                        $scope.selectFirstTab();
+                    });
+                });
+                $scope.selectFirstTab();
+
                 $siConfig.get().then(function($configs){
                     $scope._initialized = true;
                     $scope.configs = $configs;
                 });
+            }
+
+            $scope.selectFirstTab = function(){
+                const cFirstTab = $scope.tabs 
+                                    ? $scope.getVisibleTabs().firstOrDefault('pictures')
+                                    : 'pictures';
+                
+                console.log('selectFirstTab', cFirstTab);
+                $scope.selectMedia($scope.defaultTab || cFirstTab);
+            }
+
+            $scope.getVisibleTabs = function(){
+                if(!$scope.tabs) return null;
+
+                const lSizeMaps = {
+                    desktop : function(){ return window.innerWidth > 800},
+                    tablet : function(){ return window.innerWidth <= 800 && window.innerWidth > 640},
+                    mobile : function(){ return window.innerWidth <= 640}
+                }
+
+                return Object.keys(lSizeMaps).filter(function($k){
+                    return lSizeMaps[$k]();
+                })
+                .reduce(function($result, $k){
+                    const fnCheck = function($tab){
+                        return $tab.indexOf('-' + $k)>0;
+                    };
+                    if($scope.tabs.some(fnCheck)){
+                        return $scope.tabs.filter(fnCheck);
+                    }
+                    
+                    return $scope.tabs;
+                },[]);
+
             }
         
             $scope.tabIsAvailable = function($name){
@@ -1443,16 +1615,26 @@ function siMediabox(){
                         if($scope.configs.map_api_key == '') return false;
                     }
                 }
-
+                
                 if(!$scope.tabs) return true;
+                if(window.innerWidth <= 800 && window.innerWidth > 640){
+                    return $scope.tabs.some(function($t) {return $t == $name + '-tablet'});
+                }
+                if(window.innerWidth <= 640){
+                    return $scope.tabs.some(function($t) {return $t == $name + '-mobile'});
+                }
+
                 return $scope.tabs.some(function($t) {return $t == $name});
             }
 
+            
+
             $scope.selectMedia = function($media){
+                $media = $media.replace(/-tablet|-mobile/,'');
                 $scope.selected_media = $media;
                 
                 const lTrigger = 'si-display-' + $media;
-                //console.log('triggering', lTrigger);
+                
 
                 if($scope._initialized){
                     $scope.$broadcast(lTrigger);

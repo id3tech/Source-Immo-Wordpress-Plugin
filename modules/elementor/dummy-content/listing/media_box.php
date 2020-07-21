@@ -1,14 +1,14 @@
 <div class="medias select-pictures picture-list-grid" si-model="model" si-picture-list-as="grid">
             <div class="tabs">
-                <span class="tab pictures selected" data-ng-show="tabIsAvailable('pictures')" data-ng-click="selectMedia('pictures')">
+                <span class="tab pictures selected">
                     <i class="fal fa-camera"></i> <span class="ng-binding">Photos (17)</span></span>
-                <span class="tab videos  ng-hide" data-ng-show="tabIsAvailable('video') &amp;&amp; model.video!=undefined" data-ng-click="selectMedia('videos')">
+                <span class="tab videos">
                     <i class="fal fa-video"></i> <span class="ng-binding">Video</span></span>
-                <span class="tab virtual-tours  ng-hide" data-ng-show="tabIsAvailable('virtual-tours') &amp;&amp; model.virtual_tour!=undefined" data-ng-click="selectMedia('virtual-tours')">
+                <span class="tab virtual-tours">
                     <i class="fal fa-street-view"></i> <span class="ng-binding">Visite virtuelle</span></span>
-                <span class="tab streetview  ng-hide" data-ng-show="tabIsAvailable('streetview')" data-ng-click="selectMedia('streetview')">
+                <span class="tab streetview">
                     <i class="fal fa-street-view"></i> <span class="ng-binding">Vue du quartier</span></span>
-                <span class="tab map  ng-hide" data-ng-show="tabIsAvailable('map')" data-ng-click="selectMedia('map')">
+                <span class="tab map">
                     <i class="fal fa-map"></i> <span class="ng-binding">Carte</span></span>
             </div>
             <div class="viewport">

@@ -1,6 +1,9 @@
 // enfold fixes
-.responsive{
-    #wpadminbar{width:100vw;overflow:hidden;}
+html body.admin-bar.logged-in, .responsive{
+    #wpadminbar{
+        width:100vw;overflow:hidden;
+        z-index:1000;
+    }
 }
 #top{
     &.single-listings,

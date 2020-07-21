@@ -575,6 +575,9 @@ siApp
                         // broadcast new search token
                         //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', lStoredSearchToken);
                     }
+
+                    $scope._element.classList.add('si-ready');
+
                 });
 
                 // bind events
@@ -842,6 +845,7 @@ siApp
                     console.log('meta loaded');
                     
                     $rootScope.$broadcast('si-{0}-view-change'.format($scope.alias), $view_id);
+                    $rootScope.$broadcast('si/{0}:viewChanged'.format($scope.alias), $view_id);
                 });
                 
                 $timeout(function(){
@@ -931,7 +935,7 @@ siApp
 
             
             $scope.getOtherPanelFilterList = function(){
-                const lList = ['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max'];
+                const lList = ['transaction_type','bedrooms','bathrooms','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max'];
                 return lList
                     .filter(function($item){
                         return $scope.viewFilters.every(function($f){
@@ -1558,7 +1562,7 @@ siApp
                     'listings' : {
                         default: 5,
                         potentialInputs: function(){
-                            return ['cities','prices','categories','rooms','more']
+                            return ['cities','prices','categories','more']
                                 .filter(function($panelName){
                                     return $scope.allowPanel($panelName);
                                 }).length + 1;
@@ -2307,8 +2311,14 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope.stored_suggestions = null;
             $scope._suggestion_list_el = null;
 
+            $scope._view_id = null;
+
             $scope.init = function(){
-                
+                $scope.$on('si/{0}:viewChanged'.format($scope.alias), function($event, $view_id){
+                    console.log('siSearchbox/init/@si/[alias]:viewChanged',$view_id);
+                    $scope.updateViewMeta();
+                });
+
                 $scope.isReady().then(function(){
                     $siFilters.with($scope.alias, $scope, function ($filter){
                         $scope.filter = $filter;
@@ -2362,6 +2372,11 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         }, 200);
                     });
                     
+                    if(typeof ResizeObserver !== 'undefined'){
+                        new ResizeObserver(function(){
+                            $scope.updateSuggestionPanelPosition();
+                        }).observe(lInput[0]);
+                    }
 
                     $scope.$broadcast('search-is-ready');
                 });
@@ -2388,13 +2403,10 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                             $siFilters.with($scope.alias, $scope).configs = $configs;
                             
                             $scope.placeholder = ($scope.placeholder != undefined) ? $scope.placeholder :$configs.search_engine_options.search_box_placeholder;
-
-
-                            $siApi.getViewMeta($configs.type,$configs.source.id).then(function($response){
-                                //$siDictionary.init($response.dictionary);
-                                $scope.dictionary = $response.dictionary; // save dictionary
-                                // directive is ready
+                            
+                            $scope.updateViewMeta().then(function(){
                                 $scope.is_ready = true;
+                                // directive is ready
                                 $resolve();
                             });
                         });
@@ -2417,6 +2429,20 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
                 
                 return 'top:{0}px;padding-top:{1}px;left:{2}px;width:{3}px;'.format(lRect.top, lRect.height - 1, lRect.left, lRect.width);
+            }
+
+            $scope.updateViewMeta = function(){
+                const lViewId = ($scope.configs.current_view != undefined)
+                                    ? $scope.configs.current_view
+                                    : $scope.configs.source.id;
+
+                return $q( function($resolve,$reject){
+                    $siApi.getViewMeta($scope.configs.type,lViewId).then(function($response){
+                        $scope.dictionary = $response.dictionary; // save dictionary
+                        
+                        $resolve();
+                    });
+                })
             }
             
 
@@ -2507,18 +2533,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     angular.element('body').append($scope._suggestion_list_el);
                 }
                 
-                const lMainElmRect = $scope._el.getBoundingClientRect();
-                const lRect = {
-                    width: lMainElmRect.width,
-                    height: lMainElmRect.height,
-                    top: lMainElmRect.top,
-                    left: lMainElmRect.left
-                }
-                
-                Object.keys(lRect).forEach(function($k){
-                    $scope._suggestion_list_el.style.setProperty('--input-' + $k, lMainElmRect[$k] + 'px');
-                });
-                $scope._suggestion_list_el.style.setProperty('--input-offset', window.pageYOffset + 'px');
+                $scope.updateSuggestionPanelPosition(true);
 
 
                 // $scope._suggestion_list_el.style.top = (-1 + lMainElmRect.top + window.pageYOffset) + 'px';
@@ -2546,6 +2561,25 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     //$scope._suggestion_list_el.style.width = '0px';
                     $scope._suggestion_list_el.classList.remove('expanded');
                 });
+            }
+
+            $scope.updateSuggestionPanelPosition = function($force){
+                $force = ($force == undefined) ? false : $force;
+                if($scope._suggestion_list_el == null) return;
+                if($force === false && !$scope._suggestion_list_el.classList.contains('expanded')) return;
+
+                const lMainElmRect = $scope._el.getBoundingClientRect();
+                const lRect = {
+                    width: lMainElmRect.width,
+                    height: lMainElmRect.height,
+                    top: lMainElmRect.top,
+                    left: lMainElmRect.left
+                }
+                
+                Object.keys(lRect).forEach(function($k){
+                    $scope._suggestion_list_el.style.setProperty('--input-' + $k, lMainElmRect[$k] + 'px');
+                });
+                $scope._suggestion_list_el.style.setProperty('--input-offset', window.pageYOffset + 'px');
             }
 
             $scope.getKeywordRegEx = function($startsWith){
@@ -2886,7 +2920,11 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
 
             $scope.getEndpoint = function(){
-                return 'view/'.concat($scope.configs.source.id,'/', siApiSettings.locale + '/quick_search');
+                const lViewId = ($scope.configs.current_view != undefined)
+                                    ? $scope.configs.current_view
+                                    : $scope.configs.source.id;
+
+                return 'view/'.concat(lViewId,'/', siApiSettings.locale + '/quick_search');
             }
 
             $scope.showResultPage = function(){
@@ -3229,4 +3267,67 @@ siApp
             }
         }
     }
+}]);
+
+
+
+siApp
+.directive('siGeoFilter',[
+function siGeoFilter(){
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: siCtx.base_path + 'views/ang-templates/si-geo-filter.html',
+        scope: {
+            alias: '@siAlias'
+        },
+        link: function($scope,$element,$attrs){
+            $scope.$element = $element[0];
+            $scope.init();
+        },
+        controller: function($scope,$rootScope, $siFilters){
+            $scope.is_available = navigator.geolocation!=undefined && window.location.protocol=='https:';
+            $scope.radiusList = [
+                {value: 5000, label: '5 km'},
+                {value: 10000, label: '10 km'},
+                {value: 20000, label: '20 km'},
+                {value: 40000, label: '40 km'},
+                {value: 80000, label: '80 km'},
+            ];
+
+            $scope.init = function(){
+                console.log('siGeoFilter/init',$scope.alias);
+                $siFilters.with($scope.alias, $scope, function($filter){
+                    console.log('siGeoFilter/init', $filter);
+                    $scope.filter = $filter;
+                });
+               
+            }
+
+            $scope.isActive = function(){
+                if($scope.filter == undefined) return false;
+                return $scope.filter.data.location!=null;
+            }
+            $scope.getDistanceLabel = function(){
+                if($scope.filter == undefined) return '';
+                if($scope.filter.data.location == null) return '';
+
+                return $scope.radiusList
+                        .find(function($r){ return $r.value == $scope.filter.data.location.distance})
+                        .label;
+            }
+
+
+            $scope.toggleGeoFilter = function(){
+                $scope.filter.addGeoFilter();
+            }
+
+
+            $scope.changeRadius = function($radius){
+                $scope.filter.data.location.distance = $radius;
+                $scope.filter.update();
+            }
+        }
+    }
 }])
+

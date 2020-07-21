@@ -7,3 +7,5 @@
         <span ng-show="request_sent === true"><?php _e('Thank you',SI) ?></span>
     </button>
 </div>
+
+<?php echo do_shortcode('[si_listing_part part="info_request_modal"]'); ?>

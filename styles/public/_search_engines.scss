@@ -98,7 +98,7 @@
             position: absolute;
             top:0px;
             left:1rem;
-            transform:translateY(-100%);
+            transform:translateY(calc(-100% + 1px));
             
             place-self:start;
             display:grid;
@@ -106,12 +106,12 @@
             gap: 1rem;
             z-index: 100;
             @include media($phone){
-                grid-template-columns: 1fr;
-                grid-auto-flow:unset;
-                place-items: stretch;
-                place-self: stretch;
-                left:0px;
-                width:100%;
+                // grid-template-columns: 1fr;
+                // grid-auto-flow:unset;
+                // place-items: stretch;
+                // place-self: stretch;
+                // left:0px;
+                // width:100%;
 
                 &.si-tab-count-0{
                     display:none;
@@ -156,20 +156,23 @@
                     }
                 }
 
-                @include media($phone){
-                    display:none;
+                @include media($tablet){
+                    //display:none;
+                    &:not(.active){
+                        display:none;
+                    }
                 }
             }
 
-            .si-select{
+            .si-dropdown{
                 display:none;
                 width:100%;
-                .si-selected-value{
-                    .si-label{text-transform: uppercase;}
+                .dropdown-item{
+                    text-transform: uppercase;
                 }
-                @include media($phone){
+                @include media($tablet){
                     display:block;
-                    border-style: none none solid none;
+                    //border-style: none none solid none;
                 }
             }
 
@@ -181,12 +184,12 @@
         .inputs{
             --input-count: 5;
             display:grid;
-            grid-template-columns: 1fr repeat(var(--input-count), auto);
+            grid-template-columns: 1fr auto repeat(var(--input-count), auto);
             gap:var(--layout-gutter);
             place-items: center stretch;
             
             &.no-searchbox{
-                grid-template-columns: repeat(var(--input-count), auto) 1fr;
+                grid-template-columns: auto repeat(var(--input-count), auto) 1fr;
             }
 
             .si-filter-label{
@@ -210,6 +213,11 @@
                 transition:0.25s;
                 color:var(--text-color);
 
+                position: absolute;
+                opacity:0;
+                > span{ 
+                    margin-right: 5px;
+                }
                 &::before{
                     content:"";
                     position: absolute;
@@ -251,6 +259,15 @@
             }
 
             
+        }
+
+        &.si-ready{
+            .inputs{
+                .si-panel-button{
+                    position:relative;
+                    opacity:1;
+                }
+            }
         }
 
         &.searchbox-has-focus{
@@ -1071,9 +1088,14 @@
                 
                 //@include gridAreas('building_category','transaction','parkings','attribute','bathrooms','age');
 
-                //gap:var(--layout-gutter);
-                grid-template-columns: 1fr;
-            
+                gap: 0 var(--layout-gutter);
+                grid-template-columns: 1fr 1fr 1fr;
+                @include media($tablet){
+                    grid-template-columns: unset;
+                    grid-auto-flow: row;
+                    grid-auto-rows: max-content;
+                }
+
                 .filter-row{
                     min-height: 46px;
                     .grid-layout-column{
@@ -1083,6 +1105,14 @@
                         margin-top: calc(var(--layout-gutter) / 2);
                     }
                 }
+                
+                .rooms, .area-filters, .attribute, .filters{
+                    grid-column: 1 / span 3;
+                    @include media($tablet){
+                        grid-column: 1;
+                    }
+                }
+
                 h4{
                     text-align:right;
                 }
@@ -1090,7 +1120,11 @@
                     place-items: start stretch;
                 }
                 
-
+                .rooms{
+                    display:grid;
+                    gap: var(--layout-gutter);
+                    grid-template-columns: 1fr 1fr;
+                }
                 .grid-layout-column{
                     grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
                 }
@@ -1708,6 +1742,41 @@
     }
     &.has-suggestions{
        
+    }
+    
+}
+
+.si-geo-filter{
+    position:relative;
+    display:grid;
+    grid-auto-flow: column;
+    place-items: stretch;
+    gap: 0.5rem;
+    place-self:stretch;
+    cursor:pointer;
+    transition:0.25s;
+
+    .si-radius{
+        max-width: 0;
+        overflow: hidden;
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .si-toggle-button{
+        justify-self: center;
+        align-self: center;
+        place-self: center;
+    }
+    &.active{
+        
+        .si-radius{
+            max-width: 200px;
+            max-width: max-content;
+        }
+        .si-toggle-button{
+            color: var(--highlight);
+        }
     }
     
 }

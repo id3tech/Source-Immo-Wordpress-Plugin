@@ -33,6 +33,40 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             ]
         );
 
+        $partTypes = [
+            'listing' => [
+                //'addendum' => __('Addendum', SI),
+                'brokers' => __('Broker list', SI),
+                //'building_specs' => __('Building specs', SI),
+                'calculator' => __('Calculator', SI),
+                'data_accordeon' => __('Data accordeon *', SI),
+                'description' => __('Description', SI),
+                //'financials' => __('Financials', SI),
+                'flags' => __('Flags', SI),
+                'header' => __('Header *', SI),
+                'header_price' => __('Price', SI),
+                'header_tools' => __('Tools', SI),
+                //'in_exclusions' => __('Inclusion/Exclusions', SI),
+                'info_request_button' => __('Info request button', SI),
+                'links' => __('Links', SI),
+                'list_navigation' => __('Search result navigation', SI),
+                'location' => __('Location', SI),
+                //'lot_specs' => __('Lot specs', SI),
+                'media_box' => __('Media box (Pictures, Video, Map)', SI),
+                //'other_specs' => __('Other specs', SI),
+                //'rooms' => __('Rooms', SI),
+                'summary' => __('Summary *', SI)
+            ],
+            'broker' => [
+                'name' => __('Name', SI),
+                'bio' => __('Bio/Description', SI),
+                'contact' => __('Contact', SI),
+                'picture' => __('Picture', SI),
+                'cities' => __('City list', SI),
+                'office' => __('Office', SI),
+                'listings' => __('Broker listings', SI),
+            ]
+        ];
 
         $this->add_control(
             'content_type',
@@ -43,62 +77,29 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'options' => [
                     'listing' => __('Listing', SI),
                     'broker' => __('Broker', SI),
-                    'office' => __('Office', SI)
+                    //'office' => __('Office', SI)
                 ],
                 'default' => 'listing'
             ]
         );
 
-        $this->add_control(
-            'content_part',
-            [
-                'label' => __('Part', SI),
-                'type' => \Elementor\Controls_Manager::SELECT,
-                'placeholder' => '',
-                'groups' => [
-                    [
-                        'label' => __('Listing', SI),
-                        'options' => [
-                            'addendum' => __('Addendum', SI),
-                            'brokers' => __('Broker list', SI),
-                            'building_specs' => __('Building specs', SI),
-                            'calculator' => __('Calculator', SI),
-                            'data_accordeon' => __('Data accordeon *', SI),
-                            'description' => __('Description', SI),
-                            'financials' => __('Financials', SI),
-                            'flags' => __('Flags', SI),
-                            'header' => __('Header *', SI),
-                            'header_price' => __('Price', SI),
-                            'header_tools' => __('Tools', SI),
-                            'in_exclusions' => __('Inclusion/Exclusions', SI),
-                            'info_request_button' => __('Info request button', SI),
-                            'links' => __('Links', SI),
-                            'list_navigation' => __('Search result navigation', SI),
-                            'location' => __('Location', SI),
-                            'lot_specs' => __('Lot specs', SI),
-                            'media_box' => __('Media box (Pictures, Video, Map)', SI),
-                            'other_specs' => __('Other specs', SI),
-                            'rooms' => __('Rooms', SI),
-                            'summary' => __('Summary *', SI)
-                        ]
-                    ],
-                    [
-                        'label' => __('Broker', SI),
-                        'options' => [
-                            'name' => __('Name', SI),
-                            'bio' => __('Bio/Description', SI),
-                            'contact' => __('Contact', SI),
-                            'picture' => __('Picture', SI),
-                            'cities' => __('City list', SI),
-                            'office' => __('Office', SI),
-                            'listings' => __('Broker listings', SI),
-                        ]
-                    ],
+
+        foreach ($partTypes as $key => $list) {
+            $this->add_control(
+                'content_part_' . $key,
+                [
+                    'label' => __('Part', SI),
+                    'type' => \Elementor\Controls_Manager::SELECT,
+                    'placeholder' => '',
+                    'options' => $list,
+                    'default' => '',
+                    'condition' => [
+                        'content_type' => $key
+                    ]
                 ]
-                ,
-                'default' => ''
-            ]
-        );
+            );
+        }
+
         $this->add_responsive_control(
             'content_align',
             [
@@ -130,7 +131,96 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             ]
         );
 
-        // $this->end_controls_section();
+        $this->add_responsive_control(
+			'height',
+			[
+				'label' => __( 'Height' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => [ 'px', 'vh' ],
+                'devices' => [ 'desktop', 'tablet', 'mobile'],
+                'default' => ['unit' => 'px', 'size' => ''],
+                'range' =>  [
+					'px' => [
+						'min' => 250,
+						'max' => 1000,
+						'step' => 5,
+					],
+                    'vh' => [
+						'min' => 0,
+						'max' => 100,
+                    ],
+                ],
+                'condition' => [
+                    'content_part_listing' => 'media_box'
+                ]
+			]
+        );
+
+        $this->add_responsive_control(
+			'allow_toggle',
+			[
+				'label' => __( 'Allow toggle' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+                'devices' => [ 'desktop', 'tablet', 'mobile'],
+                'desktop_default' => 'yes',
+                'tablet_default' => 'yes',
+                'mobile_default' => 'yes',
+                'return_value' => 'yes',
+                'condition' => [
+                    'content_part_listing' => 'data_accordeon'
+                ]
+			]
+        );
+
+        $tabs = [
+            'addendum' => __('Addendum', SI),
+            'rooms' => __('Rooms', SI),
+            'building_specs' => __('Building specs', SI),
+            'lot_specs' => __('Lot specs', SI),
+            'other_specs' => __('Other specs', SI),
+            'in_exclusions' => __('Inclusion/Exclusions', SI),
+            'expenses' => __('Expenses', SI),
+            'financials' => __('Financials', SI),
+        ];
+        foreach ($tabs as $key => $tabLabel) {
+            $this->add_control(
+                $key . '_tab',
+                [
+                    'label' => __( $tabLabel ),
+                    'type' => \Elementor\Controls_Manager::SWITCHER,
+                    'default' => 'yes',
+                    'return_value' => 'yes',
+                    'condition' => [
+                        'content_part_listing' => 'data_accordeon'
+                    ]
+                ]
+            ); 
+        }
+
+        $tabs = [
+            'pictures' => __('Show pictures tab', SI),
+            'video' => __('Show video tab',SI),
+            'virtual-tours' => __('Show virtual tour tab',SI),
+            'streetview' => __('Show street view tab',SI),
+            'map' => __('Show map tab',SI)
+        ];
+
+        foreach ($tabs as $key => $tabLabel) {
+            $this->add_responsive_control(
+                $key . '_tab',
+                [
+                    'label' => $tabLabel,
+                    'type' => \Elementor\Controls_Manager::SWITCHER,
+                    'devices' => [ 'desktop', 'tablet', 'mobile'],
+                    'default' => 'yes',
+                    'return_value' => 'yes',
+                    'condition' => [
+                        'content_part_listing' => 'media_box'
+                    ]
+                ]
+            );  
+        }
+        
 
     }
 
@@ -158,34 +248,20 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
 
 
         $contentType = isset($settings['content_type']) ? $settings['content_type'] : 'listing';
-        $contentPart = isset($settings['content_part']) ? $settings['content_part'] : '';
-        
+        $contentPart = isset($settings['content_part_' . $contentType]) 
+                            ? $settings['content_part_' . $contentType] 
+                            : '';
+        if($contentPart == '' && isset($settings['content_part'])) $contentPart = $settings['content_part'];
+
+        $partStyles = [];
         $contentAlign = [];
-        if (isset($settings['content_align'])) $contentAlign[] = $settings['content_align'];
-        if (isset($settings['content_align_tablet'])) $contentAlign[] = $settings['content_align_tablet'] . '-tablet';
-        if (isset($settings['content_align_mobile'])) $contentAlign[] = $settings['content_align_mobile'] . '-phone';
-        
-        $shortcode_attrs = [];
-        $shortcode_attrs[] = 'part="' . $contentPart . '"';
-        $shortcode_attrs[] = 'align="' . implode(' ', $contentAlign) . '"';
-
-        $shortcode = do_shortcode(shortcode_unautop('[si_'. $contentType . '_part ' . implode(' ', $shortcode_attrs) . ']'));
-        
-        echo ($shortcode);
-        
-    }
-
-    function _print_editor_content(){
-        $settings = $this->get_settings_for_display();
-        $contentType = isset($settings['content_type']) ? $settings['content_type'] : 'listing';
-        $contentPart = isset($settings['content_part']) ? $settings['content_part'] : '';
-        $contentAlign = [];
-        if (isset($settings['content_align'])) $contentAlign[] = $settings['content_align'];
-        if (isset($settings['content_align_tablet'])) $contentAlign[] = $settings['content_align_tablet'] . '-tablet';
-        if (isset($settings['content_align_mobile'])) $contentAlign[] = $settings['content_align_mobile'] . '-phone';
-        
-
-        $dummyContentPath = $contentType . '/' . $contentPart . '.php';
+        $contentAlignMaps = [
+            'content_align' => '',
+            'content_align_tablet' => '-tablet',
+            'content_align_mobile'=> '-mobile'];
+        foreach ($contentAlignMaps as $key => $value) {
+            if (isset($settings[$key]) && $settings[$key]!='') $contentAlign[] = $settings[$key] . $value;
+        }
 
         $classes = [
             'si',
@@ -195,8 +271,220 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
         ];
         $partClasses = [
             'si-part',
+            'si-part-' . $contentPart,
             implode(' ', $contentAlign)
         ];
+
+        $contentAlign = [];
+        if (isset($settings['content_align'])) $contentAlign[] = $settings['content_align'];
+        if (isset($settings['content_align_tablet'])) $contentAlign[] = $settings['content_align_tablet'] . '-tablet';
+        if (isset($settings['content_align_mobile'])) $contentAlign[] = $settings['content_align_mobile'] . '-phone';
+        
+        $shortcode_attrs = [];
+        $shortcode_attrs[] = 'part="' . $contentPart . '"';
+        $shortcode_attrs[] = 'align="' . implode(' ', $contentAlign) . '"';
+
+
+        if($contentPart == 'media_box'){
+            $contentHeight = [];
+            $heightMaps = [
+                'height' => ['attr' => 'desktop', 'default' => '460px'],
+                'height_tablet' => ['attr' => 'tablet', 'default' => '460px'],
+                'height_mobile' => ['attr' => 'mobile', 'default' => '500px'],
+            ];
+            foreach ($heightMaps as $key => $value) {
+                
+                if(isset($settings[$key]) && $settings[$key]['size'] != ''){
+                    $contentHeight[$value['attr']] = $settings[$key]['size'] . $settings[$key]['unit'];
+                }
+                else{
+                    $contentHeight[$value['attr']] = $value['default'];
+                }
+            }
+            $contentHeightEncode = str_replace('"',"'", json_encode($contentHeight));
+            $shortcode_attrs[] = 'height="' . $contentHeightEncode . '"';
+
+            $tabs = [
+                'pictures',
+                'video',
+                'virtual-tours',
+                'map',
+                'streetview'
+            ];
+            
+            $tabMaps = [
+                'tab' => '',
+                'tab_tablet' => '-tablet',
+                'tab_mobile' => '-mobile',
+            ];
+            $contentTabs = [];
+            foreach ($tabs as $tab) {
+                foreach ($tabMaps as $key => $value) {
+                    if(isset($settings[$tab . '_' . $key]) && $settings[$tab . '_' . $key] == 'yes'){
+                        $contentTabs[] = $tab . $value;
+                    }
+                }
+            }
+
+            if(count($contentTabs)>0){
+                $contentTabsEncode =  implode(",", $contentTabs);
+                
+                $shortcode_attrs[] = 'tabs="' . $contentTabsEncode . '"';
+            }
+        }
+
+        if($contentPart == 'data_accordeon'){
+            $contentAllowToggle = [];
+            $allowToggleMaps = [
+                'allow_toggle' => 'desktop',
+                'allow_toggle_tablet' => 'tablet',
+                'allow_toggle_mobile' => 'mobile',
+            ];
+            foreach ($allowToggleMaps as $key => $value) {
+                
+                if(isset($settings[$key])){
+                    $contentAllowToggle[$value] = $settings[$key];
+                }
+            }
+            $contentAllowToggleEncode = str_replace('"',"'", json_encode($contentAllowToggle));
+            $shortcode_attrs[] = 'allow_toggle="' . $contentAllowToggleEncode . '"';
+
+            $tabs = [
+                'addendum',
+                'rooms',
+                'building_specs',
+                'lot_specs',
+                'other_specs',
+                'in_exclusions',
+                'expenses',
+                'financials',
+            ];
+            
+            $contentTabs = [];
+            foreach ($tabs as $tab) {
+                if(isset($settings[$tab . '_tab']) && $settings[$tab . '_tab'] == 'yes'){
+                    $contentTabs[] = $tab;
+                }
+            }
+
+            if(count($contentTabs)>0){
+                $contentTabsEncode =  implode(",", $contentTabs);
+                
+                $shortcode_attrs[] = 'tabs="' . $contentTabsEncode . '"';
+            }
+        }
+
+        $shortcode = '[si_'. $contentType . '_part ' . implode(' ', $shortcode_attrs) . ']';
+        $shortcode_result = do_shortcode(shortcode_unautop($shortcode));
+        
+        echo ($shortcode_result);
+        
+    }
+
+    function _print_editor_content(){
+        $settings = $this->get_settings_for_display();
+        $contentType = isset($settings['content_type']) ? $settings['content_type'] : 'listing';
+        $contentPart = isset($settings['content_part_' . $contentType]) 
+                            ? $settings['content_part_' . $contentType] 
+                            : '';
+        if($contentPart == '' && isset($settings['content_part'])) $contentPart = $settings['content_part'];
+        
+
+        $partStyles = [];
+        $contentAlign = [];
+        $contentAlignMaps = [
+            'content_align' => '',
+            'content_align_tablet' => '-tablet',
+            'content_align_mobile'=> '-mobile'];
+        foreach ($contentAlignMaps as $key => $value) {
+            if (isset($settings[$key]) && $settings[$key]!='') $contentAlign[] = $settings[$key] . $value;
+        }
+
+        $classes = [
+            'si',
+            'si-single',
+            'si-elementor-widget',
+            $contentType . '-single',
+        ];
+        $partClasses = [
+            'si-part',
+            'si-part-' . $contentPart,
+            implode(' ', $contentAlign)
+        ];
+
+        if($contentPart == 'media_box'){
+            $heightMaps = [
+                'height' => ['attr' => '--viewport-height', 'default' => '460px'],
+                'height_tablet' => ['attr' => '--viewport-height-tablet', 'default' => '460px'],
+                'height_mobile' => ['attr' => '--viewport-height-mobile', 'default' => '500px'],
+            ];
+            foreach ($heightMaps as $key => $value) {
+                
+                if(isset($settings[$key]) && $settings[$key]['size'] != ''){
+                    $partStyles[] = $value['attr'] . ':' . $settings[$key]['size'] . $settings[$key]['unit'];
+                }
+                else{
+                    $partStyles[] = $value['attr'] . ':' . $value['default'];
+                }
+            }
+
+            $tabs = [
+                'pictures',
+                'video',
+                'virtual-tours',
+                'streetview',
+                'map'
+            ];
+            $tabMaps = [
+                'tab' => 'tab',
+                'tab_tablet' => 'tab-tablet',
+                'tab_mobile' => 'tab-mobile',
+            ];
+
+            foreach ($tabs as $tab) {
+                foreach ($tabMaps as $key => $value) {
+                    if(isset($settings[$tab . '_' . $key]) && $settings[$tab . '_' . $key] == 'yes'){
+                        $partClasses[] = $tab . '-' . $value;
+                    }
+                }
+            }
+        }
+
+        if($contentPart == 'data_accordeon'){
+            $contentAllowToggle = [];
+            $allowToggleMaps = [
+                'allow_toggle' => 'desktop',
+                'allow_toggle_tablet' => 'tablet',
+                'allow_toggle_mobile' => 'mobile',
+            ];
+            foreach ($allowToggleMaps as $key => $value) {
+                
+                if(isset($settings[$key]) && $settings[$key] != 'yes'){
+                    $partClasses[] = 'no-toggle-' . $value;
+                }
+            }
+            
+            $tabs = [
+                'addendum',
+                'rooms',
+                'building_specs',
+                'lot_specs',
+                'other_specs',
+                'in_exclusions',
+                'expenses',
+                'financials',
+            ];
+            
+            $contentTabs = [];
+            foreach ($tabs as $tab) {
+                if(isset($settings[$tab . '_tab']) && $settings[$tab . '_tab'] == 'yes'){
+                    $partClasses[] = 'show-' . $tab;
+                }
+            }
+        }
+        
+        $dummyContentPath = $contentType . '/' . $contentPart . '.php';
+
 
         echo('<div class="' . implode(' ',$classes) . '">');
         //echo('<div class="si-content">');
@@ -204,7 +492,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             echo('<label class="placeholder">Select a part to render</label>');
         }
         else{
-            echo('<div class="' . implode(' ',$partClasses) . '">');
+            echo('<div class="' . implode(' ',$partClasses) . '" style="' . implode(';',$partStyles) . '">');
             si_dummy_include($dummyContentPath);
             echo('</div>');
         }

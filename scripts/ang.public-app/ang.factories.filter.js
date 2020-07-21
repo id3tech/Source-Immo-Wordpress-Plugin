@@ -214,18 +214,22 @@ function $siFilters($q,$siApi,$siUtils){
          */
         $fm.hasFilters = function($customCheck){
             //console.log('hasFilters',$fm.filter_group.filter_groups, $fm.filter_group.filters);
-            return Object.keys($fm.data).some(function($k){
-                if(Array.isArray($fm.data[$k])){
-                    return $fm.data[$k].length > 0;
-                }
-                if($k == 'min_price'){
-                    return $fm.data[$k] != null && $fm.data[$k] > 0;
-                }
-                if($k == 'max_price'){
-                    return $fm.data[$k] != null && $fm.data[$k] > 0;
-                }
-                return $fm.data[$k] != null && $fm.data[$k] != '';
-            });
+            return Object.keys($fm.data)
+                .filter(function($k){
+                    return !['keyword','location'].includes($k);
+                })
+                .some(function($k){
+                    if(Array.isArray($fm.data[$k])){
+                        return $fm.data[$k].length > 0;
+                    }
+                    if($k == 'min_price'){
+                        return $fm.data[$k] != null && $fm.data[$k] > 0;
+                    }
+                    if($k == 'max_price'){
+                        return $fm.data[$k] != null && $fm.data[$k] > 0;
+                    }
+                    return $fm.data[$k] != null && $fm.data[$k] != '';
+                });
         }
 
 
@@ -442,6 +446,8 @@ function $siFilters($q,$siApi,$siUtils){
         }
 
         $fm.addGeoFilter = function(){
+            console.log('siFilters/fm/addGeoFilter');
+            
             $q(function($resolve,$reject){
                 if($fm.data.location != null){
                     $fm.data.location = null;

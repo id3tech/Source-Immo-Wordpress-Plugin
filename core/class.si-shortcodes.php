@@ -625,17 +625,19 @@ class SiShorcodes{
                 'align' => 'align-stretch',
                 'adapt' => false,
                 'class' => '',
+                'height' => '',
+                'tabs' => '',
+                'allow_toggle' => '',
             ), $atts )
         );
 
         $lResult = '';
         $partAttr = [];
-
+        
         if($part != ''){
             ob_start();
-
             $part_path = apply_filters('si_listing_part_path','single/listings_layouts/subs/' . $part,$part);
-            $part_params = apply_filters('si_listing_part_params', array(), $part);
+            $part_params = apply_filters('si_listing_part_params', ['allow_toggle' => $allow_toggle,'height' => $height, 'tabs' => explode(',', $tabs)], $part);
             SourceImmo::view($part_path, $part_params); 
 
             $lResult = ob_get_clean();

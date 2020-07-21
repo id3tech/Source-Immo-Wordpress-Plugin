@@ -1,5 +1,5 @@
 <div id="calculator" class="mortgage-calculator" data-ng-show="allowCalculator()">
-    <div class="title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',SI) ?></div>
+    <div class="si-title"><i class="fal fa-calculator"></i> <?php _e('Estimate your mortgage',SI) ?></div>
     <si-calculator 
         data-si-amount="model.price.sell.amount" 
         data-on-change="onMortgageChange($result)" 

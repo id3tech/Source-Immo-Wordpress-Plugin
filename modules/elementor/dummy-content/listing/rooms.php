@@ -8,21 +8,32 @@
                     <div class="detail-section-content">
                         <!-- ngRepeat: unit in model.units track by $index -->
                         <div class="unit-list ng-scope" data-ng-repeat="unit in model.units track by $index">
-                            <h4 class="title ng-hide" data-ng-show="['OFFICE','INDUSTRY','COMMERCIAL'].includes(unit.category_code) || model.units.length>1">
-                                <span class="ng-binding">Unité Chambre</span>
-                                <span class="area ng-binding ng-hide" data-ng-show="unit.dimension | siHasValue"> </span>
-                            </h4>
 
-                            <div class="flags ng-hide" data-ng-show="model.units.length>1" style="--unit-flag-count:0;">
-                                <div class="spacer"></div>
-                                <!-- ngRepeat: flag in unit.flags track by $index -->
-                            </div>
-
-                            <div class="room-list ng-hide" ng-show="(model.rooms | filter : {'unit_sequence' : unit.sequence}).length > 0">
+                            <div class="room-list">
                                 <div class="room-item list-header">
                                     <div class="type"></div>
                                     <div class="level">Niveau</div>
                                     <div class="floor">Plancher</div>
+                                </div>
+                                <div class="room-item ">
+                                    <div class="type">Salon</div>
+                                    <div class="level">1er étage</div>
+                                    <div class="floor">Bois</div>
+                                </div>
+                                <div class="room-item ">
+                                    <div class="type">Chambre</div>
+                                    <div class="level">1er étage</div>
+                                    <div class="floor">Bois</div>
+                                </div>
+                                <div class="room-item ">
+                                    <div class="type">Cuisine</div>
+                                    <div class="level">1er étage</div>
+                                    <div class="floor">Céramique</div>
+                                </div>
+                                <div class="room-item ">
+                                    <div class="type">Salle de bain</div>
+                                    <div class="level">1er étage</div>
+                                    <div class="floor">Céramique</div>
                                 </div>
                                 <!-- ngRepeat: room in model.rooms | filter : {'unit_sequence' : unit.sequence} track by $index -->
                             </div>

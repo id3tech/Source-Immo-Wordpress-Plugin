@@ -13,12 +13,6 @@
         </div>
 
         <div class="recap">
-            <?php
-            $lnglat = $model->location->latitude . "," . $model->location->longitude ;
-            $map_endpoint = "https://maps.googleapis.com/maps/api/staticmap?center=" . $lnglat . "&zoom=16&size=500x500&maptype=roadmap" .
-                                "&markers=" . $lnglat . "&key=" . SourceImmo::current()->configs->map_api_key;
-            ?>
-            
             
             <div class="transaction"><?php echo($model->subcategory . ' ' . $model->transaction) ?></div>
             <div class="price"><?php echo($model->price_text) ?></div>
@@ -42,7 +36,17 @@
             <div class="handwrite-zone">
             </div>
 
-            <img class="static-map" src="<?php echo $map_endpoint ?>" />
+            <?php 
+            if(SourceImmo::current()->configs->map_api_key){
+
+                $lnglat = $model->location->latitude . "," . $model->location->longitude ;
+                $map_endpoint = "https://maps.googleapis.com/maps/api/staticmap?center=" . $lnglat . "&zoom=16&size=500x500&maptype=roadmap" .
+                                    "&markers=" . $lnglat . "&key=" . SourceImmo::current()->configs->map_api_key;
+                ?>
+                <img class="static-map" src="<?php echo $map_endpoint ?>" />
+                <?php
+            }
+            ?>
     </div>
 </div>
 

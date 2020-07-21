@@ -24,6 +24,84 @@ body .elementor-element .elementor-widget-container .si.si-list-slider .si-slide
 
 body .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-elementor-widget:hover .si-control-preview-hint { opacity: 1; }
 
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tabs .tab, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tabs .tab { display: none; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tab-content, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tab-content { display: none; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tab-content:not(.picture-gallery) label, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box .medias .tab-content:not(.picture-gallery) label { opacity: 0.25 !important; line-height: 1em; left: 0; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab .tabs .tab.pictures, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab .tabs .tab.pictures { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab .tab-content.picture-gallery, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab .tab-content.picture-gallery { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab .tabs .tab.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab .tabs .tab.videos { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab .tab-content.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab .tab-content.videos { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab .tabs .tab.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab .tabs .tab.virtual-tours { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab .tab-content.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab .tab-content.virtual-tours { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab .tabs .tab.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab .tabs .tab.streetview { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab .tab-content.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab .tab-content.streetview { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab .tabs .tab.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab .tabs .tab.map { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab .tab-content.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab .tab-content.map { display: block; }
+
+@media screen and (max-width: 1000px) { body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-tablet .tabs .tab.pictures, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-tablet .tabs .tab.pictures { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-tablet .tab-content.picture-gallery, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-tablet .tab-content.picture-gallery { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-tablet .tabs .tab.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-tablet .tabs .tab.videos { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-tablet .tab-content.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-tablet .tab-content.videos { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-tablet .tabs .tab.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-tablet .tabs .tab.virtual-tours { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-tablet .tab-content.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-tablet .tab-content.virtual-tours { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-tablet .tabs .tab.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-tablet .tabs .tab.streetview { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-tablet .tab-content.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-tablet .tab-content.streetview { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-tablet .tabs .tab.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-tablet .tabs .tab.map { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-tablet .tab-content.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-tablet .tab-content.map { display: block; } }
+
+@media screen and (max-width: 640px) { body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-mobile .tabs .tab.pictures, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-mobile .tabs .tab.pictures { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-mobile .tab-content.picture-gallery, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.pictures-tab-mobile .tab-content.picture-gallery { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-mobile .tabs .tab.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-mobile .tabs .tab.videos { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-mobile .tab-content.videos, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.video-tab-mobile .tab-content.videos { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-mobile .tabs .tab.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-mobile .tabs .tab.virtual-tours { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-mobile .tab-content.virtual-tours, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.virtual-tours-tab-mobile .tab-content.virtual-tours { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-mobile .tabs .tab.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-mobile .tabs .tab.streetview { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-mobile .tab-content.streetview, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.streetview-tab-mobile .tab-content.streetview { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-mobile .tabs .tab.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-mobile .tabs .tab.map { display: block; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-mobile .tab-content.map, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-media_box.map-tab-mobile .tab-content.map { display: block; } }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon .detail-section, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon .detail-section { display: none; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-addendum .detail-section.addendum, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-addendum .detail-section.addendum { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-rooms .detail-section.rooms, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-rooms .detail-section.rooms { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-building_specs .detail-section.building-specs, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-building_specs .detail-section.building-specs { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-lot_specs .detail-section.lot-specs, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-lot_specs .detail-section.lot-specs { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-other_specs .detail-section.other-specs, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-other_specs .detail-section.other-specs { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-in_exclusions .detail-section.in-exclusions, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-in_exclusions .detail-section.in-exclusions { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-expenses .detail-section.expenses, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-expenses .detail-section.expenses { display: block; }
+
+body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-financials .detail-section.financials, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.show-financials .detail-section.financials { display: block; }
+
+@media screen and (min-width: 769px) { body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .title, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .title { padding-bottom: 0; margin-bottom: 0; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .title i, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .title i { display: none; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .detail-section-content, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-desktop .detail-section .detail-section-content { max-height: unset; } }
+
+@media screen and (max-width: 768px) { body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .title, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .title { padding-bottom: 0; margin-bottom: 0; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .title i, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .title i { display: none; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .detail-section-content, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-tablet .detail-section .detail-section-content { max-height: unset; } }
+
+@media screen and (min-width: 640px) { body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .title, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .title { padding-bottom: 0; margin-bottom: 0; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .title i, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .title i { display: none; }
+  body .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .detail-section-content, #top .elementor-element .elementor-widget-container .si-elementor-widget .si-part-data_accordeon.no-toggle-mobile .detail-section .detail-section-content { max-height: unset; } }
+
 body .elementor-element .elementor-widget-container .si-control-preview-hint, #top .elementor-element .elementor-widget-container .si-control-preview-hint { background: #47CAF4; font-size: 10px; color: #fff; opacity: 0; -webkit-transition: 0.25s; transition: 0.25s; pointer-events: none; position: absolute; top: 0; left: 0; z-index: 5; display: -webkit-box; display: -ms-flexbox; display: flex; }
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint:hover, #top .elementor-element .elementor-widget-container .si-control-preview-hint:hover { opacity: 1; }

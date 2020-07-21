@@ -19,6 +19,13 @@ if(typeof String.prototype.format === 'undefined'){
     }
 }
 
+if(typeof [].firstOrDefault === 'undefined'){
+    Array.prototype.firstOrDefault = function($default){
+        if(this.length > 0) return this[0];
+        return $default;
+    }
+}
+
 if(typeof [].last === 'undefined' ){
     Array.prototype.last = function(){
         if(this.length == 0) return null;

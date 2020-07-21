@@ -84,6 +84,160 @@ body, #top{
                         opacity:1;
                     }
                 }
+                .si-part-media_box{
+                    .medias{
+                        .tabs{
+                            .tab{display:none;}
+                        }
+                        .tab-content{
+                            display:none;
+                            &:not(.picture-gallery){
+                                label{
+                                    opacity:0.25!important;
+                                    line-height: 1em;
+                                    left:0;
+                                }
+                            }
+                        }
+                    }
+                    &.pictures-tab{
+                        .tabs .tab.pictures{display:block;}
+                        .tab-content.picture-gallery{display:block}
+                    }
+                    &.video-tab{
+                        .tabs .tab.videos{display:block;}
+                        .tab-content.videos{display:block}
+                    }
+                    &.virtual-tours-tab{
+                        .tabs .tab.virtual-tours{display:block;}
+                        .tab-content.virtual-tours{display:block}
+                    }
+                    &.streetview-tab{
+                        .tabs .tab.streetview{display:block;}
+                        .tab-content.streetview{display:block}
+                    }
+                    &.map-tab{
+                        .tabs .tab.map{display:block;}
+                        .tab-content.map{display:block}
+                    }
+                    @media screen and (max-width: 1000px){
+                        &.pictures-tab-tablet{
+                            .tabs .tab.pictures{display:block;}
+                            .tab-content.picture-gallery{display:block}
+                        }
+                        &.video-tab-tablet{
+                            .tabs .tab.videos{display:block;}
+                            .tab-content.videos{display:block}
+                        }
+                        &.virtual-tours-tab-tablet{
+                            .tabs .tab.virtual-tours{display:block;}
+                            .tab-content.virtual-tours{display:block}
+                        }
+                        &.streetview-tab-tablet{
+                            .tabs .tab.streetview{display:block;}
+                            .tab-content.streetview{display:block}
+                        }
+                        &.map-tab-tablet{
+                            .tabs .tab.map{display:block;}
+                            .tab-content.map{display:block}
+                        }
+                    }
+                    @media screen and (max-width: 640px){
+                        &.pictures-tab-mobile{
+                            .tabs .tab.pictures{display:block;}
+                            .tab-content.picture-gallery{display:block}
+                        }
+                        &.video-tab-mobile{
+                            .tabs .tab.videos{display:block;}
+                            .tab-content.videos{display:block}
+                        }
+                        &.virtual-tours-tab-mobile{
+                            .tabs .tab.virtual-tours{display:block;}
+                            .tab-content.virtual-tours{display:block}
+                        }
+                        &.streetview-tab-mobile{
+                            .tabs .tab.streetview{display:block;}
+                            .tab-content.streetview{display:block}
+                        }
+                        &.map-tab-mobile{
+                            .tabs .tab.map{display:block;}
+                            .tab-content.map{display:block}
+                        }
+                    }
+                    
+                }
+                
+                .si-part-data_accordeon{
+                    .detail-section{
+                        display:none;
+                    }
+                    &.show-addendum{
+                        .detail-section.addendum{display:block;}
+                    }
+                    &.show-rooms{
+                        .detail-section.rooms{display:block;}
+                    }
+                    &.show-building_specs{
+                        .detail-section.building-specs{display:block;}
+                    }
+                    &.show-lot_specs{
+                        .detail-section.lot-specs{display:block;}
+                    }
+                    &.show-other_specs{
+                        .detail-section.other-specs{display:block;}
+                    }
+                    &.show-in_exclusions{
+                        .detail-section.in-exclusions{display:block;}
+                    }
+                    &.show-expenses{
+                        .detail-section.expenses{display:block;}
+                    }
+                    &.show-financials{
+                        .detail-section.financials{display:block;}
+                    }
+
+                    @media screen and (min-width: 769px){
+                        &.no-toggle-desktop{
+                            .detail-section{
+                                .title{
+                                    padding-bottom:0;margin-bottom:0;
+                                    i{display:none;}
+                                }
+                                .detail-section-content{
+                                    max-height:unset;
+                                }
+                            }
+                        } 
+                    }
+                    
+                    @media screen and (max-width: 768px){
+                        &.no-toggle-tablet{
+                            .detail-section{
+                                .title{
+                                    padding-bottom:0;margin-bottom:0;
+                                    i{display:none;}
+                                }
+                                .detail-section-content{
+                                    max-height:unset;
+                                }
+                            }
+                        } 
+                    }
+
+                    @media screen and (min-width: 640px){
+                        &.no-toggle-mobile{
+                            .detail-section{
+                                .title{
+                                    padding-bottom:0;margin-bottom:0;
+                                    i{display:none;}
+                                }
+                                .detail-section-content{
+                                    max-height:unset;
+                                }
+                            }
+                        } 
+                    }
+                }
             }
 
             
