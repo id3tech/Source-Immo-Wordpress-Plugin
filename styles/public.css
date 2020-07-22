@@ -1665,9 +1665,9 @@ html { font-size: 14px; }
   #top .si.broker-single .cities, .si.broker-single .cities { -ms-grid-column: 1; grid-column: 1; -ms-grid-row: 7; grid-row: 7; }
   #top .si.broker-single .office, .si.broker-single .office { -ms-grid-column: 1; grid-column: 1; -ms-grid-row: 6; grid-row: 6; } }
 
-#top .si.broker-single.si-invert-layout .si-content, .si.broker-single.si-invert-layout .si-content { -ms-grid-columns: 1fr 2fr; grid-template-columns: 1fr 2fr; --left-column: 2; --right-column: 1; }
+@media screen and (min-width: 1281px) { #top .si.broker-single.si-invert-layout .si-content, .si.broker-single.si-invert-layout .si-content { -ms-grid-columns: 1fr 2fr; grid-template-columns: 1fr 2fr; --left-column: 2; --right-column: 1; } }
 
-@media screen and (max-width: 640px) { #top .si.broker-single.si-invert-layout .si-content, .si.broker-single.si-invert-layout .si-content { -ms-grid-columns: 1fr; grid-template-columns: 1fr; } }
+@media screen and (min-width: 1281px) and (max-width: 640px) { #top .si.broker-single.si-invert-layout .si-content, .si.broker-single.si-invert-layout .si-content { -ms-grid-columns: 1fr; grid-template-columns: 1fr; } }
 
 #top .si.broker-single.loaded .si-content, .si.broker-single.loaded .si-content { display: -ms-grid; display: grid; }
 

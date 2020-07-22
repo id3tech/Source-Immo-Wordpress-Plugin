@@ -1258,13 +1258,15 @@
             .office{grid-column:1;grid-row:6;}
         }
 
-        &.si-invert-layout{
-            .si-content{
-                grid-template-columns: 1fr 2fr;
-                --left-column: 2;
-                --right-column: 1;
-                @include media($phone){
-                    grid-template-columns: 1fr;
+        @include media-gt($laptop){
+            &.si-invert-layout{
+                .si-content{
+                    grid-template-columns: 1fr 2fr;
+                    --left-column: 2;
+                    --right-column: 1;
+                    @include media($phone){
+                        grid-template-columns: 1fr;
+                    }
                 }
             }
         }
