@@ -648,6 +648,12 @@ function siListOfItem(){
         },
         controller: function($scope){
             this.$onInit = function(){
+                const lResizeObserver = new ResizeObserver(function(){
+                    $scope.updateSize();
+                });
+
+                lResizeObserver.observe(document.body);
+
                 window.addEventListener('resize', function($event){
                     $scope.updateSize();
                 });
