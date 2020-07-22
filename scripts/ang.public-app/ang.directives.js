@@ -82,13 +82,19 @@ function siList(){
                 });
 
                 $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                    console.log('siList@si/list/item/permalink');
                     if(isNullOrUndefined($scope._global_configs)) return $result;
                     if(isNullOrUndefined($scope.configs)) return $result;
 
                     if($scope.configs.current_view != $scope._global_configs.default_view){
                         const lQuery = '?view=' + $scope.configs.current_view;
                         if($result.indexOf(lQuery) < 0){
-                            $result += lQuery;
+                            console.log('- add view id to link',$result, lQuery);
+
+                            $result = $result + lQuery;
+                        }
+                        else{
+                            console.log('- view id already in link', $result);
                         }
                     }
                     return $result
@@ -390,12 +396,6 @@ function siList(){
                         }
                         else{
                             lNewItems = $siCompiler.compileBrokerList(lNewItems);
-                        }
-
-                        if($scope.configs.current_view != $scope._global_configs.default_view){
-                            lNewItems.forEach(function($item){
-                                $item.permalink += '?view=' + $scope.configs.current_view;
-                            });
                         }
 
                         $scope.list = $scope.list.concat(lNewItems);
@@ -772,9 +772,13 @@ function siSmallList($sce,$compile){
                         if(isNullOrUndefined($scope._global_configs)) return $result;
                         if(isNullOrUndefined($scope.configs)) return $result;
                         
-                        if($scope.configs.current_view != $scope._global_configs.default_view){
-                            $result += '?view=' + $scope.configs.current_view;
+                        const lQuery = '?view=' + $scope.configs.current_view;
+                        if($result.indexOf(lQuery) < 0){
+                            console.log('siSmallList@si/list/item/permalink - add view id to link',$result, lQuery);
+
+                            $result = $result + lQuery;
                         }
+
                         return $result
                     });
 

@@ -69,7 +69,6 @@
                     <div class="dropdown-item {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php _e('Cities', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter(['categories','subcategories']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['bedrooms','bathrooms']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'rooms')"><?php _e('Rooms', SI) ?></div>
                     <div class="dropdown-item 
                         {{ isMainFiltered(['COM']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract']) ? 'has-filters' : '' : ''}}
                         {{ isMainFiltered(['RES']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}

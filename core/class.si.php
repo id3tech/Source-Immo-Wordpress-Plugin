@@ -1359,7 +1359,9 @@ class SiSharing{
       if($not_found_ind !== false){
         unset($title[$not_found_ind]);
       }
-      array_unshift($title,$this->title);
+      if(array_search($this->title, $title) === false){
+        array_unshift($title,$this->title);
+      }
     }
     return $title;
   }

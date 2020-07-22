@@ -492,7 +492,7 @@ si-checkbox, si-radio{
         > label{
             //top:0px;
             opacity:1;
-            transform: translateY(-100%) scale(.85);
+            transform: translateY(calc(-100% - 0.5rem)) scale(.85);
             padding-left:0;
         }
     }
