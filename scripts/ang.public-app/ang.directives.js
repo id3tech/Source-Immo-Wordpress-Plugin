@@ -86,7 +86,10 @@ function siList(){
                     if(isNullOrUndefined($scope.configs)) return $result;
 
                     if($scope.configs.current_view != $scope._global_configs.default_view){
-                        $result += '?view=' + $scope.configs.current_view;
+                        const lQuery = '?view=' + $scope.configs.current_view;
+                        if($result.indexOf(lQuery) < 0){
+                            $result += lQuery;
+                        }
                     }
                     return $result
                 });
