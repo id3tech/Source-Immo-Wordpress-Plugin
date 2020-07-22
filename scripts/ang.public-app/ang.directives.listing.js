@@ -1626,13 +1626,16 @@ function siMediabox($parse){
                         if($scope.configs.map_api_key == '') return false;
                     }
                 }
-                
+                console.log('siMediaBox/tabIsAvailable', $name, $scope.tabs);
                 if(!$scope.tabs) return true;
-                if(window.innerWidth <= 800 && window.innerWidth > 640){
-                    return $scope.tabs.some(function($t) {return $t == $name + '-tablet'});
-                }
-                if(window.innerWidth <= 640){
-                    return $scope.tabs.some(function($t) {return $t == $name + '-mobile'});
+
+                if($scope.tabs.some(function($t){ return $t.indexOf($name + '-') >= 0})){   
+                    if(window.innerWidth <= 800 && window.innerWidth > 640){
+                        return $scope.tabs.some(function($t) {return $t == $name + '-tablet'});
+                    }
+                    if(window.innerWidth <= 640){
+                        return $scope.tabs.some(function($t) {return $t == $name + '-mobile'});
+                    }
                 }
 
                 return $scope.tabs.some(function($t) {return $t == $name});
