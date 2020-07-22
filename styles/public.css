@@ -490,7 +490,7 @@ html { font-size: 14px; }
 
 #top .si .search-container.si-has-tabs, .si .search-container.si-has-tabs { margin-top: 3.5rem; }
 
-#top .si .search-container .main-filter-tabs, .si .search-container .main-filter-tabs { position: absolute; top: 0px; left: 1rem; -webkit-transform: translateY(calc(-100% + 1px)); transform: translateY(calc(-100% + 1px)); place-self: start; display: -ms-grid; display: grid; grid-auto-flow: column; gap: 1rem; z-index: 82; }
+#top .si .search-container .main-filter-tabs, .si .search-container .main-filter-tabs { position: absolute; top: 0px; left: 1rem; -webkit-transform: translateY(calc(-100% + 1px)); transform: translateY(calc(-100% + 1px)); place-self: start; display: -ms-grid; display: grid; grid-auto-flow: column; gap: 1rem; z-index: 42; }
 
 @media screen and (max-width: 640px) { #top .si .search-container .main-filter-tabs.si-tab-count-0, .si .search-container .main-filter-tabs.si-tab-count-0 { display: none; } }
 
@@ -645,7 +645,7 @@ html { font-size: 14px; }
 
 #top .si .search-container .client-filters .list, .si .search-container .client-filters .list { -ms-grid-columns: ()[auto-fill]; grid-template-columns: repeat(auto-fill); }
 
-#top .si.si-filter-panel-container, .si.si-filter-panel-container { position: absolute; top: calc(var(--relative-top) - 2px); left: calc(var(--relative-left) - 4px); width: calc(var(--relative-width) + 4px); max-width: 100%; padding-top: calc(var(--relative-height) + 2px); border-radius: var(--container-border-radius); border: var(--container-border); opacity: 0; max-height: 0px; -webkit-transition: max-height 0.5s, opacity 0.25s; transition: max-height 0.5s, opacity 0.25s; z-index: 80; pointer-events: none; overflow: hidden; }
+#top .si.si-filter-panel-container, .si.si-filter-panel-container { position: absolute; top: calc(var(--relative-top) - 2px); left: calc(var(--relative-left) - 4px); width: calc(var(--relative-width) + 4px); max-width: 100%; padding-top: calc(var(--relative-height) + 2px); border-radius: var(--container-border-radius); border: var(--container-border); opacity: 0; max-height: 0px; -webkit-transition: max-height 0.5s, opacity 0.25s; transition: max-height 0.5s, opacity 0.25s; z-index: 40; pointer-events: none; overflow: hidden; }
 
 #top .si.si-filter-panel-container::before, .si.si-filter-panel-container::before { content: ""; position: absolute; display: block; top: calc(var(--relative-border-size) * 2); left: calc(4px + var(--container-border-radius)); width: calc(100% - 8px - var(--container-border-radius)); height: calc( (var(--relative-height) - (var(--relative-border-size) * 2)) - (2 * var(--container-border-radius))); -webkit-box-shadow: 0 0 0 100vh var(--background-color); box-shadow: 0 0 0 100vh var(--background-color); z-index: 1; }
 
@@ -925,7 +925,7 @@ html { font-size: 14px; }
 
 #top .si .si-search-filter-tags .si-tag-list .si-tag-item:hover .fa-times::before, .si .si-search-filter-tags .si-tag-list .si-tag-item:hover .fa-times::before { content: "\f068"; }
 
-.si-tab-cursor { position: absolute; top: var(--ref-top); left: calc(var(--ref-left)); width: var(--ref-width); height: 1px; overflow: visible; z-index: 85; pointer-events: none; padding: 0 var(--ref-border); }
+.si-tab-cursor { position: absolute; top: var(--ref-top); left: calc(var(--ref-left)); width: var(--ref-width); height: 1px; overflow: visible; z-index: 45; pointer-events: none; padding: 0 var(--ref-border); }
 
 .si-tab-cursor::before, .si-tab-cursor::after { content: ""; background-color: var(--background-color); width: 100%; display: block; height: 0.5rem; }
 
