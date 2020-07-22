@@ -1007,7 +1007,7 @@ siApp
             endLabel:"@"
         },
         replace: true,
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-price-range-slider.html',
+        templateUrl: directiveTemplatePath('si-price-range-slider'),
         link: function($scope, $element, attrs) {
             // It's the inner div we're really working with.
             const element = $element[0].querySelector('.inner');

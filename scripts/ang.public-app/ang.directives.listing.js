@@ -12,7 +12,7 @@ siApp
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-calculator.html?v=2',
+        templateUrl: directiveTemplatePath('si-calculator'),
         controller: function($scope, $q,$rootScope) {
             $scope.downpayment_selection = 'manual';
             
@@ -261,7 +261,7 @@ siApp
 .directive('siFavoritesButton', [function siFavoritesButton(){
     return {
         restrict: 'E',
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-favorites-button.html',
+        templateUrl: directiveTemplatePath('si-favorites-button'),
         replace: true,
         link: function($scope, $element, $attr){
             $scope.init($element);
@@ -364,7 +364,7 @@ siApp
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-image-slider.html?v=4',
+        templateUrl: directiveTemplatePath('si-image-slider'),
         link: function (scope, element, attrs) {
             scope.$element = element[0];
             
@@ -816,7 +816,7 @@ siApp
             display : '@siDisplay',
             panelTitle: '@?siTitle'
         },
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-listing-navigation.html?v=2',
+        templateUrl: directiveTemplatePath('si-listing-navigation'),
         link: function($scope, element, attr){
             $scope.init();
         },
@@ -879,517 +879,6 @@ siApp
 
 siApp
 .directive('siMap', function siMap( ){
-    const dir_controller = 
-    function($scope, $q, $siApi, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
-        $scope.ready = false;
-        $scope.is_visible = false;
-        $scope.zoom = 8;
-        $scope.is_loading_data = false;
-        $scope.late_init = true;
-        $scope.markers = [];
-        $scope.markerCluster = null;
-        $scope.bounds = null;
-        $scope.client = {
-            search_token : null
-        };
-
-        $scope.permalink = '';
-
-        $scope.$onInit = function(){
-            if($scope.latlng!=null){
-                $scope.$on('si-display-map', $scope.display);
-                //$scope.mapInit();
-            }
-            else{
-                $scope.$on('si-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
-                $scope.$on('si-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
-            }
-
-            $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
-        }
-
-        $scope.display = function(){
-            $scope.mapInit();
-        }
-
-        $scope.mapInit = function(){
-            if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
-
-            return $q(function($resolve, $reject){   
-                $siConfig.get().then(function($config){
-                    if($scope.ready == false){
-                        //console.log('Map init', $config, $scope.zoom);
-                        
-                        let options = {
-                            center: new google.maps.LatLng(45.6025503,-73.8469538),
-                            zoom: Number($scope.zoom),
-                            //disableDefaultUI: true    
-                        }
-
-                        if($config.map_style){
-                            try {
-                                const lParsedMapStyle = JSON.parse($config.map_style);
-                                if(lParsedMapStyle) options.styles = lParsedMapStyle;    
-                            } catch (error) {
-                                
-                            }
-                            
-                        }
-                        
-                        //console.log('map options', options);
-
-                        $scope.map = new google.maps.Map(
-                            $scope.viewport_element, options
-                        );
-
-                        $scope.ready = true;
-                        $resolve();
-                    }
-                    else{
-                        $resolve();
-                    }
-                });  
-            })
-        }
-
-        $scope.setZoom = function($zoom){
-            if(isNaN($zoom)) return;
-
-            $scope.map.setZoom($zoom);
-        }
-
-        /**
-         * Main entry function to get the list
-         * Will update the searchToken if required by client overrides
-         */
-        $scope.getList = function(){
-            if($scope.is_loading_data==false){
-                $scope.search($scope.getSearchToken());
-            }
-        }
-
-        /**
-         * Get the search token
-         * Request a new one if client has input some filters or sort of his own
-         */
-        $scope.getSearchToken = function(){
-            if($scope.client.search_token != null){
-                return $scope.client.search_token;
-            }
-            return $scope.configs.search_token;
-        }
-
-        $scope.onFilterTokenChanged = function($event, $newToken){
-            $scope.client.search_token = $newToken;
-            $scope.isReady().then(function(){
-                //console.log('update list from token changed');
-                $scope.getList();
-            })
-        }
-        $scope.onSwitchToMap = function(){
-            $scope.mapInit().then(function(){
-                if($scope.bounds){
-                    //console.log('fit to bounds', $scope.bounds);
-                    window.setTimeout(function(){
-                        $scope.map.fitBounds($scope.bounds);
-                    }, 250);
-                }
-                if($scope.markers.length==0){
-                    $scope.getList();
-                }
-                $scope.is_visible = true;
-            });
-        }
-        $scope.onSwitchToList = function(){
-            
-            $scope.is_visible = false;
-        }
-
-        /**
-         * Call the API and return the list 
-         * @param {string} $token Search token
-         */
-        $scope.search = function($token){
-            lParams = {'st': $token};
-            $scope.page_index = 0;
-            $scope.is_loading_data = true;
-            $siApi.api($scope.getEndpoint() + 'map_markers', lParams,{method:'GET'}).then(function($response){
-                $scope.list = $response.markers;
-                $scope.updateMarkerList()
-                //console.log('marker list:', $scope.list);
-                $rootScope.$broadcast('si-listings-update',$scope.list,{item_count: $scope.list.length});
-                $scope.is_loading_data = false;
-            })
-            
-        }
-        
-        /**
-         * Get the api endpoint matching the config type
-         */
-        $scope.getEndpoint = function(){
-            let lOrigin = $scope.getEndpointType();
-            return lOrigin.concat('/view/',$scope.configs.source.id,'/');
-        }
-
-        $scope.getEndpointType = function(){
-            let lResult = $scope.configs.type;
-            switch(lResult){
-                case 'listings':
-                    lResult = 'listing';break;
-                case 'brokers':
-                    lResult = 'broker';break;
-                case 'cities':
-                    lResult = 'city';break;
-            }
-            return lResult;
-        }
-
-        $scope.clear = function(){
-            if($scope.markers){
-                $scope.markers.forEach(function($m){
-                    $m.setMap(null);
-                });
-            }
-
-            if($scope.markerCluster != null){
-                $scope.markerCluster.clearMarkers();
-            }
-            $scope.markers = [];
-        }
-
-        $scope.addSingleMarker = function($location) {
-            //console.log('adding single marker at', $location);
-            
-            $scope.clear();
-            $scope.markers.push(new google.maps.Marker({
-                map: $scope.map,
-                position: $location,
-                animation: google.maps.Animation.DROP
-            }));
-            $scope.map.setCenter($location);
-        }
-
-        $scope.updateMarkerList = function(){
-            $scope.clear();
-            $scope.bounds = new google.maps.LatLngBounds();
-            const lPoints = [];
-
-            //console.log($scope.list[0]);
-            $siConfig.get().then(function($configs){
-                const lListConfig = $configs.lists.find(function($e) {return $e.alias==$scope.alias});
-                const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
-                const lSmartFocusTolerance = lListConfig.smart_focus_tolerance || 5;
-
-                $scope.list.forEach(function($marker){
-                    let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
-                    if($marker.category_code == undefined) { 
-                        console.log('invalid map marker', $marker);
-                        return;
-                    }
-
-                    const lMarkerClass = ['map-marker-icon',$marker.category_code.replace(' ','_')];
-                    if($marker.status_code != undefined){
-                        lMarkerClass.push($marker.status_code.toLowerCase());
-                    }
-                    $marker.marker = new SiMarker({
-                        position: lngLat,
-                        map: $scope.map,
-                        obj: $marker,
-                        markerClass: lMarkerClass,
-                        onPinClick: $scope.pinClick
-                    });
-                    
-                    $scope.markers.push($marker.marker);
-                    const lLngLat = $marker.marker.getPosition();
-                    lPoints.push({x: lLngLat.lat(), y: lLngLat.lng(), lngLat: lLngLat});
-                    //$scope.extendBounds($scope.bounds, lLngLat);
-                });
-
-                if(lSmartFocusTolerance != 'off'){
-                    
-                    //console.log('points', angular.copy(lPoints));
-                    const lXMed = $scope.median(lPoints.map(function($p) {return $p.x}));
-                    const lYMed = $scope.median(lPoints.map(function($p) {return $p.y}));
-                    let lXAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lXMed - $p.x))}, 0) / lPoints.length);
-                    let lYAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lYMed - $p.y))}, 0) / lPoints.length);
-
-                    if(lSmartFocusTolerance > 0){
-                        const lLatDegKm = 110.574;
-                        const lLngDegKm = 111.320;
-                        const deg2rad = function($deg) {return ($deg*Math.PI)/180};
-
-                        lXAvg = lXAvg + (lSmartFocusTolerance / lLatDegKm);
-                        lYAvg = lYAvg + ((lSmartFocusTolerance / lLngDegKm) / Math.cos(deg2rad(lYAvg)));
-                    }
-                    
-                    const lMedianRect = {
-                        x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
-                        y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
-                        contains: function($x, $y){
-                            //console.log($x, $y, 'contained in ', this);
-                            return ($x > this.x && $x < this.x_prime) &&
-                                    ($y > this.y && $y < this.y_prime)
-                        }
-                    }
-                
-
-                    
-                    lPoints
-                        .filter(function($p) {return lMedianRect.contains($p.x,$p.y)} )
-                        .forEach(function($p) {$scope.bounds.extend($p.lngLat)})
-                
-                }
-                else{
-                    lPoints
-                        .forEach(function($p){$scope.bounds.extend($p.lngLat)})
-                }
-                    
-                if($scope.list.length>1){
-                    let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
-                    let lClustererOptions = {
-                        //cssClass : 'siMarkerCluster',
-                        gridSize: 80,
-                        styles: [{
-                            url: lImagePath + '1.png',
-                            height: 53,
-                            width: 54,
-                            anchor: [0, 0]
-                        }, {
-                            url: lImagePath + '2.png',
-                            height: 56,
-                            width: 55,
-                            anchor: [0, 0]
-                        }, {
-                            url: lImagePath + '3.png',
-                            width: 66,
-                            height: 65,
-                            anchor: [0, 0]
-                        }]
-                    };
-
-                    lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
-
-                    $scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
-                    
-                    if($scope.is_visible == true){
-                        
-                        window.setTimeout(function(){
-                            
-                            $scope.map.fitBounds($scope.bounds);
-
-                            if(lDefaultZoom != 'auto'){
-                                $scope.map.setZoom(Number(lDefaultZoom));
-                            }
-                        },250);
-                        
-                    }
-                }
-                else if ($scope.list.length>0){
-                    $scope.map.setCenter($scope.list[0].marker.getPosition());
-                    
-                    if(lDefaultZoom != 'auto'){
-                        $scope.map.setZoom(Number(lDefaultZoom));
-                    }
-                    else{
-                        $scope.map.setZoom(12);
-                    }
-                }
-            });
-            //console.log('Map markers updated');
-        }
-
-        $scope.median = function(values){
-            values.sort(function(a,b){
-              return a-b;
-          });
-          var half = Math.floor(values.length / 2);
-          
-          if (values.length % 2)
-              return values[half];
-          else
-              return (values[half - 1] + values[half]) / 2.0;
-        }
-
-        $scope.extendBounds = function($bounds, $lngLat){
-
-            $bounds.extend($lngLat);
-        }
-
-        $scope.pinClick = function($marker){
-            //console.log('Marker clicked', $marker);
-            //$scope.showListing($marker.obj.id);
-
-            $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
-                
-                let lInfoWindowScope = $siCompiler;
-                $siDictionary.source = $response.dictionary;
-
-                lInfoWindowScope.compileListingItem($response);
-                lInfoWindowScope.item = $response;
-
-                //console.log('lInfoWindowScope',lInfoWindowScope);
-                $siTemplate.load('views/ang-templates/si-map-info-window.html?v=2', lInfoWindowScope).then(function($content){
-                    let infowindow = new google.maps.InfoWindow({
-                        content: $content
-                    });
-                    
-                    infowindow.open($scope.map, $marker);
-                });
-
-            });
-
-            
-        }
-
-        $scope.showListing = function(){
-
-        }
-
-
-
-        $scope.isReady = function(){
-            let lPromise = $q(function($resolve,$reject){
-                if($scope.ready==true){
-                    $resolve();
-                }
-                else{
-                    $scope.$watch('ready', function(){
-                        if($scope.ready==true){
-                            $resolve();
-                        }
-                    });
-                }
-            
-            });
-
-            return lPromise;
-        }
-
-        $scope.$watch('latlng', function(){
-            if($scope.latlng != null && $scope.latlng.lat!=undefined){
-                //console.log('latlng', $scope.latlng);
-                $scope.isReady().then(function(){
-                    $scope.addSingleMarker($scope.latlng);
-                });
-            }
-        });
-
-        $scope.$watch('zoom', function(){
-            if($scope.zoom != null){
-                $scope.isReady().then(function(){
-                    $scope.setZoom(Number($scope.zoom));
-                });
-            }
-        });
-
-
-        function SiMarker(options) {
-
-            // Initialize all properties.
-            this.latlng_ = options.position;
-            this.markerClass = options.markerClass;
-            this.onClick = options.onPinClick;
-            this.obj = options.obj;
-            // Define a property to hold the image's div. We'll
-            // actually create this div upon receipt of the onAdd()
-            // method so we'll leave it null for now.
-            this.div_ = null;
-            this.title = options.title;
-  
-            // Explicitly call setMap on this overlay.
-            this.setMap(options.map);
-        }
-        if( typeof(google) != 'undefined'){
-            SiMarker.prototype = new google.maps.OverlayView();
-            (function($proto){
-                $proto.draw = function() {
-                    var me = this;
-                    var div = this.div_;
-                    
-
-                    var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
-                    if (point) {
-                    div.style.left = point.x + 'px';
-                    div.style.top = point.y + 'px';
-                    }
-                };
-                
-                $proto.onAdd = function() {
-                    var me = this;
-                    div = this.div_ = document.createElement('DIV');
-                    div.style.border = "none";
-                    div.style.position = "absolute";
-                    div.style.paddingLeft = "0px";
-                    div.style.cursor = 'pointer';
-                    //you could/should do most of the above via styling the class added below
-                    this.markerClass.forEach(function($c){
-                        div.classList.add($c.toLowerCase());
-                    })
-                                    
-                    google.maps.event.addDomListener(div, "click", function(event) {
-
-                        if(typeof(me.onClick)=='function'){
-                            me.onClick(me);
-                        }
-                        //google.maps.event.trigger(me, "click");
-                    });
-
-                    var panes = this.getPanes();
-                    panes.overlayImage.appendChild(div);
-                };
-                
-                $proto.onRemove = function() {
-                    if(this.div_ != null){
-                        this.div_.parentNode.removeChild(this.div_);
-                        this.div_ = null;
-                    }
-                };
-
-                // Set the visibility to 'hidden' or 'visible'.
-                $proto.hide = function() {
-                if (this.div_) {
-                    // The visibility property must be a string enclosed in quotes.
-                    this.div_.style.visibility = 'hidden';
-                }
-                };
-
-                $proto.show = function() {
-                if (this.div_) {
-                    this.div_.style.visibility = 'visible';
-                }
-                };
-
-                $proto.toggle = function() {
-                if (this.div_) {
-                    if (this.div_.style.visibility === 'hidden') {
-                    this.show();
-                    } else {
-                    this.hide();
-                    }
-                }
-                };
-
-                $proto.getPosition = function(){
-                    return this.latlng_;
-                }
-
-                // Detach the map from the DOM via toggleDOM().
-                // Note that if we later reattach the map, it will be visible again,
-                // because the containing <div> is recreated in the overlay's onAdd() method.
-                $proto.toggleDOM = function() {
-                if (this.getMap()) {
-                    // Note: setMap(null) calls OverlayView.onRemove()
-                    this.setMap(null);
-                } else {
-                    this.setMap(this.map_);
-                }
-                };
-
-            })(SiMarker.prototype);
-        }
-    };
-
-
     return {
         restrict: 'E',
         replace: true,
@@ -1401,12 +890,528 @@ siApp
             zoom: '@'
         },
         controllerAs: 'ctrl',
-        template: '<div class="si-map-container"><div id="map-{{alias}}" class="viewport"></div></div>',
-        controller: dir_controller,
+        templateUrl: directiveTemplatePath('si-map'),
         link: function($scope, element){
             $scope.viewport_element = element.children()[0];
-            $scope.$onInit();
+            $scope.init();
+        },
+        controller: function($scope, $q, $siApi, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
+            $scope.ready = false;
+            $scope.is_visible = false;
+            $scope.zoom = 8;
+            $scope.is_loading_data = false;
+            $scope.late_init = true;
+            $scope.markers = [];
+            $scope.markerCluster = null;
+            $scope.bounds = null;
+            $scope.client = {
+                search_token : null
+            };
+    
+            $scope.permalink = '';
+    
+            $scope.init = function(){
+                if($scope.latlng!=null){
+                    $scope.$on('si-display-map', $scope.display);
+                    //$scope.mapInit();
+                }
+                else{
+                    $scope.$on('si-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
+                    $scope.$on('si-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
+                }
+    
+                $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
+            }
+    
+            $scope.display = function(){
+                $scope.mapInit();
+            }
+    
+            $scope.mapInit = function(){
+                if(typeof google == 'undefined') {console.error('google map object is undefined');return;}
+    
+                return $q(function($resolve, $reject){   
+                    $siConfig.get().then(function($config){
+                        if($scope.ready == false){
+                            //console.log('Map init', $config, $scope.zoom);
+                            
+                            let options = {
+                                center: new google.maps.LatLng(45.6025503,-73.8469538),
+                                zoom: Number($scope.zoom),
+                                //disableDefaultUI: true    
+                            }
+    
+                            if($config.map_style){
+                                try {
+                                    const lParsedMapStyle = JSON.parse($config.map_style);
+                                    if(lParsedMapStyle) options.styles = lParsedMapStyle;    
+                                } catch (error) {
+                                    
+                                }
+                                
+                            }
+                            
+                            //console.log('map options', options);
+    
+                            $scope.map = new google.maps.Map(
+                                $scope.viewport_element, options
+                            );
+    
+                            $scope.ready = true;
+                            $resolve();
+                        }
+                        else{
+                            $resolve();
+                        }
+                    });  
+                })
+            }
+    
+            $scope.setZoom = function($zoom){
+                if(isNaN($zoom)) return;
+    
+                $scope.map.setZoom($zoom);
+            }
+    
+            /**
+             * Main entry function to get the list
+             * Will update the searchToken if required by client overrides
+             */
+            $scope.getList = function(){
+                if($scope.is_loading_data==false){
+                    $scope.search($scope.getSearchToken());
+                }
+            }
+    
+            /**
+             * Get the search token
+             * Request a new one if client has input some filters or sort of his own
+             */
+            $scope.getSearchToken = function(){
+                if($scope.client.search_token != null){
+                    return $scope.client.search_token;
+                }
+                return $scope.configs.search_token;
+            }
+    
+            $scope.onFilterTokenChanged = function($event, $newToken){
+                $scope.client.search_token = $newToken;
+                $scope.isReady().then(function(){
+                    //console.log('update list from token changed');
+                    $scope.getList();
+                })
+            }
+            $scope.onSwitchToMap = function(){
+                $scope.mapInit().then(function(){
+                    if($scope.bounds){
+                        //console.log('fit to bounds', $scope.bounds);
+                        window.setTimeout(function(){
+                            $scope.map.fitBounds($scope.bounds);
+                        }, 250);
+                    }
+                    if($scope.markers.length==0){
+                        $scope.getList();
+                    }
+                    $scope.is_visible = true;
+                });
+            }
+            $scope.onSwitchToList = function(){
+                
+                $scope.is_visible = false;
+            }
+    
+            /**
+             * Call the API and return the list 
+             * @param {string} $token Search token
+             */
+            $scope.search = function($token){
+                lParams = {'st': $token};
+                $scope.page_index = 0;
+                $scope.is_loading_data = true;
+                $siApi.api($scope.getEndpoint() + 'map_markers', lParams,{method:'GET'}).then(function($response){
+                    $scope.list = $response.markers;
+                    $scope.updateMarkerList()
+                    //console.log('marker list:', $scope.list);
+                    $rootScope.$broadcast('si-listings-update',$scope.list,{item_count: $scope.list.length});
+                    $scope.is_loading_data = false;
+                })
+                
+            }
+            
+            /**
+             * Get the api endpoint matching the config type
+             */
+            $scope.getEndpoint = function(){
+                let lOrigin = $scope.getEndpointType();
+                return lOrigin.concat('/view/',$scope.configs.source.id,'/');
+            }
+    
+            $scope.getEndpointType = function(){
+                let lResult = $scope.configs.type;
+                switch(lResult){
+                    case 'listings':
+                        lResult = 'listing';break;
+                    case 'brokers':
+                        lResult = 'broker';break;
+                    case 'cities':
+                        lResult = 'city';break;
+                }
+                return lResult;
+            }
+    
+            $scope.clear = function(){
+                if($scope.markers){
+                    $scope.markers.forEach(function($m){
+                        $m.setMap(null);
+                    });
+                }
+    
+                if($scope.markerCluster != null){
+                    $scope.markerCluster.clearMarkers();
+                }
+                $scope.markers = [];
+            }
+    
+            $scope.addSingleMarker = function($location) {
+                //console.log('adding single marker at', $location);
+                
+                $scope.clear();
+                $scope.markers.push(new google.maps.Marker({
+                    map: $scope.map,
+                    position: $location,
+                    animation: google.maps.Animation.DROP
+                }));
+                $scope.map.setCenter($location);
+            }
+    
+            $scope.updateMarkerList = function(){
+                $scope.clear();
+                $scope.bounds = new google.maps.LatLngBounds();
+                const lPoints = [];
+    
+                //console.log($scope.list[0]);
+                $siConfig.get().then(function($configs){
+                    const lListConfig = $configs.lists.find(function($e) {return $e.alias==$scope.alias});
+                    const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
+                    const lSmartFocusTolerance = lListConfig.smart_focus_tolerance || 5;
+    
+                    $scope.list.forEach(function($marker){
+                        let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
+                        if($marker.category_code == undefined) { 
+                            console.log('invalid map marker', $marker);
+                            return;
+                        }
+    
+                        const lMarkerClass = ['map-marker-icon',$marker.category_code.replace(' ','_')];
+                        if($marker.status_code != undefined){
+                            lMarkerClass.push($marker.status_code.toLowerCase());
+                        }
+                        $marker.marker = new SiMarker({
+                            position: lngLat,
+                            map: $scope.map,
+                            obj: $marker,
+                            markerClass: lMarkerClass,
+                            onPinClick: $scope.pinClick
+                        });
+                        
+                        $scope.markers.push($marker.marker);
+                        const lLngLat = $marker.marker.getPosition();
+                        lPoints.push({x: lLngLat.lat(), y: lLngLat.lng(), lngLat: lLngLat});
+                        //$scope.extendBounds($scope.bounds, lLngLat);
+                    });
+    
+                    if(lSmartFocusTolerance != 'off'){
+                        
+                        //console.log('points', angular.copy(lPoints));
+                        const lXMed = $scope.median(lPoints.map(function($p) {return $p.x}));
+                        const lYMed = $scope.median(lPoints.map(function($p) {return $p.y}));
+                        let lXAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lXMed - $p.x))}, 0) / lPoints.length);
+                        let lYAvg = (lPoints.reduce(function ($sum, $p){ return ($sum+Math.abs(lYMed - $p.y))}, 0) / lPoints.length);
+    
+                        if(lSmartFocusTolerance > 0){
+                            const lLatDegKm = 110.574;
+                            const lLngDegKm = 111.320;
+                            const deg2rad = function($deg) {return ($deg*Math.PI)/180};
+    
+                            lXAvg = lXAvg + (lSmartFocusTolerance / lLatDegKm);
+                            lYAvg = lYAvg + ((lSmartFocusTolerance / lLngDegKm) / Math.cos(deg2rad(lYAvg)));
+                        }
+                        
+                        const lMedianRect = {
+                            x: lXMed - lXAvg, x_prime: lXMed + lXAvg,
+                            y: lYMed - lYAvg, y_prime: lYMed + lYAvg,
+                            contains: function($x, $y){
+                                //console.log($x, $y, 'contained in ', this);
+                                return ($x > this.x && $x < this.x_prime) &&
+                                        ($y > this.y && $y < this.y_prime)
+                            }
+                        }
+                    
+    
+                        
+                        lPoints
+                            .filter(function($p) {return lMedianRect.contains($p.x,$p.y)} )
+                            .forEach(function($p) {$scope.bounds.extend($p.lngLat)})
+                    
+                    }
+                    else{
+                        lPoints
+                            .forEach(function($p){$scope.bounds.extend($p.lngLat)})
+                    }
+                        
+                    if($scope.list.length>1){
+                        let lImagePath = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m';
+                        let lClustererOptions = {
+                            //cssClass : 'siMarkerCluster',
+                            gridSize: 80,
+                            styles: [{
+                                url: lImagePath + '1.png',
+                                height: 53,
+                                width: 54,
+                                anchor: [0, 0]
+                            }, {
+                                url: lImagePath + '2.png',
+                                height: 56,
+                                width: 55,
+                                anchor: [0, 0]
+                            }, {
+                                url: lImagePath + '3.png',
+                                width: 66,
+                                height: 65,
+                                anchor: [0, 0]
+                            }]
+                        };
+    
+                        lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
+    
+                        $scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
+                        
+                        if($scope.is_visible == true){
+                            
+                            window.setTimeout(function(){
+                                
+                                $scope.map.fitBounds($scope.bounds);
+    
+                                if(lDefaultZoom != 'auto'){
+                                    $scope.map.setZoom(Number(lDefaultZoom));
+                                }
+                            },250);
+                            
+                        }
+                    }
+                    else if ($scope.list.length>0){
+                        $scope.map.setCenter($scope.list[0].marker.getPosition());
+                        
+                        if(lDefaultZoom != 'auto'){
+                            $scope.map.setZoom(Number(lDefaultZoom));
+                        }
+                        else{
+                            $scope.map.setZoom(12);
+                        }
+                    }
+                });
+                //console.log('Map markers updated');
+            }
+    
+            $scope.median = function(values){
+                values.sort(function(a,b){
+                  return a-b;
+              });
+              var half = Math.floor(values.length / 2);
+              
+              if (values.length % 2)
+                  return values[half];
+              else
+                  return (values[half - 1] + values[half]) / 2.0;
+            }
+    
+            $scope.extendBounds = function($bounds, $lngLat){
+    
+                $bounds.extend($lngLat);
+            }
+    
+            $scope.pinClick = function($marker){
+                //console.log('Marker clicked', $marker);
+                // $scope.selectItem($marker.obj.id);
+                // return;
+
+                $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
+                    
+                    let lInfoWindowScope = $siCompiler;
+                    $siDictionary.source = $response.dictionary;
+    
+                    lInfoWindowScope.compileListingItem($response);
+                    lInfoWindowScope.item = $response;
+    
+                    //console.log('lInfoWindowScope',lInfoWindowScope);
+                    $siTemplate.load('views/ang-templates/si-map-info-window.html?v=2', lInfoWindowScope).then(function($content){
+                        let infowindow = new google.maps.InfoWindow({
+                            content: $content
+                        });
+                        
+                        infowindow.open($scope.map, $marker);
+                    });
+    
+                });
+    
+                
+            }
+    
+            $scope.selectItem = function($id){
+                $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$id)).then(function($response){
+                    $siDictionary.source = $response.dictionary;
+                    $siCompiler.compileListingItem($response);
+
+                    $scope.selectedItem = $response;
+
+                    $scope.$emit('siMap/showItem', $response);
+                });
+            }
+    
+    
+    
+            $scope.isReady = function(){
+                let lPromise = $q(function($resolve,$reject){
+                    if($scope.ready==true){
+                        $resolve();
+                    }
+                    else{
+                        $scope.$watch('ready', function(){
+                            if($scope.ready==true){
+                                $resolve();
+                            }
+                        });
+                    }
+                
+                });
+    
+                return lPromise;
+            }
+    
+            $scope.$watch('latlng', function(){
+                if($scope.latlng != null && $scope.latlng.lat!=undefined){
+                    //console.log('latlng', $scope.latlng);
+                    $scope.isReady().then(function(){
+                        $scope.addSingleMarker($scope.latlng);
+                    });
+                }
+            });
+    
+            $scope.$watch('zoom', function(){
+                if($scope.zoom != null){
+                    $scope.isReady().then(function(){
+                        $scope.setZoom(Number($scope.zoom));
+                    });
+                }
+            });
+    
+    
+            function SiMarker(options) {
+    
+                // Initialize all properties.
+                this.latlng_ = options.position;
+                this.markerClass = options.markerClass;
+                this.onClick = options.onPinClick;
+                this.obj = options.obj;
+                // Define a property to hold the image's div. We'll
+                // actually create this div upon receipt of the onAdd()
+                // method so we'll leave it null for now.
+                this.div_ = null;
+                this.title = options.title;
+      
+                // Explicitly call setMap on this overlay.
+                this.setMap(options.map);
+            }
+            if( typeof(google) != 'undefined'){
+                SiMarker.prototype = new google.maps.OverlayView();
+                (function($proto){
+                    $proto.draw = function() {
+                        var me = this;
+                        var div = this.div_;
+                        
+    
+                        var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+                        if (point) {
+                        div.style.left = point.x + 'px';
+                        div.style.top = point.y + 'px';
+                        }
+                    };
+                    
+                    $proto.onAdd = function() {
+                        var me = this;
+                        div = this.div_ = document.createElement('DIV');
+                        div.style.border = "none";
+                        div.style.position = "absolute";
+                        div.style.paddingLeft = "0px";
+                        div.style.cursor = 'pointer';
+                        //you could/should do most of the above via styling the class added below
+                        this.markerClass.forEach(function($c){
+                            div.classList.add($c.toLowerCase());
+                        })
+                                        
+                        google.maps.event.addDomListener(div, "click", function(event) {
+    
+                            if(typeof(me.onClick)=='function'){
+                                me.onClick(me);
+                            }
+                            //google.maps.event.trigger(me, "click");
+                        });
+    
+                        var panes = this.getPanes();
+                        panes.overlayImage.appendChild(div);
+                    };
+                    
+                    $proto.onRemove = function() {
+                        if(this.div_ != null){
+                            this.div_.parentNode.removeChild(this.div_);
+                            this.div_ = null;
+                        }
+                    };
+    
+                    // Set the visibility to 'hidden' or 'visible'.
+                    $proto.hide = function() {
+                    if (this.div_) {
+                        // The visibility property must be a string enclosed in quotes.
+                        this.div_.style.visibility = 'hidden';
+                    }
+                    };
+    
+                    $proto.show = function() {
+                    if (this.div_) {
+                        this.div_.style.visibility = 'visible';
+                    }
+                    };
+    
+                    $proto.toggle = function() {
+                    if (this.div_) {
+                        if (this.div_.style.visibility === 'hidden') {
+                        this.show();
+                        } else {
+                        this.hide();
+                        }
+                    }
+                    };
+    
+                    $proto.getPosition = function(){
+                        return this.latlng_;
+                    }
+    
+                    // Detach the map from the DOM via toggleDOM().
+                    // Note that if we later reattach the map, it will be visible again,
+                    // because the containing <div> is recreated in the overlay's onAdd() method.
+                    $proto.toggleDOM = function() {
+                    if (this.getMap()) {
+                        // Note: setMap(null) calls OverlayView.onRemove()
+                        this.setMap(null);
+                    } else {
+                        this.setMap(this.map_);
+                    }
+                    };
+    
+                })(SiMarker.prototype);
+            }
         }
+        
     };
 });
 
@@ -1543,7 +1548,7 @@ function siMediabox($parse){
 
             $scope.init();
         },
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-mediabox.html?v=2',
+        templateUrl: directiveTemplatePath('si-mediabox'),
         replace: true,
         controller : function($scope, $siConfig,$timeout){
             $scope.selected_media = $scope.defaultTab || 'pictures';
@@ -1874,7 +1879,7 @@ siApp
     function siThumbnailsSlider($timeout){
         return {
             restrict: 'E',
-            templateUrl: siCtx.base_path + 'views/ang-templates/si-thumbnails-slider.html',
+            templateUrl: directiveTemplatePath('si-thumbnails-slider'),
             replace: true,
             scope: {
                 list: '=siList'

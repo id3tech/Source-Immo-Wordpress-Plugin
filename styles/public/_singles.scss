@@ -765,8 +765,8 @@
             color:var(--medium-contrast-text-color);
 
             .si-calculator{padding:1.5rem;}
-            .title{
-                font-size:1.6em;padding:1.5rem;
+            .si-title{
+                font-size:1.5rem;padding:1.5rem;
                 @include media($small-phone){
                     text-align:center;
                     i{display:block;}
@@ -779,18 +779,21 @@
                 padding:1.5rem;
                 text-align:center;
                 .mortgage,.transfer-taxes{
-                    font-size:1.2em;
+                    font-size:1.2rem;
                     margin-bottom:10px;
                     color:var(--high-contrast-text-color);
                 }
                 label{
                     color:inherit;opacity:0.5;
-                    font-size:1.25em;
+                    font-size:1.25rem;
                 }
                 .value{
-                    line-height:1.5em;
                     color:inherit;
-                    em{font-size:1.75em;display:block;font-style:normal;}
+                    line-height: 1;
+                    padding: 0.25rem;
+
+                    em{font-size:1.75rem;display:block;font-style:normal;}
+                    span{font-size:1rem;}
                 }
             }
             .notice{
@@ -806,7 +809,7 @@
         }
         .rooms{
             .unit-list{
-                .title{
+                .si-title{
                     display:grid;
                     grid-template-columns: 1fr auto;
                 }
@@ -952,7 +955,7 @@
             .detail-section{
                 margin-bottom: 1.5rem;
 
-                > .title{
+                > .si-title{
                     pointer-events: none;
                     .icon{
                         display:none;
@@ -1086,7 +1089,7 @@
             }
             .languages, .expertises{
                 .title{
-                    font-size:15px;
+                    font-size:1.25rem;
                 }
             } 
             // Remove next line when "Language" becomes available
@@ -1138,8 +1141,18 @@
             .list-container{
                 display:grid;
                 gap:var(--layout-gutter);
-                grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
-                place-items:stretch;
+                grid-template-columns: repeat(var(--desktop-column-width),1fr);
+                place-items: stretch;
+                
+                @include media($laptop){
+                    grid-template-columns: repeat(var(--laptop-column-width),1fr);
+                }
+                @include media($tablet){
+                    grid-template-columns: repeat(var(--tablet-column-width),1fr);
+                }
+                @include media($phone){
+                    grid-template-columns: repeat(var(--mobile-column-width),1fr);
+                }
                 > div{
                     display:grid;place-items:stretch;
                     transition:0.25s;

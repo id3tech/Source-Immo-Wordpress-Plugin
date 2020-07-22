@@ -1424,26 +1424,28 @@ html { font-size: 14px; }
 
 #top .si.listing-single .mortgage-calculator .si-calculator, .si.listing-single .mortgage-calculator .si-calculator { padding: 1.5rem; }
 
-#top .si.listing-single .mortgage-calculator .title, .si.listing-single .mortgage-calculator .title { font-size: 1.6em; padding: 1.5rem; }
+#top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { font-size: 1.5rem; padding: 1.5rem; }
 
-@media screen and (max-width: 420px) { #top .si.listing-single .mortgage-calculator .title, .si.listing-single .mortgage-calculator .title { text-align: center; }
-  #top .si.listing-single .mortgage-calculator .title i, .si.listing-single .mortgage-calculator .title i { display: block; } }
+@media screen and (max-width: 420px) { #top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { text-align: center; }
+  #top .si.listing-single .mortgage-calculator .si-title i, .si.listing-single .mortgage-calculator .si-title i { display: block; } }
 
 #top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { background: var(--high-contrast-color); color: var(--high-contrast-text-color); padding: 1.5rem; text-align: center; }
 
-#top .si.listing-single .mortgage-calculator .result .mortgage, #top .si.listing-single .mortgage-calculator .result .transfer-taxes, .si.listing-single .mortgage-calculator .result .mortgage, .si.listing-single .mortgage-calculator .result .transfer-taxes { font-size: 1.2em; margin-bottom: 10px; color: var(--high-contrast-text-color); }
+#top .si.listing-single .mortgage-calculator .result .mortgage, #top .si.listing-single .mortgage-calculator .result .transfer-taxes, .si.listing-single .mortgage-calculator .result .mortgage, .si.listing-single .mortgage-calculator .result .transfer-taxes { font-size: 1.2rem; margin-bottom: 10px; color: var(--high-contrast-text-color); }
 
-#top .si.listing-single .mortgage-calculator .result label, .si.listing-single .mortgage-calculator .result label { color: inherit; opacity: 0.5; font-size: 1.25em; }
+#top .si.listing-single .mortgage-calculator .result label, .si.listing-single .mortgage-calculator .result label { color: inherit; opacity: 0.5; font-size: 1.25rem; }
 
-#top .si.listing-single .mortgage-calculator .result .value, .si.listing-single .mortgage-calculator .result .value { line-height: 1.5em; color: inherit; }
+#top .si.listing-single .mortgage-calculator .result .value, .si.listing-single .mortgage-calculator .result .value { color: inherit; line-height: 1; padding: 0.25rem; }
 
-#top .si.listing-single .mortgage-calculator .result .value em, .si.listing-single .mortgage-calculator .result .value em { font-size: 1.75em; display: block; font-style: normal; }
+#top .si.listing-single .mortgage-calculator .result .value em, .si.listing-single .mortgage-calculator .result .value em { font-size: 1.75rem; display: block; font-style: normal; }
+
+#top .si.listing-single .mortgage-calculator .result .value span, .si.listing-single .mortgage-calculator .result .value span { font-size: 1rem; }
 
 #top .si.listing-single .mortgage-calculator .notice, .si.listing-single .mortgage-calculator .notice { margin-top: 20px; font-size: 0.8rem; opacity: 0.33; line-height: 1.4em; font-style: italic; }
 
 #top .si.listing-single .in-exclusions label, .si.listing-single .in-exclusions label { font-weight: 700; }
 
-#top .si.listing-single .rooms .unit-list .title, .si.listing-single .rooms .unit-list .title { display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; }
+#top .si.listing-single .rooms .unit-list .si-title, .si.listing-single .rooms .unit-list .si-title { display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; }
 
 #top .si.listing-single .rooms .unit-list .flags, .si.listing-single .rooms .unit-list .flags { display: -ms-grid; display: grid; -ms-grid-columns: 1fr (auto)[var]; grid-template-columns: 1fr repeat(var(--unit-flag-count), auto); gap: 0px; margin: 10px auto; place-items: center end; background-color: var(--medium-contrast-color); border-radius: var(--element-border-radius); overflow: hidden; }
 
@@ -1515,9 +1517,9 @@ html { font-size: 14px; }
 
 #top .si.listing-single.si-expend-sections .detail-section, .si.listing-single.si-expend-sections .detail-section { margin-bottom: 1.5rem; }
 
-#top .si.listing-single.si-expend-sections .detail-section > .title, .si.listing-single.si-expend-sections .detail-section > .title { pointer-events: none; }
+#top .si.listing-single.si-expend-sections .detail-section > .si-title, .si.listing-single.si-expend-sections .detail-section > .si-title { pointer-events: none; }
 
-#top .si.listing-single.si-expend-sections .detail-section > .title .icon, .si.listing-single.si-expend-sections .detail-section > .title .icon { display: none; }
+#top .si.listing-single.si-expend-sections .detail-section > .si-title .icon, .si.listing-single.si-expend-sections .detail-section > .si-title .icon { display: none; }
 
 #top .si.listing-single.si-expend-sections .detail-section .detail-section-content, .si.listing-single.si-expend-sections .detail-section .detail-section-content { max-height: unset; }
 
@@ -1569,7 +1571,7 @@ html { font-size: 14px; }
 
 #top .si.broker-single .info .license-title, .si.broker-single .info .license-title { font-size: 1.3em; text-transform: uppercase; opacity: 0.75; }
 
-#top .si.broker-single .info .languages .title, #top .si.broker-single .info .expertises .title, .si.broker-single .info .languages .title, .si.broker-single .info .expertises .title { font-size: 15px; }
+#top .si.broker-single .info .languages .title, #top .si.broker-single .info .expertises .title, .si.broker-single .info .languages .title, .si.broker-single .info .expertises .title { font-size: 1.25rem; }
 
 #top .si.broker-single .info .languages, #top .si.broker-single .info .expertises, .si.broker-single .info .languages, .si.broker-single .info .expertises { display: none; }
 
@@ -1583,7 +1585,13 @@ html { font-size: 14px; }
 
 #top .si.broker-single .contact .actions, .si.broker-single .contact .actions { padding: 10px; }
 
-#top .si.broker-single .listing-list .list-container, .si.broker-single .listing-list .list-container { display: -ms-grid; display: grid; gap: var(--layout-gutter); -ms-grid-columns: (minmax(320px, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); place-items: stretch; }
+#top .si.broker-single .listing-list .list-container, .si.broker-single .listing-list .list-container { display: -ms-grid; display: grid; gap: var(--layout-gutter); -ms-grid-columns: (1fr)[var]; grid-template-columns: repeat(var(--desktop-column-width), 1fr); place-items: stretch; }
+
+@media screen and (max-width: 1280px) { #top .si.broker-single .listing-list .list-container, .si.broker-single .listing-list .list-container { -ms-grid-columns: (1fr)[var]; grid-template-columns: repeat(var(--laptop-column-width), 1fr); } }
+
+@media screen and (max-width: 800px) { #top .si.broker-single .listing-list .list-container, .si.broker-single .listing-list .list-container { -ms-grid-columns: (1fr)[var]; grid-template-columns: repeat(var(--tablet-column-width), 1fr); } }
+
+@media screen and (max-width: 640px) { #top .si.broker-single .listing-list .list-container, .si.broker-single .listing-list .list-container { -ms-grid-columns: (1fr)[var]; grid-template-columns: repeat(var(--mobile-column-width), 1fr); } }
 
 #top .si.broker-single .listing-list .list-container > div, .si.broker-single .listing-list .list-container > div { display: -ms-grid; display: grid; place-items: stretch; -webkit-transition: 0.25s; transition: 0.25s; }
 

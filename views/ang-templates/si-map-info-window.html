@@ -2,8 +2,7 @@
 <a href="{{getPermalink(item)}}">
     <div class="item-content">
         <div class="image"><img src="{{item.photos[0].url}}" /></div>
-        <div class="price">{{formatPrice(item)}}</div>
-        <div class="ref_number">{{item.ref_number}}</div>
+        <div class="price">{{item.short_price}}</div>
         <div class="address">{{item.location.civic_address}}, {{item.location.city}}</div>
         <div class="subcategory">{{item.subcategory}}</div>
         <div class="description">{{item.description}}</div>

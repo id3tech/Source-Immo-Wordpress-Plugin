@@ -9,7 +9,10 @@
     <div class="result">
         <div class="mortgage">
             <label><?php _e('Estimated mortgage payments',SI) ?></label>
-            <div class="value"><em>{{calculator_result.mortgage.payment.formatPrice()}}</em>{{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</div>
+            <div class="value">
+                <em>{{calculator_result.mortgage.payment.formatPrice()}}</em>
+                <span>{{calculator_result.mortgage.frequency_caption.translate().toLowerCase()}}</span>
+            </div>
         </div>
         <div class="transfer-taxes">
             <label><?php _e('Transfer taxes',SI) ?></label>

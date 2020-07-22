@@ -3,7 +3,10 @@
         DIRECTIVES
 -------------------------------- */
 
-
+const directiveTemplatePath = function($path,$version){
+    $version = ($version == undefined) ? siCtx.version : $version;
+    return siCtx.base_path + 'views/ang-templates/' + $path + '.html?v=' + $version;
+}
 
 
 /**
@@ -689,7 +692,7 @@ function siSmallList($sce,$compile){
                         '<div class="search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="list-container"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+                    '<div class="list-container si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
         link: function($scope, $element, $attrs){
             $scope.init($element);
         },
@@ -699,6 +702,22 @@ function siSmallList($sce,$compile){
             $scope.view_id = null;
             $scope.list = [];
             $scope._element = null;
+
+            $scope.columnWidths = {
+                listings: {
+                    desktop: 2,
+                    laptop: 1,
+                    tablet: 2,
+                    mobile: 1
+                },
+                brokers: {
+                    desktop: 1,
+                    laptop: 1,
+                    tablet: 1,
+                    mobile: 1
+                }
+            };
+
 
             $scope.typesHash = {
                 'listings' : 'Listing',
@@ -734,6 +753,7 @@ function siSmallList($sce,$compile){
                 $scope._element = $element;
                 $siConfig.get().then(function($configs){
                     $scope.configs = $configs;
+                    $scope.applyColumnWidth();
                 });
 
                 $siApi.getDefaultDataView().then(function($view_id){
@@ -752,6 +772,8 @@ function siSmallList($sce,$compile){
                     $scope.fetchList();
                     
                 });
+
+                
             }
 
             $scope.fetchList = function(){
@@ -820,6 +842,14 @@ function siSmallList($sce,$compile){
                 return $siUtils.formatPrice($item);
             }
             
+            $scope.applyColumnWidth = function(){
+                const lWidths = $scope.columnWidths[$scope.type];
+                if(lWidths == undefined) return;
+
+                Object.keys(lWidths).forEach(function($k){
+                    $scope._element[0].style.setProperty('--' + $k + '-column-width', lWidths[$k]);
+                });
+            }
 
             $scope.getListTitle = function(){
                 const lTypeCaptions = {
@@ -889,7 +919,7 @@ siApp
 function siListSlider($compile){
     return {
         restrict: 'E',
-        templateUrl: siCtx.base_path + 'views/ang-templates/si-list-slider.html',
+        templateUrl: directiveTemplatePath('si-list-slider'),
         transclude:true,
         replace:true,
         scope: {
