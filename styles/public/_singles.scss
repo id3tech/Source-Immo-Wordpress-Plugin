@@ -1136,8 +1136,6 @@
         
 
         .listing-list{
-            
-
             .list-container{
                 display:grid;
                 gap:var(--layout-gutter);
@@ -1200,29 +1198,29 @@
         .si-content{
             &.si-adapt-tablet-size{
                 grid-template-columns:2fr 3fr;
-                .picture{grid-column:1;grid-row:1 / span 2;}
-                .head{grid-column:2;grid-row:1;}
+                .si-part-picture{grid-column:1;grid-row:1 / span 2;}
+                .si-part-head{grid-column:2;grid-row:1;}
                 
-                .contact{grid-column:2;grid-row:2;}
+                .si-part-contact{grid-column:2;grid-row:2;}
                 
-                .bio{grid-column: 1 / span 2;grid-row:3;}
+                .si-part-bio{grid-column: 1 / span 2;grid-row:3;}
                 
                 
-                .listing-list{grid-column:1 / span 2;grid-row:5;}
-                .cities{grid-column:2;grid-row:6;}
-                .office{grid-column:1;grid-row:6;}
+                .si-part-listings{grid-column:1 / span 2;grid-row:5;}
+                .si-part-cities{grid-column:2;grid-row:6;}
+                .si-part-office{grid-column:1;grid-row:6;}
             }
             &.si-adapt-phone-size{
                 grid-template-columns:1fr;
                 
-                .head{grid-column:1;grid-row:1;}
-                .bio{grid-column: 1;grid-row: 3;}
-                .picture{grid-column:1;grid-row:2;}
-                .contact{grid-column:1;grid-row:4;}
+                .si-part-head{grid-column:1;grid-row:1;}
+                .si-part-bio{grid-column: 1;grid-row: 3;}
+                .si-part-picture{grid-column:1;grid-row:2;}
+                .si-part-contact{grid-column:1;grid-row:4;}
                 
-                .listing-list{grid-column:1;grid-row:5;}
-                .cities{grid-column:1;grid-row:7;}
-                .office{grid-column:1;grid-row:6;}
+                .si-part-listings{grid-column:1;grid-row:5;}
+                .si-part-cities{grid-column:1;grid-row:7;}
+                .si-part-office{grid-column:1;grid-row:6;}
             }
         }
 
