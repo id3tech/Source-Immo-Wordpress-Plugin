@@ -520,8 +520,8 @@ class SourceImmo {
   public function unload_theme_resources(){
     $themeStylesheet =  strtolower(get_stylesheet());
     $themeStylesheet = str_replace(
-                            ['child','-theme'],
-                            ['parent',''],
+                            ['-child','-theme'],
+                            ['',''],
                             $themeStylesheet
                         );
   
@@ -532,22 +532,24 @@ class SourceImmo {
         'print-stylesheet',
     ];
     
-    wp_dequeue_style( $themeStylesheet );
-    wp_deregister_style( $themeStylesheet );
-  
-    if( strpos('parent', $themeStylesheet) !== false ){
-        $themeStylesheet = str_replace('-parent','', $themeStylesheet);
-        wp_dequeue_style( $themeStylesheet );
-        wp_deregister_style( $themeStylesheet );
+    $baseVariations = [
+      $themeStylesheet,
+      $themeStylesheet . '-parent'
+    ];
+
+    foreach ($baseVariations as $base) {
+      wp_dequeue_style( $base );
+      wp_deregister_style( $base );
+      
+      foreach ($styleVariations as $var) {
+        wp_dequeue_style( $base . '_' . $var );
+        wp_deregister_style( $base . '_' . $var );
+
+        wp_dequeue_style( $base . '-' . $var );
+        wp_deregister_style( $base . '-' . $var );
+      }
     }
-  
-    foreach ($styleVariations as $var) {
-        wp_dequeue_style( $themeStylesheet . '_' . $var );
-        wp_deregister_style( $themeStylesheet . '_' . $var );
-  
-        wp_dequeue_style( $themeStylesheet . '-' . $var );
-        wp_deregister_style( $themeStylesheet . '-' . $var );
-    }
+    
   }
   
   function remove_theme_styles(){
