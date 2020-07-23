@@ -1,5 +1,5 @@
 <?php
-$linkFilters = apply_filters('si/single-listing/links-filters', ['website','matterport','youtube','vimeo']);
+$linkFilters = apply_filters('si/single-listing/links-filters', ['website','matterport','youtube','vimeo','virtual_tour']);
 
 ?>
 <div class="links" ng-if="model.links">
