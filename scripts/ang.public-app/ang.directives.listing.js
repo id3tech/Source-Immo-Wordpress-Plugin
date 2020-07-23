@@ -1048,7 +1048,13 @@ siApp
              */
             $scope.getEndpoint = function(){
                 let lOrigin = $scope.getEndpointType();
-                return lOrigin.concat('/view/',$scope.configs.source.id,'/');
+
+                const lStoreViewId = sessionStorage.getItem('si/{0}/view'.format($scope.configs.alias));
+                const lActiveViewId = (lStoreViewId != null && $scope.configs.source.id != lStoreViewId)
+                                        ? lStoreViewId
+                                        : $scope.configs.source.id;
+
+                return lOrigin.concat('/view/',lActiveViewId,'/');
             }
     
             $scope.getEndpointType = function(){
