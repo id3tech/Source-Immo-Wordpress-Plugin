@@ -777,6 +777,15 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         return null
     }
 
+    $scope.labelOf = function($value, $list){
+        if($value == null) return '';
+        if($list == null) return '';
+        
+        const lItem = $list.find(function($e){ return $e.key == $value});
+        if(lItem == null) return '';
+        return lItem.label;
+    }
+
 
     /**
      * Format the price of the listing for pretty reading

@@ -1,4 +1,4 @@
-<div class="flags">
+<div class="flags" ng-if="[model.unit_flags,model.important_flags] | siHasValue">
     <div class="flag"
         data-ng-repeat="item in model.unit_flags"
         data-toggle="tooltip" data-placement="bottom" title="{{item.caption}}">

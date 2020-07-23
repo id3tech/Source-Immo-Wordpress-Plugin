@@ -1,4 +1,4 @@
-<div class="attachments" ng-show="model.documents.length>0">
+<div class="attachments" ng-if="model.documents.length>0">
     <div ng-repeat="item in model.documents"
             class="attachment {{item.source_file_extension | sanitize}}"
         >

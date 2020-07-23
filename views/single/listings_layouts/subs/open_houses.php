@@ -1,4 +1,4 @@
-<div class="open-houses" data-ng-show="model.open_houses | siHasValue">
+<div class="open-houses" data-ng-if="model.open_houses | siHasValue">
     <h4><i class="fal fa-calendar-alt"></i> <?php _e('Open house',SI) ?></h4>
     <div class="open-house-list">
         <div class="open-house-item" data-ng-repeat="item in model.open_houses">

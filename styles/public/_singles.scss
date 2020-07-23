@@ -466,7 +466,7 @@
         .si-summary{
             
             display:grid;
-            grid-gap:0px;
+            grid-gap:1rem 0;
             grid-template-columns: 1fr;
             // grid-template-areas: 
             //     "ref-number ref-number"
@@ -520,9 +520,7 @@
             }
         }
         .description{
-            margin:20px 0;
-            padding-top:20px;
-            border-top:solid 1px rgba(#000,0.25);
+            
         }
         
         .attachments{
@@ -573,8 +571,13 @@
             
         }
         .links{
-            .link{
 
+            display:flex;
+            flex-direction: row;
+            justify-content: space-around;
+
+            .link{
+                margin: 0 1em;
                 &.website{
                     .far::before{content:"\f57d"}
                 }

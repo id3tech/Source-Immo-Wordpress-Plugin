@@ -147,6 +147,10 @@ function singleListingCtrl(
     // message model
     $scope.message_model = {};
     $scope.favorites = $siFavorites;
+    $scope.linkTypes = [
+        {key: 'website', label : 'More infos'.translate()},
+        {key: 'virtual_tour', label: 'Virtual tour'.translate()}
+    ];
 
     /**
      * Initialize controller

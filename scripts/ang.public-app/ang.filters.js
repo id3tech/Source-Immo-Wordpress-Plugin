@@ -156,6 +156,14 @@ function iconFromType($siUtils){
 }]);
 
 siApp
+.filter('labelOf', ['$siUtils', 
+function labelOf($siUtils){
+    return function($value, $list){
+        return $siUtils.labelOf($value, $list);
+    }
+}]);
+
+siApp
 .filter('wrapWith', ['$siUtils', 
 function wrapWith(){
     return function($text, $tag, $search, $startingAt){
