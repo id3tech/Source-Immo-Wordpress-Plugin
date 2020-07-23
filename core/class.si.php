@@ -537,6 +537,8 @@ class SourceImmo {
   
     if( strpos('parent', $themeStylesheet) !== false ){
         $themeStylesheet = str_replace('-parent','', $themeStylesheet);
+        wp_dequeue_style( $themeStylesheet );
+        wp_deregister_style( $themeStylesheet );
     }
   
     foreach ($styleVariations as $var) {
