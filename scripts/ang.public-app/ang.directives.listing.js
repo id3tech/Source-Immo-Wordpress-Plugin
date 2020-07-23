@@ -669,7 +669,12 @@ siApp
                         
                         const lList = $configs.lists.find(function($l){ return $l.alias == $scope.options.alias});
                         if(lList != null){
-                            $siApi.call('listing/view/' + lList.source.id + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
+                            const lStoreViewId = sessionStorage.getItem('si/{0}/view'.format(lList.alias));
+                            const lActiveViewId = (lStoreViewId != null && lList.source.id != lStoreViewId)
+                                                    ? lStoreViewId
+                                                    : lList.source.id;
+
+                            $siApi.call('listing/view/' + lActiveViewId + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
                                 $scope.image_list = $response;
                                 $resolve($response);
                             });

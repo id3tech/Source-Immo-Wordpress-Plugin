@@ -118,16 +118,25 @@ function $siFilters($q,$siApi,$siUtils){
                         },
             states: function($value){
                             if($context.listing_flags == null) return null;
-                            return Object.keys($context.listing_flags).map(function($k){
-                                const lItem = $context.listing_flags[$k].filter;
-                                const lValue = $value == null 
-                                                ? ''
-                                                : $value.includes($k) 
-                                                    ? lItem.value 
-                                                    : '';
 
-                                return {field: lItem.field, operator : lItem.operator, value: lValue}
-                            });                     
+                            console.log('filtering States',$context.listing_flags);    
+
+                            const lResult = $context.listing_flags
+                                .map(function($flag){
+                                    
+                                    const lItem = $flag.filter;
+                                    
+                                    const lValue = $value == null 
+                                                    ? ''
+                                                    : $value.includes($flag.key) 
+                                                        ? lItem.value 
+                                                        : '';
+
+                                    return {field: lItem.field, operator : lItem.operator, value: lValue}
+                                });      
+
+                            
+                            return lResult;               
                         },
             categories: {field: 'category_code','operator': 'in'},
             subcategories : {field: 'subcategory_code',operator: 'in'},
@@ -642,7 +651,6 @@ function $siFilters($q,$siApi,$siUtils){
          */
         $fm.update = function(){
             console.log('$siFilter/update',$fm.data);
-            console.trace();
             const lDataKeys = Object.keys($fm.data);
             //console.log('filterManager update');
             // const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;

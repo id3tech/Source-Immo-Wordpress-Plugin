@@ -517,6 +517,43 @@ class SourceImmo {
     wp_enqueue_script('si-public-app'); 
   }
 
+  public function unload_theme_resources(){
+    $themeStylesheet =  strtolower(get_stylesheet());
+    $themeStylesheet = str_replace(
+                            ['child','-theme'],
+                            ['parent',''],
+                            $themeStylesheet
+                        );
+  
+    $styleVariations = [
+        'style',
+        'stylesheet',
+        'print-style',
+        'print-stylesheet',
+    ];
+    
+    wp_dequeue_style( $themeStylesheet );
+    wp_deregister_style( $themeStylesheet );
+  
+    if( strpos('parent', $themeStylesheet) !== false ){
+        $themeStylesheet = str_replace('-parent','', $themeStylesheet);
+    }
+  
+    foreach ($styleVariations as $var) {
+        wp_dequeue_style( $themeStylesheet . '_' . $var );
+        wp_deregister_style( $themeStylesheet . '_' . $var );
+  
+        wp_dequeue_style( $themeStylesheet . '-' . $var );
+        wp_deregister_style( $themeStylesheet . '-' . $var );
+    }
+  }
+  
+  function remove_theme_styles(){
+    add_action('wp_enqueue_scripts',[$this,'unload_theme_resources']);
+  }
+
+
+
   /**
    * Add JS script context object to the document
    */
@@ -773,20 +810,24 @@ class SourceImmo {
       die();
     }
   }
+
   function include_listings_print(){
     $ref_number = get_query_var( 'ref_number' );
     
     // load data
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
     if($model != null){
+      
       do_action('si/listing/print', $model);
+
+      $this->remove_theme_styles();
 
       header('http/1.0 200 found');
       global $dictionary;
       // hook to sharing tools
 
-      $share_tool = new SiSharing($model);
-      $share_tool->addHook('listing');
+      // $share_tool = new SiSharing($model);
+      // $share_tool->addHook('listing');
 
       $listingWrapper = new SourceImmoListingsResult();
       $dictionary = new SourceImmoDictionary($model->dictionary);
@@ -796,7 +837,8 @@ class SourceImmo {
 
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
       $model->tiny_url = SourceImmoTools::get_tiny_url('http://' . $_SERVER['HTTP_HOST'] . $model->permalink);
-
+      
+      
       wp_enqueue_style('listing-print', SI_PLUGIN_URL . 'styles/print.min.css', null, filemtime(SI_PLUGIN_DIR . '/styles/print.min.css'));
       do_action('si/listing/print:begin');
 

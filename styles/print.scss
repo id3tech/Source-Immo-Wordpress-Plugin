@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,600,700|Open+Sans:300,300i,400,400i,600,600i,700,700i');
 
+
 @media print{
     @page{
         size: 8.5in 11in!important;
@@ -17,6 +18,15 @@
 }
 
 html.print{
+    // @media print{
+    //     *, :after, :before {
+    //         background: inherit!important;
+    //         color: inherit!important;
+    //         box-shadow: inherit!important;
+    //         text-shadow: inherit!important;
+    //     }
+    // }
+    
     margin-top:0px !important;padding:0px;
     background:#ccc!important;
     *{box-sizing: border-box;}
@@ -369,12 +379,8 @@ html.print{
         .grid-layout{
             display:grid;
         }
-        .si-auto-columns{
-            display:grid;
-            grid-auto-flow: column;       
-            grid-auto-columns: 1fr;
-        }
         
+
         .notepad{
             position:relative;
             overflow:hidden;
