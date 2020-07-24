@@ -943,6 +943,7 @@ siApp
                             let options = {
                                 center: new google.maps.LatLng(45.6025503,-73.8469538),
                                 zoom: Number($scope.zoom),
+                                fullscreenControl: false
                                 //disableDefaultUI: true    
                             }
     
