@@ -964,7 +964,7 @@ siApp
                                 $scope.viewport_element, options
                             );
 
-                            $scope.map.addListener('dragstart', function(){
+                            $scope.map.addListener('dragend', function(){
                                 $scope.unselectItem();
                             })
     
