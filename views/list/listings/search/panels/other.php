@@ -8,12 +8,12 @@ $panelKey = 'others';
     </div>
     
     <div class="filter-panel-content">
-        <div class="rooms" ng-if="allowPanel('rooms')">
-            <div class="bedrooms filter-row">
+        <div class="si-auto-columns">
+            <div class="bedrooms filter-row" ng-if="allowPanel('rooms')">
                 <si-input-container>
                     <label><?php _e('Bedrooms',SI) ?></label>
 
-                    <si-select si-model="filter.data.bedrooms" si-change="filter.update()">
+                    <si-select class="si-input" si-model="filter.data.bedrooms" si-change="filter.update()">
                         <si-option value=""><?php _e('Any',SI) ?></si-option>
                         <si-option ng-repeat="item in bedroomSuggestions" value="{{item.value}}">{{item.label}}</si-option>
                     </si-select>
@@ -22,17 +22,27 @@ $panelKey = 'others';
                 
             </div>
 
-            <div class="bathrooms filter-row">
+            <div class="bathrooms filter-row" ng-if="allowPanel('rooms')">
                 <si-input-container>
                     <label><?php _e('Bathrooms',SI) ?></label>
 
-                    <si-select si-model="filter.data.bathrooms" si-change="filter.update()">
+                    <si-select class="si-input" si-model="filter.data.bathrooms" si-change="filter.update()">
                         <si-option value=""><?php _e('Any',SI) ?></si-option>
                         <si-option ng-repeat="item in bathroomSuggestions" value="{{item.value}}">{{item.label}}</si-option>
                     </si-select>
 
                 </si-input-container>
                 
+            </div>
+
+            <div class="parkings filter-row" ng-if="parkingSuggestions">
+                <si-input-container>
+                    <label><?php _e('Parkings',SI) ?></label>
+                    <si-select class="si-input" si-model="filter.data.parkings" si-change="filter.update()">
+                        <si-option value=""><?php _e('Any',SI) ?></si-option>
+                        <si-option ng-repeat="item in parkingSuggestions" value="{{item.value}}">{{item.label}}</si-option>
+                    </si-select>
+                </si-input-container>
             </div>
 
         </div>
@@ -49,16 +59,15 @@ $panelKey = 'others';
             </div>
 
             
-            <div class="market-type filter-row" ng-if="market_types">
+            <div class="market-type filter-row"  ng-if="allowPanel('market')">
                 <si-input-container>
                     <label><?php _e('Market',SI) ?></label>
                     <si-select class="si-input" si-model="filter.data.market_type" si-change="filter.update()">
                         <si-option value=""><?php _e('Any',SI) ?></si-option>
-                        <si-option ng-repeat="item in market_types" value="{{item.value}}">{{item.label}}</si-option>
+                        <si-option ng-repeat="item in market_types" value="{{item.key}}">{{item.caption}}</si-option>
                     </si-select>
                 </si-input-container>
             </div>
-
 
             <div class="age filter-row" ng-if="listing_ages">
                 <si-input-container>
@@ -69,16 +78,6 @@ $panelKey = 'others';
                     </si-select>
                 </si-input-container>
 
-            </div>
-
-            <div class="parkings filter-row" ng-if="parkingSuggestions">
-                <si-input-container>
-                    <label><?php _e('Parkings',SI) ?></label>
-                    <si-select class="si-input" si-model="filter.data.parkings" si-change="filter.update()">
-                        <si-option value=""><?php _e('Any',SI) ?></si-option>
-                        <si-option ng-repeat="item in parkingSuggestions" value="{{item.value}}">{{item.label}}</si-option>
-                    </si-select>
-                </si-input-container>
             </div>
             
         </div>

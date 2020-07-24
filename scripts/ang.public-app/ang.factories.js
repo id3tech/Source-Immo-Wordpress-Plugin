@@ -102,7 +102,6 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     }
 
     $scope.getDefaultDataView = function(){
-        console.log('getDefaultDataView', $siUtils.search());
         if($siUtils.search().view != undefined){
             return $q.resolve($siUtils.search().view);
         }
@@ -177,14 +176,14 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
         let lPromise = $q(function($resolve, $reject){
             // View is defined, therefor loaded
             if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading===undefined){
-                console.log('view meta is already loaded',lViewMetaKey);
+                //console.log('view meta is already loaded',lViewMetaKey);
                 $resolve($scope.viewMetas[lViewMetaKey]);
             }
             // View is currently loading, wait for data
             else if ($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==true){
-                console.log('view meta is already loading',lViewMetaKey);
+                //console.log('view meta is already loading',lViewMetaKey);
                 let fnWait = function(){
-                    console.log('waiting...');
+                    //console.log('waiting...');
                     if($scope.viewMetas[lViewMetaKey].loading==true){
                         window.setTimeout(fnWait, 15);
                     }
@@ -195,7 +194,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
                 fnWait();
             }
             else{
-                console.log('view meta get infos',lViewMetaKey);
+                //console.log('view meta get infos',lViewMetaKey);
                 $scope.viewMetas[lViewMetaKey] = {loading:true};
                 $scope.api(lEndPoint)
                     .then(
@@ -208,7 +207,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
                         }
                     )
                     .catch(function($err){
-                        console.log('can\'t view', lViewMetaKey);
+                        //console.log('can\'t view', lViewMetaKey);
                         
                     });
             }
@@ -489,7 +488,7 @@ siApp
     $scope.init = function($view_id){
       //$scope.fetchDictionary($view_id);
         $rootScope.$on('$siDictionary/init', function($event){
-            console.log('$siList/init -> siDictionary:onLoad')
+            //console.log('$siList/init -> siDictionary:onLoad')
             $scope.dictionary = $siDictionary.source;
         });
     }
@@ -1020,7 +1019,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             let lHasFlags = false;
             
             if( ($item.video_flag) || ($item.video)){
-                console.log('$item/has-video',$item.video_flat !== undefined, $item.video !== undefined, $item.video_flat !== undefined || $item.video !== undefined);
+                //console.log('$item/has-video',$item.video_flat !== undefined, $item.video !== undefined, $item.video_flat !== undefined || $item.video !== undefined);
                 lHasFlags = true;
                 lResult.push('has-video');
             }
@@ -1308,7 +1307,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
         // check versions
         const lVersion = Number(lMatches[1]);
-        console.log(lVersion, $minVersion, $maxVersion, lMatches);
+        //console.log(lVersion, $minVersion, $maxVersion, lMatches);
         if($minVersion != null && $minVersion > lVersion) return false;
         if($maxVersion != null && $maxVersion < lVersion) return false;
         return true;

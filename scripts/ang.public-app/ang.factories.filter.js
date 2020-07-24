@@ -119,8 +119,6 @@ function $siFilters($q,$siApi,$siUtils){
             states: function($value){
                             if($context.listing_flags == null) return null;
 
-                            console.log('filtering States',$context.listing_flags);    
-
                             const lResult = $context.listing_flags
                                 .map(function($flag){
                                     
@@ -148,6 +146,7 @@ function $siFilters($q,$siApi,$siUtils){
             letters: { field: 'last_name',operator : 'starts_with' },
             licenses: {field: 'license_type_code', operator: 'in'},
             offices: {field: 'office_ref_number', operator: 'in'},
+            market_type: {field: 'market_codes', operator: 'array_contains'}
         }
 
         $fm._buildFiltersDebounce = null;
@@ -455,8 +454,6 @@ function $siFilters($q,$siApi,$siUtils){
         }
 
         $fm.addGeoFilter = function(){
-            console.log('siFilters/fm/addGeoFilter');
-            
             $q(function($resolve,$reject){
                 if($fm.data.location != null){
                     $fm.data.location = null;
@@ -650,26 +647,7 @@ function $siFilters($q,$siApi,$siUtils){
          * Update filters from data object
          */
         $fm.update = function(){
-            console.log('$siFilter/update',$fm.data);
             const lDataKeys = Object.keys($fm.data);
-            //console.log('filterManager update');
-            // const lMainFilter = ($fm.main_filter != null) ? $fm.mainFilterMap[$fm.main_filter.type][$fm.main_filter.key] : null;
-            // if(lMainFilter != null){
-            //     // remove other main filter
-            //     Object.keys($fm.mainFilterMap[$fm.main_filter.type])
-            //     .forEach(function($k){
-            //         const lOtherFilter = $fm.mainFilterMap[$fm.main_filter.type][$k];
-            //         if(lOtherFilter.field != lMainFilter.field){
-            //             //console.log('remove other filter', lOtherFilter.field);
-            //             $fm.addFilter(lOtherFilter.field, lOtherFilter.operator, '');
-            //         }
-            //     });
-                
-            //     //console.log('Add main filter', lMainFilter);
-            //     $fm.addFilter(lMainFilter.field, lMainFilter.operator, lMainFilter.value);
-            // }
-
-
             
             lDataKeys.forEach(function($key){ 
                 
@@ -712,9 +690,6 @@ function $siFilters($q,$siApi,$siUtils){
         * Reset all filter to nothing
         */
         $fm.resetFilters = function($triggerUpdate){
-            console.log('resetFilters',$triggerUpdate);
-            
-
             const lArrayAttr = ['categories','attributes','states','cities','regions','building_categories','subcategories','licenses','offices'];
             $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
             
@@ -828,8 +803,7 @@ function $siFilters($q,$siApi,$siUtils){
          */
         
         $fm.buildFilters = function(){
-            console.log('$siFilter/buildFilters');
-
+            
             let lResult = null;
             let lPromise = $q(function($resolve, $reject){
                 
@@ -840,7 +814,6 @@ function $siFilters($q,$siApi,$siUtils){
                         && $fm.sort_fields.length == 0
                         && $fm.data.location == null
                     ){
-                        console.log('reset filters for no real filters exists')
                         $fm.clearState();
                         $fm.resetFilters();
                         return;

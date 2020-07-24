@@ -82,19 +82,19 @@ function siList(){
                 });
 
                 $siHooks.addFilter('si/list/item/permalink', function($result, $item){
-                    console.log('siList@si/list/item/permalink');
+                    //console.log('siList@si/list/item/permalink');
                     if(isNullOrUndefined($scope._global_configs)) return $result;
                     if(isNullOrUndefined($scope.configs)) return $result;
 
                     if($scope.configs.current_view != $scope._global_configs.default_view){
                         const lQuery = '?view=' + $scope.configs.current_view;
                         if($result.indexOf(lQuery) < 0){
-                            console.log('- add view id to link',$result, lQuery);
+                            //console.log('- add view id to link',$result, lQuery);
 
                             $result = $result + lQuery;
                         }
                         else{
-                            console.log('- view id already in link', $result);
+                            //console.log('- view id already in link', $result);
                         }
                     }
                     return $result
@@ -790,12 +790,12 @@ function siSmallList($sce,$compile){
                         
                         const lQuery = '?view=' + lCustomViewId;
                         if($result.indexOf(lQuery) < 0){
-                            console.log('- add view id to link',$result, lQuery);
+                            //console.log('- add view id to link',$result, lQuery);
 
                             $result = $result + lQuery;
                         }
                         else{
-                            console.log('- view id already in link', $result);
+                            //console.log('- view id already in link', $result);
                         }
                     
                         return $result

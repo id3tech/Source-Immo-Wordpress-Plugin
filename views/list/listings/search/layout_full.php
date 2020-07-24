@@ -70,9 +70,7 @@
                     <div class="dropdown-item {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php _e('Price', SI) ?></div>
                     <div class="dropdown-item {{filter.hasFilter(['categories','subcategories']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'categories')"><?php _e('Home types', SI) ?></div>
                     <div class="dropdown-item 
-                        {{ isMainFiltered(['COM']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract']) ? 'has-filters' : '' : ''}}
-                        {{ isMainFiltered(['RES']) ? filter.hasFilter(['transaction_type','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}
-                        {{ isMainFiltered(['for-rent','for-sale']) ? filter.hasFilter(['states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max']) ? 'has-filters' : '' : ''}}" 
+                        {{filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}" 
                         ng-click="toggleExpand($event,'others')"><?php _e('More', SI) ?></div>
 
                     <div class="dropdown-item reset-option" ng-if="filter.hasFilters()" ng-click="resetFilters()"><?php _e('Reset filters', SI) ?></div>

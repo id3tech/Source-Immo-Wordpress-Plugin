@@ -112,6 +112,11 @@ siApp
         },
     ];
 
+    $scope.market_types = [
+        {key: 'RES', caption: 'Residential'.translate(), filter: {field: 'market_codes', operator: 'array_contains', value: 'RES'} },
+        {key: 'COM', caption: 'Commercial'.translate(), filter: {field: 'market_codes', operator: 'array_contains', value: 'COM'} }
+    ]
+
     // listing land areas
     $scope.land_areas = Array.from(Array(3)).map(function($e,$i){
         return { caption: '{0} sqft'.translate().format(5000 * ($i+1)), value: 5000 * ($i+1)}
@@ -172,7 +177,7 @@ siApp
     ]
 
     $scope.buildCountedList = function($name,$labelFormat, $iteration, $step, $singleLabelFormat){
-        console.log('buildCountedList', $name,$labelFormat, $iteration, $step, $singleLabelFormat)
+        //console.log('buildCountedList', $name,$labelFormat, $iteration, $step, $singleLabelFormat)
         $step = $step == undefined ? 1 : $step;
         $singleLabelFormat = $singleLabelFormat == undefined ? $labelFormat : $singleLabelFormat;
 
@@ -232,7 +237,7 @@ siApp
                 $target[$att] = $scope[fnName].apply(null,fnParams);
             }
             else{
-                console.log(lAttr);
+                //console.log(lAttr);
                 $target[$att] = lAttr.filter(function($item){
                     if($target.viewFilters == null) return true;
                     return $scope.filterListItem($item, $target.viewFilters);
@@ -325,11 +330,11 @@ siApp
         controllerAs: 'ctrl',
         template: '<div><div ng-include="\'si-search-for-\' + alias"></div></div>',
         link : function($scope, $element, $attrs){
-            console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
+            //console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
             
             $scope.standalone = (typeof $scope.standalone == 'string') ? $scope.standalone == 'true' : $scope.standalone;
-            console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
-            console.log('Search box element',$element[0]);
+            //console.log('siSearch standalone', $scope.standalone, typeof $scope.standalone)
+            //console.log('Search box element',$element[0]);
             $scope.init($element);
         },
         controller: function($scope, $q, $siApi, $rootScope,$timeout,
@@ -427,7 +432,7 @@ siApp
                 // Wait for late initialization
                 // ie: Dictionnay, configs, etc are all loaded
                 $scope.isReady().then(function(){
-                    console.log('Ready, carry on');
+                    //console.log('Ready, carry on');
                     
                     const lSearchEngineOptions = angular.merge({type: 'full', orientation: 'h', focus_category: null},$scope.configs.search_engine_options);
 
@@ -455,7 +460,7 @@ siApp
                         if (typeof(IntersectionObserver) !== 'undefined') {
                             const observer = new IntersectionObserver(function(entries, observer){
                                 entries.forEach(function(entry){
-                                    console.log(entry.isIntersecting);
+                                    //console.log(entry.isIntersecting);
                                     if(entry.isIntersecting){
                                         $scope._element.classList.remove('stick');
                                     }
@@ -475,7 +480,7 @@ siApp
                         // check if there's filters stored
                         if($filter.hasFilters()){
                             // Sync UI with filters
-                            console.log('siSearch/init[isReady]:lfSyncFilter');
+                            //console.log('siSearch/init[isReady]:lfSyncFilter');
                             $scope.syncFiltersToUI($filter);
                             
                             // build hints
@@ -493,7 +498,7 @@ siApp
 
 
                         $filter.loadState();
-                        console.log('siSearch/init/isReady/$siFilters=>$filter.loadState',$filter.data);
+                        //console.log('siSearch/init/isReady/$siFilters=>$filter.loadState',$filter.data);
                         // set default tab
                         //$scope.applyDefaultMainFilter()
                         
@@ -509,7 +514,7 @@ siApp
                                 if(!$scope.is_ready) return;
 
                                 if($new.min_price != $old.min_price || $new.max_price != $old.max_price){
-                                    console.log('$watch(filter.data)/changed', $new, $old);
+                                    //console.log('$watch(filter.data)/changed', $new, $old);
                                     if($new.min_price == 0 && $new.max_price == null){
                                         $scope.resetPriceRange();
                                     }
@@ -521,7 +526,7 @@ siApp
                         $filter.on('update').then(function(){
                             if(!$scope.is_ready) return;
 
-                            console.log('filter', $scope.alias, 'update trigger');
+                            //console.log('filter', $scope.alias, 'update trigger');
                             lfSyncFilter($filter);
 
                             $timeout(function(){
@@ -625,7 +630,7 @@ siApp
                             $scope.loadViewMeta(lActiveView,$configs.type)
                                 .then(function(){
                                     $scope.is_ready = true;
-                                    console.log('View meta loaded');
+                                    //console.log('View meta loaded');
                                     $resolve();
                                 })
                         });
@@ -649,8 +654,8 @@ siApp
                 })
 
                 $scope.$on('si-searchbox-add-filter', function($event, $item){
-                    console.log($event);
-                    console.log('siSearch:si-searchbox-add-filter triggered');
+                    //console.log($event);
+                    //console.log('siSearch:si-searchbox-add-filter triggered');
                     $item._treated = true;
 
                     const lTypeMap = {
@@ -665,7 +670,7 @@ siApp
                         }
                         $scope.filter.update();
 
-                        console.log('si-searchbox-add-filter:triggered',lDataProp, $scope.filter.data);
+                        //console.log('si-searchbox-add-filter:triggered',lDataProp, $scope.filter.data);
                         // if this is a standalone search tool, trigger search immediately
                         if($scope.standalone){
                             $scope.showResultPage();
@@ -674,12 +679,12 @@ siApp
                 });
 
                 $scope.$on('$siDictionary/init', function($event,$lexicon){
-                    console.log('$siDictionary/init:triggered', $lexicon);
+                    //console.log('$siDictionary/init:triggered', $lexicon);
                     $scope.dictionary = $siDictionary.source;
 
                     if($scope.dictionary!=undefined && $scope.dictionary.region!=undefined){
                         let lRegionList = $siUtils.toSortedArray($scope.dictionary.region);
-                        console.log('region_list', lRegionList);
+                        //console.log('region_list', lRegionList);
                         $scope.region_list = lRegionList;
                         $scope.tab_region = lRegionList[0].__$key;
                     }
@@ -701,7 +706,7 @@ siApp
     
                     if($scope.dictionary!=undefined && $scope.dictionary.listing_category!=undefined){
                         let lCategoryList = $siUtils.toArray($scope.dictionary.listing_category);
-                        console.log('category list', lCategoryList);
+                        //console.log('category list', lCategoryList);
                         $scope.category_list = lCategoryList;
                     }
                 });    
@@ -712,7 +717,7 @@ siApp
                     const lNewPriceParts = $scope.getPriceParts();
                     let lPriceChanged = ($scope.PRICE_PARTS !== lNewPriceParts);
                     
-                    console.log('$on: si/viewMeta:change', $scope.filter);
+                    //console.log('$on: si/viewMeta:change', $scope.filter);
 
                     $scope.PRICE_PARTS = lNewPriceParts;
                     $scope.PRICE_RANGE_MAX  = 1000000;
@@ -769,7 +774,7 @@ siApp
 
             // TABS / MAIN FILTERS
             $scope.selectMainFilter = function($tab){
-                console.log('selectMainFilter', $scope.current_main_filter, $tab);
+                //console.log('selectMainFilter', $scope.current_main_filter, $tab);
                 if($tab == undefined){
                     $scope.current_main_filter = null;
                     return;
@@ -842,7 +847,7 @@ siApp
                 
                 
                 $scope.loadViewMeta($view_id, $scope.configs.type).then(function(){
-                    console.log('meta loaded');
+                    //console.log('meta loaded');
                     
                     $rootScope.$broadcast('si-{0}-view-change'.format($scope.alias), $view_id);
                     $rootScope.$broadcast('si/{0}:viewChanged'.format($scope.alias), $view_id);
@@ -854,7 +859,7 @@ siApp
             }
 
             $scope.loadViewMeta = function($view_id, $type){
-                console.log('Loading view meta');
+                //console.log('Loading view meta');
 
                 // load view meta
                 const fnOffices = function(){
@@ -924,6 +929,11 @@ siApp
                         return $scope.viewFilters.some(function($f){
                             return $f.field=='MarketCodes' && $f.value== 'COM'
                         })
+                    },
+                    'market': function(){
+                        return !$scope.viewFilters.some(function($f){
+                            return $f.field=='MarketCodes'
+                        })
                     }
                 };
                 if(lPanelTests[$panelName] == undefined) return true;
@@ -935,7 +945,7 @@ siApp
 
             
             $scope.getOtherPanelFilterList = function(){
-                const lList = ['transaction_type','bedrooms','bathrooms','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max'];
+                const lList = ['market_codes','transaction_type','bedrooms','bathrooms','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max'];
                 return lList
                     .filter(function($item){
                         return $scope.viewFilters.every(function($f){
@@ -945,6 +955,10 @@ siApp
                 
                             if(['SellPrice','LeasePrice'].includes($f.field)){
                                 return !['transaction_type'].includes($item);
+                            }
+
+                            if($f.field=='MarketCodes'){
+                                return !['market_codes'].includes($item);
                             }
 
                             if($f.field=='MarketCodes' && $f.value == 'COM'){
@@ -1061,7 +1075,7 @@ siApp
                 // if the admin bar is present, add the html margin-top
                 if($metric == 'offsetTop' && document.querySelector('#wpadminbar') != null){
                     const lBodyStyles = window.getComputedStyle(document.body);
-                    console.log('body position', lBodyStyles.position);
+                    //console.log('body position', lBodyStyles.position);
 
                     if(!['absolute','relative'].includes(lBodyStyles.position)){
                         const lAdminBarHeight = document.querySelector('#wpadminbar').offsetHeight;
@@ -1106,9 +1120,9 @@ siApp
             $scope.expandSublist = function($list, $item, $itemKey){
                 const lItemKey = $itemKey || $item.__$obj_key;
                 if(!Array.isArray($list)) {
-                    console.log(angular.copy($list));
+                    //console.log(angular.copy($list));
                     $list = $siUtils.toArray($list);
-                    console.log($list);
+                    //console.log($list);
                 }
                 $list.forEach(function($e){
                     if($e.__$obj_key == lItemKey) return;
@@ -1131,7 +1145,7 @@ siApp
                 // If panels are closed, hide the cursor and bail out
                 if($scope._expandedPanel == null) {lCursor.style.display = 'none';return;}
                 
-                console.log('alignPanelTabCursor');
+                //console.log('alignPanelTabCursor');
                 const lTabRect      = lTab.getBoundingClientRect();
                 if(lTab._borderOffset === undefined){
                     const lTargetStyles = window.getComputedStyle(lTab);
@@ -1538,7 +1552,7 @@ siApp
                 $scope.current_main_filter = sessionStorage.getItem('si.currentMainFilter');
                 if($scope.current_main_filter == null){
                     const lFilters = $scope.main_filters[$scope.configs.type];
-                    console.log('applyDefaultMainFilter',lFilters);
+                    //console.log('applyDefaultMainFilter',lFilters);
 
                     const lFirstFilter = Object.keys(lFilters).find(function($k){return $scope.configs.search_engine_options.tabs.includes($k)});
                     if(!isNullOrEmpty(lFirstFilter)){
@@ -1956,7 +1970,7 @@ siApp
                 const lMaxValue = $filter.data[$type + '_max'];
                 const lTypeLabel = $type=='land' ? 'Land area' : 'Available area';
 
-                console.log('buildAreasHint', lMinValue, lMaxValue,$filter);
+                //console.log('buildAreasHint', lMinValue, lMaxValue,$filter);
 
                 if(
                     (lMinValue != undefined || lMaxValue != undefined) &&
@@ -2315,7 +2329,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
             $scope.init = function(){
                 $scope.$on('si/{0}:viewChanged'.format($scope.alias), function($event, $view_id){
-                    console.log('siSearchbox/init/@si/[alias]:viewChanged',$view_id);
+                    //console.log('siSearchbox/init/@si/[alias]:viewChanged',$view_id);
                     $scope.updateViewMeta();
                 });
 
@@ -2363,7 +2377,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         $timeout(function(){ 
                             $scope.closeSuggestionPanel().then( function(){
                                 angular.element($scope._el).removeClass('has-focus');
-                                console.log('remove focus class and clear suggestions');
+                                //console.log('remove focus class and clear suggestions');
                                 $scope.suggestions = [];
                                 $scope.stored_suggestions = null;
                                 //$scope.$apply();    
@@ -2397,7 +2411,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     if($scope.is_ready == false){
                         // load configs
                         $scope.getConfigs().then(function($configs){
-                            console.log('getConfigs', $configs);
+                            //console.log('getConfigs', $configs);
                             // load view meta
                             $scope.configs = $configs;
                             $siFilters.with($scope.alias, $scope).configs = $configs;
@@ -2549,10 +2563,10 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                 if($scope._suggestion_list_el==null)return $q.resolve();
 
                 return $q(function($resolve,$reject){
-                    console.log('closing suggestion panel')
+                    //console.log('closing suggestion panel')
                     angular.element($scope._suggestion_list_el).on('transitionend', function(){
                         angular.element($scope._suggestion_list_el).off('transitionend')
-                        console.log('Suggestion panel close')
+                        //console.log('Suggestion panel close')
 
                         $resolve();
                     });
@@ -2868,7 +2882,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                     $siConfig.get().then(function($global_configs){
                         let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
                         let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
-                        console.log('Open item @', lPath);
+                        //console.log('Open item @', lPath);
                         window.location = '/' + lPath;
                     });
                     return;
@@ -2886,8 +2900,8 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope.$on('si-searchbox-add-filter', function($event, $item){
                 if($item._treated == true) return;
 
-                console.log('siSearchBox:si-searchbox-add-filter received');
-               const lTypeMap = {
+                //console.log('siSearchBox:si-searchbox-add-filter received');
+                const lTypeMap = {
                     'city' : 'cities',
                     'region': 'regions'
                 }
@@ -2950,8 +2964,7 @@ siApp
         replace: true,
         link: function($scope, $element, $attrs){
             $scope.$element = $element[0];
-            console.log('siSearchFilterTags');
-
+            
             $scope.init();
         },
         controller: function($scope, $rootScope, $q, $siFilters, $siDictionary,$siSearchContext,$siList){
@@ -2976,7 +2989,7 @@ siApp
                     
 
                     $scope.filter.on('update').then(function(){
-                        console.log('filter tags', $scope.alias, 'update trigger');
+                        
                         $scope.updateList();
                     });
 
@@ -3066,7 +3079,7 @@ siApp
                 },
                 'regions': function($values){
                     return $values.map(function($val){
-                        console.log('region', $val);
+                        
                         
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getRegionList(),'key'),
@@ -3080,7 +3093,7 @@ siApp
                 },
                 'subcategories': function($values){
                     return $values.map(function($val){
-                        console.log('subcategories', $val);
+                        
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getSubcategoryList(),'key'),
                             remove:function(){
@@ -3093,7 +3106,7 @@ siApp
                 },
                 'building_categories': function($values){
                     return $values.map(function($val){
-                        console.log('building_categories', $val);
+                        
                         return {
                             text: $scope.getCaptionOfFilter($val, $siList.getBuildingCategoryList(),'key'),
                             remove:function(){
@@ -3296,9 +3309,9 @@ function siGeoFilter(){
             ];
 
             $scope.init = function(){
-                console.log('siGeoFilter/init',$scope.alias);
+                
                 $siFilters.with($scope.alias, $scope, function($filter){
-                    console.log('siGeoFilter/init', $filter);
+                    
                     $scope.filter = $filter;
                 });
                

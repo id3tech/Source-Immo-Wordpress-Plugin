@@ -663,6 +663,7 @@ $locales.fr = {};$locales.fr.global =
     , "This amount is displayed for information only. The calculation of the transfer tax is based on the basic calculations generally in effect in Québec. This amount may vary depending on the city. Consult your real estate broker for the exact amount." : 
             "Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact."
     , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
+    , "Market" : "Marché"
     
     // PUBLIC - SINGLE BROKER
     , "Sorry, this broker could not be found." : "Désolé, ce courtier est introuvable."

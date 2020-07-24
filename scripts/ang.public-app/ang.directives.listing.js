@@ -37,7 +37,7 @@ siApp
             }
     
             $scope.changeDownpaymentMethod = function(){
-                console.log('changeDownpaymentMethod:triggered');
+                //console.log('changeDownpaymentMethod:triggered');
                 
                 //if($value != $scope.data.downpayment_method){
                     $scope['convertDownpaymentTo_' + $scope.data.downpayment_method]();
@@ -339,7 +339,7 @@ siApp
             }
 
             $scope.removeFromList =function($event, $item){
-                console.log('removeFromList');
+                //console.log('removeFromList');
                 $event.preventDefault();
                 $event.stopPropagation();
 
@@ -410,7 +410,7 @@ siApp
                     var observer = new IntersectionObserver(function(entries, observer){
                         entries.forEach(function(entry){
                         if(entry.intersectionRatio > 0){
-                            console.log('ImageSlider is visible');
+                            //console.log('ImageSlider is visible');
                             $scope.detectBoxSize();
                         }
                         });
@@ -419,7 +419,7 @@ siApp
                 }
 
                 $scope.$on('container-resize', function(){
-                    console.log('container-resize');
+                    //console.log('container-resize');
                     $scope.detectBoxSize();
                 })
                 let lWindowResizeDebounce = null;
@@ -531,7 +531,7 @@ siApp
                     }
     
                     $scope.expand_mode = false;
-                    console.log('exit fullscreen');
+                    //console.log('exit fullscreen');
                   } 
                   else {
                     if ($scope.$element.requestFullscreen) {
@@ -546,7 +546,7 @@ siApp
                     else if ($scope.$element.msRequestFullscreen) {
                       $scope.$element.msRequestFullscreen();
                     }
-                    console.log('enter fullscreen');
+                    //console.log('enter fullscreen');
 
                     
                     $scope.expand_mode = true;
@@ -750,18 +750,18 @@ siApp
                 
                 const lImgContainerElm = $scope.$element.querySelector('.image');
                 lImgContainerElm.append(lImgElm);
-                console.log('rotator:showPicture',lImgContainerElm, lImgElm, $picture);
+                //console.log('rotator:showPicture',lImgContainerElm, lImgElm, $picture);
 
                 return new Promise(function($resolve,$reject){
                 
                     lImgElm.addEventListener('transitionend', function(){
-                        console.log('display transition ended');
+                        //console.log('display transition ended');
                         $resolve();
                     },{once:true});
     
                     lImgElm.addEventListener('load', function(){
                         lImgElm.classList.add('show');
-                        console.log('rotator:showPicture:onLoad');
+                        //console.log('rotator:showPicture:onLoad');
                     });
                     
                 });
@@ -776,7 +776,7 @@ siApp
                     
                     if($pictureElm != null){
                         $pictureElm.addEventListener('transitionend', function(){
-                            console.log('removePicture', $pictureElm);
+                            //console.log('removePicture', $pictureElm);
                             $pictureElm.remove(true);
                             $resolve();
                         },{once:true});
@@ -849,7 +849,7 @@ siApp
                     lList = [];
                 }
 
-                console.log('listingNavigation', lList)
+                //console.log('listingNavigation', lList)
                 return lList;
             }
 
@@ -925,6 +925,10 @@ siApp
                     $scope.$on('si-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
                     $scope.$on('si-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
                 }
+
+                $scope.$on('si-{0}-view-change'.format($scope.alias), function($event, $newView){
+                    $scope.getList();
+                })
     
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
             }
@@ -1115,7 +1119,7 @@ siApp
                     $scope.list.forEach(function($marker){
                         let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
                         if($marker.category_code == undefined) { 
-                            console.log('invalid map marker', $marker);
+                            //console.log('invalid map marker', $marker);
                             return;
                         }
     
@@ -1306,7 +1310,7 @@ siApp
                 $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',lId)).then(function($response){
                     $siDictionary.source = $response.dictionary;
                     $siCompiler.compileListingItem($response);
-                    console.log('siMap/showItem', $response);
+                    //console.log('siMap/showItem', $response);
                     if($scope.selectedItem == null){
                         $timeout(function(){
                             $scope.showSelectionPanel = true;
@@ -1513,7 +1517,7 @@ function siDataAccordeon($parse){
             }
 
             $scope.init = function(){
-                console.log('siDataAccordeon/init');
+                //console.log('siDataAccordeon/init');
                 
                 window.addEventListener('load', function(){
                     $scope.applyAllowToggles();
@@ -1534,7 +1538,7 @@ function siDataAccordeon($parse){
             
 
             $scope.applyAllowToggles = function(){
-                console.log('applyAllowToggles',$scope.allowToggle, window.innerWidth);
+                //console.log('applyAllowToggles',$scope.allowToggle, window.innerWidth);
                 let lAllowToggle = true;
                 if($scope.allowToggle != undefined){
                     lAllowToggle = $scope.allowToggle.desktop === 'yes';
@@ -1545,7 +1549,7 @@ function siDataAccordeon($parse){
                         lAllowToggle = true;
                     }
                 }
-                console.log('applyAllowToggles',lAllowToggle);
+                //console.log('applyAllowToggles',lAllowToggle);
 
                 if(lAllowToggle != true){
                     

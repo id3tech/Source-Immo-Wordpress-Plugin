@@ -40,7 +40,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         
         $scope.addStatic($configs.alias, $data);
 
-        console.log($scope.statics);
+        //console.log($scope.statics);
     });
 
     $scope.addStatic = function($alias, $data){
@@ -413,7 +413,7 @@ function singleListingCtrl(
         $scope.model.permalink = window.location.pathname;
         $siCompiler.compileBrokerList($scope.model.brokers);
         
-        console.log('permalink', $scope.model.permalink);
+        //console.log('permalink', $scope.model.permalink);
         $siHooks.do('single-listing-preprocess', $scope.model);
     }
 
@@ -503,7 +503,7 @@ function singleListingCtrl(
         
         lPrintLink.push('print');
         const lPrintLinkFinal = '/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1] + window.location.search;
-        console.log('print', lPrintLinkFinal);
+        //console.log('print', lPrintLinkFinal);
         window.open(lPrintLinkFinal);
     }
 
@@ -516,7 +516,7 @@ function singleListingCtrl(
     }
 
     $scope.hasListOf = function($type){
-        console.log($scope.configs);
+        //console.log($scope.configs);
         return $scope.configs.lists.some(function($l){
             return $l.type == $type;
         })
@@ -576,7 +576,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
             })
             .then(function(){
                 $scope.$on('si-list-loaded', function($event, $type,$list){
-                    console.log('si-list-loaded', $type, $list);
+                    //console.log('si-list-loaded', $type, $list);
                     if($type == 'listings'){
                         $siConfig.get().then(function($configs){
                             const lHasCityPage = $configs.city_layouts

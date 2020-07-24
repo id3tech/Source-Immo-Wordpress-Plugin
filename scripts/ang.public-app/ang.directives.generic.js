@@ -68,12 +68,12 @@ siApp
 
                     let lReferenceWidth = null;
                     if(lReferenceElement != null){
-                        console.log('valid container detected for',$scope.$element,':', lReferenceElement);
+                        //console.log('valid container detected for',$scope.$element,':', lReferenceElement);
 
                         const lElementBox = lReferenceElement.getBoundingClientRect();
-                        console.log('AdaptativeResize/updateClass',lElementBox);
+                        //console.log('AdaptativeResize/updateClass',lElementBox);
                         if(lElementBox.width == 0){
-                            console.log('Element box width is 0', lReferenceElement);
+                            //console.log('Element box width is 0', lReferenceElement);
                             // $timeout(function(){
                             //     $scope.updateClass();
                             // },500);
@@ -83,7 +83,7 @@ siApp
                         lReferenceWidth = lElementBox.width;
                     }
                     else{
-                        console.log('no valid referece element detected');
+                        //console.log('no valid referece element detected');
                     }
 
                     // find the first size greater than the element box width
@@ -91,7 +91,7 @@ siApp
                                             .filter(function($k){
                                                 return lSizeMap[$k][1] <= window.innerWidth || lSizeMap[$k][1] <= lReferenceWidth;
                                             });
-                    console.log('AdaptativeResize/updateClass',lFilteredMap, lReferenceWidth);
+                    //console.log('AdaptativeResize/updateClass',lFilteredMap, lReferenceWidth);
                     const lClass = (lReferenceWidth == null)
                                             ? lFilteredMap.reverse()[0]
                                             : lFilteredMap.reverse().find(function($k){
@@ -99,7 +99,7 @@ siApp
                                                     (lSizeMap[$k][0] <= lReferenceWidth)
                                                 );
                                             });
-                    console.log('added class', lClass);
+                    //console.log('added class', lClass);
                     if(lClass != null){
                         // apply class if found
                         $scope.$element.classList.add(lClass)
@@ -212,7 +212,7 @@ siApp
             }
 
             $scope.resize = function($event){
-                console.log('siSideScroll/window@onResize',$scope.$element, window.innerWidth);
+                //console.log('siSideScroll/window@onResize',$scope.$element, window.innerWidth);
                 // apply SideScroll when window width is smaller than 720px
                 if($scope._resizeDebounce != null){
                     window.clearTimeout($scope._resizeDebounce);
@@ -235,7 +235,7 @@ siApp
             }
 
             $scope.applySideScroll = function(){
-                console.log('siSideScroll/applySideScroll');
+                //console.log('siSideScroll/applySideScroll');
                 // const lContainerWidth = $scope.$scrollContainer.getBoundingClientRect().width;
                 // const lPadding = (window.innerWidth - lContainerWidth) / 2;
                 const lContainerStyle = window.getComputedStyle($scope.$scrollContainer);
@@ -247,7 +247,7 @@ siApp
             }
 
             $scope.removeSideScroll = function(){
-                console.log('siSideScroll/removeSideScroll',$scope.$scrollContainer);
+                //console.log('siSideScroll/removeSideScroll',$scope.$scrollContainer);
                 const sideScrollStyles = $scope.getContainerStyles();
                 
                 Object.keys(sideScrollStyles).forEach(function($k){
@@ -263,7 +263,7 @@ siApp
     
                 const sideScrollStyles = $scope.getContainerStyles();
                 sideScrollStyles.padding = '0 ' + lPadding + 'px';
-                console.log('siSideScroll/applySideScroll:', sideScrollStyles,$scope.$scrollContainer);
+                //console.log('siSideScroll/applySideScroll:', sideScrollStyles,$scope.$scrollContainer);
                 Object.keys(sideScrollStyles).forEach(function($k){
                     $scope.$scrollContainer.style[$k] = sideScrollStyles[$k];
                 });
@@ -570,7 +570,7 @@ siApp
         },
         controller: function($scope){
             $scope.$on('si-list-loaded', function(){
-                console.log('list loaded triggered');
+                //console.log('list loaded triggered');
                 
 
                 $timeout(function(){
@@ -585,7 +585,7 @@ siApp
 
             $scope.applyAllImageSource = function(){
                 let lLazyLoadImages = Array.from(document.querySelectorAll('.si-lazy-loading'));
-                console.log('applyAllImageSource',lLazyLoadImages.length);
+                //console.log('applyAllImageSource',lLazyLoadImages.length);
                 
                 lLazyLoadImages.forEach(function($element){
                     const lImg = $element.querySelector('img');
@@ -595,7 +595,7 @@ siApp
             }
 
             $scope.applyImageSource = function($lazyContainerElm){
-                console.log('applyImageSource:triggered');
+                //console.log('applyImageSource:triggered');
                 const $imgElm = $lazyContainerElm.querySelector('img');
                 let lImgSource = $imgElm.getAttribute('si-src') || $imgElm.getAttribute('data-si-src');
                 const lImgSourceset = $scope.getSourceSet($imgElm); //.getAttribute('si-srcset') || $imgElm.getAttribute('data-si-srcset');
@@ -619,7 +619,7 @@ siApp
                 if(lLazyLoadImages.forEach == undefined){
                     lLazyLoadImages = Array.from(lLazyLoadImages);
                 }
-                console.log('applyObserver for ', lLazyLoadImages.length, 'elements');
+                //console.log('applyObserver for ', lLazyLoadImages.length, 'elements');
                 
                 lLazyLoadImages.forEach(function($element){
                     const lImg = $element.querySelector('img');
