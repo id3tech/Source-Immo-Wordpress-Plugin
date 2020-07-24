@@ -898,9 +898,10 @@ siApp
         templateUrl: directiveTemplatePath('si-map'),
         link: function($scope, element){
             $scope.viewport_element = element.children()[0];
+            $scope.$element = element[0];
             $scope.init();
         },
-        controller: function($scope, $q, $siApi, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
+        controller: function($scope, $q, $siApi,$timeout, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
             $scope.ready = false;
             $scope.is_visible = false;
             $scope.zoom = 8;
@@ -962,6 +963,10 @@ siApp
                             $scope.map = new google.maps.Map(
                                 $scope.viewport_element, options
                             );
+
+                            $scope.map.addListener('dragstart', function(){
+                                $scope.unselectItem();
+                            })
     
                             $scope.ready = true;
                             $resolve();
@@ -1245,7 +1250,8 @@ siApp
             $scope.pinClick = function($marker){
                 //console.log('Marker clicked', $marker);
                 $scope.map.panTo($marker.getPosition());
-                $scope.selectItem($marker.obj.id);
+                
+                $scope.selectItem($marker);
                 return;
 
                 $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
@@ -1269,15 +1275,42 @@ siApp
     
                 
             }
-    
-            $scope.selectItem = function($id){
-                $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$id)).then(function($response){
+            $scope.unselectItem = function(){
+                if($scope.selectedMarker!=undefined){
+                    $scope.selectedMarker.div_.classList.remove('selected');
+                    $scope.selectedMarker = undefined;
+                }
+                
+                const lPanelElm = $scope.$element.querySelector('.si-selected-item');
+                if(lPanelElm != null){
+                    lPanelElm.addEventListener('transitionend', function(){
+                        $scope.selectedItem = null;
+                    },{once:true});
+                }
+                $scope.showSelectionPanel = false;
+            }
+
+            $scope.selectItem = function($marker){
+                const lId = $marker.obj.id;
+                if($scope.selectedMarker!=undefined){
+                    $scope.selectedMarker.div_.classList.remove('selected');
+                }
+                
+                $scope.selectedMarker = $marker;
+                $scope.selectedMarker.div_.classList.add('selected');
+
+                $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',lId)).then(function($response){
                     $siDictionary.source = $response.dictionary;
                     $siCompiler.compileListingItem($response);
                     console.log('siMap/showItem', $response);
-
+                    if($scope.selectedItem == null){
+                        $timeout(function(){
+                            $scope.showSelectionPanel = true;
+                        },100);
+                    }
                     $scope.selectedItem = $response;
-
+                    
+                    
                     $scope.$emit('siMap/showItem', $response);
                 });
             }

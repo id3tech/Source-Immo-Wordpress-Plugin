@@ -516,32 +516,23 @@ si-checkbox, si-radio{
 .si-map-container{
     position:relative;
     overflow:hidden;
-    
-    @keyframes si-map-item-show{
-        0% {
-            transform:translateY(100%);
-        }
-        100% {
-            transform:translateY(0%);
-        }
+    margin:calc(-1 * var(--layout-gutter));
+    margin-top:0;
+    @include media($phone){
+        margin:calc(-1 * (var(--layout-gutter) / 2));
+        margin-top:0;
     }
-
-    @keyframes si-map-item-element-show{
-        0% {
-            transform:translateY(100%);
-        }
-        100% {
-            transform:translateY(0%);
-        }
-    }
-
     .si-selected-item{
         position: absolute;
         bottom:0px;
         left:0px;
         right:0px;
-        animation-fill-mode: forwards;
-        animation: si-map-item-show 0.25s;
+        transform:translateY(100%);
+        transition: 0.25s ease-out;
+        &.active{
+            transform:translateY(0);
+        }
+
         &::before{
             content:"";
             position: absolute;
@@ -689,6 +680,76 @@ si-checkbox, si-radio{
         &.has-flags{
             .flags{
                 opacity:1;
+            }
+        }
+    }
+    $map_marker_color: #4884DA;
+    .map-marker-icon{
+        background:$map_marker_color;
+        transition: transform 0.25s;
+        &::before{
+            font-family: "Font Awesome 5 Pro";
+            content:"\f041";
+            font-size:45px;
+            font-weight:600;
+            width:40px;
+            text-align:center;
+            color:var(--map-marker-bg);
+            position: absolute;
+            bottom:0px;left:-20px;
+            opacity:0.8;
+        }
+        &::after{
+            position:absolute;
+            font-family: "Font Awesome 5 Pro";
+            font-weight:300;
+            content:"\f015";
+            color:var(--map-marker-fg);
+            bottom: 15px;
+            font-size:20px;
+            width:40px;left:-20px;
+            text-align:center;
+        }
+        &.sold{
+            --map-marker-bg : var(--map-marker-bg-sold);
+            --map-marker-fg: var(--map-marker-fg-sold);
+            // &::before{ color: var(--map-marker-bg-sold);}
+            // &::after{ color: var(--map-marker-fg-sold);}
+        }
+        &.selected{
+            transform:scale(1.5);
+            &::before{ 
+                text-shadow: 
+                    0 0 2px var(--map-marker-fg),
+                    0 0 4px var(--map-marker-fg),
+                    0 0 5px var(--map-marker-bg), 
+                    0 0 6px var(--map-marker-bg);
+            }
+//            &::after{ box-shadow:0 0 4px var(--map-marker-fg-sold);}
+        }
+        &.multi-family{
+            &:after{
+                content: "\f1ad";
+            }
+        }
+        &.lot{
+            &:after{
+                content: "\f400";
+            }
+        }
+        &.com{
+            &:after{
+                content: "\f290";
+            }
+        }
+        &.revenue_prop{
+            &:after{
+                content: "\f2e9";
+            }
+        }
+        &.farm{
+            &:after{
+                content: "\f1b0";
             }
         }
     }

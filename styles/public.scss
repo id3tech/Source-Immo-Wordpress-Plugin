@@ -1270,63 +1270,8 @@ html{
         // map container
         // ----------------
         .map-container{
-            $map_marker_color: #4884DA;
+            
             .viewport{height:640px;width:100%;}
-            .map-marker-icon{
-                background:$map_marker_color;
-                &::before{
-                    font-family: "Font Awesome 5 Pro";
-                    content:"\f041";
-                    font-size:45px;
-                    font-weight:600;
-                    width:40px;
-                    text-align:center;
-                    color:var(--map-marker-bg);
-                    position: absolute;
-                    bottom:0px;left:-20px;
-                    opacity:0.8;
-                }
-                &::after{
-                    position:absolute;
-                    font-family: "Font Awesome 5 Pro";
-                    font-weight:300;
-                    content:"\f015";
-                    color:var(--map-marker-fg);
-                    bottom: 15px;
-                    font-size:20px;
-                    width:40px;left:-20px;
-                    text-align:center;
-                }
-                &.sold{
-                    &::before{ color: var(--map-marker-bg-sold);}
-                    &::after{ color: var(--map-marker-fg-sold);}
-                }
-                &.multi-family{
-                    &:after{
-                        content: "\f1ad";
-                    }
-                }
-                &.lot{
-                    &:after{
-                        content: "\f400";
-                    }
-                }
-                &.com{
-                    &:after{
-                        content: "\f290";
-                    }
-                }
-                &.revenue_prop{
-                    &:after{
-                        content: "\f2e9";
-                    }
-                }
-                &.farm{
-                    &:after{
-                        content: "\f1b0";
-                    }
-                }
-            }
         }
 
         // list-meta

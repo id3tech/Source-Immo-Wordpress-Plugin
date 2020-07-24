@@ -1,6 +1,6 @@
 <div class="si-map-container">
     <div id="map-{{alias}}" class="viewport"></div>
-    <div class="si-selected-item {{getSelectionClassList(selectedItem)}}" ng-if="selectedItem != null">
+    <div class="si-selected-item {{getSelectionClassList(selectedItem)}} {{showSelectionPanel ? 'active': ''}}" ng-if="selectedItem != null">
         
             <div class="item-content">
                 <div class="image"><img ng-src="{{selectedItem.photos[0].url}}" /></div>
