@@ -1,4 +1,4 @@
-<p>{{'Click on the social media you want to share this page.'.translate()}}</p>
+
 <div class="media-list">
     <div class="share-item" ng-click="shareTo('facebook')" style="--item-color:#526FA4"><i class="si-icon fab fa-facebook"></i><label>Facebook</label></div>
     <div class="share-item" ng-click="shareTo('twitter')" style="--item-color:#4DB7EB"><i class="si-icon fab fa-twitter"></i><label>Twitter</label></div>

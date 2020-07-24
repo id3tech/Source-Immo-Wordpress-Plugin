@@ -782,6 +782,11 @@ class SourceImmo {
       $share_tool = new SiSharing($listing_data);
       $share_tool->addHook('listing');
       $permalink = $share_tool->getPermalink();
+
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
+
       add_filter('si_page_title', function($title) use ($share_tool){
         return $share_tool->title();
       });
@@ -840,7 +845,12 @@ class SourceImmo {
       $model = apply_filters('si_listing_print_post_process', $model);
 
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
-      $model->tiny_url = SourceImmoTools::get_tiny_url('http://' . $_SERVER['HTTP_HOST'] . $model->permalink);
+
+      if(isset($_GET['view'])){
+        $model->permalink = $model->permalink . '?view=' . $_GET['view'];
+      }
+      $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+      $model->tiny_url = SourceImmoTools::get_tiny_url($protocol . $_SERVER['HTTP_HOST'] . $model->permalink);
       
       
       wp_enqueue_style('listing-print', SI_PLUGIN_URL . 'styles/print.min.css', null, filemtime(SI_PLUGIN_DIR . '/styles/print.min.css'));
@@ -877,6 +887,11 @@ class SourceImmo {
       $share_tool->addHook('broker');
       
       $permalink = $share_tool->getPermalink();
+      
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
+
       add_filter('si_page_title', function($title) use ($share_tool){
         return $share_tool->title();
       });
@@ -923,6 +938,11 @@ class SourceImmo {
       $share_tool->addHook('city');
       
       $permalink = $share_tool->getPermalink();
+      
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
+
       if(isset($post)) $post->permalink = $permalink;
       add_filter('si_page_title', function($title) use ($share_tool){
         return $share_tool->title();
@@ -966,6 +986,10 @@ class SourceImmo {
       $share_tool = new SiSharing($office_data);
       $share_tool->addHook('office');
       $permalink = $share_tool->getPermalink();
+
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
 
       if($post != null) $post->permalink = $permalink;
 
@@ -1549,6 +1573,11 @@ add_action('si_listing_detail_begin', function(){
     
 		$permalink_format = SourceImmo::current()->get_listing_permalink($lang['code']);
     $permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format,$lang["code"]);
+    
+    if(isset($_GET['view'])){
+      $permalink = $permalink . '?view=' . $_GET['view'];
+    }
+    
     //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
     return $permalink;
 	  }, 10, 2 );
@@ -1562,6 +1591,10 @@ add_action('si_broker_detail_begin', function(){
     
 		$permalink_format = SourceImmo::current()->get_broker_permalink($lang['code']);
     $permalink = SourceImmoBrokersResult::buildPermalink($broker_data, $permalink_format,$lang["code"]);
+    
+    if(isset($_GET['view'])){
+      $permalink = $permalink . '?view=' . $_GET['view'];
+    }
     
     //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
 		return $permalink;

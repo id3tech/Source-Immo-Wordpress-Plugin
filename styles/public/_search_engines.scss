@@ -621,7 +621,8 @@
             top:calc(var(--relative-border-size) * 2);
             left: calc(4px + var(--container-border-radius));
             width: calc(100% - 8px - var(--container-border-radius));
-            height:calc( (var(--relative-height) - (var(--relative-border-size) * 2)) - (2 * var(--container-border-radius)));
+            height:var(--relative-height);
+            //height:calc( (var(--relative-height) - (var(--relative-border-size) * 2)) - (2 * var(--container-border-radius)));
             box-shadow: 0 0 0 100vh var(--background-color);
             z-index:1;
         }

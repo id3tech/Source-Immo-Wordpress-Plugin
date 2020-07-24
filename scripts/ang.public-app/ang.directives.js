@@ -768,19 +768,40 @@ function siSmallList($sce,$compile){
                 $siApi.getDefaultDataView().then(function($view_id){
                     $scope.view_id = $view_id;
                     
-                    $siHooks.addFilter('si/list/item/permalink', function($result, $item){
-                        if(isNullOrUndefined($scope._global_configs)) return $result;
-                        if(isNullOrUndefined($scope.configs)) return $result;
+                    // $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                    //     if(isNullOrUndefined($scope._global_configs)) return $result;
+                    //     if(isNullOrUndefined($scope.configs)) return $result;
                         
-                        const lQuery = '?view=' + $scope.configs.current_view;
+                    //     const lQuery = '?view=' + $scope.configs.current_view;
+                    //     if($result.indexOf(lQuery) < 0){
+                    //         console.log('siSmallList@si/list/item/permalink - add view id to link',$result, lQuery);
+
+                    //         $result = $result + lQuery;
+                    //     }
+
+                    //     return $result
+                    // });
+
+                    $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                        const lCustomViewId = $siUtils.search('view');
+                        if(lCustomViewId == null) return $result;
+                        
+
+                        
+                        const lQuery = '?view=' + lCustomViewId;
                         if($result.indexOf(lQuery) < 0){
-                            console.log('siSmallList@si/list/item/permalink - add view id to link',$result, lQuery);
+                            console.log('- add view id to link',$result, lQuery);
 
                             $result = $result + lQuery;
                         }
-
+                        else{
+                            console.log('- view id already in link', $result);
+                        }
+                    
                         return $result
                     });
+
+                    
 
                     $scope.fetchList();
                     
@@ -912,6 +933,8 @@ function siSmallList($sce,$compile){
                 
                 return lClassList.join(' ');
             }
+
+            
         }
     }
 }]);

@@ -34,6 +34,7 @@ $panelKey = 'others';
                 </si-input-container>
                 
             </div>
+
         </div>
 
         <div class="si-auto-columns">
@@ -46,6 +47,18 @@ $panelKey = 'others';
                     </si-select>
                 </si-input-container>
             </div>
+
+            
+            <div class="market-type filter-row" ng-if="market_types">
+                <si-input-container>
+                    <label><?php _e('Market',SI) ?></label>
+                    <si-select class="si-input" si-model="filter.data.market_type" si-change="filter.update()">
+                        <si-option value=""><?php _e('Any',SI) ?></si-option>
+                        <si-option ng-repeat="item in market_types" value="{{item.value}}">{{item.label}}</si-option>
+                    </si-select>
+                </si-input-container>
+            </div>
+
 
             <div class="age filter-row" ng-if="listing_ages">
                 <si-input-container>
@@ -67,12 +80,12 @@ $panelKey = 'others';
                     </si-select>
                 </si-input-container>
             </div>
-
             
         </div>
-        <div class="area-filters">
 
-            <div class="land-area filter-row" ng-if="!allowPanel('areas')">
+        <div class="area-filters" ng-if="!allowPanel('areas')">
+
+            <div class="land-area filter-row" >
                 <si-input-container class="si-float-label si-input-group">
                     <label><?php _e('Land area',SI) ?></label>
                     
@@ -91,7 +104,7 @@ $panelKey = 'others';
                 
             </div>
 
-            <div class="building-area filter-row" ng-if="!allowPanel('areas')">
+            <div class="building-area filter-row">
                 <si-input-container class="si-float-label si-input-group">
                     <label><?php _e('Available area',SI) ?></label>
                     

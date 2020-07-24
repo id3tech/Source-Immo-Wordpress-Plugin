@@ -149,9 +149,6 @@
       $item->location->region = (isset($item->location->region_code)) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
       if($item->location->civic_address != ''){
         $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
-        if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
-          $item->location->full_address .= ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
-        }
       }
       else{
         $item->location->full_address = $item->location->city;

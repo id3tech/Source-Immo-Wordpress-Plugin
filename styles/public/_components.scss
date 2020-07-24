@@ -512,6 +512,188 @@ si-checkbox, si-radio{
     }
 }
 
+#top .si-map-container,
+.si-map-container{
+    position:relative;
+    overflow:hidden;
+    
+    @keyframes si-map-item-show{
+        0% {
+            transform:translateY(100%);
+        }
+        100% {
+            transform:translateY(0%);
+        }
+    }
+
+    @keyframes si-map-item-element-show{
+        0% {
+            transform:translateY(100%);
+        }
+        100% {
+            transform:translateY(0%);
+        }
+    }
+
+    .si-selected-item{
+        position: absolute;
+        bottom:0px;
+        left:0px;
+        right:0px;
+        animation-fill-mode: forwards;
+        animation: si-map-item-show 0.25s;
+        &::before{
+            content:"";
+            position: absolute;
+            bottom:0px;
+            left:0px;
+            right:0px;
+            top:0px;
+            background:var(--background-color);
+            opacity:0.9;
+            z-index:1;
+        }
+        a{display:block;}
+        .item-content{
+            display:grid;
+            grid-template-columns: auto 1fr auto;
+            
+            gap: var(--layout-gutter);
+            position:relative;
+            z-index:2;
+            .image{
+                height: 175px;
+                width: 260px;
+                
+                img{
+                    display:block;
+                    width:100%;
+                    height:100%;
+                    object-fit: cover;
+                    object-position: center;
+                }
+            }
+            .item-infos{
+                padding:var(--layout-gutter) 0;
+            }
+            .more-infos{
+                display: grid;
+                grid-template-rows: 1fr;
+                place-items: end center;
+                padding: calc( var(--layout-gutter) / 2);
+            }
+            .flags{
+                opacity:0;
+                position: absolute;
+                top:5px;
+                right:5px;
+                z-index: 5;
+                i.far{
+                    display:none;
+                    background: var(--highlight);
+                    color: var(--highlight-text-color);
+                    width: 3rem;
+                    height: 3rem;
+                    line-height: 3rem;
+                    text-align: center;
+                    border-radius: 50%;
+                    font-size: 1.75rem;
+                }
+            }
+
+            .open-houses{
+                display:none;
+                position:absolute;
+                top:5px;
+                left:5px;
+                background:var(--highlight);
+                --text-color: var(--highlight-text-color);
+                padding:5px;
+                z-index: 5;
+            }
+
+            .rooms{
+                display:grid;
+                grid-auto-flow: column;
+                grid-auto-columns: max-content;
+                gap: var(--layout-gutter);
+                padding-top:calc(var(--layout-gutter) / 2);
+            }
+            
+            .subcategory{
+                font-size: 1.25rem;
+                text-transform: uppercase;
+            }
+            .price{
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            
+        }
+        @include media($tablet){
+            
+            .item-content{
+                height:30vh;    
+                grid-template-columns: 1fr;
+                place-items:end stretch;
+                
+                .image{
+                    position: absolute;
+                    z-index: 1;
+                    width:100%;
+                    height:100%;
+                }
+                .item-infos{
+                    position:relative;
+                    z-index: 5;
+                    font-size: 0.8rem;
+                    color: #fff;
+                    padding: calc(var(--layout-gutter) / 2);
+                    padding-top: calc(var(--layout-gutter) * 2);
+                    line-height: 1.25;
+                    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+100 */
+                    background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
+                    background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
+                    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); /* IE6-9 */
+
+                    .rooms{
+                        padding-top:0;
+                        .label{display:none;}
+                    }
+                }
+
+                .more-infos{
+                    position: absolute;
+                    bottom:0;
+                    right:0;
+                    height:100%;
+                    z-index: 6;
+                }
+            }
+        }
+
+        &.has-open-house{
+            .open-houses{
+                display:block;
+            }
+        }
+        &.has-video{
+            .flags i.video{display:block;}
+        }
+        &.has-virtual-tour{
+            .flags i.virtual-tour{display:block;}
+        }
+
+        &.has-flags{
+            .flags{
+                opacity:1;
+            }
+        }
+    }
+}
+
 #top .si-select,
 .si-select{
     position:relative;

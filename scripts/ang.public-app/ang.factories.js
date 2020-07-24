@@ -657,6 +657,10 @@ function $siCompiler($siConfig,$siList, $siUtils){
     }
 
     $scope.compileListingRooms = function($item){
+        if($item.main_unit == undefined && $item.units != undefined){
+            if($item.units.length > 0) $item.main_unit = $item.units.find(function($u){ return $u.category_code == 'MAIN'});
+        }
+
         if(typeof $item.main_unit != 'undefined'){
             
             const lIconRef = {
@@ -676,9 +680,11 @@ function $siCompiler($siConfig,$siList, $siUtils){
             }
 
             $item.rooms = {};
+
             Object.keys($item.main_unit).forEach(function($k){
                 if($item.main_unit[$k] > 0){
                     const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
+                    
                     if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
                 }
             });
@@ -822,7 +828,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
                 }
 
                 if($format == 'long'){
-                    let lStart = 'for {0} for '.format($key).translate();
+                    const lTerm = ($key == 'sell') ? 'sale' : $key;
+                    let lStart = 'for {0} for '.format(lTerm).translate();
                     lResult.push(lStart + '<span class="nowrap">' + lPart.join('/') + '</span>');
                 }
                 else{
@@ -1011,12 +1018,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
                 lResult.push('sold');
             }
             let lHasFlags = false;
-            if($item.video_flag){
+            
+            if( ($item.video_flag) || ($item.video)){
+                console.log('$item/has-video',$item.video_flat !== undefined, $item.video !== undefined, $item.video_flat !== undefined || $item.video !== undefined);
                 lHasFlags = true;
                 lResult.push('has-video');
             }
 
-            if($item.virtual_tour_flag){
+            if($item.virtual_tour_flag || $item.virtual_tour){
                 lHasFlags = true;
                 lResult.push('has-virtual-tour');
             }
@@ -1397,6 +1406,9 @@ function $siConfig($http, $q){
                     $http.get(siCtx.config_path).then(function($response){
                         if($response.status==200){
                             $scope._data = $response.data;
+                            if(siCtx.version != undefined){
+                                $scope._data.app_version = siCtx.version;
+                            }
                             $scope._loading = false;
     
                             $resolve($scope._data);

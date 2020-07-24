@@ -1243,8 +1243,9 @@ siApp
     
             $scope.pinClick = function($marker){
                 //console.log('Marker clicked', $marker);
-                // $scope.selectItem($marker.obj.id);
-                // return;
+                $scope.map.panTo($marker.getPosition());
+                $scope.selectItem($marker.obj.id);
+                return;
 
                 $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$marker.obj.id)).then(function($response){
                     
@@ -1272,11 +1273,26 @@ siApp
                 $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',$id)).then(function($response){
                     $siDictionary.source = $response.dictionary;
                     $siCompiler.compileListingItem($response);
+                    console.log('siMap/showItem', $response);
 
                     $scope.selectedItem = $response;
 
                     $scope.$emit('siMap/showItem', $response);
                 });
+            }
+
+            /**
+             * Shorthand to $siUtils.getClassList
+             * see $siUtils factory for details
+             * @param {object} $item Listing item data
+             */
+            $scope.getSelectionClassList = function($item){
+                const lClassList = [$siUtils.getClassList($item)];
+                if($scope.configs != null){
+                    lClassList.push('img-hover-effect-' + $scope.configs.list_item_layout.image_hover_effect);
+                }
+                
+                return lClassList.join(' ');
             }
     
     
@@ -1602,7 +1618,6 @@ function siMediabox($parse){
                                     ? $scope.getVisibleTabs().firstOrDefault('pictures')
                                     : 'pictures';
                 
-                console.log('selectFirstTab', cFirstTab);
                 $scope.selectMedia($scope.defaultTab || cFirstTab);
             }
 
@@ -1637,7 +1652,6 @@ function siMediabox($parse){
                         if($scope.configs.map_api_key == '') return false;
                     }
                 }
-                console.log('siMediaBox/tabIsAvailable', $name, $scope.tabs);
                 if(!$scope.tabs) return true;
 
                 if($scope.tabs.some(function($t){ return $t.indexOf($name + '-') >= 0})){   

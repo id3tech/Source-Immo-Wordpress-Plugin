@@ -1,29 +1,41 @@
 <div class="si-map-container">
     <div id="map-{{alias}}" class="viewport"></div>
-    <div class="si-selected-item" ng-if="selectedItem != null">
-        <a href="{{getPermalink(selectedItem)}}">
+    <div class="si-selected-item {{getSelectionClassList(selectedItem)}}" ng-if="selectedItem != null">
+        
             <div class="item-content">
                 <div class="image"><img ng-src="{{selectedItem.photos[0].url}}" /></div>
-                <div class="price">{{formatPrice(selectedItem)}}</div>
-                <div class="address">{{selectedItem.location.civic_address}}</div>
-                <div class="city">{{selectedItem.location.city}}</div>
-                <div class="subcategory">{{selectedItem.subcategory}}</div>
-                
-                <div class="si-data-label rooms" >
-                    <div class="room {{icon}}" ng-repeat="(icon,room) in item.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label}}</span></div>
+                <div class="item-infos">
+                    <div class="subcategory">{{selectedItem.subcategory}}</div>
+                    <div class="price">{{selectedItem.short_price}}</div>
+
+                    <div class="address">{{selectedItem.location.civic_address}}</div>
+                    <div class="city">{{selectedItem.location.city}}</div>
+                    
+
+                    <div class="si-data-label rooms" >
+                        <div class="room {{icon}}" ng-repeat="(icon,room) in selectedItem.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label | translate}}</span></div>
+                    </div>
+
+                    
+                    
+                    
+                </div>
+                <div class="more-infos">
+                    <a class="si-button" href="{{selectedItem.permalink}}">{{'More infos' | translate}}</a>
                 </div>
 
                 <div class="flags">
                     <i class="video far fa-video"></i>
                     <i class="virtual-tour far fa-street-view"></i>
                 </div>
-                
+
                 <div class="si-data-label open-houses">
                     <div class="open-house-item">
-                        <i class="fal fa-calendar-alt"></i> <span>{{'Open house'.translate()}}</span> <span data-am-time-ago="item.open_houses[0].start_date"></span>
+                        <i class="fal fa-calendar-alt"></i> <span>{{'Open house'.translate()}}</span> <span data-am-time-ago="selectedItem.open_houses[0].start_date"></span>
                     </div>
                 </div>
+                
             </div>
-        </a>
+        
     </div>
 </div>

@@ -299,6 +299,8 @@ html.print body .notepad { position: relative; overflow: hidden; }
 
 html.print body .notepad .handwrite-zone { opacity: 0.25; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-image: -ms-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -ms-linear-gradient(var(--text-color) 1px, transparent 0); -webkit-background-size: 100% 2em; -moz-background-size: 100% 2em; /* In a perfect world... */ background-image: linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), linear-gradient(var(--text-color) 1px, transparent 0); background-size: 100% 2em; }
 
+html.print body .si-site-logo { height: 100px; }
+
 html.print body .si-site-logo img { width: 100%; height: 100%; -o-object-fit: contain; object-fit: contain; -o-object-position: center; object-position: center; }
 
 html.print body div.separator { height: 1px; background: var(--text-color); opacity: 0.25; width: 80%; display: block; margin: 0.1in auto; }
@@ -490,8 +492,6 @@ html.print.listings page.last-page .notepad .handwrite-zone { top: 1in; right: 0
 html.print.listings page.last-page .notepad .static-map { position: absolute; bottom: 0.25in; right: 0.25in; }
 
 html.print.listings page.last-page .static-map { width: 4in; height: 4in; }
-
-html.print.listings page.last-page .recap { position: absolute; bottom: 0.25in; left: 0.25in; }
 
 html.print.listings page.last-page .recap .price { font-size: 2rem; position: relative; }
 
