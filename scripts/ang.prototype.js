@@ -50,6 +50,10 @@ if(typeof Number.formatPrice === 'undefined' ){
     Number.prototype.formatPrice = function($currency){
         let lValue = this;
         lValue = Math.round(lValue * 100) / 100;
+        if(Math.floor(lValue) < lValue){
+            lValue = lValue.toFixed(2);
+        }
+
         $currency = ($currency==undefined)?'':$currency;
         $separator = {
             fr : ' ',
