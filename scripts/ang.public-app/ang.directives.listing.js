@@ -1286,8 +1286,12 @@ siApp
                     lPanelElm.addEventListener('transitionend', function(){
                         $scope.selectedItem = null;
                     },{once:true});
+                    
                 }
-                $scope.showSelectionPanel = false;
+                $timeout(function(){
+                    $scope.showSelectionPanel = false;        
+                });
+                
             }
 
             $scope.selectItem = function($marker){
