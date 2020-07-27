@@ -3047,6 +3047,15 @@ siApp
                         }
                     }
                 },
+                'market_type' : function($value){
+                    return {
+                        text: $scope.getCaptionOfFilter($value, $siSearchContext.market_types,'key').translate(),
+                        remove: function(){
+                            $scope.filter.data.market_type = null;
+                            $scope.filter.update();
+                        }
+                    }
+                },
                 'attributes' : function($values){
                     return $values.map(function($val){
                         return {
