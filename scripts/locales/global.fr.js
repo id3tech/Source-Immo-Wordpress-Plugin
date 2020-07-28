@@ -671,6 +671,7 @@ $locales.fr = {};$locales.fr.global =
     , "Office" : "Bureau"
     , "Languages" : "Langues"
     , "Spoken language(s)" : "Langue(s) parlée(s)"
+    , "Spoken language" : "Langue parlée"
     , "Experience" : "Expérience"
     , "{0} years" : "{0} ans"
     , "{0} months" : "{0} mois"

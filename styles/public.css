@@ -175,7 +175,7 @@ html { font-size: 14px; }
 
 #top .si .si-item .item-content .image img, .si .si-item .item-content .image img { -o-object-fit: cover; object-fit: cover; -o-object-position: center; object-position: center; width: 100%; height: 100%; display: block; padding: 0px; }
 
-#top .si .si-item .item-content .si-data-label, .si .si-item .item-content .si-data-label { padding: var(--element-padding); }
+#top .si .si-item .item-content .si-data-label, .si .si-item .item-content .si-data-label { padding: var(--element-padding); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 
 #top .si .si-item .item-content .si-data-label[ng-hide], .si .si-item .item-content .si-data-label[ng-hide] { display: none !important; }
 
@@ -827,7 +827,7 @@ html { font-size: 14px; }
 
 #top .si .filter-panel.others-panel .filter-panel-content .grid-layout-column, .si .filter-panel.others-panel .filter-panel-content .grid-layout-column { -ms-grid-columns: (minmax(200px, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
-#top .si .filter-panel.others-panel .filter-panel-content .licenses .grid-layout-colum, .si .filter-panel.others-panel .filter-panel-content .licenses .grid-layout-colum { -ms-grid-columns: (minmax(240px, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+#top .si .filter-panel.others-panel .filter-panel-content .licenses .grid-layout-column, .si .filter-panel.others-panel .filter-panel-content .licenses .grid-layout-column { -ms-grid-columns: (minmax(320px, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 
 #top .si .filter-panel.others-panel .filter-panel-content .transaction .si-dropdown, #top .si .filter-panel.others-panel .filter-panel-content .age .si-dropdown, #top .si .filter-panel.others-panel .filter-panel-content .parkings .si-dropdown, .si .filter-panel.others-panel .filter-panel-content .transaction .si-dropdown, .si .filter-panel.others-panel .filter-panel-content .age .si-dropdown, .si .filter-panel.others-panel .filter-panel-content .parkings .si-dropdown { place-self: center start; }
 

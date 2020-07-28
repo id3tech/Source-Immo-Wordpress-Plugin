@@ -450,6 +450,10 @@ html{
             
             .si-data-label{
                 padding: var(--element-padding);
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                
                 &[ng-hide]{
                     display:none!important;
                 }
