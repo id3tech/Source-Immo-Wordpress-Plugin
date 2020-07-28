@@ -1344,9 +1344,9 @@ html { font-size: 14px; }
 
 #top .si.listing-single .flags .flag, .si.listing-single .flags .flag { position: relative; margin: calc(var(--layout-gutter) / 2); text-align: center; display: -ms-grid; display: grid; width: 3rem; -ms-grid-rows: 1fr 1.4rem; grid-template-rows: 1fr 1.4rem; place-items: center; }
 
-#top .si.listing-single .flags .flag i, .si.listing-single .flags .flag i { font-size: 2rem; text-align: center; color: var(--text-color); }
+#top .si.listing-single .flags .flag i, .si.listing-single .flags .flag i { font-size: 1.8rem; text-align: center; color: var(--text-color); }
 
-#top .si.listing-single .flags .flag em, .si.listing-single .flags .flag em { display: block; font-size: 1rem; font-style: normal; text-align: center; }
+#top .si.listing-single .flags .flag em, .si.listing-single .flags .flag em { display: block; font-size: 1rem; font-style: normal; text-align: center; font-weight: 700; }
 
 #top .si.listing-single .open-houses, .si.listing-single .open-houses { background: #555; border-radius: 3px; color: #fff; padding: 10px; margin-top: 10px; }
 
