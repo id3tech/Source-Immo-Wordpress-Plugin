@@ -522,6 +522,16 @@
         .description{
             
         }
+        .legal-notes{
+            display:grid;
+            grid-template-columns: auto 1fr;
+            place-items: start stretch;
+            font-size:0.8rem;
+            padding:1rem 0;
+            gap:0.5rem;
+            opacity:0.75;
+            i{line-height: 1rem;}
+        }
         
         .attachments{
             padding:20px 0;

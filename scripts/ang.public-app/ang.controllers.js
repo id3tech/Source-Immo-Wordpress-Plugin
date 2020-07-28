@@ -275,6 +275,16 @@ function singleListingCtrl(
         $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);
 
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
+
+        $scope.model.legal_notes        = $scope.model.legal_note_codes != undefined 
+                                            ? $scope.model.legal_note_codes.map(function($code){
+                                                return {
+                                                    code: $code,
+                                                    caption: $scope.getCaption($code,'legal_note')
+                                                }
+                                            })
+                                            : null;
+        
         if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
             $scope.model.location.civic_address = '{0} {1}'.format(
                 $scope.model.location.address.street_number,

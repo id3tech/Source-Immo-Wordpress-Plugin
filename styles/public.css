@@ -1306,6 +1306,10 @@ html { font-size: 14px; }
 
 @media screen and (max-width: 420px) { #top .si.listing-single .state, .si.listing-single .state { place-self: start; } }
 
+#top .si.listing-single .legal-notes, .si.listing-single .legal-notes { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: start stretch; font-size: 0.8rem; padding: 1rem 0; gap: 0.5rem; opacity: 0.75; }
+
+#top .si.listing-single .legal-notes i, .si.listing-single .legal-notes i { line-height: 1rem; }
+
 #top .si.listing-single .attachments, .si.listing-single .attachments { padding: 20px 0; }
 
 @media screen and (max-width: 640px) { #top .si.listing-single .attachments, .si.listing-single .attachments { -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; } }
