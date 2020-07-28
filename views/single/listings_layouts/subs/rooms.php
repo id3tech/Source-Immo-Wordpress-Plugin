@@ -13,14 +13,17 @@
         </div> <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
     </div>
     <div class="si-detail-section-content">
+        
         <div class="unit-list" data-ng-repeat="unit in model.units track by $index">
             <h4 class="title" data-ng-show="['OFFICE','INDUSTRY','COMMERCIAL'].includes(unit.category_code) || model.units.length>1">
                 <span>{{'{0} unit'.translate().format(unit.category)}}</span>
                 <span class="area" data-ng-show="unit.dimension | siHasValue">{{unit.dimension | formatDimension}}</span>
             </h4>
-
+            
             <div class="flags" data-ng-show="model.units.length>1"
                 style="--unit-flag-count:{{unit.flags.length}};">
+                
+                <span class="area" data-ng-show="unit.dimension | siHasValue">{{unit.dimension | formatDimension}}</span>
                 <div class="spacer"></div>
                 <div class="flag" data-ng-repeat="flag in unit.flags track by $index" title="{{flag.caption}}">
                     

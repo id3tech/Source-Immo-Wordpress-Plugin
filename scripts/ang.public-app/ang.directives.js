@@ -714,8 +714,8 @@ function siSmallList($sce,$compile){
 
             $scope.columnWidths = {
                 listings: {
-                    desktop: 2,
-                    laptop: 1,
+                    desktop: 3,
+                    laptop: 3,
                     tablet: 2,
                     mobile: 1
                 },

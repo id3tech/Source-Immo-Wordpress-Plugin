@@ -670,6 +670,12 @@ $locales.fr = {};$locales.fr.global =
     , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder à cette page soit invalide."
     , "Office" : "Bureau"
     , "Languages" : "Langues"
+    , "Spoken language(s)" : "Langue(s) parlée(s)"
+    , "Experience" : "Expérience"
+    , "{0} years" : "{0} ans"
+    , "{0} months" : "{0} mois"
+    , "{0} days" : "{0} jours"
+    
     , "Expertises" : "Spécialités"
     , "N/A" : "N/D"
     , "No property yet" : "Aucune propriété"

@@ -338,6 +338,7 @@ function $siDictionary($q,$rootScope){
     $scope._loadCallbacks = [];
 
     $scope.init = function($source, $overwrite){
+        console.log('$siDictionary/init');
         if($scope.source == null){
             $scope.source = $source;
         }
@@ -437,18 +438,23 @@ function $siDictionary($q,$rootScope){
             return $scope.getCaptionFrom($key.src, $key.key, $domain, $asAbbr);
         }
 
-        const lKeyValue = $key;
-        let lResult = lKeyValue;
+        let lResult = $key;
         $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
 
-
+        
+        
         if($scope.source && $scope.source[$domain]){
-            if($scope.source[$domain][lKeyValue] != undefined){
+            const lDomainSource = $scope.source[$domain];
+            if($key == 'SF'){
+                console.log('$siDictionary/getCaption',angular.copy(lDomainSource),$asAbbr,typeof $key,lDomainSource.F);
+            }
+
+            if(lDomainSource[$key] != undefined){
                 if($asAbbr){
-                    lResult = $scope.source[$domain][lKeyValue].abbr;
+                    lResult = lDomainSource[$key].abbr;
                 }
                 else{
-                    lResult = $scope.source[$domain][lKeyValue].caption;
+                    lResult = lDomainSource[$key].caption;
                 }
             }
         }
@@ -791,6 +797,22 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         return lItem.label;
     }
 
+    $scope.timeLength = function($value){
+        const lTimespan = moment.duration(moment().diff($value));
+        if(lTimespan.as('day') < 30){
+            return 'New'.translate();
+        }
+
+        if(lTimespan.as('day') < 60){
+            return '{0} days'.translate().format(Math.round(lTimespan.as('day')));
+        }
+
+        if(lTimespan.as('month') < 24){
+            return '{0} months'.translate().format(Math.round(lTimespan.as('month')));
+        }
+
+        return '{0} years'.translate().format(Math.round(lTimespan.as('year')));
+    }
 
     /**
      * Format the price of the listing for pretty reading

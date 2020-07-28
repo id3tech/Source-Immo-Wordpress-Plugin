@@ -1,6 +1,6 @@
 
 
-    <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}">
+    <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}" ng-if="configs.search_engine_options.tabbed">
         <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
                 class="si-tab {{configs.current_view == tab.view_id ? 'active' : ''}}"
                 ng-click="selectView(tab.view_id)"

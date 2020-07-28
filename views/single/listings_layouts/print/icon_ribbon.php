@@ -6,11 +6,13 @@
         <div class="item">
             <i class="fal fa-2x fa-<?php echo($flag['icon']) ?>"></i>
             <label><?php echo($flag['caption']);?></label>
+            <sup class="badge">
             <?php
-            if($flag['value'] > 0){
+            if($flag['value'] != null){
                 echo('<sup class="badge">' . $flag['value'] . '</sup>');
             }
             ?>
+            </sup>
         </div>
         <?php
     }

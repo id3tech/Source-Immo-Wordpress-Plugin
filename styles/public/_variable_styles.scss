@@ -18,10 +18,29 @@
         position: relative;
     }
 
+    .si-container-border{
+        border: var(--container-border);
+    }
+
+    .si-container-radius{
+        border-radius: var(--container-border-radius);
+        overflow:hidden;
+    }
+
+
     .si-element{
         position:relative;
         border-radius: var(--element-border-radius);
         border: var(--element-border);
+    }
+
+    .si-element-border{
+        border: var(--element-border);
+    }
+
+    .si-element-radius{
+        border-radius: var(--element-border-radius);
+        overflow:hidden;
     }
 
     .si-element-padding{

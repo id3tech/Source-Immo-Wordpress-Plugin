@@ -4,7 +4,7 @@ $panelKey = 'letters';
 
 <div class="filter-panel letters-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
     <div class="filter-panel-header">
-        <h3><?php _e('First letter of the last name', SI) ?></h3>
+        <h4><?php _e('First letter of the last name', SI) ?></h4>
         <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
     </div>
     <div class="filter-panel-content">

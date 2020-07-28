@@ -1082,6 +1082,9 @@ html{
                 @include media($phone){
                     place-self: center stretch;
                 }
+                display: grid;
+                grid-template-columns: 1fr auto;
+                place-items: center stretch;
                 margin:10px 0;
                 border:var(--element-border);
                 padding:5px 10px;

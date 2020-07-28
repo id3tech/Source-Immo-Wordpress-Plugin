@@ -272,6 +272,8 @@ function singleListingCtrl(
         $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
         $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
+        $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);
+
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
         if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
             $scope.model.location.civic_address = '{0} {1}'.format(
@@ -317,6 +319,11 @@ function singleListingCtrl(
             if(lMainUnit.waterroom_count) $scope.model.important_flags.push({icon: 'hand-holding-water', value: lMainUnit.waterroom_count, caption: 'Water room'.translate()});
         }
 
+        if($scope.model.available_area){
+            const lAvailableAreaStr = $scope.model.available_area + $scope.model.available_area_unit;
+            $scope.model.important_flags.push({icon: 'vector-square',value: lAvailableAreaStr , caption: 'Available area'.translate() })
+        }
+
         // from attributes
         $scope.model.attributes.forEach(function($e){
             $e.caption = $scope.getCaption($e.code, 'attribute');
@@ -353,10 +360,10 @@ function singleListingCtrl(
                 if(lParkingCount > 0) $scope.model.important_flags.push({icon: 'car', value: lParkingCount, caption: $e.caption});
             }
             if($e.code=='POOL'){
-                $scope.model.important_flags.push({icon: 'swimmer', value: 0, caption: $e.caption});
+                $scope.model.important_flags.push({icon: 'swimmer', value: null, caption: $e.caption});
             }
             if($e.code=='HEART STOVE'){
-                $scope.model.important_flags.push({icon: 'fire', value: 0, caption: $e.caption});
+                $scope.model.important_flags.push({icon: 'fire', value: null, caption: $e.caption});
             }
         });
 
@@ -654,7 +661,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
         lPromise.then(function($data){
             $scope.model = $data;
             // set dictionary source
-            $siDictionary.source = $data.dictionary;
+            $siDictionary.init($data.dictionary);
             // start preprocessing of data
             $scope.preprocess();
             // prepare message subject build from data
@@ -688,7 +695,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
     $scope.preprocess = function(){
         // set basic information from dictionary
         $scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
-        $scope.model.languages    = 'N/A'.translate();
+        //$scope.model.languages    = 'N/A'.translate();
         let lExpertises           = [];
         $scope.model.listings.forEach(function($e,$i,$arr){
             let lNewItem = $scope.getCaption($e.category_code, 'listing_category');

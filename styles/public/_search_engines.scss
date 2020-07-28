@@ -1122,6 +1122,11 @@
                 .grid-layout-column{
                     grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
                 }
+                .licenses{
+                    .grid-layout-colum{
+                        grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+                    }
+                }
                 .transaction,.age,.parkings{
                     .si-dropdown{
                         place-self: center start;

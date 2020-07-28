@@ -253,9 +253,9 @@
         foreach($item->units as $unit){
         $unit->category = $dictionary->getCaption(array($unit,'category_code') , 'unit_category');
         if($unit->category_code=='MAIN'){
-            if(isset($unit->bedroom_count)){ $item->important_flags[] = array('icon' => 'bed', 'value' => $unit->bedroom_count, 'caption' => __('Bedroom',SI));}
-            if(isset($unit->bathroom_count)){ $item->important_flags[] = array('icon' => 'bath', 'value' => $unit->bathroom_count, 'caption' => __('Bathroom',SI));}
-            if(isset($unit->waterroom_count)){ $item->important_flags[] = array('icon' => 'hand-holding-water', 'value' => $unit->waterroom_count, 'caption' => __('Water room',SI));}
+            if(isset($unit->bedroom_count)&& $unit->bedroom_count > 0){ $item->important_flags[] = array('icon' => 'bed', 'value' => $unit->bedroom_count, 'caption' => __('Bedroom',SI));}
+            if(isset($unit->bathroom_count)&& $unit->bathroom_count > 0){ $item->important_flags[] = array('icon' => 'bath', 'value' => $unit->bathroom_count, 'caption' => __('Bathroom',SI));}
+            if(isset($unit->waterroom_count) && $unit->waterroom_count > 0){ $item->important_flags[] = array('icon' => 'hand-holding-water', 'value' => $unit->waterroom_count, 'caption' => __('Water room',SI));}
         }
         }
 
@@ -407,6 +407,10 @@
             if ($attr->code=='HEART STOVE'){
               $item->important_flags[] = array('icon'=> 'fire', 'value'=> 0, 'caption' => $attr->caption);
             }
+        }
+
+        if(isset($item->available_area) && $item->available_area > 0){
+          $item->important_flags[] = array('icon'=> 'vector-square', 'value'=> $item->available_area . $item->available_area_unit, 'caption' => __('Available area',SI));
         }
     }
     public function buildProximityFlags(&$item){

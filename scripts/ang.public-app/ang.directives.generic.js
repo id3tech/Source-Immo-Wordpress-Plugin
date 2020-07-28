@@ -751,6 +751,39 @@ siApp
 //#endregion
 
 
+siApp
+.directive('siStarRating', [function siStarRating(){
+    return {
+        restrict: 'E',
+        replace:true,
+        scope: {
+            'value' : '=siValue',
+            'max' : '=?siMax'
+        },
+        templateUrl: directiveTemplatePath('si-star-rating'),
+        link: function($scope,$element,$attrs){
+            $scope.$element = $element[0];
+            $scope.max = $scope.max == undefined ? 5 : $scope.max;
+            $scope.init();
+        },
+        controller: function($scope,$rootScope){
+            $scope.init = function(){
+                $scope.stars = Array.from(new Array($scope.max));
+            }
+
+            $scope.getValue = function(){
+                const lScaledValue = ($scope.value  / 100) * $scope.max;
+
+                return (Math.round( lScaledValue * 100) / 100).toFixed(2);
+            }
+
+            $scope.getTotal = function(){
+
+            }
+        }
+    }
+}])
+
 /**
  * TABS MANAGEMENT
  */
@@ -869,7 +902,7 @@ siApp
             
         }
     }
-})
+});
 
 
 siApp
@@ -903,6 +936,8 @@ siApp
             
         }
     }
-})
+});
+
+
 
 

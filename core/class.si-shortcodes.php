@@ -284,7 +284,7 @@ class SiShorcodes{
             if($load_text != null){
                 echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
             }
-            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+            echo('<div class="si-content"  ng-cloak >');
 
             
             if($content != null){

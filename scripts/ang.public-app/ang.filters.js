@@ -164,6 +164,22 @@ function labelOf($siUtils){
 }]);
 
 siApp
+.filter('captionOf', ['$siUtils',
+function captionOf($siUtils){
+    return function($value,$domain){
+        return $siUtils.getCaption($value, $domain);
+    }
+}])
+
+siApp
+.filter('timeLength', ['$siUtils',
+function timeLength($siUtils){
+    return function($value){
+        return $siUtils.timeLength($value);
+    }
+}])
+
+siApp
 .filter('wrapWith', ['$siUtils', 
 function wrapWith(){
     return function($text, $tag, $search, $startingAt){

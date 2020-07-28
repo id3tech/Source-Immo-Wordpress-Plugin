@@ -945,7 +945,10 @@ siApp
 
             
             $scope.getOtherPanelFilterList = function(){
-                const lList = ['market_codes','transaction_type','bedrooms','bathrooms','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max'];
+                const lList = [
+                    'market_codes','transaction_type','bedrooms','bathrooms','states','attributes','parkings','contract', 'available_min','available_max','land_min','land_max',
+                    'licenses', 'languages'
+                ];
                 return lList
                     .filter(function($item){
                         return $scope.viewFilters.every(function($f){
@@ -3151,6 +3154,52 @@ siApp
                             remove:function(){
                                 const lIndex = $scope.filter.data.states.indexOf($val);
                                 $scope.filter.data.states.splice(lIndex,1);
+                                $scope.filter.update();
+                            }
+                        }
+                    })
+                },
+                // Broker
+                'letter' : function($values){
+                    return $values.map(function($val){
+                        return {
+                            text: 'Begins with {0}'.translate().format($val),
+                            remove:function(){
+                                $scope.filter.data.letter = null;
+                                $scope.filter.update();
+                            }
+                        }
+                    })
+                },
+                'office' : function($values){
+                    return $values.map(function($val){
+                        return {
+                            text: 'Works at {0}'.translate().format($val),
+                            remove:function(){
+                                $scope.filter.data.office = null;
+                                $scope.filter.update();
+                            }
+                        }
+                    })
+                },
+                'licenses' : function($values){
+                    return $values.map(function($val){
+                        return {
+                            text: $scope.getCaptionOfFilter($val, $siSearchContext.licenses,'key').translate(),
+                            remove:function(){
+                                const lIndex = $scope.filter.data.licenses.indexOf($val);
+                                $scope.filter.data.licenses.splice(lIndex,1);
+                                $scope.filter.update();
+                            }
+                        }
+                    })
+                },
+                'language' : function($values){
+                    return $values.map(function($val){
+                        return {
+                            text: 'Speaks {0}'.translate().format($val),
+                            remove:function(){
+                                $scope.filter.data.language = null;
                                 $scope.filter.update();
                             }
                         }

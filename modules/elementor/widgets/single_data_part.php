@@ -59,7 +59,9 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             ],
             'broker' => [
                 'name' => __('Name', SI),
-                'bio' => __('Bio/Description', SI),
+                'about' => __('About', SI),
+                'specs' => __('Specs', SI),
+                'rating' => __('Rating', SI),
                 'contact' => __('Contact', SI),
                 'picture' => __('Picture', SI),
                 'cities' => __('City list', SI),

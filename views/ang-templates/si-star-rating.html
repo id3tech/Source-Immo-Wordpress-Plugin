@@ -1,0 +1,22 @@
+<div class="si-star-rating" style="--star-max:{{max}}">
+    <div class="si-layer-container">
+        <div class="si-empty-stars">
+            <div class="si-star-container">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                ng-repeat="i in stars track by $index"
+                viewBox="0 0 24 24"><path d="M12 .288l2.833 8.718h9.167l-7.417 5.389 2.833 8.718-7.416-5.388-7.417 5.388 2.833-8.718-7.416-5.389h9.167z"/></svg>
+            </div>
+        </div>
+        <div class="si-filled-stars" style="--rating-value:{{value}}%;">
+            <div class="si-star-container">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                ng-repeat="i in stars track by $index"
+                viewBox="0 0 24 24"><path d="M12 .288l2.833 8.718h9.167l-7.417 5.389 2.833 8.718-7.416-5.388-7.417 5.388 2.833-8.718-7.416-5.389h9.167z"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="si-label">
+        <span class="si-value">{{getValue()}}<span class="max"> / {{max}}</span> </span>
+    </div>
+</div>

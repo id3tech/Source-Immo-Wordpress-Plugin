@@ -2092,6 +2092,7 @@ body.si-modal-open{
                 text-indent: unset;
                 min-width:0px;
                 grid-area: unset!important;
+                line-height: 1.25em;
                 
                 &::before,
                 &::after{
@@ -2245,4 +2246,50 @@ si-data-accordeon{
             }
         }
     }
+}
+
+.si-star-rating{
+    text-align:center;
+    .si-label{
+        text-align:center;
+    }
+    .si-layer-container{
+        display:inline-block;
+        position:relative;
+        
+    }
+    .si-star-container{
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: max-content;
+        svg{
+            width:2rem;
+            height:2rem;
+            padding:0.25rem;
+        }
+    }
+    .si-empty-stars{
+        svg {
+            path{
+                stroke: var(--highlight);
+                stroke-linecap: round;
+                fill:none;
+            }
+        }
+    }
+    .si-filled-stars{
+        position: absolute;
+        top:0;
+        left:0;
+        width: var(--rating-value);
+        overflow:hidden;
+        svg{
+            
+            path{
+                fill: var(--highlight);
+
+            }
+        }
+    }
+    
 }
