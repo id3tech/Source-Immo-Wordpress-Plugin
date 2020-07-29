@@ -1874,7 +1874,7 @@ html { font-size: 14px; }
 
 #top .si-input-container, .si-input-container { position: relative; }
 
-#top .si-input-container > label, .si-input-container > label { position: absolute; pointer-events: none; opacity: 0.5; font-style: italic; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); padding: var(--element-padding); left: 0rem; -webkit-transition: 0.25s; transition: 0.25s; -webkit-transform-origin: top left; transform-origin: top left; }
+#top .si-input-container > label, .si-input-container > label { position: absolute; pointer-events: none; opacity: 0.5; font-style: italic; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); padding: var(--element-padding); left: 0rem; -webkit-transition: 0.25s; transition: 0.25s; -webkit-transform-origin: top left; transform-origin: top left; line-height: 1; }
 
 #top .si-input-container .si-input, .si-input-container .si-input { margin-top: 25px; }
 
