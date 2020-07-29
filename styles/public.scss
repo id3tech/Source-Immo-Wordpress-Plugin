@@ -114,7 +114,7 @@ $desktop : 1440px;
     // offices
     --office-item-column-width : 320px;
 
-    --desktop-column-width : 4;
+    --desktop-column-width : 3;
     --laptop-column-width : 4;
     --tablet-column-width: 2;
     --mobile-column-width: 1;
@@ -284,10 +284,13 @@ html{
         //grid-area: list;
         grid-column: 1 / span 3;
         display:grid;
+        place-items:stretch;
         gap:var(--layout-gutter);
         padding: var(--container-padding);
         border:var(--container-border);
         border-radius:var(--container-border-radius);
+        width:100%;
+
         @include media($phone){
             border:none;
             padding:0px;
@@ -310,6 +313,8 @@ html{
         -ms-grid-column-span: 3;
         display:grid;
         
+
+
         // display:flex;
         // flex-wrap:wrap;
         // flex-direction: row;
@@ -453,7 +458,7 @@ html{
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-                
+
                 &[ng-hide]{
                     display:none!important;
                 }
@@ -1126,6 +1131,7 @@ html{
     
     si-small-list.si-list-of-listings,
     &.si-list-of-listings{
+        
         > .si-search-filter-tags{
             grid-row: 2;
             grid-column: 1 / span 3;
@@ -1290,21 +1296,26 @@ html{
         // main list container
         // ----------------
         .si-list-container{
-            grid-template-areas:
-                "header header header"
-                "list list list"
-                "footer footer footer"
-                "next-page next-page next-page";
+            
+            // grid-template-areas:
+            //     "header header header"
+            //     "list list list"
+            //     "footer footer footer"
+            //     "next-page next-page next-page";
             
             &.display-mode-map{
-                grid-template-areas:
-                    "header header header"
-                    "map map map"
-                    ;
+                // grid-template-areas:
+                //     "header header header"
+                //     "map map map"
+                //     ;
             }
             .si-list-header{
+                //grid-area:header;
+                grid-column: 1 / span 3;
+                grid-row:1;
                 grid-template-areas:
                     "switch meta sort";
+                    
                 @include media($phone){
                     grid-template-columns:1fr 1fr;
                     grid-template-areas:
@@ -1322,7 +1333,15 @@ html{
                 }
             }
             .si-loading{
-                grid-area: next-page;
+                //grid-area: next-page;
+                
+                
+                grid-column: 1 / span 3;
+            }
+            
+            .si-list{
+                //grid-area:list;
+                
             }
         }
 
@@ -1332,6 +1351,7 @@ html{
            }
 
            .si-list-of-ghost{
+            
                .si-item{
                    .image{
                         padding-bottom: calc(100% * var(--listing-item-picture-ratio));

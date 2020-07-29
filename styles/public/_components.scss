@@ -485,22 +485,22 @@ si-checkbox, si-radio{
     }
 
     .si-input{
-        margin-top:1.5rem;
+        margin-top:25px;
     }
     
     &.si-has-value, &.si-float-label{
         > label{
             //top:0px;
             opacity:1;
-            transform: translateY(calc(-100% - 0.5rem)) scale(.85);
-            padding-left:0;
+            transform: translateY(calc(-100% - 18px)) scale(.85);
+            padding:0;
         }
     }
     &.si-float-label{
         padding-top:2.25rem;
         > label{
             top:0px;
-            transform: translateY(-0%) scale(.85);
+            transform: translateY(calc(0% + 13px)) scale(0.85);
         }
     }
     
@@ -2093,7 +2093,7 @@ body.si-modal-open{
                 min-width:0px;
                 grid-area: unset!important;
                 line-height: 1.25em;
-                
+
                 &::before,
                 &::after{
                     content:"";
