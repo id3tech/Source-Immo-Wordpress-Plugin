@@ -19,6 +19,22 @@ if(typeof String.prototype.format === 'undefined'){
     }
 }
 
+if(typeof String.prototype.capitalize === 'undefined'){
+
+    String.prototype.capitalize = function($allWords){
+        $allWords = $allWords==undefined ? false : $allWords;
+
+        const lSegments = $allWords ? this.split(' ') : [this];
+        const lResult = lSegments
+                            .map(function($s){
+                                return $s.substr(0,1).toUpperCase() + $s.substr(1);
+                            })
+                            .join(' ');
+        return lResult;
+    }
+
+}
+
 if(typeof [].firstOrDefault === 'undefined'){
     Array.prototype.firstOrDefault = function($default){
         if(this.length > 0) return this[0];

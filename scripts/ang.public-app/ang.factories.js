@@ -338,7 +338,6 @@ function $siDictionary($q,$rootScope){
     $scope._loadCallbacks = [];
 
     $scope.init = function($source, $overwrite){
-        console.log('$siDictionary/init');
         if($scope.source == null){
             $scope.source = $source;
         }
@@ -445,9 +444,7 @@ function $siDictionary($q,$rootScope){
         
         if($scope.source && $scope.source[$domain]){
             const lDomainSource = $scope.source[$domain];
-            if($key == 'SF'){
-                console.log('$siDictionary/getCaption',angular.copy(lDomainSource),$asAbbr,typeof $key,lDomainSource.F);
-            }
+            
 
             if(lDomainSource[$key] != undefined){
                 if($asAbbr){
@@ -850,7 +847,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
                 if($format == 'long'){
                     const lTerm = ($key == 'sell') ? 'sale' : $key;
-                    let lStart = 'for {0} for '.format(lTerm).translate();
+                    let lStart = 'for {0} for '.format(lTerm).translate().capitalize();
+
                     lResult.push(lStart + '<span class="nowrap">' + lPart.join('/') + '</span>');
                 }
                 else{

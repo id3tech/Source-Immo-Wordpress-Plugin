@@ -876,6 +876,16 @@ siApp
 
                 $scope.list = lResult;
             }
+
+            $scope.isEmpty = function(){
+                if ($scope.list == null || $scope.list.length == 0) return true;
+                
+                const lFilteredList = $scope.list
+                                        .filter(function($e){
+                                            return $e != undefined;
+                                        });
+                return lFilteredList.length == 0;
+            }
         }
     };
 }]);

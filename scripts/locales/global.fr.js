@@ -564,7 +564,7 @@ $locales.fr = {};$locales.fr.global =
 
     // Public - SINGLE LISTING
     , "Presented by" : "Présenté par"
-    , "You will find more informations and tools at the following address" : "Vous trouverez plus d'information et d'outils à l'adresse suivante"
+    , "You will find more information and tools at the following address" : "Vous trouverez plus d'informations et d'outils à l'adresse suivante"
     , "Sorry, this property listing could not be found." : "Désolé, cette propriété est introuvable"
     , "It's possible that this property no longer exists or the link you used to access this page is invalid." : "Il est possible que la propriété n'existe plus ou le lien que vous avez utilisé pour accéder cette à page soit invalide."
     , "Loading listing" : "Chargement de la propriété"
@@ -596,7 +596,7 @@ $locales.fr = {};$locales.fr.global =
     , "Characteristics" : "Caractéristiques"
     , "Included & excluded" : "Inclusions et exclusions"
     , "Inclusions & exclusions" : "Inclusions et exclusions"
-    , "Information request" : "Demande d'information"
+    , "Information request" : "Demande d'informations"
     , "Estimate your mortgage" : "Calculez l'hypothèque"
     , "Property evaluation" : "Valeur de la propriété"
     , "Down payment" : "Mise de fond"
@@ -613,7 +613,7 @@ $locales.fr = {};$locales.fr.global =
     , "Phone" : "Téléphone"
     , "Subject" : "Sujet"
     , "Message" : "Message"
-    , "Request information for : {0} ({1})" : "Demande d'information pour : {0} ({1})"
+    , "Request information for : {0} ({1})" : "Demande d'informations pour : {0} ({1})"
     , "Included" : "Inclusions"
     , "Excluded" : "Exclusions"
     , "Inclusions" : "Inclusions"
