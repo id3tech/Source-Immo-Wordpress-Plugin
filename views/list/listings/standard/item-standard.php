@@ -51,7 +51,7 @@ if(isset($configs)){
             
             <div class="flags">
                 <i class="video far fa-video"></i>
-                <i class="virtual-tour far fa-street-view"></i>
+                <i class="virtual-tour far fa-vr-cardboard"></i>
             </div>
             <div class="si-data-label open-houses">
                 <div class="open-house-item">

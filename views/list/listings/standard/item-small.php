@@ -19,7 +19,7 @@ if(isset($configs)){
             <div class="si-data-label subcategory" >{{item.subcategory}}</div>
             <div class="flags">
                 <i class="video far fa-video"></i>
-                <i class="virtual-tour far fa-street-view"></i>
+                <i class="virtual-tour far fa-vr-cardboard"></i>
             </div>
             <div class="si-data-label rooms" >
                 <div class="room {{icon}}" ng-repeat="(icon,room) in item.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label}}</span></div>

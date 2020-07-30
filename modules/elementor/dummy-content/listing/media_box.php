@@ -5,7 +5,7 @@
                 <span class="tab videos">
                     <i class="fal fa-video"></i> <span class="ng-binding">Video</span></span>
                 <span class="tab virtual-tours">
-                    <i class="fal fa-street-view"></i> <span class="ng-binding">Visite virtuelle</span></span>
+                    <i class="fal fa-vr-cardboard"></i> <span class="ng-binding">Visite virtuelle</span></span>
                 <span class="tab streetview">
                     <i class="fal fa-street-view"></i> <span class="ng-binding">Vue du quartier</span></span>
                 <span class="tab map">
