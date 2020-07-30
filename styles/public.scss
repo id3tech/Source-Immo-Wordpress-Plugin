@@ -231,9 +231,7 @@ html{
     // ------------------------- 
     .sticky-anchor{position: absolute;}
 
-    .map-container{
-        grid-area: map;
-    }  
+     
     .sort-container{
         grid-area: sort;
     }
@@ -295,6 +293,10 @@ html{
             border:none;
             padding:0px;
         }
+
+        .map-container{
+            grid-column: 1 / span 3;
+        } 
     }
     .si-list-header{
         grid-area: header;
