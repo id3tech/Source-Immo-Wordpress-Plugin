@@ -1,11 +1,11 @@
-<div class="rooms detail-section" data-ng-show="[model.rooms, model.units] | siHasValue">
-                    <div class="title" data-ng-click="toggleSection('rooms')">
+<div class="rooms si-detail-section" data-ng-show="[model.rooms, model.units] | siHasValue">
+                    <div class="si-title" data-ng-click="toggleSection('rooms')">
                         <div class="ng-binding">
                             Pièces
                         </div>
-                        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+                        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
                     </div>
-                    <div class="detail-section-content">
+                    <div class="si-detail-section-content">
                         <!-- ngRepeat: unit in model.units track by $index -->
                         <div class="unit-list ng-scope" data-ng-repeat="unit in model.units track by $index">
 

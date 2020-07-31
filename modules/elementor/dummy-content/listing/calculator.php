@@ -1,5 +1,5 @@
 <div id="calculator" class="mortgage-calculator" data-ng-show="allowCalculator()">
-                    <div class="title"><i class="fal fa-calculator"></i> Calculez l'hypothèque</div>
+                    <div class="si-title"><i class="fal fa-calculator"></i> Calculez l'hypothèque</div>
                     <div class="si-calculator ng-isolate-scope" data-si-amount="model.price.sell.amount" data-on-change="onMortgageChange($result)" data-si-region="04" data-si-city="36033">
                         <div class="input-container ng-isolate-scope ng-pristine">
                             <label class="ng-binding">Valeur de la propriété</label>

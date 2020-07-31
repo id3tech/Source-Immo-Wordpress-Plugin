@@ -1,9 +1,9 @@
-<div class="lot-specs detail-section" ng-show="(model.land.attributes | siHasValue) || hasDimension(model.land.dimension)">
-                    <div class="title" data-ng-click="toggleSection('lot')">
+<div class="lot-specs si-detail-section" ng-show="(model.land.attributes | siHasValue) || hasDimension(model.land.dimension)">
+                    <div class="si-title" data-ng-click="toggleSection('lot')">
                         <div>Terrain et extérieur</div>
-                        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+                        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
                     </div>
-                    <div class="detail-section-content spec-grid">
+                    <div class="si-detail-section-content spec-grid">
                         <div class="special-box" data-ng-show="hasDimension(model.land.dimension)">
                             <div class="dimension">
                                 <label class="ng-binding">Dimensions</label>

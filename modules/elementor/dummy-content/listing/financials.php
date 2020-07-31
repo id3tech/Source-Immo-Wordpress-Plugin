@@ -1,9 +1,9 @@
-<div class="financials detail-section" data-ng-show="[model.building.assessment, model.land.assessment, model.expenses, model.incomes] | siHasValue">
-                    <div class="title" data-ng-click="toggleSection('financials')">
+<div class="financials si-detail-section" data-ng-show="[model.building.assessment, model.land.assessment, model.expenses, model.incomes] | siHasValue">
+                    <div class="si-title" data-ng-click="toggleSection('financials')">
                         <div>Détails financiers</div>
-                        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+                        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
                     </div>
-                    <div class="detail-section-content">
+                    <div class="si-detail-section-content">
 
 
 

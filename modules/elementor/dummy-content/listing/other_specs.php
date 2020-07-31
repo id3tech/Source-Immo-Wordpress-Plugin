@@ -1,9 +1,9 @@
-<div class="other-specs detail-section" data-ng-show="model.other.attributes | siHasValue">
-                    <div class="title" data-ng-click="toggleSection('other')">
+<div class="other-specs si-detail-section" data-ng-show="model.other.attributes | siHasValue">
+                    <div class="si-title" data-ng-click="toggleSection('other')">
                         <div>Autres caractéristiques</div>
-                        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+                        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
                     </div>
-                    <div class="detail-section-content spec-grid">
+                    <div class="si-detail-section-content spec-grid">
                         <!-- ngRepeat: spec in model.other.attributes -->
                         <div class="spec ng-scope" data-ng-repeat="spec in model.other.attributes">
                             <label class="ng-binding">Mode de chauffage</label>

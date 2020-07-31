@@ -1,9 +1,9 @@
-<div class="building-specs detail-section" data-ng-show="[model.building.attributes, model.building.dimension] | siHasValue">
-                    <div class="title" data-ng-click="toggleSection('building')">
+<div class="building-specs si-detail-section" data-ng-show="[model.building.attributes, model.building.dimension] | siHasValue">
+                    <div class="si-title" data-ng-click="toggleSection('building')">
                         <div>Bâtiment et intérieur</div>
-                        <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
+                        <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div>
                     </div>
-                    <div class="detail-section-content spec-grid">
+                    <div class="si-detail-section-content spec-grid">
                         <div class="special-box" data-ng-show="model.building.construction_year!=undefined &amp;&amp; hasDimension(model.building.dimension)">
                             <div class="built-year" data-ng-show="model.building.construction_year!=undefined">
                                 <label class="ng-binding">Année de construction</label>
