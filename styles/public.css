@@ -1224,21 +1224,17 @@ html { font-size: 14px; }
 
 #top .si.listing-single .medias .tabs .tab i, .si.listing-single .medias .tabs .tab i { color: inherit; }
 
-#top .si.listing-single .medias .tabs .tab:after, .si.listing-single .medias .tabs .tab:after { content: ""; background-color: var(--highlight); height: 3px; width: 0px; position: absolute; bottom: 0px; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); -webkit-transition: 0.25s; transition: 0.25s; }
+#top .si.listing-single .medias .tabs .tab::after, #top .si.listing-single .medias .tabs .tab::before, .si.listing-single .medias .tabs .tab::after, .si.listing-single .medias .tabs .tab::before { content: ""; background-color: var(--highlight); height: 3px; width: 0px; position: absolute; bottom: 0px; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); -webkit-transition: 0.25s; transition: 0.25s; }
 
 @media screen and (max-width: 640px) { #top .si.listing-single .medias .tabs .tab span, .si.listing-single .medias .tabs .tab span { display: none; } }
 
 #top .si.listing-single .medias .tabs .tab.selected, .si.listing-single .medias .tabs .tab.selected { font-weight: 600; color: var(--highlight); }
 
-#top .si.listing-single .medias .tabs .tab.selected:after, .si.listing-single .medias .tabs .tab.selected:after { width: 100%; }
+#top .si.listing-single .medias .tabs .tab.selected::after, .si.listing-single .medias .tabs .tab.selected::after { width: 100%; background-color: var(--highlight); }
 
-#top .si.listing-single .medias .tabs .tab.videos, .si.listing-single .medias .tabs .tab.videos { background: #333; color: #fff; }
+#top .si.listing-single .medias .tabs .tab.videos::before, .si.listing-single .medias .tabs .tab.videos::before { width: 100%; background-color: var(--text-color); }
 
-#top .si.listing-single .medias .tabs .tab.videos.selected, .si.listing-single .medias .tabs .tab.videos.selected { background: #fff; color: #333; }
-
-#top .si.listing-single .medias .tabs .tab.virtual-tours, .si.listing-single .medias .tabs .tab.virtual-tours { background: #333; color: #fff; }
-
-#top .si.listing-single .medias .tabs .tab.virtual-tours.selected, .si.listing-single .medias .tabs .tab.virtual-tours.selected { background: #fff; color: #333; }
+#top .si.listing-single .medias .tabs .tab.virtual-tours::before, .si.listing-single .medias .tabs .tab.virtual-tours::before { width: 100%; background-color: var(--text-color); }
 
 #top .si.listing-single .medias > .viewport, .si.listing-single .medias > .viewport { position: relative; width: 100%; height: 460px; height: var(--viewport-height); overflow: hidden; }
 
@@ -1342,7 +1338,7 @@ html { font-size: 14px; }
 
 #top .si.listing-single .flags .flag i, .si.listing-single .flags .flag i { font-size: 1.8rem; text-align: center; color: var(--text-color); }
 
-#top .si.listing-single .flags .flag em, .si.listing-single .flags .flag em { display: block; font-size: 1rem; font-style: normal; text-align: center; font-weight: 700; }
+#top .si.listing-single .flags .flag em, .si.listing-single .flags .flag em { display: block; font-size: 1rem; font-style: normal; text-align: center; font-weight: 700; white-space: nowrap; }
 
 #top .si.listing-single .open-houses, .si.listing-single .open-houses { background: #555; border-radius: 3px; color: #fff; padding: 10px; margin-top: 10px; }
 

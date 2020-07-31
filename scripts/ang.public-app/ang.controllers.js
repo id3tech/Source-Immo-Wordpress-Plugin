@@ -101,6 +101,8 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         $event.stopPropagation();
     }
 
+    
+
     $scope.$on('modal-opened', function(){
         angular.element(document.body).addClass('si-modal-open');
     });
@@ -330,7 +332,7 @@ function singleListingCtrl(
         }
 
         if($scope.model.available_area){
-            const lAvailableAreaStr = $scope.model.available_area + $scope.model.available_area_unit;
+            const lAvailableAreaStr = $scope.model.available_area + ' ' + $scope.model.available_area_unit;
             $scope.model.important_flags.push({icon: 'vector-square',value: lAvailableAreaStr , caption: 'Available area'.translate() })
         }
 
@@ -546,6 +548,14 @@ function singleListingCtrl(
         if($scope.model.price.sell.unit_code == 'SF') return false;
 
         return true;
+    }
+
+    $scope.allowFavorites = function(){
+        if($scope.model == null) return false;
+        if($scope.configs == null) return false;
+        
+        
+        return !isNullOrEmpty($scope.configs.favorites_button_menu);
     }
 });
 

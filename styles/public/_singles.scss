@@ -325,7 +325,7 @@
                     font-size:16px;
                     cursor:pointer;
                     i{color:inherit;}
-                    &:after{
+                    &::after,&::before{
                         content:"";
                         background-color:var(--highlight);
                         height:3px;width:0px;
@@ -339,25 +339,34 @@
                     &.selected{
                         font-weight: 600;
                         color:var(--highlight);
-                        &:after{
+                        &::after{
                             width:100%;
+                            background-color:var(--highlight);
                         }
                     }
                     &.videos{
-                        background:#333;
-                        color:#fff;
-                        &.selected{
-                            background:#fff;
-                            color:#333;
+                        &::before{
+                            width:100%;
+                            background-color: var(--text-color);
                         }
+                        // background:#333;
+                        // color:#fff;
+                        // &.selected{
+                        //     background:#fff;
+                        //     color:#333;
+                        // }
                     }
 
                     &.virtual-tours{
-                        background:#333;
-                        color:#fff;
-                        &.selected{
-                            background:#fff;
-                            color:#333;
+                        // background:#333;
+                        // color:#fff;
+                        // &.selected{
+                        //     background:#fff;
+                        //     color:#333;
+                        // }
+                        &::before{
+                            width:100%;
+                            background-color: var(--text-color);
                         }
                     }
                 }
@@ -619,6 +628,7 @@
                     font-size:1rem; font-style:normal;
                     text-align:center;
                     font-weight: 700;
+                    white-space: nowrap;
                 }
             }
         }
