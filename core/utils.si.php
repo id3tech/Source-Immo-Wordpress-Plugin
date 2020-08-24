@@ -55,6 +55,21 @@ function __json(...$data){
   }
 }
 
+function si_get_locale(){
+  global $sitepress;
+  $lResult = 'fr';
+
+  if($sitepress != null){
+    $lResult = $sitepress->get_current_language();
+  }
+  else{
+    $lResult = substr(get_locale(),0,2);
+  }
+  
+  return $lResult;
+}
+
+
 /**
  * String prototype utilities
  */

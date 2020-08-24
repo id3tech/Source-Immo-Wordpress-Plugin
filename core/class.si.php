@@ -145,7 +145,7 @@ class SourceImmo {
 
   public function get_listing_permalink($locale=null){
     if($locale==null){
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
     }
     $lResult = $this->configs->listing_routes[0]->route;
     foreach($this->configs->listing_routes as $item){
@@ -159,7 +159,7 @@ class SourceImmo {
 
   public function get_broker_permalink($locale=null){
     if($locale==null){
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
     }
 
     $lResult = $this->configs->broker_routes[0]->route;
@@ -174,7 +174,7 @@ class SourceImmo {
 
   public function get_city_permalink($locale=null){
     if($locale==null){
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
     }
 
     $lResult = $this->configs->city_routes[0]->route;
@@ -189,7 +189,7 @@ class SourceImmo {
 
   public function get_office_permalink($locale=null){
     if($locale==null){
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
     }
 
     $lResult = $this->configs->office_routes[0]->route;
@@ -206,7 +206,7 @@ class SourceImmo {
    * @param string $type Type of the layout
    */
   public function get_detail_layout($type){
-    $locale = substr(get_locale(),0,2);
+    $locale = si_get_locale();
     $lResult = null;
     
     if(property_exists($this->configs,$type . '_layouts')){
@@ -373,13 +373,15 @@ class SourceImmo {
   function detect_locale($locale){
     $request_locale = get_query_var( 'lang' );
     //Debug::write($request_locale);
-    if($request_locale){
-      
+    if($request_locale && !isset($this->_locale_switched)){
+      $this->_locale_switched = true;
+
       global $sitepress;
       if($sitepress){
         $sitepress->switch_lang($request_locale);
       }
       $locale = $request_locale . '_CA';
+
     }
     
     return $locale;
@@ -392,12 +394,21 @@ class SourceImmo {
   
   function redirect_listings($ref_number){
     // load data
+    
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
+    
     if($model != null){
       global $dictionary;
       $listingWrapper = new SourceImmoListingsResult();
+      
       $dictionary = new SourceImmoDictionary($model->dictionary);
+
+      __c($ref_number);
+
       $listingWrapper->preprocess_item($model);
+
+      
+      
 
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
       wp_redirect($model->permalink);
@@ -562,7 +573,7 @@ class SourceImmo {
    * Add JS script context object to the document
    */
   public function load_script_context(){
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $lUploadDir   = wp_upload_dir();
     $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
     $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
@@ -598,7 +609,7 @@ class SourceImmo {
    * Add locale (language) JSON file reference to the document
    */
   public function load_locale_file(){
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
 
     if($lTwoLetterLocale!='en'){
       $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
@@ -745,7 +756,7 @@ class SourceImmo {
 
 	function template_redirect(){
     $ref_number = get_query_var( 'ref_number' );
-    //__c($ref_number);
+    
 		if ( $ref_number ) {
       $type = get_query_var( 'type' );
       $mode = get_query_var( 'mode' );
@@ -1231,7 +1242,7 @@ class SourceImmo {
     if($this->locales != null) return;
 
 
-    $locale = substr(get_locale(),0,2);
+    $locale = si_get_locale();
     $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $locale . '.js'));
     $this->locales = array();
     
@@ -1260,7 +1271,7 @@ class SourceImmo {
     if($domain == SI){
       $this->load_locales();
       
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
       
       if($translated_text){
         if(is_object($translated_text)){

@@ -27,7 +27,7 @@ class Module{
 
     
     public function add_locale_files($files){
-        $lTwoLetterLocale = substr(get_locale(),0,2);
+        $lTwoLetterLocale = si_get_locale();
         if(file_exists($this->_module_path . "/locales/module.{$lTwoLetterLocale}.js")){
             $files[] = $this->_module_path . "/locales/module.{$lTwoLetterLocale}.js";
         }

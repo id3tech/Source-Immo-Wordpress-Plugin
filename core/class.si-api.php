@@ -116,7 +116,7 @@ class SourceImmoApi {
       'es' => 'Espanol'
     );
 
-    $currentLocale = substr(get_locale(),0,2);
+    $currentLocale = si_get_locale();
     $lResult = array();
 
     // wpml languages
@@ -416,7 +416,7 @@ class SourceImmoApi {
 
     $lAccessToken = self::get_access_token();
     $lang = $request->get_param('lang');
-    $lTwoLetterLocale = isset($lang) ? $lang : substr(get_locale(),0,2);
+    $lTwoLetterLocale = isset($lang) ? $lang : si_get_locale();
 
     $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)
                             ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -523,7 +523,7 @@ class SourceImmoApi {
     $lAccessToken = self::get_access_token();
 
     $list_config->access_token = $lAccessToken->key;
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
 
     $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)
                           ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -589,7 +589,8 @@ class SourceImmoApi {
   public static function get_data_of($type, $id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    
+    $lTwoLetterLocale = si_get_locale();
     
     $view_id = (isset($_GET['view'])) ? $_GET['view'] : null;
 
@@ -636,7 +637,7 @@ class SourceImmoApi {
   public static function get_city_data($id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $view_id = si_view_id(SourceImmo::current()->configs->default_view);
     
     $lFilters = array("st"=>urlencode(self::get_search_token(
@@ -670,7 +671,7 @@ class SourceImmoApi {
   public static function get_city_listings_data($id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $view_id = si_view_id(SourceImmo::current()->configs->default_view);
 
     
@@ -745,7 +746,7 @@ class SourceImmoApi {
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
     $destination = implode(',',$params->destination);
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
     $random_hash = sha1($hash_seed);
     

@@ -13,7 +13,6 @@
   
         foreach ($this->brokers as $item) {
           $this->preprocess_item($item);
-  
           $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_broker_permalink());
         }
   
@@ -24,7 +23,7 @@
     public function preprocess_item(&$item){
       global $dictionary;
     
-  
+      
       $item->fullname = $item->first_name . ' ' . $item->last_name;
       if(isset($item->office)) {
         $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
@@ -36,9 +35,12 @@
       if(isset($item->license_type_code)){
         $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
       }
+
+      
   
       // cities
       if(isset($item->listings)){
+        
         $cityList = array();
         $cityListCode = array();
   
@@ -63,6 +65,7 @@
           }
         }
   
+
         $cityListData = (object) array();
         $cityListData->items = $cityList;
         $cityListData->metadata = $this->metadata;
@@ -128,6 +131,7 @@
     public function preprocess_item(&$item){
       global $dictionary;
   
+      
       if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
         $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
         if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
@@ -153,9 +157,6 @@
       else{
         $item->location->full_address = $item->location->city;
       }
-  
-  
-      
   
       if(isset($item->category_code)){
         $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
@@ -186,6 +187,7 @@
       $item->available_area = (isset($item->available_area)) ? $item->available_area : null;
       $item->available_area_unit = (isset($item->available_area_unit_code)) ? $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit') : null;
       
+      
       if(isset($item->brokers)){
         $data = (object) array();
         $data->items = $item->brokers;
@@ -194,7 +196,7 @@
   
         $item->brokers = $brokerDatas->brokers;
       }
-  
+      
       if(isset($item->photos)){
         foreach($item->photos as $photo){
           $photo->category = $dictionary->getCaption(array($photo,'category_code') , 'photo_category');
@@ -458,7 +460,7 @@
     
     public static function formatPrice($price){
       $lResult = array();
-      $locale = substr(get_locale(),0,2);
+      $locale = si_get_locale();
       $thousand_separator = ($locale == 'fr') ? ' ' : ',';
   
       $priceFormat = __('${0}',SI);
@@ -699,23 +701,24 @@
     public static function buildPermalink($item, $format, $lang=null){
       $lResult = $format;
       global $sitepress;
-      $lTwoLetterLocale = $lang!=null ? $lang : substr(get_locale(),0,2);
+      $lTwoLetterLocale = $lang!=null ? $lang : si_get_locale();
+      
       $lHomeUrl= $sitepress == null ? '/' : $sitepress->language_url( $lTwoLetterLocale );
   
       $lAttrList = self::getAttributeValueList($item);
       $item->has_custom_page = false;
-  
+      
       foreach($lAttrList as $lAttr){
         $lValue = $lAttr['value'];
-  
+        $lFriendlyValue = sanitize_title($lValue);
         $lResult = str_replace(
             array(
               '{{' . $lAttr['key'] . '}}',
               '{{item.' . $lAttr['key'] . '}}',
               '{{get' . $lAttr['key'] . '(item)}}'
-            ), sanitize_title($lValue), $lResult);
-        
+            ), $lFriendlyValue , $lResult);
       }
+     
       $lFinalPermalink = '/'. str_replace(' ','-',$lResult);
       if(strpos($lHomeUrl,$lTwoLetterLocale)!==false) $lFinalPermalink = '/' . $lTwoLetterLocale . $lFinalPermalink; 
       return $lFinalPermalink;
@@ -728,7 +731,7 @@
       $lTypePermalink = SourceImmo::current()->get_permalink($type);
       $lTypePermalink = substr($lTypePermalink,0, strpos($lTypePermalink,'{{')-1);
   
-      $lTwoLetterLocale = substr(get_locale(),0,2);
+      $lTwoLetterLocale = si_get_locale();
       // query args
       $lQueryArgs = array(
         'post_type' => 'page',
