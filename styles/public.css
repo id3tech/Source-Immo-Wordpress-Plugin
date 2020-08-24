@@ -117,7 +117,7 @@ html { font-size: 14px; }
 
 #top .si .list-meta .list-count em, .si .list-meta .list-count em { font-weight: 700; font-style: normal; }
 
-#top .si .next-page, .si .next-page { grid-area: next-page; place-self: center center; text-align: center; }
+#top .si .next-page, .si .next-page { -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; place-self: center center; text-align: center; }
 
 #top .si .si-list-container, .si .si-list-container { -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; display: -ms-grid; display: grid; place-items: stretch; gap: var(--layout-gutter); padding: var(--container-padding); border: var(--container-border); border-radius: var(--container-border-radius); width: 100%; }
 

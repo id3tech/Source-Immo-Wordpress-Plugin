@@ -17,8 +17,24 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
 
 
     $scope.init = function(){
-        
+        //console.log('publicCtrl/init');
 
+        if( document.readyState !== 'loading' ) {
+            console.log('publicCtrl/init :: ready');
+            $rootScope.$broadcast('si/ready');
+        } 
+        else {
+            document.addEventListener('DOMContentLoaded', function(){
+                console.log('publicCtrl/init :: ready');
+                $rootScope.$broadcast('si/ready');
+            });
+        }
+
+        window.onload = function(){
+            console.log('publicCtrl/init :: load');
+            $rootScope.$broadcast('si/load');
+        }
+        
         $siConfig.get().then(function($configs){
             $scope.configs = $configs;
             
@@ -134,7 +150,7 @@ function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$ele
 siApp
 .controller('singleListingCtrl', 
 function singleListingCtrl(
-        $scope,$element, $q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
+        $scope,$rootScope,$element, $q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
         $siHooks,$siFavorites,$siShare, $siCompiler){
     // model data container - listing
     $scope.model = null;
@@ -258,6 +274,8 @@ function singleListingCtrl(
 
             $siHooks.do('listing-ready',$scope.model);
             $siHooks.addFilter('si.share.data',$scope.setShareData);
+
+            $rootScope.$broadcast('si/model:ready');
             // print data to console for further informations
             //console.log($scope.model);
         });

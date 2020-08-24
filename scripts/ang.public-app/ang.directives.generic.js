@@ -14,17 +14,40 @@ siApp
             link: function($scope, $element, $attrs){
                 $scope.$element = $element[0]
             },
-            controller : function($scope, $rootScope,$timeout){
+            controller : function($scope, $rootScope,$timeout,$q){
                 $scope._resizeTimeoutHndl = null;
-                
+                $scope._class_initiliazed = false;
+
                 $scope.init = function(){
-                    $scope.updateClass();
+                    $scope.classInit();
                     $scope.addResizeListener();
                 }
 
-                $timeout(function(){
+                $scope.$on('si/load', function(){
+                    //console.log('siAdaptativeClass@si/load')
                     $scope.init();
-                },1000);
+                });
+
+                $scope.classInit = function(){
+                    if($scope._class_initiliazed == true) return;
+
+                    $scope.updateClass().then(
+                        function success(){
+                            $scope._class_initiliazed = true;
+                            //console.log('siAdaptativeClass/init::updateClassPromise','success to update class');
+                        },
+                        function fail(){
+                            console.log('siAdaptativeClass/init::updateClassPromise','fail to update class');
+                            window.setTimeout(function(){
+                                $scope.classInit();
+                            },500);
+                        }
+                    );
+                }
+
+                // $timeout(function(){
+                //     $scope.init();
+                // },1000);
 
                 $scope.addResizeListener = function(){
                     window.addEventListener("resize", function($event){
@@ -39,72 +62,78 @@ siApp
                 }
 
                 $scope.updateClass = function(){
-                    const lSizeMap = {
-                        'si-adapt-small-phone-size': [0,320],
-                        'si-adapt-phone-size': [321,640],
-                        'si-adapt-tablet-size': [641,800],
-                        'si-adapt-laptop-size': [801,1000]
-                    }
-                    
-                    // remove any class previously applied by a resize or initial parse
-                    Object.keys(lSizeMap)
-                        .forEach(function($k){
-                            $scope.$element.classList.remove($k);
-                        });
+                    return $q(function($resolve, $reject){
+                            
+                        const lSizeMap = {
+                            'si-adapt-small-phone-size': [0,320],
+                            'si-adapt-phone-size': [321,640],
+                            'si-adapt-tablet-size': [641,800],
+                            'si-adapt-laptop-size': [801,1000]
+                        }
+                        
+                        // remove any class previously applied by a resize or initial parse
+                        Object.keys(lSizeMap)
+                            .forEach(function($k){
+                                $scope.$element.classList.remove($k);
+                            });
 
-                    
+                        
 
-                    // get element size
-                    let lReferenceElement = $scope.$element.parentElement;
-                    // if(!lReferenceElement.classList.contains('si-content')){
-                    //     console.log('no .si-content', lReferenceElement);
+                        // get element size
+                        let lReferenceElement = $scope.$element.parentElement;
+                        // if(!lReferenceElement.classList.contains('si-content')){
+                        //     console.log('no .si-content', lReferenceElement);
 
-                    //     lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
-                    //         console.log('search for', $result, $cur, $scope.$element.closest($cur))
-                    //         return $result || $scope.$element.closest($cur);
-                    //     }, null);
+                        //     lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
+                        //         console.log('search for', $result, $cur, $scope.$element.closest($cur))
+                        //         return $result || $scope.$element.closest($cur);
+                        //     }, null);
 
-                    // }
+                        // }
 
-                    let lReferenceWidth = null;
-                    if(lReferenceElement != null){
-                        //console.log('valid container detected for',$scope.$element,':', lReferenceElement);
+                        let lReferenceWidth = null;
+                        if(lReferenceElement != null){
+                            //console.log('valid container detected for',$scope.$element,':', lReferenceElement);
 
-                        const lElementBox = lReferenceElement.getBoundingClientRect();
-                        //console.log('AdaptativeResize/updateClass',lElementBox);
-                        if(lElementBox.width == 0){
-                            //console.log('Element box width is 0', lReferenceElement);
-                            // $timeout(function(){
-                            //     $scope.updateClass();
-                            // },500);
-                            return;  // bail out if the element has no width
+                            const lElementBox = lReferenceElement.getBoundingClientRect();
+                            //console.log('AdaptativeResize/updateClass',lElementBox);
+                            if(lElementBox.width == 0){
+                                $reject();
+                                return;  // bail out if the element has no width
+                            }
+
+                            lReferenceWidth = lElementBox.width;
+                        }
+                        else{
+                            //console.log('no valid referece element detected');
                         }
 
-                        lReferenceWidth = lElementBox.width;
-                    }
-                    else{
-                        //console.log('no valid referece element detected');
-                    }
+                        // find the first size greater than the element box width
+                        const lFilteredMap = Object.keys(lSizeMap)
+                                                .filter(function($k){
+                                                    return lSizeMap[$k][1] <= window.innerWidth || lSizeMap[$k][1] <= lReferenceWidth;
+                                                });
+                        //console.log('AdaptativeResize/updateClass',lFilteredMap, lReferenceWidth);
+                        const lClass = (lReferenceWidth == null)
+                                                ? lFilteredMap.reverse()[0]
+                                                : lFilteredMap.reverse().find(function($k){
+                                                    return (
+                                                        (lSizeMap[$k][0] <= lReferenceWidth)
+                                                    );
+                                                });
+                        //console.log('added class', lClass, $scope.$element);
+                        if(lClass != null){
+                            // apply class if found
+                            $scope.$element.classList.add(lClass);
 
-                    // find the first size greater than the element box width
-                    const lFilteredMap = Object.keys(lSizeMap)
-                                            .filter(function($k){
-                                                return lSizeMap[$k][1] <= window.innerWidth || lSizeMap[$k][1] <= lReferenceWidth;
-                                            });
-                    //console.log('AdaptativeResize/updateClass',lFilteredMap, lReferenceWidth);
-                    const lClass = (lReferenceWidth == null)
-                                            ? lFilteredMap.reverse()[0]
-                                            : lFilteredMap.reverse().find(function($k){
-                                                return (
-                                                    (lSizeMap[$k][0] <= lReferenceWidth)
-                                                );
-                                            });
-                    //console.log('added class', lClass);
-                    if(lClass != null){
-                        // apply class if found
-                        $scope.$element.classList.add(lClass)
-                        $rootScope.$broadcast('container-resize');
-                    }
+                            $rootScope.$broadcast('container-resize');
+                            $resolve();
+                            return;
+                        }
+
+                        $reject(); // nothing was done, which could result in some limbo                        
+                    })
+                    
                 }
 
             }

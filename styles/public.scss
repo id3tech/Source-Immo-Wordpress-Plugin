@@ -274,7 +274,7 @@ html{
         }
     }
     .next-page{
-        grid-area: next-page;
+        grid-column: 1 / span 3;
         place-self: center center;
         text-align: center;
     }
