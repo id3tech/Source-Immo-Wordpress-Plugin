@@ -746,7 +746,7 @@ class SourceImmoApi {
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
     
-    $destination = implode(',',$params->destination);
+    $destination = $params->destination;
     if(is_array($params->destination)) $destination = implode(',',$params->destination);
     
     $lTwoLetterLocale = si_get_locale();
