@@ -745,7 +745,10 @@ class SourceImmoApi {
     $data = $params->data;
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
+    
     $destination = implode(',',$params->destination);
+    if(is_array($params->destination)) $destination = implode(',',$params->destination);
+    
     $lTwoLetterLocale = si_get_locale();
     $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
     $random_hash = sha1($hash_seed);

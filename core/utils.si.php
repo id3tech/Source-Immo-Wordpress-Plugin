@@ -110,9 +110,9 @@ class StringPrototype{
 
 if(!function_exists('str_null_or_empty')){
   function str_null_or_empty($val){
-    if($val == null) return true;
+    if($val === null) return true;
     if(is_array($val)) return (count($val)==0);
-    if($val == '') return true;
+    if($val === '') return true;
 
     return false;
   }
