@@ -1523,7 +1523,8 @@ function siDataAccordeon($parse){
                 in_exclusions:{opened:false},
                 rooms:{opened:false},
                 expenses: {opened:false},
-                financials: {opened:false}
+                financials: {opened:false},
+                neighborhood: {opened:false},
             }
 
             $scope.init = function(){
@@ -1598,6 +1599,10 @@ function siDataAccordeon($parse){
                 //console.log('siDataAccordeon/toggleSection',$section);
 
                 $scope.sections[$section].opened = !$scope.sections[$section].opened;
+
+                if($scope.sections[$section].opened){
+                    $rootScope.$broadcast('siDataAccordeon/' + $section + ':open');
+                }
             }
         }
     }

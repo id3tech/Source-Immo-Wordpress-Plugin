@@ -664,7 +664,7 @@ $locales.fr = {};$locales.fr.global =
             "Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact."
     , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
     , "Market" : "Marché"
-    
+    , "Neighborhood" : "Quartier"
     // PUBLIC - SINGLE BROKER
     , "Sorry, this broker could not be found." : "Désolé, ce courtier est introuvable."
     , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder à cette page soit invalide."

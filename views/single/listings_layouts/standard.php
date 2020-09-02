@@ -18,6 +18,7 @@
     </div>
 </div>
 
+
 <?php echo do_shortcode('[si_listing_part part="list_navigation"]'); ?>
 
 

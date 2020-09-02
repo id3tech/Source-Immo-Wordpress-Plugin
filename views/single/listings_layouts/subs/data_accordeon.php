@@ -17,4 +17,7 @@ $tabArray = str_replace('"',"'", json_encode($tabs));
 <?php echo do_shortcode('[si_listing_part part="in_exclusions"]') ?>
 
 <?php echo do_shortcode('[si_listing_part part="financials"]') ?>
+
+<?php echo do_shortcode('[si_listing_part part="neighborhood"]') ?>
+
 </si-data-accordeon>
