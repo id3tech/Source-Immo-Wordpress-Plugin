@@ -438,6 +438,15 @@ siApp
             $siHooks.do('si-modal-open');
         });
 
+        $scope.$on('si/load',function(){
+            const lModals = Array.from(document.querySelectorAll('#' + $scope.modal_id));
+            if(lModals.length > 1){
+                lModals.splice(0,1).forEach(function($elm,$index){
+                    $elm.remove();
+                });
+            }
+        })
+
         $scope.init = function(){
             if($scope.model==null){
                 $scope.model = {};
@@ -525,16 +534,21 @@ siApp
         replace         : true,
         transclude      : true,
         templateUrl     : siCtx.base_path + 'views/ang-templates/si-modal.html?v=3',
-        link            : function(scope, element, attr){
+        link            : function($scope, element, attr){
             
-            scope.modal_element = element;
-            if(scope.modal_element_moved !== true){
-                jQuery(element[0]).appendTo(document.body);
-                scope.modal_element_moved = true;
-                
+            $scope.modal_element = element;
+            if($scope.modal_element_moved !== true){
                 //console.log('modal content moved to body',element[0],jQuery(element[0]).find('input[type=submit]'));
                 
-                scope.init();
+
+                jQuery(element[0]).appendTo(document.body);
+                $scope.modal_element_moved = true;
+                
+                
+                
+
+
+                $scope.init();
                 
             }
             

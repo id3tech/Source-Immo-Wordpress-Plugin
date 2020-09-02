@@ -56,4 +56,4 @@ class siLocalLogicAddon extends SourceImmoAddon{
 
 }
 
-SourceImmo::current()->addons->register(new siLocalLogicAddon());
+//SourceImmo::current()->addons->register(new siLocalLogicAddon());
