@@ -127,7 +127,7 @@ siApp
 
     // listing available areas
     $scope.available_areas = Array.from(Array(6)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format(200 * ($i+4)), value: 200 * ($i+4)}
+        return { caption: '{0} sqft'.translate().format(250 * ($i+2)), value: 200 * ($i+2)}
     });
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(9)).map(function($e,$i){
         return { caption: '{0} sqft'.translate().format(1000 * ($i+2)), value: 1000 * ($i+2)}

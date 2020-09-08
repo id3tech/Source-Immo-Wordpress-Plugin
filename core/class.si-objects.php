@@ -1200,7 +1200,8 @@ class SourceImmoRoute{
     public $tabbed = false;
     public $filter_tags = 'none';
     public $search_box_placeholder = array('en'=> 'Type here to begin your search...', 'fr' => 'Tapez ici pour commencer votre recherche ...');
-    
+    Public $fields = null;
+
     public function __construct($type=null){
   
       $this->normalizeValues($type);
@@ -1234,6 +1235,8 @@ class SourceImmoRoute{
       switch($type){
         case 'listings':
           $this->focus_category = array();
+          $this->fields = [];
+          
           break;
         case 'brokers':
           $this->fields = array('searchbox','letters','licenses','offices');
