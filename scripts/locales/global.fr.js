@@ -693,6 +693,10 @@ $locales.fr = {};$locales.fr.global =
     , "Photo of {0}" : "Photo de {0}"
     , "Read more" : "Lire plus"
     , "Read less" : "Lire moins"
+    , "Comments" : "Commentaires"
+    , "New" : "Nouveau"
+    , "See all comments" : "Voir tous les commentaires"
+    
     // PUBLIC - SINGLE CITY
     , "Listings in {0}" : "Propriétés de {0}"
     // PUBLIC - SINGLE OFFICE

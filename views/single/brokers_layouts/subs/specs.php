@@ -13,5 +13,14 @@
                 <span>{{model.experience_start_date | timeLength}}</span>
             </div>
         </div>
+
+        <div class="si-extra-item protections" ng-if="model.protection_codes | siHasValue">
+            <label><?php _e('Protections',SI)?></label>
+            <div class="si-value .{{model.protection_codes.join(' .').toLowerCase()}}">
+                <span ng-repeat="protection in model.protection_codes" class="{{protection.toLowerCase()}}">
+                    <span>{{protection | captionOf : 'protection'}}</span>
+                </span>
+            </div>
+        </div>
     
 </div>

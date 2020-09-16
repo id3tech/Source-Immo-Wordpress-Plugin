@@ -67,6 +67,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'cities' => __('City list', SI),
                 'office' => __('Office', SI),
                 'listings' => __('Broker listings', SI),
+                'reviews' => __('Comments', SI),
             ]
         ];
 

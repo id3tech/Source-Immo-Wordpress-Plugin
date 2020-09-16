@@ -403,15 +403,17 @@ class SourceImmo {
       
       $dictionary = new SourceImmoDictionary($model->dictionary);
 
-      __c($ref_number);
+      
 
       $listingWrapper->preprocess_item($model);
 
-      
-      
-
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
-      wp_redirect($model->permalink);
+      if(wp_redirect($model->permalink)){
+        exit;
+      }
+      else{
+        echo('Error: Something prevent the redirection to '. $model->permalink);
+      }
     }
   }
 
@@ -425,7 +427,12 @@ class SourceImmo {
       $listingWrapper->preprocess_item($model);
 
       $model->permalink = SourceImmoBrokersResult::buildPermalink($model, SourceImmo::current()->get_broker_permalink());
-      wp_redirect($model->permalink);
+      if(wp_redirect($model->permalink)){
+        exit;
+      }
+      else{
+        echo('Error: Something prevent the redirection to '. $model->permalink);
+      }
     }
   }
 
@@ -439,7 +446,12 @@ class SourceImmo {
       $listingWrapper->preprocess_item($model);
 
       $model->permalink = SourceImmoCitiesResult::buildPermalink($model, SourceImmo::current()->get_city_permalink());
-      wp_redirect($model->permalink);
+      if(wp_redirect($model->permalink)){
+        exit;
+      }
+      else{
+        echo('Error: Something prevent the redirection to '. $model->permalink);
+      }
     }
   }
 
@@ -454,7 +466,12 @@ class SourceImmo {
       $listingWrapper->preprocess_item($model);
 
       $model->permalink = SourceImmoOfficesResult::buildPermalink($model, SourceImmo::current()->get_office_permalink());
-      wp_redirect($model->permalink);
+      if(wp_redirect($model->permalink)){
+        exit;
+      }
+      else{
+        echo('Error: Something prevent the redirection to '. $model->permalink);
+      }
     }
   }
   

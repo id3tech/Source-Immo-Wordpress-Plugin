@@ -15,6 +15,6 @@
     </div>
 
     <div class="si-label">
-        <span class="si-value ng-binding">4.95<span class="max ng-binding"> / 5</span> </span>
+        <span class="si-value ng-binding">3.75<span class="max ng-binding"> / 5</span> </span>
     </div>
 </div>

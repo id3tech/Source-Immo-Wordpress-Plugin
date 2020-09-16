@@ -46,3 +46,10 @@ siApp
         return $path.replace('~', wpSiApiSettings.base_path)
     }
 })
+
+siApp
+.filter('siElementExists', function(){
+    return function($element){
+        return document.querySelectorAll($element).length > 0
+    }
+})

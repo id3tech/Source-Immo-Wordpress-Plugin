@@ -218,6 +218,12 @@ siApp
     }
 })
 
+siApp
+.filter('siElementExists', function(){
+    return function($element){
+        return document.querySelectorAll($element).length > 0
+    }
+})
 
 function $lateBind($callback){
     let $scope = {

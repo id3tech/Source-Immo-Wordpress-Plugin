@@ -2251,6 +2251,9 @@ si-data-accordeon{
 
 .si-star-rating{
     text-align:center;
+    --star-padding: 0.25rem;
+    --star-size:2rem;
+    
     .si-label{
         text-align:center;
     }
@@ -2264,9 +2267,9 @@ si-data-accordeon{
         grid-auto-flow: column;
         grid-auto-columns: max-content;
         svg{
-            width:2rem;
-            height:2rem;
-            padding:0.25rem;
+            width:var(--star-size);
+            height:var(--star-size);
+            padding:var(--star-padding);
         }
     }
     .si-empty-stars{
@@ -2282,8 +2285,9 @@ si-data-accordeon{
         position: absolute;
         top:0;
         left:0;
-        width: var(--rating-value);
+        width: calc(var(--rating-value) - var(--star-padding));
         overflow:hidden;
+
         svg{
             
             path{

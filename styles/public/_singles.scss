@@ -1,3 +1,5 @@
+html, body{ scroll-behavior: smooth;}
+
 #top .si,
  .si{   
     
@@ -1104,57 +1106,123 @@
                                 }
                             }
                         }
+
+                        &.protections{
+                            .si-value{
+                                > span {
+                                    > span::after{
+                                            content:", ";
+                                    }
+                                    &:last-child{
+                                        > span::after{
+                                            content:unset;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+            &.si-part-reviews{
+
+                .si-rating{
+                    .si-star-rating {
+                        --star-padding: 0.5rem;
+                        --star-size: 5rem;
+                        .si-label{
+                            font-size: 2rem;
+                        }
+                        @include media($phone){
+                            --star-size: 3rem;
+                        }
+                    }
+                }
+                .si-review-list{
+                    display:grid;
+                    grid-template-columns: repeat(2,1fr);
+                    grid-auto-flow: dense;
+                    padding: var(--layout-gutter) 0;
+                    gap: var(--layout-gutter);
+                    @include media($phone){
+                        grid-template-columns: 1fr;
+                    }
+                    .si-review-item{
+                        padding:2rem;
+                        display:grid;
+                        grid-template-rows: 1fr auto;
+                        position:relative;
+                        
+                        .si-index{
+                            font-size: 3rem;
+                            border-bottom: solid 1px currentColor;
+                            
+                            &::after{
+                                content: ".";
+                            }
+
+                        }
+                        .si-text{
+                            margin-bottom:10px;
+                            position:relative;
+                            overflow:visible; 
+                            position:relative;
+                            //padding: 2rem;
+
+                            &::before{
+                                content:"\f10d";
+                                font-family: "Font Awesome 5 Pro";
+                                font-weight: 700;
+                                font-size: 2rem;
+                                display:block;
+                                // position: absolute;
+                                // top:0;
+                                // left:0px;
+                                opacity:0.5;
+
+                            }
+                        }
+                        .si-info{
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            
+                        }
+                        .si-author{
+                            font-size: 1.5rem;
+                            //text-align:center;
+                        }
+                        .si-date{
+                            //text-align:center;
+                            font-size: 0.8rem;
+                            .ago{opacity:0.75;}
+                        }
+
+                        &.big{
+                            grid-row: span 3;
+                        }
+                        &.medium{
+                            grid-row: span 2;
+                            @include media-gt($phone){       
+                                .si-text{
+                                    font-size: 1.5rem;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.si-part-rating{
+                .comments-link{
+                    cursor: pointer;
+                    opacity:0.8;
+                    text-decoration: underline;
+                }
+            }
         }
-        // .si-part{
-        //     @include media-gt($tablet){
-        //         &.si-part-rating{
-        //             grid-column: var(--right-column);
-        //             grid-row: 4
-        //         }
-        //         &.si-part-name{
-        //             grid-column: var(--left-column);
-        //             grid-row: 1;
-        //         }
-        //         &.si-part-bio{
-        //             grid-column: var(--left-column);
-        //             grid-row: 2;
         
-        //         }
-        //         &.si-part-picture{
-        //             grid-column: var(--right-column);
-        //             grid-row: 1 / span 3;
-        //         }
-        //         &.si-part-contact{
-        //             grid-column: var(--right-column);
-        //             grid-row: 5;
-        //         }
-        //         &.si-part-cities{
-        //             grid-column: var(--right-column);
-        //             grid-row: 7 / span 2;
-        //         }
-        //         &.si-part-listings{
-        //             grid-column: var(--left-column);
-        //             grid-row: 3 / span 4;
-        //         }
-        //         &.si-part-office{
-        //             grid-column: var(--right-column);
-        //             grid-row: 6;
-        //         }
-        //     }
-        // }
-
-        // .head{
-        //     .name{margin-bottom:0px;}
-        //     .license-title{
-        //         font-size:1.3em;
-        //         text-transform:uppercase;
-        //         opacity: 0.75;
-        //     }
-        // }
-
         .about{
             .button{display:none;}
             .si-text{
@@ -1164,35 +1232,13 @@
             
         }
 
-
-        // .info{
-            
-
-        //     @include gridAreas('head','bio','languages','expertises');
-
-        //     display: grid;
-        //     gap: var(--layout-gutter);
-        //     grid-template-columns: 2fr 1fr;
-        //     grid-template-areas: 
-        //         "head head"
-        //         "bio bio"
-        //         ;
-            .name{margin-bottom:0px;}
-            .license-title{
-                font-size:1.3em;
-                text-transform:uppercase;
-                opacity: 0.75;
-            }
-        //     .languages, .expertises{
-        //         .title{
-        //             font-size:1.25rem;
-        //         }
-        //     } 
-        //     // Remove next line when "Language" becomes available
-        //     .languages,.expertises{display:none;}   
-
-            
-        // }
+        .name{margin-bottom:0px;}
+        .license-title{
+            font-size:1.3em;
+            text-transform:uppercase;
+            opacity: 0.75;
+        }
+        
         .picture{
             
             background: url('assets/shadow_broker.jpg') no-repeat;

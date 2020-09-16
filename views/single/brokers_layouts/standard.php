@@ -5,6 +5,8 @@
 
     <?php echo do_shortcode('[si_broker_part part="listings"]') ?>
 
+    <?php echo do_shortcode('[si_broker_part part="reviews"]') ?>
+
 
 
 

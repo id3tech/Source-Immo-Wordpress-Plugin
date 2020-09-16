@@ -19,7 +19,7 @@
                     <div class="si-data-label subcategory ng-binding">Condo</div>
                     <div class="flags">
                         <i class="video far fa-video"></i>
-                        <i class="virtual-tour far fa-street-view"></i>
+                        <i class="virtual-tour far fa-vr-cardboard"></i>
                     </div>
                     <div class="si-data-label rooms">
                         <!-- ngRepeat: (icon,room) in item.rooms -->
@@ -47,7 +47,7 @@
                     <div class="si-data-label subcategory ng-binding">Maison à étages</div>
                     <div class="flags">
                         <i class="video far fa-video"></i>
-                        <i class="virtual-tour far fa-street-view"></i>
+                        <i class="virtual-tour far fa-vr-cardboard"></i>
                     </div>
                     <div class="si-data-label rooms">
                         <!-- ngRepeat: (icon,room) in item.rooms -->
@@ -75,7 +75,7 @@
                     <div class="si-data-label subcategory ng-binding">Maison à étages</div>
                     <div class="flags">
                         <i class="video far fa-video"></i>
-                        <i class="virtual-tour far fa-street-view"></i>
+                        <i class="virtual-tour far fa-vr-cardboard"></i>
                     </div>
                     <div class="si-data-label rooms">
                         <!-- ngRepeat: (icon,room) in item.rooms -->
@@ -100,7 +100,7 @@
                     <div class="si-data-label subcategory ng-binding">Condo</div>
                     <div class="flags">
                         <i class="video far fa-video"></i>
-                        <i class="virtual-tour far fa-street-view"></i>
+                        <i class="virtual-tour far fa-vr-cardboard"></i>
                     </div>
                     <div class="si-data-label rooms">
                         <!-- ngRepeat: (icon,room) in item.rooms -->
@@ -125,7 +125,7 @@
                     <div class="si-data-label subcategory ng-binding">Maison à étages</div>
                     <div class="flags">
                         <i class="video far fa-video"></i>
-                        <i class="virtual-tour far fa-street-view"></i>
+                        <i class="virtual-tour far fa-vr-cardboard"></i>
                     </div>
                     <div class="si-data-label rooms">
                         <!-- ngRepeat: (icon,room) in item.rooms -->

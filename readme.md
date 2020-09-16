@@ -1,4 +1,7 @@
-# Version 0.4.86 RC2
+# Version 1.0.0
+
+## Offical release
+We've finally reach the point of the official release. Yay!
 
 ## Admin interface changes
 
@@ -19,6 +22,13 @@ You can also select which field are searchable
 * Single layer mode now shows the pictures of the property on hover
 * Server side renders for broker list
 
+## Agent informations
+New informations are available for agent (limited)
+* Spoken language(s)
+* Experience
+* Protection(s) for sellers or buyers offered by the agent
+* Rating
+* Comments
 
 ## Addons support
 Addons are now supported and will be add periodically.
@@ -37,7 +47,7 @@ Build custom page for listings and brokers with Elementor's widget
 
 Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Broker data
-
+* Listing data
 
 
 ## Other things
