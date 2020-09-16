@@ -1569,6 +1569,8 @@ html, body { scroll-behavior: smooth; }
 
 #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-text::before, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-text::before { content: "\f10d"; font-family: "Font Awesome 5 Pro"; font-weight: 700; font-size: 2rem; display: block; opacity: 0.5; }
 
+#top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-text::after, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-text::after { content: "\f10e"; font-family: "Font Awesome 5 Pro"; font-weight: 700; font-size: 8rem; display: block; position: absolute; right: 0rem; bottom: 0; line-height: 1; opacity: 0.05; line-height: 1; -webkit-transform: translateY(50%); transform: translateY(50%); }
+
 #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-info, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-info { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
 
 #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-author, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item .si-author { font-size: 1.5rem; }
@@ -1580,8 +1582,6 @@ html, body { scroll-behavior: smooth; }
 #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.big, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.big { grid-row: span 3; }
 
 #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.medium, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.medium { grid-row: span 2; }
-
-@media screen and (min-width: 641px) { #top .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.medium .si-text, .si.broker-single .si-part.si-part-reviews .si-review-list .si-review-item.medium .si-text { font-size: 1.5rem; } }
 
 #top .si.broker-single .si-part.si-part-rating .comments-link, .si.broker-single .si-part.si-part-rating .comments-link { cursor: pointer; opacity: 0.8; text-decoration: underline; }
 

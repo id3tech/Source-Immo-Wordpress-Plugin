@@ -1163,6 +1163,9 @@ html, body{ scroll-behavior: smooth;}
                             }
 
                         }
+
+                        
+
                         .si-text{
                             margin-bottom:10px;
                             position:relative;
@@ -1181,6 +1184,21 @@ html, body{ scroll-behavior: smooth;}
                                 // left:0px;
                                 opacity:0.5;
 
+                            }
+
+                            &::after{
+                                content:"\f10e";
+                                font-family: "Font Awesome 5 Pro";
+                                font-weight: 700;
+                                font-size: 8rem;
+                                display:block;
+                                position: absolute;
+                                right: 0rem;
+                                bottom:0;
+                                line-height: 1;
+                                opacity: 0.05;
+                                line-height: 1;
+                                transform:translateY(50%);
                             }
                         }
                         .si-info{
@@ -1204,11 +1222,7 @@ html, body{ scroll-behavior: smooth;}
                         }
                         &.medium{
                             grid-row: span 2;
-                            @include media-gt($phone){       
-                                .si-text{
-                                    font-size: 1.5rem;
-                                }
-                            }
+                            
                         }
                     }
                 }
