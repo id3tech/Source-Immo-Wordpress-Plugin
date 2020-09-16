@@ -15,7 +15,7 @@
 
                 <div class="si-text">{{item.comments}}</div>
                 <div class="si-author">{{item.name}}</div>
-                <div class="si-date"><span>{{item.date | amDateFormat : 'DD-MM-YYYY'}}</span> <span class="ago">({{item.date | amTimeAgo}})</span></div>
+                <div class="si-date" ng-if="item.date"><span>{{item.date | amDateFormat : 'DD-MM-YYYY'}}</span> <span class="ago">({{item.date | amTimeAgo}})</span></div>
 
             </div>
         </div>
