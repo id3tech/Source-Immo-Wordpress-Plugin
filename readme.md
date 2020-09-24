@@ -1,4 +1,4 @@
-# Version 1.0.1
+# Version 1.0.2
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -58,7 +58,7 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Disconnection now make a backup of the settings to be restored upon credentials update
 * Fix Yoast support
 * Add minor support for Avada's Fusion theme
-
+* Fix WPML default language shortcut for listings, brokers, cities and offices
 
 requires: 5.1.1
 tested: 5.3

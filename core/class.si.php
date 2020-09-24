@@ -387,12 +387,11 @@ class SourceImmo {
     return $locale;
   }
 
-
   
   // --------------------------------
   //#region REDIRECTS
   
-  function redirect_listings($ref_number){
+  function redirect_listings($ref_number,$lang=null){
     // load data
     
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
@@ -403,11 +402,9 @@ class SourceImmo {
       
       $dictionary = new SourceImmoDictionary($model->dictionary);
 
-      
-
       $listingWrapper->preprocess_item($model);
 
-      $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink());
+      $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink($lang), $lang);
       if(wp_redirect($model->permalink)){
         exit;
       }
@@ -417,7 +414,7 @@ class SourceImmo {
     }
   }
 
-  function redirect_brokers($ref_number){
+  function redirect_brokers($ref_number,$lang=null){
     // load data
     $model = json_decode(SourceImmoApi::get_broker_data($ref_number));
     if($model != null){
@@ -426,7 +423,7 @@ class SourceImmo {
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
 
-      $model->permalink = SourceImmoBrokersResult::buildPermalink($model, SourceImmo::current()->get_broker_permalink());
+      $model->permalink = SourceImmoBrokersResult::buildPermalink($model, SourceImmo::current()->get_broker_permalink($lang), $lang);
       if(wp_redirect($model->permalink)){
         exit;
       }
@@ -436,7 +433,7 @@ class SourceImmo {
     }
   }
 
-  function redirect_cities($ref_number){
+  function redirect_cities($ref_number,$lang=null){
     // load data
     $model = SourceImmoApi::get_city_data($ref_number)->items[0];
     if($model != null){
@@ -445,7 +442,7 @@ class SourceImmo {
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
 
-      $model->permalink = SourceImmoCitiesResult::buildPermalink($model, SourceImmo::current()->get_city_permalink());
+      $model->permalink = SourceImmoCitiesResult::buildPermalink($model, SourceImmo::current()->get_city_permalink($lang), $lang);
       if(wp_redirect($model->permalink)){
         exit;
       }
@@ -455,7 +452,7 @@ class SourceImmo {
     }
   }
 
-  function redirect_offices($ref_number){
+  function redirect_offices($ref_number,$lang=null){
     // load data
     $model = json_decode(SourceImmoApi::get_office_data($ref_number));
     if($model != null){
@@ -465,7 +462,7 @@ class SourceImmo {
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
 
-      $model->permalink = SourceImmoOfficesResult::buildPermalink($model, SourceImmo::current()->get_office_permalink());
+      $model->permalink = SourceImmoOfficesResult::buildPermalink($model, SourceImmo::current()->get_office_permalink($lang), $lang);
       if(wp_redirect($model->permalink)){
         exit;
       }
@@ -777,9 +774,11 @@ class SourceImmo {
 		if ( $ref_number ) {
       $type = get_query_var( 'type' );
       $mode = get_query_var( 'mode' );
+      $lang = get_query_var( 'lang' );
+
       if($mode == 'shortcut'){
         // redirect to long
-        $this->{'redirect_' . $type}($ref_number);
+        $this->{'redirect_' . $type}($ref_number,$lang);
       }
       else{
         if($mode == 'print'){
