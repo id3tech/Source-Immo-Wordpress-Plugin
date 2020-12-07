@@ -1,7 +1,7 @@
 <div class="si-detail-section office">
     <h3>{{'Office'.translate()}}</h3>
     <div class="item-content">
-        <div class="name"><a href="{{model.office.permalink}}">{{model.office.agency.name}}</a></div>
+        <div class="name notranslate"><a href="{{model.office.permalink}}">{{model.office.agency.name}}</a></div>
         <div class="license">{{model.office.license}}</div>
 
         <div class="location">

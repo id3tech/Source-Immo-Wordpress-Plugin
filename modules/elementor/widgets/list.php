@@ -1,6 +1,6 @@
 <?php
 
-use function PHPSTORM_META\map;
+//use function PHPSTORM_META\map;
 
 class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 {
@@ -20,8 +20,7 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
         return 'eicon-posts-grid';
     }
 
-    public function get_categories()
-    {
+    public function get_categories(){
         return ['source-immo'];
     }
 

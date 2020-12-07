@@ -36,7 +36,7 @@ class SourceImmo {
   private function init_hooks() {
     
     // add custom translation
-    add_filter( 'gettext', array($this, 'translate'), 20, 3 );
+    add_filter( 'gettext', array($this, 'translate'), 1, 3 );
     add_filter( 'si-city-name', array($this, 'format_city_name'),10,2);
 
     $this->register_filters(array(
@@ -72,6 +72,7 @@ class SourceImmo {
       if($this->configs->favorites_button_menu != null){
         add_filter('wp_nav_menu_items',array($this, 'add_favorite_button_to_menu'), 10, 2);
       }
+
     }
 
     $this->addons->register_hooks($this->configs->active_addons);
@@ -1213,10 +1214,18 @@ class SourceImmo {
     }
 
     $the_plugs = get_option('active_plugins'); 
+    if(is_multisite()){
+      $the_network_plugs = get_site_option('active_sitewide_plugins');
+      foreach ($the_network_plugs as $key => $value) {
+        $the_plugs[] = $key;  
+      }
+    }
+    
     foreach($the_plugs as $key => $value) {
+
       $moduleName = strtolower(explode("/", $value)[0]);
-      $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
       
+      $modulePath = SI_PLUGIN_DIR . "modules/$moduleName/functions.php";
       if(file_exists($modulePath)){
         include $modulePath;
       }

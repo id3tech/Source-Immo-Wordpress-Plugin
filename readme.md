@@ -1,11 +1,11 @@
-# Version 1.0.2
+# Version 1.0.3
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
 
-## Admin interface changes
 
-* Access admin interface directly from the wordpress menu
+## Intuitive admin interface
+
 * Style editor for colors, borders, spacings, etc
 * Search engine designer
 * Choose which information to display for list items
@@ -48,6 +48,9 @@ Build custom page for listings and brokers with Elementor's widget
 Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Broker data
 * Listing data
+
+## Multisite installation support
+
 
 
 ## Other things

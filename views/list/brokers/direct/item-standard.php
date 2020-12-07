@@ -36,15 +36,15 @@ if(isset($configs)){
             <div class="image  si-lazy-loading">
                 <img data-si-src="<?php echo($item->photo_url);?>" si-srcset="<?php echo(apply_filters('si_broker_srcset',$item->photo_url))?>" itemprop="image" />
             </div>
-            <div class="si-data-label si-background-high-contrast fullname" <?php layoutAllowVar('fullname', $configs->list_item_layout) ?>><?php echo($item->first_name . ' ' . $item->last_name)?></div> 
-            <div class="si-data-label si-background-high-contrast first-name" <?php layoutAllowVar('first_name', $configs->list_item_layout) ?>><?php echo($item->first_name)?></div> 
-            <div class="si-data-label si-background-high-contrast last-name" <?php layoutAllowVar('last_name', $configs->list_item_layout) ?>><?php echo($item->last_name)?></div>
+            <div class="si-data-label si-background-high-contrast fullname notranslate" <?php layoutAllowVar('fullname', $configs->list_item_layout) ?>><?php echo($item->first_name . ' ' . $item->last_name)?></div> 
+            <div class="si-data-label si-background-high-contrast first-name notranslate" <?php layoutAllowVar('first_name', $configs->list_item_layout) ?>><?php echo($item->first_name)?></div> 
+            <div class="si-data-label si-background-high-contrast last-name notranslate" <?php layoutAllowVar('last_name', $configs->list_item_layout) ?>><?php echo($item->last_name)?></div>
             
             
             <div class="si-data-label si-background-high-contrast title" title="<?php echo((strlen($item->license_type) > 40) ? $item->license_type : '')?>"
                 <?php layoutAllowVar('title', $configs->list_item_layout) ?>><?php echo($item->license_type)?></div>
 
-            <div class="si-data-label office si-background-small-contrast" <?php layoutAllowVar('office', $configs->list_item_layout) ?>><?php echo($item->office->name)?></div>
+            <div class="si-data-label office si-background-small-contrast notranslate" <?php layoutAllowVar('office', $configs->list_item_layout) ?>><?php echo($item->office->name)?></div>
             <div class="si-data-label phone" <?php layoutAllowVar('phone', $configs->list_item_layout) ?>><?php echo(isset($item->phones->mobile) ? $item->phones->mobile : $item->phones->office)?></div>
             <div class="si-data-label email" <?php layoutAllowVar('email', $configs->list_item_layout) ?>><?php echo($item->email)?></div>
             <div class="si-data-label si-background-small-contrast listing-count" <?php layoutAllowVar('listing_count', $configs->list_item_layout) ?>>

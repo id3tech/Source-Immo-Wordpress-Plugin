@@ -20,7 +20,8 @@ body.wp-admin{
     }
     h1,h2,h3,h4,h5{
       margin:1.2em 0 0.5em 0;
-      span{display:block;line-height:0.8em;}
+      line-height: 1em;
+      span{display:block;line-height:inherit;}
       sub{display:block;text-transform: initial;font-size:50%;}
     }
 

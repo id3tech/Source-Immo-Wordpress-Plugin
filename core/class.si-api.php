@@ -1032,7 +1032,7 @@ class SourceImmoApi {
       )
     );
 
-    // Reset
+    // Backup
     register_rest_route( 'si-rest','/configs/backup',array(
         array(
           'methods' => WP_REST_Server::READABLE,
@@ -1051,6 +1051,32 @@ class SourceImmoApi {
         ) // End POST
       )
     );
+
+    register_rest_route( 'si-rest','/configs/network',array(
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => array( 'SourceImmoApi','privileged_permission_callback' ),
+        'callback' => function(){
+          return get_site_option('si-network-configs');
+        }
+      ), // End GET
+      array(
+        'methods' => WP_REST_Server::EDITABLE,
+        'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'args' => [
+          'settings' => [
+            'required' => true,
+            'type' => 'Object',
+            'description' => __( 'Network configuration informations', SI ),
+          ]
+        ],
+        'callback' => function($request){
+          $config_value = $request->get_param('settings');
+          return set_site_option('si-network-configs',$config_value);
+        }
+      ), // End POST
+    )
+  );
   }
 
 

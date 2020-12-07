@@ -6,9 +6,9 @@ body.wp-admin #si-app { padding-right: 20px; background-color: #F1F1F1; }
 
 body.wp-admin #si-app h1 .version { font-size: 12px; opacity: 0.4; }
 
-body.wp-admin #si-app h1, body.wp-admin #si-app h2, body.wp-admin #si-app h3, body.wp-admin #si-app h4, body.wp-admin #si-app h5 { margin: 1.2em 0 0.5em 0; }
+body.wp-admin #si-app h1, body.wp-admin #si-app h2, body.wp-admin #si-app h3, body.wp-admin #si-app h4, body.wp-admin #si-app h5 { margin: 1.2em 0 0.5em 0; line-height: 1em; }
 
-body.wp-admin #si-app h1 span, body.wp-admin #si-app h2 span, body.wp-admin #si-app h3 span, body.wp-admin #si-app h4 span, body.wp-admin #si-app h5 span { display: block; line-height: 0.8em; }
+body.wp-admin #si-app h1 span, body.wp-admin #si-app h2 span, body.wp-admin #si-app h3 span, body.wp-admin #si-app h4 span, body.wp-admin #si-app h5 span { display: block; line-height: inherit; }
 
 body.wp-admin #si-app h1 sub, body.wp-admin #si-app h2 sub, body.wp-admin #si-app h3 sub, body.wp-admin #si-app h4 sub, body.wp-admin #si-app h5 sub { display: block; text-transform: initial; font-size: 50%; }
 

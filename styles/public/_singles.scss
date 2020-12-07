@@ -844,17 +844,30 @@ html, body{ scroll-behavior: smooth;}
                 }
                 .flags{
                     display:grid;
-                    grid-template-columns: 1fr repeat(var(--unit-flag-count), auto);
+                    grid-template-columns: 1fr repeat(calc(var(--unit-flag-count) + 1), auto);
                     gap:0px;
                     margin:10px auto;
                     place-items:center end;
-                    background-color:var(--medium-contrast-color);
+                    background-color:var(--small-contrast-color);
                     border-radius: var(--element-border-radius);
                     overflow: hidden;
+                    .unit-name{
+                        place-self: center start;
+                        padding: var(--layout-gutter);
+                        h4{margin:0;}
+                        .area{
+                            display:block;
+                            font-size: 1rem;
+                            font-weight: 400;
+                        }
+                    }
                     .flag{
                         padding:10px 20px;
                         border-left:var(--element-border);
                         background-color:var(--small-contrast-color);
+                        width: unset;
+                        margin: 0;
+
                         label,em{display:block;text-align:center;color:var(--small-contrast-text-color);}
                         label{margin:0px;text-transform: lowercase;}
                         em{background:none;padding-top:4px;font-size:25px;color:var(--small-contrast-text-color);position:relative;width:100%;}

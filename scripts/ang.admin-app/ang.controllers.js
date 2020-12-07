@@ -1557,3 +1557,46 @@ siApp
 
 });
 
+
+/**
+ * NETWORK ROOT CONTROLLER
+ */
+siApp
+.controller('mainNetworkCtrl', function($scope,$rootScope,$q,$timeout,$siConfigs,$siList,$siUI,$siUtils){
+  $scope._status = 'initializing';
+  $scope.loaded_components = [];
+  $scope.pages = {
+    'home': {label: 'Home'.translate(), style: ''},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
+  }
+  
+  $scope.init = function(){
+    $scope.load_configs().then(_ => {
+        $scope._status = 'ready';
+        
+    });
+    
+    $scope.$on('save-request', function(){
+      $scope.save_configs();
+    });
+
+  }
+
+  
+  $scope.load_configs = function(){
+    return $q(function($resolve, $reject){
+      $siConfigs.loadNetwork().then(function($response){
+        $scope.networkConfigs = $response;
+        $resolve();
+      });
+    });
+  }
+
+  $scope.updateSettings = function(){
+    $scope.save_configs();
+  }
+
+  $scope.save_configs = function(){
+    $siConfigs.saveNetwork($scope.networkConfigs);
+  }
+});

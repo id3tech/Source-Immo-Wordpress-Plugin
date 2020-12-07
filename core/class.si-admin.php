@@ -11,6 +11,7 @@ class SourceImmoAdmin {
     $this->register_actions(array(
       'admin_init'=>'',
       'admin_menu'=>'load_menu',
+      'network_admin_menu'=>'load_network_menu',
       'admin_notices'=>'',
       'admin_enqueue_scripts'=>'load_resources',
       'activity_box_end'=>'',
@@ -32,6 +33,10 @@ class SourceImmoAdmin {
     SourceImmo::view( 'admin/master' );
   }
 
+  public function render_network_page(){
+    SourceImmo::view( 'admin/master-network' );
+  }
+
 
   public function admin_help(){
 
@@ -39,11 +44,9 @@ class SourceImmoAdmin {
 
   public function load_resources($page){
     $ressource_location = 'settings_page_';
-    if(self::CONFIG_MENU_LOCATION == 'root'){
+    if(self::CONFIG_MENU_LOCATION == 'root' || is_network_admin()){
       $ressource_location = 'toplevel_page_';
     }
-
-    //__c($page);
 
     if($page == $ressource_location  . self::CONFIG_PAGE_KEY){
       wp_enqueue_media();
@@ -98,7 +101,37 @@ class SourceImmoAdmin {
       add_action( "load-$hook", array( $this, 'admin_help' ) );
     }
   }
-  
+  public function load_network_menu(){
+  //   add_menu_page( 
+  //     'ID-3'                          // page title
+  //     ,'ID-3'                         // menu title
+  //     ,'manage_options'               // capabilities
+  //     ,'id3-tools'                    // slug
+  //     ,[$this, 'renderNetworkAdminPage']     // page renderer
+  //     ,'dashicons-layout'             // icon 
+  //     ,100                             // position
+  // );
+
+    add_menu_page(
+          __('Source Immo', SI),
+          __('Source Immo', SI),
+          'manage_options',
+          self::CONFIG_PAGE_KEY,
+          [$this, 'render_network_page']
+          ,'dashicons-admin-home' 
+          , 100
+    );
+
+    // add_submenu_page(
+    //       'settings',
+    //       __('Source Immo', SI),
+    //       __('Source Immo', SI),
+    //       'manage_options',
+    //       self::CONFIG_PAGE_KEY,
+    //       [$this, 'render_network_page']
+    // );
+  }
+
   public function add_admin_menu_separator($position){
     global $menu;
     $index = 0;

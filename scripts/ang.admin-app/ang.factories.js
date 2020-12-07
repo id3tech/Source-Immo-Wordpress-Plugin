@@ -430,9 +430,24 @@ siApp
     });
   }
 
+  $scope.loadNetwork = function(){
+    return $q( function($resolve,$reject){
+      $siApi.rest('configs/network')
+        .then(function($configs){
+          $scope.networkConfigs = $configs;
+          $resolve($scope.networkConfigs);
+        });
+    });
+  }
+
   $scope.save = function($configs){
     $scope.configs = $configs;
     return $siApi.rest('configs',{settings: $configs},{method: 'POST'})
+  }
+
+  $scope.saveNetwork = function($configs){
+    $scope.networkConfigs = $configs;
+    return $siApi.rest('configs/network',{settings: $configs},{method: 'POST'})
   }
 
   $scope.backup = function(){
