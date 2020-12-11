@@ -2,7 +2,7 @@
     <div class="viewport"> 
         <div class="trolley" style="{{getTrolleyStyle()}}">
             <div class="item" data-ng-repeat="img in pictures track by $index">
-                <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" si-image-auto-fit />
+                <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" si-image-auto-fit="{{pictureFit}}" />
                 <div class="caption"><label>{{getImageCaption(img)}}</label></div>
             </div>
         </div>
@@ -23,6 +23,8 @@
     
     <div class="controls">
         <div class="nav-btn picture-grid" data-ng-click="togglePictureGrid()"><i class="fas fa-th"></i> <label>{{'All pictures'.translate()}}</label></div>
-        <div class="nav-btn expand" data-ng-click="toggleFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>
+        <div class="nav-btn expand" ng-if="!expand_mode" data-ng-click="enterFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>
     </div>
+
+    <div ng-if="expand_mode" class="close-btn" ng-click="exitFullscreen()"><i class="fal fa-times"></i></div>
 </div>

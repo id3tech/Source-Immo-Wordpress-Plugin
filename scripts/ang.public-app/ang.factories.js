@@ -1333,6 +1333,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         return true;
     }
 
+    
+
     $scope.all = function($promises){
         return $q(function($resolve, $reject){
             const lConvertedPromises = Array.isArray($promises) ? $promises : 
@@ -1387,6 +1389,97 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
     return $scope;
 }]);
+
+siApp
+.factory('$siUI', ['$rootScope','$timeout','$q', 
+function $siUI($rootScope, $timeout, $q){
+    const $scope = {};
+    $scope.$isFullscreen = false;
+
+    $scope.enterFullscreen = function($element, $onExit){
+        const lAvailableFn = ['requestFullscreen','mozRequestFullScreen','webkitRequestFullscreen','msRequestFullscreen'].find(function($att){ return $element[$att] !== undefined});
+        if(lAvailableFn == null) return $q.reject();
+
+        
+        return $q( function($resolve){
+            $element[lAvailableFn]().then( function(){
+                
+
+                if(typeof($onExit) == 'function'){
+
+                    const fnExitHandler = function($event){
+                        console.log('fullscreenchange event triggered');
+                        if($scope.$isFullscreen == true){
+                            ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
+                                console.log($e, 'event unregistered');
+                                document.removeEventListener($e, fnExitHandler);
+                            });
+
+                            $onExit();
+                        }
+                    };
+                    
+                    $timeout(function(){
+                        ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
+                            console.log($e, 'event registered');
+                            document.addEventListener($e, fnExitHandler);
+                        });
+                    }, 500);
+                    
+                }
+
+                $scope.$isFullscreen = true;
+
+                $resolve();
+            })
+        });
+    }
+
+    $scope.exitFullscreen = function(){
+        if(!$scope.$isFullscreen) {
+            console.log('is not fullscreen ', $scope.$isFullscreen);
+            return $q.reject();
+        }
+
+        const lAvailableFn = ['exitFullscreen','mozCancelFullScreen','webkitExitFullscreen','msExitFullscreen'].find(function($att){ return document[$att] !== undefined});
+        if(lAvailableFn == null) return $q.reject('exitFullscreen function not available');
+
+        return document[lAvailableFn]();
+    }
+
+    $scope.lockScreenOrientation = function($orientation){
+        if(screen.orientation == undefined) return $q.reject();
+        if(!$scope.$isFullscreen) return $q.reject();
+        
+        try {
+            return $q(function($resolve,$reject){
+                screen.orientation.lock($orientation)
+                .then(
+                    function success(){ $resolve() },
+                    function failed(){
+                        console.log('cannot lock screen');
+                        $reject();
+                    }
+                )
+            });
+        } catch (error) {
+            return $q.reject();
+        }
+        
+        return $q.resolve();
+    }
+
+    $scope.unlockScreenOrientation = function(){
+        if(screen.orientation == undefined) return $q.resolve();
+        
+        screen.orientation.unlock();
+        return $q.resolve();
+    }
+
+
+    return $scope;
+}
+])
 
 siApp
 .factory('$siConfig',['$http','$q',

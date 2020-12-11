@@ -3,6 +3,7 @@ body, #top{
     .elementor-element {
         .elementor-widget-container{
             .si{
+                
                 //pointer-events: none;
 
                 &.si-list-of-ghost{
@@ -265,7 +266,9 @@ body, #top{
                     .hint-item{
                         text-align:center;
                         padding:5px;
-                        i{margin-right: 3px;}
+                        display: flex;
+                        align-items: center;
+                        gap:3px;
                         em{font-weight: 700;}
                     }
                 }
@@ -282,6 +285,7 @@ body, #top{
                         margin-left: 10px;
                         font-size: 15px;
                         text-transform: uppercase;
+                        white-space: nowrap;
                     }
                 }
             }
@@ -294,6 +298,7 @@ body, #top{
 
     .si.si-single{
         min-height:0px!important;
+        display:unset;
     }
     
 

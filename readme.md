@@ -1,4 +1,4 @@
-# Version 1.0.3
+# Version 1.0.4
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -55,6 +55,7 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 ## Other things
 
+* Picture boxing preference
 * You can change the default view which will update every list that used the previous one
 * Sprinkle hooks here and there
 * Minor bugs fixes

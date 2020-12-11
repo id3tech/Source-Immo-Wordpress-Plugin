@@ -1170,6 +1170,16 @@ body.si-modal-open{
     }
 }
 
+@keyframes si-image-slider-in{
+    0%{
+        opacity:0;
+        transform:scale(0);
+    }
+    100%{
+        opacity:1;
+        transform:scale(1);
+    }
+}
 #top .si-image-slider,
 .si-image-slider{
     position:relative;
@@ -1205,7 +1215,7 @@ body.si-modal-open{
             position: absolute;
             height:100%;
             top:0px;left:0px;
-            transition:0.25s;
+            transition:250ms;
             transform: translateX(calc(-1 * var(--viewport-width) * var(--item-index)));
             @include media($phone){
                 display:grid;
@@ -1276,7 +1286,7 @@ body.si-modal-open{
         width:100%;height:100%;
         overflow-y:auto;
         z-index:99;
-        transition:0.25s;
+        transition:250ms;
         transform:translateY(100%);
         opacity:0;
         pointer-events: none;
@@ -1307,14 +1317,28 @@ body.si-modal-open{
         pointer-events: auto;
         }
     }
-
+    .close-btn{
+        position: absolute;
+        top:10px;
+        right:10px;
+        font-size: 20px;
+        cursor:pointer;
+        color:var(--button-fg-color);;
+        border-radius:50%;
+        width:30px;
+        height:30px;
+        background: var(--button-bg-color);
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
     .preview{
         position: absolute;
         bottom:5px;
         left:0;
         width:100%;
         opacity: 0.1;
-        transition:0.25s;
+        transition:250ms;
         height:60px;
         display:none;
         .trolley{
@@ -1325,15 +1349,15 @@ body.si-modal-open{
             gap:var(--layout-gutter);
             grid-template-columns: repeat(5,1fr);
             height:2px;
-            transition:0.25s;
+            transition:250ms;
             place-items: stretch;
             .item{
                 height:2px;
                 background-color:var(--background-color);
                 opacity:0.5;
-                transition:0.25s;
+                transition:250ms;
 
-                img{object-fit: cover;width: 100%;height:100%;opacity:0;transition:0.25s;}
+                img{object-fit: cover;width: 100%;height:100%;opacity:0;transition:250ms;}
                 &.selected{
                     opacity:1;
                     border:solid 2px rgba(#fff,0.75);
@@ -1373,7 +1397,7 @@ body.si-modal-open{
             font-size: var(--nav-control-size);
             position: absolute;height:2em;width:2em;
             border-radius:0;padding:0px;
-            transition:0.25s;
+            transition:250ms;
             pointer-events: auto;
             cursor:pointer;
             &::before{
@@ -1492,20 +1516,40 @@ body.si-modal-open{
         height:100vh;
     }
     &.expanded{
+        position: absolute;
+        top:0px;
+        left:0px;
+        width:100vw;
+        height:100vh;
+        z-index: 9999;
+        animation: si-image-slider-in 250ms ease-out forwards;
+
+        &.is-safari{
+            @media screen and (orientation: portrait) {
+                height: calc(100vh - 75px);
+            }
+            
+            
+        }
+
         .viewport{
-            // position:fixed;
-            // top:0px;
-            // left:0px;
-            // width:100vw;
-            // height:100vh;
+            
 
             background:rgba(#000,0.75);
             .trolley{
                 .item{
-                    img{object-fit: contain;}
+                    img{object-fit: contain!important;}
                 }
             }
         }
+    }
+}
+body{
+    &.rotate{
+        width: 100vh;
+        height: 100vw;
+        transform-origin: 50% 50%;
+        transform: rotate(-90deg);
     }
 }
 

@@ -56,5 +56,14 @@ $locales.fr.global = Object.assign($locales.fr.global,
         , "Search result navigation" : "Navigation dans les résultats de recherche"
         , "Info request button" : "Bouton de demande d'informations"
         , "Links" : "Liens"
+
+        , "Show picture tab": "Afficher l'onglet photo"
+        , "Show video tab": "Afficher l'onglet vidéo"
+        , "Show virtual tour tab": "Afficher l'onglet visite virtuelle"
+        , "Show street view tab": "Afficher l'onglet vue de quartier"
+        , "Show map tab": "Afficher l'onglet carte"
+        , "Picture fit" : "Ajustement photo"
+        , "Cover area" : "Couvre la zone"
+        , "Fit in area (might show colored strips on picture sides)" : "S'ajuste à la zone (pourrait montrer des bandes colorées en bordure de l'image)"
     }
 )

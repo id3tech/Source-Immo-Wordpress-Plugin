@@ -30,7 +30,7 @@
         <div class="trolley">
             <div class="tab-content picture-gallery"
                 >
-                <si-image-slider data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'"></si-image-slider>
+                <si-image-slider data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-picture-fit="{{pictureFit}}" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'"></si-image-slider>
                 <si-thumbnails-slider si-list="model.photos" ng-show="pictureListDisplay=='thumbnails'"></si-thumbnails-slider>
             </div>
             <div class="tab-content videos"

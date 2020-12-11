@@ -108,9 +108,7 @@ body .elementor-element .elementor-widget-container .si-control-preview-hint:hov
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; background: #00000055; padding: 5px; }
 
-body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item { text-align: center; padding: 5px; }
-
-body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item i, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item i { margin-right: 3px; }
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item { text-align: center; padding: 5px; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 3px; }
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-list .hint-item em { font-weight: 700; }
 
@@ -118,9 +116,9 @@ body .elementor-element .elementor-widget-container .si-control-preview-hint .hi
 
 body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info i.icon, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info i.icon { font-size: 20px; }
 
-body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em { margin-left: 10px; font-size: 15px; text-transform: uppercase; }
+body .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em, #top .elementor-element .elementor-widget-container .si-control-preview-hint .hint-info em { margin-left: 10px; font-size: 15px; text-transform: uppercase; white-space: nowrap; }
 
-body .si.si-single, #top .si.si-single { min-height: 0px !important; }
+body .si.si-single, #top .si.si-single { min-height: 0px !important; display: unset; }
 
 body .si.si-single > .si-part, body .si.si-single .elementor-widget-container > .si-part, #top .si.si-single > .si-part, #top .si.si-single .elementor-widget-container > .si-part { display: -ms-grid; display: grid; }
 

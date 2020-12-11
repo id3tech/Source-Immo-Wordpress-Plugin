@@ -817,9 +817,11 @@ siApp
         'listing_item_sold_text_color' : '#fff',
         'listing_item_column_width' : '340px',
         'listing_item_picture_ratio' : '0.75',
+        'listing_item_picture_fit' : 'cover',
         'thumbnail_picture_size' : '100px',
         'broker_item_column_width' : '210px',
         'broker_item_picture_ratio' : '1.25',
+        'cover_item_picture_fit' : 'cover',
         'office_item_column_width' : '320px',
       }
 

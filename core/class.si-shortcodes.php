@@ -544,6 +544,7 @@ class SiShorcodes{
             array(
                 'ref_number' => '',
                 'load_text' => "Loading listing",
+                'media_picture_fit' => "cover",
                 'class' => ''
             ), $atts )
         );
@@ -578,6 +579,9 @@ class SiShorcodes{
                 class="si listing-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
 
         <?php
+        add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
+            return $media_picture_fit;
+        });
         
         do_action('si_listing_single_start', $ref_number, $listing_data);
         do_action('si_start_of_template', $load_text);
@@ -628,12 +632,19 @@ class SiShorcodes{
                 'height' => '',
                 'tabs' => '',
                 'allow_toggle' => '',
+                'media_picture_fit' => null
             ), $atts )
         );
 
         $lResult = '';
         $partAttr = [];
         
+        if(isset($media_picture_fit) && $media_picture_fit != null){      
+            add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
+                return $media_picture_fit;
+            });
+        }
+
         if($part != ''){
             ob_start();
             $part_path = apply_filters('si_listing_part_path','single/listings_layouts/subs/' . $part,$part);

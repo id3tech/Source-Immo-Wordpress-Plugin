@@ -309,10 +309,16 @@
                 icon="far fa-text"
             ></div>
 
-            <md-input-container  class="fullrow">
+            <md-input-container>
                 <md-icon class="far fa-lg fa-ruler-triangle"></md-icon>
                 <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.listing_item_picture_ratio">default {0}</lstr>)</label>
                 <input ng-model="model.listing_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-expand-arrows"></md-icon>
+                <label><lstr>Picture fit</lstr> (<lstr params="defaultValues.listing_item_picture_fit">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_picture_fit" ng-model-options="{updateOn:'blur'}" />
             </md-input-container>
 <!-- 
             <md-input-container  class="fullrow">
@@ -324,12 +330,20 @@
 
         <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')" lstr>Broker item</h4>
         <div  ng-show="isEditable('broker')" id="style-broker" class="style-group">
-            <md-input-container  class="fullrow">
+            <md-input-container >
                 <md-icon class="far fa-lg fa-ruler-triangle"></md-icon> 
                 <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.broker_item_picture_ratio">default {0}</lstr>)</label>
                 <input ng-model="model.broker_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
             </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-expand-arrows"></md-icon>
+                <label><lstr>Picture fit</lstr> (<lstr params="defaultValues.broker_item_picture_fit">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_picture_fit" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
 <!-- 
+    
             <md-input-container  class="fullrow">
                 <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
                 <label><lstr>Column width</lstr> (<lstr params="defaultValues.broker_item_column_width">default {0}</lstr>)</label>

@@ -96,9 +96,10 @@ $desktop : 1440px;
     --listing-item-sold-text-color: #fff;
     --listing-item-column-width : 340px;
     --listing-item-picture-ratio : 0.7;
+    --listing-item-picture-fit: cover;
 
     --thumbnail-picture-size: 100px;
-
+    
     --map-marker-bg: #333;
     --map-marker-fg: #fff;
     --map-marker-bg-sold: #f51717;
@@ -107,6 +108,7 @@ $desktop : 1440px;
     // brokers
     --broker-item-column-width : 210px;
     --broker-item-picture-ratio : 1.05;
+    --broker-item-picture-fit: cover;
 
     // cities
     --city-item-column-width : 320px;
@@ -684,7 +686,7 @@ html{
                 img{
                     text-indent: -1000px;
                     width:100%;height:100%;
-                    object-fit: cover;
+                    object-fit: var(--listing-item-picture-fit);
                     object-position: center;
                 }
             }
@@ -994,7 +996,10 @@ html{
                     width:100px;height:100px;overflow:hidden;
                     border-radius:50%;background:#fff;
                     text-align: unset;
-                    img{object-fit:cover;width:100%;}
+                    img{
+                        object-fit:var(--broker-item-picture-fit);
+                        width:100%;
+                    }
                 }
                 .name{
                     font-size:1.25em;font-weight: 600;

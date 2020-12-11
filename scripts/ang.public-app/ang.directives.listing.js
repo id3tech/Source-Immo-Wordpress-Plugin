@@ -360,7 +360,8 @@ siApp
             dictionary: '=?siDictionary',
             gap: '@siGap',
             index: '=?siIndex',
-            showGrid: '=siShowPictureGrid'
+            showGrid: '=siShowPictureGrid',
+            pictureFit: '@siPictureFit'
         },
         controllerAs: 'ctrl',
         replace:true,
@@ -372,7 +373,7 @@ siApp
             let lPanHndl = null;
             scope.init();
         },
-        controller: function ($scope,$rootScope, $q,$siApi,$rootScope,$siDictionary, $siHooks, $siUtils,$timeout) {
+        controller: function ($scope,$rootScope,$element, $q,$siApi,$rootScope,$siDictionary, $siHooks,$siUI, $siUtils,$timeout) {
             $scope.expand_mode = false;
             $scope.picture_grid_mode = false;
             
@@ -380,14 +381,23 @@ siApp
                 current_picture_index : 0
             };
     
-            $scope.init = function($element){
+            $scope.init = function(){
                 $scope.index = 0;   
                 
-                
+                if(['Safari','Mobile'].every(function($w){ return navigator.userAgent.indexOf($w) >= 0})){
+                    $element[0].classList.add('is-safari');
+                    
+                    
+                }
+
+
                 $scope.$on('thumbnails-slider-select', function($event, $picture){
                     const lIndex = $scope.pictures.findIndex(function($e){return $e.url == $picture.url});
                     $scope.set(lIndex,false);
                 });
+
+                $element[0].addEventListener('touchstart', $scope.handleTouchStart, false);        
+                $element[0].addEventListener('touchmove', $scope.handleTouchMove, false);
     
                 if($scope.pictures){
                     // if($siUtils.isLegacyBrowser()){
@@ -433,22 +443,59 @@ siApp
                     }, 500);
                     
                 });
-                document.addEventListener('fullscreenchange', function(){
-                    //console.log('fullscreen change', document.fullscreenElement)
-                    if(document.fullscreenElement == null){
-                        $timeout(function() {
-                            $scope.expand_mode = false;
-                            
-                        });
-                    }
-                    $scope.detectBoxSize();
-                })
+                
+
 
                 $timeout(function(){
                     $scope.detectBoxSize();
                 })
 
             }
+
+            $scope._touchDown = {
+                x:null,
+                y:null
+            }
+
+            $scope.handleTouchStart = function(evt) {
+                const firstTouch = evt.touches[0];   
+                $scope._touchDown = {
+                    x: firstTouch.clientX,
+                    y: firstTouch.clientY
+                }                                   
+                
+            };                                                
+            
+            $scope.handleTouchMove = function(evt) {
+                if ( ! $scope._touchDown.x || ! $scope._touchDown.y ) {
+                    return;
+                }
+            
+                var xUp = evt.touches[0].clientX;                                    
+                var yUp = evt.touches[0].clientY;
+            
+                var xDiff = $scope._touchDown.x - xUp;
+                var yDiff = $scope._touchDown.y - yUp;
+            
+                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                    if ( xDiff > 0 ) {
+                        /* left swipe */ 
+                        $scope.next();
+                    } else {
+                        /* right swipe */
+                        $scope.previous();
+                    }                       
+                } else {
+                    if ( yDiff > 0 ) {
+                        /* up swipe */ 
+                    } else { 
+                        /* down swipe */
+                    }                                                                 
+                }
+                /* reset values */
+                $scope._touchDown.x = null;
+                $scope._touchDown.y = null;                                             
+            };
     
             $scope.next = function(){
                 
@@ -510,7 +557,82 @@ siApp
                 }
             });
     
-            $scope.toggleFullscreen = function(){
+            $scope.preventScroll = function($event){
+                $event.preventDefault();
+                $event.stopPropagation();
+            }
+            $scope.enterFullscreen = function(){
+                $q( function($resolve){
+                    $siUI.enterFullscreen($element[0], function(){
+                        $scope._postExitFullscreen();
+                    }).then(
+                        function success(){
+                            $siUI.lockScreenOrientation('landscape-primary').then(
+                                function(){},
+                                function(){}
+                            );
+                            
+                            return $q.resolve();
+                        },
+                        function fail(){
+                            $scope.$container = $scope.$element.parentElement;
+
+                            $scope.$viewport = $scope.$element.querySelector('.viewport');
+                            document.body.append($scope.$element);
+        
+                            document.body.style.overflow = 'hidden';
+                            window.addEventListener('wheel', $scope.preventScroll);
+                            window.scrollTo(0,0);
+                        }
+                    ).then(function(){
+                        $timeout(function(){
+                            console.log('expand_mode activated');
+                            $scope.expand_mode = true;
+                            $resolve();
+                        }, 250);
+                    })
+                })
+                .then( function(){
+                    $timeout(function(){
+                        console.log('detectbox size');
+                        $scope.detectBoxSize();
+                    },500);
+                })
+                return;
+
+                if("orientation" in screen){
+                    screen.orientation.unlock();
+                }
+
+                if($scope.expand_mode){
+                    // compress back
+                    $scope.$container.append($scope.$element);
+                    $scope.handleBodyOrientation();
+                }
+                else{
+                    // expand
+                    $scope.handleBodyOrientation();
+
+                    $scope.$container =$scope.$element.parentElement;
+
+                    $scope.$viewport = $scope.$element.querySelector('.viewport');
+                    document.body.append($scope.$element);
+
+                    document.body.style.overflow = 'hidden';
+                    window.addEventListener('wheel', $scope.preventScroll);
+                    window.scrollTo(0,0);
+                }
+               
+                $scope.expand_mode = !$scope.expand_mode;
+                
+                $timeout(function(){
+                    
+                    $scope.detectBoxSize();
+                },500);
+
+                return;
+
+
                 if (
                     document.fullscreenElement ||
                     document.webkitFullscreenElement ||
@@ -534,27 +656,78 @@ siApp
                     //console.log('exit fullscreen');
                   } 
                   else {
+                    
                     if ($scope.$element.requestFullscreen) {
                       $scope.$element.requestFullscreen();
+                      console.log('requestFullscreen');
                     } 
                     else if ($scope.$element.mozRequestFullScreen) {
                       $scope.$element.mozRequestFullScreen();
+                      console.log('mozRequestFullscreen');
                     } 
                     else if ($scope.$element.webkitRequestFullscreen) {
                       $scope.$element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                      console.log('webkitRequestFullscreen');
                     } 
                     else if ($scope.$element.msRequestFullscreen) {
                       $scope.$element.msRequestFullscreen();
+                      console.log('msRequestFullscreen');
                     }
-                    //console.log('enter fullscreen');
 
+                    //console.log('enter fullscreen');
+                    if("orientation" in screen){
+                        screen.orientation.lock("portrait-primary");
+                    }
+
+                    console.log('Entering Fullscreen');
                     
                     $scope.expand_mode = true;
                   }
     
                 
             }
-    
+            $scope.exitFullscreen = function($redraw){
+                $redraw = $redraw === undefined ? true : $redraw;
+
+                return $q(function($resolve){    
+                    $siUI.exitFullscreen().then(
+                        function success(){
+                            $siUI.unlockScreenOrientation();
+                        },
+                        function fail(){
+                            // compress back
+                            console.log('exit fullscreen failed');
+                            $scope.$container.append($scope.$element);
+                            window.removeEventListener('wheel', $scope.preventScroll);
+                        }
+                    ).then(function(){
+                        $scope._postExitFullscreen().then(function(){
+                            $resolve();
+                        })
+                    });
+                });
+
+                // compress back
+                $scope.$container.append($scope.$element);
+                $scope.expand_mode = false;
+                ;
+            }
+
+            $scope._postExitFullscreen = function(){
+                console.log('_postExitFullscreen');
+                return $q(function($resolve){
+                    $timeout(function(){
+                        $scope.expand_mode = false;
+                        $resolve();
+                    },250);
+                }).then( function() {
+                    $timeout(function(){
+                        $scope.detectBoxSize();
+                    },500);
+                });
+            }
+
+
             $scope.togglePictureGrid = function(){
                 $scope.picture_grid_mode = !$scope.picture_grid_mode;
             }
@@ -597,7 +770,7 @@ siApp
                 const lElmRect = lElm.getBoundingClientRect();
                 
                 lElm.style.setProperty('--viewport-width', lElmRect.width + 'px');
-                lElm.style.setProperty('--viewport-height', lElmRect.height + 'px');
+                lElm.style.setProperty('--viewport-height', Math.min(lElmRect.height,window.innerHeight) + 'px');
                 
                 if($siUtils.isLegacyBrowser()){
                     const lPictures = Array.from(lElm.querySelectorAll('.viewport .trolley .item'));
@@ -1618,7 +1791,8 @@ function siMediabox($parse){
             model: '=siModel',
             defaultTab: '@siDefaultTab',
             height: '@siHeight',
-            pictureListDisplay: '@siPictureListAs'
+            pictureListDisplay: '@siPictureListAs',
+            pictureFit: '@siPictureFit'
         },
         link: function ($scope,$elm, $attrs){
             $scope.$element = $elm;

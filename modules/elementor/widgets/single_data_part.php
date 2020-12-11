@@ -223,7 +223,24 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 ]
             );  
         }
-        
+        $this->add_control(
+            'media_picture_fit',
+            [
+                'label' => __('Picture fit', SI),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'placeholder' => '',
+                'options' => [
+                    '' => 'Auto',
+                    'cover' => __('Cover area', SI),
+                    'contain' => __('Fit in area (might show colored strips on picture sides)', SI),
+                    //'office' => __('Office', SI)
+                ],
+                'default' => '',
+                'condition' => [
+                    'content_part_listing' => 'media_box'
+                ]
+            ]
+        ); 
 
     }
 
@@ -306,6 +323,8 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             }
             $contentHeightEncode = str_replace('"',"'", json_encode($contentHeight));
             $shortcode_attrs[] = 'height="' . $contentHeightEncode . '"';
+
+            $shortcode_attrs[] = 'media_picture_fit="' . $settings['media_picture_fit'] . '"';
 
             $tabs = [
                 'pictures',
