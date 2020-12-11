@@ -313,14 +313,48 @@ class SourceImmoConfig {
     $lUploadDir   = wp_upload_dir();
     $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
     if ( ! file_exists( $lConfigPath ) ) {
+      $this->addLog('saveConfigFile::create configs folder');
       wp_mkdir_p( $lConfigPath );
     }
+
+
+    $this->addLog('saveConfigFile::saving configs', true);
     $lConfigFilePath = $lConfigPath . '/_configs.json';
     $filePointer = fopen($lConfigFilePath,'w+');
-    fwrite($filePointer, json_encode($this->getSecuredVersion()));
+    if(($securedVersion = $this->getSecuredVersion()) !== false){
+      $fileContent = json_encode($securedVersion);
+      if(strlen($fileContent) > 50){
+        fwrite($filePointer, $fileContent);
+        fclose($filePointer);
+    
+        $this->addLog('saveConfigFile::save done'); 
+      }
+      else{
+        $this->addLog('saveConfigFile::configs anomaly detected (' . $fileContent . ')', true);
+      }
+    }
+    else{
+      $this->addLog('saveConfigFile::unable to get secured version', true);
+    }
+    
+    return $lConfigFilePath;
+  }
+
+  public function addLog($message,$includeRequestMeta=false){
+    $lUploadDir   = wp_upload_dir();
+    $logPath = $lUploadDir['basedir'] . '/_sourceimmo.log';
+    $filePointer = fopen($logPath,'a');
+    $timestamp = Date('Y-M-d H:i:s');
+
+    if($includeRequestMeta){
+      $referer = $_SERVER['HTTP_REFERER'];
+      $request = $_SERVER['REQUEST_URI'];
+      $message = "$message (from $referer on $request)";
+    }
+
+    fwrite($filePointer, "$timestamp :: $message \n");
     fclose($filePointer);
 
-    return $lConfigFilePath;
   }
 
   public function loadConfigFile(){
@@ -347,9 +381,13 @@ class SourceImmoConfig {
 
 
   public function getSecuredVersion(){
-    $lResult = clone $this;
+    //$lResult = clone $this;
+    $lResult = unserialize(serialize($this));
     //$lResult->api_key = null;
     //$lResult->account_id = null;
+
+    if($lResult->api_key == null) return false;
+    if($lResult->account_id == null) return false;
 
     return $lResult;
   }
