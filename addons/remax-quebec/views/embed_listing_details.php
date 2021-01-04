@@ -38,12 +38,13 @@
         }
 
         $scope.receiveMessage = function(msg){
-            if($scope._receiveTimerHndl == null) return;
-            
             if (msg.origin=="https://www.remax-quebec.com"){	// make sure message is from this origin (watch out for the protocol...)
-                window.clearTimeout($scope._receiveTimerHndl);
-                $scope._receiveTimerHndl = null;
-                
+				console.log('receiveMessage/',$scope._receiveTimerHndl, msg);
+				
+				if($scope._receiveTimerHndl != null){
+					window.clearTimeout($scope._receiveTimerHndl);
+					$scope._receiveTimerHndl = null;
+				}                
 
                 if (msg.data.eventId="remaxIframeHeight"){		// verify message id. Leaves possibility to add more messages in the futur
                     $scope.resizeProxyIframe(msg.data.data);			// call the resizing function with the data payload (in this case the iframe height)
