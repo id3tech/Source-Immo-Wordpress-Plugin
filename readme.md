@@ -1,4 +1,4 @@
-# Version 1.0.4
+# Version 1.0.5
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
