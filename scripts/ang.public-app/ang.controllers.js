@@ -477,6 +477,13 @@ function singleListingCtrl(
         return $data;
     }
 
+    /**
+     * Fallback method for standalone accordion section
+     * @param {string} $sectionName 
+     */
+    $scope.isAvailableSection = function($sectionName){
+        return true;
+    }
     
 
     /**
