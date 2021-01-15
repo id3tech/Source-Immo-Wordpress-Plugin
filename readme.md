@@ -51,7 +51,7 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## New filters
-* New filter for addenda formating level (default value is 2): si/listing/addanda/format_level
+* New filter for addenda formatting level (default value is 2): si/listing/addanda/format_level
 
 
 ## Other things
