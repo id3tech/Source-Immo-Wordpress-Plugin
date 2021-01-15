@@ -1,4 +1,4 @@
-# Version 1.0.5
+# Version 1.0.6
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -49,8 +49,9 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Broker data
 * Listing data
 
-## Multisite installation support
 
+## New filters
+* New filter for addenda formating level (default value is 2): si/listing/addanda/format_level
 
 
 ## Other things
@@ -63,6 +64,7 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Fix Yoast support
 * Add minor support for Avada's Fusion theme
 * Fix WPML default language shortcut for listings, brokers, cities and offices
+
 
 requires: 5.1.1
 tested: 5.3

@@ -1108,7 +1108,7 @@ html { font-size: 14px; }
 
 #top .si.direct-layout label.placeholder, .si.direct-layout label.placeholder { padding: 20px; font-weight: 400; opacity: 0.75; text-align: center; text-transform: uppercase; }
 
-#top .si.direct-layout .si-list-empty, .si.direct-layout .si-list-empty { grid-area: empty; }
+#top .si.direct-layout .si-list-empty, .si.direct-layout .si-list-empty { -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; grid-row: auto; }
 
 #top .si.direct-layout .list-meta .list-count, .si.direct-layout .list-meta .list-count { text-align: center; }
 

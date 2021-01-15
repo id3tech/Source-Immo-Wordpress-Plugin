@@ -278,7 +278,41 @@ siApp
 .factory('$siApi', [
   '$http','$q',
   function $siApi($http,$q){
-    $scope = {};
+    const $scope = {
+      nonceTimeout: 10
+    };
+
+    $scope.renewNonce = function(){
+      console.log('$siApi/renewNonce');
+      $options = {
+        url     : wpSiApiSettings.root + 'si-rest/new_nonce',
+        method  : 'GET',       
+      };
+
+      // Setup promise object
+      $q(function($resolve, $reject){
+          $http($options).then(
+            // On success
+            function success($result){
+              if($result.status=='200'){
+                wpSiApiSettings.nonce = $result.data;
+                $resolve();
+              }
+              else{
+                $reject(null);
+              }
+            },
+            // On fail
+            function fail($error){
+              console.log('Fail on path', $path, 'with data' , $data , $error);
+            }
+          )
+      });
+    }   
+    window.setInterval(function(){
+      $scope.renewNonce();
+    }, $scope.nonceTimeout * 60 * 1000 );
+
 
     $scope.rest = function($path, $data, $options){
       $options = angular.merge({
@@ -311,7 +345,6 @@ siApp
             // On fail
             function fail($error){
               console.log('Fail on path', $path, 'with data' , $data , $error);
-              $scope.show_toast($error);
             }
           )
       });

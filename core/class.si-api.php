@@ -12,6 +12,9 @@ class SourceImmoApi {
     self::_registerRestApiListeners();
   }
 
+  public static function new_nonce(){
+    return wp_create_nonce( 'wp_rest' );
+  }
 
   /**
    * Update page content
@@ -903,6 +906,17 @@ class SourceImmoApi {
    * @static
    */
   static function _register_access_token_routes(){
+    // Acquire access token to make call to the source.immo remote api
+    register_rest_route( 'si-rest','/new_nonce',
+    array(
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => '__return_true',
+        'callback' => array( 'SourceImmoApi', 'new_nonce' ),
+      )
+    )
+    );
+
     // Acquire access token to make call to the source.immo remote api
     register_rest_route( 'si-rest','/access_token',
       array(

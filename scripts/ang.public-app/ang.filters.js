@@ -87,8 +87,10 @@ function orderObjectByFilter(){
 siApp
 .filter('textToHtml', [
 function textToHtml(){
-    return function($value){
+    return function($value, $level){
         if($value == null || $value == undefined) return '';
+        $level = $level == undefined ? 2 : $level;
+
         // check if the string is already html
         const tagRegex = /<[^>]+>/gm;
         $matches = tagRegex.exec($value);
@@ -97,17 +99,25 @@ function textToHtml(){
         }
 
         let lReplacements = [
-            {match: /(\n{2,})/gm, by: '</p><p>', wrap_by: 'p'},
+            {match: /(\n\r\n)/gm, by: '</p><p>', wrap_by: 'p'},
             {match: /(\n)/g, by: '<br />'},
         ];
 
-        lReplacements.forEach(function($e){
-            $value = $value.replace($e.match, $e.by);
-            if($e.wrap_by != undefined){
-                $value = '<' + $e.wrap_by + '>' + $value + '</' + $e.wrap_by + '>';
-            }
-        })
+        let lText = $value;
 
+        lReplacements
+        .filter(function($e, $i){
+            return $i < $level;
+        })
+        .forEach(function($e,$i){
+            lText = lText.replace($e.match, $e.by);
+            if($e.wrap_by != undefined){
+                lText = '<' + $e.wrap_by + '>' + lText + '</' + $e.wrap_by + '>';
+            }
+            
+        });
+
+        $value = lText;
         return $value;
     }
 }]);
