@@ -1,4 +1,4 @@
-# Version 1.0.6
+# Version 1.0.8
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -65,6 +65,18 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Add minor support for Avada's Fusion theme
 * Fix WPML default language shortcut for listings, brokers, cities and offices
 
+
+## Change log
+
+Version 1.0.8
+* Fix permalink problem with listing that lack price (no transaction)
+
+Version 1.0.7
+* Change source_url to url for first picture in print
+
+Version 1.0.6
+* Add filter for addenda formatting level
+* Fix placeholder for empty list
 
 requires: 5.1.1
 tested: 5.3

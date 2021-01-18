@@ -1107,8 +1107,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         }
         lResult = $scope.getTransactionFromArray($item,['rent','sell'], lLabel, $sanitize);
 
-        if(lResult.length ==0){
+        
+        if(lResult.length == 0){
             lResult = $scope.getTransactionFromArray($item,['lease','sell'], lLabel, $sanitize);
+        }
+
+        // No transaction detected
+        if(lResult.length == 0){
+            lResult = ['na'];
         }
 
         return lResult.join(' ' + 'or'.translate() + ' ');

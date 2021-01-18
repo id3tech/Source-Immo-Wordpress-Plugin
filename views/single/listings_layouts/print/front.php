@@ -1,4 +1,4 @@
-<div class="page-background"><img src="<?php echo($model->photos[0]->source_url) ?>" /></div>
+<div class="page-background"><img src="<?php echo($model->photos[0]->url) ?>" /></div>
             
             <div class="panel overlay dock-bottom padding-0">
                 
