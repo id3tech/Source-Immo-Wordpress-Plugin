@@ -605,6 +605,7 @@ function $siCompiler($siConfig,$siList, $siUtils){
             
             $item.location.city = $siUtils.getCaption($item.location.city_code, 'city');
             $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
+            $item.location.district  = $siUtils.getCaption($item.location.district_code, 'district');
             $item.subcategory = $siUtils.getCaption($item.subcategory_code, 'listing_subcategory');
             $item.category = $siUtils.getCaption($item.category_code, 'listing_category');
             $item.transaction = $siUtils.getTransaction($item);

@@ -1,4 +1,4 @@
-# Version 1.0.8
+# Version 1.0.9
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -67,6 +67,10 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.0.9
+* Fix taxable price when set to false
+* Fix load priority in single data controller
+* Resolve district code in listing/location
 
 Version 1.0.8
 * Fix permalink problem with listing that lack price (no transaction)

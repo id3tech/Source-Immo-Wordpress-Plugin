@@ -214,14 +214,17 @@ function singleListingCtrl(
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            $siConfig.get().then(function($configs){
-                $scope.configs = $configs;
+            $q.all([
+                $siConfig.get()
+            ]).then(function($results){
+                $scope.configs = $results[0];
 
                 $resolve({
-                    brokers: $configs.broker_routes,
-                    listings: $configs.listing_routes
+                    brokers: $scope.configs.broker_routes,
+                    listings: $scope.configs.listing_routes
                 })
-            })
+            });
+
         });
 
         return lPromise;
@@ -256,7 +259,10 @@ function singleListingCtrl(
             // set dictionary source
             $siDictionary.source = $data.dictionary;
             // start preprocessing of data
-            $scope.preprocess();
+            $siDictionary.onLoad().then(function(){
+                $scope.preprocess();
+            })
+            
             
             // prepare message subject build from data
             $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
@@ -290,6 +296,7 @@ function singleListingCtrl(
         $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
         $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
         $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
+        $scope.model.location.district  = $scope.getCaption($scope.model.location.district_code, 'district');
         $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
         $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);

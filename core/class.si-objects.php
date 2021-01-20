@@ -151,6 +151,8 @@
       
       $item->location->city = (isset($item->location->city_code)) ? $dictionary->getCaption($item->location->city_code , 'city') : '';
       $item->location->region = (isset($item->location->region_code)) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
+      $item->location->district = (isset($item->location->district_code)) ? $dictionary->getCaption($item->location->district_code , 'district') : '';
+      
       if($item->location->civic_address != ''){
         $item->location->full_address = $item->location->civic_address . ', ' . $item->location->city;
       }
@@ -477,7 +479,7 @@
             $decimalCount = (num_has_decimal($item->amount)) ? 2 : 0;
             $parts[] =  StringPrototype::format($priceFormat, number_format($item->amount,$decimalCount,".", $thousand_separator));
   
-            if(isset($item->taxable)){
+            if(isset($item->taxable) && $item->taxable==true){
                 $parts[0] = $parts[0] . '+tx';
             }
   

@@ -46,6 +46,7 @@
                     <div class="address">
                         <div class="civic"><?php echo($model->location->civic_address)?></div>
                         <div class="city"><?php echo($model->location->city) ?></div>
+                        <div class="district"><?php echo($model->location->district) ?></div>
                     </div>
 
                     <div class="transaction"><?php echo($model->subcategory . ' ' . $model->transaction) ?></div>
