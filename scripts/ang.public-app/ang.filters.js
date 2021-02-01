@@ -139,8 +139,10 @@ function textToHtml(){
                     function($line, $index){
                         $line = $line.replace(/\r/gm,'');
                         console.log('textToHtml@lineFormat', $line, $line == '');
+                        const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
+
                         if($line == '') return '</p><p>';
-                        if($index > 0 && ['-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
+                        if($index > 0 && lPreviousLine != '' && ['-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
 
                         return $line;
                     }
@@ -154,8 +156,8 @@ function textToHtml(){
                     console.log('textToHtml@lineFormat', $line, $line == '');
                     if($line == '') return '</p><p>';
 
-                    const lPreviousLine = ($index==0) ? '': lTextArr[$index-1];
-                    const lNextLine = ($index == lTextArr.length-1) ? '' : lTextArr[$index+1];
+                    const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
+                    const lNextLine = ($index == lTextArr.length-1) ? '' : (lTextArr[$index+1]).replace(/\r/gm,'');
 
                     const lListChars = ['-','**','*'];
                     if(lListChars.some(function($c){ return $line.indexOf($c)==0})){
