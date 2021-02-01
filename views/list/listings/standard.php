@@ -29,7 +29,8 @@
                         ));
 
         $itemClasses = apply_filters('si-listing-item-classes', array(
-                            'item-{{item.ref_number}}'
+                            'item-{{item.ref_number}}',
+                            'city-{{item.location.city_code | sanitize}}'
                         ));
         if($configs->list_item_layout->preset=='custom'){
             echo('<style>');

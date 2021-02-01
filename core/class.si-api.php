@@ -576,9 +576,7 @@ class SourceImmoApi {
         $roundTrip++;
       }
 
-      
-      
-      $lResult->items = $data_list;
+      $lResult->items = apply_filters('si/list/' . $list_config->alias, $data_list, $list_config);
 
     }
     return $lResult;

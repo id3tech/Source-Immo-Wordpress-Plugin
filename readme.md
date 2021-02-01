@@ -1,4 +1,4 @@
-# Version 1.0.9
+# Version 1.0.11
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -67,10 +67,17 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.0.11
+* Tweak addanda formatting
+* Adjust visual hint for data table
+* Add class for item in list in direct render mode. Ex.: item-{{item.ref_number}}
+* Add class on listing item for city-code ex.: city-{{item.location.city_code}}
+
 Version 1.0.9
 * Fix taxable price when set to false
 * Fix load priority in single data controller
 * Resolve district code in listing/location
+* Add filter on server-side list loading
 
 Version 1.0.8
 * Fix permalink problem with listing that lack price (no transaction)

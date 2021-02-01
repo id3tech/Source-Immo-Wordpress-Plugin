@@ -58,7 +58,7 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
         echo('<div class="si-list">');
             
             foreach ($resultView->brokers as $item) {
-                echo('<div>');
+                echo('<div class="item-' . $item->ref_number . '">');
                 SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->layout}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
                 echo('</div>');

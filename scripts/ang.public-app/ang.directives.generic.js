@@ -17,6 +17,7 @@ siApp
             controller : function($scope, $rootScope,$timeout,$q){
                 $scope._resizeTimeoutHndl = null;
                 $scope._class_initiliazed = false;
+                $scope._initFailRetry = 0;
 
                 $scope.init = function(){
                     $scope.classInit();
@@ -38,6 +39,8 @@ siApp
                         },
                         function fail(){
                             console.log('siAdaptativeClass/init::updateClassPromise','fail to update class');
+                            $scope._initFailRetry += 1;
+                            if($scope._initFailRetry > 10) return;
                             window.setTimeout(function(){
                                 $scope.classInit();
                             },500);

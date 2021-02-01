@@ -31,7 +31,7 @@ if(isset($configs)){
 
 ?>
 
-<article class="<?php echo implode(' ',$scope_class) ?>"
+<article  class="<?php echo implode(' ',$scope_class) ?>"
     <?php echo(implode(' ', $attrs)) ?> itemscope itemtype="http://schema.org/Residence">
 
     <a itemprop="url" href="<?php echo($item->permalink) ?>">

@@ -26,7 +26,7 @@ $resultView = new SourceImmoOfficesResult($data);
         
         echo('<div class="si-list">');
             foreach ($resultView->offices as $item) {
-                echo('<div>');
+                echo('<div class="item-' . $item->ref_number . '">');
                 SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->layout}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
                 echo('</div>');
