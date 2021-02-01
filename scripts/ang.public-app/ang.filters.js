@@ -165,12 +165,6 @@ function textToHtml(){
                         $line  = '<li>' + $line;
                     }
                     
-
-                    if($line.indexOf('<li>') == 0){
-    //                    if($index == 0 || ['-','*'].some(function($c){ return lPreviousLine.indexOf($c)==0})) $line = '<li>' + $line;
-                        //if(!lListChars.some(function($c){ return lNextLine.indexOf($c)==0})) $line = $line + '</li>';
-                    }
-                    
                     const lTitleChars = ['####','###','##','#'];
                     lTitleChars.forEach(function($c){ 
                         if($line.indexOf($c)>=0){
@@ -190,26 +184,7 @@ function textToHtml(){
         
         const lFormatTextArr = lFormat[$level]();
         
-        // let lReplacements = [
-        //     {match: /(\n\r\n)/gm, by: '</p><p>', wrap_by: 'p'},
-        //     {match: /(\n)/g, by: '<br />'},
-        // ];
-
-        // let lText = $value;
-
-        // lReplacements
-        // .filter(function($e, $i){
-        //     return $i < $level;
-        // })
-        // .forEach(function($e,$i){
-        //     lText = lText.replace($e.match, $e.by);
-        //     if($e.wrap_by != undefined){
-        //         lText = '<' + $e.wrap_by + '>' + lText + '</' + $e.wrap_by + '>';
-        //     }
-            
-        // });
-
-        $value = lFormatTextArr.join(" ");
+        $value = '<p>' + lFormatTextArr.join(" ") + '</p>';
         return $value;
     }
 }]);
