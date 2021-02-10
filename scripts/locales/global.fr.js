@@ -292,6 +292,10 @@ $locales.fr = {};$locales.fr.global =
     , "Brokers" : "Courtiers"
     , "Cities" : "Villes"
     , "Sort by" : "Ordonné par"
+    , "Primary sorting by priority groups" : "Tri primaire par groupes prioritaires"
+    , "Sort by priority" : "Trier par priorité"
+    , "Sort by reverse priority" : "Trier par priorité inversée"
+
     , "Allow search" : "Permettre la recherche"
     , "Allow sort" : "Permettre l'ordonnement"
     , "Allow pagination" : "Permettre la pagination"

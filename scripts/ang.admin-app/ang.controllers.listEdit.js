@@ -32,6 +32,7 @@ siApp
       if($scope.model.source != null){
         $scope.model.$$source_id =  $scope.model.source.id;
       }
+
       
       $scope.validate();
     }
@@ -56,6 +57,7 @@ siApp
         sort_reverse : false,
         limit: 0,
         searchable:true,
+        priority_group_sort: null,
         search_engine_options: {
           type:'full',
           focus_category: null,
@@ -317,6 +319,10 @@ siApp
       if($scope.model.sort != null && $scope.model.sort != '' && $scope.model.sort != 'auto'){
         if(lResult==null) lResult = {};
         lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
+        if(!isNullOrEmpty($scope.model.priority_group_sort)){
+          const lPriorityDesc = $scope.model.priority_group_sort.indexOf('-desc')>0 ? true : false;
+          lResult.sort_fields.unshift({field: 'priority', desc: lPriorityDesc});
+        }
       }
 
       if($scope.model.shuffle){
@@ -378,6 +384,9 @@ siApp
     // }
 
     // add default value when missing
+    if($scope.model.priority_group_sort == undefined){
+      $scope.model.priority_group_sort = null;
+    }
     if($scope.model.search_engine_options == undefined){
       $scope.model.search_engine_options = {
         type: 'full',

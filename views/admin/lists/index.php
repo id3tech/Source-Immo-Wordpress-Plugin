@@ -17,6 +17,15 @@
             </md-select>
         </md-input-container>
 
+       
+        <md-input-container>
+            <label><?php _e('Primary sorting by priority groups',SI) ?></label>
+            <md-select ng-model="model.priority_group_sort">
+                <md-option ng-value="null">{{"None".translate()}}</md-option>
+                <md-option value="priority-asc">{{"Sort by priority".translate()}}</md-option>
+                <md-option value="priority-desc">{{"Sort by reverse priority".translate()}}</md-option>
+            </md-select>
+        </md-input-container>  
 
         <md-input-container>
             <label><?php _e('Sort by',SI) ?></label>
@@ -28,6 +37,7 @@
             <md-icon ng-click="switchSortReverse()" class="fal {{model.sort_reverse? 'fa-sort-amount-down' : 'fa-sort-amount-up'}}"></md-icon>
         </md-input-container>  
         
+
         <div layout="row" layout-align="space-between center">
             <label>{{(model.limit > 0 ? "Shuffle first {0} elements" : "Shuffle first page").translate().format(model.limit)}}</label>
             <md-switch ng-model="model.shuffle"></md-switch>

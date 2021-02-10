@@ -873,12 +873,38 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             
             if(typeof $dimension.width != 'undefined'){
                 let lUnit = $siDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
-                lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+                
+                const lUnitFormat = {
+                    I : function($width,$length,$unit){
+                        lWidthFeet = Math.floor($width /  12);
+                        lWidthInchLeft = $width % 12;
+    
+                        $width = lWidthFeet + "'" + (lWidthInchLeft != 0 ? lWidthInchLeft + $unit : '');
+    
+                        lLengthFeet = Math.floor($length / 12);
+                        lLengthInchLeft = $length % 12;
+                        $length = lLengthFeet + "'" + (lLengthInchLeft != 0 ? lLengthInchLeft + $unit : '');
+    
+                        return '{0} x {1}'.format($width,$length);
+                    },
+                }
+    
+                if(lUnitFormat[$dimension.unit_code] != undefined){
+                    lResult = lUnitFormat[$dimension.unit_code]($dimension.width,$dimension.length,lUnit);
+                }
+                else{
+                    lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+                }
+                
+                
             }
             else if (typeof $dimension.area != undefined){
                 let lUnit = $siDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
-                //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
                 lResult = '{0} {1}'.format($dimension.area, lUnit);
+            }
+    
+            if($dimension.irregular === true){
+                lResult += ' irr.';
             }
         }
         return lResult;
