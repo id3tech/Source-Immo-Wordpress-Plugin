@@ -1,0 +1,108 @@
+<md-dialog aria-label="" ng-init="init()" id="brokers-list-item-edit">
+    <form ng-cloak>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2 lstr>List item edit</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="cancel()">
+            <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+  
+      <md-dialog-content>
+        <div class="md-dialog-content">
+          <div class="item-layout-configs">
+            <md-input-container>
+              <label lstr>Layout</label>
+              <md-select ng-model="model.list_item_layout.layout">
+                <md-option ng-repeat="item in layoutList" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <h4 ng-if="model.list_item_layout.layout=='double-layer'" lstr>Primary layer</h4>
+            <md-input-container ng-if="model.list_item_layout.layout=='double-layer'">
+              <label lstr>Position</label>
+              <md-select ng-model="model.list_item_layout.primary_layer_position">
+                <md-option ng-repeat="item in layerPositions" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container>
+              <label><lstr>Displayed values</lstr></label>
+              <md-select multiple ng-model="model.list_item_layout.displayed_vars.main">
+                <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <h4 ng-if="model.list_item_layout.layout=='double-layer'" lstr>Secondary layer</h4>
+            
+            <md-input-container ng-if="model.list_item_layout.layout=='double-layer'">
+              <label lstr>Display effect</label>
+              <md-select ng-model="model.list_item_layout.secondary_layer_effect">
+                <md-option ng-repeat="item in layerHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container ng-if="model.list_item_layout.layout=='double-layer' && ['fade','slide'].includes(model.list_item_layout.secondary_layer_effect)">
+              <label lstr>Background opacity</label>
+              <input type="number" min="0" max="100" step="1" ng-model="model.list_item_layout.secondary_layer_bg_opacity" /><md-icon class="fal fa-percent"></md-icon>
+            </md-input-container>
+
+
+            <md-input-container ng-if="model.list_item_layout.layout=='double-layer'">
+              <label><lstr>Displayed values</lstr></label>
+              <md-select multiple ng-model="model.list_item_layout.displayed_vars.secondary">
+                <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+  
+          </div>
+
+
+
+          <div class="styles">
+            <md-input-container>
+              <label lstr>Image hover effect</label>
+              <md-select ng-model="model.list_item_layout.image_hover_effect">
+                <md-option ng-repeat="item in imageHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container>
+              <label lstr>Style</label>
+              <md-select ng-model="model.list_item_layout.preset">
+                <md-option value="standard"><lstr>Standard</lstr></md-option>
+                <md-option value="custom-variables"><lstr>Edit style variables</lstr></md-option>
+                <md-option value="custom"><lstr>Custom</lstr></md-option>
+              </md-select>
+            </md-input-container>
+            
+            
+            <si-style-editor ng-if="model.list_item_layout.preset=='custom-variables'"
+              si-model="model.list_item_layout.styles" 
+              si-change="updateStyles($styles)"
+              si-show-preview="false"
+              si-editables="['city','bg-fg','elements']" ></si-style-editor>
+
+            <md-input-container>
+              <label lstr>Custom class</label>
+              <input ng-model="model.list_item_layout.scope_class" />
+            </md-input-container>
+
+            <md-input-container>
+              <label lstr>Custom style</label>
+              <textarea rows="15" ng-model="model.list_item_layout.custom_css"></textarea>
+            </md-input-container>
+            <note lstr>Use the keyword <em>selector</em> to target the element wrapper</note>
+          </div>
+
+        </div>
+      </md-dialog-content>
+  
+      <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+      </md-dialog-actions>
+    </form>
+  </md-dialog>

@@ -2,7 +2,7 @@
  * Main Configuration Controller
  */
 siApp
-.controller('homeCtrl', function($scope, $rootScope){
+.controller('homeCtrl', function($scope, $rootScope,$timeout, $siConfigs){
 
   console.log('configs controller loaded');
 
@@ -29,33 +29,42 @@ siApp
 
 
   $scope._pageInit_ = function(){
-
+    $scope.show('general');
   }
 
   $scope.addRouteElement = function($item,$elm){
     $item.route += $elm;
   }
 
-  $scope.addRoute = function($list){
-    let lLocale = '';
-    for (let $key in $scope.lang_codes) {
-      if($list.map(function(e) {return e.lang}).indexOf($key)<0){
-        lLocale = $key;
-      }
-    }
-
+  $scope.addRoute = function($list,$lang){
+    let lLocale = $lang;
+    if($list.some(function($e){return $e.lang == $lang})) return;
+    
     $list.push({lang: lLocale, route : ''});
   }
 
-  $scope.removeRoute = function($route,$list_name){
-    let lNewRoutes = [];
-    let lList = $scope.configs[$list_name];
-    lList.forEach(function($e){
-      if($e!=$route){
-        lNewRoutes.push($e);
-      }
+  $scope.removeRoute = function($index,$list_name){
+    $scope.configs[$list_name].splice($index,1);
+  }
+
+  $scope.addLayout = function($list, $lang){
+    if($list.some(function($e){return $e.lang == $lang})) return;
+
+    $list.push({
+      lang: $lang,
+      page: null,
+      communication_mode:'basic'
     });
-    $scope.configs[$list_name] = lNewRoutes;
+
+    $scope.save_configs();
+  }
+
+  $scope.removeLayout = function($index,$list){
+    $timeout(_ => {
+      $list.splice($index,1);
+      $scope.save_configs();
+    });
+    
   }
 
   //
@@ -80,6 +89,20 @@ siApp
     });
   }
 
+  $scope.show = function($panel_id){
+    const lAdminPanel = document.querySelector('#si-admin-configs');
+    const lNavButtons = Array.from( lAdminPanel.querySelectorAll('.nav-button'));
+    const lSections = Array.from(lAdminPanel.querySelectorAll('.sections section'));
+    const lButton = lAdminPanel.querySelector('.nav-button.' + $panel_id);
+    const lTarget = lAdminPanel.querySelector('#' + $panel_id);
+
+    lNavButtons.forEach($e => $e.classList.remove('selected'));
+    lSections.forEach($e => $e.classList.remove('selected'));
+
+    lTarget.classList.add('selected');
+    lButton.classList.add('selected');
+  }
+
 });
 
 
@@ -90,7 +113,7 @@ siApp
 
  // List
 siApp
-.controller('listCollectionCtrl', function($scope, $rootScope){
+.controller('listCollectionCtrl', function($scope, $rootScope, $siConfigs){
   $scope.init = function(){
 
   }
@@ -134,8 +157,20 @@ siApp
     });
   }
 
-  $scope.getListShortcode = function($list){
-    return '[si alias="' + $list.alias + '"]';
+  $scope.getListShortcode = function($list, $type=null){
+    switch($type){
+      case 'search':
+        return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
+        break;
+      case 'searchbox':
+          return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
+          break;
+      case 'gallery':
+        return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
+        break;
+      default:
+        return '[si alias="' + $list.alias + '"]';
+    }
   }
 
   $scope.countFilters = function($list){
@@ -149,215 +184,16 @@ siApp
   }
 });
 
-// Edit
-siApp
-.controller('listEditCtrl', function($scope, $rootScope,$q, $siUtils){
-  BasePageController('listEdit', $scope,$rootScope);
-
-  
-  $scope.model = {};
-  $scope._original = null;
-
-  $scope.actions = [
-    {label: 'Apply'.translate(), action: function(){$scope.return($scope.model);}},
-    {label: 'Cancel'.translate(), action: $scope.cancel},
-  ];
-
-  $scope.init = function($params){
-    console.log('listEdit init',$scope.configs);
-
-    if(typeof $params == 'string'){
-      $scope.model = {
-        alias: 'New {0} list'.translate().format($params.translate()),
-        $$source_id : $scope.configs.default_view,
-        type: $params
-      }
-
-      $scope.reset_default_value();
-    }
-    else{
-
-      $scope.model = angular.copy($params);
-      if($scope.model.source != null){
-        $scope.model.$$source_id =  $scope.model.source.id;
-      }
-      
-      $scope.validate();
-    }
-
-    $scope._original = $params;
-  }
-
-  $scope.reset_default_value = function(){
-    $scope.model = angular.merge($scope.model,{
-      sort: 'auto',
-        sort_reverse : false,
-        limit: 0,
-        searchable:true,
-        sortable:true,
-        mappable: true,
-        filter_group : {
-          filters : [],
-          filter_groups: [],
-          operator:'and'
-        }
-    });
-
-    switch($scope.model.type){
-      case "listings":
-      case "brokers":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'standard', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-        break;
-      case "cities":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-      case "offices":
-        $scope.model = angular.merge($scope.model, {
-          list_layout : { preset: 'direct', scope_class : '', custom:null},
-          list_item_layout : { preset: 'standard', scope_class : '', custom:null}
-        });
-    }
-  }
-  
-  $scope.updateSource = function(){
-    $scope.model.source = $scope.data_views.find(function($e){return($e.id==$scope.model.$$source_id)});
-
-  }
-
-  $scope.saveOrClose = function(){
-    if($scope.hasChanged()){
-      
-      
-      $scope.renewSearchToken().then(function($searchToken){
-        $scope.model.search_token = $searchToken;
-
-        const lResult = angular.copy($scope.model);
-
-        lResult.show_list_meta = (lResult.show_list_meta == undefined) ? false : lResult.show_list_meta;
-        
-        // Make sure the source is configured
-        if(lResult.source == undefined){
-          lResult.source = $scope.data_views.find(function($e){ return($e.id == lResult.$$source_id);});
-        }
-        delete lResult.$$source_id;
-
-        console.log('SaveOrClose', lResult, $scope.model);
-        $scope.return(lResult);
-      });
-    }
-    else{
-      console.log('SaveOrClose', $scope.model);
-      $scope.cancel();
-    }
-  }
-
-  $scope.renewSearchToken = function(){
-    let lFilters = $scope.buildFilters();
-            
-    let lPromise =  $q(function($resolve, $reject){
-        if(lFilters != null){
-            $scope.api('',lFilters,{
-              url: wpSiApiSettings.api_root + '/api/utils/search_encode'
-            }).then(function($response){
-                $resolve($response);
-            });
-        }
-        else{
-            $resolve('');
-        }
-        
-    });
-
-    return lPromise;
-  }
-
-  $scope.buildFilters = function(){
-      let lResult = null;
-      
-
-      if($scope.model.limit>0){
-          lResult = {
-              max_item_count : $scope.model.limit
-          }
-      }
-
-      if($scope.model.sort != '' && $scope.model.sort != 'auto'){
-        if(lResult==null) lResult = {};
-        lResult.sort_fields = [{field: $scope.model.sort, desc: $scope.model.sort_reverse}];
-      }
-
-      if($scope.model.shuffle){
-        if(lResult==null) lResult = {};
-        lResult.shuffle = $scope.model.shuffle;
-      }
-      
-      
-      if($scope.model.filter_group != null){
-        if(lResult==null) lResult = {};
-
-        lResult.filter_group = $scope.normalizeFilterGroup(angular.copy($scope.model.filter_group));
-      }
-      return lResult;
-  }
-
-  $scope.normalizeFilterGroup = function($filter_group){
-      if($filter_group.filters){
-          $filter_group.filters.forEach(function($filter){
-              if(['in','not_in'].indexOf($filter.operator) >= 0){
-                  if(typeof $filter.value.push == 'undefined'){
-                    $filter.value = $filter.value.split(",");
-                    $filter.value.forEach(function($val){
-                        if(!isNaN($val)){
-                            $val = Number($val)
-                        }
-                    });
-                  }
-              }
-              else{
-                  if(!isNaN($filter.value)){
-                      $filter.value = Number($filter.value);
-                  }
-              }
-          });
-      }
-      
-      if($filter_group.filter_groups){
-          $filter_group.filter_groups.forEach(function($group){
-              $scope.normalizeFilterGroup($group);
-          });
-      }
-
-      return $filter_group;
-  }
-
-  $scope.switchSortReverse = function(){
-    $scope.model.sort_reverse = !$scope.model.sort_reverse;
-  }
-
-  $scope.hasChanged = function(){
-    return !$scope.isSame($scope.model,$scope._original);
-  }
-
-  $scope.validate = function(){
-    // if there's a limit but under 100, turn off searchable and pageable flags
-    // if($scope.model.limit.between(1, 100)){
-    //   $scope.model.searchable = false;
-    // }
-  }
-});
 
 /**
  * MAIN ROOT CONTROLLER
  */
 siApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils, $siConfigs){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
+  $scope.wpSiApiSettings = wpSiApiSettings;
+  $scope.notices = [];
 
   $scope.configs = {};
   $scope.lang_codes = {
@@ -368,7 +204,7 @@ siApp
 
   $scope.wp_languages = null;
 
-  $scope.global_list = {
+  $rootScope.global_list = {
     sources: [],
     list_types: [
       {key: 'listings', label: 'Listings'},
@@ -378,39 +214,134 @@ siApp
     ],
     list_layouts:{
       listings: [
-        {name: 'standard', label: 'Standard'},
-        {name: 'map', label: 'Map'},
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'standard', label: 'Client side (default)'},
+        //{name: 'map', label: 'Map'},
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       brokers: [
-        {name: 'standard', label: 'Standard'},
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'standard', label: 'Client side (default)'},
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       cities: [
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'direct', label: 'Server side (no search tool)'}
       ],
       offices: [
-        {name: 'direct', label: 'Server side rendering'}
+        {name: 'direct', label: 'Server side (no search tool)'}
       ]
     },
     list_item_layouts:{
       listings: [
         {name: 'standard', label: 'Standard'},
-        {name: 'small', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'}
+        {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       brokers : [
         {name: 'standard', label: 'Standard'},
-        {name: 'standard-with-office', label: 'Standard with office'},
-        {name: 'reduced', label: 'Reduced'},
-        {name: 'minimal', label: 'Minimal'}
+        {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       cities: [
         {name: 'standard', label: 'Standard'}
+        
       ],
       offices: [
         {name: 'standard', label: 'Standard'}
+        
       ]
+    },
+    list_item_vars: {
+      listings: [
+        {name:'ref_number',label: 'Ref. number'},
+        {name:'price', label: 'Price'},
+        {name:'address',label: 'Address'},
+        {name:'city', label: 'City'},
+        {name:'description', label: 'Description'},
+        {name:'category', label: 'Category'},
+        {name:'subcategory', label: 'Subcategory'},
+        {name:'rooms', label: 'Rooms'},
+        {name:'region', label: 'Region'},
+        {name:'available_area', label:'Available area'},
+        {name:'flags',label: 'Flags'},
+        {name:'open_houses',label: 'Open houses'}
+      ],
+      brokers: [
+        {name:'fullname', label: 'Fullname'},
+        {name:'first_name',label:'First name'},
+        {name:'last_name',label:'Last name'},
+        {name:'title',label:'Title'},
+        {name:'phone',label:'Phone'},
+        {name:'email',label:'Email'},
+        {name:'office',label:'Office'},
+        {name:'listing_count',label:'Listings'},
+      ],
+      cities :[
+        {name:'name',label: 'Name'},
+        {name:'region', label: 'Region'},
+        {name:'listing_count',label:'Listings'},
+        {name:'code',label: 'Code'}
+      ],
+      offices :[
+        {name:'name',label: 'Name'},
+        {name:'region', label: 'Region'},
+        {name:'listing_count',label:'Listings'},
+        {name:'address',label:'Address'},
+        {name:'code',label: 'Code'}
+      ]
+    },
+    list_item_image_hover_effects:{
+      listings: [
+        {name: 'none', label: 'None'},
+        {name: 'zoom', label: 'Zoom'},
+        {name: 'gallery', label: 'Gallery'}
+      ],
+      brokers: [
+        {name: 'none', label: 'None'},
+        {name: 'zoom', label: 'Zoom'}
+      ],
+      cities: [],
+      offices: [],
+    },
+    list_item_show_layer_effects:{
+      listings: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      brokers: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      cities: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+      offices: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
+    },
+    list_item_layer_positions:{
+      listings: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      brokers: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      cities: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      offices: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
     },
     detail_layouts:[
       {name: 'standard', label: 'Standard'},
@@ -422,7 +353,7 @@ siApp
         {name: 'price', label: 'Price'},
       ],
       brokers: [
-        {name: 'name', label: 'Name'},
+        {name: 'last_name', label: 'Name'},
         {name: 'listing_count', label: 'Number of listings'},
       ],
       cities: [
@@ -439,14 +370,14 @@ siApp
   $scope.registration_steps = [
     {name: 'Linked account'},
     {name: 'API key'},
-    {name: 'Data view'},
+    {name: 'Data feed(s)'},
     {name: 'Integration'}
   ]
 
   $rootScope.current_page = 'home'
   $scope.pages = {
     'home': {label: 'Home'.translate(), style: ''},
-    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(calc(-100vw + 180px));'},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
   }
   
   
@@ -500,14 +431,19 @@ siApp
         $scope.load_wp_menus(),
         $scope.load_data_views(),
         $scope.load_wp_forms(),
-        $scope.load_dictionary()
+        $scope.load_dictionary(),
+        $scope.load_addons()
       ])
       .then(
         _ => {
           //$siList.init($scope.configs.default_view);
 
           $scope._status = 'ready';
-
+          if($scope.configs.registered == false){
+            $scope.startRegistration();
+            return;
+          }
+          
           $scope.checkIntegrity();
         },
         _ => {
@@ -530,7 +466,7 @@ siApp
 
   $scope.load_configs = function(){
     return $q(function($resolve, $reject){
-      $scope.api('configs').then(function($response){
+      $siConfigs.load().then(function($response){
         $scope.configs = $response;
         
         if($scope.configs.default_view == null){
@@ -547,6 +483,13 @@ siApp
     });
   }
 
+  $scope.load_addons = function(){
+    $scope.api('addons/list', null, {method: 'GET'}).then(function($response){
+      $scope.loaded_components.push('cogs');
+      $scope.addons = $response;
+    })
+  }
+
   $scope.load_wp_forms = function(){
     $scope.api('form/list',null,{method : 'GET'}).then(function($response){
       $scope.loaded_components.push('clipboard-check');
@@ -561,23 +504,71 @@ siApp
     });
   }
 
+  $scope.reset_all_configs = function(){
+    $siUI.confirm('All your configurations will be lost.\nAre you sure you want to reset all settings?')
+    .then(function(){
+      return $scope.reset_configs();
+    })
+    .then(function(){
+      $siUI.show_toast('Configurations cleared');
+    })
+    .then(function(){
+      $scope.startRegistration();
+    })
+  }
+
   $scope.reset_configs = function(){
-    $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
+    return $scope.api('configs/reset',null, {method:'POST'}).then(function($response){
       $scope.configs = $response;
-      $scope.show_toast('Configuration reset to demo mode');
+      
     });
+  }
+
+  $scope.hasBackup = function(){
+    return $siConfigs.configsBackup != null;
+  }
+  
+  $scope.backupConfigs = function($silent){
+    $silent = (typeof $silent == undefined) ? false : $silent;
+    return $siConfigs.backup().then(function(){
+      if(!$silent){
+        $siUI.show_toast('Settings backup done');
+      }
+      $scope.checkIntegrity();
+    });
+  }
+
+
+  $scope.changeDefaultView = function($view){
+    $scope.configs.lists
+      .filter($l => $l.source.id == $scope.configs.default_view)
+      .forEach($l => {
+        $l.source = $view;
+      });
+
+    $scope.configs.default_view = $view.id;
+    $scope.save_configs();
+  }
+
+  $scope.logoChanged = function($logo){
+    $scope.configs.site_logo = $logo;
+    $scope.save_configs();
   }
 
   $scope.save_configs = function($silent){
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
       // Make sure there's a default search token for lists
+      
       $scope.validateListConfigs()
         .then(_ => {
-          $scope.api('configs',{settings: $scope.configs}).then(function($response){
+          console.log('saving configs', $scope.configs);
+          
+          $siConfigs.save($scope.configs).then(function($response){
             if(!$silent){
               $scope.show_toast('Save completed');
             }
+            $scope.checkIntegrity();
             $resolve();
           });
         });
@@ -668,11 +659,17 @@ siApp
 
 
   $scope.signin = function(){
+    $scope.signin_in = true;
     $scope.portalApi('auth/login', $scope.login_infos).then($response => {
+
+      $scope.signin_in = false;
+
       if([10,20].includes($response.statusCode)){
-        $scope.show_toast($response.message);
+        $siUI.alert($response.message);
         return;
       }
+
+      console.log('signin configs', $scope.configs);
 
       $scope.credentials = $response;
       $scope.configs.account_id = null;
@@ -713,7 +710,25 @@ siApp
   }
 
   $scope.signout = function(){
-    $scope.reset_configs();
+    $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
+      $scope.backupConfigs(true).then(function(){
+        $scope.reset_configs()
+        .then( function(){
+          $scope.show_toast('Configuration reset');
+        })
+        .then(function(){
+          $scope.startRegistration();
+        });
+      });
+      
+    }) 
+  }
+
+  $scope.startRegistration = function(){
+    console.log('startRegistration');
+    $siUI.dialog('~/views/admin/dialogs/register.html',null,{multiple: true, clickOutsideToClose:false,hasBackdrop: false}).then(function(){
+      window.location.reload(true);
+    });
   }
 
   $scope.selectAccount = function(){
@@ -802,7 +817,7 @@ siApp
 
     
     const lShortcodeMap = {
-      listing : { title: 'Our listings', content: '[si alias="listings"]', list: _ => { $scope.addList('listings', 'listings', 'contract.start_date', true, 30); } },
+      listing : { title: 'Our listings', content: '[si alias="listings"]', list: _ => { $scope.addList('listings', 'listings', 'contract_start_date', true, 30); } },
       listing_details : { title: 'Listing details', content: '[si_listing]', layout: 'listing_layouts'},
       broker : { title: 'Our team', content: '[si alias="brokers"]', list: _ => { $scope.addList('brokers', 'brokers', 'last_name'); }},
       broker_details : { title: 'Broker details', content: '[si_broker]', layout: 'broker_layouts'},
@@ -810,8 +825,22 @@ siApp
       office_details : { title: 'Office details', content: '[si_office]', layout: 'office_layouts'},
       city : { title: 'Cities', content: '[si alias="cities"]', list: _ => { $scope.addList('cities', 'cities','name'); }},
       city_details : { title: 'City details', content: '[si_city]', layout: 'city_layouts'},
-    }
+    };
 
+    // find pages if exists
+    ['listing', 'listing_details','broker','broker_details'].forEach($k => {
+      const lPageEn = $scope.wp_pages.en.find($page => $page.post_title == lShortcodeMap[$k].title);
+      const lPageFr = $scope.wp_pages.fr.find($page => $page.post_title == lShortcodeMap[$k].title.translate());
+      if(lPageEn != null){
+        $scope.default_page.en[$k] = lPageEn.ID;
+      }
+      if(lPageFr != null){
+        $scope.default_page.fr[$k] = lPageFr.ID;
+
+      }
+    });
+    
+    
 
     return $q(function($resolve, $reject){  
       
@@ -822,47 +851,57 @@ siApp
         const lSourcePages = [];
         const lChildPages = [];
 
-        $scope.wp_languages.forEach( ($l, $li) => {
-          Object.keys($scope.default_page[$l.code]).forEach($pKey => {
-            if($scope.default_page[$l.code][$pKey] == 'NONE') return; 
+        $scope.wp_languages.forEach( ($language, $language_index) => {
+          Object.keys($scope.default_page[$language.code]).forEach($pKey => {
+            if($scope.default_page[$language.code][$pKey] == 'NONE') return; 
 
-            const lMap = lShortcodeMap[$pKey];
-            if(lMap == undefined) return;
+            const lMap =lShortcodeMap[$pKey];
+            
+            if(lMap == undefined){
+              console.log('Map undefined', $pKey, $language.code, lShortcodeMap);
+              return;
+            }
             
             if(typeof lMap.list == 'function') {
               lMap.list();
             }
 
             const params = {
-              page_id: $scope.default_page[$l.code][$pKey], 
-              title: lMap.title.translate(undefined, $l.code),
+              page_id: $scope.default_page[$language.code][$pKey], 
+              title: lMap.title.translate(undefined, $language.code),
               content: lMap.content,
-              lang: $l.code
+              lang: $language.code
             };
 
             const lCall =_ => {
-              const lLayout = (lMap.layout == undefined) ? null : $scope.configs[lMap.layout].find($layout => $layout.lang==$l.code)
+              const lLayout = (lMap.layout == undefined) ? null : $scope.configs[lMap.layout].find($layout => $layout.lang==$language.code)
 
-              if($li > 0) {
+              if($language_index > 0) {
                 if(lMap.pages != undefined && lMap.pages[$scope.wp_languages[0].code] != undefined){
                   params.original_page_id = lMap.pages[$scope.wp_languages[0].code];
                 }
               }
 
               return $scope.api('page',params).then($response => {
-                if($scope.default_page[$l.code][$pKey] == 'NEW' && !isNaN($response+1)){
+                if($scope.default_page[$language.code][$pKey] == 'NEW' && !isNaN($response+1)){
                   if(lMap.pages == undefined) lMap.pages = {};
-                  lMap.pages[$l.code] = $response;
+                  lMap.pages[$language.code] = $response;
 
                   if(lLayout != null){
                     lLayout.page = $response;
                     lLayout.type = "custom";
                   }
                 }
+                else if($scope.default_page[$language.code][$pKey] != 'NEW'){
+                  if(lLayout != null){
+                    lLayout.page = $scope.default_page[$language.code][$pKey];
+                    lLayout.type = "custom";
+                  }
+                }
               });
             }
 
-            if($li == 0){
+            if($language_index == 0){
               lSourcePages.push(lCall);
             }
             else{
@@ -903,31 +942,59 @@ siApp
             $resolve();
           });
         })
-        .error($error => {
+        .catch($error => {
           console.log('An error occured while creating page', )
         });
       }
     
+      $scope.skipPageBuilding = function(){
+        $resolve();
+      }
     });
   }
 
   $scope.addList = function($type, $alias, $sort = '', $sortReverse = false, $limit = 0){
     const lExistingList = $scope.configs.lists.find($l => $l.alias == $alias);
-    const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
+    //const lList = (lExistingList == null) ? {alias : $alias, type: $type} : lExistingList;
+    const lView = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
+    const lList = $siUtils.createList(lView, $type, $alias, $sort,$sortReverse,$limit, lExistingList);
 
+    // const lTypedDatas = {
+    //   'listings' : {
+    //     search_engine_options : {
+    //       type : 'full'
+    //     },
+    //     displayed_vars: {
+    //       main: ["address", "city", "price", "rooms", "subcategory"]
+    //     }
+    //   },
+    //   'brokers' : {
+    //     search_engine_options : {
+    //       type : 'full'
+    //     },
+    //     displayed_vars: {
+    //       main: ["first_name", "last_name", "phone", "title"]
+    //     }
+    //   }
+    // }
 
-    lList.sort = $sort;
-    lList.sort_reverse = $sortReverse;
-    lList.limit = $limit;
-    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
-    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    // lList.sort = $sort==''  ? null : $sort;
+    // lList.sort_reverse = $sortReverse;
+    // lList.limit = $limit;
+    // lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
+    // lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
     
-    lList.searchable = true;
-    lList.sortable = true;
-    lList.mappable = true;
+    // lList.searchable = true;
+    // lList.sortable = true;
+    // lList.mappable = true;
 
-    lList.source = $scope.data_views.find($e => $e.id == $scope.configs.default_view);
-    lList.search_token = '';
+    // if(lTypedDatas[$type]!=undefined){
+    //   lList.search_engine_options = lTypedDatas[$type].search_engine_options;
+    //   lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
+    // }
+
+    // lList.source = 
+    // lList.search_token = '';
 
     if(lExistingList == null){
       $scope.configs.lists.push(lList);
@@ -1020,6 +1087,11 @@ siApp
     console.log('config lists', $scope.configs.lists);
   }
 
+  $scope.updateStyles = function($styles){
+    $scope.configs.styles = $styles;
+    $scope.save_configs();
+  }
+
   $scope.initListSearchToken = function(){
     let lFilters = null;
             
@@ -1067,21 +1139,120 @@ siApp
   }
 
   $scope.checkIntegrity = function(){
+    $scope.notices = [];
     
-    // check details' layouts
+
     if($scope.hasEmptyLayouts()){
-      $siUI.confirm("Some layout's page are missing. Would you like to create them now?",undefined,{ok: 'Yes', cancel: 'No'}).then(function(){
-        $scope.fillEmptyLayouts();
-      },_ => {});
+      const lMissingLayout = $scope.getEmptyLayouts().map(function($l) {
+        return $l.translate();
+      });
+
+      console.log('missing layout', lMissingLayout);
+      
+      $scope.addNotice(
+        'Missing layouts', 
+        'Some list are missing a detail page layout. Please check the following section{1}: {0}'.translate().format(lMissingLayout.join(', '),  lMissingLayout.length>1 ? 's':''), 
+        {
+          actions: {
+            'Create missing pages' : function(){
+              $siUI.confirm('Attention','Creating missing layout may duplicate some page under certain circonstance.\nContinue anyway?',{ok:'Yes',cancel:'No'}).then(function(){
+                $scope.fillEmptyLayouts();
+              })
+            }
+          }
+        }
+      );
     }
-    else{
-      console.log('no empty layout', $scope.configs);
+
+    if(isNullOrEmpty($scope.configs.map_api_key)){
+      $scope.addNotice('Map API key', 'The map API key is not configured. Maps will not be available in list or details.');
     }
     
+    if($scope.notices.length == 0){
+      $scope.addNotice('All good', 'The plugin is properly configured', {type:'success', color: '#4AB448', icon: 'fa-check-circle'});
+    }
+
+    if($scope.hasBackup()){
+      $scope.addNotice(
+        'Backup detected',
+        'A settings backup has been detected. Select one of the following options:', 
+        {
+          type: 'success', color: '#41A5EE', icon: 'fa-database',
+          actions: {
+            'Restore' : function(){
+              $siConfigs.data_views = $scope.data_views;
+              $siConfigs.restoreBackup();
+            },
+            'Clear' : function(){
+              $siUI.confirm('Attention','Are you sure you want to delete this backup?',{ok:'Yes',cancel:'No'}).then(
+                function(){
+                  $siConfigs.clearBackup().then(_ => {
+                    $scope.checkIntegrity();
+                  });
+                }
+              )
+            }
+          }
+        }
+      )
+    }
   }
 
-  $scope.generateLayoutPage = function($layout){
+  $scope.hasErrorNotices = function(){
+    return $scope.notices.some(function($n){
+      return $n.type == 'warning';
+    })
+  }
 
+  $scope.addNotice = function($title, $message, $options){
+    const lNotice = Object.assign({
+      title: $title,
+      message: $message,
+      color: '#ff9900',
+      actions: [],
+      icon: 'fa-exclamation-triangle',
+      type: 'warning'
+    }, $options);
+
+    $scope.notices.push(lNotice);
+  }
+
+  $scope.generateLayoutPage = function($layout, $groupType){
+   
+    
+    const lTypeMaps = {
+      listings: {
+        title: 'Listing details',
+        content: '[si_listing]',
+        layouts: $scope.configs.listing_layouts
+      },
+      brokers:{
+        title: 'Broker details',
+        content: '[si_broker]',
+        layouts: $scope.configs.broker_layouts
+      },
+      offices:{
+        title: 'Office details',
+        content: '[si_office]',
+        layouts: $scope.configs.office_layouts
+      },
+      cities:{
+        title: 'City details',
+        content: '[si_city]',
+        layouts: $scope.configs.city_layouts
+      }
+    }
+
+    const lLayoutInfos = lTypeMaps[$groupType];
+    const lPageTitle    = $layout.lang == 'en' ? lLayoutInfos.title : lLayoutInfos.title.translate();
+    const lPageContent  = lLayoutInfos.content;
+    const lOriginalPageId = lLayoutInfos.layouts.filter($l => $l.page != null && $l.lang!=$layout.lang).reduce( ($result,$cur) => $cur.page, null);
+
+
+    $scope.api('page',{lang: $layout.lang, page_id: 'NEW', title: lPageTitle, content: lPageContent, original_page_id: lOriginalPageId}).then($response => {
+      $layout.page = $response;
+      $scope.save_configs();
+    });
   }
 
   $scope.clearAllLayoutPage = function(){
@@ -1101,10 +1272,7 @@ siApp
     $scope.save_configs();
   }
   
-
-  $scope.hasEmptyLayouts = function(){
-    if(!$scope.configs.registered) return false;
-
+  $scope.getEmptyLayouts = function(){
     const lLayoutMap = {
       listings : 'listing_layouts',
       brokers : 'broker_layouts',
@@ -1118,13 +1286,16 @@ siApp
                             return $l.type == $type;
                           })
                         });
-    console.log('hasEmptyLayouts',lFiltered);
+                        
     return lFiltered
-      .some(function($type){
-        return $scope.configs[lLayoutMap[$type]].some(function($layout){
-          return $layout.page==null
-        });
-      });
+              .filter(function($type){
+                return $scope.configs[lLayoutMap[$type]].some(function($layout){
+                  return $layout.page==null
+                });
+              });
+  }
+  $scope.hasEmptyLayouts = function(){
+    return $scope.getEmptyLayouts().length > 0;
   }
 
   $scope.fillEmptyLayouts = function(){
@@ -1238,15 +1409,6 @@ siApp
    */
   $scope.show_toast = function($message){
     $siUI.show_toast($message);
-  }
-
-  /**
-   * Call a dialog to open
-   * @param {string} $dialog_id 
-   * @param {*} $params 
-   */
-  $scope.dialog = function($dialog_id, $params){
-    return $siUI.dialog($dialog_id, $params);
   }
 
 //#endregion
@@ -1395,27 +1557,46 @@ siApp
 
 });
 
-/* DIALOGS */
-siApp
-.controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog,$siUI){
-  BaseDialogController('signin',$scope, $rootScope, $mdDialog);
-  $scope.login_infos = {
-    email: '',
-    password: ''
-  }
-  $scope.title = 'Please signin'
-  $scope.actions = [
-    {label: 'Submit', action : _ => {$scope.login();}}
-  ]
 
-  $scope.login = function(){
-    $scope.portalApi('auth/login', $scope.login_infos).then($response => {
-      if($response.statusCode==200){
-        $scope.return($response);
-      }
-      else{
-        $siUI.show_toast($response.message.translate());
-      }
+/**
+ * NETWORK ROOT CONTROLLER
+ */
+siApp
+.controller('mainNetworkCtrl', function($scope,$rootScope,$q,$timeout,$siConfigs,$siList,$siUI,$siUtils){
+  $scope._status = 'initializing';
+  $scope.loaded_components = [];
+  $scope.pages = {
+    'home': {label: 'Home'.translate(), style: ''},
+    'listEdit': {label: 'List editing'.translate(), style: 'transform:translateX(-100%);'},
+  }
+  
+  $scope.init = function(){
+    $scope.load_configs().then(_ => {
+        $scope._status = 'ready';
+        
+    });
+    
+    $scope.$on('save-request', function(){
+      $scope.save_configs();
+    });
+
+  }
+
+  
+  $scope.load_configs = function(){
+    return $q(function($resolve, $reject){
+      $siConfigs.loadNetwork().then(function($response){
+        $scope.networkConfigs = $response;
+        $resolve();
+      });
     });
   }
-})
+
+  $scope.updateSettings = function(){
+    $scope.save_configs();
+  }
+
+  $scope.save_configs = function(){
+    $siConfigs.saveNetwork($scope.networkConfigs);
+  }
+});

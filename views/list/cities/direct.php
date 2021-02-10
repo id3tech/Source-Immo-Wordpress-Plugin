@@ -24,7 +24,7 @@ $resultView = new SourceImmoCitiesResult($data);
         echo('<div class="si-list">');
             foreach ($resultView->cities as $item) {
                 echo('<div>');
-                SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->preset}", 
+                SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->layout}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
                 echo('</div>');
             }

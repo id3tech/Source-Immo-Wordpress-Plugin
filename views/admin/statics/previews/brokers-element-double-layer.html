@@ -1,0 +1,30 @@
+<div class="layer-container">
+    <div class="image"><img src="{{wpSiApiSettings.base_path + 'styles/assets/shadow_broker.jpg'}}" /></div>
+
+    <div class="layer primary-layer si-container-padding">
+        <div class="fullname si-label si-background-high-contrast" ng-show="previewLayerHasVar('fullname')">{{item.first_name}} {{item.last_name}}</div>
+        <div class="firstname si-label si-background-high-contrast" ng-show="previewLayerHasVar('first_name')">{{item.first_name}}</div>
+        <div class="lastname si-label si-background-high-contrast" ng-show="previewLayerHasVar('last_name')">{{item.last_name}}</div>
+        <div class="license si-background-high-contrast si-label" ng-show="previewLayerHasVar('title')">{{item.licence}}</div>
+        <div class="office si-background-small-contrast si-label" ng-show="previewLayerHasVar('office')">{{item.office}}</div>
+
+        <div class="phone si-label" ng-show="previewLayerHasVar('phone')">{{item.phone}}</div>
+        <div class="email si-label" ng-show="previewLayerHasVar('email')">{{item.email}}</div>
+
+        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count')">{{'{0} listings'.translate().format(item.listing_count)}}</div>
+
+    </div>
+
+    <div class="layer secondary-layer si-container-padding si-background-high-contrast">
+        <div class="fullname si-label" ng-show="previewLayerHasVar('fullname','secondary')">{{item.first_name}} {{item.last_name}}</div>
+        <div class="firstname si-label" ng-show="previewLayerHasVar('firstname','secondary')">{{item.first_name}}</div>
+        <div class="lastname si-label" ng-show="previewLayerHasVar('lastname','secondary')">{{item.last_name}}</div>
+        <div class="license si-label" ng-show="previewLayerHasVar('title','secondary')">{{item.licence}}</div>
+        <div class="office si-label" ng-show="previewLayerHasVar('office','secondary')">{{item.office}}</div>
+
+        <div class="phone si-label" ng-show="previewLayerHasVar('phone','secondary')">{{item.phone}}</div>
+        <div class="email si-label" ng-show="previewLayerHasVar('email','secondary')">{{item.email}}</div>
+
+        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count','secondary')">{{'{0} listings'.translate().format(item.listing_count)}}</div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+body.wp-admin{
+  /* Material Overrides */
+
+  md-toast{
+    position:fixed;
+    top: 50px;
+  }
+  md-icon{
+    &.fas, &.fal, &.far{
+      line-height: 1.2em;
+      font-size: 20px;
+      text-align: center;
+    }
+    &.fad{
+      line-height: 1.2em;
+      font-size: 20px;
+    }
+  }
+
+  md-input-container{
+    margin-bottom:0px;
+    &.no-error{
+      .md-errors-spacer{display:none;}
+    }
+    label{}
+    input,input:focus,textarea, textarea:focus{box-shadow:none;outline:none;}
+    textarea{max-height:15em;}
+    > md-icon{
+      &.fad,&.fal,&.fas,&.far{
+        position: absolute;
+      }
+    }
+  }
+  md-input-container.md-input-focused label:not(.md-no-float), 
+  md-input-container.md-input-has-placeholder label:not(.md-no-float), 
+  md-input-container.md-input-has-value label:not(.md-no-float){
+    transform: translate3d(0,6px,0);
+  }
+
+  .md-button{
+    &.md-primary.md-raised{
+      color:#fff!important;
+      * {color: #fff !important;}
+    }
+  }
+
+  &.md-dialog-is-showing{
+    md-backdrop.md-dialog-backdrop {
+        z-index: 9999;
+    }
+    .md-dialog-container{
+      z-index: 99999;
+    }
+    #si-app{
+      md-backdrop.md-dialog-backdrop {
+        z-index: 999995;
+      }
+      .md-dialog-container{
+        z-index: 999999;
+      }
+    }
+    .md-select-menu-container{
+      z-index: 999999;
+    }
+
+    md-backdrop.md-select-backdrop{
+      z-index: 999998;
+    }
+  }
+
+  md-optgroup[disabled]{
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+}

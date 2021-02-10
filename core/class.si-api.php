@@ -12,6 +12,9 @@ class SourceImmoApi {
     self::_registerRestApiListeners();
   }
 
+  public static function new_nonce(){
+    return wp_create_nonce( 'wp_rest' );
+  }
 
   /**
    * Update page content
@@ -98,6 +101,10 @@ class SourceImmoApi {
   }
 
 
+  public static function get_addons(){
+    $lResult = SourceImmo::current()->addons->items;
+    return $lResult;
+  }
 
 
   /**
@@ -112,7 +119,7 @@ class SourceImmoApi {
       'es' => 'Espanol'
     );
 
-    $currentLocale = substr(get_locale(),0,2);
+    $currentLocale = si_get_locale();
     $lResult = array();
 
     // wpml languages
@@ -164,7 +171,7 @@ class SourceImmoApi {
     $lang = $request->get_param('locale');
     $type = $request->get_param('type');
 
-    if($sitepress){
+    if($sitepress && $lang!=null){
       $sitepress->switch_lang( $lang, true );
     }
 
@@ -341,6 +348,10 @@ class SourceImmoApi {
    * @return Object global configuration
    */
   public static function reset_configs($request){
+    // clear data
+    SourceImmo::current()->configs->clearEverything();
+
+
     $new_config_value = new SourceImmoConfig();
     SourceImmo::current()->configs = $new_config_value;
     SourceImmo::current()->configs->save();
@@ -348,14 +359,67 @@ class SourceImmoApi {
     return self::get_configs();
   }
 
+  public static function backup_configs(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    if(file_exists($lConfigFilePath)){
+      copy($lConfigFilePath, $lConfigPath . '/_configs_backup.json');
+    }
+    
+  }
+
+  public static function get_configs_backup(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs_backup.json';
+    $fileContent = null;
+
+    if(file_exists($lConfigFilePath)){
+      try {
+        $filePointer = fopen($lConfigFilePath,'r');
+        $fileContent = fread($filePointer,max(filesize($lConfigFilePath),1));
+  
+        fclose($filePointer);
+      } 
+      catch (\Throwable $th) {
+        
+      }
+    }
+    return $fileContent;
+  }
+
+  public static function clear_backup(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) {
+      wp_mkdir_p( $lConfigPath );
+    }
+    $lConfigFilePath = $lConfigPath . '/_configs_backup.json';
+    if(file_exists($lConfigFilePath)){
+      unlink($lConfigFilePath);
+    }
+  }
+
+
+
   public static function get_dictionary($request){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
+
+    if($account_id == '' || $api_key == '') return null;
+    
     $viewId = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
     $lang = $request->get_param('lang');
-    $lTwoLetterLocale = isset($lang) ? $lang : substr(get_locale(),0,2);
+    $lTwoLetterLocale = isset($lang) ? $lang : si_get_locale();
 
     $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)
                             ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -422,6 +486,7 @@ class SourceImmoApi {
     if($lResult['max_item_count']==0){
       unset($lResult['max_item_count']);
     }
+
     
     $filters = array();
     foreach ($params as $key => $value) {
@@ -461,7 +526,7 @@ class SourceImmoApi {
     $lAccessToken = self::get_access_token();
 
     $list_config->access_token = $lAccessToken->key;
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
 
     $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)
                           ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -480,10 +545,11 @@ class SourceImmoApi {
     $api_key = SourceImmo::current()->get_api_key();
 
     $lTwoLetterLocale = substr(get_locale(),0,2);
-
-    $lFilters = array("st"=>urlencode($list_config->search_token));
+    $lSearchToken = (isset($list_config->search_token)) ? $list_config->search_token : '';
+    $lFilters = array("st"=>urlencode($lSearchToken));
     
     if($atts != null && count($atts)>1){
+      
       $params = $atts; //shortcode_atts(array(), $atts );
       
       $lFilters = array("st"=>urlencode(self::get_search_token($params,$list_config)));
@@ -510,9 +576,7 @@ class SourceImmoApi {
         $roundTrip++;
       }
 
-      
-      
-      $lResult->items = $data_list;
+      $lResult->items = apply_filters('si/list/' . $list_config->alias, $data_list, $list_config);
 
     }
     return $lResult;
@@ -526,12 +590,17 @@ class SourceImmoApi {
   public static function get_data_of($type, $id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
     
-    if(!isset(SourceImmo::current()->configs->default_view)) return '';
+    $lTwoLetterLocale = si_get_locale();
+    
+    $view_id = (isset($_GET['view'])) ? $_GET['view'] : null;
 
-    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
+    if($view_id == null){
+      if(!isset(SourceImmo::current()->configs->default_view)) return '';
+      $view_id = si_view_id(SourceImmo::current()->configs->default_view);  
+    }
 
+    
     $lResult = HttpCall::to('~', $type, 'view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
                   ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get();
@@ -569,7 +638,7 @@ class SourceImmoApi {
   public static function get_city_data($id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $view_id = si_view_id(SourceImmo::current()->configs->default_view);
     
     $lFilters = array("st"=>urlencode(self::get_search_token(
@@ -603,7 +672,7 @@ class SourceImmoApi {
   public static function get_city_listings_data($id){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    $lTwoLetterLocale = si_get_locale();
     $view_id = si_view_id(SourceImmo::current()->configs->default_view);
 
     
@@ -637,10 +706,15 @@ class SourceImmoApi {
   /**
    * Get account information
    */
-  public static function get_account(){
-    $account_id = SourceImmo::current()->get_account_id();
-    $api_key = SourceImmo::current()->get_api_key();
+  public static function get_account($request){
     
+    $account_id = $request->get_param('account_id');
+    if($account_id == null) $account_id = SourceImmo::current()->get_account_id();
+
+    $api_key =  $request->get_param('api_key');
+    if($api_key == null) $api_key = SourceImmo::current()->get_api_key();
+    
+
     $lResult = HttpCall::to('~','account')
                     ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get(null, true);
@@ -672,8 +746,11 @@ class SourceImmoApi {
     $data = $params->data;
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
-    $destination = implode(',',$params->destination);
-    $lTwoLetterLocale = substr(get_locale(),0,2);
+    
+    $destination = $params->destination;
+    if(is_array($params->destination)) $destination = implode(',',$params->destination);
+    
+    $lTwoLetterLocale = si_get_locale();
     $hash_seed = (isset($metadata) && isset($metadata->ref_number)) ? $metadata->ref_number : uniqid();
     $random_hash = sha1($hash_seed);
     
@@ -752,7 +829,6 @@ class SourceImmoApi {
    */
   private static function _registerRestApiListeners(){
     
-
     // Access Token
     self::_register_access_token_routes();
     
@@ -816,6 +892,10 @@ class SourceImmoApi {
         )
       )
     );
+
+    // Addons
+    self::_register_addons_routes();
+
   }
 
   
@@ -824,6 +904,17 @@ class SourceImmoApi {
    * @static
    */
   static function _register_access_token_routes(){
+    // Acquire access token to make call to the source.immo remote api
+    register_rest_route( 'si-rest','/new_nonce',
+    array(
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => '__return_true',
+        'callback' => array( 'SourceImmoApi', 'new_nonce' ),
+      )
+    )
+    );
+
     // Acquire access token to make call to the source.immo remote api
     register_rest_route( 'si-rest','/access_token',
       array(
@@ -858,10 +949,36 @@ class SourceImmoApi {
         'methods' => WP_REST_Server::READABLE,
         //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
         'callback' => array( 'SourceImmoApi', 'get_account' ),
+        'args' => array(
+          'account_id' => array(
+            'required' => false,
+            'type' => 'string',
+            'description' => __( 'Account id', SI ),
+          ),
+          'api_key' => array(
+            'required' => false,
+            'type' => 'string',
+            'description' => __( 'API key', SI ),
+          ),
+        )
       )
     );
   }
 
+  
+  /**
+   * Addons REST routes registration
+   * @static
+   */
+  static function _register_addons_routes(){
+    register_rest_route( 'si-rest','/addons/list',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'callback' => array( 'SourceImmoApi', 'get_addons' ),
+      )
+    );
+  }
 
   /**
    * Access Token REST routes registration
@@ -926,6 +1043,52 @@ class SourceImmoApi {
         ), // End POST
       )
     );
+
+    // Backup
+    register_rest_route( 'si-rest','/configs/backup',array(
+        array(
+          'methods' => WP_REST_Server::READABLE,
+          'permission_callback' => array( 'SourceImmoApi','privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'get_configs_backup')
+        ), // End GET
+        array(
+          'methods' => WP_REST_Server::EDITABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'backup_configs' ),
+        ), // End POST
+        array(
+          'methods' => WP_REST_Server::DELETABLE,
+          'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'callback' => array( 'SourceImmoApi', 'clear_backup' ),
+        ) // End POST
+      )
+    );
+
+    register_rest_route( 'si-rest','/configs/network',array(
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => array( 'SourceImmoApi','privileged_permission_callback' ),
+        'callback' => function(){
+          return get_site_option('si-network-configs');
+        }
+      ), // End GET
+      array(
+        'methods' => WP_REST_Server::EDITABLE,
+        'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'args' => [
+          'settings' => [
+            'required' => true,
+            'type' => 'Object',
+            'description' => __( 'Network configuration informations', SI ),
+          ]
+        ],
+        'callback' => function($request){
+          $config_value = $request->get_param('settings');
+          return set_site_option('si-network-configs',$config_value);
+        }
+      ), // End POST
+    )
+  );
   }
 
 
@@ -1041,7 +1204,7 @@ class SourceImmoApi {
         'callback' => array( 'SourceImmoApi', 'get_page_list' ),
         'args' => array(
           'locale' => array(
-            'required' => true,
+            'required' => false,
             'type' => 'String',
             'description' => __( 'Page language filter', SI ),
           ),

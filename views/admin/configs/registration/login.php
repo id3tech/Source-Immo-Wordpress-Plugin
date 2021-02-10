@@ -1,6 +1,5 @@
 <div class="message">
-    <h3 class="md-text-warn"><i class="fal fa-exclamation-triangle"></i> <?php _e('You are in DEMO mode', SI)?></h3>
-    <p><?php _e('Please sign in to control what will be displayed on your site',SI) ?></p>
+    <p><?php _e('Please sign in using your Source.Immo account credentials',SI) ?></p>
 </div>
 
 <div class="login-box">
@@ -15,7 +14,7 @@
     </md-input-container>
 
     <div layout="row" layout-align="center center">
-        <md-button class="md-raised md-primary" ng-click="signin()"><?php _e('Sign in',SI) ?></md-button>
+        <md-button class="md-raised md-primary" ng-disabled="signin_in===true || login_infos.password=='' || login_infos.email == ''" ng-click="signin()"><?php _e('Sign in',SI) ?></md-button>
         <md-button class="" href="https://portal.source.immo/" target="_blank"><?php _e('Create an account',SI) ?></md-button>
     </div>
 </div>

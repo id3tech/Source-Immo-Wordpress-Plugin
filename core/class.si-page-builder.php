@@ -11,10 +11,10 @@ class SourceImmoPageBuilder{
         remove_filter( 'the_content', 'wpautop' );
         remove_filter( 'the_content', 'wptexturize');
         
-        add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
-        add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
+        // add_action('si_start_of_template', array($this, 'start_of_template'), 10, 1);
+        // add_action('si_end_of_template', array($this, 'end_of_template'), 10, 0);
 
-        add_filter( 'the_content', array($this, 'get_page_content'), 0);
+        //add_filter( 'the_content', array($this, 'get_page_content'), 0);
         add_filter( 'body_class', function($classes){
             $classes[] = '';
         
@@ -25,12 +25,12 @@ class SourceImmoPageBuilder{
 
     public function start_page(){
         
-        ob_start();
+        //ob_start();
     }
 
     public function close_page(){
         $this->inline_content = ob_get_contents();
-        ob_clean();
+        //ob_clean();
 
         
     }
@@ -49,24 +49,32 @@ class SourceImmoPageBuilder{
 
     public function get_page_template($page_id){
         $page_template = get_page_template_slug($page_id);
+        $page_template = apply_filters('si/page_builder/get_page_template',$page_template);
+        //echo($page_template);
         if($page_template != '') return $page_template;
 
-        $templateFiles = wp_get_theme()->get_files('php',0,true);
-        $priorityList = array('page','single','index');
+        //$templateFiles = wp_get_theme()->get_files('php',0,true);
+        $path = locate_template(array('page.php','single.php','index.php'));
+        if($path != '') return $path;
+        // $priorityList = array('page','single','index');
 
-        foreach ($priorityList as $pageName) {
-            foreach($templateFiles as $template => $path){
-                if($template== $pageName . '.php'){
-                    return $path;
-                }
-            }
-        }
+        // foreach ($priorityList as $pageName) {
+        //     foreach($templateFiles as $template => $path){
+        //         if($template== $pageName . '.php'){
+        //             return $path;
+        //         }
+        //     }
+        // }
 
         return null;
     }
 
     public function render(){
         $page_id = $this->layout->page;
+        global $post; 
+        $post = get_post($page_id);
+
+        do_action('si_page_builder_prerender', $page_id);
 
         $pageTemplate = $this->get_page_template($page_id);
         //__c($pageTemplate);
@@ -94,34 +102,48 @@ class SourceImmoPageBuilder{
             return $classes; 
         });
 
+        $pageTemplate = apply_filters('si_get_page_template', $pageTemplate);
+        
+
         if($pageTemplate != null){
+            $templateDir = get_template_directory();
+
+            if(file_exists($pageTemplate)){
+                include($pageTemplate);
+                return;
+            }
+
             $templateDir = get_template_directory();
             if(strpos($pageTemplate, $templateDir ) !== false) $pageTemplate = str_replace($templateDir,'',$pageTemplate);
             
-            include  $templateDir . '/' . $pageTemplate;
+            if(file_exists($templateDir . '/' . $pageTemplate)){
+                include  $templateDir . '/' . $pageTemplate;
+                
+            }
+            
         }
         
         if($pageTemplate == null){
             wp_footer();
         }
-
+        do_action('si_page_builder_postrender', $page_id);
     }
 
     
     public function start_of_template($loadingText = null){
         if($this->page_template_rendered) return;
         if(did_action('si_start_of_template') === 1){
-        if($loadingText != null){
-            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($loadingText,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
-        }
-        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+            if($loadingText != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($loadingText,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
         }
     }
 
     public function end_of_template(){
         if($this->page_template_rendered) return;
         if(did_action('si_end_of_template') === 1){
-        echo('</div>'); 
+            echo('</div>'); 
         }
     }
 

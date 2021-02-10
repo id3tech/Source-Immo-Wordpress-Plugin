@@ -1,0 +1,396 @@
+
+@mixin unset($attrs...){
+    @each $att in $attrs{
+        #{$att} : unset;
+    }
+}
+
+// IE 10+ compatibility fixes
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    main{display:block;}
+
+    #top .si,
+    .si{
+        // Remove the whole searchbox
+        .search-container{display:none;}
+        .si-list-container{display:block;}
+        &.si-list-of-listings,&.si-list-of-brokers{
+            .si-list-header{
+                display:none;
+            }
+            display:block;
+            .si-list{
+                display:flex;
+                flex-flow: wrap;
+                > div{
+                    display:block;
+                    float:left;
+                    padding:10px;
+                    max-width:33%;
+                    &:nth-child(3n+1){
+                        clear:left;
+                    }
+                }
+                .si-item{
+                    display:block;
+                    .item-content{
+                        display:block;
+                        .image{width:100%;height:250px;}
+                        .description{height:250px;overflow:hidden;}
+                    }
+                    &.si-double-layer-item-layout{
+                        >a{
+                            display:inherit;
+                            height:100%;
+                            color:inherit;
+                            &:visited{
+                                color:inherit;
+                            }
+                        }
+                        .layer-container{
+                            display:inherit;
+                            grid-template-columns:inherit;
+                            grid-template-rows:inherit;
+                            grid-template-areas:inherit;
+                            grid-column-start: 1;
+                            grid-column-end: max;
+                            
+                            .layer{
+                                &.primary-layer{
+                                    position:relative;
+                                    @include unset(top,left,bottom,right);
+                                    display:inherit;
+                                    grid-template-columns:inherit;
+                                    grid-template-rows:inherit;
+                                    grid-template-areas:inherit;
+                                    grid-column-start: 1;
+                                    grid-column-end: max;
+                                    grid-row:max;
+                                }
+
+                                
+                            }
+                        }
+                        &.layer-hover-fade {
+                            .secondary-layer{
+                                padding:10px;
+                                div,span{color: #fff;}
+                                &::before{
+                                    background: rgba(0,0,0,.5);
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &.listing-single, &.broker-single{
+            display:block;
+            .si-content,&.loaded .si-content{
+                display:block;
+                // .left-column,.si-left,.previous{display:block;float:left;}
+                // .right-column,.si-right,.next{float:right;display:block;}
+                .si-part{overflow:hidden;}
+                .si-item,.info,.list-header,.contact,.office,.cities,.header,.details,
+                .si-listing-navigation,.summary{
+                    display:block;overflow:hidden;
+                }
+                
+                
+                .si-listing-navigation{
+                    .previous,.next{
+                        width:33%;
+                        .content{display:block;}
+                    }
+                }
+            }
+        }
+        &.broker-single{
+            .si-part{
+                &.si-part-name{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-picture{
+                    float:right;
+                    width:33%;
+                }
+                &.si-part-contact{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-office{
+                    float:left;
+                    width:66%;
+                }
+                &.si-part-cities, &.si-part-listings{
+                    float:none;
+                    clear:both;
+                }
+                
+            }
+            .left-column{width:66%;}
+            .right-column{width:33%;}
+            .listing-list{
+                .list-container{
+                    max-height:9000vh;
+                    display:flex;
+                    flex-direction: row;
+                    flex-wrap:wrap;
+                    
+                    .si-item{
+                        margin:10px;
+                        width: calc(50% - 20px);
+                    }
+                }
+            }
+            .office{
+                .item-content{
+                    display:block;
+                    > div{
+                        display:inline-block;
+                        &.title{display:block;}
+                    }
+                }  
+                
+                .icon{float:left;height:80px;width:40px;}
+                
+            }
+        }
+        &.listing-single{
+            .si-header{
+                .subcatgory{
+                    grid-row:1;
+                }
+                .city{
+                    grid-row:2;
+                }
+
+                .tools{float:left;display:none;}
+                
+                .information_request{float:right;}
+            }
+            .flags{
+                display:flex;
+                flex-direction: row;
+                .flag{
+                    padding:10px;
+                }
+            }
+            .si-part{
+                &.si-part-header-tools{
+                    grid-row: 3;
+                }
+                &.si-part-info-request-button{
+                    grid-row:3;
+                }
+                &.si-part-media-box{
+                    float:left;
+                    width:66%;
+                    display:block;
+                    .tabs{display:none;}
+                   .medias >.viewport > .trolley{display:block;}
+                }
+                &.si-part-summary{
+                    float:right;
+                    width:33%;
+                    .si-summary{
+                        display:block;
+                    }
+                }
+                &.si-part-calculator{
+                    display:none;
+                }
+                &.si-part-brokers{
+                    .list-container{
+                        max-height:100vh;
+                        display:flex;
+                        flex-direction: row;
+                        flex-wrap:wrap;
+                        .si-item{
+                            display:grid;
+                            margin:10px;
+                            width: calc(50% - 20px);
+                            .actions{
+                                grid-row:4;
+                                grid-column:2;
+                            }
+                        }
+                    }
+                }
+                &.si-part-list-navigation{
+                    .si-listing-list{
+                        display:block;
+                        opacity:1;
+                        overflow:hidden;
+                        a{color:#fff;}
+                        .previous{
+                            float:left;
+                        }
+                        .next{
+                            float:right;
+                        }
+                        .item-content{
+                            div{color:#fff;}
+                        }
+                    }
+                }
+            }
+            .list-container > div{display:block;}
+            .si-item{
+                float:left;
+                width:50%;
+                padding:20px;
+                .content{display:block;}
+            }
+            .elementor-widget-container {
+                > .si-part{
+                    display:block!important;
+                    &.si-part-media-box{
+                        float:none;
+                        width:100%;
+                    }
+                }
+            }
+            .si-calculator{display:none;}
+            .detail-section{
+                .title{
+                    display:block;
+                    position:relative;
+                    .icon{
+                        position: absolute;
+                        right:0px;
+                        top:calc(50% - 10px);
+                    }
+                }
+                .spec-grid{
+                    display:block;
+                }
+                .unit-list{
+                    display:block;
+                    .room-list{
+                        display:block;
+                        .room-item{
+                            display:block;
+                            &.list-header{
+                                display:none;
+                            }
+                        }
+                    }
+                }
+            }
+            .si-details{
+                clear:both;
+                .si-left{grid-column:1;}
+                .si-right{grid-column:2;}
+            }
+            
+            .si-image-slider{
+                > .viewport{
+                    > .trolley{
+                        display:block;
+                        white-space: nowrap;
+
+                        .item{
+                            float:left;clear:none;
+                            width:100%!important;
+                            .caption{
+                                label{color:#fff;}
+                            }
+                        }
+
+                    }
+                }
+                .navigation-controls{
+                    .btn{
+                        color:#fff;
+                    }
+                }
+                .controls{display:none;}
+            }
+        }
+    }
+    #top .si-modal,
+    .si-modal{
+        box-sizing: border-box;
+        *{box-sizing: border-box;}
+
+        .si-modal-dialog{
+            .si-modal-content{
+                background:#fff;
+                
+            }
+            .modal-header{
+                display:block;
+                .close{
+                    position: absolute;
+                    right:0px;top:50%;
+                    transform:translateY(-50%);
+                }
+            }
+            .modal-footer{
+                display:block;
+            }
+            display:block;
+
+        }
+
+        &#information_request{
+            .modal-body{
+                .form{
+                    &.info-request{
+                        display:block;
+                    }       
+                }
+            }
+            
+        }
+    }
+    
+}
+
+// MS EDGE 12-18
+@supports (-ms-ime-align: auto) {
+    
+    #top .si,
+    .si{
+        .si-list{
+            .si-item.si-double-layer-item-layout{
+                >a{
+                    display:inherit;
+                    height:100%;
+                }
+                .layer-container{
+                    display:inherit;
+                    grid-template-columns:inherit;
+                    grid-template-rows:inherit;
+                    grid-template-areas:inherit;
+                    grid-column-start: 1;
+                    grid-column-end: max;
+                    
+                    .layer{
+                        &.primary-layer{
+                            position:relative;
+                            @include unset(top,left,bottom,right);
+                            display:inherit;
+                            grid-template-columns:inherit;
+                            grid-template-rows:inherit;
+                            grid-template-areas:inherit;
+                            grid-column-start: 1;
+                            grid-column-end: max;
+                            grid-row:max;
+                        }
+                    }
+                }
+            }
+        }
+
+        &.si-filter-panel-container{
+            &::before{
+                box-shadow: unset;
+            }
+        }
+    }
+}

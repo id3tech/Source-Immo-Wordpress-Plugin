@@ -12,4 +12,7 @@ $ref_type = get_query_var( 'type' );
 //do_action('si_render_page',$pageBuilder->layout->page);
 
 $pageBuilder->close_page();
+
+
 $pageBuilder->render();
+

@@ -1,0 +1,113 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,300,600,600italic,700,700italic);
+
+html{
+    font-size: 15px;
+    padding:0px;margin:0px;
+}
+body{
+    padding:0px;margin:0px;
+    font-family: 'Open Sans';
+
+    *{box-sizing:border-box;}
+    #page{
+        width:100%;
+        padding:0px;margin:0px;
+        #infoBlock{
+            // Remove first title "Information request"
+            > .sectionTitle, .sectionRedSia, #mlsPhoto{
+                display:none;
+            }
+
+            .sectionTitleResp{
+                display: flex;
+                font-size: 1.5rem;
+                line-height: 1em;
+                width: 100%;
+                border-left: none;
+                text-align: center;
+                height: 540px;
+                justify-content: center;
+                align-items: center;
+                text-transform: none;
+                font-weight: 400;
+            }
+        }
+
+        .sectionTitle{
+            border-bottom:none;
+            border-left: solid 3px #ccc;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            padding: 0.5em 1em;
+        }
+        .sectionRed{
+            font-size:1rem;
+            color: #333;
+            padding: 0 1.5em;
+        }
+        textarea, input{
+            font-size:1rem;
+            padding: 0.5em;
+            font-family: 'Open Sans';
+            outline:none;
+            width:100%;
+        }
+
+        #persoBlock{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:0.5rem;
+            padding:1rem 1.5rem;
+            .sep{display:none;}
+            .sectionTitle,.sectionRed{
+                grid-column: 1 / span 2;
+                margin:0px;
+                margin-left: -1.5rem;
+                
+            }
+            .lv{
+                position:relative;
+                margin: 0 0 1rem 0;
+                &.ts{padding-top:unset;}
+                .l{
+                    position: absolute;
+                    bottom:0px;left:0px;
+                    width:auto;
+                    text-align:left;
+                    font-weight: 400;
+                    transform:translateY(100%);
+                    font-size:0.75rem;
+                }
+                .v{
+                    display:block;
+                    padding-top:0;
+                    input{
+                        padding:0px;
+                        border-style: none none solid none;
+                        font-weight: 700;
+                    }
+                }
+            }
+        }
+        #notesBlock{
+            .v{
+                padding:0rem 1.5rem;
+            }
+        }
+
+        #buttonBlock{
+            padding:1rem 1.5rem;
+            #submitBlock{
+                float:none;
+            }
+            input[type=button]{
+                width:auto;
+                color:#fff;
+                background:#333;
+                border:none;
+                padding: 0.5em 1em;
+                cursor:pointer;
+            }
+        }
+    }
+}

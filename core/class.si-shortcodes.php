@@ -26,6 +26,7 @@ class SiShorcodes{
             'si_listing_part',
             
             // Office - Sub shortcodes
+            'si_office',
             'si_office_part',
             'si_office_listings',
             'si_office_brokers',
@@ -48,6 +49,7 @@ class SiShorcodes{
                 'limit' => 5,
                 'detail_label' => 'View detail',
                 'show_navigation' => 'true',
+                'height' => '500px'
             ), $atts )
         );
 
@@ -59,7 +61,7 @@ class SiShorcodes{
         ?>
         <si-list-slider class="<?php echo($class) ?> slider-type-<?php echo($type) ?>" 
                 si-alias="<?php echo($alias) ?>"
-                si-options="{show_navigation:<?php echo $show_navigation ?>, limit: <?php echo $limit ?>}">
+                si-options="{show_navigation:<?php echo $show_navigation ?>, limit: <?php echo $limit ?>, minHeight: '<?php echo $height ?>'}">
                 </si-list-slider>
         <?php
         echo('<script type="text/ng-template" id="si-list-slider-for-'. $alias . '">');
@@ -73,8 +75,8 @@ class SiShorcodes{
     public function sc_si_searchbox($atts, $content=null){
         extract( shortcode_atts(
             array(
-                'alias' => 'default',
-                'placeholder' => 'Find a property from city, street, id, etc',
+                'alias' => '',
+                'placeholder' => 'Type here to begin your search...',
                 'on_enter' => '',
                 'result_page' => ''
             ), $atts )
@@ -95,12 +97,25 @@ class SiShorcodes{
                 'standalone' => false,
             ), $atts )
         );
+        $listConfig     = SourceImmo::current()->get_list_configs($alias);
+        $resultUrl      = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
+        $search_layout  = isset($listConfig->search_engine_options->type) ? $listConfig->search_engine_options->type : 'full';
+        $search_tabbed  = isset($listConfig->search_engine_options->tabs) && count($listConfig->search_engine_options->tabs)>0;
 
+        $searchContainerClasses = array('search-container');
+        if($search_tabbed){
+            $searchContainerClasses[] = 'si-has-tabs';
+        }
         ob_start();
-        $listConfig = SourceImmo::current()->get_list_configs($alias);
-        $resultUrl = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
+        
         echo('<div class="si standard-layout">');
-        echo('<si-search si-alias="'. $alias . '" class="search-container" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
+        echo('<si-search si-alias="'. $alias . '" class="' . implode(' ', $searchContainerClasses) . '" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
+
+        
+        if($listConfig->search_engine_options->filter_tags == 'outside'){
+            echo('<si-search-filter-tags si-alias="' . $alias . '"></si-search-filter-tags>');
+        }
+        
 
         echo('<script type="text/ng-template" id="si-search-for-'. $alias . '">');
         SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig)); 
@@ -117,11 +132,14 @@ class SiShorcodes{
             array(
                 'alias' => 'default',
                 'layout' => null,
-                'show_list_meta' => null
+                'show_list_meta' => null,
+                'side_scroll' => false
             ), $atts )
         );
 
         ob_start();
+
+        
         $listConfig = SourceImmo::current()->get_list_configs($alias);
         
 
@@ -135,14 +153,27 @@ class SiShorcodes{
 
             $scopeClass = $listConfig->list_layout->scope_class;
 
-            $global_container_classes = array('si', 'standard-layout', "si-list-of-{$listConfig->type}", $scopeClass);
+            $global_container_classes = array('si', $listConfig->list_layout->preset . '-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
+            if(!str_null_or_empty($listConfig->list_layout->custom_css)){
+                echo('<style for="' . $alias . '">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') , $listConfig->list_layout->custom_css) . '</style>');
+            }
+            if(!str_null_or_empty($listConfig->list_item_layout->custom_css)){
+                echo('<style for="' . $alias . '_item">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') . ' .si-item' , $listConfig->list_item_layout->custom_css) . '</style>');
+            }
+
+
             if(in_array($listConfig->list_layout->preset, array('direct'))){
-                
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
             else{
-                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" ></si-list>');
+                $styles = array(SourceImmo::styleToAttr($listConfig->list_item_layout->styles));
+                $attr = [];
+                if($side_scroll){
+                    $attr = ['si-side-scroll'];
+                }
+                echo('<div class="si-list-of-item">');
+                echo('<si-list si-alias="' . $alias . '" si-class="' . implode(' ' , $global_container_classes) . '" style="'. implode(';',$styles) .'"></si-list>');
                 if(SourceImmo::current()->configs->prefetch_data){
                     $listData = SourceImmoApi::get_data($listConfig);
                     echo('<script> if(typeof $preloadDatas=="undefined") var $preloadDatas = {}; $preloadDatas["' . $alias . '"] =' . json_encode($listData) .'</script>');
@@ -157,6 +188,7 @@ class SiShorcodes{
                     SourceImmo::view('list/' . $listConfig->type . '/search', array("configs" => $listConfig, "sc_atts" => $atts)); 
                     echo('</script>');
                 }
+                echo('</div>');
             }
         }
 
@@ -197,7 +229,8 @@ class SiShorcodes{
 
         ob_start();
         ?>
-        <si-small-list class="<?php echo($class) ?>" 
+        
+        <si-small-list class="<?php echo($class) ?>"
                 si-options="{show_header:<?php echo $show_header ?>, filter:{max_item_count: <?php echo($limit) ?>,sort_fields:[<?php echo($sortFields)?>]}}" si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
         <?php
         echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');
@@ -224,12 +257,14 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => 'Loading broker'
+                'load_text' => 'Loading broker',
+                'class' => ''
             ), $atts )
         );
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
         }
+        if($ref_number == '') return '';
 
         $data = json_decode(SourceImmoApi::get_broker_data($ref_number));
         if($data != null){
@@ -243,15 +278,22 @@ class SiShorcodes{
         ?>
         
         <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si broker-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
+            if($load_text != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak >');
+
+            
             if($content != null){
                 echo(do_shortcode($content));
             }
             else{
                 SourceImmo::view('single/brokers_layouts/standard');
             }
+            echo('</div>');
             do_action('si_end_of_template');
             ?>
         </div>
@@ -291,7 +333,9 @@ class SiShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'part' => ''
+                'part' => '',
+                'align' => 'align-stretch',
+                'class' => '',
             ), $atts )
         );
 
@@ -304,6 +348,10 @@ class SiShorcodes{
 
             $lResult = ob_get_clean();
         }
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+
+        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';
         
         return $lResult;
     }
@@ -311,6 +359,68 @@ class SiShorcodes{
     #endregion
 
     #region Office - Sub shortcodes
+
+    public function sc_si_office($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'load_text' => 'Loading office'
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+        if($ref_number == '') return '';
+
+        $data = json_decode(SourceImmoApi::get_office_data($ref_number));
+        if($data != null){
+            global $dictionary;
+            $officeWrapper = new SourceImmoOfficesResult();
+            $dictionary = new SourceImmoDictionary($data->dictionary);
+            $officeWrapper->preprocess_item($data);
+        }
+        
+        ob_start();
+        ?>
+        
+        <div data-ng-controller="singleOfficeCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+                class="si office-single {{model.status}} {{model!=null?'loaded':''}}">
+            <?php
+            do_action('si_start_of_template', $load_text);
+            if($load_text != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
+            
+            if($content != null){
+                echo(do_shortcode($content));
+            }
+            else{
+                SourceImmo::view('single/offices_layouts/standard');
+            }
+
+            echo('</div>');
+            do_action('si_end_of_template');
+            ?>
+        </div>
+        <?php
+        
+        if(SourceImmo::current()->configs->prefetch_data){
+        ?>                
+        <script type="text/javascript">
+        var siOfficeData = <?php 
+            echo(json_encode($data)); 
+        ?>;
+        </script>
+        <?php
+        }
+
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
+
     public function sc_si_office_part($atts, $content){
         // Extract attributes to local variables
         extract( shortcode_atts(
@@ -390,6 +500,8 @@ class SiShorcodes{
             ), $atts )
         );
 
+        if($ref_number == '') return '';
+
         ob_start();
         
         global $city_data;
@@ -401,6 +513,11 @@ class SiShorcodes{
             $lAlias = $lListConfig->alias;
         }
         do_action('si_start_of_template', null);
+        if($load_text != null){
+            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+        }
+        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
         SourceImmo::view('single/cities_layouts/standard', array(
             'model' => array(
                 'ref_number' => $ref_number,
@@ -408,6 +525,9 @@ class SiShorcodes{
                 'name' => $city_data->name,
             )
         ));
+
+        echo('</div>');
+        
         do_action('si_end_of_template');
 
         $result = ob_get_contents();
@@ -423,15 +543,19 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => "Loading listing"
+                'load_text' => "Loading listing",
+                'media_picture_fit' => "cover",
+                'class' => ''
             ), $atts )
         );
 
+
         if($ref_number == ''){
             $ref_number = get_query_var( 'ref_number');
-            //$ref_type = get_query_var( 'type' );
         }
-        
+        if($ref_number == '') return '';
+
+        global $listing_data;
         $listing_data = json_decode(SourceImmoApi::get_listing_data($ref_number));
         if($listing_data != null){
             global $dictionary;
@@ -441,22 +565,44 @@ class SiShorcodes{
             $listingWrapper->extendedPreprocess($listing_data);
         }
         
+        // filters
+        $load_text = apply_filters('si_listing_detail_load_text',$load_text);
+        $content = apply_filters('si_listing_detail_content', $content, $ref_number, $listing_data);
+        $class = apply_filters('si/single-listing/class', $class);
+        
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
         ?>
+
         <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si listing-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si listing-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
 
         <?php
+        add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
+            return $media_picture_fit;
+        });
+        
+        do_action('si_listing_single_start', $ref_number, $listing_data);
         do_action('si_start_of_template', $load_text);
+        
+        if($load_text != null){
+            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+        }
+        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
         if($content != null){
+            
             echo(do_shortcode($content));
         }
         else{
+            
             SourceImmo::view('single/listings_layouts/standard');
         }
+        echo('</div>');
+
         do_action('si_end_of_template');
+        do_action('si_listing_single_end');
         ?>
         </div>
         <?php
@@ -479,20 +625,41 @@ class SiShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'part' => ''
+                'part' => '',
+                'align' => 'align-stretch',
+                'adapt' => false,
+                'class' => '',
+                'height' => '',
+                'tabs' => '',
+                'allow_toggle' => '',
+                'media_picture_fit' => null
             ), $atts )
         );
 
         $lResult = '';
+        $partAttr = [];
         
+        if(isset($media_picture_fit) && $media_picture_fit != null){      
+            add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
+                return $media_picture_fit;
+            });
+        }
+
         if($part != ''){
             ob_start();
-
-            SourceImmo::view('single/listings_layouts/subs/' . $part); 
+            $part_path = apply_filters('si_listing_part_path','single/listings_layouts/subs/' . $part,$part);
+            $part_params = apply_filters('si_listing_part_params', ['allow_toggle' => $allow_toggle,'height' => $height, 'tabs' => explode(',', $tabs)], $part);
+            SourceImmo::view($part_path, $part_params); 
 
             $lResult = ob_get_clean();
         }
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
         
+        if($adapt) $partAttr[] = 'si-adaptative-class';
+
+        $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $partAttr) .'>' . $lResult . '</div>';
+
         return $lResult;
     }
 

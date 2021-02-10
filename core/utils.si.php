@@ -47,6 +47,29 @@ function __c(...$data){
   $c->write(...$data);
 }
 
+function __json(...$data){
+  foreach ($data as $item) {
+    echo('<pre>');
+    echo(json_encode($item,JSON_PRETTY_PRINT));
+    echo('</pre>');
+  }
+}
+
+function si_get_locale(){
+  global $sitepress;
+  $lResult = 'fr';
+
+  if($sitepress != null){
+    $lResult = $sitepress->get_current_language();
+  }
+  else{
+    $lResult = substr(get_locale(),0,2);
+  }
+  
+  return $lResult;
+}
+
+
 /**
  * String prototype utilities
  */
@@ -87,9 +110,9 @@ class StringPrototype{
 
 if(!function_exists('str_null_or_empty')){
   function str_null_or_empty($val){
-    if($val == null) return true;
+    if($val === null) return true;
     if(is_array($val)) return (count($val)==0);
-    if($val == '') return true;
+    if($val === '') return true;
 
     return false;
   }
@@ -146,6 +169,13 @@ function si_start_of_template($loading_text='Loading'){
 }
 function si_end_of_template(){
   
+}
+
+function si_to_plugin_root($path){
+  $path = str_replace('\\', '/',$path);
+  $path = str_replace(SI_PLUGIN_DIR, '', $path);
+
+  return $path;
 }
 
 /**
@@ -291,7 +321,6 @@ class HttpCall{
     $lInstance->endpoint = implode('/',$endpoint_parts);
     $lInstance->endpoint = str_replace('~', $normHost . '/api', $lInstance->endpoint);
 
-    
 
     return $lInstance;
   }
@@ -326,6 +355,7 @@ class HttpCall{
     if($params && count($params) > 0){
       $this->endpoint .= '?' . build_query($params);
     }
+
     $queryOptions = array_merge(
       array(
         'CURLOPT_HTTPGET' => true,
@@ -338,12 +368,12 @@ class HttpCall{
 
     $lCurlHandle = $this->_setup_curl( $queryOptions );
     $lResult = curl_exec($lCurlHandle);
-    //$information = curl_getinfo($lCurlHandle);
-    //print_r($information);
+    // $information = curl_getinfo($lCurlHandle);
+    // print_r($information);
     
     if($lResult===false){
       $this->_handle_error($lCurlHandle);
-    } 
+    }
     curl_close($lCurlHandle);
     
     if($as_json){
@@ -436,12 +466,12 @@ class HttpCall{
   }
 
   private function _handle_error($curlHdl){
-    Debug::write(curl_error($curlHdl));
+    __c(curl_error($curlHdl));
   }
 
 }
 if(!function_exists('hasValue')){
-  function hasValue($expression){
+  function hasValue($expression, $allOrAny='any'){
     if(!isset($expression))return false;
     if($expression === null) return false;
     if(is_array($expression) && count($expression)==0)return false;
@@ -449,9 +479,17 @@ if(!function_exists('hasValue')){
     if($expression === false) return false;
 
     if(is_array($expression)){
-      foreach ($expression as $value) {
-        if($value === null) return false;
-        if($value === '') return false;
+      $successExps = array_filter($expression, function($subExpression){
+        if($subExpression === null) return false;
+        if($subExpression === '') return false;
+        if(is_array($subExpression) && count($subExpression) == 0) return false;
+        return true;
+      });
+      
+      if(count($successExps)==0) return false;
+
+      if($allOrAny == 'all' && (count($successExps) < count($expression))){
+        return false;
       }
     }
     
@@ -468,5 +506,41 @@ if(!function_exists('iifHasValue')){
     if(hasValue($expression)) return $trueResult;
     
     return $falseResult;
+  }
+}
+
+
+function layoutAllowVar($var, $layout, $layer='main'){
+  if(!_layoutAllowVar($var,$layout,$layer)) {
+    echo('ng-hide');
+  }
+}
+
+function _layoutAllowVar($var, $layout, $layer='main'){
+  return in_array($var, $layout->displayed_vars->{$layer});
+}
+
+
+function convertObjectClass($array, $final_class) { 
+  return unserialize(sprintf( 
+      'O:%d:"%s"%s', 
+      strlen($final_class), 
+      $final_class, 
+      strstr(serialize($array), ':') 
+  )); 
+}
+
+function parseToObject($data, &$result){
+  foreach($data as $key => $value){
+    if(property_exists($result,$key)){
+      
+      if(is_array($value)){
+      
+        foreach ($value as $item) {
+          
+        }
+      }  
+    }
+    
   }
 }

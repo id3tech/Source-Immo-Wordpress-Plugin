@@ -12,23 +12,20 @@
         <label>
             <div>{{'Down payment'.translate()}}</div>
             <div class="alt-method">
-                <div class="pretty p-icon p-round p-pulse"
-                    data-ng-click="changeDownpaymentMethod('percent')">
-                    <input type="radio" name="downpayment_method" data-ng-checked="data.downpayment_method=='percent'" > 
-                    <div class="state">
-                        <i class="icon far fa-check"></i>
-                        <label>%</label>
-                    </div>
-                </div>
+                <si-radio
+                    data-ng-model="data.downpayment_method"
+                    data-si-value="percent"
+                    si-change="changeDownpaymentMethod()"
+                    data-label="%"
+                ></si-radio>
 
-                <div class="pretty p-icon p-round p-pulse"
-                    data-ng-click="changeDownpaymentMethod('cash')">
-                    <input type="radio" name="downpayment_method" data-ng-checked="data.downpayment_method=='cash'"> 
-                    <div class="state">
-                        <i class="icon far fa-check"></i>
-                        <label>$</label>
-                    </div>
-                </div>
+                <si-radio
+                    data-ng-model="data.downpayment_method"
+                    data-si-value="cash"
+                    si-change="changeDownpaymentMethod()"
+                    data-label="$"
+                ></si-radio>
+
             </div>
         </label>
         <div class="input">

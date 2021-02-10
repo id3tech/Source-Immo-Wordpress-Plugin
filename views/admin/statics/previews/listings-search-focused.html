@@ -1,0 +1,57 @@
+<div class="si-search-engine">
+    <div class="inputs" style="grid-template-columns:{{model.search_engine_options.fields.includes('searchbox') ? '1fr' : ''}} repeat({{(model.search_engine_options.fields.length - (model.search_engine_options.fields.includes('searchbox') ? 1 : 0)) }},auto)">
+        
+        <div class="search-box" ng-show="model.search_engine_options.fields.includes('searchbox')">
+            <input placeholder="{{model.search_engine_options.search_box_placeholder}}" />
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('transactions')">
+            <lstr>Transaction</lstr>
+        </div>
+
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('categories')">
+            <lstr>Residential</lstr>
+        </div>
+
+        <div class="field touched"  ng-show="model.search_engine_options.fields.includes('cities')">
+            <lstr>Cities (2)</lstr>
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('types')">
+            <lstr>Home types</lstr>
+        </div>
+
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('price')">
+            <lstr>150 000$ - Max</lstr>
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('bedrooms')">
+            <lstr>Bedrooms</lstr>
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('bathrooms')">
+            <lstr>Bathrooms</lstr>
+        </div>
+
+
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('features')">
+            <lstr>Features (1)</lstr>
+        </div>
+
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('available_area')">
+            <lstr>Min - 2000sqft</lstr>
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('parkings')">
+            <lstr>Parkings</lstr>
+        </div>
+
+        <div class="field" ng-show="model.search_engine_options.fields.includes('ages')">
+            <lstr>Age</lstr>
+        </div>
+
+        <div class="field touched" ng-show="model.search_engine_options.fields.includes('filters')">
+            <lstr>Filters (1)</lstr>
+        </div>
+    </div>
+</div>

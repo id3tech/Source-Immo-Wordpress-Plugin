@@ -26,8 +26,8 @@ function $siTemplate($http, $q, $interpolate, $sce){
 }]);
 
 siApp
-.factory('$siApi', ["$http","$q","$siConfig","$rootScope", 
-function $siApi($http,$q,$siConfig,$rootScope){
+.factory('$siApi', ["$http","$q","$siConfig","$rootScope","$siUtils",
+function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     let $scope = {};
     
     $scope.viewMetas = {};
@@ -42,9 +42,15 @@ function $siApi($http,$q,$siConfig,$rootScope){
         // check token
         let lPromise = $q(function($resolve, $reject){
             //$scope.renewToken().then(function(){
-                $scope.call($path, $data, $options).then(function($result){
-                    $resolve($result);
-                });
+                $scope.call($path, $data, $options)
+                .then(
+                    function success($result){
+                        $resolve($result);
+                    },
+                    function rejected(){
+                        $reject();
+                    }
+                );
             //});
         });
 
@@ -96,6 +102,10 @@ function $siApi($http,$q,$siConfig,$rootScope){
     }
 
     $scope.getDefaultDataView = function(){
+        if($siUtils.search().view != undefined){
+            return $q.resolve($siUtils.search().view);
+        }
+
         let lPromise = $q(function($resolve, $reject){
             $siConfig.get().then(function($config){
                 if($config.default_view.indexOf('{')>=0){
@@ -150,7 +160,7 @@ function $siApi($http,$q,$siConfig,$rootScope){
      * @param {string} $type Data type contains in the view
      * @param {string} $view_id ID of the view to get metas from
      */
-    $scope.getViewMeta = function($type, $view_id){
+    $scope.getViewMeta = function($type, $view_id, $fallback_view_id){
         let lOrigin = $type;
         let lViewMetaKey = $type + '::' + $view_id;
         switch(lOrigin){
@@ -165,12 +175,15 @@ function $siApi($http,$q,$siConfig,$rootScope){
         
         let lPromise = $q(function($resolve, $reject){
             // View is defined, therefor loaded
-            if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==undefined){
+            if($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading===undefined){
+                //console.log('view meta is already loaded',lViewMetaKey);
                 $resolve($scope.viewMetas[lViewMetaKey]);
             }
             // View is currently loading, wait for data
             else if ($scope.viewMetas[lViewMetaKey] != undefined && $scope.viewMetas[lViewMetaKey].loading==true){
+                //console.log('view meta is already loading',lViewMetaKey);
                 let fnWait = function(){
+                    //console.log('waiting...');
                     if($scope.viewMetas[lViewMetaKey].loading==true){
                         window.setTimeout(fnWait, 15);
                     }
@@ -181,11 +194,22 @@ function $siApi($http,$q,$siConfig,$rootScope){
                 fnWait();
             }
             else{
+                //console.log('view meta get infos',lViewMetaKey);
                 $scope.viewMetas[lViewMetaKey] = {loading:true};
-                $scope.api(lEndPoint).then(function($response){
-                    $scope.viewMetas[lViewMetaKey] = $response;
-                    $resolve($response);
-                });
+                $scope.api(lEndPoint)
+                    .then(
+                        function success($response){
+                            $scope.viewMetas[lViewMetaKey] = $response;
+                            $resolve($response);
+                        },
+                        function rejected($err){
+                            $reject($err);
+                        }
+                    )
+                    .catch(function($err){
+                        //console.log('can\'t view', lViewMetaKey);
+                        
+                    });
             }
             
         });
@@ -233,7 +257,8 @@ function $siApi($http,$q,$siConfig,$rootScope){
                     'x-si-appVersion'   : $configs.app_version
                 }
 
-                $http($options).then(
+                $http($options)
+                .then(
                     // On success
                     function success($result){
                         if($result.status=='200'){
@@ -246,8 +271,12 @@ function $siApi($http,$q,$siConfig,$rootScope){
                     // On fail
                     function fail($error){
                         //console.log($error);
+                        $reject($error);
                     }
                 )
+                .catch(function($err){
+                    $reject($err)
+                })
                 
             })
         });
@@ -298,23 +327,48 @@ function $siApi($http,$q,$siConfig,$rootScope){
     return $scope;
 }]);
 
+
 siApp
-.factory('$siDictionary', 
-function $siDictionary(){
+.factory('$siDictionary',['$q','$rootScope',
+function $siDictionary($q,$rootScope){
     let $scope = {};
 
 
     $scope.source = null;
-    $scope.init = function($source){
+    $scope._loadCallbacks = [];
+
+    $scope.init = function($source, $overwrite){
         if($scope.source == null){
             $scope.source = $source;
         }
+        else if($overwrite === true){
+            $scope.source = $source;
+        }
         else{
-            Object.assign($scope.source, $source);
+            angular.merge($scope.source, $source);
             //console.log($scope.source);
         }
         
+        $scope._loadCallbacks.forEach(function($fn){
+            $fn();
+        })
+
+        $rootScope.$broadcast('$siDictionary/init',$source);
         //$scope.sortData();
+    }
+
+    $scope.onLoad = function(){
+        if($scope.source != null){
+            return $q.resolve();
+        }
+        
+        const lDeferred = $q.defer();
+
+        $scope._loadCallbacks.push(function(){
+            lDeferred.resolve();
+        });
+
+        return lDeferred.promise;
     }
 
     $scope.sortData = function(){
@@ -383,18 +437,21 @@ function $siDictionary(){
             return $scope.getCaptionFrom($key.src, $key.key, $domain, $asAbbr);
         }
 
-        const lKeyValue = $key;
-        let lResult = lKeyValue;
+        let lResult = $key;
         $asAbbr = ($asAbbr==undefined)?false:$asAbbr;
 
-
+        
+        
         if($scope.source && $scope.source[$domain]){
-            if($scope.source[$domain][lKeyValue] != undefined){
+            const lDomainSource = $scope.source[$domain];
+            
+
+            if(lDomainSource[$key] != undefined){
                 if($asAbbr){
-                    lResult = $scope.source[$domain][lKeyValue].abbr;
+                    lResult = lDomainSource[$key].abbr;
                 }
                 else{
-                    lResult = $scope.source[$domain][lKeyValue].caption;
+                    lResult = lDomainSource[$key].caption;
                 }
             }
         }
@@ -422,17 +479,21 @@ function $siDictionary(){
     }
 
     return $scope;
-});
+}]);
 
 siApp
 .factory('$siList', [
-  '$siApi',
-  function $siList($siApi){
+  '$siApi','$siDictionary','$rootScope',
+  function $siList($siApi,$siDictionary, $rootScope){
     let $scope ={};
     $scope.dictionary = null;
-
+    
     $scope.init = function($view_id){
-      $scope.fetchDictionary($view_id);
+      //$scope.fetchDictionary($view_id);
+        $rootScope.$on('$siDictionary/init', function($event){
+            //console.log('$siList/init -> siDictionary:onLoad')
+            $scope.dictionary = $siDictionary.source;
+        });
     }
 
     $scope.fetchDictionary = function($view_id){
@@ -443,6 +504,15 @@ siApp
       $siApi.rest('dictionary').then(function($response){
         $scope.dictionary = $response;
       });
+    }
+
+    $scope.contains = function($value, $list){
+        if($list == null) return false;
+        if($list.length == 0) return false;
+
+        return $list.some(function($item){
+            return $item.key == $value;
+        });
     }
 
     $scope.getCountryList = function(){
@@ -504,14 +574,179 @@ siApp
       return lResult;
     }
 
+    $scope.init();
+
     return $scope;
   }
 ]);
 
 
 siApp
-.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$sce', '$siConfig', '$siHooks', '$siList', '$q',
-function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHooks,$siList,$q){
+.factory('$siCompiler', ['$siConfig','$siList', '$siUtils',
+function $siCompiler($siConfig,$siList, $siUtils){
+    const $scope = {};
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of listing item
+     */
+    $scope.compileListingList = function($list){
+        
+        $list.forEach(function($e){
+            $scope.compileListingItem($e);
+        });
+
+        return $list;
+    }
+
+    $scope.compileListingItem = function($item){
+        
+        if($item.category == undefined){
+            
+            $item.location.city = $siUtils.getCaption($item.location.city_code, 'city');
+            $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
+            $item.location.district  = $siUtils.getCaption($item.location.district_code, 'district');
+            $item.subcategory = $siUtils.getCaption($item.subcategory_code, 'listing_subcategory');
+            $item.category = $siUtils.getCaption($item.category_code, 'listing_category');
+            $item.transaction = $siUtils.getTransaction($item);
+            
+            $item.short_price = $siUtils.formatPrice($item);
+            $item.location.civic_address = '{0} {1}'.format(
+                                                        $item.location.address.street_number,
+                                                        $item.location.address.street_name
+                                                    ).trim();
+            if(!isNullOrEmpty($item.location.address.door)){
+                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
+            }
+            
+            if(!isNullOrEmpty($item.available_area)){
+                $item.available_area_unit = $siUtils.getCaption($item.available_area_unit_code,'dimension_unit');
+            }
+
+            $scope.compileListingRooms($item);
+            $item.permalink = $siUtils.getPermalink($item);
+
+        }
+
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of broker item
+     */
+    $scope.compileBrokerList = function($list){
+        $siConfig.get().then(function ($configs){
+            $siList.getOfficeList($configs.default_view);
+        });
+
+        $list.forEach(function($e){
+            $scope.compileBrokerItem($e);
+        });
+
+        return $list;
+    }
+
+    $scope.compileBrokerItem = function($item){
+        if($item.permalink == undefined){
+            $item.license_type = $siUtils.getCaption($item.license_type_code, 'broker_license_type');
+            $item.permalink = $siUtils.getPermalink($item,'broker');
+            
+            if($item.office_ref_number != undefined){
+                $officeList = $siList.getOfficeList();
+                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
+                $scope.compileOfficeItem($item.office);
+            }
+        }
+    }
+
+    $scope.compileListingRooms = function($item){
+        if($item.main_unit == undefined && $item.units != undefined){
+            if($item.units.length > 0) $item.main_unit = $item.units.find(function($u){ return $u.category_code == 'MAIN'});
+        }
+
+        if(typeof $item.main_unit != 'undefined'){
+            
+            const lIconRef = {
+                'bathroom_count' : 'bath',
+                'bedroom_count' : 'bed',
+                'waterroom_count' : 'hand-holding-water'
+            }
+            const lLabelRef = {
+                'bathroom_count' : 'Bathroom',
+                'bedroom_count' : 'Bedroom',
+                'waterroom_count' : 'Powder room'
+            }
+            const lPluralLabelRef = {
+                'bathroom_count' : 'Bathrooms',
+                'bedroom_count' : 'Bedrooms',
+                'waterroom_count' : 'Powder rooms'
+            }
+
+            $item.rooms = {};
+
+            Object.keys($item.main_unit).forEach(function($k){
+                if($item.main_unit[$k] > 0){
+                    const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
+                    
+                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
+                }
+            });
+        }
+    }
+
+    /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of office item
+     */
+    $scope.compileOfficeList = function($list){
+        $list.forEach(function($e){
+            $scope.compileOfficeItem($e);
+        })
+    }
+    
+    $scope.compileOfficeItem = function($item){
+        if($item == undefined) return;
+        if($item.phones != null){
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
+        }
+        $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
+        $item.location.country = $siUtils.getCaption($item.location.country_code, 'country');
+        $item.location.state     = $siUtils.getCaption($item.location.state_code, 'state');
+        $item.location.city     = $siUtils.getCaption($item.location.city_code, 'city');
+        $item.location.street_address = '{0} {1}'.format(
+                                                    $item.location.address.street_number,
+                                                    $item.location.address.street_name
+                                                );
+        $item.location.full_address = '{0} {1}, {2}'.format(
+                                                $item.location.address.street_number,
+                                                $item.location.address.street_name,
+                                                $item.location.city
+                                            );
+
+        $item.permalink = $siUtils.getPermalink($item,'office');
+    }
+
+    $scope.compileCityList = function($list){
+        $list.forEach(function($e){
+            $scope.compileCityItem($e);
+        });
+    }
+
+    $scope.compileCityItem = function($item){
+        $item.region    = $siUtils.getCaption($item.region_code, 'region');
+        $item.country   = $siUtils.getCaption($item.country_code, 'country');
+        $item.state     = $siUtils.getCaption($item.state_code, 'state');
+        $item.city      = $siUtils.getCaption($item.city_code, 'city');
+
+        $item.permalink = $siUtils.getPermalink($item,'city');
+    }
+
+    return $scope;
+}]);
+
+siApp
+.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$siConfig', '$siHooks', '$q',
+function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q){
     let $scope = {};
     $scope.page_list = [];
 
@@ -551,6 +786,32 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         return null
     }
 
+    $scope.labelOf = function($value, $list){
+        if($value == null) return '';
+        if($list == null) return '';
+        
+        const lItem = $list.find(function($e){ return $e.key == $value});
+        if(lItem == null) return '';
+        return lItem.label;
+    }
+
+    $scope.timeLength = function($value){
+        const lTimespan = moment.duration(moment().diff($value));
+        if(lTimespan.as('day') < 30){
+            return 'New'.translate();
+        }
+
+        if(lTimespan.as('day') < 60){
+            return '{0} days'.translate().format(Math.round(lTimespan.as('day')));
+        }
+
+        if(lTimespan.as('month') < 24){
+            return '{0} months'.translate().format(Math.round(lTimespan.as('month')));
+        }
+
+        return '{0} years'.translate().format(Math.round(lTimespan.as('year')));
+    }
+
     /**
      * Format the price of the listing for pretty reading
      * @param {object} $item Listing data object
@@ -586,7 +847,9 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
                 }
 
                 if($format == 'long'){
-                    let lStart = 'for {0} for '.format($key).translate();
+                    const lTerm = ($key == 'sell') ? 'sale' : $key;
+                    let lStart = 'for {0} for '.format(lTerm).translate().capitalize();
+
                     lResult.push(lStart + '<span class="nowrap">' + lPart.join('/') + '</span>');
                 }
                 else{
@@ -610,12 +873,38 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
             
             if(typeof $dimension.width != 'undefined'){
                 let lUnit = $siDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
-                lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+                
+                const lUnitFormat = {
+                    I : function($width,$length,$unit){
+                        lWidthFeet = Math.floor($width /  12);
+                        lWidthInchLeft = $width % 12;
+    
+                        $width = lWidthFeet + "'" + (lWidthInchLeft != 0 ? lWidthInchLeft + $unit : '');
+    
+                        lLengthFeet = Math.floor($length / 12);
+                        lLengthInchLeft = $length % 12;
+                        $length = lLengthFeet + "'" + (lLengthInchLeft != 0 ? lLengthInchLeft + $unit : '');
+    
+                        return '{0} x {1}'.format($width,$length);
+                    },
+                }
+    
+                if(lUnitFormat[$dimension.unit_code] != undefined){
+                    lResult = lUnitFormat[$dimension.unit_code]($dimension.width,$dimension.length,lUnit);
+                }
+                else{
+                    lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+                }
+                
+                
             }
             else if (typeof $dimension.area != undefined){
                 let lUnit = $siDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
-                //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
                 lResult = '{0} {1}'.format($dimension.area, lUnit);
+            }
+    
+            if($dimension.irregular === true){
+                lResult += ' irr.';
             }
         }
         return lResult;
@@ -664,18 +953,15 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
      * Get permalink of the listing item
      * @param {object} $item Listing data object
      */
-    $scope.getPermalink = function($item, $type, $configs){
-        let lRoute = '';
+    $scope.getPermalink = function($item, $type){
         $type = (typeof $type=='undefined') ? 'listing' : $type;
         if(siCtx[$type + '_routes'] == undefined) return '';
         
         $scope.item = angular.copy($item);
-        
-        siCtx[$type + '_routes'].forEach(function($r){
-            if($r.lang==siCtx.locale){
-                lRoute=$r;
-            }
+        const lLocaleRoute = siCtx[$type + '_routes'].find(function($r){
+            return $r.lang==siCtx.locale
         });
+        const lRoute = lLocaleRoute == null ? siCtx[$type + '_routes'][0] : lLocaleRoute;
 
 
         let lMandatoryLocationData = ['country','state','region','city'];
@@ -721,6 +1007,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         if(siCtx.use_lang_in_path) lResult = '/' + siCtx.locale + lResult;
 
         // add hook for custom permalink for type
+        lResult = $siHooks.filter('si/list/item/permalink', lResult, $item);
         lResult = $siHooks.filter($type + '_permalink', lResult, $item);
 
         return lResult;
@@ -752,153 +1039,6 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         return 'phone';
     }
 
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of listing item
-     */
-    $scope.compileListingList = function($list){
-        
-        $list.forEach(function($e){
-            $scope.compileListingItem($e);
-        });
-
-        return $list;
-    }
-
-    $scope.compileListingItem = function($item){
-        
-        if($item.category == undefined){
-            
-            $item.location.city = $scope.getCaption($item.location.city_code, 'city');
-            $item.location.region = $scope.getCaption($item.location.region_code, 'region');
-            $item.subcategory = $scope.getCaption($item.subcategory_code, 'listing_subcategory');
-            $item.category = $scope.getCaption($item.category_code, 'listing_category');
-            $item.transaction = $scope.getTransaction($item);
-            
-            $item.short_price = $scope.formatPrice($item);
-            $item.location.civic_address = '{0} {1}'.format(
-                                                        $item.location.address.street_number,
-                                                        $item.location.address.street_name
-                                                    ).trim();
-            if(!$scope.isNullOrEmpty($item.location.address.door)){
-                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
-            }
-            
-            
-
-            $scope.compileListingRooms($item);
-            $item.permalink = $scope.getPermalink($item);
-
-            
-        }
-
-    }
-
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of broker item
-     */
-    $scope.compileBrokerList = function($list){
-        $siConfig.get().then(function ($configs){
-            $siList.getOfficeList($configs.default_view);
-        });
-
-        $list.forEach(function($e){
-            $scope.compileBrokerItem($e);
-        });
-
-        return $list;
-    }
-
-    $scope.compileBrokerItem = function($item){
-        if($item.permalink == undefined){
-            $item.license_type = $siDictionary.getCaption($item.license_type_code, 'broker_license_type');
-            $item.permalink = $scope.getPermalink($item,'broker');
-            
-            if($item.office_ref_number != undefined){
-                $officeList = $siList.getOfficeList();
-                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
-                $scope.compileOfficeItem($item.office);
-            
-            }
-        }
-    }
-
-    $scope.compileListingRooms = function($item){
-        if(typeof $item.main_unit != 'undefined'){
-            
-            const lIconRef = {
-                'bathroom_count' : 'bath',
-                'bedroom_count' : 'bed',
-                'waterroom_count' : 'hand-holding-water'
-            }
-            const lLabelRef = {
-                'bathroom_count' : 'Bathroom',
-                'bedroom_count' : 'Bedroom',
-                'waterroom_count' : 'Powder room'
-            }
-            const lPluralLabelRef = {
-                'bathroom_count' : 'Bathrooms',
-                'bedroom_count' : 'Bedrooms',
-                'waterroom_count' : 'Powder rooms'
-            }
-
-            $item.rooms = {};
-            Object.keys($item.main_unit).forEach(function($k){
-                if($item.main_unit[$k] > 0){
-                    const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
-                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
-                }
-            });
-        }
-    }
-
-    /**
-     * Compile data to ease access to some values
-     * @param {array} $list Array of office item
-     */
-    $scope.compileOfficeList = function($list){
-        $list.forEach(function($e){
-            $scope.compileOfficeItem($e);
-        })
-    }
-    
-    $scope.compileOfficeItem = function($item){
-        if($item == undefined) return;
-        if($item.phones != null){
-            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $scope.formatPhone($item.phones[$key]);}); 
-        }
-        $item.location.region = $scope.getCaption($item.location.region_code, 'region');
-        $item.location.country = $scope.getCaption($item.location.country_code, 'country');
-        $item.location.state     = $scope.getCaption($item.location.state_code, 'state');
-        $item.location.city     = $scope.getCaption($item.location.city_code, 'city');
-        $item.location.street_address = '{0} {1}'.format(
-                                                    $item.location.address.street_number,
-                                                    $item.location.address.street_name
-                                                );
-        $item.location.full_address = '{0} {1}, {2}'.format(
-                                                $item.location.address.street_number,
-                                                $item.location.address.street_name,
-                                                $item.location.city
-                                            );
-
-        $item.permalink = $scope.getPermalink($item,'office');
-    }
-
-    $scope.compileCityList = function($list){
-        $list.forEach(function($e){
-            $scope.compileCityItem($e);
-        });
-    }
-
-    $scope.compileCityItem = function($item){
-        $item.region    = $scope.getCaption($item.region_code, 'region');
-        $item.country   = $scope.getCaption($item.country_code, 'country');
-        $item.state     = $scope.getCaption($item.state_code, 'state');
-        $item.city      = $scope.getCaption($item.city_code, 'city');
-
-        $item.permalink = $scope.getPermalink($item,'city');
-    }
 
 
     /**
@@ -924,12 +1064,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
                 lResult.push('sold');
             }
             let lHasFlags = false;
-            if($item.video_flag){
+            
+            if( ($item.video_flag) || ($item.video)){
+                //console.log('$item/has-video',$item.video_flat !== undefined, $item.video !== undefined, $item.video_flat !== undefined || $item.video !== undefined);
                 lHasFlags = true;
                 lResult.push('has-video');
             }
 
-            if($item.virtual_tour_flag){
+            if($item.virtual_tour_flag || $item.virtual_tour){
                 lHasFlags = true;
                 lResult.push('has-virtual-tour');
             }
@@ -992,8 +1134,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
         }
         lResult = $scope.getTransactionFromArray($item,['rent','sell'], lLabel, $sanitize);
 
-        if(lResult.length ==0){
+        
+        if(lResult.length == 0){
             lResult = $scope.getTransactionFromArray($item,['lease','sell'], lLabel, $sanitize);
+        }
+
+        // No transaction detected
+        if(lResult.length == 0){
+            lResult = ['na'];
         }
 
         return lResult.join(' ' + 'or'.translate() + ' ');
@@ -1107,18 +1255,21 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
     /**
      * Return an object containing all query string data
      */
-    $scope.search = function(){
-        let lResult = {};
-        let lSearch = location.search.replace('?','');
-        if(lSearch!=''){
-            let lQueryArr = lSearch.split('&');
-            lQueryArr.forEach(function($item){
-                lKeyValue = $item.split("=");
-                lResult[lKeyValue[0]] = lKeyValue[1];
-            });
-        }
+    $scope.search = function($key){
+        const lSearch = window.location.search
+                            .replace('?','')
+                            .split('&')
+                            .map(function($item){
+                                return $item.split('=');
+                            });
+        if(lSearch.length == 0) return null;
+        const lSearchObject = lSearch.reduce(function($acc, $cur){
+            $acc[$cur[0]] = $cur.slice(1).join('');
+            return $acc;
+        },{});
 
-        return lResult;
+        if($key == undefined) return lSearchObject;
+        return lSearchObject[$key];
     }
 
     $scope.absolutePosition = function(element) {
@@ -1179,11 +1330,43 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
 
     $scope.isLegacyBrowser = function(){
         const lUA = window.navigator.userAgent;
+        
         if(!['Chrome','Safari','Firefox'].some(function($e){return lUA.indexOf($e)>=0;})){
             return true;
         }
+
+
         return false;
     }
+    $scope.browserSupports = function($supportKey, $supportValue){
+        if(typeof(CSS.supports) !== undefined){
+            return CSS.supports($supportKey, $supportValue);
+        }
+        return false;
+    }
+
+    $scope.isBrowser = function($name, $minVersion, $maxVersion){
+        $minVersion = $minVersion == undefined ? null : $minVersion;
+        $maxVersion = $maxVersion == undefined ? null : $maxVersion;
+        
+        const lUA = window.navigator.userAgent;
+        const lRegEx = new RegExp($name + '\/([1-9][0-9]+)','gi');
+        const lMatches = lRegEx.exec(lUA);
+        if(lMatches == null) return false;
+        if(lMatches.length == 0) return false;
+
+        // There's a match, but we don't check version
+        if($minVersion == null && $maxVersion == null) return true;
+
+        // check versions
+        const lVersion = Number(lMatches[1]);
+        //console.log(lVersion, $minVersion, $maxVersion, lMatches);
+        if($minVersion != null && $minVersion > lVersion) return false;
+        if($maxVersion != null && $maxVersion < lVersion) return false;
+        return true;
+    }
+
+    
 
     $scope.all = function($promises){
         return $q(function($resolve, $reject){
@@ -1223,19 +1406,113 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce,$siConfig,$siHoo
     }
 
     $scope.elmOffsetZIndex = function($elm){
-        const lElmZindex = window.getComputedStyle($elm).zIndex;
+        let lElmZindex = window.getComputedStyle($elm).zIndex;
 
-        if($elm.tagName == 'BODY') return lElmZindex;
+        if($elm.tagName == 'BODY') return 1;
 
         if(lElmZindex == 'auto'){
-            return $scope.elmOffsetZIndex($elm.parentNode);
+            lElmZindex = 1;
         }
+        
+        const lParentZIndex = $scope.elmOffsetZIndex($elm.parentNode);
+        if(!isNaN(lParentZIndex)) lElmZindex += lParentZIndex;
 
-        return lElmZindex;
+        return Number(lElmZindex);
     }
 
     return $scope;
 }]);
+
+siApp
+.factory('$siUI', ['$rootScope','$timeout','$q', 
+function $siUI($rootScope, $timeout, $q){
+    const $scope = {};
+    $scope.$isFullscreen = false;
+
+    $scope.enterFullscreen = function($element, $onExit){
+        const lAvailableFn = ['requestFullscreen','mozRequestFullScreen','webkitRequestFullscreen','msRequestFullscreen'].find(function($att){ return $element[$att] !== undefined});
+        if(lAvailableFn == null) return $q.reject();
+
+        
+        return $q( function($resolve){
+            $element[lAvailableFn]().then( function(){
+                
+
+                if(typeof($onExit) == 'function'){
+
+                    const fnExitHandler = function($event){
+                        console.log('fullscreenchange event triggered');
+                        if($scope.$isFullscreen == true){
+                            ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
+                                console.log($e, 'event unregistered');
+                                document.removeEventListener($e, fnExitHandler);
+                            });
+
+                            $onExit();
+                        }
+                    };
+                    
+                    $timeout(function(){
+                        ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
+                            console.log($e, 'event registered');
+                            document.addEventListener($e, fnExitHandler);
+                        });
+                    }, 500);
+                    
+                }
+
+                $scope.$isFullscreen = true;
+
+                $resolve();
+            })
+        });
+    }
+
+    $scope.exitFullscreen = function(){
+        if(!$scope.$isFullscreen) {
+            console.log('is not fullscreen ', $scope.$isFullscreen);
+            return $q.reject();
+        }
+
+        const lAvailableFn = ['exitFullscreen','mozCancelFullScreen','webkitExitFullscreen','msExitFullscreen'].find(function($att){ return document[$att] !== undefined});
+        if(lAvailableFn == null) return $q.reject('exitFullscreen function not available');
+
+        return document[lAvailableFn]();
+    }
+
+    $scope.lockScreenOrientation = function($orientation){
+        if(screen.orientation == undefined) return $q.reject();
+        if(!$scope.$isFullscreen) return $q.reject();
+        
+        try {
+            return $q(function($resolve,$reject){
+                screen.orientation.lock($orientation)
+                .then(
+                    function success(){ $resolve() },
+                    function failed(){
+                        console.log('cannot lock screen');
+                        $reject();
+                    }
+                )
+            });
+        } catch (error) {
+            return $q.reject();
+        }
+        
+        return $q.resolve();
+    }
+
+    $scope.unlockScreenOrientation = function(){
+        if(screen.orientation == undefined) return $q.resolve();
+        
+        screen.orientation.unlock();
+        return $q.resolve();
+    }
+
+
+    return $scope;
+}
+])
 
 siApp
 .factory('$siConfig',['$http','$q',
@@ -1243,6 +1520,7 @@ function $siConfig($http, $q){
     let $scope = {};
 
     $scope._data = null;
+    $scope._listData = null;
     $scope._loading = false;
 
     $scope.init = function(){
@@ -1273,6 +1551,9 @@ function $siConfig($http, $q){
                     $http.get(siCtx.config_path).then(function($response){
                         if($response.status==200){
                             $scope._data = $response.data;
+                            if(siCtx.version != undefined){
+                                $scope._data.app_version = siCtx.version;
+                            }
                             $scope._loading = false;
     
                             $resolve($scope._data);
@@ -1289,8 +1570,27 @@ function $siConfig($http, $q){
         return lPromise;
     }
 
-    $scope.init();
+    $scope.getList = function($alias){
+        if($scope._listData != null && $scope._listData[$alias] != undefined){
+            return $q.resolve($scope._listData[$alias]);
+        }
+        
+        return $scope.get().then(function($configs){
+            //console.log($configs);
+            return $configs.lists.find(function($e){
+                return $e.alias == $alias;
+            });
+        }).then(function($configs){
+            if($configs == null) return null;
+            if($scope._listData == null) $scope._listData = {};
 
+            $scope._listData[$alias] = $configs
+            if(isNullOrUndefined($configs.current_view)) $configs.current_view = $configs.source.id;
+            return $configs;
+        });
+    }
+
+    $scope.init();
 
     return $scope;
 }
@@ -1484,875 +1784,3 @@ function siShare($q,$siHooks,$siUtils){
 }]);
 
 
-siApp
-.factory('$siFilters', ['$q','$siApi','$siUtils', 
-function $siFilters($q,$siApi,$siUtils){
-    $scope = {
-        filters:{}
-    }
-
-    $scope.with = function($alias, $resolve){
-        if(typeof $alias == 'undefined') return new FilterManager();
-
-        if(typeof $scope.filters[$alias] == 'undefined'){
-            $scope.filters[$alias] = new FilterManager($alias);
-        }
-
-        if(typeof $resolve == 'function') $resolve($scope.filters[$alias]);
-        
-        return $scope.filters[$alias];
-    }
-
-
-    
-
-    function FilterManager($alias){
-        let $fm = {
-            result_url: null,
-            alias : $alias,
-            query_text: null,
-            sort_fields : [],
-            filter_group : {
-                operator: 'and',
-                filters: null,
-                filter_groups: null
-            },
-            data: {
-                keyword : '',
-                min_price: null,
-                max_price: null,
-                location: null
-            },
-            configs : null,
-            state_loaded: false
-        }
-
-        $fm._buildFiltersDebounce = null;
-        $fm._events_listener = {};
-        // events 
-        $fm.on = function($event_key){
-            if(typeof $fm._events_listener[$event_key] == 'undefined'){
-                $fm._events_listener[$event_key] = [];
-            }
-
-            let lResult = {
-                _callback :null,
-                then : function($fn){
-                    this._callback = $fn;
-                },
-                resolve: function(){
-                    //console.log('on resolve',this._callback)
-                    this._callback.apply(undefined, arguments);
-                }
-            }
-
-            $fm._events_listener[$event_key].push(function(){
-                lResult.resolve.apply(lResult, arguments);
-            });
-
-            return lResult;
-        }
-
-        $fm.trigger = function($event_key){
-            if(typeof $fm._events_listener[$event_key] == 'undefined') return;
-            const $params = Array.prototype.slice.call(arguments,1);
-            $fm._events_listener[$event_key].forEach(function($e) {return $e.apply(undefined, $params)});
-        }
-
-        $fm.searchByKeyword = function($keyword){
-            $fm.resetFilters(false);
-
-            $fm.query_text = $keyword;
-            $fm.data.keyword = $keyword;
-            
-            $fm.saveState();
-            $fm.buildFilters();
-        }
-
-        // #region **** Filters Handling ****
-
-        /**
-         * Check wether there's any filter or not
-         * @return {boolean}
-         */
-        $fm.hasFilters = function($customCheck){
-            if($fm.filter_group.filter_groups != null && $fm.filter_group.filter_groups.length>0) return true;
-            if($fm.filter_group.filters != null && $fm.filter_group.filters.length>0) return true;
-            if($fm.query_text != null) return true;
-            if($fm.data.location != null) return true;
-            //if($fm.data.keyword != '') return true;
-            if($fm.data.min_price != null && $fm.data.min_price > 0) return true;
-            if($fm.data.max_price != null && $fm.data.max_price > 0) return true;
-
-
-            return false;
-        }
-
-        /**
-         * Check if a filter matches a name
-         * @param {string} $fieldname Name of the filter
-         * @return {boolean} 
-         */
-        $fm.hasFilter = function($fieldname){
-            if($fm.hasFilters()){
-                let lFields = $fieldname
-                if(!Array.isArray(lFields)){
-                    lFields = [$fieldname];
-                }
-                return lFields.some(function($f) {
-                    return $fm.getFilterByFieldName($f) != null
-                });
-            }
-            else{
-                return false;
-            }
-        }
-
-        $fm.sublistHasFilters = function($parent_code, $list){
-            for(let lKey in $list){
-                let lItem = $list[lKey];
-                
-                if(lItem.parent==$parent_code){
-                    
-                    if(lItem.selected){
-                        return true;
-                    }
-                }
-            }
-        }
-
-        /**
-         * Get the value stored in a filter
-         * @param {string} $fieldname Name of the filter
-         * @return {*} Return the value when found, null otherwise
-         */
-        $fm.getFilterValue = function($fieldname){
-            let lFilter = $fm.getFilterByFieldName($fieldname);
-            if(lFilter!=null){
-                return lFilter.value;
-            }
-            return null;
-        }
-
-        $fm.getFilterCaption = function($fieldname, $default){
-            let lFilter = $fm.getFilterByFieldName($fieldname);
-            if(lFilter!=null){
-                //console.log('filter found for caption', lFilter);
-                $default = typeof($default)=='undefined' ? lFilter.value:$default;
-                return lFilter.label;
-            }
-
-            $default = typeof($default)=='undefined' ? '':$default;
-            return $default;
-        }
-
-        $fm.getFilterCaptionFromList = function($fieldname,$list,$default){
-            let lValue = null;
-
-            if(typeof $fieldname == 'object'){
-                const lKey = Object.keys($fieldname)[0];
-                lValue = $fm[lKey][$fieldname[lKey]]
-            }
-            else{
-                lValue = $fm.getFilterValue($fieldname);
-            }
-            
-            if(lValue == null){
-                return $default;
-            }
-            let lItem = null;
-            if($list.some(function($e){ return $e.filter != undefined})){
-                lItem = $list.find(function($e) {return $e.filter.value == lValue});
-            }
-            else{
-                lItem = $list.find(function($e){return $e.value == lValue});
-            }
-            
-            if(lItem == null){
-                return $default;
-            }
-            
-            if(lItem.label != undefined){
-                return lItem.label;
-            }
-            if(lItem.name != undefined){
-                return lItem.name;
-            }
-            return lItem.caption;
-        }
-        
-        /**
-         * Get a filter by the field name associated to it
-         * @param {string} $fieldname Name of the filter
-         * @return {*} Return the filter when found, null otherwise
-         */
-        $fm.getFilterByFieldName = function($fieldname, $group){    
-            let lResult = null;
-            $group = (typeof $group == 'undefined') ? $fm.filter_group : $group;
-
-            if($group.filters != null){
-                $group.filters.some(function($e){
-                    if($fieldname.indexOf('*')>=0){
-                        if($e.field.indexOf($fieldname.replace("*",""))>=0){
-                            lResult = $e;
-                            return true;
-                        }
-                    }
-                    else{
-                        if($e.field == $fieldname){
-                            lResult = $e;
-                            return true;
-                        }
-                    }
-                });
-            }
-
-            if(lResult == null && $group.filter_groups != null){
-                $group.filter_groups.some(function($group){
-                    let lGroupResult = $fm.getFilterByFieldName($fieldname, $group);
-                    if(lGroupResult != null){
-                        lResult = lGroupResult;
-                        return true;
-                    }
-                });
-            }
-
-            return lResult;
-            
-        }
-
-        /**
-         * Add a filter to the list
-         * @param {*} $field Field name (or array of field name) on which the filter is applied
-         * @param {string} $operator Operand for the filter
-         * @param {*} $value Value to filter
-         * @param {*} $label Caption for the filter hint
-         * @param {*} $reverseFunc Function to remove the filter
-         */
-        $fm.addFilter = function($field,$operator,$value, $label, $reverseFunc){
-            // if(typeof $fm.$parent.addFilter == 'function'){
-            //     $fm.$parent.addFilter($field,$operator,$value,$label,$reverseFunc);
-            //     return;
-            // }
-            $fm.resetKeywordSearch();
-
-            // When field is and array
-            if(Array.isArray($field)){
-                $fm.addFilterGroup($field, $operator, $value, $label);
-            }
-            else{
-                $fm.setFilter($field, $operator, $value, $fm.filter_group, $label,$reverseFunc);
-            }
-
-            // save filters to localStorage
-            $fm.saveState();
-
-            if($fm._buildFiltersDebounce!= null){
-                window.clearTimeout($fm._buildFiltersDebounce);
-            }
-
-            $fm._buildFiltersDebounce = window.setTimeout(function(){
-                $fm.buildFilters();
-            }, 100); 
-        }
-
-        $fm.toggleFilter = function($field,$operator,$value, $label, $reverseFunc){
-            if($fm.hasFilter($field) && $fm.getFilterValue($field) == $value){
-                $fm.addFilter($field,$operator,null);
-            }
-            else{
-                $fm.addFilter($field,$operator,$value, $label, $reverseFunc)
-            }
-        }
-
-        $fm.addGeoFilter = function(){
-            $q(function($resolve,$reject){
-                if($fm.data.location != null){
-                    $fm.data.location = null;
-                    
-                    $resolve();
-                }
-                else{
-                    navigator.geolocation.getCurrentPosition(function($position){
-                        //console.log($position);
-                        $fm.data.location = {
-                            latitude: $position.coords.latitude,
-                            longitude: $position.coords.longitude,
-                            distance : 5000 // set radius to 5Km
-                        };
-    
-                        $resolve();
-                    });
-                }
-            }).then(function(){
-                $fm.saveState();
-                $fm.buildFilters();
-                $fm.trigger('update');
-            });
-            
-        }
-
-        /**
-         * Add a filter from an attribute
-         * @param {object} $attr 
-         */
-        $fm.addAttributeFilter = function($attr){
-            let lValue = $attr.selected ? true : '';
-
-            $fm.addFilter(
-                $attr.field, 
-                'equal', 
-                lValue, 
-                $attr.caption.translate(),
-                function(){
-                    //console.log('reversin attr',$attr);
-                    $attr.selected=false;
-                    $fm.addFilter($attr.field,'equal','');
-                }
-            );
-        }
-
-
-        $fm.addFilterGroup = function($fields,$operator,$value, $label){
-            let lGroupName = $fields.join('-') + '-' + $operator;
-            let parentFilterGroup = $fm.getFieldGroup(lGroupName,$fm.filter_group);
-            
-            if(parentFilterGroup==null){
-                parentFilterGroup = {
-                    operator: 'or',
-                    name: lGroupName,
-                    filters: null,
-                    filter_groups: null
-                };
-
-                if($fm.filter_group.filter_groups==null) $fm.filter_group.filter_groups = [];
-                $fm.filter_group.filter_groups.push(parentFilterGroup);
-            }
-            
-            $fields.forEach(function($f,$index){
-                let lValue = $value;
-                if($value != null){
-                    if(typeof($value.push) == 'function'){
-                        if($value.length>$index){
-                            lValue = $value[$index];
-                        }
-                        else{
-                            lValue = null;
-                        }
-                    }
-                    $fm.setFilter($f,$operator,lValue,parentFilterGroup, $label);
-                }
-            });
-
-            if(parentFilterGroup.filters==null){
-                $fm.filter_group.filter_groups.forEach(function($g,$i){
-                    if($g.name==parentFilterGroup.name){
-                        $fm.filter_group.filter_groups.splice($i,1);
-                    }
-                });
-            }
-            if($fm.filter_group.filter_groups.length==0){
-                $fm.filter_group.filter_groups = null;
-            }
-
-        };
-
-        $fm.setFilter = function($field, $operator, $value, $group,$label,$reverseFunc){
-            if($group.filters == null){
-                $group.filters = [];
-            }
-            let lFilterIndex = 0;
-            let lNewFilter = {
-                field: $field,
-                operator: $operator,
-                value: $value,
-                label: $label,
-                reverse: $reverseFunc || function(){
-                    $fm.addFilter($field,$operator, '');
-                }
-            };
-
-            lFilterIndex = $group.filters.findIndex(function($gf){
-                if($gf.field == $field && $gf.operator == $operator) return true;
-            });
-
-            // for(lFilterIndex = 0; lFilterIndex < $group.filters.length; lFilterIndex++){
-            //     if($group.filters[lFilterIndex].field == $field){
-            //         break;
-            //     }
-            // }
-            
-            console.log('setFilter', lNewFilter, lFilterIndex, $group.filters);
-
-            if(lFilterIndex >= 0){
-                if($value==='' || $value==null){
-                    $fm.removeFilter(lFilterIndex, $group);
-                }
-                else if (Array.isArray($value) && $value.length == 0){
-                    $fm.removeFilter(lFilterIndex, $group);
-                }
-                else{
-                    $fm.updateFilter(lNewFilter, lFilterIndex, $group);
-                }
-            }
-            else {
-                if($value !== '' && $value !== null){
-                    $group.filters.push(lNewFilter);
-                }
-            }
-            
-        }
-
-        $fm.updateFilter = function($filter,$index, $group){
-            //console.log('update filter', $filter );
-            $group.filters[$index] = $filter;
-        }
-
-        $fm.removeFilter = function($index, $group){
-            //console.log('remove filter', $index );
-            $group.filters.splice($index,1);
-            if($group.filters.length == 0){
-                $group.filters=null;
-            }
-
-            //$fm.clean();
-        }
-
-
-        $fm.getFieldGroup = function($groupName, $parent){
-            if($parent.name==$groupName){
-                return $parent;
-            }
-            else{
-                if($parent.filter_groups!=null){
-                    let lResult = $parent.filter_groups.find(function($g){
-                        return $g.name == $groupName;
-                    });
-
-                    if(lResult == null){
-                        $parent.filter_groups.some(function($g){
-                            lResult = $fm.getFieldGroup($groupName, $g);
-                            return lResult==null;
-                        });
-                    }
-                    
-                    return lResult;
-                }
-            }
-
-            return null;
-        }
-
-        //// FILTERS BUILDING
-        
-        /**
-        * Reset all filter to nothing
-        */
-        $fm.resetFilters = function($triggerUpdate){
-            $triggerUpdate = (typeof $triggerUpdate == 'undefined') ? true : $triggerUpdate;
-            
-            $fm.filter_group = {
-                operator: 'and',
-                filters: null,
-                filter_groups: null
-            };
-            $fm.query_text = null;
-            // $fm.data.min_price = null;
-            // $fm.data.max_price = null;
-            // $fm.data.location = null;
-            Object.keys($fm.data).forEach(function($k){
-                $fm.data[$k] = null;
-            });
-            $fm.data.keyword = '';
-
-            // save filters to localStorage
-            $fm.clearState();
-            
-            //$fm.buildFilters();
-            if($triggerUpdate){
-                $fm.trigger('update');
-
-                $fm.getConfigs().then(function($configs){
-                    //$fm.trigger('filterTokenChanged');
-                    if($configs.search_token!=''){
-                        $fm.trigger('filterTokenChanged');
-                        //$rootScope.$broadcast($scope.alias + 'FilterTokenChanged', $configs.search_token);
-
-                        // if($scope.onTokenChange!=undefined){
-                        //     $scope.onTokenChange();
-                        // }
-                    }
-                    else{
-                        // reset the filter manager last
-                        // this will trigger the UI update
-                        
-                    }
-                    $fm.trigger('update');
-                });
-            }
-        }
-
-        $fm.resetKeywordSearch = function(){
-            let lKey = 'si.' + $fm.alias + '.{0}';
-
-            $fm.query_text = null;
-            $fm.data.keyword = '';
-
-            sessionStorage.removeItem(lKey.format('query'));
-        }
-
-        /**
-         * Remove all 'selected' attribute from list elements
-         * @param {object} $list List to reset
-         */
-        $fm.resetListSelections = function($list){
-            for(let $subkey in $list){
-                delete $list[$subkey].selected;
-            }
-        }
-
-        /**
-         * Build the object to send as search parameters
-         */
-        
-        $fm.buildFilters = function(){
-            let lResult = null;
-            let lPromise = $q(function($resolve, $reject){
-                
-                $fm.getConfigs().then(function($configs){
-                    if(
-                        !$fm.hasFilters()
-                        && $fm.query_text == null
-                        && $fm.sort_fields.length == 0
-                        && $fm.data.location == null
-                    ){
-                        $fm.clearState();
-                        $fm.resetFilters();
-                        return;
-                    }
-
-                    if($configs.limit>0){
-                        lResult = {
-                            max_item_count : $configs.limit
-                        }
-                    }
-                    
-                    if($configs.filter_group != null || $fm.hasFilters()){
-                        $fm.clean();
-
-                        if(lResult==null) lResult = {};
-                        lResult.filter_group = {filters:[]};
-                        if($configs.filter_group != null){
-                            lResult.filter_group = angular.copy($configs.filter_group)
-                        }
-        
-                        if($fm.hasFilters()){
-                            if(lResult.filter_group.filter_groups == undefined) lResult.filter_group.filter_groups = [];
-
-                            lResult.filter_group.filter_groups.push($fm.filter_group);
-                        }
-                        
-                        lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
-                    }
-                    
-                    if($fm.sort_fields.length > 0 && $fm.sort_fields.filter(function($f) {return $f.field!=''}).length > 0){
-                        lResult.sort_fields = $fm.sort_fields.filter(function($f){return $f.field!=''});
-                    }
-                    else if($configs.sort != 'auto' && $configs.sort != ''){
-                        lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
-                    }
-                    else{
-                        lResult.sort_fields = null;
-                    }
-
-                    
-                    if($fm.query_text != null){
-                        lResult.query_text = $fm.query_text;
-                        lResult.filter_group = null;
-                    }
-
-                    if($fm.data.location != null){
-                        lResult.proximity_filter = $fm.data.location;
-                    }
-                    
-                    $fm.getSearchToken(lResult).then(function($token){
-                      
-                        if($token!=''){
-                            
-                            $fm.saveState('st', $token);
-                            
-                            //$rootScope.$broadcast($fm.alias + 'FilterTokenChanged', $token);
-                            $fm.trigger('filterTokenChanged', $token);
-                          
-                            if($fm.result_url != null){
-                                $fm.saveState()
-                                window.location = $fm.result_url;
-                            }
-                            else{
-                                $resolve($token);
-                            }
-                        }
-                        else{
-                            $reject();
-                        }
-                    })
-                });
-            });
-
-            return lPromise;
-        }
-
-        /**
-         * Synchronize list selection to filter
-         * @param {object} $filter Filter bound to list
-         * @param {object} $list List object or array
-         */
-        $fm.syncToList = function($filter, $list){
-            // make sure list is an array
-            let lListArray = $siUtils.toArray($list);
-            //console.log($list, $filter);
-
-            lListArray.forEach(function($e){
-                // when filter is an array of value and item key is contained in that list
-                if($filter.operator=='in' && ($filter.value.indexOf($e.__$obj_key)>=0)){
-                    if($list[$e.__$obj_key].selected == undefined || !$list[$e.__$obj_key].selected) $list[$e.__$obj_key].selected=true;
-                }
-                // when item field matches filter field
-                else if($e.field==$filter.field){
-                    if(!$e.selected) $e.selected=true; // set selection on the list item
-                }
-                // when item has a filter attribute which the field 
-                else if(($e.filter != undefined) && $e.filter.field == $filter.field){
-                    if(!$e.selected) $e.selected=true; // set selection on the list item
-                }
-            });
-        }
-
-        /**
-         * Loop through object attributes and return a list of key that are marked as "selected"
-         * @param {object} $list 
-         */
-        $fm.getSelection = function($list){
-            let lResult = [];
-            for (let lKey in $list) {
-                if($list[lKey].selected==true){
-                    lResult.push(lKey);
-                }
-            }
-            
-            return lResult;
-        }
-
-        
-
-        /**
-         * Normalize values for all filters and sub group filters
-         * @param {object} $filter_group Group to be normalize
-         */
-        $fm.normalizeFilterGroup = function($filter_group){
-            if($filter_group.filters){
-                $filter_group.filters.forEach(function($filter){
-                    // When in or not_in, value should be an array
-                    if(['in','not_in'].indexOf($filter.operator) >= 0){
-                        // if value is not an array, split it to one
-                        if(typeof($filter.value.split)=='function'){
-                            $filter.value = $filter.value.split(",");
-                        }
-                        
-                        // loop through values to fix type
-                        $filter.value.forEach(function($val){
-                            if(typeof($val) !== typeof(true)){
-                                if(!isNaN($val)){
-                                    $val = Number($val)
-                                }
-                            }
-                        });
-                    }
-                    else{
-                        // When value is a number, make it an authentic one
-                        if(typeof($filter.value) !== typeof(true)){
-
-                            if(!isNaN($filter.value)){
-                                $filter.value = Number($filter.value);
-                            }
-                        }
-                    }
-                });
-            }
-            
-            if($filter_group.filter_groups){
-                // loop through sub group to apply normalization
-                $filter_group.filter_groups.forEach(function($group){
-                    $fm.normalizeFilterGroup($group);
-                });
-            }
-
-            return $filter_group;
-        }
-
-        // #endregion
-    
-
-        $fm.saveState = function($item_key, $data){
-            
-            let lKey = 'si.' + $fm.alias + '.{0}';
-            
-            if($item_key == undefined){
-                $fm.state_loaded = false;
-                sessionStorage.setItem(lKey.format('filter_group'), JSON.stringify($fm.filter_group));
-                if($fm.query_text!=null){
-                    sessionStorage.setItem(lKey.format('query'), $fm.query_text);
-                }
-                
-                sessionStorage.setItem(lKey.format('data'), JSON.stringify($fm.data));
-            }
-            else{
-                let lValue = $data;
-                if(typeof(lValue) == 'object'){
-                    lValue = JSON.stringify(lValue);
-                }
-                sessionStorage.setItem(lKey.format($item_key), lValue);
-            }
-            
-
-        }
-        $fm.clearState = function($item_key){
-            let lKey = 'si.' + $fm.alias + '.{0}';
-
-            if($item_key == undefined){
-                $fm.state_loaded = false;
-                sessionStorage.removeItem(lKey.format('filter_group'));
-                sessionStorage.removeItem(lKey.format('data'));
-                sessionStorage.removeItem(lKey.format('query'));
-                sessionStorage.removeItem(lKey.format('st'));
-            }
-            else{
-                sessionStorage.removeItem(lKey.format($item_key));
-            }
-        }
-        $fm.loadState = function($item_key){
-            $key = 'si.' + $fm.alias + '.{0}';
-            if($item_key == undefined && !$fm.state_loaded){
-                let lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));
-                let lSessionData = sessionStorage.getItem($key.format('data'));
-                let lQuery = sessionStorage.getItem($key.format('query'));
-                //let lSessionSearchKeyword = sessionStorage.getItem($key.format('search-keyword'));
-                if(lSessionFilterGroup != null){
-                    $fm.filter_group = JSON.parse(lSessionFilterGroup);
-                }
-                if(lSessionData != null){
-                    let lData = JSON.parse(lSessionData);
-                    $fm.data = lData; 
-                }
-
-                if(lQuery != null){
-                    $fm.query_text = lQuery;
-                    $fm.data.keyword = lQuery;
-                }
-                else{
-                    $fm.data.keyword = '';
-                }
-                $fm.state_loaded = true;
-            }
-            else{
-                let lResult = sessionStorage.getItem($key.format($item_key));
-                try {
-                    lResult = JSON.parse(lResult);
-                } catch (error) {
-                    
-                }
-                return lResult;
-            }
-        }
-
-        $fm.clean = function($group){
-            $group = ($group == undefined) ? $fm.filter_group : $group;
-            
-            if($group.filters != null){
-                if($group.filters.length == 0) {
-                    $group.filters = null;
-                }
-            }
-
-            if($group.filter_groups != null){
-                if($group.filter_groups.length > 0){
-                    $group.filter_groups.forEach(function($g){
-                        $fm.clean($g);
-                    });
-
-                    if($group.filter_groups.every(function($g){
-                        return $g.filters == null;
-                    })){
-                        $group.filter_groups = null;
-                    }
-                }
-
-                if($group.filter_groups != null && $group.filter_groups.length == 0) {
-                    $group.filter_groups = null;
-                }
-            }
-        }
-
-        /**
-         * Get a new search token from the api
-         * @param {object} $filters 
-         * @return {object} Promise
-         */
-        $fm.getSearchToken = function($filters){
-            //console.log('getSearchToken', $filters);
-            // $filters.sort_fields = $filters.sort_fields.filter($sf => $sf.field!='');
-            // if($filters.sort_fields.length == 0) delete $filters.sort_fields;
-            if($filters == null) return $q.resolve();
-            
-            $fm.normalize($filters.filter_group);
-            
-            let lPromise =  $q(function($resolve, $reject){    
-                if($filters != null){
-                    $siApi.api('utils/search_encode', $filters).then(function($response){
-                        $resolve($response);
-                    });
-                }
-                else{
-                    $resolve('');
-                }
-            
-            });
-            return lPromise;
-        }
-
-        $fm.normalize = function($filterGroup){
-            const lNewGroup = [];
-            if($filterGroup==null) return;
-            
-            if($filterGroup.filter_groups){
-                $filterGroup.filter_groups.forEach( function ($f,$i) {
-                    if($f.filter_groups != null){
-                        $fm.normalize($f);
-                    }
-                    if($f.filter_groups != null){
-                        lNewGroup.push($f);
-                    }
-                    else if ($f.filters != null){
-                        lNewGroup.push($f);
-                    }
-                });
-                
-
-                $filterGroup.filter_groups = lNewGroup;
-            }
-        }
-
-        $fm.getConfigs = function(){
-            return $q(function($resolve,$reject){
-                if($fm.configs != null){
-                    $resolve($fm.configs);
-                }
-            })
-        }
-
-        return $fm;
-    }
-
-
-    return $scope;
-}]);

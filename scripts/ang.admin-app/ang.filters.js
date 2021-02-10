@@ -9,6 +9,23 @@ siApp
 });
 
 siApp
+.filter('translate', function(){
+    return function($value){
+        if($value[$locales._current_lang_] != undefined){
+            return $value[$locales._current_lang_];
+        }
+        return $value.toString().translate();
+    }
+});
+
+siApp
+.filter('math_floor', function(){
+    return function($value){
+        return Math.floor($value);
+    }
+})
+
+siApp
 .filter('truncate', function(){
     return function($source, $limit){
         let lResult = $source;
@@ -20,5 +37,19 @@ siApp
         }
 
         return lResult;
+    }
+});
+
+siApp
+.filter('siRelativePath', function(){
+    return function($path){
+        return $path.replace('~', wpSiApiSettings.base_path)
+    }
+})
+
+siApp
+.filter('siElementExists', function(){
+    return function($element){
+        return document.querySelectorAll($element).length > 0
     }
 })

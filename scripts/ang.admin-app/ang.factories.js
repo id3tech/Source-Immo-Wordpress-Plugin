@@ -129,6 +129,50 @@ function $siUtils($siApi,$q){
     return $filter_group;
   }
 
+  $scope.createList = function($view, $type, $alias, $sort = '', $sortReverse = false, $limit = 0,$list=null){
+    const lList = $list == null ? {alias : $alias, type: $type} : $list;
+
+    const lTypedDatas = {
+      'listings' : {
+        search_engine_options : {
+          type : 'full',
+          filter_tags: 'none'
+        },
+        displayed_vars: {
+          main: ["address", "city", "price", "rooms","category", "subcategory"]
+        }
+      },
+      'brokers' : {
+        search_engine_options : {
+          type : 'full'
+        },
+        displayed_vars: {
+          main: ["first_name", "last_name", "phone", "title"]
+        }
+      }
+    }
+
+    lList.sort = $sort==''  ? null : $sort;
+    lList.sort_reverse = $sortReverse;
+    lList.limit = $limit;
+    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
+    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    
+    lList.searchable = true;
+    lList.sortable = true;
+    lList.mappable = true;
+
+    if(lTypedDatas[$type]!=undefined){
+      lList.search_engine_options = lTypedDatas[$type].search_engine_options;
+      lList.list_item_layout.displayed_vars = lTypedDatas[$type].displayed_vars;
+    }
+
+    lList.source = $view;
+    lList.search_token = '';
+
+    return lList;
+  }
+
   
   return $scope;
 }]);
@@ -234,7 +278,41 @@ siApp
 .factory('$siApi', [
   '$http','$q',
   function $siApi($http,$q){
-    $scope = {};
+    const $scope = {
+      nonceTimeout: 10
+    };
+
+    $scope.renewNonce = function(){
+      console.log('$siApi/renewNonce');
+      $options = {
+        url     : wpSiApiSettings.root + 'si-rest/new_nonce',
+        method  : 'GET',       
+      };
+
+      // Setup promise object
+      $q(function($resolve, $reject){
+          $http($options).then(
+            // On success
+            function success($result){
+              if($result.status=='200'){
+                wpSiApiSettings.nonce = $result.data;
+                $resolve();
+              }
+              else{
+                $reject(null);
+              }
+            },
+            // On fail
+            function fail($error){
+              console.log('Fail on path', $path, 'with data' , $data , $error);
+            }
+          )
+      });
+    }   
+    window.setInterval(function(){
+      $scope.renewNonce();
+    }, $scope.nonceTimeout * 60 * 1000 );
+
 
     $scope.rest = function($path, $data, $options){
       $options = angular.merge({
@@ -267,7 +345,6 @@ siApp
             // On fail
             function fail($error){
               console.log('Fail on path', $path, 'with data' , $data , $error);
-              $scope.show_toast($error);
             }
           )
       });
@@ -275,7 +352,7 @@ siApp
       return lPromise;
     }
 
-    $scope.call = function($path, $data, $options){
+    $scope.call = function($path, $data, $options, $credentialInfos){
       $path = (typeof $path.push == 'function') ? $path.join('/') : $path;
       $options = angular.merge({
         url     : wpSiApiSettings.api_root + '/api/' + $path,
@@ -287,6 +364,15 @@ siApp
       }
       else{
         $options.data = $data;
+      }
+
+      if($credentialInfos != undefined){
+        $options.headers = {
+          "x-si-account": $credentialInfos.account_id,
+          "x-si-api" : $credentialInfos.api_key,
+          "x-si-appId" : $credentialInfos.app_id,
+          "x-si-appVersion" : $credentialInfos.app_version
+        }
       }
 
       let lPromise = $q(function($resolve,$reject){
@@ -309,11 +395,185 @@ siApp
       return lPromise;
     }
 
+    $scope.portal = function($path, $data, $options, $credentialInfos){
+      const lOptions = Object.assign({
+        method: 'POST'
+      }, $options);
+  
+      lOptions.url = 'https://portal-api.source.immo/api/' + $path;
+  
+      if($data != null){
+        if(lOptions.method=='POST'){
+          lOptions.data = $data;
+        }
+        else{
+          lOptions.params = $path;
+        }
+      }
+  
+      if($credentialInfos != undefined){
+        if(!lOptions.params) lOptions.params = {};
+        
+        lOptions.params.at = $credentialInfos.credentials.authTokenKey;
+  
+        if($credentialInfos.account_id != null){
+          lOptions.params.la = $credentialInfos.account_id;
+        }
+      }
+      
+  
+      return $q(($resolve,$reject) => {
+        $http(lOptions).then($response => {
+          //$scope.dialog('signin', null);
+          if($response.status==200){
+            $resolve($response.data);
+          }
+        })
+        .catch($err => { console.log($path, 'call failed', $err) });
+      })
+      
+    }
+
     return $scope;
   }
 ])
 
+siApp
+.factory('$siConfigs',['$rootScope','$q','$siApi','$siUI','$timeout', function $siConfigs($rootScope,$q,$siApi,$siUI,$timeout){
+  const $scope = {
+    configsBackup: null
+  }
 
+  $scope.load = function(){
+    return $q( function($resolve,$reject){
+      $siApi.rest('configs')
+        .then(function($configs){
+          $scope.configs = $configs;
+        })
+        .then(function(){
+          return $scope.loadBackup()
+        })
+        .then($backup => {
+          if($backup != null && $backup != ''){
+            $scope.configsBackup = JSON.parse($backup);
+          }
+          
+          $resolve($scope.configs);
+        });
+    });
+  }
+
+  $scope.loadNetwork = function(){
+    return $q( function($resolve,$reject){
+      $siApi.rest('configs/network')
+        .then(function($configs){
+          $scope.networkConfigs = $configs;
+          $resolve($scope.networkConfigs);
+        });
+    });
+  }
+
+  $scope.save = function($configs){
+    $scope.configs = $configs;
+    return $siApi.rest('configs',{settings: $configs},{method: 'POST'})
+  }
+
+  $scope.saveNetwork = function($configs){
+    $scope.networkConfigs = $configs;
+    return $siApi.rest('configs/network',{settings: $configs},{method: 'POST'})
+  }
+
+  $scope.backup = function(){
+    $scope.configsBackup = angular.copy($scope.configs);
+    return $siApi.rest('configs/backup',null,{method: 'POST'});
+  }
+
+  $scope.loadBackup = function(){
+    return $siApi.rest('configs/backup');
+  }
+
+  $scope.clearBackup = function(){
+    $scope.configsBackup = null;
+    return $siApi.rest('configs/backup',null, {method: 'DELETE'});
+  }
+
+  $scope.restoreBackup = function($options){
+    $options = Object.assign({
+      directMethod: null
+    },$options);
+
+    if($options.directMethod != null && typeof $scope[$options.directMethod] == 'function'){
+      return $scope[$options.directMethod]();
+    }
+
+    const fnConfirm = _ => $siUI.confirm('Attention','Are you sure?\nThis will replace your current configuration');
+    $siUI.confirm('Attention','Would you like to restore everything (including credentials token) or merge with the current configuration?',{ok: 'Merge',cancel: 'Everything'})
+      .then(
+        function merge(){
+          fnConfirm().then(_ => {
+            $scope.restoreMerge();
+          });
+        },
+        function everything(){
+          fnConfirm().then(_ => {
+            $scope.restoreEverything();
+          })
+        }
+      )
+  }
+
+  $scope.restoreEverything = function(){
+    console.log('restoring everything from',$scope.configsBackup);
+    
+    const lConfigs = angular.copy($scope.configsBackup);
+
+    $scope.clearBackup()
+      .then(_ => {
+        return $scope.save(lConfigs);
+      })
+      .then(_ => {
+        $scope.configsBackup = null;
+        $siUI.show_toast('Settings restored');
+        window.location.reload(true);
+      });
+  }
+
+  $scope.restoreMerge = function(){
+    const lNewConfigs = $scope.mergeBackupToConfigs($scope.configs);
+   
+    $scope.clearBackup()
+      .then(_ => {
+        return $scope.save(lNewConfigs);
+      })
+      .then(_ => {
+        $scope.configsBackup = null;
+        $siUI.show_toast('Settings restored');
+        window.location.reload(true);
+      })
+    
+  }
+
+  $scope.mergeBackupToConfigs = function($configs){
+    const lBackup = angular.copy($scope.configsBackup);
+    const lExceptionKeys = ['account_id','api_key','app_id','app_version','default_view'];
+    const lDefaultView = $scope.data_views.find($e => $e.id == $configs.default_view);
+    
+    Object.keys($configs)
+      .filter($k => lExceptionKeys.includes($k))  // take only the keys that we want to keep from new settings
+      .forEach($k => {
+        lBackup[$k] = $configs[$k];
+      });
+    
+    lBackup.lists.forEach($l => {
+      $l.source = lDefaultView;
+    });
+
+    return lBackup;
+
+  }
+
+  return $scope;
+}]);
 
 siApp
 .factory('$siUI',['$mdDialog','$mdToast','$q','$rootScope', function $siUI($mdDialog,$mdToast,$q,$rootScope){
@@ -326,19 +586,50 @@ siApp
    * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
    * @return {promise}
    */
-  $scope.confirm = function($title, $message, $options){
+  $scope.alert = function($message, $options){
     $message = typeof($message) == 'undefined' ? '' : $message;
 
     $options = angular.merge({
       ev: null,
+      ok: 'OK'
+    }, $options);
+    
+    // Appending dialog to document.body to cover sidenav in docs app
+    const lDialog = $mdDialog.alert()
+                    .clickOutsideToClose(false)
+                    .textContent($message.translate())
+                    .ok($options.ok)
+                    .targetEvent($options.ev)
+                    lDialog._options.parent = angular.element(document.body);
+
+    $mdDialog.show(
+      lDialog
+    );
+  }
+
+  /**
+   * Display a confirmation box
+   * @param {string} $title Main confirm message
+   * @param {string} $message Optional. Additionnal information to help understand the main message. Default : empty
+   * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
+   * @return {promise}
+   */
+  $scope.confirm = function($title, $message, $options){
+    const lTitle = ($message == undefined) ? '': $title;
+    const lMessage = ($message == undefined) ? $title : $message;
+
+    $options = angular.merge({
+      ev: null,
       ok: 'OK',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
+      multiple: true
     }, $options);
     
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
-          .title($title.translate())
-          .textContent($message.translate())
+          .title(lTitle)
+          .htmlContent(lMessage.translate().replace("\n",'<br>'))
+          .multiple($options.multiple)
           .targetEvent($options.ev)
           .ok($options.ok.translate())
           .cancel($options.cancel.translate());
@@ -357,7 +648,7 @@ siApp
         $mdToast.simple()
           .textContent($message.translate())
           .position('top right')
-          .hideDelay(3000)
+          .hideDelay(2000)
       );
     }
     catch($ex){
@@ -369,20 +660,49 @@ siApp
 
   /**
    * Call a dialog to open
-   * @param {string} $dialog_id 
-   * @param {*} $params 
+   * @param {string} $template Url or String containing the template 
+   * @param {*} $params parameters to pass to the dialog
+   * @param {*} $options options for the dialog
    */
-  $scope.dialog = function($dialog_id, $params){
-    let lPromise = $q(function($resolve, $reject){
-      $rootScope.$broadcast(
-          'on-' + $dialog_id,     // broadcast event
-          $params,                 // dialog parameters
-          function($result){      // callback handler
-            $resolve($result);
-          });
-    });
+  $scope.dialog = function($template, $params=null, $options=null){
+    const lOptions = Object.assign({
+        parent: angular.element(document.body),
+        targetEvent: null,
+        clickOutsideToClose:true,
+        fullscreen: true,
+        multiple:true,
+        locals : {
+          $params: $params
+        }
+      },$options
+    );
 
-    return lPromise;
+    if($template.match(/^~.+\.(html|php|vbhtml|cshtml)/).length > 0){
+      lOptions.templateUrl = $template.replace('~', wpSiApiSettings.base_path) + '?t=' + (new Date()).getTime();
+      // detect controller from filename
+      if(lOptions.controller == undefined){
+        const lPageName = $template.split("/").last().match(/(.+)\./)[1];
+        const lCtrlName = lPageName.replace(/-|\./g,'_') + 'Ctrl';
+        console.log('search for controller', lCtrlName, typeof window[lCtrlName]);
+        if(typeof window[lCtrlName] == 'function'){
+          console.log('assign root base function as dialog controller');
+          lOptions.controller = window[lCtrlName];
+        }
+        else{
+          const lCtrlProvider = siApp._invokeQueue
+                                  .filter($p => $p[0] == "$controllerProvider")
+                                  .find($p => $p[2][0] == lCtrlName);
+          if(lCtrlProvider != null) lOptions.controller = lCtrlProvider[2][1];
+        }
+        
+      }
+    }
+    else{
+      lOptions.template = $template.replace(/~/g, wpSiApiSettings.base_path);
+    }
+    
+    
+    return $mdDialog.show(lOptions);
   }
 
   $scope.getPortalCredentials = function(){
@@ -401,62 +721,6 @@ siApp
 
   return $scope;
 }]);
-
-
-/**
- * Sets basic dialog handler interface function
- */
-function BaseDialogController($dialogId, $scope, $rootScope, $mdDialog){
-  $scope.dialogId = $dialogId;
-  $scope.callback = null;
-  $scope.title = $dialogId.replace('-',' ');
-  $scope.actions = [
-      { label: 'OK', action: function () { $scope.cancel() } }
-  ];
-  
-  /**
-   * Initialize dialog
-   * 
-   * Add a listener for broadcast event
-   */
-  $scope._dialogInit_ = function () {
-      
-      $scope.$on('on-' + $scope.dialogId, function ($event, $params, $callback) {
-        console.log('instance of dialog', $scope.dialogId, 'called with', $params);
-          if (typeof ($scope.init) == 'function') {
-              $scope.init($params);
-          }
-
-          $scope.open($scope.dialogId);
-          $scope.callback = $callback;
-      });
-  }
-
-  $scope.setTitle = function($new_title){
-    $scope.title = $new_title;
-  }
-
-  $scope.open = function($dialogId){
-    return $mdDialog.show({
-        contentElement: '#' + $dialogId,
-        parent: angular.element(document.body),
-        targetEvent: null,
-        clickOutsideToClose: true,
-        fullscreen: true // Only for -xs, -sm breakpoints.
-    });
-  }
-
-  $scope.cancel = function () {
-      $mdDialog.cancel();
-  }
-
-  $scope.return = function($result){
-    $scope.callback($result);
-    $mdDialog.cancel();
-  }
-
-  return $scope;
-}
 
 /**
  * Sets basic page handler interface function

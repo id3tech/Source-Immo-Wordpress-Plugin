@@ -10,14 +10,33 @@
                             "configs" => $configs
                         ));
 
-        ?>
-        <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
-            <div data-ng-repeat="item in list track by item.id" class="item-{{item.ref_number}}">
-        <?php 
-            SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
-        ?>
-            </div>
+        $itemClasses = apply_filters('si-broker-item-classes', array(
+                        'item-{{item.ref_number}}'
+                    ));
             
+        $list_styles = array();
+        foreach ($configs->list_layout->item_row_space as $key => $value) {
+            $width = round(100 / $value);
+            $list_styles[] = "--{$key}-column-width:{$width}";
+        }
+
+        if($configs->list_item_layout->preset=='custom'){
+            echo('<style>');
+            $styles = explode("\n",$configs->list_item_layout->custom_css);
+            foreach ($styles as $style) {
+                echo('.si-list .si-item .item-content ' . $style);
+            }
+            echo('</style>');
+        }
+        ?>
+        <div class="si-list" data-ng-show="(list && list.length>0) && display_mode=='list'" 
+            style="<?php echo(implode(';', $list_styles)) ?>"
+            data-on-bottom-reached="checkNextPage()">      
+            <div data-ng-repeat="item in list track by item.id" class="<?php echo(implode(' ',$itemClasses))?>">
+            <?php 
+                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
+            ?>
+            </div>
         </div>
 
         <label 
@@ -27,7 +46,7 @@
         <div class="si-list si-list-of-ghost" data-ng-show="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
             <div ng-repeat="item in ghost_list">
             <?php 
-                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->preset}", array("configs" => $configs));
+                SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
             ?>
             </div>
         </div>

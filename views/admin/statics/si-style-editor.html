@@ -1,0 +1,377 @@
+<div class="si-style-editor {{showPreview!==false ? '' : 'no-preview'}}">
+
+    <div class="si-style-editor-preview" si-style-preview="rawModel" ng-show="showPreview!==false">
+        <div layout="row" layout-align="space-between center">
+            <h4 lstr >Preview</h4>
+
+            <md-button ng-click="reset()"><lstr>Reset</lstr></md-button>
+        </div>
+        
+
+        <div class="viewport">
+            <div ng-include="previewPath"></div>
+        </div>
+    </div>
+
+    
+    <div class="configs">
+        
+
+        <h4 ng-click="openGroup('global')" ng-show="isEditable('global')" lstr>Global</h4>
+        <div id="style-global" ng-show="isEditable('global')" class="style-group global-group">
+            <md-input-container class="fullrow">
+                <md-icon class="far fa-lg fa-font"></md-icon>
+                <label><lstr>Font name</lstr> (<lstr params="defaultValues.font_name">default {0}</lstr>)</label>
+                <input ng-model="model.font_name" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.highlight"
+                ng-model-options="{debounce:500}"
+                label="{{'Highlight color'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight)}})"
+                icon="far fa-highlighter"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.highlight_text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Highlight color - text'.translate()}} ({{'default {0}'.translate().format(defaultValues.highlight_text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <md-input-container class="fullrow">
+                <md-icon class="far fa-lg fa-border-inner"></md-icon>
+                <label><lstr>Grid spacing</lstr> (<lstr params="defaultValues.layout_gutter">default {0}</lstr>)</label>
+                <input ng-model="model.layout_gutter" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+            
+        </div>
+
+        <h4 class="fullrow" ng-click="openGroup('containers')"  ng-show="isEditable('containers')" lstr>Containers</h4>
+        <div id="style-containers" ng-show="isEditable('containers')" class="style-group global-group">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.container_border_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.container_border_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.container_border">default {0}</lstr>)</label>
+                <input ng-model="model.container_border" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.container_border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.container_border_radius" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-outer"></md-icon>
+                <label><lstr>Padding</lstr> (<lstr params="defaultValues.container_padding">default {0}</lstr>)</label>
+                <input ng-model="model.container_padding" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4 class="fullrow" ng-click="openGroup('list-container')"  ng-show="isEditable('list-container')" lstr>Panels - List items</h4>
+        <div id="style-list-container" ng-show="isEditable('list-container')" class="style-group global-group">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.list_item_separator_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.list_item_separator_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.list_item_separator">default {0}</lstr>)</label>
+                <input ng-model="model.list_item_separator" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-outer"></md-icon>
+                <label><lstr>Padding</lstr> (<lstr params="defaultValues.list_item_padding">default {0}</lstr>)</label>
+                <input ng-model="model.list_item_padding" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4 class="fullrow" ng-click="openGroup('elements')"  ng-show="isEditable('elements')" lstr>Elements</h4>
+        <div id="style-elements" ng-show="isEditable('elements')" class="style-group global-group">
+            <div>
+                <div
+                    md-color-picker="options.colorPicker"
+                    ng-model="model.element_border_color"
+                    ng-model-options="{debounce:500}"
+                    label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.element_border_color)}})"
+                    icon="fad fa-border-all"
+                ></div>
+            </div>
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.element_border">default {0}</lstr>)</label>
+                <input ng-model="model.element_border" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.element_border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.element_border_radius" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-outer"></md-icon>
+                <label><lstr>Padding</lstr> (<lstr params="defaultValues.element_padding">default {0}</lstr>)</label>
+                <input ng-model="model.element_padding" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4 ng-click="openGroup('bg-fg')"  ng-show="isEditable('bg-fg')" lstr>Background / text</h4>
+        <div id="style-bg-fg" class="style-group" ng-show="isEditable('bg-fg')">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.background_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Default background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.background_color)}})"
+                icon="fad fa-send-back"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Default text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.small_contrast_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Small contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.small_contrast_color)}})"
+                icon="fad fa-send-back"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.small_contrast_text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Small contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.small_contrast_text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.medium_contrast_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Medium contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.medium_contrast_color)}})"
+                icon="fad fa-send-back"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.medium_contrast_text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Medium contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.medium_contrast_text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.high_contrast_color"
+                ng-model-options="{debounce:500}"
+                label="{{'High contrast background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.high_contrast_color)}})"
+                icon="fad fa-send-back"
+            ></div>
+
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.high_contrast_text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'High contrast text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.high_contrast_text_color)}})"
+                icon="far fa-text"
+            ></div>
+        </div>
+
+        <h4 ng-click="openGroup('components')" ng-show="isEditable('components')" lstr>Components</h4>
+        <div id="style-components" class="style-group" ng-show="isEditable('components')">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.component_border_color"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.component_border_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.component_border">default {0}</lstr>)</label>
+                <input ng-model="model.component_border" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+            
+            <md-input-container>
+                <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.component_border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.component_border_radius" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+
+            <md-input-container class="fullrow">
+                <label><md-icon class="far fa-lg fa-font"></md-icon> <lstr>Button font name</lstr> (<lstr params="defaultValues.button_font_name">default {0}</lstr>)</label>
+                <input ng-model="model.button_font_name" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <!-- Normal button -->
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_bg_color"
+                label="{{'Button background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_bg_color)}})"
+                icon="fas fa-check-square"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_text_color"
+                label="{{'Button text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_text_color)}})"
+                icon="far fa-check-square"
+            ></div>
+
+            
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_hover_bg_color"
+                label="{{'Button background hover color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_hover_bg_color)}})"
+                icon="fas fa-check-square"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_hover_text_color"
+                label="{{'Button text hover color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_hover_text_color)}})"
+                icon="far fa-check-square"
+            ></div>
+            
+
+            <!-- Alt button -->
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_alt_bg_color"
+                label="{{'Alternate button background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_alt_bg_color)}})"
+                icon="fas fa-check-square"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_alt_text_color"
+                label="{{'Alternate button text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_alt_text_color)}})"
+                icon="far fa-check-square"
+            ></div>
+
+            
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_alt_hover_bg_color"
+                label="{{'Alternate button background hover color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_alt_hover_bg_color)}})"
+                icon="fas fa-check-square"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.button_alt_hover_text_color"
+                label="{{'Alternate button text hover color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_alt_hover_text_color)}})"
+                icon="far fa-check-square"
+            ></div>
+        </div>
+
+        <h4 class="si-group-start" ng-show="isEditable('listing')"
+            ng-click="openGroup('listing')" lstr>Listing item</h4>
+        <div ng-show="isEditable('listing')" id="style-listing" class="style-group">
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-tag"></md-icon> 
+                <label><lstr>ULS label</lstr> (<lstr params="defaultValues.uls_label">default {0}</lstr>)</label>
+                <input ng-model="model.uls_label" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+            
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.listing_item_sold_bg_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Sold label flag background color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_bg_color)}})"
+                icon="far fa-flag"
+            ></div>
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.listing_item_sold_text_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Sold label flag text color'.translate()}} ({{'default {0}'.translate().format(defaultValues.listing_item_sold_text_color)}})"
+                icon="far fa-text"
+            ></div>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon>
+                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.listing_item_picture_ratio">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-expand-arrows"></md-icon>
+                <label><lstr>Picture fit</lstr> (<lstr params="defaultValues.listing_item_picture_fit">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_picture_fit" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+<!-- 
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.listing_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.listing_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container> -->
+        </div>
+
+        <h4   ng-show="isEditable('broker')" ng-click="openGroup('broker')" lstr>Broker item</h4>
+        <div  ng-show="isEditable('broker')" id="style-broker" class="style-group">
+            <md-input-container >
+                <md-icon class="far fa-lg fa-ruler-triangle"></md-icon> 
+                <label><lstr>Picture ratio</lstr> (<lstr params="defaultValues.broker_item_picture_ratio">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_picture_ratio" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-expand-arrows"></md-icon>
+                <label><lstr>Picture fit</lstr> (<lstr params="defaultValues.broker_item_picture_fit">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_picture_fit" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+<!-- 
+    
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.broker_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.broker_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container> -->
+        </div>
+
+        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
+        <div  ng-show="isEditable('office')" id="style-office" class="style-group">
+            <md-input-container  class="fullrow">
+                <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
+                <label><lstr>Column width</lstr> (<lstr params="defaultValues.office_item_column_width">default {0}</lstr>)</label>
+                <input ng-model="model.office_item_column_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+        <h4 class="si-group-start" ng-show="isEditable('custom-css')"
+            ng-click="openGroup('custom-css')" lstr>Custom style</h4>
+        <div  ng-show="isEditable('custom-css')" id="style-custom-css" class="style-group">
+            <md-input-container class="fullrow">
+                <md-icon class="far fa-lg fa-file-alt"></md-icon>
+                <textarea 
+                    placeholder="{{'Enter your custom style here'.translate()}}" 
+                    ng-model="model._custom_style" 
+                    ng-model-options="{updateOn:'blur'}" rows="15"></textarea>
+            </md-input-container>
+        </div>
+    </div>
+
+   
+</div>

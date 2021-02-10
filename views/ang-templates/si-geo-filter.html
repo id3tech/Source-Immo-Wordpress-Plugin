@@ -1,0 +1,20 @@
+<div class="si-geo-filter {{isActive() ? 'active' : ''}}" ng-show="is_available">
+    <i class="si-toggle-button far fa-crosshairs" 
+            title="{{'Toggle proximity search' | translate}}"
+            data-ng-click="toggleGeoFilter()"></i>
+  
+
+    <div class="si-radius si-hover-shade si-dropdown">
+        <div class="dropdown-button"><span>{{getDistanceLabel()}}</span></div>
+        <div class="si-dropdown-panel">
+            <div class="dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
+                    ng-repeat="tab in configs.search_engine_options.tabs track by $index"
+                    ng-click="selectView(tab.view_id)">
+                    {{tab.caption | translate}}</div>
+            <div ng-repeat="item in radiusList"
+                    class="dropdown-item {{item.value == filter.data.location.distance ? 'active' : ''}}" 
+                    ng-click="changeRadius(item.value)">{{item.label}}</div>
+        </div>
+    </div>
+
+</div>

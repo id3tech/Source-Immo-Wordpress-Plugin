@@ -1,7 +1,8 @@
-<div class="expenses detail-section {{sectionOpened('expenses')?'opened':''}}" 
+<div class="expenses si-detail-section {{sectionOpened('expenses')?'opened':''}}" 
+        data-ng-if="isAvailableSection('expenses')"
         data-ng-show="[model.building.assessment, model.land.assessment, model.expenses] | siHasValue">
-    <div class="title" data-ng-click="toggleSection('expenses')"><div><?php _e('Expenses and assessments',SI) ?></div> <div class="icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
-    <div class="detail-section-content">
+    <div class="si-title" data-ng-click="toggleSection('expenses')"><div><?php _e('Expenses and assessments',SI) ?></div> <div class="si-icon"><i class="fal fa-plus"></i><i class="fal fa-minus"></i></div></div>
+    <div class="si-detail-section-content">
 
         <div class="label-value building-assessment" ng-show="model.building.assessment">
             <label>{{'Building assessment ({0})'.translate().format(model.building.assessment.year)}}</label>

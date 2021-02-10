@@ -1,0 +1,14 @@
+<div class="infos">
+    <h2 lstr>API Key</h2>
+    <p lstr>Please select the API key to use for this web site.</p>
+</div>
+
+<div class="key-list">
+    <div ng-repeat="item in api_keys.items"
+        class="key-item">
+
+        <label>{{item.name}}</label>
+        <span></span>
+        <md-button ng-click="selectApiKey(item)">{{'Select'.translate()}}</md-button>
+    </div>
+</div>

@@ -4,18 +4,21 @@ Admin management class
 */
 
 class SourceImmoAdmin {
-  const CONFIG_PAGE_KEY = 'si-config';
+  const CONFIG_PAGE_KEY = 'source-immo';
+  const CONFIG_MENU_LOCATION = 'settings';
 
   public function init_hooks() {
     $this->register_actions(array(
       'admin_init'=>'',
       'admin_menu'=>'load_menu',
+      'network_admin_menu'=>'load_network_menu',
       'admin_notices'=>'',
       'admin_enqueue_scripts'=>'load_resources',
       'activity_box_end'=>'',
       'rightnow_end'=>'',
     ));
 
+    
     $this->register_filters(array(
       'plugin_action_links_'.plugin_basename(SI_PLUGIN_DIR. 'source-immo.php') => 'admin_plugin_settings_link', // little "settings" link in the plugin page
     ));
@@ -30,14 +33,27 @@ class SourceImmoAdmin {
     SourceImmo::view( 'admin/master' );
   }
 
+  public function render_network_page(){
+    SourceImmo::view( 'admin/master-network' );
+  }
+
 
   public function admin_help(){
 
   }
 
-  public function load_resources(){
-    wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
-    wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
+  public function load_resources($page){
+    $ressource_location = 'settings_page_';
+    if(self::CONFIG_MENU_LOCATION == 'root' || is_network_admin()){
+      $ressource_location = 'toplevel_page_';
+    }
+
+    if($page == $ressource_location  . self::CONFIG_PAGE_KEY){
+      wp_enqueue_media();
+      wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
+      wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
+      wp_enqueue_style( 'si-color-picker-style', plugins_url('/styles/mdColorPicker.min.css', SI_PLUGIN) );
+    }
   }
 
 
@@ -49,18 +65,101 @@ class SourceImmoAdmin {
   * Generate Admin menu item
   */
   public function load_menu() {
-		$hook = add_options_page(
-              __('Source Immo', SI),
-              __('Source Immo', SI),
-              'manage_options',
-              self::CONFIG_PAGE_KEY,
-              array( $this, 'render_page' )
-    );
+    $hook = false;
+
+    if(self::CONFIG_MENU_LOCATION != 'root'){
+      $hook = add_options_page(
+            __('Source Immo', SI),
+            __('Source Immo', SI),
+            'manage_options',
+            self::CONFIG_PAGE_KEY,
+            array( $this, 'render_page' )
+      );
+    }
+    else{
+      $logoContent = file_get_contents(SI_PLUGIN_DIR . '/styles/assets/logo.svg');
+      $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode($logoContent);
+      $warnings = '';
+  
+      $last_warnings = get_transient('si-last-error-count');
+      if($last_warnings != null){
+        $warnings = sprintf(' <span class="awaiting-mod">%d</span>',$last_warnings);
+      }
+  
+      add_menu_page(
+        __('Source.Immo',SI) // page title  
+        , __('Source.Immo',SI) . $warnings // menu title
+        , 'manage_options'     // capabilities
+        , 'source-immo' //menu_slug
+        , array( $this, 'render_page' ) // function
+        , $logoBase64 // icon_url
+       // , 50 // position, just before Apparence separator(59)
+      );
+    }
 
     if ( $hook ) {
-			add_action( "load-$hook", array( $this, 'admin_help' ) );
-		}
-	}
+      add_action( "load-$hook", array( $this, 'admin_help' ) );
+    }
+  }
+  public function load_network_menu(){
+  //   add_menu_page( 
+  //     'ID-3'                          // page title
+  //     ,'ID-3'                         // menu title
+  //     ,'manage_options'               // capabilities
+  //     ,'id3-tools'                    // slug
+  //     ,[$this, 'renderNetworkAdminPage']     // page renderer
+  //     ,'dashicons-layout'             // icon 
+  //     ,100                             // position
+  // );
+
+    add_menu_page(
+          __('Source Immo', SI),
+          __('Source Immo', SI),
+          'manage_options',
+          self::CONFIG_PAGE_KEY,
+          [$this, 'render_network_page']
+          ,'dashicons-admin-home' 
+          , 100
+    );
+
+    // add_submenu_page(
+    //       'settings',
+    //       __('Source Immo', SI),
+    //       __('Source Immo', SI),
+    //       'manage_options',
+    //       self::CONFIG_PAGE_KEY,
+    //       [$this, 'render_network_page']
+    // );
+  }
+
+  public function add_admin_menu_separator($position){
+    global $menu;
+    $index = 0;
+    foreach($menu as $offset => $section) {
+      if (substr($section[2],0,9)=='separator')
+        $index++;
+      if ($offset>=$position) {
+        $menu[$position] = array('','read',"separator{$index}",'','wp-menu-separator');
+        break;
+      }
+    }
+    ksort( $menu );
+  }
+
+  public function add_admin_menu_bubble($content){
+    global $menu;
+
+
+    foreach ( $menu as $key => $value ) {
+
+      if ( $menu[$key][2] == 'source-immo' ) {
+        $problem_count = 2;
+        $menu[$key][0] .= ' ' . $problem_count . '';
+
+        return;
+      }
+    }
+  }
 
   /**
   * Initialization on admin
@@ -104,7 +203,7 @@ class SourceImmoAdmin {
 
 		$args = array( 'page' => self::CONFIG_PAGE_KEY );
 		//$url = add_query_arg( $args, admin_url( 'admin.php' ) );
-    $url = add_query_arg( $args, admin_url( 'options-general.php' ) );
+    $url = add_query_arg( $args, admin_url( 'admin.php' ) );
 
 		return $url;
 	}

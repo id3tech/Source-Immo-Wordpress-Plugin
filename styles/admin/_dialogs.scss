@@ -1,0 +1,37 @@
+md-dialog{
+    &#brokers-list-item-edit,
+    &#listings-list-item-edit{
+        width: 80vw;
+        max-width: 1200px;
+        .md-dialog-content{
+            min-height:50vh;
+            display:grid;
+            grid-template-columns: auto 1fr;
+            place-items: start stretch;
+            gap: 1rem;
+
+            .item-layout-configs{
+                display:grid;
+                grid-template-columns:1fr;
+                place-self:start stretch;
+                place-items: stretch;
+                md-select{
+                    max-width:450px;
+                }
+            }
+            .styles{
+                display:grid;
+                grid-template-columns: 1fr;
+                place-items: stretch;
+                gap:0rem;
+            }
+            [disabled]{
+                pointer-events: none;
+                opacity: 0.25;
+            }
+        }
+    }
+
+    // for register dialog, see _register.scss
+    @import '_register';
+}

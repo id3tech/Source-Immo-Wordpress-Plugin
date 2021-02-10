@@ -1,0 +1,36 @@
+<div class="si-wp-media {{model ? 'has-media' : 'empty'}}" >
+    <div class="caption">
+        <label>{{caption | translate}}</label>
+        
+    </div>
+    
+    <div class="si-selected-media">
+        <div class="media-container of-{{type}}" ng-if="model">
+            <div ng-if="type=='image'">
+                <img ng-src="{{model.url}}" style="max-width: 150px; max-height:150px;" />
+                
+
+                <div class="media-actions">
+                    <md-button ng-click="clearMedia($event)" class="clear-button md-icon-button"><md-icon class="fal fa-times"></md-icon></md-button>
+                    <md-button ng-click="selectMedia($event)" class="edit-button md-icon-button"><md-icon class="fas fa-pencil"></md-icon></md-button>
+                </div>
+            </div>
+            <div ng-if="type!='image'">
+                {{model}}
+
+                <md-button ng-click="clearMedia($event)" class="clear-button md-icon-button"><md-icon class="fal fa-times"></md-icon></md-button>
+                <md-button ng-click="selectMedia($event)" class="edit-button md-icon-button"><md-icon class="fas fa-pencil"></md-icon></md-button>
+            </div>
+
+            <div class="si-media-infos" ng-if="type=='image'">
+                <div class="name">{{model.name}}</div>
+                <div class="filesize">{{model.filesizeHumanReadable}}</div>
+                <div class="size">{{model.width}}x{{model.height}} pixels</div>
+                <div class="orientation">{{model.orientation}}</div>
+            </div>
+        </div>
+        <label class="placeholder" ng-click="selectMedia()" ng-if="model==null">{{placeholder | translate}}</label>
+        
+    </div>
+    
+</div>

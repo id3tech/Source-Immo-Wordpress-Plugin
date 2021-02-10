@@ -1,4 +1,8 @@
 /* DIRECTIVES */
+siAdminDirectiveTemplatePath = function($path, $useTimeVersioning){
+  return wpSiApiSettings.base_path + '/views/admin/statics/' + $path + '.html?t=' + (new Date()).getTime();
+}
+
 // siApp
 // .directive('siAutocomplete')
 /**
@@ -30,6 +34,100 @@ siApp
     }
 }]);
 
+siApp
+.directive('siWpMedia', ['$parse', function siWpMedia($parse){
+  return {
+    restrict: 'E',
+    templateUrl: siAdminDirectiveTemplatePath('si-wp-media'),
+    replace: true,
+    scope: {
+      model: '=siModel',
+      type: '@?',
+      caption: '@?',
+      placeholder: '@?',
+      onChange: '&?siChange'
+    },
+    link: function($scope, $elm, $attr){
+      if($scope.type == undefined) $scope.type = 'image';
+      $scope.init($elm[0]);
+    },
+    controller: function($scope, $rootScope,$timeout,$q, $siUI, $siUtils){
+      $scope._wpDialog = null;
+
+      $scope.init = function(){
+
+      }
+
+      $scope.selectMedia = function(){
+        $scope.openMedia();
+      }
+
+      $scope.openMedia = function(){
+        const lDialog = $scope.getDialog();
+        lDialog.open();
+      }
+
+      $scope.getDialog = function(){
+        if($scope._wpDialog != null) return $scope._wpDialog;
+
+        const wpDialog = wp.media({
+                  title: 'Select Media',
+                  multiple : false,
+                  library : {
+                      type : $scope.type,
+                  }
+              });
+        wpDialog.on('close', function(){
+            const lSelection =  wpDialog.state().get('selection');
+            const lMedia = [];
+            lSelection.each(function($item) {
+                console.log('attachement', $item);
+                const lAttr = $item.attributes;
+                lMedia.push(lAttr);
+            });
+            
+            if(lMedia.length > 0){
+              
+
+              $timeout(function(){
+                $scope.model = lMedia[0];
+                $scope.triggerChange();
+              });
+            }
+        });
+
+        //wpDialog.on('open',function() {
+          // On open, get the id from the hidden input
+          // and select the appropiate images in the media manager
+          // var selection =  wpDialog.state().get('selection');
+          // var ids = jQuery('input#myprefix_image_id').val().split(',');
+
+          // ids.forEach(function(id) {
+          //   var attachment = wp.media.attachment(id);
+          //   attachment.fetch();
+          //   selection.add( attachment ? [ attachment ] : [] );
+          // });
+
+        //});
+
+        $scope._wpDialog = wpDialog;
+        return wpDialog;
+      }
+
+      $scope.clearMedia =function(){
+        $scope.model = null;
+        $scope.triggerChange();
+      }
+
+      $scope.triggerChange = function(){
+        if(typeof($scope.onChange) == 'function'){
+          $scope.onChange({$media: $scope.model});
+        }
+
+      }
+    }
+  }
+}]);
 
 siApp
 .directive('siRouteBox', function siRouteBox($siUtils, $siList,$siUI){
@@ -42,7 +140,7 @@ siApp
       type: '@',
       changeHandler: '&siChange'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-route-box.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-route-box.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -282,7 +380,7 @@ siApp
       type: '=siType',
       removeHandler : '&onRemove'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/ang-templates/si-filter-item.html',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-filter-item.html',
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -417,7 +515,7 @@ siApp
     restrict: 'E',
     replace: true,
     scope: true,
-    templateUrl: wpSiApiSettings.base_path + '/views/ang-templates/si-data-group-editor.html',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-data-group-editor.html',
     link: function($scope, $element, $attrs){
       const lAssoc = {
         'listings' : 'listing',
@@ -598,16 +696,17 @@ siApp
       $scope.initTip = function(){
         $scope._tip = jQuery($scope._elm).find('.si-tooltip-content');
         jQuery(document.body).append($scope._tip);
-        
       }
 
       $scope.enter = function($event){
         if($scope._tip == undefined) $scope.initTip();
 
+        const lSourceBox = $scope._elm.getBoundingClientRect();
+
         const jElm = jQuery($event.target);
         const lPos = {
-          left: Math.round(jElm.offset().left + (jElm.width() / 2)),
-          top: Math.round(jElm.offset().top)
+          left: Math.round(lSourceBox.left + (lSourceBox.width / 2)),
+          top: lSourceBox.top
         };
 
         console.log('mouse over ',$event.target, 'positionned at', lPos);
@@ -639,3 +738,731 @@ siApp
     }
   }
 }]);
+
+siApp
+.directive('siStyleEditor', ['$parse', function siStyleEditor($parse){
+  return {
+    restrict: 'E',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-style-editor.html',
+    replace: true,
+    scope: {
+      rawModel: '=siModel',
+      changeHandler: '&siChange',
+      preview: '@?siPreview',
+      showPreview: '=siShowPreview',
+      editables: '=?siEditables'
+    },
+    link: function($scope, $element, $attrs){
+      
+      console.log('siStyleEditor.link',$scope.rawModel);
+      
+      $scope.init($element[0]);
+    },
+    controller: function($scope,$timeout,$siUI){
+
+      $scope.options = {
+        colorPicker : {
+          hasBackdrop: false,
+          materialPalette: false,
+          sliders: false,
+          genericPalette: false,
+          history: false
+        }
+      }
+
+      $scope._updateWatcherHndl = null;
+      $scope._rawModelWatcherHndl = null;
+      $scope.defaultValues = {
+        'container_width' : '1170px',
+        'font_name' : 'inherit',
+        'highlight' : '#ff9900',
+        'highlight_text_color' : '#333',
+        'text_color' : '#333',
+        'background_color' : '#fff',
+        'input_placeholder_color' : 'rgba(#333,0.5)',
+        'layout_gutter' : '20px',
+        'container_border_color' : '[element_border_color]',
+        'container_border' : ' solid 1px [container_border_color]',
+        'container_border_radius' : '[element_border_radius]',
+        'container_padding' : ' [layout_gutter]',
+        'element_border_color' : '#aaa',
+        'element_border' : 'solid 1px [element_border_color]',
+        'element_border_radius' : '0px',
+        'element_padding': '10px',
+        'component_border_color' : '#aaa',
+        'component_border' : ' solid 1px [component_border_color]',
+        'component_border_radius' : '[element_border_radius]',
+        'list_item_separator_color' : '#aaa',
+        'list_item_separator' : 'solid 1px [list_item_separator_color]',
+        'list_item_padding': '10px',
+        'high_contrast_color' : '#333',
+        'high_contrast_text_color' : '#fff',
+        'medium_contrast_color' : '#b9b9b9',
+        'medium_contrast_text_color' : '[text_color]',
+        'small_contrast_color' : '#e2e2e2',
+        'small_contrast_text_color' : '[text_color]',
+        
+        'error_color' : '#850000',
+        'button_bg_color' : '#333',
+        'button_text_color' : '#fff',
+        'button_font_name' : '[font_name]',
+        'button_hover_bg_color' : '#ff9900',
+        'button_hover_text_color' : '#333',
+        'button_alt_bg_color' : '#777',
+        'button_alt_text_color' : '#fff',
+        'button_alt_hover_bg_color' : '#9d9d9d',
+        'button_alt_hover_text_color' : '#fff',
+        'uls_label': 'ULS: ',
+        'listing_item_sold_bg_color' : '#ff8800',
+        'listing_item_sold_text_color' : '#fff',
+        'listing_item_column_width' : '340px',
+        'listing_item_picture_ratio' : '0.75',
+        'listing_item_picture_fit' : 'cover',
+        'thumbnail_picture_size' : '100px',
+        'broker_item_column_width' : '210px',
+        'broker_item_picture_ratio' : '1.25',
+        'cover_item_picture_fit' : 'cover',
+        'office_item_column_width' : '320px',
+      }
+
+      $scope.init = function($element){
+        $scope.$element = $element;
+        $scope.previewPath = wpSiApiSettings.base_path + '/views/admin/statics/previews/style-editor-' + ($scope.preview == undefined ? 'general' : $scope.preview) + '.html';
+        if($scope._updateWatcherHndl != null){
+          //$scope._updateWatcherHndl();
+        }
+
+        console.log('styleEditor init:', $scope.rawModel);
+
+        if($scope.rawModel) $scope.model = $scope.parseModel($scope.rawModel);
+
+        $scope.registerRawModelWatcher();
+        $scope.registerModelWatcher();
+
+        if($scope.editables == null){
+          $scope.editables = ['global','containers','list-container','elements','bg-fg','components','listing','broker','office','custom-css'];
+        }
+        const lFirstGroup = $scope.editables ? $scope.editables[0] : 'global';
+        console.log('first group', lFirstGroup);
+        $scope.openGroup(lFirstGroup);
+      }
+
+      $scope.registerRawModelWatcher = function(){
+        
+        $scope._rawModelWatcherHndl = $scope.$watch('rawModel', function($new,$old){
+          if($new != undefined){
+            if($new != $old){
+              console.log('rawModel new:', $new,'old:', $old);
+              $scope.model = $scope.parseModel($scope.rawModel);
+              $scope.updatePreviewBox();
+
+              $scope._rawModelWatcherHndl();
+              $scope._rawModelWatcherHndl = null;
+
+              if($scope._updateWatcherHndl != null) $scope._updateWatcherHndl();
+
+              $scope.registerModelWatcher();
+            }
+          }
+
+        },true);
+
+        
+      }
+
+      $scope.registerModelWatcher = function(){
+        $timeout(_ => {
+          console.log('watcher register');
+
+
+          $scope._updateWatcherHndl = $scope.$watch('model', function($new, $old){
+            console.log('model changed', $old, $new);
+            if(isNullOrEmpty($new)) return;
+            if($new == $old) return;
+
+            $scope.update();
+          },true);
+        },1000);
+      }
+
+      $scope.openGroup = function($group){
+        const lTargetGroup = $scope.$element.querySelector('#style-' + $group);
+        const lGroups = Array.from($scope.$element.querySelectorAll('.style-group'));
+
+        lGroups.forEach(function($e){
+          if($e.getAttribute('id') != 'style-' + $group){
+            $e.classList.remove('open');
+            if($e.previousSibling != null) $e.previousElementSibling.classList.remove('active');
+          }
+        });
+
+        lTargetGroup.classList.toggle('open');
+        lTargetGroup.previousElementSibling.classList.toggle('active');
+      }
+
+      $scope.stringifyModel = function(){
+        const lModel = Object.keys($scope.model).reduce(
+          ($result,$k) => {
+            if($scope.model[$k]!=null && $scope.model[$k] != undefined){
+              const lNewKey = '--' + $k.replace(/(_)/g,'-');
+              $result[lNewKey] = $scope.model[$k];
+            }
+            return $result;
+          },
+          {}
+        );
+        return JSON.stringify(lModel);
+      }
+
+      $scope.parseModel = function($value){
+        if($value == undefined) return {};
+        if($value == null) return {};
+        if($value == '') return {};
+
+        const lParsedModel = JSON.parse($value);
+        console.log('rawModel parsed', lParsedModel);
+
+        const lModel = Object.keys(lParsedModel).reduce(
+          ($result, $k) => {
+            const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
+            $result[lNewKey] = lParsedModel[$k]
+            return $result;
+          },{}
+        );
+
+        $scope.validateModelValues(lModel);
+        console.log('Parsed model',lModel);
+        return lModel;
+      }
+
+      $scope.reset = function(){
+        $siUI.confirm('Attention','All style customisation will be lost.\nDo you want to continue?',{ok:'Yes',cancel:'No'}).then(function(){
+          $scope.model = {};
+          $scope.update();
+        });
+      }
+
+      $scope.update = function(){
+
+        $scope.validateModelValues($scope.model);
+        
+        //$scope._rawModelWatcherHndl();
+
+        const lModel = $scope.stringifyModel();
+        
+        $scope.rawModel = lModel;
+
+        console.log('styleModel changed', $scope.rawModel);
+
+        if(typeof $scope.changeHandler == 'function'){
+          $scope.changeHandler({$styles:lModel});
+        }
+
+        //$scope.updatePreviewBox();
+        //$scope.registerModelWatcher();
+      }
+
+      $scope.updatePreviewBox = function(){
+        const lModel = Object.keys($scope.model).reduce(
+          ($result,$key) => {
+            if($scope.model[$key] != ''){
+              $result[$key] = $scope.model[$key];  
+            }
+            
+            return $result;
+          },
+          {}
+        )
+        const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
+        const lPreviewElm = $scope.$element.querySelector('.si-style-editor-preview .viewport');
+
+        // remove all styles
+        lPreviewElm.style.cssText = '';
+
+        Object.keys(lEffectiveStyle).forEach($k => {
+
+          const lStyleKey = $k.replace(/_/g,'-');
+          let lValue =  lEffectiveStyle[$k];
+          const lSubVarRegex = /\[(.+)\]/g;
+          if(lValue.match(lSubVarRegex)){
+            lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
+            lValue = lValue.replace(/_/g,'-');
+          }
+          if($k == 'uls_label'){
+            lValue = '"' + lValue + '"';
+          }
+          lPreviewElm.style.setProperty('--preview-' + lStyleKey, lValue);
+          
+        });
+        
+      }
+
+      $scope.validateModelValues = function($model){
+        Object.keys($model).forEach($k => {
+          const lValue = $model[$k];
+          if(lValue != undefined && lValue != ''){
+            console.log('validate value', $k, lValue)
+            if($k.indexOf('padding') > 0 || $k.indexOf('radius') > 0){
+              if(lValue.indexOf('px') < 0){
+                console.log('px missing', $k, lValue)
+                $model[$k] = lValue + 'px';
+              }
+            }
+          }
+        })
+      }
+      
+      $scope.isEditable = function($item){
+        if($scope.editables == undefined) return true;
+        if(!Array.isArray($scope.editables)) return true;
+        if($scope.editables.length == 0) return true;
+
+        return $scope.editables.includes($item);
+
+      }
+    }
+  }
+}])
+
+siApp
+.directive('siInclude', ['$parse','$timeout', function siInclude($parse,$timeout){
+  return {
+    restrict: 'E',
+    
+    link: function($scope, $element, $attrs){
+
+      const fnUpdatePath = function($format, $params){
+        if($attrs.path == undefined){
+          if($format != undefined && $params != undefined){
+            const lParams = $params.filter($p => $p != undefined);
+
+            if(lParams.length > 0){
+              $scope.path = $format.format(...lParams);
+            }
+          }
+        }
+  
+        if($scope.path != undefined){
+          $scope.path = $scope.path.replace('~', wpSiApiSettings.base_path);
+        }
+
+        console.log('siInclude', $scope.path);
+      }
+
+      // observe params values for change
+      $scope.$watch($attrs.pathParams, function(){
+        const lParsedParams = $parse($attrs.pathParams)($scope);
+        fnUpdatePath($attrs.pathFormat, lParsedParams);
+      });
+
+    },
+    replace: true,
+    template: '<div ng-include="path"></div>'
+  }
+}])
+
+
+/**
+ * siStylePreview
+ * usage: <tagname si-style-preview="style_model"></tagname>
+*/
+siApp
+.directive('siStylePreview', ['$parse', function siStylePreview($parse){
+  return {
+    restrict: 'A',
+    scope: {
+      model: '=siStylePreview'
+    },
+    link: function($scope, $element, $attrs){
+      $scope.$element = $element[0];
+
+      $scope.init();
+    },
+    controller: function($scope){
+      
+
+      $scope.defaultValues = {
+        'container_width' : '1170px',
+        'font_name' : 'inherit',
+        'highlight' : '#ff9900',
+        'highlight_text_color' : '#333',
+        'text_color' : '#333',
+        'background_color' : '#fff',
+        'input_placeholder_color' : 'rgba(#333,0.5)',
+        'layout_gutter' : '20px',
+        'container_border_color' : '[element_border_color]',
+        'container_border' : ' solid 1px [container_border_color]',
+        'container_border_radius' : '[element_border_radius]',
+        'container_padding' : ' [layout_gutter]',
+        'element_border_color' : '#aaa',
+        'element_border' : 'solid 1px [element_border_color]',
+        'element_border_radius' : '0px',
+        'element_padding': '10px',
+        'component_border_color' : '#aaa',
+        'component_border' : ' solid 1px [component_border_color]',
+        'component_border_radius' : '[element_border_radius]',
+        
+        'list_item_separator_color' : '#aaa',
+        'list_item_separator' : 'solid 1px [list_item_separator_color]',
+        'list_item_padding': '10px',
+        'high_contrast_color' : '#333',
+        'high_contrast_text_color' : '#fff',
+        'medium_contrast_color' : '#b9b9b9',
+        'medium_contrast_text_color' : '[text_color]',
+        'small_contrast_color' : '#e2e2e2',
+        'small_contrast_text_color' : '[text_color]',
+        
+        'error_color' : '#850000',
+        'button_bg_color' : '#333',
+        'button_text_color' : '#fff',
+        'button_font_name' : '[font_name]',
+        'button_hover_bg_color' : '#ff9900',
+        'button_hover_text_color' : '#333',
+        'button_alt_bg_color' : '#777',
+        'button_alt_text_color' : '#fff',
+        'button_alt_hover_bg_color' : '#9d9d9d',
+        'button_alt_hover_text_color' : '#fff',
+        'uls_label': 'ULS: ',
+        'listing_item_sold_bg_color' : '#ff8800',
+        'listing_item_sold_text_color' : '#fff',
+        'listing_item_column_width' : '340px',
+        'listing_item_picture_ratio' : '0.75',
+        'thumbnail_picture_size' : '100px',
+        'broker_item_column_width' : '210px',
+        'broker_item_picture_ratio' : '1.25',
+        'office_item_column_width' : '320px',
+      }
+
+
+      $scope.init = function(){
+        $scope.$watch('model', function(){
+          $scope.updateElement();
+        })
+      }
+
+
+      $scope.parseModel = function($value){
+        if($value == undefined) return {};
+        if($value == null) return {};
+        if($value == '') return {};
+        let lParsedModel = {};
+
+        if(Array.isArray($value)){
+          $value.forEach($v => {
+            lParsedModel = Object.assign(lParsedModel, JSON.parse($v));
+          })
+        }
+        else{
+          lParsedModel = JSON.parse($value);
+        }
+
+        
+        console.log('rawModel parsed', lParsedModel);
+
+        const lModel = Object.keys(lParsedModel).filter(
+          function($k){
+            return $k != '_custom_css';
+          }
+        ).reduce(
+          function ($result, $k){
+            const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
+            $result[lNewKey] = lParsedModel[$k]
+            return $result;
+          },{}
+        );
+        console.log('Parsed model',lModel);
+        return lModel;
+      }
+
+
+      $scope.updateElement = function(){
+        const lJSONModel = $scope.parseModel($scope.model);
+
+        const lModel = Object.keys(lJSONModel).reduce(
+          ($result,$key) => {
+            if(lJSONModel[$key] != ''){
+              $result[$key] = lJSONModel[$key];  
+            }
+            
+            return $result;
+          },
+          {}
+        );
+
+        const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
+        console.log('Model',lModel, 'Effective', lEffectiveStyle);
+        
+        const lPreviewElm = $scope.$element.querySelector('.viewport');
+        if(lPreviewElm == null) {
+          console.log('.viewport on', $scope.$element, 'not found');
+          return false;
+        }
+        // remove all styles
+        lPreviewElm.style.cssText = '';
+
+        Object.keys(lEffectiveStyle).forEach($k => {
+
+          const lStyleKey = $k.replace(/_/g,'-');
+          let lValue =  lEffectiveStyle[$k];
+          const lSubVarRegex = /\[(.+)\]/g;
+          //console.log($k,'=', lValue, 'in', lEffectiveStyle);
+          if(lValue!=undefined){   
+            if(lValue.match(lSubVarRegex)){
+              lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
+              lValue = lValue.replace(/_/g,'-');
+            }
+            
+            if($k == 'uls_label'){
+              lValue = '"' + lValue + '"';
+            }
+            lPreviewElm.style.setProperty('--preview-' + lStyleKey, lValue);
+          }
+        });
+
+
+      }
+
+    }
+  }
+}]);
+
+siApp
+.directive('siNotice', [function siNotice(){
+  return {
+    restrict: 'E',
+    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-notice.html',
+    replace: true,
+    scope: {
+      model: '=siModel'
+    },
+    link: function($scope, $element, $attrs){
+
+    },
+    controller: function($scope){
+
+    }
+  }
+}])
+
+siApp
+.directive('siSearchTabsEditor', [function siSearchTabsEditor(){
+  return {
+    restrict: 'E',
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-search-tabs-editor.html',
+    replace: true,
+    scope: {
+      model: '=siModel'
+    },
+    link: function($scope, $element, $attrs){
+      $scope.init($element[0]);
+    },
+    controller: function($scope,$rootScope, $siApi, $siUI, $timeout){
+      $scope.$element = null;
+      
+      $scope.init = function($element){
+        $scope.$element = $element;
+
+        $scope.$watch(function(){ return $scope.model }, 
+          function($new,$old){
+            if($new == null) return;
+            if($scope.model.tabs == undefined) $scope.model.tabs = [];
+        })
+        $scope.fetchData();
+      }
+
+      $scope.fetchData = function(){
+        $siApi
+            .rest('account',null,{method:'GET'})
+            .then($response => {
+                $scope.data_views = $response.data_views;
+                
+              });
+      }
+
+      $scope.addTab = function($item){
+        
+        $scope.model.tabs.push({
+          view_id : $item.id,
+          caption: {
+            fr: $item.name,
+            en: $item.name
+          }
+        });
+      }
+
+      $scope.removeTab = function($index){
+        $scope.model.tabs.splice($index,1);
+      }
+
+      $scope.edit = function($event, $index){
+        
+        $event.stopPropagation();
+        $event.preventDefault();
+
+        document.addEventListener('click', function($event){
+          $scope.apply();
+        },{once:true});
+
+        $scope.editingIndex = $index;
+        $timeout(function(){
+          const lInput = $scope.$element.querySelector('.si-tab.edit-mode input');
+          lInput.focus();
+        },500);
+
+        
+        
+      }
+      $scope.preventClickTrap = function($event){
+        $event.preventDefault();
+        $event.stopPropagation();
+      }
+
+      $scope.checkKey = function($event){
+        if($event.keyCode == 13){
+          $scope.apply();
+        }
+
+        $event.stopPropagation();
+      }
+
+      $scope.apply = function(){
+        $timeout(function(){
+          delete $scope.editingIndex;
+        })
+      }
+
+      $scope.isUsed = function($item){
+        const lTab = $scope.model.tabs.find($t => $t.view_id == $item.id);
+        return lTab != undefined;
+      }
+
+      $scope.isEditing = function($index){
+        return $index == $scope.editingIndex;
+      }
+
+      $scope.moveTab = function($index, $moveBy){
+        const lNewIndex = $index + $moveBy;
+        const lElm =     $scope.model.tabs.splice($index,1)[0];
+        if(lNewIndex > $scope.model.tabs.length){
+          $scope.model.tabs.push(lElm);
+        }
+        
+        $scope.model.tabs.splice(lNewIndex,0,lElm);
+      }
+
+    }
+  }
+}])
+
+siApp
+.directive('siLocalized', ['$parse', '$compile', function siLocalized($parse,$compile){
+  return {
+    restrict: 'E',
+    transclude:true,
+    replace:true,
+    template: '<div class="si-localized-input"><ng-transclude></ng-transclude><md-menu class="si-locale-selector"><md-button ng-click="$mdMenu.open()">{{$localized.current}}</md-button><md-menu-content><md-menu-item ng-repeat="locale in locales"><md-button ng-click="changeLocale(locale)">{{locale}}</md-button></md-menu-item></md-menu-content></md-menu></div>',
+    link: function($scope, $element, $attrs){
+      
+    },
+    controller: function($scope, $rootScope){
+      this.$onInit = function(){
+        $scope.locales = $locales.supported_languages;
+
+        $scope.$watch('model', function($new,$old){
+          if($new != null && $new != ''){
+            $scope.validateModel();
+          }
+        })
+      }
+
+      $scope.$localized = {
+        current: $locales._current_lang_
+      }
+
+      $scope.changeLocale = function($new){
+        $scope.$localized.current = $new;
+      }
+
+      $scope.validateModel = function(){
+        if(typeof $scope.model == 'string' ){
+          
+        }
+      }
+    }
+  }
+}])
+
+siApp
+.directive('siAddonConfig', ['$parse', function siAddonConfig($parse){
+  return {
+    restrict: 'E',
+    scope: {
+      model: '=siModel',
+      active_addons: '=siActiveAddons'
+    },
+    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-addon-config.html?v' + (new Date()).getTime(),
+    replace: true,
+    link: function($scope, $element, $attrs){
+      $scope.init();
+    },
+    controller: function($scope, $q, $timeout, $rootScope){
+      $scope.modelConfigs = {};
+
+
+      $scope.init = function(){
+        $scope.addonConfigPath = wpSiApiSettings.base_path + 'addons/' + $scope.model.name + '/views/addon.settings.html?v=' + (new Date()).getTime();
+        if($scope.active_addons == null || Array.isArray($scope.active_addons)){
+          $scope.active_addons = {};
+        }
+
+        console.log('addon init', $scope.model, $scope.active_addons);
+
+        $scope.modelConfigs = ($scope.active_addons[$scope.model.name] != undefined) 
+                                  ? Object.assign($scope.model.default_configuration, $scope.active_addons[$scope.model.name].configs)
+                                  : $scope.model.default_configuration;
+      }
+
+      
+      $scope.isActive = function(){
+        if($scope.active_addons == null) return false;
+
+        return $scope.active_addons[$scope.model.name] != undefined;
+      }
+
+      $scope.toggleActive = function(){
+        console.log('toggle active')
+
+        $timeout(_ => {  
+          if($scope.isActive()){
+            console.log('already active, delete settings')
+            delete $scope.active_addons[$scope.model.name];
+          }
+          else{
+            console.log('Add settings to active_addons');
+            $scope.active_addons[$scope.model.name] = {
+              configs : $scope.getModelConfigs()
+            };
+          }
+          console.log('new active_addons', $scope.active_addons);
+
+          $rootScope.$broadcast('save-request');
+          
+        });
+      }
+
+      $scope.getModelConfigs = function(){
+        const lConfigs = $scope.model.default_configuration;
+        return lConfigs;
+      }
+
+      $scope.saveAddonSettings = function(){
+        $scope.active_addons[$scope.model.name] = {
+          configs : $scope.modelConfigs
+        };
+      
+        $rootScope.$broadcast('save-request');
+      }
+
+    }
+  }
+}])

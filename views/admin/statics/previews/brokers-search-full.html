@@ -1,0 +1,24 @@
+<div class="si-search-engine si-type-search-of-brokers si-focus-type-{{model.search_engine_options.type}}"
+            style="--input-count: {{model.search_engine_options.fields.length == 0 ? 4 : model.search_engine_options.fields.length }}"
+        >
+    <div class="inputs {{!model.search_engine_options.fields.includes('searchbox') ? 'no-searchbox' : ''}}">
+        <div class="search-box" ng-show="model.search_engine_options.fields.includes('searchbox')">
+            <input placeholder="{{model.search_engine_options.search_box_placeholder  | translate}}" />
+        </div>
+
+        
+
+        <div class="panel" ng-show="model.search_engine_options.fields.includes('letters')">
+            <lstr>Alphabetical</lstr>
+        </div>
+
+        <div class="panel" ng-show="model.search_engine_options.fields.includes('licenses')">
+            <lstr>Licenses</lstr>
+        </div>
+
+        <div class="panel" ng-show="model.search_engine_options.fields.includes('offices')">
+            <lstr>Offices</lstr>
+        </div>
+
+    </div>
+</div>

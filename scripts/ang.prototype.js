@@ -1,4 +1,4 @@
-if(typeof String.format === 'undefined'){
+if(typeof String.prototype.format === 'undefined'){
     
     String.prototype.format = function(){
         let lResult = this.toString();
@@ -19,11 +19,57 @@ if(typeof String.format === 'undefined'){
     }
 }
 
+if(typeof String.prototype.capitalize === 'undefined'){
+
+    String.prototype.capitalize = function($allWords){
+        $allWords = $allWords==undefined ? false : $allWords;
+
+        const lSegments = $allWords ? this.split(' ') : [this];
+        const lResult = lSegments
+                            .map(function($s){
+                                return $s.substr(0,1).toUpperCase() + $s.substr(1);
+                            })
+                            .join(' ');
+        return lResult;
+    }
+
+}
+
+if(typeof [].firstOrDefault === 'undefined'){
+    Array.prototype.firstOrDefault = function($default){
+        if(this.length > 0) return this[0];
+        return $default;
+    }
+}
+
+if(typeof [].last === 'undefined' ){
+    Array.prototype.last = function(){
+        if(this.length == 0) return null;
+        return this[this.length - 1];
+    }
+}
+
+if(typeof [].any === 'undefined'){
+    Array.prototype.any = function(){
+        if(this.length < 1) return null;
+        if(this.length == 1) return this[0];
+
+        const lIndex = Math.round(Math.random() * this.length-1);
+        const lResult = this[lIndex];
+        
+        return isNullOrEmpty(lResult) ? this[0] : lResult;
+    }
+}
+
 if(typeof Number.formatPrice === 'undefined' ){
 
     Number.prototype.formatPrice = function($currency){
         let lValue = this;
         lValue = Math.round(lValue * 100) / 100;
+        if(Math.floor(lValue) < lValue){
+            lValue = lValue.toFixed(2);
+        }
+
         $currency = ($currency==undefined)?'':$currency;
         $separator = {
             fr : ' ',
@@ -68,7 +114,23 @@ if(typeof isNullOrEmpty === 'undefined'){
         if(typeof $value == 'undefined') return true;
         if($value == null) return true;
         if($value == '') return true;
-        if(Array.isArray($value) && $value.length == 0) return true;
+        if(Array.isArray($value)){
+            if($value.length == 0) return true;
+            if($value.every(function($e){return $e==null})) return true;
+        }
+        if($value.toString() === '[object Object]' && Object.keys($value).length == 0) return true;
+        
+        return false;
+    }
+}
+
+if(typeof isNullOrUndefined === 'undefined'){
+    
+    isNullOrUndefined = function($value){
+        if($value == undefined) return true;
+        if(typeof $value == 'undefined') return true;
+        
+        return false;
     }
 }
 
@@ -253,3 +315,185 @@ if(typeof $siGlobalHooks == 'undefined'){
     
     })($siGlobalHooks);
 }
+
+
+// object.watch
+if (!Object.prototype.watch) {
+	Object.defineProperty(Object.prototype, "watch", {
+		  enumerable: false
+		, configurable: true
+		, writable: false
+		, value: function (prop, handler) {
+			var
+			  oldval = this[prop]
+			, newval = oldval
+			, getter = function () {
+				return newval;
+			}
+			, setter = function (val) {
+				oldval = newval;
+				return newval = handler.call(this, prop, oldval, val);
+			}
+			;
+			
+			if (delete this[prop]) { // can't watch constants
+				Object.defineProperty(this, prop, {
+					  get: getter
+					, set: setter
+					, enumerable: true
+					, configurable: true
+				});
+			}
+		}
+	});
+}
+
+// object.unwatch
+if (!Object.prototype.unwatch) {
+	Object.defineProperty(Object.prototype, "unwatch", {
+		  enumerable: false
+		, configurable: true
+		, writable: false
+		, value: function (prop) {
+			var val = this[prop];
+			delete this[prop]; // remove accessors
+			this[prop] = val;
+		}
+	});
+}
+
+// POLYFILL
+if (!Element.prototype.closest) {
+	if (!Element.prototype.matches) {
+		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+	}
+	Element.prototype.closest = function (s) {
+		var el = this;
+		var ancestor = this;
+		if (!document.documentElement.contains(el)) return null;
+		do {
+			if (ancestor.matches(s)) return ancestor;
+			ancestor = ancestor.parentElement;
+		} while (ancestor !== null);
+		return null;
+	};
+}
+
+if (!Object.assign) {
+    Object.defineProperty(Object, 'assign', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: function(target) {
+        'use strict';
+        if (target === undefined || target === null) {
+          throw new TypeError('Cannot convert first argument to object');
+        }
+  
+        var to = Object(target);
+        for (var i = 1; i < arguments.length; i++) {
+          var nextSource = arguments[i];
+          if (nextSource === undefined || nextSource === null) {
+            continue;
+          }
+          nextSource = Object(nextSource);
+  
+          var keysArray = Object.keys(Object(nextSource));
+          for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+            var nextKey = keysArray[nextIndex];
+            var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+            if (desc !== undefined && desc.enumerable) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+        return to;
+      }
+    });
+  }
+
+  /**
+ * ChildNode.append() polyfill
+ * https://gomakethings.com/adding-an-element-to-the-end-of-a-set-of-elements-with-vanilla-javascript/
+ * @author Chris Ferdinandi
+ * @license MIT
+ */
+(function (elem) {
+
+	// Check if element is a node
+	// https://github.com/Financial-Times/polyfill-service
+	var isNode = function (object) {
+
+		// DOM, Level2
+		if (typeof Node === 'function') {
+			return object instanceof Node;
+		}
+
+		// Older browsers, check if it looks like a Node instance)
+		return object &&
+			typeof object === "object" &&
+			object.nodeName &&
+			object.nodeType >= 1 &&
+			object.nodeType <= 12;
+
+	};
+
+	// Add append() method to prototype
+	for (var i = 0; i < elem.length; i++) {
+		if (!window[elem[i]] || 'append' in window[elem[i]].prototype) continue;
+		window[elem[i]].prototype.append = function () {
+			var argArr = Array.prototype.slice.call(arguments);
+			var docFrag = document.createDocumentFragment();
+
+			for (var n = 0; n < argArr.length; n++) {
+				docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+			}
+
+			this.appendChild(docFrag);
+		};
+	}
+
+})(['Element', 'CharacterData', 'DocumentType']);
+
+/**
+ * ChildNode.prepend() polyfill
+ * Adapted from https://github.com/jserz/js_piece/blob/master/DOM/ParentNode/prepend()/prepend().md
+ * @author Chris Ferdinandi
+ * @license MIT
+ */
+(function (elem) {
+
+	// Check if element is a node
+	// https://github.com/Financial-Times/polyfill-service
+	var isNode = function (object) {
+
+		// DOM, Level2
+		if (typeof Node === 'function') {
+			return object instanceof Node;
+		}
+
+		// Older browsers, check if it looks like a Node instance)
+		return object &&
+			typeof object === "object" &&
+			object.nodeName &&
+			object.nodeType >= 1 &&
+			object.nodeType <= 12;
+
+	};
+
+	// Add append() method to prototype
+	for (var i = 0; i < elem.length; i++) {
+		if (!window[elem[i]] || 'prepend' in window[elem[i]].prototype) continue;
+		window[elem[i]].prototype.prepend = function () {
+			var argArr = Array.prototype.slice.call(arguments);
+			var docFrag = document.createDocumentFragment();
+
+			for (var n = 0; n < argArr.length; n++) {
+				docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+			}
+
+			this.appendChild(docFrag);
+		};
+	}
+
+})(['Element', 'CharacterData', 'DocumentType']);

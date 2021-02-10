@@ -1,10 +1,34 @@
 <div class="advanced-settings">
+    
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Information',SI)?></h2>
 
-        <div class="block-content" layout="column" layout-align="start stretch">
-            <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
-            <div><?php echo(SI_API_HOST)?></div>
+        <div class="block-content" layout="row" layout-align="space-between center">
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
+                <div><?php echo(SI_API_HOST)?></div>
+            </div>
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-user-circle"></i> <?php _e('Account ID',SI)?></h4>
+                <div>{{configs.account_id}}</div>
+            </div>
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-key"></i> <?php _e('API key',SI)?></h4>
+                <div>{{configs.api_key}}</div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="config-grid-block">
+        <h2 class="md-headline"><?php _e('Data feeds',SI)?></h2>
+
+        <div class="block-content">
+            <div class="data-view-list">
+                <div ng-repeat="item in data_views" ng-click="changeDefaultView(item)" class="data-view-item {{configs.default_view == item.id ? 'default' : ''}}">
+                    {{item.name}}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -19,9 +43,17 @@
                     <md-option ng-repeat="item in wp_menus" value="{{item.key}}">{{item.name}}</md-option>
                 </md-select>
             </md-input-container>
+
+            
+            <si-wp-media type="image" 
+                            si-model="configs.site_logo" 
+                            si-change="logoChanged($media)"
+                            caption="Your logo" placeholder="Choose an image"></si-wp-media>
+            
         </div>
     </div>
-    
+
+
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Communication',SI)?></h2>
         <div class="block-content" layout="column" layout-align="start stretch">
@@ -95,16 +127,15 @@
             </div>
         </div>
     </div>
+
     <div class="config-grid-block">
-        <h2 class="md-headline"><?php _e('Reset',SI)?></h2>
+        <h2 class="md-headline"><?php _e('Configs tools',SI)?></h2>
         <div class="block-content">
             <div layout="row" layout-align="start center">
-                <md-button ng-click="clearAllLayoutPage()"><?php _e('Clear all layouts',SI) ?></md-button>
+                <md-button ng-click="backupConfigs()"><?php _e('Backup settings',SI) ?></md-button>
+                <md-button ng-click="reset_all_configs()"><?php _e('Reset all settings',SI) ?></md-button>
             </div>
 
-            <div layout="row" layout-align="start center">
-                <md-button ng-click="reset_configs()"><?php _e('Reset to demo settings',SI) ?></md-button>
-            </div>
         </div>
     </div>
 </div>

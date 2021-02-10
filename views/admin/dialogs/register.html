@@ -1,0 +1,57 @@
+<md-dialog aria-label="" ng-init="init()" id="register">
+    <form ng-cloak>
+      
+      <md-dialog-content>
+        <div class="md-dialog-content">
+            
+            <div class="registration-step login" ng-show="model.state == 'login'">
+                <ng-include src="'~/views/admin/dialogs/register_steps/login.html' | siRelativePath"></ng-include>
+            </div>
+          
+            <div class="wizard-step-container" ng-show="model.state == 'configs'">
+                <div class="wizard-step account">
+                    <ng-include src="'~/views/admin/dialogs/register_steps/linked_account.html' | siRelativePath"></ng-include>
+                </div>
+
+                
+                <div class="wizard-step api-key">
+                    <ng-include src="'~/views/admin/dialogs/register_steps/api_key.html' | siRelativePath"></ng-include>
+                </div>
+
+                
+                <div class="wizard-step views">
+                    <ng-include src="'~/views/admin/dialogs/register_steps/views.html' | siRelativePath"></ng-include>
+                </div>
+
+                
+                <div class="wizard-step pages">
+                    <ng-include src="'~/views/admin/dialogs/register_steps/pages.html' | siRelativePath"></ng-include>
+                </div>
+            </div>
+            
+            <div class="registration-step complete" ng-show="model.state == 'building'">
+                <div class="content">
+                    <h2 lstr>Work in progress</h2>
+                    <p lstr>Please wait while we apply your configuration</p>
+                </div>
+            </div>
+
+            <div class="registration-step complete" ng-show="model.state == 'complete'">
+                <div class="content">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                        <circle class="path circle" fill="none" stroke="#73AF55" stroke-width="6" stroke-miterlimit="10" cx="65.1" cy="65.1" r="62.1"/>
+                        <polyline class="path check" fill="none" stroke="#73AF55" stroke-width="6" stroke-linecap="round" stroke-miterlimit="10" points="100.2,40.2 51.5,88.8 29.8,67.5 "/>
+                    </svg>
+                    <h2 lstr>Configuration completed</h2>
+                    <p lstr>Thank you! Please wait while the interface reloads</p>
+                </div>
+            </div>
+        </div>
+      </md-dialog-content>
+  
+      <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-repeat="button in actions" ng-click="button.action()" ng-disabled="!isNavButtonEnabled(button,wizard_step)">{{button.label.translate()}}</md-button>
+      </md-dialog-actions>
+    </form>
+  </md-dialog>

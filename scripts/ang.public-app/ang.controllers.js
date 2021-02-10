@@ -4,7 +4,10 @@
 
 siApp
 .controller('publicCtrl', 
-function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
+function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig){
+   
+
+
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
@@ -12,7 +15,30 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
         isNullOrEmpty: function($value) {return $value==null || $value == '' || $value.length == 0}
     };
 
+
     $scope.init = function(){
+        //console.log('publicCtrl/init');
+
+        if( document.readyState !== 'loading' ) {
+            console.log('publicCtrl/init :: ready');
+            $rootScope.$broadcast('si/ready');
+        } 
+        else {
+            document.addEventListener('DOMContentLoaded', function(){
+                console.log('publicCtrl/init :: ready');
+                $rootScope.$broadcast('si/ready');
+            });
+        }
+
+        window.onload = function(){
+            console.log('publicCtrl/init :: load');
+            $rootScope.$broadcast('si/load');
+        }
+        
+        $siConfig.get().then(function($configs){
+            $scope.configs = $configs;
+            
+        });
     }
 
     // listingsUpdate
@@ -30,7 +56,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
         
         $scope.addStatic($configs.alias, $data);
 
-        console.log($scope.statics);
+        //console.log($scope.statics);
     });
 
     $scope.addStatic = function($alias, $data){
@@ -91,6 +117,8 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
         $event.stopPropagation();
     }
 
+    
+
     $scope.$on('modal-opened', function(){
         angular.element(document.body).addClass('si-modal-open');
     });
@@ -98,6 +126,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
     $scope.$on('modal-closed', function(){
         angular.element(document.body).removeClass('si-modal-open');
     });
+
 });
 
 /**
@@ -105,12 +134,12 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks){
  */
 siApp
 .controller('staticDataCtrl', 
-function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks){
+function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$element){
     $scope.init = function($alias){
         const $configs = $statics[$alias].configs;
         const $data = $statics[$alias].data;
         
-        console.log($configs, $data);
+
         $scope.$emit('si-static-data', $configs, $data);
     }
 })
@@ -120,22 +149,15 @@ function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks){
  */
 siApp
 .controller('singleListingCtrl', 
-function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, $siHooks,$siFavorites,$siShare){
+function singleListingCtrl(
+        $scope,$rootScope,$element, $q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
+        $siHooks,$siFavorites,$siShare, $siCompiler){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
     $scope.configs = null;
     
-    // ui - section toggles
-    $scope.sections = {
-        addendum : {opened:false},
-        building : {opened:false},
-        lot : {opened:false},
-        other: {opened: false},
-        in_exclusions:{opened:false},
-        rooms:{opened:false},
-        financials: {opened:false}
-    }
+    
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
     // calculator result
@@ -143,31 +165,66 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
     // message model
     $scope.message_model = {};
     $scope.favorites = $siFavorites;
+    $scope.linkTypes = [
+        {key: 'website', label : 'More infos'.translate()},
+        {key: 'virtual_tour', label: 'Virtual tour'.translate()}
+    ];
 
     /**
      * Initialize controller
      * @param {string} $ref_number Listing reference key
      */
-    $scope.init = function($ref_number){
+    $scope.init = function($ref_number, $add_loading_text, $loading_text){
+        if($add_loading_text){
+            const lLoadingTextElement = document.createElement('div');
+            lLoadingTextElement.classList.add('si');
+            lLoadingTextElement.classList.add('listing-single');
+            lLoadingTextElement.innerHTML = '<label class="placeholder">' + $loading_text + ' <i class="fal fa-spinner fa-spin"></i></label>';
+            $element[0].parentElement.append(lLoadingTextElement);
+            $scope.$loadingElement = lLoadingTextElement;
+        }
+
         if($ref_number != undefined){
             //console.log($ref_number);
             $scope.fetchPrerequisites().then(function($prerequisits){
                 $scope.permalinks = $prerequisits;
-                $scope.loadSingleData($ref_number);
+                return $scope.loadSingleData($ref_number);
+            })
+            .then(function(){
+                if($scope.$loadingElement === undefined) return;
+                //$scope.$loadingElement.remove();
+                $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
+                $element[0].style.removeProperty('display');
             });
         }
+
+        //$timeout(function(){
+            //const lElement = document.querySelector('.si.listing-single');
+            
+    
+        //})
+        
+        // if($add_wrapper_element){
+        //     const lElement = document.querySelector('.si.listing-single');
+        //     const lWrapper = document.createElement('div');
+        //     lWrapper.classList.add('si-content');
+
+        // }
     }
 
     $scope.fetchPrerequisites = function(){
         let lPromise = $q(function($resolve, $reject){
-            $siConfig.get().then(function($configs){
-                $scope.configs = $configs;
+            $q.all([
+                $siConfig.get()
+            ]).then(function($results){
+                $scope.configs = $results[0];
 
                 $resolve({
-                    brokers: $configs.broker_routes,
-                    listings: $configs.listing_routes
+                    brokers: $scope.configs.broker_routes,
+                    listings: $scope.configs.listing_routes
                 })
-            })
+            });
+
         });
 
         return lPromise;
@@ -202,7 +259,10 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             // set dictionary source
             $siDictionary.source = $data.dictionary;
             // start preprocessing of data
-            $scope.preprocess();
+            $siDictionary.onLoad().then(function(){
+                $scope.preprocess();
+            })
+            
             
             // prepare message subject build from data
             $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
@@ -220,6 +280,8 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
             $siHooks.do('listing-ready',$scope.model);
             $siHooks.addFilter('si.share.data',$scope.setShareData);
+
+            $rootScope.$broadcast('si/model:ready');
             // print data to console for further informations
             //console.log($scope.model);
         });
@@ -234,9 +296,22 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
         $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
         $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
+        $scope.model.location.district  = $scope.getCaption($scope.model.location.district_code, 'district');
         $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
         $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
+        $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);
+
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
+
+        $scope.model.legal_notes        = $scope.model.legal_note_codes != undefined 
+                                            ? $scope.model.legal_note_codes.map(function($code){
+                                                return {
+                                                    code: $code,
+                                                    caption: $scope.getCaption($code,'legal_note')
+                                                }
+                                            })
+                                            : null;
+        
         if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
             $scope.model.location.civic_address = '{0} {1}'.format(
                 $scope.model.location.address.street_number,
@@ -281,6 +356,11 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             if(lMainUnit.waterroom_count) $scope.model.important_flags.push({icon: 'hand-holding-water', value: lMainUnit.waterroom_count, caption: 'Water room'.translate()});
         }
 
+        if($scope.model.available_area){
+            const lAvailableAreaStr = $scope.model.available_area + ' ' + $scope.model.available_area_unit;
+            $scope.model.important_flags.push({icon: 'vector-square',value: lAvailableAreaStr , caption: 'Available area'.translate() })
+        }
+
         // from attributes
         $scope.model.attributes.forEach(function($e){
             $e.caption = $scope.getCaption($e.code, 'attribute');
@@ -317,10 +397,10 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
                 if(lParkingCount > 0) $scope.model.important_flags.push({icon: 'car', value: lParkingCount, caption: $e.caption});
             }
             if($e.code=='POOL'){
-                $scope.model.important_flags.push({icon: 'swimmer', value: 0, caption: $e.caption});
+                $scope.model.important_flags.push({icon: 'swimmer', value: null, caption: $e.caption});
             }
             if($e.code=='HEART STOVE'){
-                $scope.model.important_flags.push({icon: 'fire', value: 0, caption: $e.caption});
+                $scope.model.important_flags.push({icon: 'fire', value: null, caption: $e.caption});
             }
         });
 
@@ -375,9 +455,9 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
         }
 
         $scope.model.permalink = window.location.pathname;
-        $siUtils.compileBrokerList($scope.model.brokers);
+        $siCompiler.compileBrokerList($scope.model.brokers);
         
-        console.log('permalink', $scope.model.permalink);
+        //console.log('permalink', $scope.model.permalink);
         $siHooks.do('single-listing-preprocess', $scope.model);
     }
 
@@ -405,20 +485,13 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
     }
 
     /**
-     * Check if a section is opened
-     * @param {string} $section Section key
+     * Fallback method for standalone accordion section
+     * @param {string} $sectionName 
      */
-    $scope.sectionOpened = function($section){
-        if($scope.sections[$section] == undefined) return false;
-        return $scope.sections[$section].opened;
+    $scope.isAvailableSection = function($sectionName){
+        return true;
     }
-    /**
-     * Toggle section open/close
-     * @param {string} $section Section key
-     */
-    $scope.toggleSection = function($section){
-        $scope.sections[$section].opened = !$scope.sections[$section].opened;
-    }
+    
 
     /**
      * Event handler for Mortgage Calculator onChange
@@ -480,8 +553,9 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
             });
         
         lPrintLink.push('print');
-        
-        window.open('/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1]);
+        const lPrintLinkFinal = '/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1] + window.location.search;
+        //console.log('print', lPrintLinkFinal);
+        window.open(lPrintLinkFinal);
     }
 
     $scope.hasDimension = function($dimension){
@@ -493,7 +567,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
     }
 
     $scope.hasListOf = function($type){
-        console.log($scope.configs);
+        //console.log($scope.configs);
         return $scope.configs.lists.some(function($l){
             return $l.type == $type;
         })
@@ -507,6 +581,14 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
 
         return true;
     }
+
+    $scope.allowFavorites = function(){
+        if($scope.model == null) return false;
+        if($scope.configs == null) return false;
+        
+        
+        return !isNullOrEmpty($scope.configs.favorites_button_menu);
+    }
 });
 
 
@@ -515,7 +597,7 @@ function singleListingCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig, 
  */
 siApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siHooks){
+function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks){
     $scope.filter_keywords = '';
     $scope.message_model = {};
 
@@ -530,48 +612,67 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
      * Initialize controller
      * @param {string} $ref_number broker reference key
      */
-    $scope.init = function($ref_number){
+    $scope.init = function($ref_number,$add_loading_text, $loading_text){
+        if($add_loading_text){
+            const lLoadingTextElement = document.createElement('div');
+            lLoadingTextElement.classList.add('si');
+            lLoadingTextElement.classList.add('broker-single');
+            lLoadingTextElement.innerHTML = '<label class="placeholder">' + $loading_text + ' <i class="fal fa-spinner fa-spin"></i></label>';
+            $element[0].parentElement.append(lLoadingTextElement);
+            $scope.$loadingElement = lLoadingTextElement;
+        }
+
         if($ref_number != undefined){
             //console.log($ref_number);
             $scope.fetchPrerequisites().then(function(){
-                $scope.loadSingleData($ref_number);
-            });
-            $scope.$on('si-list-loaded', function($event, $type,$list){
-                console.log('si-list-loaded', $type, $list);
-                if($type == 'listings'){
-                    $siConfig.get().then(function($configs){
-                        const lHasCityPage = $configs.city_layouts
-                                                    .filter(function($c){ return $c.lang == siApiSettings.locale; })
-                                                    .some(function($c){ return $c.page != null; });
-                        if(!lHasCityPage) return;
-                        
-                        const lCities = [];
-                        $list.forEach( function($l) {
-                            const lCity = lCities.find( function($c){
-                                return $c.ref_number == $l.location.city_code;
-                            });
-                            if(lCity == null){
-                                const lNewCity = {
-                                    ref_number:$l.location.city_code,
-                                    name: $l.location.city,
-                                    listing_count: 1,
-                                    location: $l.location
-                                };
-                                
-                                $siUtils.compileCityItem(lNewCity);
-                                lCities.push( lNewCity);
-                            }
-                            else{
-                                lCity.listing_count++;
-                            }
-                        });
-
-                        $scope.cities = lCities;
-                        
-                            
-                    })
-                }
+                return $scope.loadSingleData($ref_number);
             })
+            .then(function(){
+                if($scope.$loadingElement === undefined) return;
+                $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
+
+                $element[0].style.removeProperty('display');
+            })
+            .then(function(){
+                $scope.$on('si-list-loaded', function($event, $type,$list){
+                    //console.log('si-list-loaded', $type, $list);
+                    if($type == 'listings'){
+                        $siConfig.get().then(function($configs){
+                            const lHasCityPage = $configs.city_layouts
+                                                        .filter(function($c){ return $c.lang == siApiSettings.locale; })
+                                                        .some(function($c){ return $c.page != null; });
+                            if(!lHasCityPage) return;
+                            
+                            const lCities = [];
+                            $list.forEach( function($l) {
+                                const lCity = lCities.find( function($c){
+                                    return $c.ref_number == $l.location.city_code;
+                                });
+                                if(lCity == null){
+                                    const lNewCity = {
+                                        ref_number:$l.location.city_code,
+                                        name: $l.location.city,
+                                        listing_count: 1,
+                                        location: $l.location
+                                    };
+                                    
+                                    $siCompiler.compileCityItem(lNewCity);
+                                    lCities.push( lNewCity);
+                                }
+                                else{
+                                    lCity.listing_count++;
+                                }
+                            });
+    
+                            $scope.cities = lCities;
+                            
+                                
+                        })
+                    }
+                })
+            });
+            
+            
         }
     }
 
@@ -612,7 +713,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         lPromise.then(function($data){
             $scope.model = $data;
             // set dictionary source
-            $siDictionary.source = $data.dictionary;
+            $siDictionary.init($data.dictionary);
             // start preprocessing of data
             $scope.preprocess();
             // prepare message subject build from data
@@ -646,7 +747,7 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
     $scope.preprocess = function(){
         // set basic information from dictionary
         $scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
-        $scope.model.languages    = 'N/A'.translate();
+        //$scope.model.languages    = 'N/A'.translate();
         let lExpertises           = [];
         $scope.model.listings.forEach(function($e,$i,$arr){
             let lNewItem = $scope.getCaption($e.category_code, 'listing_category');
@@ -660,10 +761,10 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         $scope.model.photo = $scope.model.photo != null ? $scope.model.photo : {url: siCtx.base_path + 'styles/assets/shadow_broker.jpg'};
 
         // office
-        $siUtils.compileOfficeItem($scope.model.office);
+        $siCompiler.compileOfficeItem($scope.model.office);
         
         $scope.model.location = $scope.model.office.location;
-        $siUtils.compileListingList($scope.model.listings);           
+        $siCompiler.compileListingList($scope.model.listings);           
     }
 
     $scope.getPhoneIcon = function($key){
@@ -723,20 +824,20 @@ function singleBrokerCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
         return false;
     }
 
-    /**
-     * Check if a section is opened
-     * @param {string} $section Section key
-     */
-    $scope.sectionOpened = function($section){
-        return $scope.sections[$section].opened;
-    }
-    /**
-     * Toggle section open/close
-     * @param {string} $section Section key
-     */
-    $scope.toggleSection = function($section){
-        $scope.sections[$section].opened = !$scope.sections[$section].opened;
-    }
+    // /**
+    //  * Check if a section is opened
+    //  * @param {string} $section Section key
+    //  */
+    // $scope.sectionOpened = function($section){
+    //     return $scope.sections[$section].opened;
+    // }
+    // /**
+    //  * Toggle section open/close
+    //  * @param {string} $section Section key
+    //  */
+    // $scope.toggleSection = function($section){
+    //     $scope.sections[$section].opened = !$scope.sections[$section].opened;
+    // }
 
     /**
      * Event handler for Mortgage Calculator onChange
@@ -878,6 +979,6 @@ function singleOfficeCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
     }
 
     $scope.preprocess = function(){
-        $siUtils.compileOfficeItem($scope.model);
+        $siCompiler.compileOfficeItem($scope.model);
     }
 });

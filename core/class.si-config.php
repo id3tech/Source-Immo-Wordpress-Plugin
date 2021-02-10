@@ -1,8 +1,12 @@
 <?php
+define('SI_OPTION_KEY', 'SourceImmoConfig');
+
 /**
 * Stores data from
 */
 class SourceImmoConfig {
+
+  public $state = 'inital';
 
   /**
   * Required properties for API call
@@ -65,7 +69,11 @@ class SourceImmoConfig {
    */
   public $prefetch_data = false;
 
-  
+  /**
+   * Site logo to use in appropriate places (ex: Print)
+   * @var string
+   */
+  public $site_logo = null;
 
   /**
    * Form from name
@@ -127,6 +135,8 @@ class SourceImmoConfig {
 
   public $favorites_button_menu = null;
 
+  public $active_addons = null;
+  
   /**
    * Configuration constructor class
    */
@@ -136,8 +146,8 @@ class SourceImmoConfig {
     $this->app_version    = SI_VERSION;
 
     // set defaut DEMO value
-    $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
-    $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
+    // $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
+    // $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
     
     $this->registered     = false;
 
@@ -145,7 +155,8 @@ class SourceImmoConfig {
 
     $this->form_from_name = __('Your website',SI);
     $this->form_from_address = 'no-reply@' . $_SERVER['HTTP_HOST'];
-  
+    $this->styles = '';
+
 
     // init routes
     $this->listing_routes  = array(
@@ -167,24 +178,23 @@ class SourceImmoConfig {
 
     // init layouts
     $this->listing_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->broker_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->city_layouts   = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
     $this->office_layouts = array(
-      new SourceImmoLayout('fr','standard'),
-      new SourceImmoLayout('en','standard')
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
     );
 
-    $listingList = new SourceImmoList();
-    $listingList->sort = 'contract.start_date';
+    $listingList = new SourceImmoList('','listings','listings','contract_start_date');
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
@@ -199,48 +209,103 @@ class SourceImmoConfig {
 
   public static function load(){
     $instance = new SourceImmoConfig();
-
-    $savedConfigs = $instance->loadSavedConfigs();
     
-    if($savedConfigs){
-      $instance->parse(json_decode($savedConfigs));
+    //$savedConfigs = $instance->loadSavedConfigs();
+    $savedConfigs = $instance->loadConfigFile();
+    
+    if($savedConfigs !== false){
+      if($instance->parse(json_decode($savedConfigs, true))){
+        $instance->state = 'loaded';
+      }
+      else{
+        $instance->state = 'parse_failed';
+      }
+      
       $instance->app_version = SI_VERSION;
     
       $instance->normalizeRoutes();
 
-      $instance->saveConfigFile();
+      //$instance->normalizeValues();
+
+      //$instance->saveConfigFile();
+    }
+    else{
+      $instance->state = 'load_failed';
     }
     
     if($instance->api_key != '09702f24-a71e-4260-bd54-ca19217fd6a9') {$instance->registered = true;}
 
+    //__c($instance);
     
     return $instance;
   }
 
+  public function clearEverything(){
+    delete_option(SI_OPTION_KEY);
+    delete_option('ImmoDBConfig');
+
+    $this->deleteFile();
+  }
+
   public function loadSavedConfigs(){
-    $lResult = get_option('SourceImmoConfig');
+    $lResult = get_option(SI_OPTION_KEY);
+    
     if($lResult === false){
       // Try loading previous version
       $lResult = get_option('ImmoDBConfig');
     }
+
+
+
     return $lResult;
   }
 
   public function parse($data){
+    if(!is_array($data)) return false;
+
     foreach ($data as $key => $value) {
       if(property_exists($this, $key)){
-        $this->{$key} = $value;
+        if($key == 'lists'){
+          $this->lists = array();
+          if(is_array($value)){   
+            foreach ($value as $item) {
+              $obj = SourceImmoList::parse($item);
+             
+              $obj->normalizeValues();
+             
+              array_push($this->lists, $obj);
+              $obj = null;
+            }
+          }
+        }
+        else{
+          if(is_object($this->{$key}) && method_exists($this->{$key},'parse')){
+            $this->{$key}->parse($value);
+          }
+          else{
+            $this->{$key} = json_decode(json_encode($value));
+          }
+        }
+        
       }
     }
+    return true;
+  }
+
+  public function deleteFile(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    unlink($lConfigFilePath);
+    //rmdir($lConfigPath);  
   }
 
   public function save(){
     $this->normalizeRoutes();
 
-    update_option('SourceImmoConfig', json_encode($this));
+    //update_option(SI_OPTION_KEY, json_encode($this));
     SourceImmo::current()->apply_routes();
-    $this->saveConfigFile();
-
+    return $this->saveConfigFile();
   }
 
   public function saveConfigFile(){
@@ -248,22 +313,85 @@ class SourceImmoConfig {
     $lUploadDir   = wp_upload_dir();
     $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
     if ( ! file_exists( $lConfigPath ) ) {
+      $this->addLog('saveConfigFile::create configs folder');
       wp_mkdir_p( $lConfigPath );
     }
+
+
+    $this->addLog('saveConfigFile::saving configs', true);
     $lConfigFilePath = $lConfigPath . '/_configs.json';
-    $filePointer = fopen($lConfigFilePath,'w');
-    fwrite($filePointer, json_encode($this->getSecuredVersion()));
+    $filePointer = fopen($lConfigFilePath,'w+');
+    if(($securedVersion = $this->getSecuredVersion()) !== false){
+      $fileContent = json_encode($securedVersion);
+      if(strlen($fileContent) > 50){
+        fwrite($filePointer, $fileContent);
+        fclose($filePointer);
+    
+        $this->addLog('saveConfigFile::save done'); 
+      }
+      else{
+        $this->addLog('saveConfigFile::configs anomaly detected (' . $fileContent . ')', true);
+      }
+    }
+    else{
+      $this->addLog('saveConfigFile::unable to get secured version', true);
+    }
+    
+    return $lConfigFilePath;
+  }
+
+  public function addLog($message,$includeRequestMeta=false){
+    $lUploadDir   = wp_upload_dir();
+    $logPath = $lUploadDir['basedir'] . '/_sourceimmo.log';
+    $filePointer = fopen($logPath,'a');
+    $timestamp = Date('Y-M-d H:i:s');
+
+    if($includeRequestMeta){
+      $referer = $_SERVER['HTTP_REFERER'];
+      $request = $_SERVER['REQUEST_URI'];
+      $message = "$message (from $referer on $request)";
+    }
+
+    fwrite($filePointer, "$timestamp :: $message \n");
     fclose($filePointer);
+
+  }
+
+  public function loadConfigFile(){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
+    if ( ! file_exists( $lConfigPath ) ) return false;
+
+    $fileContent = false;
+
+    $lConfigFilePath = $lConfigPath . '/_configs.json';
+    try {
+      $filePointer = fopen($lConfigFilePath,'r');
+      $fileContent = fread($filePointer,max(filesize($lConfigFilePath),1));
+
+      fclose($filePointer);
+    } 
+    catch (\Throwable $th) {
+      
+    }
+    
+
+    return $fileContent;
   }
 
 
   public function getSecuredVersion(){
-    $lResult = clone $this;
+    //$lResult = clone $this;
+    $lResult = unserialize(serialize($this));
     //$lResult->api_key = null;
     //$lResult->account_id = null;
 
+    if($lResult->api_key == null) return false;
+    if($lResult->account_id == null) return false;
+
     return $lResult;
   }
+
 
   public function normalizeRoutes(){
     $structure = get_option( 'permalink_structure' );
@@ -293,111 +421,17 @@ class SourceImmoConfig {
     }
   }
   
-}
+  public function stylesToAttr(){
+    if($this->styles == null) return '';
+    $lAttrList = explode(',', $this->styles);
+    $lAttrList = array_filter($lAttrList, function($item){
+      return strpos($item,'--custom-style')===false;
+    });
 
-
-class SourceImmoRoute{
-
-  public $lang = '';
-  public $route = '';
-
-  public function __construct($lang='', $route='', $shortcut=''){
-    $this->lang = $lang;
-    $this->route = $route;
-    $this->shortcut = $shortcut;
+    foreach ($lAttrList as &$attr) {
+      $attr = str_replace(array('{','}','"'),'',$attr);
+    }
+    return implode(';',$lAttrList);
   }
 }
 
-class SourceImmoLayout{
-  public $lang = '';
-  public $type = 'standard';
-  public $preset = 'standard';
-  public $scope_class = '';
-  public $page = null;
-  /**
-   * Communication method for forms
-   */
-  public $communication_mode = 'basic';
-  /**
-   * Form id
-   */
-  public $form_id = '';
-
-  public function __construct($lang='', $type=''){
-    $this->lang = $lang;
-    $this->type = $type;
-    $this->communication_mode = 'basic';
-    
-  }
-}
-
-class SourceImmoList {
-  public $source = 'default';
-  public $alias = 'default';
-  public $limit = 0;
-  public $type = 'listings';
-  public $filter_group = null;
-  public $sort = 'auto';
-  public $sort_reverse = false;
-  public $searchable = true;
-  public $sortable = true;
-  public $mappable = true;
-  public $show_list_meta = true;
-  public $list_layout = null;
-  public $list_item_layout = 'standard';
-  public $browse_mode = null;
-  public $shuffle = false;  
-  public $default_zoom_level = "auto";
-  public $smart_focus_tolerance = 5;
-
-  public function __construct($source='',$alias='listings',$type='listings',$sort=''){
-    $this->source = $source;
-    $this->alias = $alias;
-    $this->type = $type;
-    $this->sort = $sort;
-
-
-    $this->list_layout = new SourceImmoLayout();
-    $this->list_item_layout = new SourceImmoLayout();
-
-    $this->filter_group = new SourceImmoFilterGroup();
-  }
-
-  static function parse($source){
-    return unserialize(sprintf(
-      'O:%d:"%s"%s',
-      strlen('SourceImmoList'),
-      'SourceImmoList',
-      strstr(strstr(serialize($source), '"'), ':')
-    ));
-  }
-
-
-  public function getViewEndpoint(){
-    $lTypedPaths = array(
-      'listings' => 'listing',
-      'cities' => 'location/city',
-      'brokers' => 'broker',
-      'offices' => 'office'
-    );
-    return "{$lTypedPaths[$this->type]}/view";
-  }
-}
-
-
-class SourceImmoFilterGroup {
-  public $operator = 'and';
-  public $filters = null;
-  public $filter_groups = null;
-
-  public function __construct(){
-    $this->filters = array();
-    $this->filter_groups = array();
-  }
-}
-
-class SourceImmoFilter {
-  public $field = '';
-  public $operator = 'equal';
-  public $value = '';
-}

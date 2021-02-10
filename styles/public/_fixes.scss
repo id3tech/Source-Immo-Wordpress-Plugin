@@ -1,0 +1,49 @@
+// enfold fixes
+html body.admin-bar.logged-in, .responsive{
+    #wpadminbar{
+        width:100vw;overflow:hidden;
+        z-index:1000;
+    }
+}
+#top{
+    &.single-listings,
+    &.single-brokers,
+    &.single-offices
+    &.single-cities{
+        .page.entry{
+            .container{
+                margin-top:50px;
+                margin-bottom:50px;
+            }
+        }
+    }
+
+    .si{
+        &.listing-single,
+        &.broker-single{
+            // max-width:1310px;
+            // margin:0 auto;
+
+            .content{border:none;}
+        }
+    }
+
+    .si-list-of-listings,.si-list-of-brokers{
+        a{
+            position:initial !important;
+        
+            .image-overlay{
+                display:none !important;
+                left:2px !important;
+                top:2px !important;
+                width:calc(100% - 4px) !important;
+                height:calc(100% - 4px) !important;
+                //border-radius:var(--element-border-radius);
+                overflow: hidden;
+                position: absolute;
+                background:var(--highlight);
+            }
+        }
+    }
+    
+}

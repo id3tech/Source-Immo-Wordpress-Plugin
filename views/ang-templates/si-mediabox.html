@@ -1,31 +1,36 @@
-<div class="medias select-{{selected_media}}">
+<div class="medias select-{{selected_media}} picture-list-{{pictureListDisplay}}">
     <div class="tabs">
         <span class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
             data-ng-show="tabIsAvailable('pictures')"
             data-ng-click="selectMedia('pictures')">
             <i class="fal fa-camera"></i> <span>{{'Pictures'.translate()}} ({{model.photos.length}})</span></span>
+            
         <span class="tab videos {{selected_media=='videos'?'selected':''}}"
             data-ng-show="tabIsAvailable('video') && model.video!=undefined" 
             data-ng-click="selectMedia('videos')">
             <i class="fal fa-video"></i> <span>{{'Video'.translate()}}</span></span>
+
         <span class="tab virtual-tours {{selected_media=='virtual-tours'?'selected':''}}"
             data-ng-show="tabIsAvailable('virtual-tours') && model.virtual_tour!=undefined" 
             data-ng-click="selectMedia('virtual-tours')">
-            <i class="fal fa-street-view"></i> <span>{{'Virtual tour'.translate()}}</span></span>
-        <span class="tab streetview {{selected_media=='streetview'?'selected':''}}" 
-            data-ng-show="tabIsAvailable('streetview')"
-            data-ng-click="selectMedia('streetview')">
-            <i class="fal fa-street-view"></i> <span>{{'Street view'.translate()}}</span></span>
+            <i class="fal fa-vr-cardboard"></i> <span>{{'Virtual tour'.translate()}}</span></span>
+        
         <span class="tab map {{selected_media=='map'?'selected':''}}" 
             data-ng-show="tabIsAvailable('map')"
             data-ng-click="selectMedia('map')">
             <i class="fal fa-map"></i> <span>{{'Map'.translate()}}</span></span>
+
+        <span class="tab streetview {{selected_media=='streetview'?'selected':''}}" 
+            data-ng-show="tabIsAvailable('streetview')"
+            data-ng-click="selectMedia('streetview')">
+            <i class="fal fa-street-view"></i> <span>{{'Street view'.translate()}}</span></span>
+
     </div>
     <div class="viewport">
         <div class="trolley">
             <div class="tab-content picture-gallery"
                 >
-                <si-image-slider data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'"></si-image-slider>
+                <si-image-slider data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-picture-fit="{{pictureFit}}" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'"></si-image-slider>
                 <si-thumbnails-slider si-list="model.photos" ng-show="pictureListDisplay=='thumbnails'"></si-thumbnails-slider>
             </div>
             <div class="tab-content videos"

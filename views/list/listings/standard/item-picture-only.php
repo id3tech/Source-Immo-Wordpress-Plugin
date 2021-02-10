@@ -14,7 +14,7 @@ if(isset($configs)){
             <div class="image si-lazy-loading"><img data-si-src="{{item.photo_url}}"  data-si-srcset="{{item.photo_url}}" /></div>
             <div class="flags">
                 <i class="video far fa-video"></i>
-                <i class="virtual-tour far fa-street-view"></i>
+                <i class="virtual-tour far fa-vr-cardboard"></i>
             </div>
         </div>
         <div class="infos">

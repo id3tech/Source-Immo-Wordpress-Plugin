@@ -28,8 +28,8 @@
             </div>   
             <div class="pages" ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].listing">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -41,8 +41,8 @@
             </div>
             <div class="pages" ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].listing_details" ng-show="default_page[lang].listing != 'NONE'">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -62,8 +62,8 @@
             </div>
             <div class="pages"  ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].broker">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -75,8 +75,8 @@
             </div>
             <div class="pages"  ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].broker_details" ng-show="default_page[lang].broker != 'NONE'">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -94,8 +94,8 @@
             </div>
             <div class="pages"  ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].office">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -107,8 +107,8 @@
             </div>
             <div class="pages"  ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].office_details" ng-show="default_page[lang].office != 'NONE'">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -128,8 +128,8 @@
             </div>
             <div class="pages" ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].city">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -141,8 +141,8 @@
             </div>
             <div class="pages" ng-repeat="lang in page_languages">
                 <md-select ng-model="default_page[lang].city_details" ng-show="default_page[lang].city != 'NONE'">
-                    <md-option value="NEW"><?php _e('Create a new page',SI) ?></md-option>
-                    <md-option value="NONE"><?php _e('No list page',SI) ?></md-option>
+                    <md-option value="NEW"><?php _e('(Create a new page)',SI) ?></md-option>
+                    <md-option value="NONE"><?php _e('(Do not create page automatically)',SI) ?></md-option>
                     <md-option ng-repeat="item in wp_pages[lang]" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
             </div>
@@ -151,7 +151,8 @@
         
     </div>
 
-    <div  class="apply-button">
-        <md-button class="md-primary md-raised" ng-click="applyShortCodeHandler()">{{'Finish'.translate()}}</md-button>
+    <div class="apply-button">
+        <md-button ng-click="skipPageBuilding()">{{'Skip'.translate()}}</md-button>
+        <md-button class="md-primary md-raised" ng-click="applyShortCodeHandler()">{{'Apply pages'.translate()}}</md-button>
     </div>
 </div>
