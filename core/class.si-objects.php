@@ -545,15 +545,38 @@
             $lResultPart[] = StringPrototype::format('{0} {1}',$dimension->area, $lUnit);
           }
           
+
           if(isset($dimension->width)){
-            
               $lUnit = $dictionary->getCaption($dimension->unit_code,'dimension_unit',true);
               $lSize = array();
-              $lSize[] = isset($dimension->width) ? StringPrototype::format('{0}{1}', $dimension->width, $lUnit) : __('NA',SI);
-              $lSize[] = isset($dimension->length) ? StringPrototype::format('{0}{1}', $dimension->length, $lUnit) : __('NA',SI);
-  
+
+              if($dimension->unit_code == 'I'){
+                // Width
+                if(isset($dimension->width)){
+                  $ftWidth = floor($dimension->width / 12);
+                  $inWidth =  $dimension->width % 12;
+                  $lSize[] = $ftWidth . "'" . ($inWidth > 0 ? StringPrototype::format('{0}{1}', $inWidth, $lUnit) : ''); 
+                }
+                else{ $lSize[] = __('N/A',SI);}
+                // Length
+                if(isset($dimension->length)){
+                  $ftLength = floor($dimension->length / 12);
+                  $inLength =  $dimension->length % 12;
+                  $lSize[] = $ftLength . "'" . ($inLength > 0 ? StringPrototype::format('{0}{1}', $inLength, $lUnit) : ''); 
+                }
+                else{ $lSize[] = __('N/A',SI);}
+              }
+              else{
+
+                $lSize[] = isset($dimension->width) ? StringPrototype::format('{0}{1}', $dimension->width, $lUnit) : __('N/A',SI);
+                $lSize[] = isset($dimension->length) ? StringPrototype::format('{0}{1}', $dimension->length, $lUnit) : __('N/A',SI);
+    
+              }
+
+              
               $lResultPart[] = implode(' x ', $lSize);
           }
+
           if(count($lResultPart) > 1){
             $lResult = StringPrototype::format('{0} ({1})', $lResultPart[0], $lResultPart[1]);
           }

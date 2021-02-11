@@ -39,12 +39,19 @@ class SiGitHubPluginUpdater {
         $url = "https://api.github.com/repos/{$this->username}/{$this->repo}/releases";
         
         // We need the access token for private repos
+        $callArgs = [];
+
         if ( ! empty( $this->accessToken ) ) {
-            $url = add_query_arg( array( "access_token" => $this->accessToken ), $url );
+            $callArgs = [
+              'headers' => [
+                'Authorization' => 'token ' . $this->accessToken
+              ]
+            ];
+            //$url = add_query_arg( array( "access_token" => $this->accessToken ), $url );
         }
         
         // Get the results
-        $this->githubAPIResult = wp_remote_retrieve_body( wp_remote_get( $url ) );
+        $this->githubAPIResult = wp_remote_retrieve_body( wp_remote_get( $url, $callArgs ) );
         if ( ! empty( $this->githubAPIResult ) ) {
             $this->githubAPIResult = @json_decode( $this->githubAPIResult );
         }

@@ -876,15 +876,27 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
                 
                 const lUnitFormat = {
                     I : function($width,$length,$unit){
-                        lWidthFeet = Math.floor($width /  12);
-                        lWidthInchLeft = $width % 12;
-    
-                        $width = lWidthFeet + "'" + (lWidthInchLeft != 0 ? lWidthInchLeft + $unit : '');
-    
-                        lLengthFeet = Math.floor($length / 12);
-                        lLengthInchLeft = $length % 12;
-                        $length = lLengthFeet + "'" + (lLengthInchLeft != 0 ? lLengthInchLeft + $unit : '');
-    
+                        if($width == undefined  && $length == undefined) return '';
+
+                        if($width == undefined){
+                            $width = 'N/A'.translate();
+                        }
+                        else{
+                            lWidthFeet = Math.floor($width /  12);
+                            lWidthInchLeft = $width % 12;
+        
+                            $width = lWidthFeet + "'" + (lWidthInchLeft != 0 ? lWidthInchLeft + $unit : '');
+                        }
+
+                        if($length == undefined){
+                            $length = 'N/A'.translate();
+                        }
+                        else{
+                            lLengthFeet = Math.floor($length / 12);
+                            lLengthInchLeft = $length % 12;
+                            $length = lLengthFeet + "'" + (lLengthInchLeft != 0 ? lLengthInchLeft + $unit : '');
+                        }
+
                         return '{0} x {1}'.format($width,$length);
                     },
                 }
