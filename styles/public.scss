@@ -462,7 +462,11 @@ html{
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;
-
+                &::after{
+                    content: "";
+                    display: inline-block;
+                    height: 1em;
+                }
                 &[ng-hide]{
                     display:none!important;
                 }
