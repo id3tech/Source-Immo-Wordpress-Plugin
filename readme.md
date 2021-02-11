@@ -67,6 +67,10 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.01
+* Fix dimension formatting for rooms (in print)
+* Change on update method for upcoming deprecation (no biggie)
+
 Version 1.1.0
 * Add support for priority group sorting
 * Fix dimension formatting for rooms by converting inches to feet/inches instead of feet with decimals
