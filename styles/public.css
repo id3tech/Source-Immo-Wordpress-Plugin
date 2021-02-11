@@ -177,6 +177,8 @@ html { font-size: 14px; }
 
 #top .si .si-item .item-content .si-data-label, .si .si-item .item-content .si-data-label { padding: var(--element-padding); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 
+#top .si .si-item .item-content .si-data-label::after, .si .si-item .item-content .si-data-label::after { content: ""; display: inline-block; height: 1em; }
+
 #top .si .si-item .item-content .si-data-label[ng-hide], .si .si-item .item-content .si-data-label[ng-hide] { display: none !important; }
 
 #top .si .si-item.si-double-layer-item-layout .item-content, .si .si-item.si-double-layer-item-layout .item-content { display: block; }
