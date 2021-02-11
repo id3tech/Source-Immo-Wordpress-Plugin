@@ -647,6 +647,7 @@ $locales.fr = {};$locales.fr.global =
     , "{0}rd" : "{0}e"
     , "Flooring" : "Plancher"
     , "Level" : "Niveau"
+    , "Size" : "Taille"
     , "Expenses and assessments" : "Dépenses et évaluations"
     , "Expenses" : "Dépenses"
     , "Assessment ({0})" : "Évaluation ({0})"
