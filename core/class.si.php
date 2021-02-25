@@ -589,17 +589,13 @@ class SourceImmo {
    */
   public function load_script_context(){
     $lTwoLetterLocale = si_get_locale();
-    $lUploadDir   = wp_upload_dir();
-    $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
-    $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
-    $lConfigVersion = '';
+    // $lUploadDir   = wp_upload_dir();
+    // $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
+    // $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
+    // $lConfigVersion = '';
     
-    if(!file_exists($lConfigFilePath)){
-      $lConfigFilePath = SourceImmoConfig::load()->save();
-      $lConfigVersion = filemtime($lConfigFilePath);
-    }
-    
-    $lConfigPath  = $lConfigFileUrl . '?v=' . $lConfigVersion;
+
+    $lConfigPath = SourceImmoConfig::getFileUrl(true);
 
     $currentPagePath = $_SERVER['REQUEST_URI'];
 

@@ -259,29 +259,30 @@ function singleListingCtrl(
             // set dictionary source
             $siDictionary.source = $data.dictionary;
             // start preprocessing of data
-            $siDictionary.onLoad().then(function(){
+            $siDictionary.onLoad()
+            .then(function(){
                 $scope.preprocess();
             })
-            
-            
-            // prepare message subject build from data
-            $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
-            let lUserInfo = sessionStorage.getItem('user_infos');
-            if(typeof(lUserInfo) != 'undefined'){
-                lUserInfo = JSON.parse(lUserInfo);
-                if(lUserInfo != null){
-                    $scope.message_model.firstname = lUserInfo.firstname;
-                    $scope.message_model.lastname = lUserInfo.lastname;
-                    $scope.message_model.phone = lUserInfo.phone;
-                    $scope.message_model.email = lUserInfo.email;
+            .then(function(){
+                // prepare message subject build from data
+                $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+                let lUserInfo = sessionStorage.getItem('user_infos');
+                if(typeof(lUserInfo) != 'undefined'){
+                    lUserInfo = JSON.parse(lUserInfo);
+                    if(lUserInfo != null){
+                        $scope.message_model.firstname = lUserInfo.firstname;
+                        $scope.message_model.lastname = lUserInfo.lastname;
+                        $scope.message_model.phone = lUserInfo.phone;
+                        $scope.message_model.email = lUserInfo.email;
+                    }
                 }
-            }
-            $siHooks.do('listing-message-model-post-process',$scope.message_model);
+                $siHooks.do('listing-message-model-post-process',$scope.message_model);
 
-            $siHooks.do('listing-ready',$scope.model);
-            $siHooks.addFilter('si.share.data',$scope.setShareData);
+                $siHooks.do('listing-ready',$scope.model);
+                $siHooks.addFilter('si.share.data',$scope.setShareData);
 
-            $rootScope.$broadcast('si/model:ready');
+                $rootScope.$broadcast('si/model:ready');
+            })
             // print data to console for further informations
             //console.log($scope.model);
         });

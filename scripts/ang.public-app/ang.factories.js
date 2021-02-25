@@ -910,7 +910,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
                 
                 
             }
-            else if (typeof $dimension.area != undefined){
+            else if ($dimension.area != undefined){
                 let lUnit = $siDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
                 lResult = '{0} {1}'.format($dimension.area, lUnit);
             }

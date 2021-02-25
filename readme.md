@@ -1,4 +1,4 @@
-# Version 1.1.03
+# Version 1.1.05
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -67,6 +67,13 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.05
+* Fixes missing address in contact form title
+* Improved security for REST API
+
+Version 1.1.04
+* Add + symbole for list line-feed in TextToHtml filter
+
 Version 1.1.03
 * Add missing translation for Size
 * Fix empty data label in list item not taking their space
