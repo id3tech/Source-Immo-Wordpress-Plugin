@@ -806,9 +806,25 @@ class SourceImmoApi {
   * Determine if the user can make the request
   */
   public static function privileged_permission_callback() {
-    //Debug::print(wp_get_current_user());
+    // If the request doesn't come from a rest call, bail now
+    $request = $_SERVER['REQUEST_URI'];
+    if(strpos($request, '/wp-json/si-rest/') === false) return false;
+
+    // user must have manage_options privilege (mostly admin rights)
 		return current_user_can( 'manage_options' );
 	}
+  public static function friendly_permission_callback() {
+    // If the request doesn't come from a rest call, bail now
+    $request = $_SERVER['REQUEST_URI'];
+    if(strpos($request, '/wp-json/si-rest/') === false) return false;
+    
+    // user must have edit_post privilege (mostly logged in user)
+		return current_user_can( 'edit_posts' );
+	}
+  public static function public_permission_callback() {
+    return true;
+	}
+
 
   /**
   * Build error associative array to return
@@ -909,7 +925,7 @@ class SourceImmoApi {
     array(
       array(
         'methods' => WP_REST_Server::READABLE,
-        'permission_callback' => '__return_true',
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'new_nonce' ),
       )
     )
@@ -920,7 +936,7 @@ class SourceImmoApi {
       array(
         array(
           'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'permission_callback' => ['SourceImmoApi','public_permission_callback'],
           'callback' => array( 'SourceImmoApi', 'get_access_token' ),
         )
       )
@@ -947,7 +963,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/account',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_account' ),
         'args' => array(
           'account_id' => array(
@@ -974,7 +990,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/addons/list',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','friendly_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_addons' ),
       )
     );
@@ -988,7 +1004,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/dictionary',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_dictionary' ),
         'args' => array(
           'lang' => array(
@@ -1014,7 +1030,7 @@ class SourceImmoApi {
         // GET
         array(
           'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'permission_callback' => ['SourceImmoApi','public_permission_callback'],
           'callback' => array( 'SourceImmoApi', 'get_configs' ),
         ), // End GET
 
@@ -1105,6 +1121,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/list_configs',
       array(
         'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_list_configs' ),
         'args' => array(
           'alias' => array(
@@ -1129,7 +1146,7 @@ class SourceImmoApi {
       array(
         array(
           'methods' => WP_REST_Server::CREATABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'permission_callback' => ['SourceImmoApi','public_permission_callback'],
           'callback' => array( 'SourceImmoApi', 'send_message' ),
           'args' => array(
             'params' => array(
@@ -1152,7 +1169,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/form/list',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_form_list' ),
       )
     );
@@ -1168,7 +1185,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/language/list',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_language_list' ),
       )
     );
@@ -1183,7 +1200,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/menu/list',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_menu_list' )
       )
     );
@@ -1200,7 +1217,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/page/list',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_page_list' ),
         'args' => array(
           'locale' => array(
@@ -1220,7 +1237,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/page',
       array(
         'methods' => WP_REST_Server::EDITABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','friendly_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'update_page' ),
         'args' => array(
           'page_id' => array(
@@ -1245,7 +1262,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/page/permalink',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_page_permalink' ),
         'args' => array(
           'page_id' => array(
@@ -1268,6 +1285,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/permalinks',
       array(
         'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_configs_permalinks' )
       ) // End GET
     );
@@ -1283,7 +1301,7 @@ class SourceImmoApi {
     register_rest_route( 'si-rest','/data_view',
       array(
         'methods' => WP_REST_Server::READABLE,
-        //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
         'callback' => array( 'SourceImmoApi', 'get_data_view' ),
       )
     );

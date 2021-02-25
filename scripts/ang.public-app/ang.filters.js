@@ -123,26 +123,26 @@ function textToHtml(){
             // Level 2: Format by adding <br> on empty lines and <br> before line beginning by -, ** or *
             function(){
                 return lTextArr.map(function($line, $index){
-                        $line = $line.replace(/\r/gm,'');
+                        $line = $line.replace(/\r/gm,'').trim();
                         console.log('textToHtml@lineFormat', $line, $line == '');
                         if($line == '') return '<br />';
-                        if($index > 0 && ['-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
+                        if($index > 0 && ['+','-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
 
                         return $line;
                     }
                 )
             },
 
-            // Level 3: Format by closing/opening paragraph on empty lines and <br> before line beginning by -, ** or *
+            // Level 3: Format by closing/opening paragraph on empty lines and <br> before line beginning by +, -, ** or *
             function(){
                 return lTextArr.map(
                     function($line, $index){
-                        $line = $line.replace(/\r/gm,'');
+                        $line = $line.replace(/\r/gm,'').trim();
                         console.log('textToHtml@lineFormat', $line, $line == '');
                         const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
 
                         if($line == '') return '</p><p>';
-                        if($index > 0 && lPreviousLine != '' && ['-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
+                        if($index > 0 && lPreviousLine != '' && ['+','-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
 
                         return $line;
                     }
@@ -159,7 +159,7 @@ function textToHtml(){
                     const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
                     const lNextLine = ($index == lTextArr.length-1) ? '' : (lTextArr[$index+1]).replace(/\r/gm,'');
 
-                    const lListChars = ['-','**','*'];
+                    const lListChars = ['+','-','**','*'];
                     if(lListChars.some(function($c){ return $line.indexOf($c)==0})){
                         lListChars.forEach(function($c){ $line = $line.replace($c,'').trim()});
                         $line  = '<li>' + $line;

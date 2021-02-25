@@ -1,6 +1,5 @@
 <div class="rooms si-detail-section {{sectionOpened('rooms')?'opened':''}}" 
-        data-ng-if="isAvailableSection('rooms')"
-        data-ng-if="(model.rooms | siHasValue) || ( (model.units | siHasValue) && model.units[0].dimension | siHasValue)">
+        data-ng-if="isAvailableSection('rooms') && ((model.rooms | siHasValue) || ( (model.units | siHasValue) && model.units[0].dimension | siHasValue))">
     <div class="si-title" data-ng-click="toggleSection('rooms')">
         <div>
             {{

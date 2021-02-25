@@ -207,6 +207,23 @@ class SourceImmoConfig {
     );
   }
 
+  public static function getFileUrl($addVersion=false){
+    $lUploadDir   = wp_upload_dir();
+    $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo/_configs.json';
+    $lResult = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
+    $lUrlVersion = '';
+
+    if($addVersion){
+      $version = time();
+      if(file_exists($lConfigFilePath)){
+        $version = filemtime($lConfigFilePath);
+      }
+      $lUrlVersion = '?v=' . $version;
+    }
+    
+    return $lResult . $lUrlVersion;
+  }
+
   public static function load(){
     $instance = new SourceImmoConfig();
     
@@ -309,8 +326,12 @@ class SourceImmoConfig {
   }
 
   public function saveConfigFile(){
+    
+
     // save to file system too
     $lUploadDir   = wp_upload_dir();
+
+
     $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo';
     if ( ! file_exists( $lConfigPath ) ) {
       $this->addLog('saveConfigFile::create configs folder');
@@ -347,9 +368,10 @@ class SourceImmoConfig {
     $timestamp = Date('Y-M-d H:i:s');
 
     if($includeRequestMeta){
-      $referer = $_SERVER['HTTP_REFERER'];
+      $referer = $_SERVER['HTTP_REFERER'] ?: 'None';
       $request = $_SERVER['REQUEST_URI'];
-      $message = "$message (from $referer on $request)";
+      $method  = $_SERVER['REQUEST_METHOD'];
+      $message = "$message (on $method : $request, referer:'$referer') ";
     }
 
     fwrite($filePointer, "$timestamp :: $message \n");
