@@ -35,6 +35,24 @@ if(typeof String.prototype.capitalize === 'undefined'){
 
 }
 
+if(typeof String.prototype.trimChar === 'undefined'){
+
+    String.prototype.trimChar = function($char){
+        let lResult = this;
+        while(lResult.charAt(0)==$char) {
+            lResult = lResult.substring(1);
+        }
+    
+        while(lResult.charAt(lResult.length-1)==$char) {
+            lResult = lResult.substring(0,lResult.length-1);
+        }
+    
+        return lResult;
+    }
+
+}
+
+
 if(typeof [].firstOrDefault === 'undefined'){
     Array.prototype.firstOrDefault = function($default){
         if(this.length > 0) return this[0];

@@ -8,14 +8,36 @@ siApp
             downpayment_selection: '@?siDownpaymentSelection',
             region: '@?siRegion',
             cityCode: '@?siCity',
-            on_change: '&onChange'
+            on_change: '&onChange',
+            mode: '@'
         },
         controllerAs: 'ctrl',
         replace:true,
         templateUrl: directiveTemplatePath('si-calculator'),
-        controller: function($scope, $q,$rootScope) {
+        transclude: true,
+        link: function($scope,$element,$attrs){
+            if($scope.mode == undefined){
+                $scope.mode = $attrs.siAmount != undefined ? 'embedded' : 'standalone'
+            }
+
+            let lAmount = $scope.amount;
+            if($attrs.siAmount == undefined){
+                
+                const lQueryAmount = window.location.search.split('&').find(function($part){return $part.indexOf('amount')});
+                if(lQueryAmount != null){
+                    lAmount = parseFloat(lQueryAmount.split("=")[1]);
+                    if(isNaN(lAmount)){
+                        lAmount = $scope.amount;
+                    }
+                }
+            }
+
+            $scope.init(lAmount);
+        },
+        controller: function($scope, $q,$rootScope, $http) {
             $scope.downpayment_selection = 'manual';
-            
+            $scope.cities = {};
+
             $scope.data = {
                 amount:0,
                 amortization:25,
@@ -29,10 +51,40 @@ siApp
                 '26' : 'Every two weeks',
                 '52' : 'Weekly'
             }
-            $scope.init = function(){
+            $scope.init = function($amount){
+                $amount = ($amount == undefined) ? 0 : $amount;
+                
                 $scope.preload();
-    
-                $scope.data.amount = $scope.amount;
+                $scope.data.amount = $amount;
+
+                $scope.getCityTaxTransfers().then(function(){
+                    $scope.process();
+                })
+                
+            }
+
+            $scope.getCityTaxTransfers = function(){
+                if($scope.transferTaxCityBoundaries != undefined) return $q.resolve();
+
+                return $http.get('https://api-v1.source.immo/lib/city-tax-transfer.json').then( function($response){
+                    if($response.status == 200){
+                        return $response.data;
+                    }
+                    return null;
+                } ).then(function($transferTaxCityBoundaries){
+                    $scope.transferTaxCityBoundaries = $transferTaxCityBoundaries;
+                    $scope.cities = $transferTaxCityBoundaries.exceptions.map($city => {
+                        return {
+                            code: (Array.isArray($city.code)) ? $city.code[0] : $city.code,
+                            name: $city.name
+                        };
+                    });
+                })
+            }
+
+            $scope.selectCity = function($city){
+                $scope.selectedCity = $city;
+                $scope.cityCode = $city.code;
                 $scope.process();
             }
     
@@ -98,10 +150,11 @@ siApp
                                 ($scope.data.downpayment / $scope.data.amount);
                 //console.log('ratio', lRatio);
                 $scope.process_branch(lBranch, lRatio);
-    
+                
+                $transferTax = $scope.getTransferTax($scope.data.amount);
                 let lResult = {
                     mortgage : lBranch,
-                    transfer_tax : $scope.getTransferTax($scope.data.amount,$scope.region=='06 ')
+                    transfer_tax : $transferTax
                 }
     
                 $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
@@ -109,13 +162,17 @@ siApp
                 if(typeof($scope.on_change) == 'function'){
                     $scope.on_change({'$result' : lResult});
                 }
+
+
+            
+                $scope.result = lResult;
     
                 //console.log('processing triggered', lResult);
             }
     
             $scope.process_branch = function (branch, downpayment_ratio) {
-                branch.downpayment = getDownPayment($scope.data.amount, downpayment_ratio) + 0.000001;
-                branch.insurance = getMortgageInsurance($scope.data.amount, downpayment_ratio);
+                branch.downpayment = $scope.getDownPayment($scope.data.amount, downpayment_ratio) + 0.000001;
+                branch.insurance = $scope.getMortgageInsurance($scope.data.amount, downpayment_ratio);
                 branch.mortgage = $scope.data.amount - branch.downpayment + branch.insurance;
                 
                 const PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
@@ -126,116 +183,94 @@ siApp
                 const intcandebase = Math.pow((1 + IntRate / 2), (2 / PPay)) - 1;
                 const paymperiobase = (PrValue * intcandebase) / (1 - (1 / Math.pow((1 + intcandebase), (Period * PPay))));
                 branch.payment = paymperiobase;
+
+                return branch;
             };
     
-            getDownPayment = function (price, downpayment_ratio) {
+            $scope.getDownPayment = function (price, downpayment_ratio) {
                 return price * downpayment_ratio;
             };
     
-            getMortgageInsurance = function (price, downpayment_ratio) {
+            $scope.getMortgageInsurance = function (price, downpayment_ratio) {
                 //  EDIT:   remove insurance offset because it's not shown 
                 //          and insurance are calculated on fixed downpayment ratio
                 //          We should correct it by including range or get a real 
                 //          algorithm
-                return 0;
-                let lResult = price - (price * downpayment_ratio);
-                switch (downpayment_ratio) {
-                    case 0.05:
-                        lResult = lResult * 0.036;
-                        break;
-                    case 0.10:
-                        lResult = lResult * 0.024;
-                        break;
-                    case 0.15:
-                        lResult = lResult * 0.018;
-                        break;
-                    case 0.20:
-                        lResult = lResult * 0;
-                        break;
+                //return 0;
+                
+                const lBasePrice = price - (price * downpayment_ratio);
+                const lBrackets = [
+                    {pct: 0.05, mult: 0.04},
+                    {pct: 0.1, mult: 0.031},
+                    {pct: 0.15, mult: 0.028},
+                    {pct: 0.1999, mult: 0.028},
+                    {pct: 0.2, mult: 0}
+                ];
+                
+                if(downpayment_ratio < 0.05){
+                    console.log('Downpayment ratio is inferior to the 5% limit');
+                    return 0;
                 }
+                
+                let lBraket = null;
+                
+                lBrackets.forEach(function($b){
+                    if(downpayment_ratio >= $b.pct){
+                        lBraket = $b;
+                    }
+                })
+                let lResult = 0;
+                
+                if(lBraket != null){
+                    lResult = lBasePrice * lBraket.mult;
+                }		
+                
                 return lResult;
             };
     
             $scope.getTransferTax = function (amount, in_montreal) {
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
                 parts = [];
-                const lBoundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
-                //console.log('transferTax',$scope.cityCode, lBoundaries);
-                //console.log('in montreal', in_montreal);
-                
-                let rates = lBoundaries.rates;
-                let bounds = lBoundaries.bounds;
-                // let lAmountRaw = $("#purchase_price").val();
-                
-                // let amount = me.devise(parseFloat(lAmountRaw.replace(/ /g,'')));
-                let taxemutation = 0;
-                for (i=0; i<rates.length; i++) {
-                    if(amount <= 0) continue;
+                $boundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
+                    let rates = $boundaries.rates;
+                    let bounds = $boundaries.bounds;
+                    let transferTax = 0;
 
-                    const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
-                    taxemutation = taxemutation + lRemovedAmount*rates[i];
-                    amount = amount - lRemovedAmount;
-                    //console.log('step',i,':', lRemovedAmount,'x',rates[i]*100,'% =', lRemovedAmount*rates[i], '(',taxemutation,') still have', amount, '$ to process' )
-                }
-
-                return Math.round(taxemutation);
+                    for (i=0; i<rates.length; i++) {
+                        if(amount <= 0) continue;
+    
+                        const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
+                        transferTax = transferTax + lRemovedAmount*rates[i];
+                        amount = amount - lRemovedAmount;
+                    }
+    
+                    return Math.round(transferTax);
+                
             };
             
             $scope.getTransferTaxBoundaries = function($cityCode){
+                $boundaries = $scope.transferTaxCityBoundaries;
+                if($boundaries == null) return null;
                 
-                const defaultBoundaries = {code: 'default', rates: [0.005,0.01,0.015], bounds : [50900,254400,99000000]};
-                if($cityCode == undefined) return defaultBoundaries;
-                
-                const citiesBoundaries = [
-                    {code: '93042', name:'Alma', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '73005', name:'Boisbriand', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '59005', name:'Boucherville', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]},
-                    {code: '58005', name:'Brossard', bounds:[50900,254400,750000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: '57005', name:'Chambly', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
-                    {code: '67050', name:'Châteauguay', bounds:[50900,254400,505200,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '49057', name:'Drummondville', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
-                    {code: ["46085", "46112"], name:'Farnham', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.0225]},
-                    {code: '66100', name:'Kirkland', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: '60028', name:'L\'assomption', bounds:[50900,254400,508700,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: ["65101", "65102", "65103", "65104", "65105", "65106", "65107", "65108", "65109", "65110", "65111", "65112", "65113"], name:'Laval', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: ["25214", "25215", "25216"], name:'Lévis', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: ["58015", "58020", "58227"], name:'Longueuil', bounds:[50900,254400,508699,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '73025', name:'Lorraine', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '64015', name:'Mascouche', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '57035', name:'Mont-Saint-Hilaire', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: ["66020", "66030", "66040", "66057", "66065", "66070", "66075", "66085", "66125", "66130", "66140", "66150", "66501", "66505", "66506", "66507", "66508", "66509", "66511", "66516"], name:'Montréal', bounds:[50900,254400,508700,1017400,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: '78102', name:'Mont-Tremblant', bounds:[50900,254400,503500,1007000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: '77050', name:'Morin-Heights', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
-                    {code:  ["60010", "60013"], name:'Repentigny', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '10043', name:'Rimouski', bounds:[50900,254400,505100,757700,1010300,99000000],rates:[0.005,0.01,0.015,0.02,0.025,0.03]},
-                    {code: '75005', name:'Saint-Colomban', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '72005', name:'Saint-Eustache', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.025]},
-                    {code: '56083', name:'Saint-Jean-Sur-Richelieu', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '59010', name: 'Sainte-Julie', rates: [0.005,0.01,0.015 ,0.025], bounds : [50900,254400,500000,99000000]},
-                    {code: '87120', name:'Saint-Lambert', bounds:[50900,254400,500000,1000000,99000000],rates:[0.005,0.01,0.015,0.02,0.025]},
-                    {code: '77040', name:'Saint-Sauveur', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: ["43010", "43020", "43023", "43024", "43025", "43030"], name:'Sherbrooke', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '53052', name:'Sorel-Tracy', bounds:[50900,254400,500000,700000,900000,99000000],rates:[0.005,0.01,0.015,0.02,0.025,0.03]},
-                    {code: ["64005", "64008", "64020"], name:'Terrebonne', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.03]},
-                    {code: '37067', name:'Trois-Rivières', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]},
-                    {code: '78010', name:'Val David', bounds:[50900,254400,500000,99000000],rates:[0.005,0.01,0.015,0.02]}
-                ];
-                
-                const lBoundedCity = citiesBoundaries.find(function($e){ 
+                const defaultBoundaries = $boundaries.general;
+                if(isNullOrEmpty($cityCode)) return defaultBoundaries;
+                const lFilteredBoundaries = $boundaries.exceptions.find(function($e){
                     if(Array.isArray($e.code)){
                         return $e.code.includes($cityCode.toString());
                     }
-                    return $e.code == $cityCode
+                    return $e.code == $cityCode.toString()
                 });
-
-                if(lBoundedCity != null) return lBoundedCity;
-                return defaultBoundaries;
+                if(lFilteredBoundaries == null) return defaultBoundaries;
+                
+                lFilteredBoundaries.bounds.unshift(...defaultBoundaries.bounds.slice(0,2));
+                lFilteredBoundaries.rates.unshift(...defaultBoundaries.rates.slice(0,2));
+                return lFilteredBoundaries;
             }
 
             $scope.preload = function(){
                 let lData = sessionStorage.getItem('si.mortgage-calculator');
                 if(lData != null){
-                    $scope.data = JSON.parse(lData);
+                    //$scope.data = JSON.parse(lData);
                 }
             }
     
@@ -245,8 +280,9 @@ siApp
     
             // watch for amount to be valid then init directive
             $scope.$watch("amount", function(){
+                
                 if($scope.amount!=null){
-                    $scope.init();
+                    $scope.init($scope.amount);
                 }
             });
     

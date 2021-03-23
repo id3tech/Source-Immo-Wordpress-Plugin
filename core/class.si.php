@@ -1419,6 +1419,8 @@ class SiSharing{
   private $description = null;
   private $image = null;
   private $link = null;
+  private $datePublished = null;
+  private $dateModified = null;
 
   public function __construct(&$source){
     if($source != null){
@@ -1447,6 +1449,8 @@ class SiSharing{
     add_filter('wpseo_opengraph_image', array($this, 'image'), 10,1);
     add_filter('wpseo_opengraph_url',array($this,'url'),10,1);
     add_filter('wpseo_twitter_image', array($this, 'image'), 10,1);
+
+    add_filter('wpseo_schema_webpage', [$this, 'page_schema'], 10,1);
   }
 
   public function change_post($post_object){
@@ -1505,6 +1509,17 @@ class SiSharing{
     } 
     return $url;
   }
+  function page_schema( $data ) {
+    if($this->datePublished != null){
+      $data['datePublished'] = $this->datePublished;
+    }
+    
+    if($this->dateModified != null){
+      $data['dateModified'] = $this->dateModified;
+    }
+    
+    return $data;
+  }
 
   public function seo_metas(){
     $this->set_meta("description", $this->desc());
@@ -1520,6 +1535,8 @@ class SiSharing{
     $this->set_social_meta("type", 'website',array('og','twitter'));
     $this->set_social_meta("image", $this->image(),array('og','twitter'));
   }
+
+ 
 
   public function set_meta($key, $value,$metakey='name'){
     echo('<meta '. $metakey .'="' . $key . '" content="' . $value . '"></meta>');
@@ -1547,6 +1564,9 @@ class SiSharing{
     $this->desc = isset($this->object->license_type) ? $this->object->license_type : '';
     $this->image = isset($this->object->photo->url) ? $this->object->photo->url : '';
     $this->url = '/' . $this->object->permalink;
+    $this->datePublished = $this->object->metadata->publish_date;
+    $this->dateModified = $this->object->metadata->last_modify_date;
+
   }
 
   public function officePreprocess(){
@@ -1560,6 +1580,8 @@ class SiSharing{
     $this->desc = __('Office',SI); //$this->object->license_type;
     $this->image = null; //$this->object->photo->url;
     $this->url = '/' . $this->object->permalink;
+    $this->datePublished = $this->object->metadata->publish_date;
+    $this->dateModified = $this->object->metadata->last_modify_date;
   }
 
   public function cityPreprocess(){
@@ -1586,6 +1608,9 @@ class SiSharing{
     $this->desc = isset($this->object->description) ? $this->object->description : '';
     $this->image = (isset($this->object->photos[0]->source_url)) ? $this->object->photos[0]->source_url : null;
     $this->url = '/' . $this->object->permalink;
+    $this->datePublished = (!isset( $this->object->contract->start_date)) ? $this->object->contract->start_date : $this->object->metadata->publish_date;
+    $this->dateModified = $this->object->metadata->last_modify_date;
+    
   }
 
   public function getPermalink(){

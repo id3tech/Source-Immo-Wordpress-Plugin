@@ -1,6 +1,11 @@
 /* DIRECTIVES */
 siAdminDirectiveTemplatePath = function($path, $useTimeVersioning){
-  return wpSiApiSettings.base_path + '/views/admin/statics/' + $path + '.html?t=' + (new Date()).getTime();
+  $useTimeVersioning = $useTimeVersioning == undefined ? true : $useTimeVersioning;
+  let lTimeQS = '';
+  if($useTimeVersioning){
+    lTimeQS = '?t=' + (new Date()).getTime();
+  }
+  return '/' + wpSiApiSettings.base_path.trimChar('/') + '/views/admin/statics/' + $path + '.html' + lTimeQS;
 }
 
 // siApp
@@ -140,7 +145,7 @@ siApp
       type: '@',
       changeHandler: '&siChange'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-route-box.html',
+    templateUrl : siAdminDirectiveTemplatePath('si-route-box'),
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -380,7 +385,7 @@ siApp
       type: '=siType',
       removeHandler : '&onRemove'
     },
-    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-filter-item.html',
+    templateUrl : siAdminDirectiveTemplatePath('si-filter-item'),
     replace: true,
     link: function($scope, $elm, $attr){
       $scope.init();
@@ -515,7 +520,7 @@ siApp
     restrict: 'E',
     replace: true,
     scope: true,
-    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-data-group-editor.html',
+    templateUrl: siAdminDirectiveTemplatePath('si-data-group-editor'),
     link: function($scope, $element, $attrs){
       const lAssoc = {
         'listings' : 'listing',
@@ -743,7 +748,7 @@ siApp
 .directive('siStyleEditor', ['$parse', function siStyleEditor($parse){
   return {
     restrict: 'E',
-    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-style-editor.html',
+    templateUrl: siAdminDirectiveTemplatePath('si-style-editor'),
     replace: true,
     scope: {
       rawModel: '=siModel',
@@ -1248,7 +1253,7 @@ siApp
 .directive('siSearchTabsEditor', [function siSearchTabsEditor(){
   return {
     restrict: 'E',
-    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-search-tabs-editor.html',
+    templateUrl: siAdminDirectiveTemplatePath('si-search-tabs-editor.html'),
     replace: true,
     scope: {
       model: '=siModel'
@@ -1400,7 +1405,7 @@ siApp
       model: '=siModel',
       active_addons: '=siActiveAddons'
     },
-    templateUrl: wpSiApiSettings.base_path + '/views/admin/statics/si-addon-config.html?v' + (new Date()).getTime(),
+    templateUrl: siAdminDirectiveTemplatePath('si-addon-config'),
     replace: true,
     link: function($scope, $element, $attrs){
       $scope.init();
@@ -1410,7 +1415,7 @@ siApp
 
 
       $scope.init = function(){
-        $scope.addonConfigPath = wpSiApiSettings.base_path + 'addons/' + $scope.model.name + '/views/addon.settings.html?v=' + (new Date()).getTime();
+        $scope.addonConfigPath = '/' + wpSiApiSettings.base_path.trimChar('/')+ '/addons/' + $scope.model.name + '/views/addon.settings.html?t=' + (new Date()).getTime();
         if($scope.active_addons == null || Array.isArray($scope.active_addons)){
           $scope.active_addons = {};
         }

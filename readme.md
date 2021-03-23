@@ -1,4 +1,4 @@
-# Version 1.1.05
+# Version 1.1.06
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -67,6 +67,12 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.06
+* Add support for Yoast published and modified date hook in dynamic page content
+* Add shordcodes for standalone calculators (mortgage and transfer tax)
+* Update transfer tax bounds and rates for cities with custom specificities
+* Fixed double slash in path for admin directives template
+
 Version 1.1.05
 * Fixes missing address in contact form title
 * Improved security for REST API
