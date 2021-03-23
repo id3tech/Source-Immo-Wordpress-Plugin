@@ -251,7 +251,7 @@ si-checkbox, si-radio{
     display:grid;
         gap:  1rem;
         grid-template-rows: auto;
-    .input-container{
+    .si-input-container{
         display:grid;
         gap: 1rem;
         grid-template-columns: 3fr 2fr;
@@ -271,19 +271,20 @@ si-checkbox, si-radio{
         label{
             grid-area:label;color:inherit;
             pointer-events: none;
+            opacity:1;
             .alt-method{
                 si-radio{pointer-events: auto;}
             }
         }
-        .dropdown{
+        .si-dropdown{
             > .btn{color:inherit;}
         }
-        .input{
+        .si-input{
             grid-area:input;
             display:grid;
             grid-template-columns: 1fr auto;
             place-items: center;
-
+            margin-top:0;
             
         }
         .extra{width:25px;text-align:center;}
@@ -297,7 +298,7 @@ si-checkbox, si-radio{
                 display: grid;
                 grid-template-columns: 1fr;
             }
-            .input{
+            .si-input{
                 position:relative;
                 &:not(.si-dropdown){
                     .extra{
@@ -313,6 +314,87 @@ si-checkbox, si-radio{
             
         }
     }
+    .si-amount-value{
+        font-size:2rem;
+        text-align:center;
+    }
+
+    .si-calculator-results{
+        background:var(--small-contrast-color);
+        --text-color: var(--small-contrast-text-color);
+        padding:2rem;
+        overflow:hidden;
+        border-radius: var(--element-border-radius);
+        .value{
+            text-align:right;
+        }
+        .si-mortgage-data-row{
+            display:flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            
+            padding:1rem 0;
+            label{opacity:0.75;font-size:1rem;}
+            .value{font-weight: 700;line-height: 1;}
+            &.total{
+                font-size:1.5rem;
+            }
+            &.total-alt{
+                font-size:2rem;
+                span{font-size:0.5em;display:block;}
+            }
+        }
+
+        .transfer-taxes{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            @include media($phone){
+                grid-template-columns: 1fr;
+                place-items:center;
+            }
+            .si-input-container{
+                display:inline-flex;
+                justify-content: flex-start;
+                align-items:center;
+                gap:0;
+                label{
+                    position:relative;
+                    transform: unset;
+                    top:unset;
+                    padding: 0;
+                }
+
+                .si-dropdown-button{
+                    text-transform: uppercase;
+                }
+            }
+            .value{
+                place-self: center end;
+                font-size: 2rem;
+                @include media($phone){
+                    place-self:unset;
+                }
+            }
+            .notice{
+                grid-column:1 / -1;
+                font-size:0.8rem;
+                opacity:0.75;
+            }
+        }
+    }
+
+    &.si-mode-standalone{
+        .si-amount-value{
+            display: none;
+        }
+    }
+    &.si-mode-embedded{
+        .amount-input,.city-input,.si-calculator-actions,.si-calculator-results, [ng-transclude]{
+            display:none;
+        }
+        
+    }
 }
 
 
@@ -320,7 +402,7 @@ si-checkbox, si-radio{
 .si-dropdown{
     position:relative;
     display: inline-block;
-    .dropdown-button{
+    .si-dropdown-button{
         padding:10px;
         background-color:transparent;
         color:var(--text-color);
@@ -360,10 +442,10 @@ si-checkbox, si-radio{
         }
     }
     &.has-value{
-        .dropdown-button{font-weight: 700;}
+        .si-dropdown-button{font-weight: 700;}
     }
     &.has-button-icon{
-        .dropdown-button{
+        .si-dropdown-button{
             position:relative;padding-right:20px;
             &::after{
                 content:"\f107";
@@ -402,7 +484,7 @@ si-checkbox, si-radio{
         }
     }
 
-    .dropdown-item{
+    .si-dropdown-item{
         white-space: nowrap;
         padding:5px 10px;
         cursor:pointer;
@@ -449,13 +531,16 @@ si-checkbox, si-radio{
     }
 
     &.expanded{
-        top: calc( var(--relative-cy) + var(--relative-pageYOffset));
+        --top: calc( var(--relative-cy) + var(--relative-pageYOffset));
+        top: var(--top);
         left: var(--relative-cx);
-        max-height:var(--potential-height);
+        --max-height: min(50vh, var(--potential-height));
+        max-height: var(--max-height);
         opacity:1;
         box-shadow: rgba(#000,0.5) 2px 2px 10px;
         pointer-events: auto;
         width:unset;
+        overflow:hidden auto;
 
         @include media($phone){
 
@@ -2114,7 +2199,7 @@ body{
             grid-template-columns: auto 1fr;
             gap: 0.5rem;
             place-items: center stretch;
-            line-height: 1em;
+            line-height: 1rem;
             .icon{
                 position:relative;
                 //top:50%;transform:translateY(-50%);
@@ -2122,12 +2207,12 @@ body{
                 top:unset;
                 color:transparent;
                 z-index: 2;
-                width:18px;
+                width:1rem;
+                font-size: 1rem;
                 text-align:center;
 
                 &.fa-xs{
                     font-size:0.65em;
-                    
                 }
             }
             label{
@@ -2143,7 +2228,7 @@ body{
                 &::after{
                     content:"";
                     display:block;
-                    width:16px;height:16px;
+                    width:1rem;height:1rem;
                     top:50%;transform:translateY(-50%);
                     border: 1px solid transparent;
                     border-color:var(--text-color);

@@ -739,7 +739,7 @@ siApp
                     })
     
                     // Apply button click event handler
-                    angular.element($scope.$element).find('.dropdown-button').on('click', $scope.clickHandler);
+                    angular.element($scope.$element).find('.si-dropdown-button').on('click', $scope.clickHandler);
                     
                     // listen to 'close-dropdown' signal to close the menu
                     $scope.$on('close-dropdown', function($event, $source){

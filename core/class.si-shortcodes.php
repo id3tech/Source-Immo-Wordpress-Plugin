@@ -32,7 +32,10 @@ class SiShorcodes{
             'si_office_brokers',
 
             // City
-            'si_city'
+            'si_city',
+
+            // Tools
+            'si_tool_calculator',
         );
 
         foreach ($hooks as $item) {
@@ -661,6 +664,16 @@ class SiShorcodes{
         $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $partAttr) .'>' . $lResult . '</div>';
 
         return $lResult;
+    }
+
+    #endregion
+
+
+    #region Tools shortcodes
+
+    public function sc_si_tool_calculator($atts, $content){
+
+        return '<div class="si"><si-calculator mode="standalone">' . $content . '</si-calculator></div>';
     }
 
     #endregion

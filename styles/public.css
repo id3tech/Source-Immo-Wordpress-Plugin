@@ -1861,42 +1861,80 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-calculator *, .si-calculator * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 
-#top .si-calculator .input-container, .si-calculator .input-container { display: -ms-grid; display: grid; gap: 1rem; -ms-grid-columns: 3fr 2fr; grid-template-columns: 3fr 2fr; grid-template-areas: "label input"; place-items: center stretch; }
+#top .si-calculator .si-input-container, .si-calculator .si-input-container { display: -ms-grid; display: grid; gap: 1rem; -ms-grid-columns: 3fr 2fr; grid-template-columns: 3fr 2fr; grid-template-areas: "label input"; place-items: center stretch; }
 
-#top .si-calculator .input-container input, .si-calculator .input-container input { padding: 10px; outline: none; border: var(--element-border); border-radius: var(--element-border-radius); min-width: 0px; max-width: 100%; -webkit-transition: 0.25s; transition: 0.25s; height: auto; margin: 0px; }
+#top .si-calculator .si-input-container input, .si-calculator .si-input-container input { padding: 10px; outline: none; border: var(--element-border); border-radius: var(--element-border-radius); min-width: 0px; max-width: 100%; -webkit-transition: 0.25s; transition: 0.25s; height: auto; margin: 0px; }
 
-#top .si-calculator .input-container input:focus, .si-calculator .input-container input:focus { border-color: var(--highlight); }
+#top .si-calculator .si-input-container input:focus, .si-calculator .si-input-container input:focus { border-color: var(--highlight); }
 
-#top .si-calculator .input-container label, .si-calculator .input-container label { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: label; color: inherit; pointer-events: none; }
+#top .si-calculator .si-input-container label, .si-calculator .si-input-container label { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: label; color: inherit; pointer-events: none; opacity: 1; }
 
-#top .si-calculator .input-container label .alt-method si-radio, .si-calculator .input-container label .alt-method si-radio { pointer-events: auto; }
+#top .si-calculator .si-input-container label .alt-method si-radio, .si-calculator .si-input-container label .alt-method si-radio { pointer-events: auto; }
 
-#top .si-calculator .input-container .dropdown > .btn, .si-calculator .input-container .dropdown > .btn { color: inherit; }
+#top .si-calculator .si-input-container .si-dropdown > .btn, .si-calculator .si-input-container .si-dropdown > .btn { color: inherit; }
 
-#top .si-calculator .input-container .input, .si-calculator .input-container .input { -ms-grid-row: 1; -ms-grid-column: 2; grid-area: input; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center; }
+#top .si-calculator .si-input-container .si-input, .si-calculator .si-input-container .si-input { -ms-grid-row: 1; -ms-grid-column: 2; grid-area: input; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center; margin-top: 0; }
 
-#top .si-calculator .input-container .extra, .si-calculator .input-container .extra { width: 25px; text-align: center; }
+#top .si-calculator .si-input-container .extra, .si-calculator .si-input-container .extra { width: 25px; text-align: center; }
 
-@media screen and (max-width: 420px) { #top .si-calculator .input-container, .si-calculator .input-container { text-align: center; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-template-areas: "label" "input"; place-items: center; }
-  #top .si-calculator .input-container > label, .si-calculator .input-container > label { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; }
-  #top .si-calculator .input-container .input, .si-calculator .input-container .input { position: relative; }
-  #top .si-calculator .input-container .input:not(.si-dropdown) .extra, .si-calculator .input-container .input:not(.si-dropdown) .extra { position: absolute; right: 0px; top: 50%; width: auto; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); } }
+@media screen and (max-width: 420px) { #top .si-calculator .si-input-container, .si-calculator .si-input-container { text-align: center; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-template-areas: "label" "input"; place-items: center; }
+  #top .si-calculator .si-input-container > label, .si-calculator .si-input-container > label { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; }
+  #top .si-calculator .si-input-container .si-input, .si-calculator .si-input-container .si-input { position: relative; }
+  #top .si-calculator .si-input-container .si-input:not(.si-dropdown) .extra, .si-calculator .si-input-container .si-input:not(.si-dropdown) .extra { position: absolute; right: 0px; top: 50%; width: auto; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); } }
+
+#top .si-calculator .si-amount-value, .si-calculator .si-amount-value { font-size: 2rem; text-align: center; }
+
+#top .si-calculator .si-calculator-results, .si-calculator .si-calculator-results { background: var(--small-contrast-color); --text-color: var(--small-contrast-text-color); padding: 2rem; overflow: hidden; border-radius: var(--element-border-radius); }
+
+#top .si-calculator .si-calculator-results .value, .si-calculator .si-calculator-results .value { text-align: right; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row, .si-calculator .si-calculator-results .si-mortgage-data-row { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; -webkit-box-align: center; -ms-flex-align: center; align-items: center; padding: 1rem 0; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row label, .si-calculator .si-calculator-results .si-mortgage-data-row label { opacity: 0.75; font-size: 1rem; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row .value, .si-calculator .si-calculator-results .si-mortgage-data-row .value { font-weight: 700; line-height: 1; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row.total, .si-calculator .si-calculator-results .si-mortgage-data-row.total { font-size: 1.5rem; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row.total-alt, .si-calculator .si-calculator-results .si-mortgage-data-row.total-alt { font-size: 2rem; }
+
+#top .si-calculator .si-calculator-results .si-mortgage-data-row.total-alt span, .si-calculator .si-calculator-results .si-mortgage-data-row.total-alt span { font-size: 0.5em; display: block; }
+
+#top .si-calculator .si-calculator-results .transfer-taxes, .si-calculator .si-calculator-results .transfer-taxes { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; }
+
+@media screen and (max-width: 640px) { #top .si-calculator .si-calculator-results .transfer-taxes, .si-calculator .si-calculator-results .transfer-taxes { -ms-grid-columns: 1fr; grid-template-columns: 1fr; place-items: center; } }
+
+#top .si-calculator .si-calculator-results .transfer-taxes .si-input-container, .si-calculator .si-calculator-results .transfer-taxes .si-input-container { display: -webkit-inline-box; display: -ms-inline-flexbox; display: inline-flex; -webkit-box-pack: start; -ms-flex-pack: start; justify-content: flex-start; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 0; }
+
+#top .si-calculator .si-calculator-results .transfer-taxes .si-input-container label, .si-calculator .si-calculator-results .transfer-taxes .si-input-container label { position: relative; -webkit-transform: unset; transform: unset; top: unset; padding: 0; }
+
+#top .si-calculator .si-calculator-results .transfer-taxes .si-input-container .si-dropdown-button, .si-calculator .si-calculator-results .transfer-taxes .si-input-container .si-dropdown-button { text-transform: uppercase; }
+
+#top .si-calculator .si-calculator-results .transfer-taxes .value, .si-calculator .si-calculator-results .transfer-taxes .value { place-self: center end; font-size: 2rem; }
+
+@media screen and (max-width: 640px) { #top .si-calculator .si-calculator-results .transfer-taxes .value, .si-calculator .si-calculator-results .transfer-taxes .value { place-self: unset; } }
+
+#top .si-calculator .si-calculator-results .transfer-taxes .notice, .si-calculator .si-calculator-results .transfer-taxes .notice { grid-column: 1 / -1; font-size: 0.8rem; opacity: 0.75; }
+
+#top .si-calculator.si-mode-standalone .si-amount-value, .si-calculator.si-mode-standalone .si-amount-value { display: none; }
+
+#top .si-calculator.si-mode-embedded .amount-input, #top .si-calculator.si-mode-embedded .city-input, #top .si-calculator.si-mode-embedded .si-calculator-actions, #top .si-calculator.si-mode-embedded .si-calculator-results, #top .si-calculator.si-mode-embedded [ng-transclude], .si-calculator.si-mode-embedded .amount-input, .si-calculator.si-mode-embedded .city-input, .si-calculator.si-mode-embedded .si-calculator-actions, .si-calculator.si-mode-embedded .si-calculator-results, .si-calculator.si-mode-embedded [ng-transclude] { display: none; }
 
 #top .si-dropdown, .si-dropdown { position: relative; display: inline-block; }
 
-#top .si-dropdown .dropdown-button, .si-dropdown .dropdown-button { padding: 10px; background-color: transparent; color: var(--text-color); outline: none; white-space: nowrap; font-weight: 400; cursor: pointer; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; }
+#top .si-dropdown .si-dropdown-button, .si-dropdown .si-dropdown-button { padding: 10px; background-color: transparent; color: var(--text-color); outline: none; white-space: nowrap; font-weight: 400; cursor: pointer; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; }
 
-#top .si-dropdown .dropdown-button:hover, .si-dropdown .dropdown-button:hover { background-color: transparent; color: var(--text-color); }
+#top .si-dropdown .si-dropdown-button:hover, .si-dropdown .si-dropdown-button:hover { background-color: transparent; color: var(--text-color); }
 
-#top .si-dropdown .dropdown-button i, .si-dropdown .dropdown-button i { font-size: inherit; width: 1.25rem; text-align: center; position: relative; }
+#top .si-dropdown .si-dropdown-button i, .si-dropdown .si-dropdown-button i { font-size: inherit; width: 1.25rem; text-align: center; position: relative; }
 
-#top .si-dropdown .dropdown-button i b, .si-dropdown .dropdown-button i b { font-size: 0.6rem; position: absolute; top: 0px; right: 0px; width: 1rem; height: 1rem; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; color: var(--highlight-text-color); background-color: var(--highlight); border-radius: 50%; -webkit-transform: translate(50%, -50%); transform: translate(50%, -50%); }
+#top .si-dropdown .si-dropdown-button i b, .si-dropdown .si-dropdown-button i b { font-size: 0.6rem; position: absolute; top: 0px; right: 0px; width: 1rem; height: 1rem; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; color: var(--highlight-text-color); background-color: var(--highlight); border-radius: 50%; -webkit-transform: translate(50%, -50%); transform: translate(50%, -50%); }
 
-#top .si-dropdown.has-value .dropdown-button, .si-dropdown.has-value .dropdown-button { font-weight: 700; }
+#top .si-dropdown.has-value .si-dropdown-button, .si-dropdown.has-value .si-dropdown-button { font-weight: 700; }
 
-#top .si-dropdown.has-button-icon .dropdown-button, .si-dropdown.has-button-icon .dropdown-button { position: relative; padding-right: 20px; }
+#top .si-dropdown.has-button-icon .si-dropdown-button, .si-dropdown.has-button-icon .si-dropdown-button { position: relative; padding-right: 20px; }
 
-#top .si-dropdown.has-button-icon .dropdown-button::after, .si-dropdown.has-button-icon .dropdown-button::after { content: "\f107"; font-family: 'Font Awesome 5 Pro'; font-weight: 300; font-size: 20px; position: absolute; top: 50%; right: 0px; -webkit-transform: translateY(-50%); transform: translateY(-50%); padding: 5px; }
+#top .si-dropdown.has-button-icon .si-dropdown-button::after, .si-dropdown.has-button-icon .si-dropdown-button::after { content: "\f107"; font-family: 'Font Awesome 5 Pro'; font-weight: 300; font-size: 20px; position: absolute; top: 50%; right: 0px; -webkit-transform: translateY(-50%); transform: translateY(-50%); padding: 5px; }
 
 #top .si-dropdown-panel, .si-dropdown-panel { position: absolute; overflow: hidden; max-height: 0px; max-width: 80vw; -webkit-transition: max-height 0.25s; transition: max-height 0.25s; background-color: var(--background-color); -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); opacity: 0; border: var(--element-border); border-radius: var(--element-border-radius); left: 50%; top: 50%; pointer-events: none; }
 
@@ -1904,19 +1942,19 @@ html, body { scroll-behavior: smooth; }
 
 @media screen and (max-width: 640px) { #top .si-dropdown-panel .si-dropdown-panel-content, .si-dropdown-panel .si-dropdown-panel-content { padding: 0; } }
 
-#top .si-dropdown-panel .dropdown-item, .si-dropdown-panel .dropdown-item { white-space: nowrap; padding: 5px 10px; cursor: pointer; border-left-width: 4px; border-left-style: solid; border-left-color: transparent; color: var(--text-color); -webkit-transition: 0.25s; transition: 0.25s; }
+#top .si-dropdown-panel .si-dropdown-item, .si-dropdown-panel .si-dropdown-item { white-space: nowrap; padding: 5px 10px; cursor: pointer; border-left-width: 4px; border-left-style: solid; border-left-color: transparent; color: var(--text-color); -webkit-transition: 0.25s; transition: 0.25s; }
 
-#top .si-dropdown-panel .dropdown-item.active, #top .si-dropdown-panel .dropdown-item:active, .si-dropdown-panel .dropdown-item.active, .si-dropdown-panel .dropdown-item:active { border-left-color: var(--highlight); background: none; }
+#top .si-dropdown-panel .si-dropdown-item.active, #top .si-dropdown-panel .si-dropdown-item:active, .si-dropdown-panel .si-dropdown-item.active, .si-dropdown-panel .si-dropdown-item:active { border-left-color: var(--highlight); background: none; }
 
-#top .si-dropdown-panel .dropdown-item:not(.active):hover, .si-dropdown-panel .dropdown-item:not(.active):hover { border-left-color: var(--highlight); text-shadow: -0.06ex 0 currentColor, 0.06ex 0 currentColor; }
+#top .si-dropdown-panel .si-dropdown-item:not(.active):hover, .si-dropdown-panel .si-dropdown-item:not(.active):hover { border-left-color: var(--highlight); text-shadow: -0.06ex 0 currentColor, 0.06ex 0 currentColor; }
 
-@media screen and (max-width: 640px) { #top .si-dropdown-panel .dropdown-item, .si-dropdown-panel .dropdown-item { font-size: 1.2rem; padding: 1em 0em; }
-  #top .si-dropdown-panel .dropdown-item.active, #top .si-dropdown-panel .dropdown-item:active, .si-dropdown-panel .dropdown-item.active, .si-dropdown-panel .dropdown-item:active { padding-left: 0.75em; margin-left: -0.75em; }
-  #top .si-dropdown-panel .dropdown-item:not(:last-child), .si-dropdown-panel .dropdown-item:not(:last-child) { border-bottom: solid 1px var(--text-color); } }
+@media screen and (max-width: 640px) { #top .si-dropdown-panel .si-dropdown-item, .si-dropdown-panel .si-dropdown-item { font-size: 1.2rem; padding: 1em 0em; }
+  #top .si-dropdown-panel .si-dropdown-item.active, #top .si-dropdown-panel .si-dropdown-item:active, .si-dropdown-panel .si-dropdown-item.active, .si-dropdown-panel .si-dropdown-item:active { padding-left: 0.75em; margin-left: -0.75em; }
+  #top .si-dropdown-panel .si-dropdown-item:not(:last-child), .si-dropdown-panel .si-dropdown-item:not(:last-child) { border-bottom: solid 1px var(--text-color); } }
 
 @media screen and (max-width: 640px) { #top .si-dropdown-panel, .si-dropdown-panel { position: fixed; -webkit-transition: 0.25s; transition: 0.25s; max-width: unset; left: 0px; bottom: 0px; width: 100%; top: unset; padding: 1rem; -webkit-transform: translate(0%, 0%); transform: translate(0%, 0%); } }
 
-#top .si-dropdown-panel.expanded, .si-dropdown-panel.expanded { top: calc( var(--relative-cy) + var(--relative-pageYOffset)); left: var(--relative-cx); max-height: var(--potential-height); opacity: 1; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px; box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px; pointer-events: auto; width: unset; }
+#top .si-dropdown-panel.expanded, .si-dropdown-panel.expanded { --top: calc( var(--relative-cy) + var(--relative-pageYOffset)); top: var(--top); left: var(--relative-cx); --max-height: min(50vh, var(--potential-height)); max-height: var(--max-height); opacity: 1; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px; box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 10px; pointer-events: auto; width: unset; overflow: hidden auto; }
 
 @media screen and (max-width: 640px) { #top .si-dropdown-panel.expanded, .si-dropdown-panel.expanded { top: unset; left: 0px; width: 100vw; min-height: 25vh; max-height: 60vh; } }
 
@@ -2436,15 +2474,15 @@ body.rotate { width: 100vh; height: 100vw; -webkit-transform-origin: 50% 50%; tr
 
 #top .si .pretty, .si .pretty { margin-right: 0px; }
 
-#top .si .pretty .si-input-state, .si .pretty .si-input-state { position: relative; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; gap: 0.5rem; place-items: center stretch; line-height: 1em; }
+#top .si .pretty .si-input-state, .si .pretty .si-input-state { position: relative; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; gap: 0.5rem; place-items: center stretch; line-height: 1rem; }
 
-#top .si .pretty .si-input-state .icon, .si .pretty .si-input-state .icon { position: relative; top: unset; color: transparent; z-index: 2; width: 18px; text-align: center; }
+#top .si .pretty .si-input-state .icon, .si .pretty .si-input-state .icon { position: relative; top: unset; color: transparent; z-index: 2; width: 1rem; font-size: 1rem; text-align: center; }
 
 #top .si .pretty .si-input-state .icon.fa-xs, .si .pretty .si-input-state .icon.fa-xs { font-size: 0.65em; }
 
 #top .si .pretty .si-input-state label, .si .pretty .si-input-state label { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-indent: unset; min-width: 0px; grid-area: unset !important; line-height: 1.25em; }
 
-#top .si .pretty .si-input-state label::before, #top .si .pretty .si-input-state label::after, .si .pretty .si-input-state label::before, .si .pretty .si-input-state label::after { content: ""; display: block; width: 16px; height: 16px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); border: 1px solid transparent; border-color: var(--text-color); opacity: 0.20; position: absolute; left: 0; }
+#top .si .pretty .si-input-state label::before, #top .si .pretty .si-input-state label::after, .si .pretty .si-input-state label::before, .si .pretty .si-input-state label::after { content: ""; display: block; width: 1rem; height: 1rem; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); border: 1px solid transparent; border-color: var(--text-color); opacity: 0.20; position: absolute; left: 0; }
 
 #top .si .pretty.p-round .si-input-state label::before, #top .si .pretty.p-round .si-input-state label::after, .si .pretty.p-round .si-input-state label::before, .si .pretty.p-round .si-input-state label::after { border-radius: 100%; }
 

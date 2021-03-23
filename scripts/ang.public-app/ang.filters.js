@@ -100,8 +100,7 @@ function textToHtml(){
 
         // split text by lines
         const lTextArr = $value.split("\n");
-        console.log('textToHtml', lTextArr);
-
+        
         const lFormat = [
             function(){
                 return lTextArr.map(
@@ -124,7 +123,6 @@ function textToHtml(){
             function(){
                 return lTextArr.map(function($line, $index){
                         $line = $line.replace(/\r/gm,'').trim();
-                        console.log('textToHtml@lineFormat', $line, $line == '');
                         if($line == '') return '<br />';
                         if($index > 0 && ['+','-','**','*'].some(function($c){ return $line.indexOf($c)==0})) return '<br />' + $line;
 
@@ -138,7 +136,6 @@ function textToHtml(){
                 return lTextArr.map(
                     function($line, $index){
                         $line = $line.replace(/\r/gm,'').trim();
-                        console.log('textToHtml@lineFormat', $line, $line == '');
                         const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
 
                         if($line == '') return '</p><p>';
@@ -153,7 +150,6 @@ function textToHtml(){
             function(){
                 return lTextArr.map(function($line, $index){
                     $line = $line.replace(/\r/gm,'');
-                    console.log('textToHtml@lineFormat', $line, $line == '');
                     if($line == '') return '</p><p>';
 
                     const lPreviousLine = ($index==0) ? '': (lTextArr[$index-1]).replace(/\r/gm,'');
@@ -200,6 +196,21 @@ siApp
 .filter('formatDimension', ['$siUtils', function dimensionFilter($siUtils){
     return function($value){
         return $siUtils.formatDimension($value);
+    }
+}]);
+
+siApp
+.filter('formatPrice', ['$siUtils', function dimensionFilter($siUtils){
+    return function($value){
+        if(!isNaN($value)){
+            return $value.formatPrice();
+        }
+        else if(!isNullOrUndefined($value) && Object.keys($value).length > 0 && ($value.sell != undefined || $value.lease != undefined)){
+            return $siUtils.formatPrice($value)
+        }
+        else{
+            return $value;
+        }
     }
 }]);
 
