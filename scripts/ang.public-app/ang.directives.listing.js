@@ -56,7 +56,6 @@ siApp
                 
                 $scope.preload();
                 $scope.data.amount = $amount;
-
                 $scope.getCityTaxTransfers().then(function(){
                     $scope.process();
                 })
@@ -151,7 +150,7 @@ siApp
                 //console.log('ratio', lRatio);
                 $scope.process_branch(lBranch, lRatio);
                 
-                $transferTax = $scope.getTransferTax($scope.data.amount);
+                const $transferTax = $scope.getTransferTax($scope.data.amount);
                 let lResult = {
                     mortgage : lBranch,
                     transfer_tax : $transferTax
@@ -228,28 +227,30 @@ siApp
                 return lResult;
             };
     
-            $scope.getTransferTax = function (amount, in_montreal) {
+            $scope.getTransferTax = function ($amount, in_montreal) {
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
-                parts = [];
-                $boundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
-                    let rates = $boundaries.rates;
-                    let bounds = $boundaries.bounds;
-                    let transferTax = 0;
+                let amount = $amount;
+               
+                const $boundaries = $scope.getTransferTaxBoundaries($scope.cityCode);
 
-                    for (i=0; i<rates.length; i++) {
-                        if(amount <= 0) continue;
-    
-                        const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
-                        transferTax = transferTax + lRemovedAmount*rates[i];
-                        amount = amount - lRemovedAmount;
-                    }
-    
-                    return Math.round(transferTax);
+                let rates = $boundaries.rates;
+                let bounds = $boundaries.bounds;
+                let transferTax = 0;
+
+                for (let i=0; i<rates.length; i++) {
+                    if(amount <= 0) continue;
+
+                    const lRemovedAmount = (i==0) ? Math.min(bounds[i],amount) : Math.min(bounds[i] - bounds[i-1],amount);
+                    transferTax = transferTax + lRemovedAmount*rates[i];
+                    amount = amount - lRemovedAmount;
+                }
+
+                return Math.round(transferTax);
                 
             };
             
             $scope.getTransferTaxBoundaries = function($cityCode){
-                $boundaries = $scope.transferTaxCityBoundaries;
+                const $boundaries = $scope.transferTaxCityBoundaries;
                 if($boundaries == null) return null;
                 
                 const defaultBoundaries = $boundaries.general;
@@ -262,9 +263,11 @@ siApp
                 });
                 if(lFilteredBoundaries == null) return defaultBoundaries;
                 
-                lFilteredBoundaries.bounds.unshift(...defaultBoundaries.bounds.slice(0,2));
-                lFilteredBoundaries.rates.unshift(...defaultBoundaries.rates.slice(0,2));
-                return lFilteredBoundaries;
+                const lResult = angular.copy(lFilteredBoundaries);
+
+                lResult.bounds.unshift(...defaultBoundaries.bounds.slice(0,2));
+                lResult.rates.unshift(...defaultBoundaries.rates.slice(0,2));
+                return lResult;
             }
 
             $scope.preload = function(){
