@@ -67,6 +67,9 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.07
+* Fixed increasing value for transfer tax calculation
+
 Version 1.1.06
 * Add support for Yoast published and modified date hook in dynamic page content
 * Add shordcodes for standalone calculators (mortgage and transfer tax)
