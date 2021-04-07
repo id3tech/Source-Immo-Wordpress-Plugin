@@ -4,6 +4,11 @@ if(isset($item->open_houses) && count($item->open_houses)>0){
     $classes[] = 'has-open-house';
 }
 
+
+if($item->status_code=='SOLD'){
+    $scope_class[] = 'sold';
+}
+
 ?>
 
 <article class="si-item si-listing-item si-small-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"

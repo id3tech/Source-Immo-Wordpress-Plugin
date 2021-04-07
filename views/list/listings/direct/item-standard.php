@@ -26,6 +26,10 @@ if(isset($configs)){
     }
 }
 
+if($item->status_code=='SOLD'){
+    $scope_class[] = 'sold';
+}
+
 ?>
 
 <article class="<?php echo implode(' ',$scope_class) ?>"

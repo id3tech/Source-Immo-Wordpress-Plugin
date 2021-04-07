@@ -184,6 +184,8 @@ function singleListingCtrl(
             $scope.$loadingElement = lLoadingTextElement;
         }
 
+
+
         if($ref_number != undefined){
             //console.log($ref_number);
             $scope.fetchPrerequisites().then(function($prerequisits){
@@ -191,10 +193,18 @@ function singleListingCtrl(
                 return $scope.loadSingleData($ref_number);
             })
             .then(function(){
+                
+                if($scope.model.status_code=='SOLD'){
+                    document.body.classList.add('listing-single','listing-sold');
+                }
+                return;
+            })
+            .then(function(){
                 if($scope.$loadingElement === undefined) return;
                 //$scope.$loadingElement.remove();
                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
                 $element[0].style.removeProperty('display');
+
             });
         }
 
@@ -254,7 +264,7 @@ function singleListingCtrl(
         });
 
 
-        lPromise.then(function($data){
+        return lPromise.then(function($data){
             $scope.model = $data;
             // set dictionary source
             $siDictionary.source = $data.dictionary;
