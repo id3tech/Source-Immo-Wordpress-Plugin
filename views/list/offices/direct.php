@@ -35,7 +35,7 @@ $resultView = new SourceImmoOfficesResult($data);
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        _e('No office to display', SI);
+        echo(apply_filters('si_label', __('No office to display', SI)));
         echo('</label>');
     }
     ?>

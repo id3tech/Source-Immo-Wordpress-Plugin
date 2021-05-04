@@ -1,4 +1,4 @@
-# Version 1.1.08
+# Version 1.1.09
 
 ## Offical release
 We've finally reach the point of the official release. Yay!
@@ -67,6 +67,12 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.09
+* Add filter hooks on every string labels. Use "ali_label" hooks to overwrite
+* Fixed layout bug for small-list directive and shortcodes
+** Add class prefix to the list container element
+** Change class list-container to si-list for small-list directive list container
+
 Version 1.1.08
 * Add "listing-sold" class to listing single page when a listing has its status set to SOLD
 * Add missing "sold" class on listing's list item direct render templates

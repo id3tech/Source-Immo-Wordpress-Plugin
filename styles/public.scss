@@ -311,6 +311,7 @@ html{
     [class^=item]{
         perspective: 100vw;
     }
+    .si-list-container,
     .si-list{
         grid-column: 1 / span 3;
         -ms-grid-column: 1;
@@ -1089,7 +1090,7 @@ html{
     }
 
     si-small-list{
-        .list-header{
+        .si-list-header{
             display:grid;
             grid-template-columns: 1fr 1fr;
             place-items:center start;
@@ -1097,7 +1098,7 @@ html{
             @include media($phone){
                 grid-template-columns: 1fr;
             }
-            .search-input{
+            .si-search-input{
                 place-self: center end;
                 @include media($phone){
                     place-self: center stretch;
@@ -1117,7 +1118,7 @@ html{
                 }
             }
         }
-        .list-container{
+        .si-list-container{
             opacity:0;max-height:0px;overflow:hidden;
             transition:0.25s;
         }
@@ -1131,7 +1132,7 @@ html{
                 max-height:0px;
                 overflow:hidden;
             }
-            .list-container{
+            .si-list-container{
                 opacity:1;max-height:unset;overflow:unset;
                 display:grid;
                 gap:var(--layout-gutter);
@@ -1147,7 +1148,7 @@ html{
             grid-row: 2;
             grid-column: 1 / span 3;
         }
-        > .list-container,
+        > .si-list-container,
         .si-list{
             // grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
             // @include media($tablet){
@@ -1161,7 +1162,7 @@ html{
         
         
 
-        > .list-container,
+        > .si-list-container,
         .si-list{
             
             // grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );

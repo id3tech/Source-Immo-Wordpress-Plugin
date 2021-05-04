@@ -696,16 +696,16 @@ function siSmallList($sce,$compile){
             filters: '=siFilters',
             options: '=?siOptions'
         },
-        template: '<div class="list-header" ng-show="options.show_header">' + 
+        template: '<div class="si-list-header" ng-show="options.show_header">' + 
                         '<h3 ng-cloak>{{getListTitle()}}</h3>' +
-                        '<div class="search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
+                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="list-container si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
         link: function($scope, $element, $attrs){
-            $scope.init($element);
+            $scope.init();
         },
-        controller:function($scope,$rootScope,$siHooks,$siFavorites, $siConfig, 
+        controller:function($scope,$rootScope,$element, $siHooks,$siFavorites, $siConfig, 
                             $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList,$timeout,
                             $siCompiler){
             $scope.view_id = null;
@@ -720,8 +720,8 @@ function siSmallList($sce,$compile){
                     mobile: 1
                 },
                 brokers: {
-                    desktop: 1,
-                    laptop: 1,
+                    desktop: 3,
+                    laptop: 3,
                     tablet: 1,
                     mobile: 1
                 }
@@ -758,8 +758,11 @@ function siSmallList($sce,$compile){
                 return 'si-template-for-' + $scope.type;
             }
 
-            $scope.init = function($element){
+            $scope.init = function(){
                 $scope._element = $element;
+                if($element[0].closest('.si') == null){
+                    $element[0].parentElement.classList.add('si');
+                }
                 $siConfig.get().then(function($configs){
                     $scope.configs = $configs;
                     $scope.applyColumnWidth();
@@ -877,7 +880,8 @@ function siSmallList($sce,$compile){
             }
             
             $scope.applyColumnWidth = function(){
-                const lWidths = $scope.columnWidths[$scope.type];
+                console.log('applyColumnWidth',$scope.options.columns );
+                const lWidths = angular.merge($scope.columnWidths[$scope.type],$scope.options.columns);
                 if(lWidths == undefined) return;
 
                 Object.keys(lWidths).forEach(function($k){

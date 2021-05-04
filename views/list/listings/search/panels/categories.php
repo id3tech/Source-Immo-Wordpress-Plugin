@@ -4,7 +4,7 @@ $panelKey = 'categories';
 
     <div class="filter-panel categories-panel {{isExpanded('<?php echo($panelKey) ?>')}} ">
         <div class="filter-panel-header">
-            <h4><?php _e('Types', SI) ?></h4>
+            <h4><?php echo(apply_filters('si_label', __('Types', SI))) ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
         </div>
         
@@ -12,7 +12,7 @@ $panelKey = 'categories';
 
 
             <div class="listing-subcategory panel-list">
-                <h4><?php _e('Home types',SI) ?></h4>
+                <h4><?php echo(apply_filters('si_label', __('Home types',SI))) ?></h4>
                 
                 <div class="list-container subcategories" ng-if="subcategory_list.length <= 15">
                     <si-checkbox
@@ -57,7 +57,7 @@ $panelKey = 'categories';
             </div>
 
             <div class="building-category panel-list" ng-show="dictionary.building_category!=undefined" ng-if="!isMainFiltered(['commercial'])">
-                <h4><?php _e('Building types',SI) ?></h4>
+                <h4><?php echo(apply_filters('si_label', __('Building types',SI))) ?></h4>
                 
                 <div class="list-container">
                     <si-checkbox

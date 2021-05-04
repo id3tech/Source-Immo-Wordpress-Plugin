@@ -32,7 +32,7 @@ $resultView = new SourceImmoCitiesResult($data);
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        _e('No city to display', SI);
+        echo(apply_filters('si_label', __('No city to display', SI)));
         echo('</label>');
     }
     ?>

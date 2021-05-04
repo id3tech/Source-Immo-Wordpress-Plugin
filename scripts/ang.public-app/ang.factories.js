@@ -603,7 +603,7 @@ function $siCompiler($siConfig,$siList, $siUtils){
         
         if($item.category == undefined){
             
-            $item.location.city = $siUtils.getCaption($item.location.city_code, 'city');
+            $item.location.city = ($item.location.city != undefined) ? $item.location.city : $siUtils.getCaption($item.location.city_code, 'city');
             $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
             $item.location.district  = $siUtils.getCaption($item.location.district_code, 'district');
             $item.subcategory = $siUtils.getCaption($item.subcategory_code, 'listing_subcategory');
@@ -709,10 +709,11 @@ function $siCompiler($siConfig,$siList, $siUtils){
         if($item.phones != null){
             Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
         }
-        $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
-        $item.location.country = $siUtils.getCaption($item.location.country_code, 'country');
-        $item.location.state     = $siUtils.getCaption($item.location.state_code, 'state');
-        $item.location.city     = $siUtils.getCaption($item.location.city_code, 'city');
+        $item.location.region       = $siUtils.getCaption($item.location.region_code, 'region');
+        $item.location.country      = $siUtils.getCaption($item.location.country_code, 'country');
+        $item.location.state        = ($item.location.state == undefined) ? $siUtils.getCaption($item.location.state_code, 'state') : $item.location.state;
+        $item.location.city         = ($item.location.city == undefined) ? $siUtils.getCaption($item.location.city_code, 'city') : $item.location.city;
+        
         $item.location.street_address = '{0} {1}'.format(
                                                     $item.location.address.street_number,
                                                     $item.location.address.street_name
@@ -1106,6 +1107,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
      */
     $scope.getCity = function($item, $sanitize){
         $sanitize = ($sanitize==undefined)?true:$sanitize;
+        if($item.location.city != undefined) return $item.location.city;
+
         let lResult = $scope.getCaption($item.location.city_code, 'city');
 
         if($sanitize){

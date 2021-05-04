@@ -68,7 +68,7 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        _e('No broker to display', SI);
+        echo apply_filters('si_label', __('No broker to display', SI));
         echo('</label>');
     }
     ?>

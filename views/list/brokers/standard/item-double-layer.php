@@ -32,7 +32,7 @@ if(isset($configs)){
                     <div class="si-data-label phone" ng-show="layoutAllowVar('phone')">{{item.phones.mobile || item.phones.office}}</div>
                     <div class="si-data-label email" ng-show="layoutAllowVar('email')">{{item.email}}</div>
                     <div class="si-data-label si-background-small-contrast listing-count" ng-show="layoutAllowVar('listing_count')">
-                        {{item.listings_count == 0 ? '<?php _e("No listing",SI)?>' : (item.listings_count==1) ? '<?php _e("1 listing",SI)?>' :'<?php _e("{0} listings",SI)?>'.format(item.listings_count)}}
+                        {{item.listings_count == 0 ? '<?php echo(apply_filters('si_label', __("No listing",SI)))?>' : (item.listings_count==1) ? '<?php echo(apply_filters('si_label', __("1 listing",SI)))?>' :'<?php echo(apply_filters('si_label', __("{0} listings",SI)))?>'.format(item.listings_count)}}
                     </div>
                 </div>
 
@@ -52,7 +52,7 @@ if(isset($configs)){
                     <div class="si-data-label phone" ng-show="layoutAllowVar('phone','secondary')">{{item.phones.mobile || item.phones.office}}</div>
                     <div class="si-data-label email" ng-show="layoutAllowVar('email','secondary')">{{item.email}}</div>
                     <div class="si-data-label listing-count" ng-show="layoutAllowVar('listing_count','secondary')">
-                        {{item.listings_count == 0 ? '<?php _e("No listing",SI)?>' : (item.listings_count==1) ? '<?php _e("1 listing",SI)?>' :'<?php _e("{0} listings",SI)?>'.format(item.listings_count)}}
+                        {{item.listings_count == 0 ? '<?php echo(apply_filters('si_label', __("No listing",SI)))?>' : (item.listings_count==1) ? '<?php echo(apply_filters('si_label', __("1 listing",SI)))?>' :'<?php echo(apply_filters('si_label', __("{0} listings",SI)))?>'.format(item.listings_count)}}
                     </div>
                 </div>
             </div>

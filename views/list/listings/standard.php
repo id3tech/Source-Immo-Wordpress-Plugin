@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="next-page" data-ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
-            <button type="button" class="button load-next-page" ng-click="showNextPage(true)"><?php _e('Load more', SI) ?></button>
+            <button type="button" class="button load-next-page" ng-click="showNextPage(true)"><?php echo apply_filters('si_label', __('Load more', SI)) ?></button>
         </div>
         
         <si-loading data-si-label="Loading results" data-ng-show="is_loading_data"></si-loading>

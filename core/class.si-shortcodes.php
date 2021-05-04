@@ -210,7 +210,8 @@ class SiShorcodes{
                 'layout' => 'small',
                 'show_header' => true,
                 'limit' => 0,
-                'sort' => ''
+                'sort' => '',
+                'options' => null
             ), $atts )
         );
         $show_header =  $show_header==true ? 'true' : 'false';
@@ -226,15 +227,35 @@ class SiShorcodes{
                     $sortFields[] = '{field:\'' . $field . '\', desc: ' . $fieldDesc .'}';
                 }
             }
-            $sortFields = implode ( ',',$sortFields);
+            //$sortFields = implode ( ',',$sortFields);
         }
-        
-
         ob_start();
+        if($options == null){
+            $options = '{}';
+        }
+        else{
+            $options = str_replace(
+                array('"',  "'"),
+                array('\"', '"'),
+                $options
+            );
+            $options = preg_replace('/(\w+):/i', '"\1":', $options);
+        }
+
+        $options = array_merge([
+            'show_header' => $show_header,
+            'filter' => [
+                'max_item_count' => $limit,
+                'sort_fields' => $sortFields
+            ],
+        ], json_decode($options,true));
+
+        
         ?>
         
         <si-small-list class="<?php echo($class) ?>"
-                si-options="{show_header:<?php echo $show_header ?>, filter:{max_item_count: <?php echo($limit) ?>,sort_fields:[<?php echo($sortFields)?>]}}" si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
+                si-options='<?php echo preg_replace('/"([a-zA-Z]+[a-zA-Z0-9_]*)":/','$1:', json_encode($options, JSON_FORCE_OBJECT)) ?>'
+                si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
         <?php
         echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');
         SourceImmo::view("list/{$type}/standard/item-{$layout}");
@@ -248,7 +269,7 @@ class SiShorcodes{
     public function sc_si_listing_brokers($atts, $content=null){
         $ref_number = get_query_var( 'ref_number');
         ob_start();
-            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()"]');
+            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()" options="{columns:{desktop:1, laptop:1}}"]');
         $lResult = ob_get_clean();
 
         return $lResult;
@@ -461,7 +482,7 @@ class SiShorcodes{
         
         ob_start();
             
-        echo do_shortcode('[si_small_list class="listing-list si-list-of-listings" type="listings" where="{field:\'offices_ref_numbers\', operator : \'array_contains\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        echo do_shortcode('[si_small_list class="listing-list si-list-of-listings" type="listings" options="{columns:{desktop:3, laptop:3}}" where="{field:\'offices_ref_numbers\', operator : \'array_contains\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
         
         $lResult = ob_get_clean();
 
@@ -484,7 +505,7 @@ class SiShorcodes{
 
         ob_start();
             
-        echo do_shortcode('[si_small_list class="broker-list si-list-of-brokers" type="brokers" where="{field:\'office_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        echo do_shortcode('[si_small_list class="broker-list si-list-of-brokers" type="brokers" options="{columns:{desktop:4, laptop:3}}" where="{field:\'office_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
         
         $lResult = ob_get_clean();
 

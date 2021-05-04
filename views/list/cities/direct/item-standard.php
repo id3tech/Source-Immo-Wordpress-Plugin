@@ -33,7 +33,7 @@ else if($item->listings_count > 12){
                 itemprop="containedInPlace">
                 <span itemprop="name"><?php echo($item->location->region);?></span>
             </div>
-            <div class="listings-count si-data-label" <?php layoutAllowVar('listing_count', $configs->list_item_layout) ?>><?php echo($item->listings_count)?><label> <?php _e( ($item->listings_count>1) ? 'properties' : 'property', SI) ?></label></div>
+            <div class="listings-count si-data-label" <?php layoutAllowVar('listing_count', $configs->list_item_layout) ?>><?php echo($item->listings_count)?><label> <?php echo(apply_filters('si_label', __( ($item->listings_count>1) ? 'properties' : 'property', SI))) ?></label></div>
             <div class="region-code"><?php echo($item->region_code) ?></div>
         </div>
     </a>

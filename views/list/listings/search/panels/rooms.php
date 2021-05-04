@@ -4,7 +4,7 @@ $panelKey = 'rooms';
 
 <div class="filter-panel rooms-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
     <div class="filter-panel-header">
-        <h4><?php _e('Rooms', SI) ?></h4>
+        <h4><?php echo(apply_filters('si_label', __('Rooms', SI))) ?></h4>
         <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
     </div>
 
@@ -12,7 +12,7 @@ $panelKey = 'rooms';
         
         
         <div class="bedrooms">
-            <h4><?php _e('Bedrooms',SI) ?></h4>
+            <h4><?php echo(apply_filters('si_label', __('Bedrooms',SI))) ?></h4>
             
         
 
@@ -30,13 +30,13 @@ $panelKey = 'rooms';
                     data-ng-model="filter.data.bedrooms"
                     data-si-value=""
                     si-change="filter.update()"
-                    data-label="<?php _e('Any',SI) ?>"
+                    data-label="<?php echo(apply_filters('si_label', __('Any',SI))) ?>"
                 ></si-radio>
             
         </div>
 
         <div class="bathrooms">
-            <h4><?php _e('Bathrooms',SI) ?></h4>
+            <h4><?php echo(apply_filters('si_label', __('Bathrooms',SI))) ?></h4>
             
             <si-radio
                     data-ng-repeat="item in bathroomSuggestions"
@@ -52,7 +52,7 @@ $panelKey = 'rooms';
                     data-ng-model="filter.data.bathrooms"
                     data-si-value=""
                     si-change="filter.update()"
-                    data-label="<?php _e('Any',SI) ?>"
+                    data-label="<?php echo(apply_filters('si_label', __('Any',SI))) ?>"
                 ></si-radio>
 
         </div>

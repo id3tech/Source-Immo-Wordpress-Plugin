@@ -70,7 +70,7 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        _e('No property to display', SI);
+        echo(apply_filters('si_label', __('No property to display', SI)));
         echo('</label>');
     }
     ?>
