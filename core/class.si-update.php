@@ -40,8 +40,8 @@ class SiUpdater{
     $pluginInfos = $this->getRepoPluginInfo();
     
     // Check the versions if we need to do an update
-    if(version_compare( $pluginInfos->version, $transient->checked[$this->slug] ) != 1) return $transient;
-    
+    if(version_compare( $pluginInfos->version, $transient->checked[$this->slug],'<=' )) return $transient;
+   
     // Update the transient to include our updated plugin data
     $obj = new stdClass();
     $obj->id = 'wp.org/plugins/' . $this->repo;
@@ -49,7 +49,7 @@ class SiUpdater{
     $obj->plugin = $this->slug;
     $obj->new_version = $pluginInfos->version;
     $obj->url = $this->pluginData["PluginURI"];
-    $obj->package = $this->sourceRepo . $pluginInfos->download_link;;
+    $obj->package = $this->sourceRepo . $pluginInfos->download_link;
     $obj->icons = [
       "1x" => SI_PLUGIN_URL . 'styles/assets/logo-128x128.jpg',
       "2x" => SI_PLUGIN_URL . 'styles/assets/logo-256x256.jpg'
@@ -58,7 +58,6 @@ class SiUpdater{
       "low" =>  SI_PLUGIN_URL . 'styles/assets/banner-772x250.jpg',
       "high" => SI_PLUGIN_URL . 'styles/assets/banner-1544x500.jpg'
     ];
-    $obj->upgrade_notice = 'Update me... pretty please';
     $obj->banners_rtl = array();
 
     // Gets the tested version of WP if available
@@ -100,12 +99,13 @@ class SiUpdater{
     //   return $plugins_api;
     // }
 
-    // if ($pluginSlug != $this->slug) {
-    //   return false;
-    // }
+    
+    if ($pluginSlug != $this->repo) {
+      return $plugins_api;
+    }
 
     if ( empty( $args->slug ) || $args->slug != $this->repo ) {
-      return false;
+      return $plugins_api;
     }
 
 
