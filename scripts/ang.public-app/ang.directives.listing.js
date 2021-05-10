@@ -1739,6 +1739,8 @@ function siDataAccordeon($parse){
                 neighborhood: {opened:false},
             }
 
+            $scope._current_size = null;
+
             $scope.init = function(){
                 //console.log('siDataAccordeon/init');
                 
@@ -1763,16 +1765,23 @@ function siDataAccordeon($parse){
             $scope.applyAllowToggles = function(){
                 //console.log('applyAllowToggles',$scope.allowToggle, window.innerWidth);
                 let lAllowToggle = true;
+                let lDetectedSize = 'desktop';
+
                 if($scope.allowToggle != undefined){
                     lAllowToggle = $scope.allowToggle.desktop === 'yes';
-                    if(window.innerWidth <= 800 && $scope.allowToggle.tablet === 'yes'){
-                        lAllowToggle = true;
+                
+                    if(window.innerWidth <= 800){
+                        lAllowToggle = $scope.allowToggle.tablet === 'yes';
+                        lDetectedSize = 'tablet';
                     }
-                    if(window.innerWidth <= 640 && $scope.allowToggle.mobile === 'yes'){
-                        lAllowToggle = true;
+                    if(window.innerWidth <= 640){
+                        lAllowToggle = $scope.allowToggle.mobile === 'yes';
+                        lDetectedSize = 'mobile';
                     }
                 }
-                //console.log('applyAllowToggles',lAllowToggle);
+                
+                if(lDetectedSize == $scope._current_size) return;
+                $scope._current_size = lDetectedSize;
 
                 if(lAllowToggle != true){
                     
@@ -1853,7 +1862,7 @@ function siMediabox($parse){
             $scope._initialized = false;
 
             $scope.init = function(){
-                $scope.height = (isNullOrEmpty($scope.height)) ? '{"desktop":"460px","tablet":"460px","mobile":"500px"}' : $scope.height;
+                $scope.height = (isNullOrEmpty($scope.height)) ? '{"desktop":"460px","tablet":"460px","mobile":"100vw"}' : $scope.height;
                 
                 if($scope.height.indexOf('{') < 0){
                     $scope.$element[0].style.setProperty('--viewport-height', $scope.height);

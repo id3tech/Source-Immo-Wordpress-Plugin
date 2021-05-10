@@ -714,7 +714,7 @@ html { font-size: 14px; }
 
 #top .si .filter-panel.expanded .filter-panel-content::-webkit-scrollbar-thumb, .si .filter-panel.expanded .filter-panel-content::-webkit-scrollbar-thumb { background-color: var(--element-border-color); border-radius: var(--element-border-radius); outline: none; }
 
-@media screen and (max-width: 800px) { #top .si .filter-panel.expanded .filter-panel-content, .si .filter-panel.expanded .filter-panel-content { max-height: 100vh; padding: 20px; padding-top: 80px; } }
+@media screen and (max-width: 800px) { #top .si .filter-panel.expanded .filter-panel-content, .si .filter-panel.expanded .filter-panel-content { max-height: 100vh; padding: 20px; padding-top: 80px; overscroll-behavior: contain; } }
 
 #top .si .filter-panel .area-filters, .si .filter-panel .area-filters { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; gap: 2rem; place-items: center stretch; }
 
@@ -1078,9 +1078,9 @@ html { font-size: 14px; }
 
 @media screen and (max-width: 640px) { #top .si.standard-layout .si-list-container .si-list-header, .si.standard-layout .si-list-container .si-list-header { -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; grid-template-areas: "switch sort" "meta meta"; place-items: center start; } }
 
-#top .si.standard-layout .si-list-container .si-list-header .sort-container, .si.standard-layout .si-list-container .si-list-header .sort-container { -ms-grid-row: 1; -ms-grid-column: 3; grid-area: sort; place-self: center end; text-align: right; }
+#top .si.standard-layout .si-list-container .si-list-header .si-sort-container, .si.standard-layout .si-list-container .si-list-header .si-sort-container { -ms-grid-row: 1; -ms-grid-column: 3; grid-area: sort; place-self: center end; text-align: right; }
 
-#top .si.standard-layout .si-list-container .si-list-header .sort-container .dropdown-button, .si.standard-layout .si-list-container .si-list-header .sort-container .dropdown-button { font-size: 24px; }
+#top .si.standard-layout .si-list-container .si-list-header .si-sort-container .si-dropdown-button, .si.standard-layout .si-list-container .si-list-header .si-sort-container .si-dropdown-button { font-size: 24px; }
 
 #top .si.standard-layout .si-list-container .si-loading, .si.standard-layout .si-list-container .si-loading { -ms-grid-column: 1; -ms-grid-column-span: 3; grid-column: 1 / span 3; }
 
@@ -1194,17 +1194,29 @@ html, body { scroll-behavior: smooth; }
 
 @media screen and (max-width: 640px) { #top .si.listing-single .si-header .city, .si.listing-single .si-header .city { place-self: center; } }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header, .si.listing-single .si-part-header.si-adapt-phone-size .si-header, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header { place-items: center; text-align: center; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; gap: 1rem; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header, .si.listing-single .si-part-header.si-adapt-phone-size .si-header { place-items: center; text-align: center; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-price, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-price, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-price { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; -ms-grid-row: 2; grid-row: 2; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-price, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-price { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; -ms-grid-row: 2; grid-row: 2; }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-tools, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-tools, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-tools { -ms-grid-column: 1; grid-column: 1; place-self: center start; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-tools, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-header-tools { -ms-grid-column: 1; grid-column: 1; place-self: center start; }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-info-request-button, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-info-request-button, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-info-request-button { -ms-grid-column: 2; grid-column: 2; place-self: center end; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-info-request-button, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-phone-size .si-header .si-part.si-part-info-request-button { -ms-grid-column: 2; grid-column: 2; place-self: center end; }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .subcategory, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .subcategory, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .subcategory { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .subcategory, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .subcategory { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; }
 
-#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .city, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .city, #top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .city { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; place-self: center; }
+#top .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .city, #top .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-tablet-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-phone-size .si-header > .city { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; place-self: center; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header { place-items: center; text-align: center; -ms-grid-columns: 1fr; grid-template-columns: 1fr; gap: 1rem; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-price, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-price { -ms-grid-column: 1; grid-column: 1; -ms-grid-row: 2; grid-row: 2; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-tools, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-header-tools { -ms-grid-column: 1; grid-column: 1; place-self: center; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-info-request-button, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header .si-part.si-part-info-request-button { -ms-grid-column: 1; grid-column: 1; place-self: center; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .subcategory, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .subcategory { -ms-grid-column: 1; grid-column: 1; }
+
+#top .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .city, .si.listing-single .si-part-header.si-adapt-small-phone-size .si-header > .city { -ms-grid-column: 1; grid-column: 1; place-self: center; }
 
 #top .si.listing-single .price, .si.listing-single .price { font-size: 1.75em; font-weight: 600; place-self: start end; text-align: right; }
 
@@ -1398,9 +1410,9 @@ html, body { scroll-behavior: smooth; }
 
 @media screen and (max-width: 640px) { #top .si.listing-single .spec-grid .special-box .value, .si.listing-single .spec-grid .special-box .value { font-size: 1.5em; } }
 
-@media screen and (max-width: 420px) { #top .si.listing-single .spec-grid .special-box, .si.listing-single .spec-grid .special-box { grid-column: unset; -ms-grid-columns: 1fr max-content; grid-template-columns: 1fr -webkit-max-content; grid-template-columns: 1fr max-content; -ms-grid-rows: auto; grid-template-rows: auto; place-items: center stretch; padding: 10px; gap: 0px 10px; }
+@media screen and (max-width: 420px) { #top .si.listing-single .spec-grid .special-box, .si.listing-single .spec-grid .special-box { display: -ms-grid; display: grid; grid-column: unset; -ms-grid-columns: 1fr max-content; grid-template-columns: 1fr -webkit-max-content; grid-template-columns: 1fr max-content; -ms-grid-rows: auto; grid-template-rows: auto; place-items: center stretch; padding: 10px; gap: 0px 10px; }
   #top .si.listing-single .spec-grid .special-box > div, .si.listing-single .spec-grid .special-box > div { display: contents; }
-  #top .si.listing-single .spec-grid .special-box .value, .si.listing-single .spec-grid .special-box .value { text-align: right; }
+  #top .si.listing-single .spec-grid .special-box .value, .si.listing-single .spec-grid .special-box .value { text-align: right; font-size: 1.25em; }
   #top .si.listing-single .spec-grid .special-box label, .si.listing-single .spec-grid .special-box label { text-align: left; }
   #top .si.listing-single .spec-grid .special-box label, #top .si.listing-single .spec-grid .special-box .value, .si.listing-single .spec-grid .special-box label, .si.listing-single .spec-grid .special-box .value { grid-area: unset; } }
 
@@ -1416,10 +1428,9 @@ html, body { scroll-behavior: smooth; }
 
 #top .si.listing-single .mortgage-calculator .si-calculator, .si.listing-single .mortgage-calculator .si-calculator { padding: 1.5rem; }
 
-#top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { font-size: 1.5rem; padding: 1.5rem; }
+#top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { font-size: 1.5rem; padding: 1.5rem; padding-bottom: 0; }
 
-@media screen and (max-width: 420px) { #top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { text-align: center; }
-  #top .si.listing-single .mortgage-calculator .si-title i, .si.listing-single .mortgage-calculator .si-title i { display: block; } }
+@media screen and (max-width: 420px) { #top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { text-align: center; } }
 
 #top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { background: var(--high-contrast-color); color: var(--high-contrast-text-color); padding: 1.5rem; text-align: center; }
 
@@ -1861,6 +1872,8 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-calculator *, .si-calculator * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 
+@media screen and (max-width: 420px) { #top .si-calculator, .si-calculator { gap: 0; } }
+
 #top .si-calculator .si-input-container, .si-calculator .si-input-container { display: -ms-grid; display: grid; gap: 1rem; -ms-grid-columns: 3fr 2fr; grid-template-columns: 3fr 2fr; grid-template-areas: "label input"; place-items: center stretch; }
 
 #top .si-calculator .si-input-container input, .si-calculator .si-input-container input { padding: 10px; outline: none; border: var(--element-border); border-radius: var(--element-border-radius); min-width: 0px; max-width: 100%; -webkit-transition: 0.25s; transition: 0.25s; height: auto; margin: 0px; }
@@ -1873,14 +1886,17 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-calculator .si-input-container .si-dropdown > .btn, .si-calculator .si-input-container .si-dropdown > .btn { color: inherit; }
 
+#top .si-calculator .si-input-container .si-dropdown .si-dropdown-button, .si-calculator .si-input-container .si-dropdown .si-dropdown-button { background: var(--input-bg-color, #fff); border-radius: var(--element-border-radius); border: solid 1px var(--element-border); width: 100%; }
+
 #top .si-calculator .si-input-container .si-input, .si-calculator .si-input-container .si-input { -ms-grid-row: 1; -ms-grid-column: 2; grid-area: input; display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center; margin-top: 0; }
 
 #top .si-calculator .si-input-container .extra, .si-calculator .si-input-container .extra { width: 25px; text-align: center; }
 
-@media screen and (max-width: 420px) { #top .si-calculator .si-input-container, .si-calculator .si-input-container { text-align: center; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-template-areas: "label" "input"; place-items: center; }
-  #top .si-calculator .si-input-container > label, .si-calculator .si-input-container > label { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; }
+@media screen and (max-width: 420px) { #top .si-calculator .si-input-container, .si-calculator .si-input-container { text-align: center; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-template-areas: "label" "input"; gap: 0; place-items: stretch; }
+  #top .si-calculator .si-input-container > label, .si-calculator .si-input-container > label { position: relative; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: center end; padding: var(--element-padding) 0; }
   #top .si-calculator .si-input-container .si-input, .si-calculator .si-input-container .si-input { position: relative; }
-  #top .si-calculator .si-input-container .si-input:not(.si-dropdown) .extra, .si-calculator .si-input-container .si-input:not(.si-dropdown) .extra { position: absolute; right: 0px; top: 50%; width: auto; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); } }
+  #top .si-calculator .si-input-container .si-input .si-dropdown-button::after, .si-calculator .si-input-container .si-input .si-dropdown-button::after { right: 2.5rem; }
+  #top .si-calculator .si-input-container .si-input .extra, .si-calculator .si-input-container .si-input .extra { position: absolute; right: 0px; top: 50%; width: auto; -webkit-transform: translate(-100%, -50%); transform: translate(-100%, -50%); } }
 
 #top .si-calculator .si-amount-value, .si-calculator .si-amount-value { font-size: 2rem; text-align: center; }
 
@@ -1948,8 +1964,9 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-dropdown-panel .si-dropdown-item:not(.active):hover, .si-dropdown-panel .si-dropdown-item:not(.active):hover { border-left-color: var(--highlight); text-shadow: -0.06ex 0 currentColor, 0.06ex 0 currentColor; }
 
-@media screen and (max-width: 640px) { #top .si-dropdown-panel .si-dropdown-item, .si-dropdown-panel .si-dropdown-item { font-size: 1.2rem; padding: 1em 0em; }
-  #top .si-dropdown-panel .si-dropdown-item.active, #top .si-dropdown-panel .si-dropdown-item:active, .si-dropdown-panel .si-dropdown-item.active, .si-dropdown-panel .si-dropdown-item:active { padding-left: 0.75em; margin-left: -0.75em; }
+@media screen and (max-width: 640px) { #top .si-dropdown-panel .si-dropdown-item, .si-dropdown-panel .si-dropdown-item { font-size: 1.2rem; padding: 1em 0em; position: relative; }
+  #top .si-dropdown-panel .si-dropdown-item.active, #top .si-dropdown-panel .si-dropdown-item:active, .si-dropdown-panel .si-dropdown-item.active, .si-dropdown-panel .si-dropdown-item:active { padding-left: 0.5em; font-weight: 700; border-left: none; }
+  #top .si-dropdown-panel .si-dropdown-item.active::before, #top .si-dropdown-panel .si-dropdown-item:active::before, .si-dropdown-panel .si-dropdown-item.active::before, .si-dropdown-panel .si-dropdown-item:active::before { content: ""; width: 0.5em; height: 0.5em; background: var(--highlight); border-radius: 50%; position: absolute; left: 0; top: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
   #top .si-dropdown-panel .si-dropdown-item:not(:last-child), .si-dropdown-panel .si-dropdown-item:not(:last-child) { border-bottom: solid 1px var(--text-color); } }
 
 @media screen and (max-width: 640px) { #top .si-dropdown-panel, .si-dropdown-panel { position: fixed; -webkit-transition: 0.25s; transition: 0.25s; max-width: unset; left: 0px; bottom: 0px; width: 100%; top: unset; padding: 1rem; -webkit-transform: translate(0%, 0%); transform: translate(0%, 0%); } }

@@ -3,7 +3,7 @@
 Plugin Name: Source.immo
 Plugin URI: https://source.immo
 Description: Connect to your Source.immo account and display your normalized and always up to date real estate listings and related data on your web site. 
-Version: 1.1.09
+Version: 1.1.11
 Author: ID-3 Technologies
 Author URI: https://id-3.net/source-immo
 License: GPLv2 or later
@@ -13,7 +13,7 @@ Text Domain: si
 define( 'SI_NAME', 'Source.immo');
 define( 'SI', 'si' );
 define( 'SI_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');
-define( 'SI_VERSION', '1.1.09' );
+define( 'SI_VERSION', '1.1.11' );
 define( 'SI_MINIMUM_WP_VERSION', '4.0' );
 define( 'SI_PLUGIN', __FILE__);
 define( 'SI_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );
@@ -45,7 +45,8 @@ if ( is_admin() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 
 if ( is_admin() ) {
 	require_once( SI_PLUGIN_DIR . '/core/class.si-update.php' );
-    new SiGitHubPluginUpdater( __FILE__, 'id3tech', "Source-Immo-Wordpress-Plugin","363320729c071fc2a8a11c5fd0a23256a7a294a7" );
+    //new SiGitHubPluginUpdater( __FILE__, 'id3tech', "Source-Immo-Wordpress-Plugin","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" );
+	new SiUpdater( __FILE__);
 }
 
 load_default_textdomain();

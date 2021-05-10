@@ -820,6 +820,8 @@ function $siFilters($q,$siApi,$siUtils){
                         $fm.resetFilters();
                         return;
                     }
+                    
+                    lResult = {};
 
                     if($configs.limit>0){
                         lResult = {
@@ -832,7 +834,7 @@ function $siFilters($q,$siApi,$siUtils){
                     }
 
                     if($fm.hasFilters()){
-                        if(lResult==null) lResult = {};
+                        //if(lResult==null) lResult = {};
                         lResult.filter_group = {filters:[]};
                         if($configs.filter_group != null){
                             lResult.filter_group = angular.copy($configs.filter_group)
@@ -847,21 +849,26 @@ function $siFilters($q,$siApi,$siUtils){
                         lResult.filter_group = $fm.normalizeFilterGroup(lResult.filter_group);
                     }
                     
-                    lResult.sort_fields = null;
+                    
+                    
                     if($fm.sort_fields.length > 0 && $fm.sort_fields.filter(function($f) {return !isNullOrEmpty($f.field)}).length > 0){
+                        //if(lResult == null) lResult = {};
                         lResult.sort_fields = $fm.sort_fields.filter(function($f){return !isNullOrEmpty($f.field)});
                     }
                     else if($configs.sort != 'auto' &&  !isNullOrEmpty($configs.sort) ){
+                        //if(lResult == null) lResult = {};
                         lResult.sort_fields = [{field: $configs.sort, desc: $configs.sort_reverse}];
                     }
                     
                     
                     if($fm.query_text != null){
+                        //if(lResult == null) lResult = {};
                         lResult.query_text = $fm.query_text;
                         lResult.filter_group = null;
                     }
 
                     if($fm.data.location != null){
+                        //if(lResult == null) lResult = {};
                         lResult.proximity_filter = $fm.data.location;
                     }
                     

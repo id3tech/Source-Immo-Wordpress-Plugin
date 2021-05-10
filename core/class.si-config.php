@@ -215,8 +215,8 @@ class SourceImmoConfig {
 
     if($addVersion){
       $version = time();
-      if(file_exists($lConfigFilePath)){
-        $version = filemtime($lConfigFilePath);
+      if(file_exists($lConfigPath)){
+        $version = filemtime($lConfigPath);
       }
       $lUrlVersion = '?v=' . $version;
     }

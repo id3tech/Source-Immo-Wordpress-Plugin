@@ -1,28 +1,28 @@
-# Version 1.1.09
+# Version 1.1.11
 
-## Offical release
+### Offical release
 We've finally reach the point of the official release. Yay!
 
 
-## Intuitive admin interface
+### Intuitive admin interface
 
 * Style editor for colors, borders, spacings, etc
 * Search engine designer
 * Choose which information to display for list items
 
 
-## Adaptative search engine
+### Adaptative search engine
 Use views to add tabs to the search engine from views you've created
 You can also select which field are searchable
 
-## List item changes
+### List item changes
 
 * Selective data to display
 * New double layer mode with hover effect (fade, slide, flip)
 * Single layer mode now shows the pictures of the property on hover
 * Server side renders for broker list
 
-## Agent informations
+### Agent informations
 New informations are available for agent (limited)
 * Spoken language(s)
 * Experience
@@ -30,13 +30,13 @@ New informations are available for agent (limited)
 * Rating
 * Comments
 
-## Addons support
+### Addons support
 Addons are now supported and will be add periodically.
 In this release:
 * [RE/MAX Québec](https://www.remax-quebec.com/) addon - Display an inner frame from remax-quebec.com website for listing details
 * [Prospects Software](https://www.prospects.com) integration addon - Show lead form in listing details
 
-## Elementor support
+### Elementor support
 Build custom page for listings and brokers with Elementor's widget
 * List of data - Display a list from an alias
 * List slider - Renders a listings picture slider
@@ -50,11 +50,11 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Listing data
 
 
-## New filters
+### New filters
 * New filter for addenda formatting level (default value is 2): si/listing/addanda/format_level
 
 
-## Other things
+### Other things
 
 * Picture boxing preference
 * You can change the default view which will update every list that used the previous one
@@ -67,6 +67,13 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.1.11
+* Implementation of the new update system
+* Fix issue on mobile that automatically close the accordeon panels on touch-scroll
+* Fix layout bug on mobile caused by accordeon section special data overflow
+* Fix missing class prefix on some components
+
+
 Version 1.1.09
 * Add filter hooks on every string labels. Use "ali_label" hooks to overwrite
 * Fixed layout bug for small-list directive and shortcodes

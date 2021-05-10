@@ -8,9 +8,9 @@
     </div>
 
     <div class="si-dropdown" data-show-button-icon="false">
-        <div class="dropdown-button"><i class="far fa-ellipsis-h"></i></div>
+        <div class="si-dropdown-button"><i class="far fa-ellipsis-h"></i></div>
         <div class="si-dropdown-panel">
-            <div class="dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
+            <div class="si-dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
                     ng-repeat="tab in configs.search_engine_options.tabs track by $index"
                     ng-click="selectView(tab.view_id)">
                     {{tab.caption | translate}}</div>
@@ -48,11 +48,11 @@
 
     <div class="filter-menu">
         <div class="si-dropdown" data-show-button-icon="false">
-            <div class="dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"> <span class="label"><?php echo(apply_filters('si_label', __("Filters",SI) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
+            <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"> <span class="label"><?php echo(apply_filters('si_label', __("Filters",SI))) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
             <div class="si-dropdown-panel">
-                <div class="dropdown-item {{filter.hasFilter('letters') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'letters')"><?php echo(apply_filters('si_label', __('Letter', SI))) ?></div>
-                <div class="dropdown-item {{filter.hasFilter('licenses') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'licenses')"><?php echo(apply_filters('si_label', __('Licenses', SI))) ?></div>
-                <div class="dropdown-item {{filter.hasFilter('offices') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'offices')"><?php echo(apply_filters('si_label', __('Offices', SI))) ?></div>
+                <div class="si-dropdown-item {{filter.hasFilter('letters') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'letters')"><?php echo(apply_filters('si_label', __('Letter', SI))) ?></div>
+                <div class="si-dropdown-item {{filter.hasFilter('licenses') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'licenses')"><?php echo(apply_filters('si_label', __('Licenses', SI))) ?></div>
+                <div class="si-dropdown-item {{filter.hasFilter('offices') ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'offices')"><?php echo(apply_filters('si_label', __('Offices', SI))) ?></div>
             </div>
         </div>
     </div>

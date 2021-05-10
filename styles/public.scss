@@ -1335,11 +1335,11 @@ html{
                     "meta meta";
                     place-items:center start; 
                 }
-                .sort-container{
+                .si-sort-container{
                     grid-area:sort;
                     place-self: center end;
                     text-align:right;
-                    .dropdown-button{
+                    .si-dropdown-button{
                         font-size:24px;
                     }
                 }

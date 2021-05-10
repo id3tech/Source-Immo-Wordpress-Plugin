@@ -249,13 +249,18 @@ si-checkbox, si-radio{
     box-sizing: border-box;
     *{    box-sizing: border-box;}
     display:grid;
-        gap:  1rem;
-        grid-template-rows: auto;
+    gap:  1rem;
+    grid-template-rows: auto;
+    @include media($small-phone){
+        gap:0;
+    }
+
     .si-input-container{
         display:grid;
         gap: 1rem;
         grid-template-columns: 3fr 2fr;
         grid-template-areas: "label input";
+        
         input{
             padding:10px;outline:none;border: var(--element-border);border-radius: var(--element-border-radius);
             min-width:0px;
@@ -278,6 +283,12 @@ si-checkbox, si-radio{
         }
         .si-dropdown{
             > .btn{color:inherit;}
+            .si-dropdown-button{
+                background: var(--input-bg-color,#fff);
+                border-radius: var(--element-border-radius);
+                border: solid 1px var(--element-border);
+                width:100%;
+            }
         }
         .si-input{
             grid-area:input;
@@ -293,14 +304,24 @@ si-checkbox, si-radio{
             text-align:center;
             grid-template-columns: 1fr;
             grid-template-areas: "label" "input";
-            place-items: center;
+            gap:0;
+            place-items: stretch;
             > label{
+                position:relative;
                 display: grid;
-                grid-template-columns: 1fr;
+                grid-template-columns: auto 1fr;
+                place-items:center end;
+                padding: var(--element-padding) 0;
             }
             .si-input{
                 position:relative;
-                &:not(.si-dropdown){
+                .si-dropdown-button{
+                    &::after{
+                        right: 2.5rem;
+                    }
+                    
+                }
+                //&:not(.si-dropdown){
                     .extra{
                         position: absolute;
                         right: 0px;
@@ -308,7 +329,7 @@ si-checkbox, si-radio{
                         width:auto;
                         transform:translate(-100%,-50%);
                     }    
-                }
+                //}
             }
             
             
@@ -505,9 +526,22 @@ si-checkbox, si-radio{
         @include media($phone){
             font-size: 1.2rem;
             padding: 1em 0em;
+            position:relative;
             &.active, &:active{
-                padding-left: 0.75em;
-                margin-left: -0.75em;
+                padding-left: 0.5em;
+                font-weight: 700;
+                border-left:none;
+                &::before{
+                    content:"";
+                    width:0.5em;
+                    height:0.5em;
+                    background:var(--highlight);
+                    border-radius: 50%;
+                    position:absolute;
+                    left:0;
+                    top:50%;
+                    transform: translate(-50%,-50%);
+                }
             }
             &:not(:last-child){
                 border-bottom:solid 1px var(--text-color);

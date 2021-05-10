@@ -9,9 +9,9 @@
         </div>
 
         <div class="si-dropdown" data-show-button-icon="false">
-            <div class="dropdown-button"><i class="far fa-ellipsis-h"></i></div>
+            <div class="si-dropdown-button"><i class="far fa-ellipsis-h"></i></div>
             <div class="si-dropdown-panel">
-                <div class="dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
+                <div class="si-dropdown-item {{configs.current_view == tab.view_id ? 'active' : ''}}" 
                         ng-repeat="tab in configs.search_engine_options.tabs track by $index"
                         ng-click="selectView(tab.view_id)">
                         {{tab.caption | translate}}</div>
@@ -64,16 +64,16 @@
         
         <div class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
-                <div class="dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php echo(apply_filters('si_label', __("Filters",SI))) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
+                <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php echo(apply_filters('si_label', __("Filters",SI))) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
                 <div class="si-dropdown-panel">
-                    <div class="dropdown-item {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php echo(apply_filters('si_label', __('Cities', SI))) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php echo(apply_filters('si_label', __('Price', SI))) ?></div>
-                    <div class="dropdown-item {{filter.hasFilter(['categories','subcategories']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'categories')"><?php echo(apply_filters('si_label', __('Home types', SI))) ?></div>
-                    <div class="dropdown-item 
+                    <div class="si-dropdown-item {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'cities')"><?php echo(apply_filters('si_label', __('Cities', SI))) ?></div>
+                    <div class="si-dropdown-item {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'price')"><?php echo(apply_filters('si_label', __('Price', SI))) ?></div>
+                    <div class="si-dropdown-item {{filter.hasFilter(['categories','subcategories']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'categories')"><?php echo(apply_filters('si_label', __('Home types', SI))) ?></div>
+                    <div class="si-dropdown-item 
                         {{filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}" 
                         ng-click="toggleExpand($event,'others')"><?php echo(apply_filters('si_label', __('More', SI))) ?></div>
 
-                    <div class="dropdown-item reset-option" ng-if="filter.hasFilters()" ng-click="resetFilters()"><?php echo(apply_filters('si_label', __('Reset filters', SI))) ?></div>
+                    <div class="si-dropdown-item reset-option" ng-if="filter.hasFilters()" ng-click="resetFilters()"><?php echo(apply_filters('si_label', __('Reset filters', SI))) ?></div>
                 </div>
             </div>
         </div>

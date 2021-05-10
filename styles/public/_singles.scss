@@ -222,37 +222,67 @@ html, body{ scroll-behavior: smooth;}
         }
         .si-part-header{
             &.si-adapt-tablet-size,
-            &.si-adapt-phone-size,
-            &.si-adapt-small-phone-size{
+            &.si-adapt-phone-size{
                 .si-header{
-                place-items:center;
-                text-align:center;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-                
-                
-                .si-part{
-                    &.si-part-header-price{
+                    place-items:center;
+                    text-align:center;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                    
+                    
+                    .si-part{
+                        &.si-part-header-price{
+                            grid-column: 1 / span 2;
+                            grid-row:2;
+                        }
+                        &.si-part-header-tools{
+                            grid-column: 1;
+                            place-self: center start;
+                        }
+                        &.si-part-info-request-button{
+                            grid-column: 2;
+                            place-self: center end;
+                        }
+                    }
+                    > .subcategory{
                         grid-column: 1 / span 2;
-                        grid-row:2;
                     }
-                    &.si-part-header-tools{
-                        grid-column: 1;
-                        place-self: center start;
+                    > .city{
+                        grid-column: 1 / span 2;
+                        place-self: center;
                     }
-                    &.si-part-info-request-button{
-                        grid-column: 2;
-                        place-self: center end;
-                    }
-                }
-                > .subcategory{
-                    grid-column: 1 / span 2;
-                }
-                > .city{
-                    grid-column: 1 / span 2;
-                    place-self: center;
                 }
             }
+            &.si-adapt-small-phone-size{
+                .si-header{
+                    place-items:center;
+                    text-align:center;
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                    
+                    
+                    .si-part{
+                        &.si-part-header-price{
+                            grid-column: 1;
+                            grid-row:2;
+                        }
+                        &.si-part-header-tools{
+                            grid-column: 1;
+                            place-self: center;
+                        }
+                        &.si-part-info-request-button{
+                            grid-column: 1;
+                            place-self: center;
+                        }
+                    }
+                    > .subcategory{
+                        grid-column: 1;
+                    }
+                    > .city{
+                        grid-column: 1;
+                        place-self: center;
+                    }
+                }
             }
         }
 
@@ -756,6 +786,7 @@ html, body{ scroll-behavior: smooth;}
                 }
 
                 @include media($small-phone){
+                    display: grid;
                     grid-column:unset;
                     grid-template-columns: 1fr max-content;
                     grid-template-rows:auto;
@@ -765,7 +796,7 @@ html, body{ scroll-behavior: smooth;}
                     > div{
                         display:contents;
                     }
-                    .value{text-align:right;}
+                    .value{text-align:right;    font-size: 1.25em;}
                     label{text-align:left;}
                     label,.value{grid-area:unset;}
                 }
@@ -798,9 +829,10 @@ html, body{ scroll-behavior: smooth;}
             .si-calculator{padding:1.5rem;}
             .si-title{
                 font-size:1.5rem;padding:1.5rem;
+                padding-bottom:0;
                 @include media($small-phone){
                     text-align:center;
-                    i{display:block;}
+                    //i{display:block;}
                 }
             }
             

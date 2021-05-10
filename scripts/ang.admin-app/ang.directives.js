@@ -1253,7 +1253,7 @@ siApp
 .directive('siSearchTabsEditor', [function siSearchTabsEditor(){
   return {
     restrict: 'E',
-    templateUrl: siAdminDirectiveTemplatePath('si-search-tabs-editor.html'),
+    templateUrl: siAdminDirectiveTemplatePath('si-search-tabs-editor',true),
     replace: true,
     scope: {
       model: '=siModel'

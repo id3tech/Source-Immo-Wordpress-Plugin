@@ -2283,9 +2283,13 @@ siApp
              * @param {object} $newSortData 
              */
             $scope.onSortDataChanged = function($event, $newSortData){
+                
+                
                 $scope.filter.sort_fields = [$newSortData];
+                
                 //console.log('sort field changed', $newSortData);
                 $scope.filter.buildFilters();
+                
             }
 
             $scope.getListType = function(){
