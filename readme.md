@@ -1,7 +1,4 @@
-# Version 1.1.11
-
-### Offical release
-We've finally reach the point of the official release. Yay!
+# Version 1.2.01
 
 
 ### Intuitive admin interface
@@ -67,7 +64,11 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
-Version 1.1.11
+Version 1.2.02
+* Fix grid layout bug in list
+* Fix layout bug overflow on iOS device
+
+Version 1.2.01
 * Implementation of the new update system
 * Fix issue on mobile that automatically close the accordeon panels on touch-scroll
 * Fix layout bug on mobile caused by accordeon section special data overflow
@@ -134,4 +135,4 @@ Version 1.0.6
 * Fix placeholder for empty list
 
 requires: 5.1.1
-tested: 5.3
+tested: 5.7.3

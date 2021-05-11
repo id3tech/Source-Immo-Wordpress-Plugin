@@ -6,20 +6,21 @@
  */
 siApp
 .directive('siAdaptativeClass', [
-    '$parse','$timeout',
-    function($parse){
+    function(){
         return {
             restrict: 'A',
             scope: true,
             link: function($scope, $element, $attrs){
-                $scope.$element = $element[0]
+                
+                $scope.init();
             },
-            controller : function($scope, $rootScope,$timeout,$q){
+            controller : function($scope, $element, $rootScope,$timeout,$q){
                 $scope._resizeTimeoutHndl = null;
                 $scope._class_initiliazed = false;
                 $scope._initFailRetry = 0;
 
                 $scope.init = function(){
+                    //console.log('siAdaptativeClass/init')
                     $scope.classInit();
                     $scope.addResizeListener();
                 }
@@ -30,20 +31,32 @@ siApp
                 });
 
                 $scope.classInit = function(){
+                    
                     if($scope._class_initiliazed == true) return;
+                    $scope._class_initiliazed = true;
 
+                    //console.log('siAdaptativeClass/classInit');
+                    
                     $scope.updateClass().then(
                         function success(){
                             $scope._class_initiliazed = true;
-                            //console.log('siAdaptativeClass/init::updateClassPromise','success to update class');
+                            //console.log('siAdaptativeClass/classInit::updateClassPromise','success to update class');
                         },
-                        function fail(){
-                            console.log('siAdaptativeClass/init::updateClassPromise','fail to update class');
-                            $scope._initFailRetry += 1;
-                            if($scope._initFailRetry > 10) return;
-                            window.setTimeout(function(){
-                                $scope.classInit();
-                            },500);
+                        function fail($errorCode){
+                            if('#ReferenceElementNoWidth' == $errorCode){
+                                if($scope._initFailRetry > 10) {
+                                    //console.log('siAdaptativeClass/init::updateClassPromise','fail to update class after 10 retry');
+                                    return;
+                                }
+
+                                //console.log('siAdaptativeClass/init::updateClassPromise','fail to update class');
+                                $scope._initFailRetry += 1;
+                                
+                                $timeout(function(){
+                                    $scope._class_initiliazed = false;
+                                    $scope.classInit();
+                                },500);
+                            }
                         }
                     );
                 }
@@ -66,42 +79,59 @@ siApp
 
                 $scope.updateClass = function(){
                     return $q(function($resolve, $reject){
-                            
+                        const lElm = $element[0];
+                        
+
                         const lSizeMap = {
                             'si-adapt-small-phone-size': [0,320],
                             'si-adapt-phone-size': [321,640],
                             'si-adapt-tablet-size': [641,800],
                             'si-adapt-laptop-size': [801,1000]
                         }
+
+                        if(window.innerWidth < 640){
+                            const lWindowBasedClass = Object.keys(lSizeMap).slice(0,2).reverse().find(function($k){
+                                return (
+                                    (lSizeMap[$k][0] <= window.innerWidth)
+                                );
+                            });
+                            if(lWindowBasedClass != null){
+                                lElm.classList.add(lWindowBasedClass);
+
+                                //$rootScope.$broadcast('container-resize');
+                                $resolve();
+                                return;
+                            }
+                        }
                         
                         // remove any class previously applied by a resize or initial parse
                         Object.keys(lSizeMap)
                             .forEach(function($k){
-                                $scope.$element.classList.remove($k);
+                                lElm.classList.remove($k);
                             });
 
                         
 
                         // get element size
-                        let lReferenceElement = $scope.$element.parentElement;
+                        let lReferenceElement = lElm.parentElement;
                         // if(!lReferenceElement.classList.contains('si-content')){
                         //     console.log('no .si-content', lReferenceElement);
 
                         //     lReferenceElement = ['.si-content','.element-widget-container'].reduce( function($result, $cur){
-                        //         console.log('search for', $result, $cur, $scope.$element.closest($cur))
-                        //         return $result || $scope.$element.closest($cur);
+                        //         console.log('search for', $result, $cur, lElm.closest($cur))
+                        //         return $result || lElm.closest($cur);
                         //     }, null);
 
                         // }
 
                         let lReferenceWidth = null;
                         if(lReferenceElement != null){
-                            //console.log('valid container detected for',$scope.$element,':', lReferenceElement);
+                            //console.log('valid container detected for',lElm,':', lReferenceElement);
 
                             const lElementBox = lReferenceElement.getBoundingClientRect();
                             //console.log('AdaptativeResize/updateClass',lElementBox);
                             if(lElementBox.width == 0){
-                                $reject();
+                                $reject('#ReferenceElementNoWidth');
                                 return;  // bail out if the element has no width
                             }
 
@@ -124,17 +154,17 @@ siApp
                                                         (lSizeMap[$k][0] <= lReferenceWidth)
                                                     );
                                                 });
-                        //console.log('added class', lClass, $scope.$element);
+                        //console.log('added class', lClass, lElm);
                         if(lClass != null){
                             // apply class if found
-                            $scope.$element.classList.add(lClass);
+                            lElm.classList.add(lClass);
 
                             $rootScope.$broadcast('container-resize');
                             $resolve();
                             return;
                         }
 
-                        $reject(); // nothing was done, which could result in some limbo                        
+                        $reject('#ClassNoFound'); // nothing was done, which could result in some limbo                        
                     })
                     
                 }
