@@ -44,7 +44,7 @@ html, body{ scroll-behavior: smooth;}
 
             padding: 1rem 0;
             gap:var(--layout-gutter);
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             grid-template-rows: auto;
             //align-items: start;
             // grid-template-areas: 
@@ -52,17 +52,17 @@ html, body{ scroll-behavior: smooth;}
             //     "medias si-summary"
             //     "si-details si-details"
             //     ;
-            .si-part{
-                &.si-part-header{
-                    grid-column: 1 / span 2;
-                }
-                &.si-part-details{
-                    grid-column: 1 / span 2;
-                }
-                &.si-part-list-navigation{
-                    grid-column: 1 / span 2;
-                }
-            }
+            // .si-part{
+            //     &.si-part-header{
+            //         grid-column: 1 / span 2;
+            //     }
+            //     &.si-part-details{
+            //         grid-column: 1 / span 2;
+            //     }
+            //     &.si-part-list-navigation{
+            //         grid-column: 1 / span 2;
+            //     }
+            // }
 
             &.si-adapt-tablet-size,
             &.si-adapt-phone-size,
@@ -305,19 +305,32 @@ html, body{ scroll-behavior: smooth;}
             }
         }
         
-        .medias{
+        .si-mediabox{
             position:relative;    
             place-self: stretch;
+            --ratio-num: 4;
+            --ratio-div: 3;
+            --ratio: var(--ratio-num) / var(--ratio-div);
+            --invert-ratio: var(--ratio-div) / var(--ratio-num);
+            
+            //aspect-ratio: var(--ratio);
+            
+            @supports not (aspect-ratio: 1 / 1){
+                //height: calc(2rem + (var(--viewport-width) * var(--invert-ratio)));    
+            }
+            
+
             // --viewport-height: 460px;
             // @include media($laptop){
             //     --viewport-height:380px;
             // }
-            // @include media($tablet){
+            @include media($tablet){
             //     --viewport-height:300px;
-            // }
-            // @include media($phone){
+            }
+            @include media($phone){
             //     --viewport-height:calc(100% - 40px);
-            // }
+                    --viewport-width: 100vw;
+            }
             @include media($tablet){
                 --viewport-height: var(--viewport-height-tablet)!important;
             }
@@ -327,7 +340,7 @@ html, body{ scroll-behavior: smooth;}
                 width: 100vw;
                 margin-left: -50vw;
                 //height: 40vh;
-                min-height:var(--viewport-height);
+                //min-height:var(--viewport-height);
                 left: 50%;
                 //min-height:400px;
             }
@@ -338,11 +351,12 @@ html, body{ scroll-behavior: smooth;}
             }
 
             .tabs{
-                @include media($phone){
+                //@include media($phone){
                     display: flex;
                     flex-direction: row;
                     justify-content: center;
-                }
+                    gap:0.5rem;
+                //}
                 .tab{
                     display:inline-block;
                     background:none;color:var(--text-color);
@@ -352,9 +366,9 @@ html, body{ scroll-behavior: smooth;}
                     position:relative;
                     border:0;
                     box-shadow:none;
-                    padding: 10px 20px;
+                    padding: 0.5em 1em;
                     transition:0.25s;
-                    font-size:16px;
+                    font-size:1rem;
                     cursor:pointer;
                     i{color:inherit;}
                     &::after,&::before{
@@ -406,8 +420,13 @@ html, body{ scroll-behavior: smooth;}
             > .viewport{
                 position:relative;
                 width:100%;
-                height:460px;
-                height:var(--viewport-height);
+                // height:460px;
+                // height:var(--viewport-height);
+                aspect-ratio: var(--ratio);
+                @supports not (aspect-ratio: 1 / 1){
+                    height: calc(var(--viewport-width) * var(--invert-ratio));
+                }
+
                 overflow:hidden;
                 // @include media($laptop){
                 //     height:380px;
@@ -478,6 +497,9 @@ html, body{ scroll-behavior: smooth;}
             &.select-map{
                 >.viewport>.trolley{
                     transform:translateX(-400%);
+                    .si-map-container{
+                        margin:0;
+                    }
                     .placeholder{opacity:0;}
                 }
             }
@@ -501,46 +523,41 @@ html, body{ scroll-behavior: smooth;}
                         top:0px;left:0px;width:100%;height:100%;
                         .viewport{width:100%;height:100%;}
                     }
+                    .locallogic-content-widget-container{
+                        position: absolute;
+                        top:0px;left:0px;width:100%;height:100%;
+                    }
                 }
             }
         }
         .si-summary{
             
             display:grid;
-            grid-gap:1rem 0;
+            grid-gap:0 1rem;
             grid-template-columns: 1fr;
-            // grid-template-areas: 
-            //     "ref-number ref-number"
-            //     "region state"
-            //     "address address"
-            //     "near near"
-            //     "open-houses open-houses"
-            //     "description description"
-            //     "attachments attachments"
-            //     "flags flags"
-            //     "links links"
-            //     "information_request information_request"
-            // ;
-
-            //.si-part{display:contents;}
-            
-            @include media($small-phone){
+           
+            @include media($tablet){
                 grid-template-columns: 1fr;
-                // grid-template-areas: 
-                //     "ref-number"
-                //     "region" "state"
-                //     "address"
-                //     "near"
-                //     "open-houses"
-                //     "description"
-                //     "attachments"
-                //     "flags"
-                //     "links"
-                //     "information_request"
-                // ;
             }
 
             
+        }
+
+        .si-part-location{
+            text-align:center;
+
+            .location-path{
+                display:flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap:0.5ex;
+
+                > div:not(:last-child){
+                    &::after{
+                        content:",";
+                    }
+                }
+            }
         }
 
         .ref-number{
@@ -638,10 +655,11 @@ html, body{ scroll-behavior: smooth;}
 
         .flags{
             display:flex;
-            justify-content: space-around;
+            justify-content: center;
             align-items: center;
             flex-wrap:wrap;
             padding:0;
+            gap:1rem;
             .flag{
                 position:relative;
                 margin: calc(var(--layout-gutter) / 2);
@@ -811,13 +829,18 @@ html, body{ scroll-behavior: smooth;}
 
         .broker-list{
             .list-header{display:none;}
-            .list-container{
+            .si-list{
                 display:grid;
                 gap:var(--layout-gutter);
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                @include media($phone){
+                    grid-template-columns: 1fr;
+                }
                 .si-item{
                     background:var(--small-contrast-color);
                     color:var(--small-contrast-text-color);
+                    border-radius: var(--element-border-radius);
+                    overflow:hidden;
                 }
             }
         }
@@ -825,6 +848,8 @@ html, body{ scroll-behavior: smooth;}
         .mortgage-calculator{
             background-color:var(--medium-contrast-color);
             color:var(--medium-contrast-text-color);
+            border-radius: var(--element-border-radius);
+            overflow:hidden;
 
             .si-calculator{padding:1.5rem;}
             .si-title{
@@ -841,10 +866,24 @@ html, body{ scroll-behavior: smooth;}
                 color:var(--high-contrast-text-color);
                 padding:1.5rem;
                 text-align:center;
+                display:flex;
+                justify-content: space-between;
+
                 .mortgage,.transfer-taxes{
                     font-size:1.2rem;
                     margin-bottom:10px;
                     color:var(--high-contrast-text-color);
+                    flex:1;
+                }
+                .transfer-taxes{
+                    order: -1;
+                }
+                @include media($tablet){
+                    flex-direction: column;
+                    align-items:center;
+                    .transfer-taxes{
+                        order: unset;
+                    }
                 }
                 label{
                     color:inherit;opacity:0.5;

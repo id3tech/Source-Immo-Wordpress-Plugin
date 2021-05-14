@@ -340,7 +340,7 @@ if (!Object.prototype.watch) {
 	Object.defineProperty(Object.prototype, "watch", {
 		  enumerable: false
 		, configurable: true
-		, writable: false
+		, writable: true
 		, value: function (prop, handler) {
 			var
 			  oldval = this[prop]

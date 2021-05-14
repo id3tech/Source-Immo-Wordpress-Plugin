@@ -1,4 +1,4 @@
-# Version 1.2.01
+# Version 1.2.05
 
 
 ### Intuitive admin interface
@@ -32,6 +32,7 @@ Addons are now supported and will be add periodically.
 In this release:
 * [RE/MAX Québec](https://www.remax-quebec.com/) addon - Display an inner frame from remax-quebec.com website for listing details
 * [Prospects Software](https://www.prospects.com) integration addon - Show lead form in listing details
+* [Local Logic](https://www.locallogic.co) integration addon - Show neighborhood widget in listing details
 
 ### Elementor support
 Build custom page for listings and brokers with Elementor's widget
@@ -64,8 +65,15 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
-Version 1.2.02
+Version 1.2.05
+* Add support for Local Logic neighborhood widget
+* Simplified layout in listing details
+* Adjust mediabox to fit aspect-ratio instead of fixed height
+
+Version 1.2.04
 * Fix grid layout bug in list
+
+Version 1.2.02
 * Fix layout bug overflow on iOS device
 
 Version 1.2.01

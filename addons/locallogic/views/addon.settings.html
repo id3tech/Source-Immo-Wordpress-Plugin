@@ -4,3 +4,10 @@
         <input type="text" ng-model="modelConfigs.sdk_token" ng-model-options="{updateOn:'blur'}" ng-change="saveAddonSettings()" />
     </div>
 </div>
+
+<div class="addon-setting-item">
+    <label lstr>Allow demographic data</label>
+    <div class="addon-input">
+        <md-checkbox ng-model="modelConfigs.allow_demographic"  ng-change="saveAddonSettings()"></md-checkbox>
+    </div>
+</div>

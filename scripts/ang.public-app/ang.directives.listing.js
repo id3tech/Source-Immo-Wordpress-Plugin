@@ -1,3 +1,5 @@
+
+
 siApp
 .directive('siCalculator', function siCalculator(){
     return {
@@ -1736,7 +1738,8 @@ function siDataAccordeon($parse){
                 rooms:{opened:false},
                 expenses: {opened:false},
                 financials: {opened:false},
-                neighborhood: {opened:false},
+                // neighborhood: {opened:false},
+                // demographics: {opened:false},
             }
 
             $scope._current_size = null;
@@ -1818,6 +1821,7 @@ function siDataAccordeon($parse){
              */
             $scope.toggleSection = function($section){
                 //console.log('siDataAccordeon/toggleSection',$section);
+                if($scope.sections[$section] == undefined) $scope.sections[$section] = {opened: false};
 
                 $scope.sections[$section].opened = !$scope.sections[$section].opened;
 
@@ -1856,31 +1860,39 @@ function siMediabox($parse){
         },
         templateUrl: directiveTemplatePath('si-mediabox'),
         replace: true,
-        controller : function($scope, $siConfig,$timeout){
+        controller : function($scope, $element, $siConfig,$timeout){
             $scope.selected_media = $scope.defaultTab || 'pictures';
             $scope.video_player = null;
             $scope._initialized = false;
 
             $scope.init = function(){
                 $scope.height = (isNullOrEmpty($scope.height)) ? '{"desktop":"460px","tablet":"460px","mobile":"100vw"}' : $scope.height;
+
+                $timeout(_ => {
+                    const lRect = $element[0].parentElement.getBoundingClientRect();
+                    $element[0].style.setProperty('--viewport-width', lRect.width + 'px');
+                },1000)
                 
-                if($scope.height.indexOf('{') < 0){
-                    $scope.$element[0].style.setProperty('--viewport-height', $scope.height);
-                }
-                else{
-                    const lHeight = JSON.parse($scope.height.replace(/'/g,'"'));
-                    Object.keys(lHeight).forEach(function($k){
-                        if($k == 'desktop'){
-                            $scope.$element[0].style.setProperty('--viewport-height', lHeight.desktop);
-                        }
-                        else{
-                            $scope.$element[0].style.setProperty('--viewport-height-' + $k, lHeight[$k]);
-                        }
-                    })
-                }
+                // if($scope.height.indexOf('{') < 0){
+                //     $scope.$element[0].style.setProperty('--viewport-height', $scope.height);
+                // }
+                // else{
+                //     const lHeight = JSON.parse($scope.height.replace(/'/g,'"'));
+                //     Object.keys(lHeight).forEach(function($k){
+                //         if($k == 'desktop'){
+                //             $scope.$element[0].style.setProperty('--viewport-height', lHeight.desktop);
+                //         }
+                //         else{
+                //             $scope.$element[0].style.setProperty('--viewport-height-' + $k, lHeight[$k]);
+                //         }
+                //     })
+                // }
                 
                 window.addEventListener('resize', function(){
                     $timeout(function(){
+                        const lRect = $element[0].parentElement.getBoundingClientRect();
+                        $element[0].style.setProperty('--viewport-width', lRect.width + 'px');
+
                         $scope.selectFirstTab();
                     });
                 });
@@ -1890,6 +1902,12 @@ function siMediabox($parse){
                     $scope._initialized = true;
                     $scope.configs = $configs;
                 });
+            }
+
+            $scope.hasAddon = function($addon){
+                if($siConfig._data == undefined) return false;
+
+                return $siConfig._data.active_addons[$addon] != undefined;
             }
 
             $scope.selectFirstTab = function(){
@@ -1956,10 +1974,12 @@ function siMediabox($parse){
 
                 if($scope._initialized){
                     $scope.$broadcast(lTrigger);
+                    $scope.$broadcast('siMediaBox/' + lTrigger);
                 }
                 else{
                     window.setTimeout(function(){
                         $scope.$broadcast(lTrigger);
+                        $scope.$broadcast('siMediaBox/' + lTrigger);
                     },1000);
                 }
                 

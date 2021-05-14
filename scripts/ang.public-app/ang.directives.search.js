@@ -1,3 +1,5 @@
+
+
 siApp
 .factory('$siSearchContext', ['$rootScope', function $siSearchContext($rootScope){
     const $scope = {};
@@ -3405,4 +3407,3 @@ function siGeoFilter(){
         }
     }
 }])
-

@@ -674,8 +674,8 @@ $locales.fr = {};$locales.fr.global =
     , "Click on the social media you want to share this page." : "Cliquez sur le média social où vous voulez partager cette page."
     , "This amount is displayed for information only. This amount may vary depending on the city and may also change over time. Consult your real estate broker for the exact amount." 
         : "Ce montant est affiché à titre indicatif seulement. Ce montant peut varier en fonction de la ville et peut également changer avec le temps. Consultez votre courtier immobilier pour le montant exact."
-    , "This amount is displayed for information only. The calculation of the transfer tax is based on the basic calculations generally in effect in Québec. This amount may vary depending on the city. Consult your real estate broker for the exact amount." : 
-            "Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact."
+    , "This amount is displayed for information only. The calculation of the transfer tax is based on the municipality calculation where required or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount."
+        : "Ce montant est affiché à titre indicatif seulemen. Le calcul de la taxe de mutation est basé sur le calcul de la municipalité lorsque requis ou les calculs de base généralement en vigueur au Québec. Consultez votre courtier immobilier pour obtenir le montant exact."
     , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
     , "Market" : "Marché"
     , "Neighborhood" : "Quartier"

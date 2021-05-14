@@ -337,7 +337,11 @@ si-checkbox, si-radio{
     }
     .si-amount-value{
         font-size:2rem;
-        text-align:center;
+        text-align:right;
+        padding: 0 1em;
+        @include media($tablet){
+            text-align: center;
+        }
     }
 
     .si-calculator-results{

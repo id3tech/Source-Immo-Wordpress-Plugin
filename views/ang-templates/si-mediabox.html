@@ -1,4 +1,4 @@
-<div class="medias select-{{selected_media}} picture-list-{{pictureListDisplay}}">
+<div class="si-mediabox medias select-{{selected_media}} picture-list-{{pictureListDisplay}}">
     <div class="tabs">
         <span class="tab pictures {{selected_media=='pictures'?'selected':''}}" 
             data-ng-show="tabIsAvailable('pictures')"
@@ -52,6 +52,7 @@
                 >
                 <label class="placeholder">{{'Map'.translate()}}</label>
                 <si-map data-ng-if="tabIsAvailable('map')" class="detail-map" zoom="14" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-map>
+                <ll-content-widget ng-if="false && hasAddon('locallogic')"></ll-content-widget>
             </div>
         </div>
     </div>

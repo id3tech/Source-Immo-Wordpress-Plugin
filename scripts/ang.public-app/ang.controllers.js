@@ -106,8 +106,8 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
             "duration": 250,
             "easing": 'swing'
           };
-        let position = angular.element($target).offset().top;
-        angular.element("html, body").animate({
+        let position = jQuery($target).offset().top;
+        jQuery('html, body').animate({
             "scrollTop": position
           }, opt);
     }
