@@ -1,4 +1,4 @@
-# Version 1.2.05
+# Version 1.2.06
 
 
 ### Intuitive admin interface
