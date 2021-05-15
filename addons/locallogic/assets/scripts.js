@@ -49,7 +49,7 @@ siApp
                 const lOptions = {
                     lat: $scope.model.location.latitude,
                     lng: $scope.model.location.longitude,
-                    locale: 'fr',
+                    locale: siCtx.locale,
                     designId: 'll-2019',
                     maxInnerWidth: lRect.width
                 };

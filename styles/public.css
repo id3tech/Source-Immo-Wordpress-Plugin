@@ -1426,7 +1426,7 @@ html, body { scroll-behavior: smooth; }
 
 #top .si.listing-single .addendum .content, .si.listing-single .addendum .content { white-space: pre-wrap; }
 
-#top .si.listing-single .broker-list .list-header, .si.listing-single .broker-list .list-header { display: none; }
+#top .si.listing-single .broker-list .si-list-header, .si.listing-single .broker-list .si-list-header { display: none; }
 
 #top .si.listing-single .broker-list .si-list, .si.listing-single .broker-list .si-list { display: -ms-grid; display: grid; gap: var(--layout-gutter); -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; }
 
@@ -1442,14 +1442,17 @@ html, body { scroll-behavior: smooth; }
 
 @media screen and (max-width: 420px) { #top .si.listing-single .mortgage-calculator .si-title, .si.listing-single .mortgage-calculator .si-title { text-align: center; } }
 
-#top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { background: var(--high-contrast-color); color: var(--high-contrast-text-color); padding: 1.5rem; text-align: center; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; }
+#top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { background: var(--high-contrast-color); color: var(--high-contrast-text-color); padding: 1.5rem; text-align: center; display: -ms-grid; display: grid; -ms-grid-columns: 1fr max-content; grid-template-columns: 1fr -webkit-max-content; grid-template-columns: 1fr max-content; place-items: center end; }
+
+#top .si.listing-single .mortgage-calculator .result .result-item, .si.listing-single .mortgage-calculator .result .result-item { display: contents; }
+
+#top .si.listing-single .mortgage-calculator .result .result-item label, #top .si.listing-single .mortgage-calculator .result .result-item .value, .si.listing-single .mortgage-calculator .result .result-item label, .si.listing-single .mortgage-calculator .result .result-item .value { padding: 0.5em 2em; }
 
 #top .si.listing-single .mortgage-calculator .result .mortgage, #top .si.listing-single .mortgage-calculator .result .transfer-taxes, .si.listing-single .mortgage-calculator .result .mortgage, .si.listing-single .mortgage-calculator .result .transfer-taxes { font-size: 1.2rem; margin-bottom: 10px; color: var(--high-contrast-text-color); -webkit-box-flex: 1; -ms-flex: 1; flex: 1; }
 
-#top .si.listing-single .mortgage-calculator .result .transfer-taxes, .si.listing-single .mortgage-calculator .result .transfer-taxes { -webkit-box-ordinal-group: 0; -ms-flex-order: -1; order: -1; }
-
-@media screen and (max-width: 800px) { #top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
-  #top .si.listing-single .mortgage-calculator .result .transfer-taxes, .si.listing-single .mortgage-calculator .result .transfer-taxes { -webkit-box-ordinal-group: unset; -ms-flex-order: unset; order: unset; } }
+@media screen and (max-width: 640px) { #top .si.listing-single .mortgage-calculator .result, .si.listing-single .mortgage-calculator .result { -ms-grid-columns: 1fr; grid-template-columns: 1fr; gap: 0rem; place-items: center; }
+  #top .si.listing-single .mortgage-calculator .result .result-item label, #top .si.listing-single .mortgage-calculator .result .result-item .value, .si.listing-single .mortgage-calculator .result .result-item label, .si.listing-single .mortgage-calculator .result .result-item .value { padding: 0em 2em; }
+  #top .si.listing-single .mortgage-calculator .result .result-item .value, .si.listing-single .mortgage-calculator .result .result-item .value { padding-bottom: 1em; } }
 
 #top .si.listing-single .mortgage-calculator .result label, .si.listing-single .mortgage-calculator .result label { color: inherit; opacity: 0.5; font-size: 1.25rem; }
 
@@ -1459,7 +1462,7 @@ html, body { scroll-behavior: smooth; }
 
 #top .si.listing-single .mortgage-calculator .result .value span, .si.listing-single .mortgage-calculator .result .value span { font-size: 1rem; }
 
-#top .si.listing-single .mortgage-calculator .notice, .si.listing-single .mortgage-calculator .notice { margin-top: 20px; font-size: 0.8rem; opacity: 0.33; line-height: 1.4em; font-style: italic; }
+#top .si.listing-single .mortgage-calculator .notice, .si.listing-single .mortgage-calculator .notice { grid-column: 1 / -1; margin-top: 20px; font-size: 0.8rem; opacity: 0.33; line-height: 1.4em; font-style: italic; }
 
 #top .si.listing-single .in-exclusions label, .si.listing-single .in-exclusions label { font-weight: 700; }
 

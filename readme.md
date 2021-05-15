@@ -65,6 +65,10 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.06
+* Fix locale support for Local Logic widget
+* Fix minor ui elements
+
 Version 1.2.05
 * Add support for Local Logic neighborhood widget
 * Simplified layout in listing details

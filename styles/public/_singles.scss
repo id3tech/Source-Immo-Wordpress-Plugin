@@ -828,7 +828,7 @@ html, body{ scroll-behavior: smooth;}
         }
 
         .broker-list{
-            .list-header{display:none;}
+            .si-list-header{display:none;}
             .si-list{
                 display:grid;
                 gap:var(--layout-gutter);
@@ -866,8 +866,16 @@ html, body{ scroll-behavior: smooth;}
                 color:var(--high-contrast-text-color);
                 padding:1.5rem;
                 text-align:center;
-                display:flex;
-                justify-content: space-between;
+                display:grid;
+                grid-template-columns: 1fr max-content;
+                place-items: center end;
+                .result-item{
+                    display:contents;
+                    label,.value{
+                        //text-align:right;
+                        padding:0.5em 2em;
+                    }
+                }
 
                 .mortgage,.transfer-taxes{
                     font-size:1.2rem;
@@ -875,14 +883,19 @@ html, body{ scroll-behavior: smooth;}
                     color:var(--high-contrast-text-color);
                     flex:1;
                 }
-                .transfer-taxes{
-                    order: -1;
-                }
-                @include media($tablet){
-                    flex-direction: column;
-                    align-items:center;
-                    .transfer-taxes{
-                        order: unset;
+                
+                @include media($phone){
+                    grid-template-columns: 1fr;
+                    gap:0rem;
+                    place-items: center;
+                    .result-item{
+                    
+                        label,.value{
+                            padding:0em 2em;
+                        }
+                        .value{
+                            padding-bottom:1em;
+                        }
                     }
                 }
                 label{
@@ -893,12 +906,13 @@ html, body{ scroll-behavior: smooth;}
                     color:inherit;
                     line-height: 1;
                     padding: 0.25rem;
-
+                    
                     em{font-size:1.75rem;display:block;font-style:normal;}
                     span{font-size:1rem;}
                 }
             }
             .notice{
+                grid-column: 1 / -1;
                 margin-top:20px;
                 font-size:0.8rem;
                 opacity:0.33;
