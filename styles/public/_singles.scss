@@ -878,10 +878,16 @@ html, body{ scroll-behavior: smooth;}
                 }
 
                 .mortgage,.transfer-taxes{
-                    font-size:1.2rem;
+                    
                     margin-bottom:10px;
                     color:var(--high-contrast-text-color);
                     flex:1;
+                }
+                .mortgage{
+                    font-size:1.2rem;
+                }
+                .transfer-taxes{
+                    font-size:1rem;
                 }
                 
                 @include media($phone){
@@ -900,15 +906,15 @@ html, body{ scroll-behavior: smooth;}
                 }
                 label{
                     color:inherit;opacity:0.5;
-                    font-size:1.25rem;
+                    font-size:1.25em;
                 }
                 .value{
                     color:inherit;
                     line-height: 1;
                     padding: 0.25rem;
                     
-                    em{font-size:1.75rem;display:block;font-style:normal;}
-                    span{font-size:1rem;}
+                    em{font-size:1.5em;display:block;font-style:normal;}
+                    span{font-size:1em;}
                 }
             }
             .notice{
