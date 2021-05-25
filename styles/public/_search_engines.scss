@@ -710,8 +710,13 @@
             transition:0.05s;
             pointer-events: none;
             padding:0px;
+            overscroll-behavior: contain;
+
             
+
             .panel-list{
+                
+                
                 .list-item{
                     
                     .list-item-title{
@@ -1368,10 +1373,33 @@
             }
         }
         &.offices-panel{
+            .agency-list{
+                display:grid;
+                grid-template-columns: max-content 1fr;
+                gap: 1rem;
+                place-items: start stretch;
+                
+
+                .agency-item{
+                    display:contents;
+
+                    .agency-name{
+                        padding: 1rem 0;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        opacity: 0.5;
+                        text-transform: uppercase;
+                    }
+                }
+
+                @include media($phone){
+                    grid-template-columns: 1fr;
+                }
+            }
             .office-list{
                 display:grid;
                 grid-template-columns: repeat(auto-fill, minmax(33%, 1fr));
-                gap: 10px;
+
                 @include media($tablet){
                     grid-template-columns: 1fr 1fr;
                 }

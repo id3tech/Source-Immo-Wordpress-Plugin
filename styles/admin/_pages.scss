@@ -61,11 +61,23 @@
             }
   
             .grid-row{
-              grid-template-columns: 1fr 1fr 1fr 50px;
-              grid-gap:10px;
+              grid-template-columns: 1fr 1fr 1fr auto;
+              gap:10px;
               md-input-container{
                 margin:0px;
                 .md-errors-spacer{display:none;}
+              }
+              .md-select-value{
+                height: 33px;
+                padding: 6px;
+              }
+              .value{
+                display:flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0px;
+
               }
               &.header{
                 margin-top:20px;

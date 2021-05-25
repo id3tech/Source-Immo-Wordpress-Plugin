@@ -1,4 +1,4 @@
-# Version 1.2.07
+# Version 1.2.08
 
 
 ### Intuitive admin interface
@@ -65,6 +65,15 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.08
+* Public
+** Fix dropdown menu
+** Fix quick-search panel positioning
+** In broker's search by office panel, grouped offices by agency name
+* Admin
+** Remove list filter item dropdown for value. Replaced by a contextual menu for easier custom entry
+
+
 Version 1.2.07
 * Change listing's mortgage calculator result order
 

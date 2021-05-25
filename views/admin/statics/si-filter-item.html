@@ -14,28 +14,35 @@
     </md-input-container>
 
     <div class="value">
-        <md-input-container ng-show="['text','number'].indexOf(selected_filter_key.value_type) >= 0 && value_choices == null">
-            <input ng-model="filter.value" />
+        <md-input-container>
+            <input ng-model="filter_value" ng-change="updateValue()" />
         </md-input-container>
 
-        <md-input-container ng-show="selected_filter_key.value_type=='bool'">
-            <md-select ng-model="filter.value">
-                <md-option value="true">{{'Yes'.translate()}}</md-option>
-                <md-option value="false">{{'No'.translate()}}</md-option>
-            </md-select>
-        </md-input-container>
+        <md-menu>
+            <md-button ng-click="$mdMenu.open()" class="md-icon-button"><i class="fal fa-lg fa-ellipsis-v"></i></md-button>
+            <md-menu-content>
+                <md-menu-item ng-if="selected_filter_key.value_type=='bool'"
+                    ng-click="setValue(true)">
+                    <md-button>{{'Yes'.translate()}}</md-button>
+                </md-menu-item>
+                <md-menu-item ng-if="selected_filter_key.value_type=='bool'"
+                    ng-click="setValue(false)">
+                    <md-button>{{'No'.translate()}}</md-button>
+                </md-menu-item>
+            
+                <md-menu-item ng-if="selected_filter_key.value_type=='text'"
+                    ng-click="setValue(item.key)" ng-repeat="item in value_choices">
+                    <md-button>{{item.label.translate()}}</md-button>
+                </md-menu-item>
+                
+                <md-menu-item ng-if="selected_filter_key.value_type=='list'"
+                    ng-click="toggleValue(item.key)" ng-repeat="item in value_choices">
+                    <md-button>{{item.label.translate()}}</md-button>
+                </md-menu-item>
 
-        <md-input-container ng-show="selected_filter_key.value_type=='list'">
-            <md-select ng-model="filter.value" multiple md-selected-text="formatFilterValueList()">
-                <md-option ng-repeat="item in value_choices" value="{{item.key}}">{{item.label.translate()}}</md-option>
-            </md-select>
-        </md-input-container> 
+            </md-menu-content>
+        </md-menu>
 
-        <md-input-container ng-show="selected_filter_key.value_type=='text' && value_choices!=null">
-                <md-select ng-model="filter.value">
-                    <md-option ng-repeat="item in value_choices" value="{{item.key}}">{{item.label.translate()}}</md-option>
-                </md-select>
-        </md-input-container>   
     </div>
 
     <div>

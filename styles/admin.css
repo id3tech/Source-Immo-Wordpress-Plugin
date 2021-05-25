@@ -258,11 +258,15 @@ body.wp-admin #si-app note em, body.wp-admin .md-dialog-container note em { font
 
 #si-app #listEdit .list-filters .si-filter-group .filters:last-child > .filter-operator, #si-app #listEdit .list-filters .si-filter-group .subgroups:last-child > .filter-operator { display: none; }
 
-#si-app #listEdit .list-filters .si-filter-group .grid-row { -ms-grid-columns: 1fr 1fr 1fr 50px; grid-template-columns: 1fr 1fr 1fr 50px; grid-gap: 10px; }
+#si-app #listEdit .list-filters .si-filter-group .grid-row { -ms-grid-columns: 1fr 1fr 1fr auto; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; }
 
 #si-app #listEdit .list-filters .si-filter-group .grid-row md-input-container { margin: 0px; }
 
 #si-app #listEdit .list-filters .si-filter-group .grid-row md-input-container .md-errors-spacer { display: none; }
+
+#si-app #listEdit .list-filters .si-filter-group .grid-row .md-select-value { height: 33px; padding: 6px; }
+
+#si-app #listEdit .list-filters .si-filter-group .grid-row .value { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; gap: 0px; }
 
 #si-app #listEdit .list-filters .si-filter-group .grid-row.header { margin-top: 20px; margin-left: 25px; }
 

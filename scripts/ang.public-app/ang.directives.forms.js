@@ -695,9 +695,9 @@ siApp
                 hasValue : "@?"
             },
             link: function($scope,$element,$attr){
-                $scope.init($element);
+                $scope.init();
             },
-            controller: function($scope,$q, $timeout,$siUtils){
+            controller: function($scope,$q, $element, $timeout,$siUtils){
                 $scope._menu_elm = null;
 
                 $scope.$watch('hasValue', function($new, $old){
@@ -709,7 +709,7 @@ siApp
                     }
                 });
 
-                $scope.init = function($element){
+                $scope.init = function(){
                     $scope.$element = $element[0];
 
                     $scope.showButtonIcon = (typeof $scope.showButtonIcon == 'undefined') ? true : $scope.showButtonIcon;
@@ -739,7 +739,9 @@ siApp
                     })
     
                     // Apply button click event handler
-                    angular.element($scope.$element).find('.si-dropdown-button').on('click', $scope.clickHandler);
+                    $element[0].querySelector('.si-dropdown-button').addEventListener('click',$scope.clickHandler);
+
+                    //angular.element($scope.$element).find('.si-dropdown-button').on('click', $scope.clickHandler);
                     
                     // listen to 'close-dropdown' signal to close the menu
                     $scope.$on('close-dropdown', function($event, $source){

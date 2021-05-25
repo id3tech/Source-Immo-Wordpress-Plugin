@@ -438,12 +438,64 @@ siApp
         console.log($scope.type);
         $scope.selected_filter_key = $scope.filter_key_list[$scope.type].find($e => $e.value == $scope.selected_key);
         $scope.updateFilterChoices();
+
+        $scope.$watch('filter.value', function(){
+          $scope.syncValueDisplay();
+        });
       }
 
       $scope.remove = function(){
         if($scope.removeHandler != undefined){
           $scope.removeHandler();
         }
+      }
+
+      $scope.syncValueDisplay = function(){
+        if(isNullOrEmpty($scope.filter.value)){
+          $scope.filter_value = '';
+          return;
+        }
+
+        if(Array.isArray($scope.filter.value)){
+          $scope.filter_value = $scope.filter.value.join(',');
+          return;
+        }
+
+        $scope.filter_value = $scope.filter.value.toString();
+        
+      }
+
+      $scope.updateValue = function(){
+        console.log('updateValue', $scope.f)
+        if(isNullOrEmpty($scope.filter_value)) return;
+
+        const lUpdateProc = {
+          bool : $val => $val == 'true',
+          text: $val => $val,
+          list: $val => $val.split(',')
+        }
+
+        $scope.filter.value = lUpdateProc[$scope.selected_filter_key.value_type]($scope.filter_value);
+      }
+
+      $scope.setValue = function($value){
+        $scope.filter.value = $value;
+        //$scope.filter_value = $value.toString();
+      }
+
+      $scope.toggleValue = function($value){
+
+        if(!Array.isArray($scope.filter.value)) $scope.filter.value = [];
+        console.log('toggleValue', $scope.filter.value, $value);
+
+        const lValueIndex = $scope.filter.value.indexOf($value);
+        if(lValueIndex >=0){
+          $scope.filter.value.splice(lValueIndex,1);
+        }
+        else{
+          $scope.filter.value.push($value);
+        }
+        //$scope.filter_value = $scope.filter.value.join(',');
       }
 
       $scope.filterFieldChanged = function(){

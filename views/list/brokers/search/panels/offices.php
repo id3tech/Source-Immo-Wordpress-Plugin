@@ -9,17 +9,26 @@ $panelKey = 'offices';
     </div>
     
     <div class="filter-panel-content">
-        <div class="filter-list office-list">
         
-            <si-checkbox
-                data-ng-repeat="item in officeList | orderBy: 'name'"
-                data-si-value="{{item.ref_number}}"
-                data-si-change="filter.update()"
-                data-ng-model="filter.data.offices"
-                data-label="{{item.name}}"
-                ></si-checkbox>
-                
+        <div class="filter-list agency-list">
+            <div class="agency-item" ng-repeat="agency in agencyList | orderBy: 'name' track by $index">
+                <label class="agency-name">{{agency.name}}</label>
+
+                <div class="filter-list office-list">
+        
+                    <si-checkbox
+                        data-ng-repeat="item in agency.officeList | orderBy: 'name'"
+                        data-si-value="{{item.ref_number}}"
+                        data-si-change="filter.update()"
+                        data-ng-model="filter.data.offices"
+                        data-label="{{item.name}}"
+                        ></si-checkbox>
+                        
+                </div>
+            </div>
+            
         </div>
+        
     </div>
 
     

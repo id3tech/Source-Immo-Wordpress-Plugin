@@ -374,6 +374,7 @@ siApp
             $scope.query_text = null;
             $scope.alphaList = 'abcdefghijklmnopqrstuvwxyz'.split('');
             $scope.officeList = [];
+            $scope.agencyList = [];
             $scope.priceBoundaries = {
                 min: 0,
                 max: 1000000
@@ -887,7 +888,19 @@ siApp
                                                     },[]);
 
                         $scope.officeList = $results[1] ? $results[1].items : [];
-
+                        $scope.agencyList = $scope.officeList.reduce(
+                           function($result, $cur, $index) {
+                            if($result.some(function ($a){return $a.id == $cur.agency.id})) return $result;
+                            $result.push($cur.agency);
+                            return $result;
+                           },
+                           []
+                        );
+                        $scope.agencyList.forEach(function($agency){
+                            $agency.officeList = $scope.officeList.filter(function($off){
+                                return $off.agency.id == $agency.id;
+                            });
+                        })
                         $rootScope.$broadcast('si/viewMeta:change', $scope.alias, $results[0]);
                     },
                     function($err){
@@ -2323,7 +2336,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
            
             $scope.init();
         },
-        controller: function($scope, $q, $siApi, $rootScope, $siDictionary, $siUtils,$timeout,$siFilters){
+        controller: function($scope, $q, $element, $siApi, $rootScope, $siDictionary, $siUtils,$timeout,$siFilters){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -2552,8 +2565,8 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                 $scope.$emit('si-searchbox-focus');
                 
                 if($scope._suggestion_list_el == null){
-                    $scope._suggestion_list_el =  $scope._el.querySelector('.suggestion-list');
-                    angular.element('body').append($scope._suggestion_list_el);
+                    $scope._suggestion_list_el =  $element[0].querySelector('.suggestion-list');
+                    document.body.append($scope._suggestion_list_el);
                 }
                 
                 $scope.updateSuggestionPanelPosition(true);
@@ -2569,6 +2582,8 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             }
 
             $scope.closeSuggestionPanel = function(){
+                //return;
+
                 if($scope._suggestion_list_el==null)return $q.resolve();
 
                 return $q(function($resolve,$reject){

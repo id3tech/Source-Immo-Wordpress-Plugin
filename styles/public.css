@@ -684,7 +684,7 @@ html { font-size: 14px; }
 
 #top .si .filter-panel .filter-panel-actions, .si .filter-panel .filter-panel-actions { display: none; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; padding: 0.5rem; pointer-events: auto; }
 
-#top .si .filter-panel .filter-panel-content, .si .filter-panel .filter-panel-content { max-height: 0px; opacity: 0; -webkit-transition: 0.05s; transition: 0.05s; pointer-events: none; padding: 0px; }
+#top .si .filter-panel .filter-panel-content, .si .filter-panel .filter-panel-content { max-height: 0px; opacity: 0; -webkit-transition: 0.05s; transition: 0.05s; pointer-events: none; padding: 0px; overscroll-behavior: contain; }
 
 #top .si .filter-panel .filter-panel-content .panel-list .list-item .list-item-title h3, #top .si .filter-panel .filter-panel-content .panel-list .list-item .list-item-title h5, .si .filter-panel .filter-panel-content .panel-list .list-item .list-item-title h3, .si .filter-panel .filter-panel-content .panel-list .list-item .list-item-title h5 { cursor: pointer; margin: 0px; }
 
@@ -917,7 +917,15 @@ html { font-size: 14px; }
 
 @media screen and (max-width: 640px) { #top .si .filter-panel.licenses-panel .license-list, .si .filter-panel.licenses-panel .license-list { -ms-grid-columns: 1fr; grid-template-columns: 1fr; } }
 
-#top .si .filter-panel.offices-panel .office-list, .si .filter-panel.offices-panel .office-list { display: -ms-grid; display: grid; -ms-grid-columns: (minmax(33%, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(33%, 1fr)); gap: 10px; }
+#top .si .filter-panel.offices-panel .agency-list, .si .filter-panel.offices-panel .agency-list { display: -ms-grid; display: grid; -ms-grid-columns: max-content 1fr; grid-template-columns: -webkit-max-content 1fr; grid-template-columns: max-content 1fr; gap: 1rem; place-items: start stretch; }
+
+#top .si .filter-panel.offices-panel .agency-list .agency-item, .si .filter-panel.offices-panel .agency-list .agency-item { display: contents; }
+
+#top .si .filter-panel.offices-panel .agency-list .agency-item .agency-name, .si .filter-panel.offices-panel .agency-list .agency-item .agency-name { padding: 1rem 0; font-size: 1rem; font-weight: 700; opacity: 0.5; text-transform: uppercase; }
+
+@media screen and (max-width: 640px) { #top .si .filter-panel.offices-panel .agency-list, .si .filter-panel.offices-panel .agency-list { -ms-grid-columns: 1fr; grid-template-columns: 1fr; } }
+
+#top .si .filter-panel.offices-panel .office-list, .si .filter-panel.offices-panel .office-list { display: -ms-grid; display: grid; -ms-grid-columns: (minmax(33%, 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(33%, 1fr)); }
 
 @media screen and (max-width: 800px) { #top .si .filter-panel.offices-panel .office-list, .si .filter-panel.offices-panel .office-list { -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; } }
 
