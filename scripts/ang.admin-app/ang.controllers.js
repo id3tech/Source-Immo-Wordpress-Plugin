@@ -226,6 +226,7 @@ siApp
         {name: 'direct', label: 'Server side (no search tool)'}
       ],
       offices: [
+        {name: 'standard', label: 'Client side (default)'},
         {name: 'direct', label: 'Server side (no search tool)'}
       ]
     },
@@ -280,10 +281,11 @@ siApp
       ],
       offices :[
         {name:'name',label: 'Name'},
+        {name:'agency-name',label: 'Agency name'},
         {name:'region', label: 'Region'},
         {name:'listing_count',label:'Listings'},
         {name:'address',label:'Address'},
-        {name:'code',label: 'Code'}
+        {name:'code',label: 'Code'},
       ]
     },
     list_item_image_hover_effects:{
@@ -362,6 +364,7 @@ siApp
       ],
       offices: [
         {name: 'name', label: 'Name'},
+        {name: 'agency.name', label: 'Agency name'},
         {name: 'region', label: 'Region'},
       ]
     }

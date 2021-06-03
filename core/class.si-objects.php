@@ -414,7 +414,7 @@
         }
 
         if(isset($item->available_area) && $item->available_area > 0){
-          $item->important_flags[] = array('icon'=> 'vector-square', 'value'=> $item->available_area . $item->available_area_unit, 'caption' => __('Available area',SI));
+          $item->important_flags[] = array('icon'=> 'vector-square', 'value'=> $item->available_area . ' ' . $item->available_area_unit, 'caption' => __('Available area',SI));
         }
     }
     public function buildProximityFlags(&$item){
@@ -672,10 +672,10 @@
       global $dictionary;
   
       //$item->location = (object) array();
-      $item->listings_count = 0;
+      //$item->listings_count = 0;
       
-      $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : '';
-      $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : '';
+      $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : $item->location->city;
+      $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : $item->location->region;
       $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
       $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
       $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';

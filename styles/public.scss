@@ -1080,11 +1080,29 @@ html{
                 img{text-indent: -1000px;}
             }
 
+            .name{
+                font-size: 1.5em;
+                padding:1em;
+            }
+            .agency-name{
+                text-transform: uppercase;
+            }
+
+            .office-counters{
+                display:flex;
+                flex-direction: row;
+                gap:1em;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.25em;
+                em{
+                    font-style: normal;
+                    font-weight: 700;
+                }
+            }
+
             .si-data-label{
                 text-align:center;
-                &.address{
-                    text-align:left;
-                }
             }
         }
     }
@@ -1192,16 +1210,9 @@ html{
             //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--office-item-column-width) * 0.8), 1fr) );
             // }
             .si-office-item{
-                
-                .name{
-                    font-size: 1.5em;
-                }
                 .address{
-                        display:grid;
-                        grid-template-columns: auto 1fr;
-                        gap: 10px;
-                        i{padding:5px;}
-                    }
+                    text-align:center;
+                }
                 
             }
         }  
@@ -1635,3 +1646,4 @@ html{
 @import "public/_components";
 @import "public/_fixes";
 @import "public/_compatibility";
+@import "public/_components_layout";

@@ -470,9 +470,13 @@ body.wp-admin #si-app note em, body.wp-admin .md-dialog-container note em { font
 
 #si-app #listEdit .list-layout .si-style-editor-preview.cities-preview .list-components .si-element .si-label.name, #si-app #listEdit .list-layout .si-style-editor-preview.offices-preview .list-components .si-element .si-label.name { font-size: 1.5rem; text-transform: uppercase; height: 4em; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; }
 
+#si-app #listEdit .list-layout .si-style-editor-preview.offices-preview { --input-count: 2; }
+
 #si-app #listEdit .list-layout .si-style-editor-preview.offices-preview .list-components .si-element .si-label.address { text-align: left; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; }
 
 #si-app #listEdit .list-layout .si-style-editor-preview.offices-preview .list-components .si-element .si-label.address .fal { padding: 2.5px 5px; }
+
+#si-app #listEdit .list-layout .si-style-editor-preview.offices-preview .list-components .si-element .si-label.office-counters { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 1rem; }
 
 #si-app #listEdit .list-layout .list-components { padding: 0px; }
 

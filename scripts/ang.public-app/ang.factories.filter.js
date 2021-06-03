@@ -62,6 +62,7 @@ function $siFilters($q,$siApi,$siUtils){
                 licenses: [],
                 offices: [],
                 languages: null,
+                agencies: []
             },
             configs : null,
             state_loaded: false
@@ -147,6 +148,7 @@ function $siFilters($q,$siApi,$siUtils){
             letters: { field: 'last_name',operator : 'starts_with' },
             licenses: {field: 'license_type_code', operator: 'in'},
             offices: {field: 'office_ref_number', operator: 'in'},
+            agencies: {field: 'agency.ref_number', operator: 'in'},
             languages: {field:'languages',operator:'array_contains'},
             market_type: {field: 'market_codes', operator: 'array_contains'}
         }

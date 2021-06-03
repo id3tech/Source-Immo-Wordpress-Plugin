@@ -149,7 +149,7 @@ siApp
       case "offices":
         $scope.model = angular.merge($scope.model, {
           list_layout: {
-              preset: 'direct',
+              preset: 'standard',
               scope_class: '',
               custom: null,
               item_row_space: {
@@ -162,7 +162,7 @@ siApp
           list_item_layout : { 
             preset: 'standard', scope_class : '', custom:null,
             displayed_vars: {
-              main:['name','region','listing_count','address']
+              main:['name','agency-name','listing_count','address']
             }
           }
           
@@ -228,6 +228,10 @@ siApp
                 lElement.name = $scope.getCity();
                 lElement.region = $scope.getRegion();
                 lElement.listings_count = $scope.getListingCount();
+                lElement.brokers_count = $scope.getBrokerCount();
+                lElement.agency = {
+                  name: 'Agency'
+                },
                 lElement.location = {
                   street_address : $scope.getAddress(),
                   city: lElement.name,
@@ -468,6 +472,9 @@ siApp
 
     $scope.getListingCount = function(){
         return $scope.getNumber(2, 30);
+    }
+    $scope.getBrokerCount = function(){
+      return $scope.getNumber(2,20);
     }
 
     $scope.getOffice = function(){

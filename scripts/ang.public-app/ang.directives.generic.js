@@ -9,10 +9,10 @@ siApp
     function(){
         return {
             restrict: 'A',
-            scope: true,
+            scope: {},
             link: function($scope, $element, $attrs){
                 
-                $scope.init();
+                //$scope.init();
             },
             controller : function($scope, $element, $rootScope,$timeout,$q){
                 $scope._resizeTimeoutHndl = null;
@@ -20,13 +20,13 @@ siApp
                 $scope._initFailRetry = 0;
 
                 $scope.init = function(){
-                    //console.log('siAdaptativeClass/init')
+                    console.log('siAdaptativeClass/init')
                     $scope.classInit();
                     $scope.addResizeListener();
                 }
 
                 $scope.$on('si/load', function(){
-                    //console.log('siAdaptativeClass@si/load')
+                    console.log('siAdaptativeClass@si/load')
                     $scope.init();
                 });
 
@@ -40,7 +40,7 @@ siApp
                     $scope.updateClass().then(
                         function success(){
                             $scope._class_initiliazed = true;
-                            //console.log('siAdaptativeClass/classInit::updateClassPromise','success to update class');
+                            console.log('siAdaptativeClass/classInit::updateClassPromise','success to update class');
                         },
                         function fail($errorCode){
                             if('#ReferenceElementNoWidth' == $errorCode){
@@ -158,11 +158,13 @@ siApp
                         if(lClass != null){
                             // apply class if found
                             lElm.classList.add(lClass);
-
+                            console.log('siAdaptativeClass/resolve with', lClass);
                             $rootScope.$broadcast('container-resize');
                             $resolve();
                             return;
                         }
+
+                        lElm.classList.add('si-adapt-max-size');
 
                         $reject('#ClassNoFound'); // nothing was done, which could result in some limbo                        
                     })
@@ -877,21 +879,20 @@ siApp
                     '</div>',
         link: function($scope, $element, $attrs){
             //console.log('siTabs link')
-            $scope.init($element);
+            $scope.init();
         },
-        controller: function($scope){
-            $scope._element = null;
+        controller: function($scope,$element){
+            
             $scope.button_elms = [];
             $scope.content_elms = [];
             $scope.selected_tab_index = 0;
 
-            $scope.init = function($element){
-                $scope._element = $element;
-                $scope._button_container = $scope._element.find('.si-tab-button-container');
-                $scope._content_container = $scope._element.find('.si-tab-content-container');
+            $scope.init = function(){
+                $scope._button_container = $element[0].querySelector('.si-tab-button-container');
+                $scope._content_container = $element[0].querySelector('.si-tab-content-container');
 
                 $scope.button_elms.forEach(function($e,$i){
-                    if($i == $scope.selected_tab_index) $e.addClass('active');
+                    if($i == $scope.selected_tab_index) $e.classList.add('active');
                     $scope._button_container.append($e);
                 });
 
@@ -911,10 +912,10 @@ siApp
             $scope.showTab = function($tabContentElementIndex){
                 $scope.button_elms.forEach(function($e,$i){
                     if($i == $tabContentElementIndex){
-                        $e.addClass('active');
+                        $e.classList.add('active');
                     }
                     else{
-                        $e.removeClass('active');
+                        $e.classList.remove('active');
                     }
                 })
 
@@ -925,7 +926,7 @@ siApp
             $scope.tabContentResize = function(){
                 const lContentElm = $scope.content_elms[$scope.selected_tab_index];
                 const lContentHeight = jQuery(lContentElm[0]).height();
-                $scope._content_container.css({height : lContentHeight});
+                jQuery($scope._content_container).css({height : lContentHeight});
             }
         }
     }
@@ -947,8 +948,8 @@ siApp
 
             $scope.init = function($element){
                 $scope._element = $element;
-                $scope._button_elm = $element.find('.si-tab-label');
-                $scope._content_elm = $element.find('.si-tab-content');
+                $scope._button_elm = $element[0].querySelector('.si-tab-label');
+                $scope._content_elm = $element[0].querySelector('.si-tab-content');
 
                 $scope.addTabButton($scope._button_elm);
                 $scope._content_elm._si_tab_index = $scope.addTabContent($scope._content_elm);
@@ -993,22 +994,52 @@ siApp
         link: function($scope, $element, $attrs){
             $scope.init($element, $attrs.siElement);
         },
-        controller: function($scope){
+        controller: function($scope, $timeout){
             $scope.init = function($element, $contentQuery){
                 $scope._element = $element;
                 $scope._element_node = $element[0];
 
                 
                 if($contentQuery != undefined){
-                    const lContent = angular.element($contentQuery);
+                    $timeout(function(){
+                        const lContent = angular.element(document.querySelector($contentQuery));
                 
-                    $scope._element.append(lContent);
+                        $scope._element.append(lContent);
+                    }, 1000)
+                    
                 }
                 
                 $scope.$watch('_element_node.offsetHeight', function($a,$b){
                     $scope.tabContentResize();
                 })
             }
+            
+        }
+    }
+});
+
+
+
+// LAYOUTS
+siApp
+.directive('siFlex', function siFlex(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attr){
+            $element[0].classList.add('si-flex-' + $attr.siFlex);
+        }
+    }
+});
+siApp
+.directive('siFlexAlign', function siFlexAlign(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attr){
+            const lAlignAxis = $attr.siFlexAlign.split(' ');
+            const lAxisName = ['justify','align'];
+            lAlignAxis.forEach(function($e,$i){
+                $element[0].classList.add('si-flex-' + lAxisName[$i] + '-' + $e);
+            });
             
         }
     }

@@ -12,7 +12,7 @@ $panelKey = 'categories';
 
 
             <div class="listing-subcategory panel-list">
-                <h4><?php echo(apply_filters('si_label', __('Home types',SI))) ?></h4>
+                <h4><?php echo(apply_filters('si_label', __('Property types',SI))) ?></h4>
                 
                 <div class="list-container subcategories" ng-if="subcategory_list.length <= 15">
                     <si-checkbox

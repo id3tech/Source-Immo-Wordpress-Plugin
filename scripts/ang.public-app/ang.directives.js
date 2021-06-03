@@ -481,6 +481,8 @@ function siList(){
                         lOrigin = 'broker';break;
                     case 'cities':
                         lOrigin = 'city';break;
+                    case 'offices':
+                        lOrigin = 'office';break;
                 }
                 const lViewId = $scope.configs.current_view;
                 return lOrigin.concat('/view/',lViewId,'/',siApiSettings.locale);

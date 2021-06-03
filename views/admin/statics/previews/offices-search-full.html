@@ -1,0 +1,24 @@
+<div class="si-search-engine si-type-search-of-offices si-focus-type-{{model.search_engine_options.type}}">
+   
+    <div class="inputs">
+        <div class="search-box">
+            <input placeholder="{{model.search_engine_options.search_box_placeholder  | translate}}" />
+        </div>
+
+        <div class="panel">
+            <lstr>Agencies</lstr>
+        </div>
+
+        <div class="panel">
+            <lstr>More</lstr>
+        </div>
+    </div>
+
+    <div class="si-filter-tags {{model.search_engine_options.filter_tags}}" ng-if="model.search_engine_options.filter_tags!='none'">
+        <div class="tag-list">
+            <div class="tag-item"><lstr>Min - $250 000</lstr> <i class="fal fa-times"></i></div>
+            <div class="tag-item"><lstr>Montréal</lstr> <i class="fal fa-times"></i></div>
+            <div class="tag-item"><lstr>Fireplace</lstr> <i class="fal fa-times"></i></div>
+        </div>
+    </div>
+</div>

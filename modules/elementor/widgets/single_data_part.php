@@ -68,6 +68,16 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'office' => __('Office', SI),
                 'listings' => __('Broker listings', SI),
                 'reviews' => __('Comments', SI),
+            ],
+            'office' => [
+                'name' => __('Name', SI),
+                'agency_name' => __('Agency name', SI),
+                'tabs' => __('Tabs', SI),
+                'address' => __('Address', SI),
+                'contact' => __('Contact', SI),
+                'picture' => __('Picture', SI),
+                'brokers' => __('Office brokers', SI),
+                'listings' => __('Office listings', SI),
             ]
         ];
 
@@ -80,7 +90,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'options' => [
                     'listing' => __('Listing', SI),
                     'broker' => __('Broker', SI),
-                    //'office' => __('Office', SI)
+                    'office' => __('Office', SI)
                 ],
                 'default' => 'listing'
             ]

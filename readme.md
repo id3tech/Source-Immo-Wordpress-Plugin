@@ -1,4 +1,4 @@
-# Version 1.2.08
+# Version 1.2.09
 
 
 ### Intuitive admin interface
@@ -65,6 +65,17 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.09
+* Updated office support
+** Search engine
+** Client side rendering
+** Display listings and agents count for office in list
+** Support for Elementor
+* Fixed visual bug in print front-page where area unit was close to the value
+* Changed labels
+** Home types for Property types
+
+
 Version 1.2.08
 * Public
 ** Fix dropdown menu

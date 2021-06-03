@@ -480,7 +480,7 @@ siApp
 
       $scope.setValue = function($value){
         $scope.filter.value = $value;
-        //$scope.filter_value = $value.toString();
+        $scope.filter_value = $value.toString();
       }
 
       $scope.toggleValue = function($value){
@@ -495,7 +495,7 @@ siApp
         else{
           $scope.filter.value.push($value);
         }
-        //$scope.filter_value = $scope.filter.value.join(',');
+        $scope.filter_value = $scope.filter.value.join(',');
       }
 
       $scope.filterFieldChanged = function(){

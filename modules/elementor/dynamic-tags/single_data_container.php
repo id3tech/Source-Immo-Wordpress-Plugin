@@ -26,7 +26,8 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
                 'default' => 'Listing',
                 'options' => [
                     'Listing' => __( 'Listing', SI ),
-                    'Broker' => __( 'Broker', SI)
+                    'Broker' => __( 'Broker', SI),
+                    'Office' => __( 'Office', SI)
                 ],
             ]
         );

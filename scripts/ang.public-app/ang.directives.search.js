@@ -864,15 +864,24 @@ siApp
             $scope.loadViewMeta = function($view_id, $type){
                 //console.log('Loading view meta');
 
-                // load view meta
+                // load office view meta
                 const fnOffices = function(){
                     if($type != 'brokers') return $q.resolve();
                     return $siApi.call('office/view/' + $view_id + '/fr/items')
                 }
 
+                // load agency view meta
+                const fnAgencies = function(){
+                    if(!['brokers','offices'].includes($type)) return $q.resolve();
+                    return $siApi.call('agency/view/' + $view_id + '/fr/items').then( function($agencies){
+                        return $agencies.items;
+                    })
+                }
+
                 return $q.all([
                     $siApi.getViewMeta($type,$view_id),
-                    fnOffices() 
+                    fnOffices(),
+                    fnAgencies()
                 ])
                 .then(
                     function($results){
@@ -888,14 +897,8 @@ siApp
                                                     },[]);
 
                         $scope.officeList = $results[1] ? $results[1].items : [];
-                        $scope.agencyList = $scope.officeList.reduce(
-                           function($result, $cur, $index) {
-                            if($result.some(function ($a){return $a.id == $cur.agency.id})) return $result;
-                            $result.push($cur.agency);
-                            return $result;
-                           },
-                           []
-                        );
+
+                        $scope.agencyList = $results[2] ? $results[2] : [];
                         $scope.agencyList.forEach(function($agency){
                             $agency.officeList = $scope.officeList.filter(function($off){
                                 return $off.agency.id == $agency.id;
@@ -1614,6 +1617,15 @@ siApp
                                 })
                             
                             return lEffectiveInputs.length;
+                        }
+                    },
+                    'offices' : {
+                        default: 1,
+                        potentialInputs: function(){
+                            return ['agencies']
+                                .filter(function($panelName){
+                                    return $scope.allowPanel($panelName);
+                                }).length + 1;
                         }
                     }
                 }

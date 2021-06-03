@@ -1,12 +1,14 @@
 <div class="name si-label si-background-high-contrast" ng-show="previewLayerHasVar('name')">{{item.name}}</div>
-<div class="region si-label si-background-medium-contrast" ng-show="previewLayerHasVar('region')">{{item.region}}</div>
+<div class="region si-label si-background-medium-contrast" ng-show="previewLayerHasVar('agency-name')">{{item.agency.name}}</div>
 <div class="address si-label " ng-show="previewLayerHasVar('address')">
-    
-    <i class="fal fa-map-marker-alt"></i>
     <div class="info-content">
         <div itemprop="streetAddress">{{item.location.street_address}}</div> 
         <span itemprop="city">{{item.location.city}}</span>, <span>{{item.location.state}}</span>, <span>{{item.location.postal_code}}</span>
     </div>
     
 </div>
-<div class="listings-count si-label si-background-small-contrast" ng-show="previewLayerHasVar('listing_count')">{{item.listings_count}} {{(item.listings_count>1 ? 'listings' : 'listing').translate()}}</div>
+
+<div class="si-label office-counters  si-background-small-contrast"  ng-show="previewLayerHasVar('listing_count')">
+    <div><i class="fal fa-home"></i> <em>{{item.listings_count}}</em></div>
+    <div ng-if="item.brokers_count>0"><i class="fal fa-user-tie"></i> <em>{{item.brokers_count}}</em></div>
+</div>

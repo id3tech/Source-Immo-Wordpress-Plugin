@@ -40,7 +40,8 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 
         $aliasList = [
             'listings'   => [],
-            'brokers'    => []
+            'brokers'    => [],
+            'offices'    => []
         ];
         foreach ($siConfigs->lists as $list) {
             if(isset($aliasList[$list->type])){
@@ -56,7 +57,8 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
                 'placeholder' => '',
                 'options' => [
                     'listings' => __('Listing', SI),
-                    'brokers' => __('Broker', SI)
+                    'brokers' => __('Broker', SI),
+                    'offices' => __('Office', SI)
                 ],
                 'default' => 'listings'
             ]

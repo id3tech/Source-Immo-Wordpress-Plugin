@@ -402,6 +402,11 @@ $locales.fr = {};$locales.fr.global =
     , "Flags" : "Indicateurs"
     , "Open houses" : "Visites libres"
     , "Region" : "Région"
+
+    // Office item values
+    , "Agencies" : "Agences"
+    , "Agency name" : "Nom de l'agence"
+    , "Agency" : "Agence"
     
 
     // Routes
@@ -473,6 +478,7 @@ $locales.fr = {};$locales.fr.global =
     , "Search a name, region, city" : "Recherchez par nom, région, ville"
     , "Search by first or last name" : "Recherchez par prénom ou nom"
     , "Home types" : "Types de propriétés"
+    , "Property types" : "Types de propriétés"
     , "Types" : "Types"
     , "Near me" : "Près de moi"
     , "Price" : "Prix"
@@ -546,7 +552,7 @@ $locales.fr = {};$locales.fr.global =
     , "Water front" : "Bord de l'eau"
     , "Panoramic view" : "Vue panoramique"
     , "Caracteristics" : "Caractéristiques"
-    , "Building types" : "Types de bâtiment"
+    , "Building types" : "Types de bâtiments"
     , "Parkings" : "Stationnements"
     , "With virtual tour" : "Avec visite virtuelle"
     , "With video" : "Avec vidéo"

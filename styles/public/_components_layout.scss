@@ -1,0 +1,52 @@
+
+// FLEX LAYOUTS
+.si-flex-row{
+    display:flex;
+    flex-direction: row;
+    gap: var(--flex-gap, var(--layout-gutter));
+}
+
+.si-flex-column{
+    display:flex;
+    flex-direction: column;
+    gap: var(--flex-gap, var(--layout-gutter));
+}
+
+.si-flex-align-start{
+    align-items: flex-start;
+}
+.si-flex-align-end{
+    align-items: flex-end;
+}
+.si-flex-align-center{
+    align-items: center;
+}
+.si-flex-align-space-between{
+    align-items: space-between;
+}
+.si-flex-align-start{
+    align-items: space-around;
+}
+.si-flex-align-stretch{
+    align-items: stretch;
+}
+
+
+.si-flex-justify-start{
+    justify-content: flex-start;
+}
+.si-flex-justify-end{
+    justify-content: flex-end;
+}
+.si-flex-justify-center{
+    justify-content: center;
+}
+.si-flex-justify-space-between{
+    justify-content: space-between;
+}
+.si-flex-justify-start{
+    justify-content: space-around;
+}
+.si-flex-justify-stretch{
+    justify-content: stretch;
+}

@@ -449,7 +449,9 @@ class SiShorcodes{
         // Extract attributes to local variables
         extract( shortcode_atts(
             array(
-                'part' => ''
+                'part' => '',
+                'class' => '',
+                'align' => 'align-stretch',
             ), $atts )
         );
 
@@ -462,7 +464,11 @@ class SiShorcodes{
 
             $lResult = ob_get_clean();
         }
-        
+
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+
+        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';        
         return $lResult;
     }
 

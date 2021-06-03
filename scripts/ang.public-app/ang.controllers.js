@@ -918,7 +918,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
  */
 siApp
 .controller('singleOfficeCtrl', 
-function singleOfficeCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siHooks){
+function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks){
 
     // model data container - office
     $scope.model = null;
@@ -927,11 +927,27 @@ function singleOfficeCtrl($scope,$q,$siApi, $siDictionary, $siUtils,$siConfig,$s
      * Initialize controller
      * @param {string} $ref_number broker reference key
      */
-    $scope.init = function($ref_number){
+    $scope.init = function($ref_number,$add_loading_text, $loading_text){
+        if($add_loading_text){
+            const lLoadingTextElement = document.createElement('div');
+            lLoadingTextElement.classList.add('si');
+            lLoadingTextElement.classList.add('broker-single');
+            lLoadingTextElement.innerHTML = '<label class="placeholder">' + $loading_text + ' <i class="fal fa-spinner fa-spin"></i></label>';
+            $element[0].parentElement.append(lLoadingTextElement);
+            $scope.$loadingElement = lLoadingTextElement;
+        }
+
+
         if($ref_number != undefined){
             //console.log($ref_number);
             $scope.fetchPrerequisites().then(function(){
                 $scope.loadSingleData($ref_number);
+            })
+            .then(function(){
+                if($scope.$loadingElement === undefined) return;
+                $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
+
+                $element[0].style.removeProperty('display');
             });
             
         }
