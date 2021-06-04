@@ -1,4 +1,4 @@
-# Version 1.2.09
+# Version 1.2.11
 
 
 ### Intuitive admin interface
@@ -12,20 +12,56 @@
 Use views to add tabs to the search engine from views you've created
 You can also select which field are searchable
 
-### List item changes
-
+### List item
 * Selective data to display
 * New double layer mode with hover effect (fade, slide, flip)
 * Single layer mode now shows the pictures of the property on hover
 * Server side renders for broker list
 
+### Listing informations
+Complete informations about a real estate listing 
+* Mediabox display
+** Photo gallery
+** Video promotion
+** VR visit
+** Map
+** Street view
+*Address, description and price
+*Proximity features
+*Addenda
+*Lot and building features
+*Room details
+*Mortgage calculator
+*Neighborhood widget (with Local Logic)
+*Navigation of search results
+*Printable version
+
 ### Agent informations
-New informations are available for agent (limited)
+Complete informations about a real estate agent
 * Spoken language(s)
 * Experience
 * Protection(s) for sellers or buyers offered by the agent
+* Listings
 * Rating
 * Comments
+
+### Office informations
+Complete informations about a real estate office
+* Name, address
+* Listings
+* Agents
+[] Rating
+[] Comments
+
+### Agency informations
+Complete informations about a real estate agency
+* Name, address
+* Listings
+* Agents
+* Offices
+[] Rating
+[] Comments
+
 
 ### Addons support
 Addons are now supported and will be add periodically.

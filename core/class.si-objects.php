@@ -692,6 +692,38 @@
     }
   }
   
+  class SourceImmoAgenciesResult extends SourceImmoAbstractResult {
+    public $agencies = null;
+    public $metadata = null;
+  
+    public function __construct($data=null){
+      
+      if($data!=null){
+        $this->agencies = $data->items;
+        $this->metadata = $data->metadata;
+        //Debug::write($this->cities);
+  
+        foreach ($this->agencies as $item) {
+          $this->preprocess_item($item);
+        }
+        
+        self::validatePagePermalinks($this->agencies, 'agency');
+      }
+      
+    }
+  
+    public function preprocess_item(&$item){
+      global $dictionary;
+  
+      //$item->location = (object) array();
+      //$item->listings_count = 0;
+      $item->franchisor = isset($item->franchisor_code) ? $dictionary->getCaption($item->franchisor_code , 'franchisor') : $item->franchisor;
+      
+  
+      $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_agency_permalink());
+    }
+  }
+
   class SourceImmoAbstractResult{
   
     public static function getAttributeValueList($item, $prefix=null){
@@ -1185,7 +1217,8 @@ class SourceImmoRoute{
         'listings' => array('address','city','region','price','ref_number','category','rooms','subcategory','available_area','description'),
         'brokers' => array('first_name','last_name','license','phone'),
         'cities' => array('name','region','listing_count'),
-        'offices' => array('name','region','address','listing_count'),
+        'offices' => array('name','region','address','listings_count','brokers_count'),
+        'agencies' => array('name','listings_count','brokers_count','offices_count')
       );
   
       $this->list_item_layout->normalizeValues($lTypedPaths[$this->type]);
@@ -1200,7 +1233,8 @@ class SourceImmoRoute{
         'listings' => 'listing',
         'cities' => 'location/city',
         'brokers' => 'broker',
-        'offices' => 'office'
+        'offices' => 'office',
+        'agencies' => 'agency'
       );
       return "{$lTypedPaths[$this->type]}/view";
     }
@@ -1265,6 +1299,12 @@ class SourceImmoRoute{
           break;
         case 'brokers':
           $this->fields = array('searchbox','letters','licenses','offices');
+          break;
+        case 'offices':
+          $this->fields = array('searchbox','agencies');
+          break;
+        case 'agencies':
+          $this->fields = array('searchbox');
           break;
       }
     }

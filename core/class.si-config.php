@@ -122,12 +122,19 @@ class SourceImmoConfig {
   */
   public $office_routes = array();
 
+  /**
+  * Agency details route path configuration
+  * @var ArraySourceImmoRoute
+  */
+  public $agency_routes = array();
+
   public $default_view = null;
 
   public $listing_layouts   = array();
   public $city_layouts      = array();
   public $office_layouts    = array();
   public $broker_layouts    = array();
+  public $agency_layouts    = array();
 
   public $enable_custom_page = false;
 
@@ -172,8 +179,12 @@ class SourceImmoConfig {
       new SourceImmoRoute('en', 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','city/{{item.ref_number}}/'),
     );
     $this->office_routes  = array(
-      new SourceImmoRoute('fr', 'bureaux/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','bureau/{{item.ref_number}}/'),
-      new SourceImmoRoute('en', 'office/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/','office/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'bureaux/{{item.name}}/{{item.ref_number}}/','bureau/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'office/{{item.name}}/{{item.ref_number}}/','office/{{item.ref_number}}/'),
+    );
+    $this->agency_routes  = array(
+      new SourceImmoRoute('fr', 'agence/{{item.name}}/{{item.ref_number}}/','agence/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'agency/{{item.name}}/{{item.ref_number}}/','agency/{{item.ref_number}}/'),
     );
 
     // init layouts
@@ -193,6 +204,10 @@ class SourceImmoConfig {
       //new SourceImmoLayout('fr','standard'),
       //new SourceImmoLayout('en','standard')
     );
+    $this->agency_layouts = array(
+      //new SourceImmoLayout('fr','standard'),
+      //new SourceImmoLayout('en','standard')
+    );
 
     $listingList = new SourceImmoList('','listings','listings','contract_start_date');
     $listingList->sort_reverse = true;
@@ -201,9 +216,10 @@ class SourceImmoConfig {
     $brokerList   = new SourceImmoList('','brokers','brokers','last_name');
     $cityList     = new SourceImmoList('','cities','cities','name');
     $officeList   = new SourceImmoList('','offices','offices','name');
+    $agencyList   = new SourceImmoList('','agencies','agencies','name');
     
     $this->lists = array(
-      $listingList,$brokerList,$cityList,$officeList
+      $listingList,$brokerList,$cityList,$officeList,$agencyList
     );
   }
 
@@ -422,6 +438,8 @@ class SourceImmoConfig {
     $this->normalizeRouteGroup($this->listing_routes, $structureEndsWithSlash);
     $this->normalizeRouteGroup($this->broker_routes, $structureEndsWithSlash);
     $this->normalizeRouteGroup($this->city_routes, $structureEndsWithSlash);
+    $this->normalizeRouteGroup($this->office_routes, $structureEndsWithSlash);
+    $this->normalizeRouteGroup($this->agency_routes, $structureEndsWithSlash);
   }
 
   public function normalizeRouteGroup($group, $structureEndsWithSlash){

@@ -207,6 +207,21 @@ class SourceImmo {
     return $lResult;
   }
 
+  public function get_agency_permalink($locale=null){
+    if($locale==null){
+      $locale = si_get_locale();
+    }
+
+    $lResult = $this->configs->agency_routes[0]->route;
+    foreach($this->configs->agency_routes as $item){
+      if($item->lang == $locale){
+        $lResult = $item->route;
+      }
+    }
+
+    return $lResult;
+  }
+
   /**
    * @param string $type Type of the layout
    */

@@ -52,6 +52,26 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                             'office.name' => __('Office name', SI),
                             'office.location.full_address' => __('Office address', SI)
                         ]
+                    ],
+                    [
+                        'label' => __('Office', SI),
+                        'options' => [
+                            'ref_number' => __( 'Reference number', SI ),
+                            'name' => __( 'Name', SI ),
+                            'agency.name' => __( 'Agency name', SI ),
+                            'email' => __('Email', SI),
+                            'main_phone' => __('Phone', SI),
+                            'location.address' => __('Address', SI)
+                        ]
+                    ],
+                    [
+                        'label' => __('Agency', SI),
+                        'options' => [
+                            'ref_number' => __( 'Reference number', SI ),
+                            'name' => __( 'Name', SI ),
+                            'license' => __( 'License', SI ),
+                            'franchisor' => __('Franchisor', SI)
+                        ]
                     ]
                 ]
             ]
