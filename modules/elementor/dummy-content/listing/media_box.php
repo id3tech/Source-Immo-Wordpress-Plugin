@@ -1,4 +1,4 @@
-<div class="medias select-pictures picture-list-grid" si-model="model" si-picture-list-as="grid">
+<div class="si-mediabox medias select-pictures picture-list-grid" si-model="model" si-picture-list-as="grid">
             <div class="tabs">
                 <span class="tab pictures selected">
                     <i class="fal fa-camera"></i> <span class="ng-binding">Photos (17)</span></span>

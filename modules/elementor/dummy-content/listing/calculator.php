@@ -74,14 +74,13 @@
                     </div>
 
                     <div class="result">
-                        <div class="mortgage">
-                            <label>Estimation de l'hypothèque</label>
-                            <div class="value ng-binding"><em class="ng-binding">591.96 $</em>aux 2 semaines</div>
-                        </div>
-                        <div class="transfer-taxes">
+                        <label>Estimation de l'hypothèque</label>
+                        <div class="value ng-binding"><em class="ng-binding">591.96 $</em>aux 2 semaines</div>
+                        
+                        
                             <label>Taxes de mutation</label>
                             <div class="value"><em class="ng-binding">3 559 $*</em></div>
-                            <div class="notice">*Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact.</div>
-                        </div>
+                           <div class="notice">*Ce montant est affiché à titre indicatif seulement. Le calcul de la taxe de mutation est effectué selon les calculs de base en vigueur de façon générale au Québec. Ce montant peut varier selon la ville. Consultez votre courtier immobilier pour obtenir le montant exact.</div>
+                        
                     </div>
                 </div>

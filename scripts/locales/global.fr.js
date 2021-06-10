@@ -275,6 +275,7 @@ $locales.fr = {};$locales.fr.global =
     , "Broker details" : "Détails de courtier"
     , "Office details" : "Détails de bureau"
     , "City details" : "Détails de ville"
+    , "Agency details" : "Détails de l'agence"
 
     // Lists label
     , "New {0} list" : "Nouvelle liste {0}"
@@ -457,6 +458,7 @@ $locales.fr = {};$locales.fr.global =
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"
     , "Filter by" : "Filtrez par"
+    , "Filter list with keywords" : "Filtrez la liste par mots-clés"
     , "Toggle proximity search" : "Basculer la recherche de proximité"
     , "Reset filters" : "Effacer les filtres"
     , "{0}+ bedrooms" : "{0}+ chambres"
@@ -719,7 +721,11 @@ $locales.fr = {};$locales.fr.global =
     
     // PUBLIC - SINGLE CITY
     , "Listings in {0}" : "Propriétés de {0}"
+    // PUBLIC - SINGLE AGENCY
+    , "Loading agency" : "Chargement de l'agence"
+    , "Our offices" : "Nos bureaux"
     // PUBLIC - SINGLE OFFICE
+    , "Loading office" : "Chargement du bureau"
     , "Our listings" : "Nos propriétés"
     , "Our team" : "Notre équipe"
     , "To contact this office" : "Pour joindre ce bureau"

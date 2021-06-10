@@ -180,11 +180,11 @@ class SourceImmoConfig {
     );
     $this->office_routes  = array(
       new SourceImmoRoute('fr', 'bureaux/{{item.name}}/{{item.ref_number}}/','bureau/{{item.ref_number}}/'),
-      new SourceImmoRoute('en', 'office/{{item.name}}/{{item.ref_number}}/','office/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'offices/{{item.name}}/{{item.ref_number}}/','office/{{item.ref_number}}/'),
     );
     $this->agency_routes  = array(
-      new SourceImmoRoute('fr', 'agence/{{item.name}}/{{item.ref_number}}/','agence/{{item.ref_number}}/'),
-      new SourceImmoRoute('en', 'agency/{{item.name}}/{{item.ref_number}}/','agency/{{item.ref_number}}/'),
+      new SourceImmoRoute('fr', 'agences/{{item.name}}/{{item.ref_number}}/','agence/{{item.ref_number}}/'),
+      new SourceImmoRoute('en', 'agencies/{{item.name}}/{{item.ref_number}}/','agency/{{item.ref_number}}/'),
     );
 
     // init layouts

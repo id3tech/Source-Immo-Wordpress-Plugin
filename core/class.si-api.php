@@ -600,10 +600,13 @@ class SourceImmoApi {
       $view_id = si_view_id(SourceImmo::current()->configs->default_view);  
     }
 
+    $id = trim($id, '/');
     
+
     $lResult = HttpCall::to('~', $type, 'view',$view_id,$lTwoLetterLocale,'items/ref_number',$id)
                   ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                   ->get();
+    
     
     return $lResult;
   }
@@ -632,7 +635,7 @@ class SourceImmoApi {
   
 
   /**
-   * Get the listing data
+   * Get the city data
    * @param id          String identifier for the city
    */
   public static function get_city_data($id){
@@ -655,7 +658,7 @@ class SourceImmoApi {
   }
 
   /**
-   * Get the listing data
+   * Get the office data
    * @param id          String identifier for the city
    */
   public static function get_office_data($id){
@@ -664,6 +667,15 @@ class SourceImmoApi {
     return $lResult;
   }
 
+  /**
+   * Get the agency data
+   * @param id          String identifier for the city
+   */
+  public static function get_agency_data($id){
+    $lResult = self::get_data_of('agency',$id);
+    
+    return $lResult;
+  }
 
   /**
    * Get the listings data for a particular City

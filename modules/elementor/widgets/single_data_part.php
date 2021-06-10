@@ -78,6 +78,16 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'picture' => __('Picture', SI),
                 'brokers' => __('Office brokers', SI),
                 'listings' => __('Office listings', SI),
+            ],
+            'agency' => [
+                'name' => __('Name', SI),
+                'license' => __('License type', SI),
+                'tabs' => __('Tabs', SI),
+                'address' => __('Address', SI),
+                'contact' => __('Contact', SI),
+                'brokers' => __('Agency brokers', SI),
+                'offices' => __('Agency offices', SI),
+                'listings' => __('Agency listings', SI),
             ]
         ];
 
@@ -90,7 +100,8 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'options' => [
                     'listing' => __('Listing', SI),
                     'broker' => __('Broker', SI),
-                    'office' => __('Office', SI)
+                    'office' => __('Office', SI),
+                    'agency' => __('Agency', SI)
                 ],
                 'default' => 'listing'
             ]
@@ -142,6 +153,23 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 ],
                 'default' => ''
             ]
+        );
+
+        $this->add_responsive_control(
+			'layout_mode',
+			[
+				'label' => __( 'Layout mode' ),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'devices' => [ 'desktop', 'tablet', 'mobile'],
+                'default' => ['list-layout-mode-grid'],
+                'options' => [
+                    'list-layout-mode-grid' => __('Grid', SI),
+                    'list-layout-mode-flex' => __('Flex', SI),
+                ],
+                'condition' => [
+                    'content_part_agency' => 'offices'
+                ]
+			]
         );
 
         $this->add_responsive_control(
@@ -365,6 +393,15 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             }
         }
 
+        if($contentPart == 'offices'){
+            $layoutMode = [];
+            if (isset($settings['layout_mode'])) $layoutMode[] = $settings['layout_mode'];
+            if (isset($settings['layout_mode_tablet'])) $layoutMode[] = $settings['layout_mode_tablet'] . '-tablet';
+            if (isset($settings['layout_mode_mobile'])) $layoutMode[] = $settings['layout_mode_mobile'] . '-phone';
+
+            $partClasses[] = implode(' ',$layoutMode);
+        }
+
         if($contentPart == 'data_accordeon'){
             $contentAllowToggle = [];
             $allowToggleMaps = [
@@ -406,6 +443,8 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             }
         }
 
+        $shortcode_attrs[] = 'class="' . implode(' ', $partClasses) . '"';
+
         $shortcode = '[si_'. $contentType . '_part ' . implode(' ', $shortcode_attrs) . ']';
         $shortcode_result = do_shortcode(shortcode_unautop($shortcode));
         
@@ -443,6 +482,15 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             'si-part-' . $contentPart,
             implode(' ', $contentAlign)
         ];
+
+        if($contentPart == 'offices'){
+            $layoutMode = [];
+            if (isset($settings['layout_mode'])) $layoutMode[] = $settings['layout_mode'];
+            if (isset($settings['layout_mode_tablet'])) $layoutMode[] = $settings['layout_mode_tablet'] . '-tablet';
+            if (isset($settings['layout_mode_mobile'])) $layoutMode[] = $settings['layout_mode_mobile'] . '-phone';
+
+            $partClasses[] = implode(' ',$layoutMode);
+        }
 
         if($contentPart == 'media_box'){
             $heightMaps = [

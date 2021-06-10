@@ -1,5 +1,5 @@
 <?php
-$pageBuilder = new SourceImmoPageBuilder('office');
+$pageBuilder = new SourceImmoPageBuilder('agency');
 
 
 $pageBuilder->start_page();

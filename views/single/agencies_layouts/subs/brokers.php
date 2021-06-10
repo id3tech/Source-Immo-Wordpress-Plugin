@@ -1,2 +1,2 @@
 <?php 
-echo do_shortcode('[si_office_brokers]');
+echo do_shortcode('[si_agency_brokers]');

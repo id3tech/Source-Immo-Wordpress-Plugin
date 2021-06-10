@@ -69,8 +69,7 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                         'options' => [
                             'ref_number' => __( 'Reference number', SI ),
                             'name' => __( 'Name', SI ),
-                            'license' => __( 'License', SI ),
-                            'franchisor' => __('Franchisor', SI)
+                            'license' => __( 'License', SI )
                         ]
                     ]
                 ]

@@ -666,7 +666,12 @@ siApp
                         'region': 'regions'
                     }
                     const lDataProp = lTypeMap[$item.type];
+                    if(lDataProp == undefined) return;
+
                     $timeout(function(){
+                        // if($scope.filter.data[lDataProp] == undefined) {
+                        //     console.log(lDataProp, 'is not defined in filter.data');
+                        // }
                         $scope.filter.data[lDataProp].push($item.ref_number);
                         if($item.type == 'region'){
                             $scope.filter.sublistClearFilters($item.ref_number, $scope.city_list, $scope.filter.data.cities);
@@ -1627,6 +1632,15 @@ siApp
                                     return $scope.allowPanel($panelName);
                                 }).length + 1;
                         }
+                    },
+                    'agencies' : {
+                        default: 1,
+                        potentialInputs: function(){
+                            return ['agencies']
+                                .filter(function($panelName){
+                                    return $scope.allowPanel($panelName);
+                                }).length + 1;
+                        }
                     }
                 }
                 return lValueMap[$scope.configs.type].potentialInputs() || lValueMap[$scope.configs.type].default;
@@ -2521,15 +2535,32 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
                     if($scope.stored_suggestions == null || $scope.stored_suggestions.length==0 || $scope.stored_suggestions.length >= lSUGGESTION_COUNT_LIMIT){
                         $scope._buildSuggestionsDebounceHndl = window.setTimeout(function(){
+
+                            
+
                             if($filter.data.keyword !=''){
                                 // Get quick search items
                                 $scope.getConfigs().then(function($configs){
-                                    let lType = '';
+                                    
+                                    
+
+                                    const lQueryParams = {
+                                        q: $filter.data.keyword,
+                                        c: lSUGGESTION_COUNT_LIMIT
+                                    };
+
                                     if(typeof $scope.$parent.getListType == 'function'){
-                                        lType = $scope.$parent.getListType();
-                                        lType = (lType == 'listings') ? 'listing-city-region' : lType.replace('s','');
+                                        const lType = $scope.$parent.getListType();
+                                        const lTypeHash = {
+                                            'listings' : 'listing-city-region',
+                                            'brokers' : 'broker',
+                                            'offices' : 'office',
+                                            'agencies' : 'agency'
+                                        }
+                                        lQueryParams.t = (lTypeHash[lType] != undefined) ? lTypeHash[lType] : lType;
                                     }
-                                    $siApi.api($scope.getEndpoint(),{q: $filter.data.keyword, t: lType, c: lSUGGESTION_COUNT_LIMIT},{method: 'GET'}).then(function($qsItems){
+                                    
+                                    $siApi.api($scope.getEndpoint(),lQueryParams,{method: 'GET'}).then(function($qsItems){
                                         // add extra in caption
                                         $qsItems.forEach(function($e){
                                             if(typeof $e.context != 'undefined'){
@@ -2910,7 +2941,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
 
             $scope.openItem = function($item){
                 // When selected item is a listing or a broker, open the page directly
-                if(['listing','broker'].includes($item.type)){        
+                if(['listing','broker','office','agency'].includes($item.type)){        
                     const lInput = angular.element($scope._el).find('input');
                     lInput.val('');
                     lInput.attr('placeholder','Opening...'.translate())
@@ -2919,7 +2950,15 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         let lShortcut = $scope.getItemLinkShortcut($item.type,$global_configs);
                         let lPath = lShortcut.replace('{{item.ref_number}}',$item.ref_number);
                         //console.log('Open item @', lPath);
-                        window.location = '/' + lPath;
+
+                        const lViewId = ($scope.configs.current_view != undefined)
+                                            ? $scope.configs.current_view
+                                            : $scope.configs.source.id;
+                        const lViewQuery = ($global_configs.default_view != lViewId) ? '?view=' + lViewId : '';
+
+                        //console.log('openItem', lViewId, $global_configs.default_view);
+
+                        window.location = '/' + lPath + lViewQuery;
                     });
                     return;
                 }

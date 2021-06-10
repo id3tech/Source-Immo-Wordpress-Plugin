@@ -1079,7 +1079,7 @@ html, body{ scroll-behavior: smooth;}
 
         .si-listing-navigation{
             @include media-gt($laptop){
-                grid-column: 1 / span 2;
+                grid-column: 1 / -1;
             }
         }
 
@@ -1673,6 +1673,167 @@ html, body{ scroll-behavior: smooth;}
             }
         }
 
+        &.loaded{
+            .si-content{
+                display:grid;
+            }
+            .si-custom-content{
+                display:block;
+            }
+        }
+    }
+
+    // ---------------
+    // Agency
+    // ---------------
+    &.agency-single{
+        min-height:50vh;
+        
+        label.placeholder{
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+        }
+        .si-custom-content, .si-content{display:none;}
+        .si-content{
+            
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            place-items: start stretch;
+            gap: var(--layout-gutter);
+
+            label.placeholder{
+                padding:20px 0;
+                opacity:0.5;
+                text-transform:uppercase;
+            }           
+        }
+
+        .head{
+            // grid-column: 2;
+            // grid-row: 1;
+            // @include media($phone){
+            //     grid-column: 1 / span 3;
+            //     grid-row:unset;
+            // }
+            .name{margin-bottom:0px;}
+            
+        }
+
+        .bio{
+            grid-column: 1 / -1;
+            column-count: 2;
+            column-gap: 1rem;
+            @include media($phone){
+                grid-row:unset;
+                column-count: 1;
+            }
+            
+            .button{display:none;}
+            p:first-child{margin-top:0px;}
+            &.long{
+                .text{
+                    max-height:calc(4 * 1.55em);
+                    transition:0.25s;
+                    overflow:hidden;
+                }
+                &.expanded{
+                    .text{
+                        max-height:2000px;
+                    }
+                }
+                .button{display:initial;}
+            }
+        }
+
+        .main-office-address{
+            display:grid;
+            grid-template-columns: auto 1fr;
+            i.fa-map-marker-alt{padding:5px;}    
+        }
+
+        .picture{
+            grid-column: 1;
+            grid-row: 1;
+            max-width:250px;
+            border-bottom: solid 25px #ccc;
+            display:none;
+            @include media($phone){
+                grid-column: 1 / span 3;
+                grid-row:unset;
+            }
+        }
+        .contact{
+            // grid-column: 3;
+            // grid-row: 1;
+            display:grid;
+            gap:var(--layout-gutter);
+            padding:10px;
+            // @include media($phone){
+            //     grid-column: 1 / span 3;
+            //     grid-row:unset;
+            // }
+
+            .phone-list{
+                .item{font-size:1.5em;}
+            }
+            .actions{
+                padding:10px;
+                text-align:center;
+            }
+        }
+        .office-list-tabs{
+            grid-column: 1 / -1;
+            //grid-row: 3;
+            @include media($phone){
+                grid-row:unset;
+            }
+        }
+        .broker-list{
+            .list-container{
+            }
+        }
+        .listing-list{
+            .list-container{
+            }
+        }
+        .office-list{
+            
+            .si-office-item{
+                .si-data-label{
+                    text-align:left;
+                }
+                .name{
+                    padding: var(--element-padding);
+                    padding-bottom:0;
+                }
+                .address{
+                    padding-top:0;
+                }
+                .office-counters{
+                    display:none;
+                }
+
+                &.is-main-office{
+                    grid-column:1;
+                    grid-row:1;
+                }
+            }
+        }
+
+        .si-part{
+            &.list-layout-mode-flex{
+                .office-list{
+                    .si-list{
+                        display:flex;
+                        flex-direction: row;
+                        flex-wrap: wrap;   
+
+                        .si-item.is-main-office{
+                            order:-1;
+                        }
+                    }
+                }
+            }
+        }
         &.loaded{
             .si-content{
                 display:grid;

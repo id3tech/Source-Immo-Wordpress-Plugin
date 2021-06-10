@@ -347,6 +347,64 @@ function officesListItemEditCtrl($scope, $rootScope, $mdDialog,$siUI,$params){
 // ------------------------------------
 
 
+// ------------------------------------
+//#region Agencies Dialogs
+// ------------------------------------
+
+function agenciesSearchEngineEditCtrl($scope, $rootScope, $mdDialog,$siUI,$params){
+  BaseDialogController($scope,$mdDialog,$rootScope);
+
+  $scope.model = {
+      type:'full',
+      focus_category: null,
+      orientation: 'h',
+      sticky: false
+  };
+
+  $scope.fieldList = [
+    {key: 'searchbox'  , caption: 'Search box'.translate()},
+    //{key: 'regions'      , caption: 'Alphabetical'.translate()},
+  ];
+
+  $scope.actions = [
+      { label: 'OK', action: function () { $scope.closeAndReturn($scope.model) } },
+      { label: 'Cancel', action: function () { $scope.cancel(); } },
+  ]
+  $scope.init = function(){
+      $scope.model = Object.assign($scope.model, $params);
+
+      if($scope.model.search_engine_options != undefined) delete $scope.model.search_engine_options;
+
+  }
+
+  $scope.toggleField = function($key){
+    if($scope.model.fields == undefined) $scope.model.fields = [];
+    if($scope.model.fields.includes($key)) {
+      $scope.model.fields = $scope.model.fields.filter($f => $f!=$key);
+      return;
+    }
+
+    $scope.model.fields.push($key);
+  }
+}
+
+function agenciesListItemEditCtrl($scope, $rootScope, $mdDialog,$siUI,$params){
+  BaseDialogController($scope,$mdDialog,$rootScope);
+  BaseListItemEditController($scope, $rootScope);
+
+  $scope.model ={};
+
+  $scope.init = function(){
+      $scope.base.init($params);
+  }
+
+}
+
+// ------------------------------------
+//#endregion Agencies Dialogs
+// ------------------------------------
+
+
 siApp
 .controller('signinCtrl', function signinCtrl($scope, $rootScope, $mdDialog,$siUI){
   BaseDialogController('signin',$scope, $rootScope, $mdDialog);

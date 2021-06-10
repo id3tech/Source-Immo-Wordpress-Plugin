@@ -43,7 +43,8 @@ class Elementor_SI_Single extends \Elementor\Widget_Base
                 'options' => [
                     'listing' => __('Listing', SI),
                     'broker' => __('Broker', SI),
-                    'office' => __('Office', SI)
+                    'office' => __('Office', SI),
+                    'agency' => __('Agency', SI)
                 ],
                 'default' => 'listing'
             ]

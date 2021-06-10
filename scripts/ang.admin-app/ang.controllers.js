@@ -21,12 +21,22 @@ siApp
     '{{item.last_name}}' : 'Last name'
   }
 
+  $scope.route_office_elements = {
+    '{{item.ref_number}}' : 'ID',
+    '{{item.name}}' : 'Name',
+    '{{item.agency.name}}' : 'Agency name'
+  }
+
+  $scope.route_agency_elements = {
+    '{{item.ref_number}}' : 'ID',
+    '{{item.name}}' : 'Name',
+  }
+
   $scope.route_city_elements = {
     '{{item.code}}' : 'ID',
     '{{item.location.region}}' : 'Region',
     '{{item.name}}' : 'Name'
   }
-
 
   $scope._pageInit_ = function(){
     $scope.show('general');
@@ -118,70 +128,6 @@ siApp
 
   }
 
-  $scope.add = function($type){
-    $scope.show_page('listEdit', $type).then(function($result){
-      lNew = $result;
-      $scope.configs.lists.push(lNew);
-      $scope.$emit('save-request');
-    });
-  }
-
-  $scope.edit = function($list){
-    $scope.show_page('listEdit', $list).then(function($result){
-      console.log('new list data', $result);
-      for (const key in $result) {
-        if ($result.hasOwnProperty(key)) {
-          const element = $result[key];
-          $list[key] = element;
-        }
-      }
-      
-      //$scope.confirm("Do you want to save the changes you've made?").then(function(){
-        $scope.$emit('save-request');
-      //});
-    });
-  }
-
-  $scope.remove = function($list){
-    $scope.confirm('Are you sure you want to remove this list?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
-      let lNewlists = [];
-      $scope.configs.lists.forEach(function($e){
-        if($e!=$list){
-          lNewlists.push($e);
-        }
-      });
-      $scope.configs.lists = lNewlists;
-
-      $scope.show_toast('List removed');
-      $scope.$emit('save-request');
-    });
-  }
-
-  $scope.getListShortcode = function($list, $type=null){
-    switch($type){
-      case 'search':
-        return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
-        break;
-      case 'searchbox':
-          return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
-          break;
-      case 'gallery':
-        return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
-        break;
-      default:
-        return '[si alias="' + $list.alias + '"]';
-    }
-  }
-
-  $scope.countFilters = function($list){
-    let lResult = 0;
-    if($list.filter_groups!=null){
-      $list.filter_groups.forEach(function($e){
-        lResult += $e.filters.length;
-      });
-    }
-    return lResult;
-  }
 });
 
 
@@ -210,7 +156,8 @@ siApp
       {key: 'listings', label: 'Listings'},
       {key: 'brokers', label: 'Brokers'},
       {key: 'cities', label: 'Cities'},
-      {key: 'offices', label: 'Offices'}
+      {key: 'offices', label: 'Offices'},
+      {key: 'agencies', label: 'Agencies'}
     ],
     list_layouts:{
       listings: [
@@ -226,6 +173,10 @@ siApp
         {name: 'direct', label: 'Server side (no search tool)'}
       ],
       offices: [
+        {name: 'standard', label: 'Client side (default)'},
+        {name: 'direct', label: 'Server side (no search tool)'}
+      ],
+      agencies: [
         {name: 'standard', label: 'Client side (default)'},
         {name: 'direct', label: 'Server side (no search tool)'}
       ]
@@ -244,8 +195,10 @@ siApp
         
       ],
       offices: [
-        {name: 'standard', label: 'Standard'}
-        
+        {name: 'standard', label: 'Standard'} 
+      ],
+      agencies: [
+        {name: 'standard', label: 'Standard'} 
       ]
     },
     list_item_vars: {
@@ -282,10 +235,15 @@ siApp
       offices :[
         {name:'name',label: 'Name'},
         {name:'agency-name',label: 'Agency name'},
-        {name:'region', label: 'Region'},
-        {name:'listing_count',label:'Listings'},
+        {name:'listing_count',label:'Counters'},
         {name:'address',label:'Address'},
         {name:'code',label: 'Code'},
+      ],
+      agencies :[
+        {name:'name',label: 'Name'},
+        {name:'listing_count',label:'Counters'},
+        {name:'address', label: 'Address'},
+        {name:'license',label:'Title'},
       ]
     },
     list_item_image_hover_effects:{
@@ -300,6 +258,7 @@ siApp
       ],
       cities: [],
       offices: [],
+      agencies: [],
     },
     list_item_show_layer_effects:{
       listings: [
@@ -326,6 +285,12 @@ siApp
         {name: 'flip', label: 'Flip'},
         {name: 'fade', label: 'Fade'}
       ],
+      agencies: [
+        {name: 'none', label: 'None'},
+        {name: 'slide', label: 'Slide'},
+        {name: 'flip', label: 'Flip'},
+        {name: 'fade', label: 'Fade'}
+      ],
     },
     list_item_layer_positions:{
       listings: [
@@ -341,6 +306,10 @@ siApp
         {name: 'overlay', label: 'Overlay'},
       ],
       offices: [
+        {name: 'fix', label: 'Fix'},
+        {name: 'overlay', label: 'Overlay'},
+      ],
+      agencies: [
         {name: 'fix', label: 'Fix'},
         {name: 'overlay', label: 'Overlay'},
       ],
@@ -366,6 +335,9 @@ siApp
         {name: 'name', label: 'Name'},
         {name: 'agency.name', label: 'Agency name'},
         {name: 'region', label: 'Region'},
+      ],
+      agencies: [
+        {name: 'name', label: 'Name'}
       ]
     }
   }
@@ -413,6 +385,8 @@ siApp
         city_details: 'NONE',
         office:'NONE',
         office_details: 'NONE',
+        agency:'NONE',
+        agency_details: 'NONE',
       },
       en: {
         listing: 'NEW',
@@ -423,6 +397,8 @@ siApp
         city_details: 'NONE',
         office:'NONE',
         office_details: 'NONE',
+        agency:'NONE',
+        agency_details: 'NONE',
       }
   }
   
@@ -1243,6 +1219,11 @@ siApp
         title: 'City details',
         content: '[si_city]',
         layouts: $scope.configs.city_layouts
+      },
+      agencies:{
+        title: 'Agency details',
+        content: '[si_agency]',
+        layouts: $scope.configs.agency_layouts
       }
     }
 
@@ -1382,7 +1363,7 @@ siApp
   * UI
   */
   $scope.show_page = function($page_id, $params){
-    console.log('page is called', $page_id);
+    console.log('page is called', $page_id,$params);
     let lPromise = $q(function($resolve, $reject){
       $rootScope.$broadcast(
           'on-' + $page_id,     // broadcast event

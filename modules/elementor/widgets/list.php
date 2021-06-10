@@ -41,7 +41,8 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
         $aliasList = [
             'listings'   => [],
             'brokers'    => [],
-            'offices'    => []
+            'offices'    => [],
+            'agencies'    => []
         ];
         foreach ($siConfigs->lists as $list) {
             if(isset($aliasList[$list->type])){
@@ -58,7 +59,8 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
                 'options' => [
                     'listings' => __('Listing', SI),
                     'brokers' => __('Broker', SI),
-                    'offices' => __('Office', SI)
+                    'offices' => __('Office', SI),
+                    'agencies' => __('Agency', SI)
                 ],
                 'default' => 'listings'
             ]
@@ -148,10 +150,17 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
                                     <div class="image"><i class="fal fa-5x fa-image"></i></div>
                                     <div class="si-data-label brokers first-name si-background-high-contrast">John</div>
                                     <div class="si-data-label brokers last-name si-background-high-contrast">Powers</div>
+                                    <div class="si-data-label agencies name si-background-high-contrast">Immo Platinum</div>
+                                    <div class="si-data-label agencies license-type si-background-high-contrast">Agence immobilière</div>
+                                    <div class="si-data-label offices name si-background-high-contrast">Montréal</div>
+                                    <div class="si-data-label offices agency-name">Immo Platinum</div>
                                     <div class="si-data-label brokers phone">123-555-8721</div>
                                     <div class="si-data-label listings civic-address si-background-high-contrast">201 Lorem ipsum</div>
                                     <div class="si-data-label listings city si-background-high-contrast">Loremville</div>
+                                    <div class="si-data-label agencies offices civic-address">201 Lorem ipsum</div>
+                                    <div class="si-data-label agencies offices city">Loremville</div>
                                     <div class="si-data-label listings price si-background-medium-contrast">525 000$</div>
+                                    <div class="si-data-label agencies offices phone">123-555-8721</div>
                                     <div class="si-data-label listings category">Excepteur</div>
                                     <div class="si-data-label listings rooms">
                                         <div class="room bed"><i class="icon fal fa-fw fa-bed"></i> <span class="count">2</span></div>

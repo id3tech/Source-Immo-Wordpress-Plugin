@@ -121,6 +121,7 @@
             &.listings-preview,
             &.brokers-preview,
             &.cities-preview,
+            &.agencies-preview,
             &.offices-preview{
                 .viewport{
                   &.search-layout-orientation-v{
@@ -558,6 +559,7 @@
             }
 
             &.cities-preview,
+            &.agencies-preview,
             &.offices-preview{
               .search-engine-tabs-container{display:none;}
               .list-components{
@@ -606,6 +608,29 @@
                     }
 
                     &.office-counters{
+                      display:flex;
+                      justify-content: center;
+                      align-items: center;
+                      gap:1rem;
+                    }
+                  }
+                }
+              }
+            }
+
+            &.agencies-preview{
+              --input-count: 1;
+              .list-components{
+                .si-element{
+                  .si-label{
+                    &.address{
+                      text-align:left;
+                      display:flex;
+                      flex-direction: row;
+                      .fal{padding: 2.5px 5px}
+                    }
+
+                    &.agency-counters{
                       display:flex;
                       justify-content: center;
                       align-items: center;

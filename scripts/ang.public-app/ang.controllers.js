@@ -127,6 +127,12 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         angular.element(document.body).removeClass('si-modal-open');
     });
 
+    $scope.elementCountMin = function($query, $minCount){
+        if(document.state == 'loading') return false;
+
+        const lElements = document.querySelectorAll($query);
+        return lElements.length > $minCount;
+    }
 });
 
 /**
@@ -931,7 +937,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
         if($add_loading_text){
             const lLoadingTextElement = document.createElement('div');
             lLoadingTextElement.classList.add('si');
-            lLoadingTextElement.classList.add('broker-single');
+            lLoadingTextElement.classList.add('office-single');
             lLoadingTextElement.innerHTML = '<label class="placeholder">' + $loading_text + ' <i class="fal fa-spinner fa-spin"></i></label>';
             $element[0].parentElement.append(lLoadingTextElement);
             $scope.$loadingElement = lLoadingTextElement;
@@ -1009,3 +1015,100 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
         $siCompiler.compileOfficeItem($scope.model);
     }
 });
+
+/**
+ * Agency Detail - Controller
+ */
+ siApp
+ .controller('singleAgencyCtrl', 
+ function singleAgencyCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks){
+ 
+     // model data container - office
+     $scope.model = null;
+ 
+     /**
+      * Initialize controller
+      * @param {string} $ref_number broker reference key
+      */
+     $scope.init = function($ref_number,$add_loading_text, $loading_text){
+         if($add_loading_text){
+             const lLoadingTextElement = document.createElement('div');
+             lLoadingTextElement.classList.add('si');
+             lLoadingTextElement.classList.add('agency-single');
+             lLoadingTextElement.innerHTML = '<label class="placeholder">' + $loading_text + ' <i class="fal fa-spinner fa-spin"></i></label>';
+             $element[0].parentElement.append(lLoadingTextElement);
+             $scope.$loadingElement = lLoadingTextElement;
+         }
+ 
+ 
+         if($ref_number != undefined){
+             //console.log($ref_number);
+             $scope.fetchPrerequisites().then(function(){
+                 $scope.loadSingleData($ref_number);
+             })
+             .then(function(){
+                 if($scope.$loadingElement === undefined) return;
+                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
+ 
+                 $element[0].style.removeProperty('display');
+             });
+             
+         }
+     }
+ 
+     $scope.fetchPrerequisites = function(){
+         let lPromise = $q(function($resolve, $reject){
+             $siConfig.get().then(function($configs){
+                 $resolve({
+                     brokers: $configs.broker_routes,
+                     listings: $configs.listing_routes
+                 })
+             })
+         });
+         return lPromise;
+     }
+ 
+ 
+     /**
+      * Load broker data
+      * @param {string} $ref_number broker reference key
+      */
+     $scope.loadSingleData = function($ref_number){
+ 
+         let lPromise = $q(function($resolve,$reject){
+             if(typeof(siBrokerData)!='undefined'){
+                 $resolve(siBrokerData);
+             }
+             else{
+                 $siApi.getDefaultDataView().then(function($view){
+                     // Load broker data from api
+                     //console.log($view);
+                     $siApi.api("agency/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                         $resolve($data);
+                     });
+                 });
+             }
+ 
+         });
+ 
+         lPromise.then(function($data){
+             $scope.model = $data;
+             // set dictionary source
+             $siDictionary.source = $data.dictionary;
+             // start preprocessing of data
+             $scope.preprocess();
+             // prepare message subject build from data
+             //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+             // print data to console for further informations
+             //console.log($scope.model);
+         });
+     }
+ 
+     $scope.getPhoneIcon = function($key){
+         return $siUtils.getPhoneIcon($key);
+     }
+ 
+     $scope.preprocess = function(){
+         $siCompiler.compileAgencyItem($scope.model);
+     }
+ });

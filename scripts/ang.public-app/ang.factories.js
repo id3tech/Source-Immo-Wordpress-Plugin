@@ -702,6 +702,7 @@ function $siCompiler($siConfig,$siList, $siUtils){
         $list.forEach(function($e){
             $scope.compileOfficeItem($e);
         })
+        return $list;
     }
     
     $scope.compileOfficeItem = function($item){
@@ -725,6 +726,36 @@ function $siCompiler($siConfig,$siList, $siUtils){
                                             );
 
         $item.permalink = $siUtils.getPermalink($item,'office');
+    }
+
+   /**
+     * Compile data to ease access to some values
+     * @param {array} $list Array of office item
+     */
+    $scope.compileAgencyList = function($list){
+        
+
+        $list.forEach(function($e){
+            $scope.compileAgencyItem($e);
+        });
+
+        return $list;
+    }
+    
+    $scope.compileAgencyItem = function($item){
+        if($item == undefined) return;
+        if($item.phones != null){
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
+        }
+        
+        $item.franchisor = $siUtils.getCaption($item.franchisor_code, 'franchisor');
+        $item.license_type = ($item.license_type_code != undefined) ? $siUtils.getCaption($item.license_type_code, 'agency_license_type') : $item.license_type;
+
+        if($item.main_office != null){
+            $scope.compileOfficeItem($item.main_office);
+        }
+        
+        $item.permalink = $siUtils.getPermalink($item,'agency');
     }
 
     $scope.compileCityList = function($list){
@@ -759,6 +790,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             listings: 'Listing',
             brokers: 'Broker',
             offices: 'Office',
+            agencies: 'Agency',
             cities : 'City'
         };
 
@@ -979,21 +1011,25 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
         let lMandatoryLocationData = ['country','state','region','city'];
         
-        if($scope.item.location){
+        const lItemLocation = ($scope.item.main_office != undefined) ? $scope.item.main_office.location : $scope.item.location;
+        if(lItemLocation){
             lMandatoryLocationData.forEach(function($d) {
-                if(typeof $scope.item.location[$d] == 'undefined'){
-                    $scope.item.location[$d] = ('other ' + $d).translate();
+                if(typeof lItemLocation[$d] == 'undefined'){
+                    lItemLocation[$d] = ('other ' + $d).translate();
                 }
             })
         }
+        
 
         let lResult = $scope.sanitize('/' + $siTemplate.interpolate(lRoute.route, $scope));
         
+
         // check if permalink overrides is allowed
         if($siConfig._data.enable_custom_page){  
             // search in page_permalink first
             $scope.page_list.some(function($p){
                 let lCustomPage = '';
+                let oRx = null;
                 switch($type){
                     case 'broker':
                         lCustomPage= lResult.replace('/' + $item.ref_number, '-' + $item.ref_number);
@@ -1004,8 +1040,13 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
                         
                         break;
                     case 'office':
-                        let oRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
+                        oRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
                         lCustomPage= lResult.replace(oRx, '/' + $scope.sanitize($item.location.civic_address) + '-' + $item.ref_number);
+                        
+                        break;
+                    case 'agency':
+                        oRx = new RegExp("\/[^\/]+\/" + $item.ref_number);
+                        lCustomPage= lResult.replace(oRx, '/' + $scope.sanitize($item.name) + '-' + $item.ref_number);
                         
                         break;
                 }
@@ -1071,6 +1112,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
             if($item.license_type_code){
                 lResult.push('license-type-' + $scope.sanitize($item.license_type_code));
+            }
+
+            if($item.main_office === true){
+                lResult.push('is-main-office');
             }
 
             if($item.status_code=='SOLD'){

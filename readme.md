@@ -82,6 +82,8 @@ Build custom page for listings and brokers with Elementor's widget
 Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Broker data
 * Listing data
+* Office data
+* Agency data
 
 
 ### New filters
@@ -101,6 +103,16 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.11
+* Agency support
+** Search engine
+** Client side rendering
+** Display listings and agents count for agency in list
+** Support for Elementor
+* Update map rendering
+** Map marker cluster uses normalized color, but scaled text instead
+
+
 Version 1.2.09
 * Updated office support
 ** Search engine

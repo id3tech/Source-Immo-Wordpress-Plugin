@@ -141,6 +141,7 @@ siApp
           },
           list_item_layout : { 
             preset: 'standard', scope_class : '', custom:null,
+            layout: 'standard',
             displayed_vars: {
               main:['name','region','listing_count']
             }
@@ -161,12 +162,35 @@ siApp
           },
           list_item_layout : { 
             preset: 'standard', scope_class : '', custom:null,
+            layout: 'standard',
             displayed_vars: {
               main:['name','agency-name','listing_count','address']
             }
           }
           
         });
+      case "agencies":
+          $scope.model = angular.merge($scope.model, {
+            list_layout: {
+                preset: 'standard',
+                scope_class: '',
+                custom: null,
+                item_row_space: {
+                  desktop: 33,
+                  laptop:33,
+                  tablet: 50,
+                  mobile:100
+                }
+            },
+            list_item_layout : { 
+              preset: 'standard', scope_class : '', custom:null,
+              layout: 'standard',
+              displayed_vars: {
+                main:['name','license','address','listing_count']
+              }
+            }
+            
+          });
     }
   }
 
@@ -189,7 +213,8 @@ siApp
         'listings' : 3,
         'brokers' : 4,
         'cities' : 3,
-        'offices' : 3
+        'offices' : 3,
+        'agencies' : 3
     }
 
     $scope.previewElements = Array.from(new Array(lModelCount[$scope.model.type])).map($e => {
@@ -209,6 +234,7 @@ siApp
                 lElement.region = $scope.getRegion();
                 lElement.avail_area = $scope.getNumber(10,20) * 100;      
                 break;
+
             case 'brokers':
                 lElement.first_name = $scope.getFirstname();
                 lElement.last_name = $scope.getLastname();
@@ -218,12 +244,14 @@ siApp
                 lElement.listing_count = $scope.getListingCount();
                 lElement.email = lElement.first_name.toLowerCase() + '.' + lElement.last_name.toLowerCase() + '@example.com'
                 break;
+
             case 'cities':
                 lElement.name = $scope.getCity();
                 lElement.region = $scope.getRegion();
                 lElement.listings_count = $scope.getListingCount();
                 lElement.code = $scope.getNumber(1234,6543);
                 break;
+
             case "offices":
                 lElement.name = $scope.getCity();
                 lElement.region = $scope.getRegion();
@@ -231,12 +259,26 @@ siApp
                 lElement.brokers_count = $scope.getBrokerCount();
                 lElement.agency = {
                   name: 'Agency'
-                },
+                };
                 lElement.location = {
                   street_address : $scope.getAddress(),
                   city: lElement.name,
                   state: $scope.getSate(),
                   postal_code: $scope.getPostalCode()
+                }
+
+            case "agencies":
+                lElement.name = 'Immo ' + $scope.getFunkyName();
+                lElement.listings_count = $scope.getListingCount();
+                lElement.brokers_count = $scope.getBrokerCount();
+                lElement.offices_count = $scope.getOfficeCount();
+                lElement.main_office = {
+                  location: {
+                    street_address : $scope.getAddress(),
+                    city: $scope.getCity(),
+                    state: $scope.getSate(),
+                    postal_code: $scope.getPostalCode()
+                  }
                 }
           default:
               break;
@@ -394,7 +436,7 @@ siApp
     if($scope.model.search_engine_options == undefined){
       $scope.model.search_engine_options = {
         type: 'full',
-        search_box_placeholder: '',
+        search_box_placeholder : {fr:'',en:''},
         tabs: [],
         fields: [],
       }
@@ -436,6 +478,10 @@ siApp
     return lNumber + ' ' + lStreetName;
   }
 
+  $scope.getFunkyName = function(){
+    return ['Capitale','2000','Carrefour','Action','Excellence','Platine','Selection','Elite','Bonjour','Accès','Concept','Horizon','Alto','Distinction','Diamant','Expertise','Prestige'].any();
+  }
+
   $scope.getCity = function(){
     return ['San Francisco','Montréal','Washington','Paris','Springfield','Franklin','Greenville','London','Los Angeles','New York','Vanconver','Calgary','St-John','Halifax','Ottawa','Toronto','Québec','Victoria','Edmonton','Regina','Winnipeg','Fredericton','Charlottetown'].any();
   }
@@ -475,6 +521,9 @@ siApp
     }
     $scope.getBrokerCount = function(){
       return $scope.getNumber(2,20);
+    }
+    $scope.getOfficeCount = function(){
+      return $scope.getNumber(2,8);
     }
 
     $scope.getOffice = function(){

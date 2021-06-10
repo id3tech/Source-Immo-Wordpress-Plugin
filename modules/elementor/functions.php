@@ -13,7 +13,15 @@ include SI_ELEMENTOR_MODULE_PATH . "/class.module.php";
 function si_dummy_include($path){
 	$filePath = SI_ELEMENTOR_MODULE_PATH . '/dummy-content/' . $path;
 	if(file_exists($filePath)){
+
+		$pathParts = explode('/', $path);
+
+		$partClasses = ['si-part'];
+		$partClasses[] = 'si-part-' . str_replace(['.php','_'],['','-'],$pathParts[1]);
+
+		echo('<div class="' . implode(' ',$partClasses) .'">');
 		include $filePath;
+		echo('</div>');
 	}
 	
 }

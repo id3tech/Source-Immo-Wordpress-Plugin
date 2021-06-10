@@ -31,6 +31,14 @@ class SiShorcodes{
             'si_office_listings',
             'si_office_brokers',
 
+
+            // Agency - Sub shortcodes
+            'si_agency',
+            'si_agency_part',
+            'si_agency_listings',
+            'si_agency_brokers',
+            'si_agency_offices',
+
             // City
             'si_city',
 
@@ -243,7 +251,7 @@ class SiShorcodes{
         }
 
         $options = array_merge([
-            'show_header' => $show_header,
+            'show_header' => $show_header==='true'||$show_header===true,
             'filter' => [
                 'max_item_count' => $limit,
                 'sort_fields' => $sortFields
@@ -512,6 +520,169 @@ class SiShorcodes{
         ob_start();
             
         echo do_shortcode('[si_small_list class="broker-list si-list-of-brokers" type="brokers" options="{columns:{desktop:4, laptop:3}}" where="{field:\'office_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
+    #endregion
+
+    #region Agency - Sub shortcodes
+
+    public function sc_si_agency($atts, $content){
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'load_text' => 'Loading agency'
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+        if($ref_number == '') return '';
+
+        $data = json_decode(SourceImmoApi::get_agency_data($ref_number));
+        if($data != null){
+            global $dictionary;
+            $agencyWrapper = new SourceImmoAgenciesResult();
+            $dictionary = new SourceImmoDictionary($data->dictionary);
+            $agencyWrapper->preprocess_item($data);
+        }
+        
+        ob_start();
+        ?>
+        
+        <div data-ng-controller="singleAgencyCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
+                class="si agency-single {{model.status}} {{model!=null?'loaded':''}}">
+            <?php
+            do_action('si_start_of_template', $load_text);
+            if($load_text != null){
+                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            }
+            echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+
+            
+            if($content != null){
+                echo(do_shortcode($content));
+            }
+            else{
+                SourceImmo::view('single/agencies_layouts/standard');
+            }
+
+            echo('</div>');
+            do_action('si_end_of_template');
+            ?>
+        </div>
+        <?php
+        
+        if(SourceImmo::current()->configs->prefetch_data){
+        ?>                
+        <script type="text/javascript">
+        var siOfficeData = <?php 
+            echo(json_encode($data)); 
+        ?>;
+        </script>
+        <?php
+        }
+
+        $result = ob_get_contents();
+        ob_end_clean();
+        return $result;
+    }
+
+    public function sc_si_agency_part($atts, $content){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'part' => '',
+                'class' => '',
+                'align' => 'align-stretch',
+            ), $atts )
+        );
+
+        $lResult = '';
+        
+        if($part != ''){
+            ob_start();
+
+            SourceImmo::view('single/agencies_layouts/subs/' . $part); 
+
+            $lResult = ob_get_clean();
+        }
+
+        $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+
+        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';        
+        return $lResult;
+    }
+
+    public function sc_si_agency_listings($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'limit' => 0,
+                'sort' => '',
+                'show_header' => true,
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+        
+        ob_start();
+            
+        echo do_shortcode('[si_small_list class="listing-list si-list-of-listings" type="listings" options="{columns:{desktop:3, laptop:3}}" where="{field:\'agencies_ref_numbers\', operator : \'array_contains\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
+    public function sc_si_agency_brokers($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'limit' => 0,
+                'sort' => '',
+                'show_header' => true,
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+
+        ob_start();
+            
+        echo do_shortcode('[si_small_list class="broker-list si-list-of-brokers" type="brokers" options="{columns:{desktop:4, laptop:3}}" where="{field:\'agency_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
+        
+        $lResult = ob_get_clean();
+
+        return $lResult;
+    }
+
+
+    
+    public function sc_si_agency_offices($atts, $content=null){
+        // Extract attributes to local variables
+        extract( shortcode_atts(
+            array(
+                'ref_number' => '',
+                'limit' => 0,
+                'sort' => '',
+                'show_header' => false,
+            ), $atts )
+        );
+        if($ref_number == ''){
+            $ref_number = get_query_var( 'ref_number');
+        }
+
+        ob_start();
+            
+        echo do_shortcode('[si_small_list class="office-list si-list-of-offices" type="offices" options="{columns:{desktop:4, laptop:3}}" where="{field:\'agency_ref_number\', operator : \'equal\', value: \'' . $ref_number . '\'}" limit="' . $limit . '" sort="'. $sort .'" show_header="'. $show_header .'"]');
         
         $lResult = ob_get_clean();
 

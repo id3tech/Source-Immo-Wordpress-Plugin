@@ -29,7 +29,7 @@ body, #top{
                     
                     &.elementor-ghost{
                         .si-data-label{
-                            &.brokers,&.listings{display:none;}
+                           display:none;
                         }
                         &.si-list-of-listings{
                             .si-data-label.listings{display:initial;}
@@ -43,6 +43,33 @@ body, #top{
                                 }
                             }
                             .si-data-label.brokers{display:initial;}
+                        }
+                        &.si-list-of-offices,
+                        &.si-list-of-agencies{
+                            .si-item{
+                                .item-content{
+                                    .si-data-label{
+                                        text-align:center;
+                                        &.name{
+                                            text-transform: uppercase;
+                                            text-align: center;
+                                            font-size: 1.5rem;
+                                            padding:1em;
+                                        }
+                                    }
+                                    .image{
+                                        display:none;
+                                    }
+                                }
+                            }
+                        }
+
+                        &.si-list-of-offices{
+                            .si-data-label.offices{display:initial;}
+                        }
+                        
+                        &.si-list-of-agencies{
+                            .si-data-label.agencies{display:initial;}
                         }
                     }
                 }
@@ -362,6 +389,16 @@ body, #top{
                     }
                     &.align-stretch-end#{$size}{
                         place-items: stretch end;
+                    }
+                }
+            }
+
+            &.list-layout-mode-flex{
+                .office-list{
+                    .si-list{
+                        display:flex;
+                        flex-direction: row;
+                        flex-wrap: wrap;   
                     }
                 }
             }

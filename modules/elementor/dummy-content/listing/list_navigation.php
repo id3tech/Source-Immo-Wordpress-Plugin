@@ -1,12 +1,12 @@
-<div class="si-listing-navigation display-" ng-show="list!=null &amp;&amp; list.length > 1" data-si-current="model.id" data-si-title="Naviguez parmi vos résultats de recherche">
+<div class="si-listing-navigation display-">
             <h3 class="title ng-binding">Naviguez parmi vos résultats de recherche</h3>
 
-            <div class="si-listing-list ng-scope" si-adaptative-class="">
+            <div class="si-listing-list ng-scope">
                 <!-- ngRepeat: item in list track by $index -->
-                <div class="item previous " ng-repeat="item in list track by $index">
-                    <a href="/proprietes/mauricie/trois-rivieres/a-vendre/13852615/">
+                <div class="item previous ">
+                    <a href="#">
                         <div class="photo">
-                            <img data-ng-src="https://blob.source.immo/pic/lis-HMh_XPeGIE6y2k-7-Vps8g-v1-sm.jpg" src="https://blob.source.immo/pic/lis-HMh_XPeGIE6y2k-7-Vps8g-v1-sm.jpg">
+                            <img src="<?php echo SI_PLUGIN_URL ?>/modules/elementor/assets/images/home-1.jpeg">
 
                         </div>
 
@@ -24,10 +24,10 @@
                         </div>
                     </a>
                 </div><!-- end ngRepeat: item in list track by $index -->
-                <div class="item next " ng-repeat="item in list track by $index">
-                    <a href="/proprietes/mauricie/trois-rivieres/a-vendre/19402645/">
+                <div class="item next ">
+                    <a href="#">
                         <div class="photo">
-                            <img data-ng-src="https://blob.source.immo/pic/lis-7m9ID52NQkeTpRDcBx1-GQ-v2-sm.jpg" src="https://blob.source.immo/pic/lis-7m9ID52NQkeTpRDcBx1-GQ-v2-sm.jpg">
+                            <img src="<?php echo SI_PLUGIN_URL ?>/modules/elementor/assets/images/home-2.jpg">
                         </div>
 
                         <div class="city ng-binding">Trois-Rivières</div>

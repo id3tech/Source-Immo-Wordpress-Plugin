@@ -19,13 +19,16 @@
       </div>
 
       <div class="nav-button offices" ng-click="show('offices')">
-        <i class="fal fa-fw fa-building"></i> <lstr>Offices</lstr>
+        <i class="fal fa-fw fa-store"></i> <lstr>Offices</lstr>
       </div>   
+
+      <div class="nav-button agencies" ng-click="show('agencies')">
+        <i class="fal fa-fw fa-building"></i> <lstr>Agencies</lstr>
+      </div>
 
       <div class="nav-button cities" ng-click="show('cities')">
         <i class="fal fa-fw fa-city"></i> <lstr>Cities</lstr>
       </div>
-
 
       <div class="nav-button styles" ng-click="show('styles')">
         <i class="fal fa-fw fa-palette"></i> <lstr>Styles</lstr>
@@ -34,11 +37,11 @@
       <div class="nav-button addons" ng-if="addons.length > 0" ng-click="show('addons')">
         <i class="fal fa-fw fa-cogs"></i> <lstr>Addons</lstr>
       </div>
-      
 
       <div class="nav-button advanced" ng-click="show('advanced')">
         <i class="fal fa-fw fa-wrench"></i> <lstr>Advanced</lstr>
       </div>
+
     </div>
   </div>
 
@@ -66,6 +69,11 @@
     <section id="offices">
       <si-data-group-editor si-type="offices"></si-data-group-editor>
     </section>
+
+    <section id="agencies">
+      <si-data-group-editor si-type="agencies"></si-data-group-editor>
+    </section>
+
 
     <section id="addons">
       <?php SourceImmo::view('admin/configs/addons') ?>

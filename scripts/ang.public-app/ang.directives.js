@@ -217,8 +217,8 @@ function siList(){
                 for(let $i = 0;$i<12; $i++){
                     $scope.ghost_list.push({
                         location :{city:'City',civic_address: '00 address', region: 'Region'},
+                        main_office: {location :{city:'City',civic_address: '00 address', region: 'Region'}},
                         price: {sell:{amount:0}},
-                        
                         category: 'Category',
                         subcategory: 'Subcategory',
                         ref_number: 'XXXXXX',
@@ -483,6 +483,8 @@ function siList(){
                         lOrigin = 'city';break;
                     case 'offices':
                         lOrigin = 'office';break;
+                    case 'agencies':
+                        lOrigin = 'agency';break;
                 }
                 const lViewId = $scope.configs.current_view;
                 return lOrigin.concat('/view/',lViewId,'/',siApiSettings.locale);
@@ -700,13 +702,19 @@ function siSmallList($sce,$compile){
             filters: '=siFilters',
             options: '=?siOptions'
         },
-        template: '<div class="si-list-header" ng-show="options.show_header">' + 
-                        '<h3 ng-cloak>{{getListTitle()}}</h3>' +
-                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="Filtrez la liste par mots-clés" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
+        template: '<div class="si-list-header" ng-if="options.show_header">' + 
+                        '<h3 ng-cloak>{{getListTitle()}} {{options.typeof_show_header}}</h3>' +
+                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
                     '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
         link: function($scope, $element, $attrs){
+            if($scope.options != undefined){       
+                $scope.options.typeof_show_header = typeof($scope.options.show_header);
+                $scope.options.show_header = (typeof($scope.options.show_header) == 'string') ? $scope.options.show_header === 'true' : $scope.options.show_header;
+            }
+
+
             $scope.init();
         },
         controller:function($scope,$rootScope,$element, $siHooks,$siFavorites, $siConfig, 
@@ -728,6 +736,18 @@ function siSmallList($sce,$compile){
                     laptop: 3,
                     tablet: 1,
                     mobile: 1
+                },
+                offices: {
+                    desktop: 3,
+                    laptop: 3,
+                    tablet: 1,
+                    mobile: 1
+                },
+                agencies: {
+                    desktop: 3,
+                    laptop: 3,
+                    tablet: 1,
+                    mobile: 1
                 }
             };
 
@@ -736,6 +756,7 @@ function siSmallList($sce,$compile){
                 'listings' : 'Listing',
                 'brokers' : 'Broker',
                 'offices' : 'Office',
+                'agencies' : 'Agency',
                 'cities' : 'City'
             }
             $scope.$watch('filters', function($new, $old){
@@ -762,6 +783,10 @@ function siSmallList($sce,$compile){
                 return 'si-template-for-' + $scope.type;
             }
 
+            $scope.getSearchPlaceholder = function(){
+                return 'Filter list with keywords'.translate()
+            }
+
             $scope.init = function(){
                 $scope._element = $element;
                 if($element[0].closest('.si') == null){
@@ -774,6 +799,8 @@ function siSmallList($sce,$compile){
 
                 $siApi.getDefaultDataView().then(function($view_id){
                     $scope.view_id = $view_id;
+                    
+                    
                     
                     // $siHooks.addFilter('si/list/item/permalink', function($result, $item){
                     //     if(isNullOrUndefined($scope._global_configs)) return $result;
@@ -830,6 +857,8 @@ function siSmallList($sce,$compile){
                 
                 $siFilters.with().getSearchToken(lFilters).then(function($token){
 
+                    console.log('fetch list of',lSingularType);
+
                     $siUtils.all({
                         lexicon: function() { return $siApi.getViewDictionary($scope.view_id, $locales._current_lang_) },
                         offices: function() {
@@ -844,6 +873,9 @@ function siSmallList($sce,$compile){
                         $siList.offices = $results.offices ? $results.offices.items : [];
 
                         $scope.list = $siCompiler['compile' + lSingularType + 'List']($results.list.items);
+
+                        console.log('List of',lSingularType,'fetched', $scope.list, $results.list.items);
+                    
 
                         $scope._element.addClass("loaded");
                         $timeout(function(){
@@ -898,6 +930,7 @@ function siSmallList($sce,$compile){
                     listings : {single: '1 property', plural: '{0} properties'},
                     brokers : {single: '1 broker', plural: '{0} brokers'},
                     offices : {single: '1 office', plural: '{0} offices'},
+                    agencies : {single: '1 agency', plural: '{0} agencies'},
                     cities : {single: '1 city', plural: '{0} cities'},
                 }
                 if($scope.meta == undefined) return '';

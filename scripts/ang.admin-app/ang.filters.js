@@ -11,6 +11,7 @@ siApp
 siApp
 .filter('translate', function(){
     return function($value){
+        if($value == undefined) return '';
         if($value[$locales._current_lang_] != undefined){
             return $value[$locales._current_lang_];
         }

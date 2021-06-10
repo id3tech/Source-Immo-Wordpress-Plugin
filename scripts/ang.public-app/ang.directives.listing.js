@@ -1409,26 +1409,40 @@ siApp
                         let lClustererOptions = {
                             //cssClass : 'siMarkerCluster',
                             gridSize: 80,
-                            styles: [{
-                                url: lImagePath + '1.png',
-                                height: 53,
-                                width: 54,
-                                anchor: [0, 0]
-                            }, {
-                                url: lImagePath + '2.png',
-                                height: 56,
-                                width: 55,
-                                anchor: [0, 0]
-                            }, {
-                                url: lImagePath + '3.png',
-                                width: 66,
-                                height: 65,
-                                anchor: [0, 0]
-                            }]
+                            cssClass: 'si-cluster',
+                            styles: [
+                                {
+                                    height: 44,
+                                    width: 44,
+                                    className: 'cluster-small',
+                                    anchor: [22, 22]
+                                }, 
+                                {
+
+                                    height: 52,
+                                    width: 52,
+                                    className: 'cluster-medium',
+                                    anchor: [26, 26]
+                                }, 
+                                {
+
+                                    width: 70,
+                                    height: 70,
+                                    className: 'cluster-large',
+                                    anchor: [35, 35]
+                                }, 
+                                {
+
+                                    width: 80,
+                                    height: 80,
+                                    className: 'cluster-huge',
+                                    anchor: [40, 40]
+                                }
+                            ]
                         };
     
                         lClustererOptions = $siHooks.filter('marker_cluster_options',lClustererOptions);
-    
+                        
                         $scope.markerCluster = new MarkerClusterer($scope.map, $scope.markers, lClustererOptions);
                         
                         if($scope.is_visible == true){
@@ -1613,10 +1627,12 @@ siApp
                 this.title = options.title;
       
                 // Explicitly call setMap on this overlay.
+                
                 this.setMap(options.map);
             }
             if( typeof(google) != 'undefined'){
                 SiMarker.prototype = new google.maps.OverlayView();
+
                 (function($proto){
                     $proto.draw = function() {
                         var me = this;
@@ -1700,6 +1716,8 @@ siApp
                         this.setMap(this.map_);
                     }
                     };
+
+                    $proto.getDraggable = function() { return false; };
     
                 })(SiMarker.prototype);
             }

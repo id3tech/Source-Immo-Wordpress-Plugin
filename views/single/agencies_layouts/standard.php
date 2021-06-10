@@ -1,10 +1,19 @@
-<?php echo do_shortcode('[si_office_part part="name"]') ?>
+<?php echo do_shortcode('[si_agency_part part="head"]') ?>
 
-<?php echo do_shortcode('[si_office_part part="tabs"]') ?>
+<div si-flex="row" si-flex-align="space-between center">
+<?php echo do_shortcode('[si_agency_part part="address"]') ?>
+<?php echo do_shortcode('[si_agency_part part="contact"]') ?>
+</div>
 
-<?php echo do_shortcode('[si_office_listings]');?>
+<div ng-show="elementCountMin('.si-office-item',1)">
+<?php echo do_shortcode('[si_agency_offices]');?>
+</div>
 
-<?php echo do_shortcode('[si_office_brokers]');?>
+<?php echo do_shortcode('[si_agency_part part="tabs"]') ?>
 
-<?php echo do_shortcode('[si_office_listings]');
+
+
+<?php echo do_shortcode('[si_agency_brokers]');?>
+
+<?php echo do_shortcode('[si_agency_listings]');
 

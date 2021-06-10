@@ -1218,7 +1218,7 @@ class SourceImmoRoute{
         'brokers' => array('first_name','last_name','license','phone'),
         'cities' => array('name','region','listing_count'),
         'offices' => array('name','region','address','listings_count','brokers_count'),
-        'agencies' => array('name','listings_count','brokers_count','offices_count')
+        'agencies' => array('name','address','license','listings_count','brokers_count','offices_count')
       );
   
       $this->list_item_layout->normalizeValues($lTypedPaths[$this->type]);

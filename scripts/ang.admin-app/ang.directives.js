@@ -155,7 +155,8 @@ siApp
         'listings' : 'listing',
         'cities' : 'city',
         'brokers' : 'broker',
-        'offices' : 'office'
+        'offices' : 'office',
+        'agengies' : 'agency'
       }
       
 
@@ -194,6 +195,11 @@ siApp
         '{{item.name}}' : 'Name'
       }
 
+      $scope.route_agency_elements = {
+        '{{item.ref_number}}' : 'ID',
+        '{{item.name}}' : 'Name'
+      }
+
       $scope.route_default = {
         listing : {
           fr : 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
@@ -214,6 +220,11 @@ siApp
           fr : 'bureaux/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
           en : 'offices/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
           es : 'oficinas/{{item.location.city}}/{{item.name}}/{{item.ref_number}}'
+        },
+        agency : {
+          fr : 'agences/{{item.name}}/{{item.ref_number}}',
+          en : 'agencies/{{item.name}}/{{item.ref_number}}',
+          es : 'agencias/{{item.name}}/{{item.ref_number}}'
         }
       }
 
@@ -578,7 +589,8 @@ siApp
         'listings' : 'listing',
         'cities' : 'city',
         'brokers' : 'broker',
-        'offices' : 'office'
+        'offices' : 'office',
+        'agencies': 'agency'
       }
 
       $scope.groupType = $attrs.siType;
@@ -594,6 +606,70 @@ siApp
     controller: function($scope){
       
       
+      $scope.add = function($type){
+        $scope.show_page('listEdit', $type).then(function($result){
+          lNew = $result;
+          $scope.configs.lists.push(lNew);
+          $scope.$emit('save-request');
+        });
+      }
+
+      $scope.edit = function($list){
+        $scope.show_page('listEdit', $list).then(function($result){
+          console.log('new list data', $result);
+          for (const key in $result) {
+            if ($result.hasOwnProperty(key)) {
+              const element = $result[key];
+              $list[key] = element;
+            }
+          }
+          
+          //$scope.confirm("Do you want to save the changes you've made?").then(function(){
+            $scope.$emit('save-request');
+          //});
+        });
+      }
+
+      $scope.remove = function($list){
+        $scope.confirm('Are you sure you want to remove this list?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
+          let lNewlists = [];
+          $scope.configs.lists.forEach(function($e){
+            if($e!=$list){
+              lNewlists.push($e);
+            }
+          });
+          $scope.configs.lists = lNewlists;
+
+          $scope.show_toast('List removed');
+          $scope.$emit('save-request');
+        });
+      }
+
+      $scope.getListShortcode = function($list, $type=null){
+        switch($type){
+          case 'search':
+            return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
+            break;
+          case 'searchbox':
+              return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
+              break;
+          case 'gallery':
+            return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
+            break;
+          default:
+            return '[si alias="' + $list.alias + '"]';
+        }
+      }
+
+      $scope.countFilters = function($list){
+        let lResult = 0;
+        if($list.filter_groups!=null){
+          $list.filter_groups.forEach(function($e){
+            lResult += $e.filters.length;
+          });
+        }
+        return lResult;
+      }
 
     }
   }

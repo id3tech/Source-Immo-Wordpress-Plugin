@@ -32,12 +32,12 @@ if(isset($configs)){
     <a href="{{item.permalink}}">
         <div class="item-content si-background">
             
-            <div class="si-data-label name <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('name',true)">{{item.name}}</div>
-            <div class="si-data-label agency-name <?php echo($styleActive ? '' : '') ?>"  ng-show="layoutAllowVar('agency-name',true)">{{item.agency.name}}</div>
+            <div class="si-data-label notranslate name <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('name',true)">{{item.name}}</div>
+            <div class="si-data-label notranslate agency-name <?php echo($styleActive ? '' : '') ?>"  ng-show="layoutAllowVar('agency-name',true)">{{item.agency.name}}</div>
             
             <div class="si-data-label address <?php echo($styleActive ? '' : '') ?>"   ng-show="layoutAllowVar('address',true)">
-                <div itemprop="streetAddress">{{item.location.street_address}}</div> 
-                <span itemprop="city">{{item.location.city}}</span>, <span>{{item.location.state}}</span>, <span>{{item.location.address.postal_code}}</span>
+                <div itemprop="streetAddress notranslate">{{item.location.street_address}}</div> 
+                <span itemprop="city notranslate">{{item.location.city}}</span>, <span>{{item.location.state}}</span>, <span>{{item.location.address.postal_code}}</span>
             </div>
             
             <div class="si-data-label office-counters  <?php echo($styleActive ? 'si-background-small-contrast' : '') ?>"  ng-show="layoutAllowVar('listing_count',true)">

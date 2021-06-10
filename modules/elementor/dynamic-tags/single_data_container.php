@@ -27,7 +27,8 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
                 'options' => [
                     'Listing' => __( 'Listing', SI ),
                     'Broker' => __( 'Broker', SI),
-                    'Office' => __( 'Office', SI)
+                    'Office' => __( 'Office', SI),
+                    'Agency' => __( 'Agency', SI)
                 ],
             ]
         );
@@ -69,7 +70,7 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
         }
 
         if($loading_text == ''){
-            $loading_text = __('Loading ' . $type,SI);
+            $loading_text = str_replace("'","\'", __('Loading ' . $type,SI));
         }
 
         $attrs = [
