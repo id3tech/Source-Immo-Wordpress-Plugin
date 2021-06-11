@@ -5,9 +5,10 @@
         flex-direction: row;
         border-bottom: solid 1px var(--element-border-color);
         .si-tab-label{
-            padding: 1em 2em;
+            padding: 1em 1.5em;
             position:relative;
             cursor: pointer;
+            text-align: center;
             &::before{
                 content:"";
                 position: absolute;

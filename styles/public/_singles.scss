@@ -106,6 +106,7 @@ html, body{ scroll-behavior: smooth;}
             gap:0 var(--layout-gutter);
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: auto;
+            
             // grid-template-areas: 
             //     "subcategory subcategory subcategory price price price price" 
             //     "city city city price price price price"
@@ -1592,7 +1593,9 @@ html, body{ scroll-behavior: smooth;}
             //     grid-row:unset;
             // }
             .name{margin-bottom:0px;}
-            
+            @include media($phone){
+                text-align: center;
+            }
         }
 
         .bio{
@@ -1624,7 +1627,15 @@ html, body{ scroll-behavior: smooth;}
         .address{
             display:grid;
             grid-template-columns: auto 1fr;
-            i.fa-map-marker-alt{padding:5px;}    
+            i.fa-map-marker-alt{padding:5px;}   
+            @include media($phone){
+                grid-template-columns: 1fr;
+                place-items:center;
+                text-align: center;
+                i.fa-map-marker-alt{
+                    font-size: 2em;
+                }
+            } 
         }
 
         .picture{
@@ -1714,6 +1725,10 @@ html, body{ scroll-behavior: smooth;}
             //     grid-column: 1 / span 3;
             //     grid-row:unset;
             // }
+            @include media($phone){
+                text-align: center;
+            }
+
             .name{margin-bottom:0px;}
             
         }
@@ -1748,6 +1763,14 @@ html, body{ scroll-behavior: smooth;}
             display:grid;
             grid-template-columns: auto 1fr;
             i.fa-map-marker-alt{padding:5px;}    
+            @include media($phone){
+                grid-template-columns: 1fr;
+                place-items:center;
+                text-align: center;
+                i.fa-map-marker-alt{
+                    font-size: 2em;
+                }
+            }
         }
 
         .picture{
@@ -1798,8 +1821,12 @@ html, body{ scroll-behavior: smooth;}
         .office-list{
             
             .si-office-item{
+                
                 .si-data-label{
                     text-align:left;
+                    @include media($phone){
+                        text-align:center;
+                    }
                 }
                 .name{
                     padding: var(--element-padding);

@@ -4,6 +4,12 @@
     display:flex;
     flex-direction: row;
     gap: var(--flex-gap, var(--layout-gutter));
+
+    @include media($phone){
+        &:not(.si-flex-row-phone){
+            flex-direction: column;
+        }
+    }
 }
 
 .si-flex-column{
@@ -49,4 +55,57 @@
 }
 .si-flex-justify-stretch{
     justify-content: stretch;
+}
+
+@include media($phone){
+    .si-flex-row-phone{
+        display:flex;
+        flex-direction: row;
+        gap: var(--flex-gap, var(--layout-gutter));
+    }
+    
+    .si-flex-column-phone{
+        display:flex;
+        flex-direction: column;
+        gap: var(--flex-gap, var(--layout-gutter));
+    }
+    
+    .si-flex-align-start-phone{
+        align-items: flex-start;
+    }
+    .si-flex-align-end-phone{
+        align-items: flex-end;
+    }
+    .si-flex-align-center-phone{
+        align-items: center;
+    }
+    .si-flex-align-space-between-phone{
+        align-items: space-between;
+    }
+    .si-flex-align-start-phone{
+        align-items: space-around;
+    }
+    .si-flex-align-stretch-phone{
+        align-items: stretch;
+    }
+    
+    
+    .si-flex-justify-start-phone{
+        justify-content: flex-start;
+    }
+    .si-flex-justify-end-phone{
+        justify-content: flex-end;
+    }
+    .si-flex-justify-center-phone{
+        justify-content: center;
+    }
+    .si-flex-justify-space-between-phone{
+        justify-content: space-between;
+    }
+    .si-flex-justify-start-phone{
+        justify-content: space-around;
+    }
+    .si-flex-justify-stretch-phone{
+        justify-content: stretch;
+    }
 }
