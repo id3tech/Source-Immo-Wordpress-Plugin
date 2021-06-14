@@ -1046,6 +1046,8 @@ class SourceImmo {
     $city_data = SourceImmoApi::get_city_data($ref_number)->items[0];
     //__c($city_data);
 
+    global $siCurrentModel;
+    $siCurrentModel = $city_data;
     // $city_data = new SourceImmoListingsResult($city_data);
     if($city_data != null){
       header('http/1.0 200 found');
@@ -1092,8 +1094,8 @@ class SourceImmo {
     $ref_number = get_query_var( 'ref_number' );
     global $office_data,$post;
     // load data
-    
-    $office_data = json_decode(SourceImmoApi::get_office_data(strtoupper($ref_number)));
+    global $siCurrentModel;
+    $siCurrentModel = $office_data = json_decode(SourceImmoApi::get_office_data(strtoupper($ref_number)));
     
     if($office_data != null){
       header('http/1.0 200 found');
@@ -1139,7 +1141,8 @@ class SourceImmo {
     global $agency_data,$post;
     // load data
     
-    $agency_data = json_decode(SourceImmoApi::get_agency_data(strtoupper($ref_number)));
+    global $siCurrentModel;
+    $siCurrentModel = $agency_data = json_decode(SourceImmoApi::get_agency_data(strtoupper($ref_number)));
     
     if($agency_data != null){
       header('http/1.0 200 found');

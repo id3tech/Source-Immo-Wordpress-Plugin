@@ -2093,6 +2093,8 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-map-container, .si-map-container { position: relative; overflow: hidden; margin: calc(-1 * var(--layout-gutter)); margin-top: 0; }
 
+#top .si-map-container .si-map-viewport-container, .si-map-container .si-map-viewport-container { position: relative; }
+
 @media screen and (max-width: 640px) { #top .si-map-container, .si-map-container { margin: calc(-1 * (var(--layout-gutter) / 2)); margin-top: 0; } }
 
 #top .si-map-container .si-selected-item, .si-map-container .si-selected-item { position: absolute; bottom: 0px; left: 0px; right: 0px; -webkit-transform: translateY(100%); transform: translateY(100%); -webkit-transition: 0.25s ease-out; transition: 0.25s ease-out; }
@@ -2106,6 +2108,8 @@ html, body { scroll-behavior: smooth; }
 #top .si-map-container .si-selected-item .item-content, .si-map-container .si-selected-item .item-content { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr auto; grid-template-columns: auto 1fr auto; gap: var(--layout-gutter); position: relative; z-index: 2; }
 
 #top .si-map-container .si-selected-item .item-content .image, .si-map-container .si-selected-item .item-content .image { height: 175px; width: 260px; }
+
+#top .si-map-container .si-selected-item .item-content .image a, .si-map-container .si-selected-item .item-content .image a { display: contents; }
 
 #top .si-map-container .si-selected-item .item-content .image img, .si-map-container .si-selected-item .item-content .image img { display: block; width: 100%; height: 100%; -o-object-fit: cover; object-fit: cover; -o-object-position: center; object-position: center; }
 
@@ -2160,7 +2164,7 @@ html, body { scroll-behavior: smooth; }
 
 #top .si-map-container .map-marker-icon.revenue_prop:after, .si-map-container .map-marker-icon.revenue_prop:after { content: "\f2e9"; }
 
-#top .si-map-container .map-marker-icon.farm:after, .si-map-container .map-marker-icon.farm:after { content: "\f1b0"; }
+#top .si-map-container .map-marker-icon.farm:after, .si-map-container .map-marker-icon.farm:after { content: "\f864"; }
 
 #top .si-map-container .cluster, .si-map-container .cluster { border-radius: 50%; background: var(--map-cluster-bg, var(--highlight)); color: var(--map-cluster-fg, var(--highlight-text-color)); font-size: 15px; font-weight: bold; }
 
@@ -2177,6 +2181,32 @@ html, body { scroll-behavior: smooth; }
 #top .si-map-container .cluster.cluster-large, .si-map-container .cluster.cluster-large { font-size: 30px; }
 
 #top .si-map-container .cluster.cluster-huge, .si-map-container .cluster.cluster-huge { font-size: 35px; }
+
+#top .si-map-container .si-map-legend, .si-map-container .si-map-legend { padding: 1rem; }
+
+#top .si-map-container .si-map-legend h3, .si-map-container .si-map-legend h3 { font-size: 1.25rem; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list, .si-map-container .si-map-legend .si-map-legend-list { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -ms-flex-wrap: wrap; flex-wrap: wrap; gap: 1rem; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item { position: relative; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; gap: 0.5rem; -webkit-box-pack: start; -ms-flex-pack: start; justify-content: flex-start; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item label:empty, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item label:empty { display: none; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon { position: relative; background: none; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.revenue_prop, .residential, .com, .ind, .farm, .lot, .multi-family)::before, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.revenue_prop, .residential, .com, .ind, .farm, .lot, .multi-family)::before { display: none; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.revenue_prop, .residential, .com, .ind, .farm, .lot, .multi-family)::after, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.revenue_prop, .residential, .com, .ind, .farm, .lot, .multi-family)::after { position: relative; color: var(--map-marker-bg); }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.available, .sold)::after, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon:is(.available, .sold)::after { content: unset; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon::before, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon::before { position: relative; left: 0; font-size: 1rem; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon::after, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon::after { width: auto; bottom: unset; left: unset; font-size: 1rem; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon.separator::before, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon.separator::before { width: 1px; opacity: 0.2; height: 1.25rem; background: currentColor; content: ""; display: block; }
+
+#top .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon.separator::after, .si-map-container .si-map-legend .si-map-legend-list .si-map-legend-item .map-marker-icon.separator::after { content: unset; }
 
 #top .si-select, .si-select { position: relative; display: block; min-width: 50px; padding: 0.5em; padding-right: 25px; cursor: pointer; border: var(--component-border); border-radius: var(--component-border-radius); }
 

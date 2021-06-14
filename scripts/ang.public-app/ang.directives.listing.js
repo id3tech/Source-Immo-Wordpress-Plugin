@@ -1121,7 +1121,7 @@ siApp
         controllerAs: 'ctrl',
         templateUrl: directiveTemplatePath('si-map'),
         link: function($scope, element){
-            $scope.viewport_element = element.children()[0];
+            $scope.viewport_element = element[0].querySelector('.viewport');
             $scope.$element = element[0];
             $scope.init();
         },
@@ -1134,6 +1134,7 @@ siApp
             $scope.markers = [];
             $scope.markerCluster = null;
             $scope.bounds = null;
+            $scope.legendList = [];
             $scope.client = {
                 search_token : null
             };
@@ -1347,9 +1348,15 @@ siApp
                             return;
                         }
     
+                        $siCompiler.compileListingMapMarker($marker);
+
                         const lMarkerClass = ['map-marker-icon',$marker.category_code.replace(' ','_')];
+                        $scope.addLegendItem({type: $marker.category_code.replace(' ','_'), label: $marker.category},true);
+
                         if($marker.status_code != undefined){
                             lMarkerClass.push($marker.status_code.toLowerCase());
+                            $scope.addLegendItem({type: 'separator', label: ''});
+                            $scope.addLegendItem({type: $marker.status_code, label: $marker.status});
                         }
                         $marker.marker = new SiMarker({
                             position: lngLat,
@@ -1611,6 +1618,18 @@ siApp
                     });
                 }
             });
+
+            $scope.addLegendItem = function($item, $addToStart){
+                $item.type = $item.type.toLowerCase();
+                if($scope.legendList.some(function($l){ return $l.type == $item.type})) return;
+                if($addToStart == undefined || $addToStart === false){
+                    $scope.legendList.push($item);
+                }
+                else{
+                    $scope.legendList.unshift($item);
+                }
+                
+            }
     
     
             function SiMarker(options) {

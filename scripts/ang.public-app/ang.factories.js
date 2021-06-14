@@ -630,6 +630,11 @@ function $siCompiler($siConfig,$siList, $siUtils){
 
     }
 
+    $scope.compileListingMapMarker = function($item){
+        $item.category = $siUtils.getCaption($item.category_code, 'listing_category');
+        $item.status = $siUtils.getCaption($item.status_code, 'listing_status');
+    }
+
     /**
      * Compile data to ease access to some values
      * @param {array} $list Array of broker item
@@ -710,8 +715,8 @@ function $siCompiler($siConfig,$siList, $siUtils){
         if($item.phones != null){
             Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
         }
-        $item.location.region       = $siUtils.getCaption($item.location.region_code, 'region');
-        $item.location.country      = $siUtils.getCaption($item.location.country_code, 'country');
+        $item.location.region       = ($item.location.region == undefined) ? $siUtils.getCaption($item.location.region_code, 'region') : $item.location.region;
+        $item.location.country      = ($item.location.country == undefined) ? $siUtils.getCaption($item.location.country_code, 'country') : $item.location.country;
         $item.location.state        = ($item.location.state == undefined) ? $siUtils.getCaption($item.location.state_code, 'state') : $item.location.state;
         $item.location.city         = ($item.location.city == undefined) ? $siUtils.getCaption($item.location.city_code, 'city') : $item.location.city;
         
@@ -753,6 +758,7 @@ function $siCompiler($siConfig,$siList, $siUtils){
 
         if($item.main_office != null){
             $scope.compileOfficeItem($item.main_office);
+            $item.location = $item.main_office.location;
         }
         
         $item.permalink = $siUtils.getPermalink($item,'agency');
@@ -1011,14 +1017,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
         let lMandatoryLocationData = ['country','state','region','city'];
         
-        const lItemLocation = ($scope.item.main_office != undefined) ? $scope.item.main_office.location : $scope.item.location;
-        if(lItemLocation){
-            lMandatoryLocationData.forEach(function($d) {
-                if(typeof lItemLocation[$d] == 'undefined'){
-                    lItemLocation[$d] = ('other ' + $d).translate();
-                }
-            })
-        }
+        //$scope.item.location = ($scope.item.main_office != undefined) ? $scope.item.main_office.location : $scope.item.location;
+        if($scope.item.location == undefined) $scope.item.location = {};
+
+        lMandatoryLocationData.forEach(function($d) {
+            if(typeof $scope.item.location[$d] == 'undefined'){
+                $scope.item.location[$d] = ('other ' + $d).translate();
+            }
+        });
         
 
         let lResult = $scope.sanitize('/' + $siTemplate.interpolate(lRoute.route, $scope));

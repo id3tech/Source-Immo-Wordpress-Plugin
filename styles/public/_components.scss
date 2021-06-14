@@ -644,6 +644,10 @@ si-checkbox, si-radio{
     overflow:hidden;
     margin:calc(-1 * var(--layout-gutter));
     margin-top:0;
+    .si-map-viewport-container{
+        position:relative;
+    }
+
     @include media($phone){
         margin:calc(-1 * (var(--layout-gutter) / 2));
         margin-top:0;
@@ -655,6 +659,7 @@ si-checkbox, si-radio{
         right:0px;
         transform:translateY(100%);
         transition: 0.25s ease-out;
+        
         &.active{
             transform:translateY(0);
         }
@@ -678,10 +683,11 @@ si-checkbox, si-radio{
             gap: var(--layout-gutter);
             position:relative;
             z-index:2;
+            
             .image{
                 height: 175px;
                 width: 260px;
-                
+                a{display:contents;}
                 img{
                     display:block;
                     width:100%;
@@ -875,7 +881,7 @@ si-checkbox, si-radio{
         }
         &.farm{
             &:after{
-                content: "\f1b0";
+                content: "\f864";
             }
         }
     }
@@ -915,6 +921,74 @@ si-checkbox, si-radio{
         }
         &.cluster-huge{
             font-size: 35px;
+        }
+    }
+
+    .si-map-legend{
+        padding:1rem;
+        h3{
+            font-size: 1.25rem;
+        }
+        .si-map-legend-list{
+            display:flex;
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+
+            .si-map-legend-item{
+                position:relative;
+                display:flex;
+                flex-direction: row;
+                gap:0.5rem;
+                justify-content: flex-start;
+                align-items: center;
+                label:empty{
+                    display:none;
+                }
+                .map-marker-icon{
+                    position:relative;
+                    background:none;
+
+                    &:is(.revenue_prop,.residential,.com,.ind,.farm,.lot,.multi-family){
+                        &::before{
+                            display:none;
+                        }
+                        &::after{
+                            position:relative;
+                            color:var(--map-marker-bg);
+                        }
+                    }
+                    &:is(.available,.sold){
+                        &::after{
+                            content:unset;
+                        }
+                    }
+                    &::before{
+                        position:relative;
+                        left:0;
+                        font-size: 1rem;
+                    }
+                    &::after{
+                        width: auto;
+                        bottom: unset;
+                        left: unset;
+                        font-size: 1rem;
+                    }
+
+                    &.separator{
+                        &::before{
+                            width:1px;
+                            opacity: 0.2;
+                            height:1.25rem;
+                            background: currentColor;
+                            content:"";
+                            display: block;
+                        }
+                        &::after{content:unset;}
+                    }
+                }
+            }
         }
     }
 }

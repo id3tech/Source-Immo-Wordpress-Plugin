@@ -105,6 +105,9 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
 
             return;
         }
+        else{
+            echo('no model found');
+        }
         echo('');
     }
 }

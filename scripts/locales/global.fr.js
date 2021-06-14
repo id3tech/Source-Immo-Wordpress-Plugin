@@ -454,6 +454,10 @@ $locales.fr = {};$locales.fr.global =
     , "No listing" : "Aucune inscription"
     , "1 listing" : "1 inscription"
     , "{0} listings" : "{0} inscriptions"
+
+    // Public - MAP
+    , "Legend" : "Légende"
+    
     // Public - SEARCH
     , "Opening..." : "Ouverture..."
     , "Search" : "Recherche"

@@ -26,15 +26,17 @@ Complete informations about a real estate listing
 ** VR visit
 ** Map
 ** Street view
-*Address, description and price
-*Proximity features
-*Addenda
-*Lot and building features
-*Room details
-*Mortgage calculator
-*Neighborhood widget (with Local Logic)
-*Navigation of search results
-*Printable version
+* Address, description and price
+* Proximity features
+* Addenda
+* Lot and building features
+* Room details
+* Mortgage calculator
+* Neighborhood widget (with Local Logic)
+* Navigation of search results
+* Printable version
+* Filters
+** filter for addenda formatting level (default value is 2): si/listing/addanda/format_level
 
 ### Agent informations
 Complete informations about a real estate agent
@@ -86,23 +88,19 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Agency data
 
 
-### New filters
-* New filter for addenda formatting level (default value is 2): si/listing/addanda/format_level
+### filters
 
-
-### Other things
-
-* Picture boxing preference
-* You can change the default view which will update every list that used the previous one
-* Sprinkle hooks here and there
-* Minor bugs fixes
-* Disconnection now make a backup of the settings to be restored upon credentials update
-* Fix Yoast support
-* Add minor support for Avada's Fusion theme
-* Fix WPML default language shortcut for listings, brokers, cities and offices
 
 
 ## Change log
+Version 1.2.12
+* Map legend
+* More accurate farm icon
+* Detail link on image
+* Empty permalink part has default value
+* Icon in quicksearch for Office and agency
+
+
 Version 1.2.11
 * Agency support
 ** Search engine

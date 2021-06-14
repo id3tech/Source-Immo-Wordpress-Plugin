@@ -236,6 +236,8 @@ function iconFromType($siUtils){
         let lTypeIcons = {
             'listing' : 'home',
             'broker' : 'user',
+            'office' : 'store',
+            'agency' : 'building',
             'city' : 'map-marker-alt',
             'region' : 'directions'
         }
