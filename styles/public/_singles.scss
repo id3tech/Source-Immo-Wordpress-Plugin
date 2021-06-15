@@ -6,9 +6,43 @@ html, body{ scroll-behavior: smooth;}
     &.listing-single, &.broker-single, &.office-single{
         .si-content{
             .si-part{
+                &.si-allowed-elementor-typography{
+                    *{
+                        font-size: inherit;
+                        font-family: inherit;
+                        font-weight: inherit;
+                        color: inherit;
+                        text-transform: inherit;
+                        font-style: inherit;
+                        text-decoration: inherit;
+                        line-height: inherit;
+                        letter-spacing: inherit;
+                    }
+                }
                 //display:contents;
             }
         }
+    }
+
+    .si-part{
+        &.si-part-tabs{
+            overflow:hidden;
+        }
+
+        &.si-allowed-elementor-typography{
+            *{
+                font-size: inherit;
+                font-family: inherit;
+                font-weight: inherit;
+                color: inherit;
+                text-transform: inherit;
+                font-style: inherit;
+                text-decoration: inherit;
+                line-height: inherit;
+                letter-spacing: inherit;
+            }
+        }
+        //display:contents;
     }
 
     // ---------------
@@ -149,19 +183,52 @@ html, body{ scroll-behavior: smooth;}
             }
 
             @include media($tablet){
-                grid-template-columns: 1fr;
-                justify-items:center;
-                grid-template-areas:
-                    "subcategory"
-                    "city"
-                    "price"
-                    "tools"
-                    "information_request"
-                ;
+                grid-template-columns: 1fr 1fr;
+                place-items:center;
+                // grid-template-areas:
+                //     "subcategory"
+                //     "city"
+                //     "price"
+                //     "tools"
+                //     "information_request"
+                // ;
+                .subcategory{
+                    grid-column: 1 / -1;
+                }
+                
+                .si-part{
+                    &.si-part-header-city{
+                        grid-column: 1 / -1;
+                        grid-row:2;
+                    }
+                    &.si-part-header-price{
+                        grid-column: 1 / -1;
+                        grid-row:2;
+                    }
+                    &.si-part-header-tools{
+                        grid-column: 1;
+                        place-self: center start;
+                    }
+                    &.si-part-info-request-button{
+                        grid-column: 2;
+                        place-self: center end;
+                    }
+                }
             }
+            
             @include media($phone){
                 place-items:center;
                 text-align:center;
+                .si-part{
+                    &.si-part-header-tools{
+                        grid-column: 1 / -1;
+                        place-self: center;
+                    }
+                    &.si-part-info-request-button{
+                        grid-column: 1 / -1;
+                        place-self: center;
+                    }
+                }
             }
             
             .subcategory{line-height: 1em;}
@@ -171,7 +238,7 @@ html, body{ scroll-behavior: smooth;}
                 place-self: stretch;
                 text-align:center;
                 
-                grid-column-span: 2;
+                //grid-column-span: 2;
                 button{
                     width:100%;
                     display:block;padding:1em 2em;
@@ -180,6 +247,7 @@ html, body{ scroll-behavior: smooth;}
                 }
                 @include media($phone){
                     place-self:center;
+                    //grid-column-span: unset;
                 }
             }
 
@@ -205,18 +273,25 @@ html, body{ scroll-behavior: smooth;}
                     }
                 } 
                 @include media($phone){
+                    
                     place-self:center;
                 }
             }
             .subcategory{
                 font-size:2em;font-weight:600;
                 text-transform: uppercase;
+                @include media($tablet){
+                    grid-column: 1 / -1;
+                    place-self:center;
+                }
             }
             .city{
                 font-size:1.75em;font-weight: 300;
                 place-self: center self-start;
-                @include media($phone){
+                @include media($tablet){
+                    grid-column: 1 / -1;
                     place-self:center;
+
                 }
             }
             
@@ -1633,7 +1708,7 @@ html, body{ scroll-behavior: smooth;}
                 place-items:center;
                 text-align: center;
                 i.fa-map-marker-alt{
-                    font-size: 2em;
+                    display:none;
                 }
             } 
         }
@@ -1655,14 +1730,17 @@ html, body{ scroll-behavior: smooth;}
             display:grid;
             gap:var(--layout-gutter);
             padding:10px;
-            // @include media($phone){
-            //     grid-column: 1 / span 3;
-            //     grid-row:unset;
-            // }
-
-            .phone-list{
-                .item{font-size:1.5em;}
+            @include media($phone){
+                .phone-list{
+                    i.fal{
+                        display:none;
+                    }
+                }
             }
+
+            // .phone-list{
+            //     .item{font-size:1.5em;}
+            // }
             .actions{
                 padding:10px;
                 text-align:center;
@@ -1763,12 +1841,12 @@ html, body{ scroll-behavior: smooth;}
             display:grid;
             grid-template-columns: auto 1fr;
             i.fa-map-marker-alt{padding:5px;}    
-            @include media($phone){
+             @include media($phone){
                 grid-template-columns: 1fr;
                 place-items:center;
                 text-align: center;
                 i.fa-map-marker-alt{
-                    font-size: 2em;
+                    display:none;
                 }
             }
         }
@@ -1790,14 +1868,17 @@ html, body{ scroll-behavior: smooth;}
             display:grid;
             gap:var(--layout-gutter);
             padding:10px;
-            // @include media($phone){
-            //     grid-column: 1 / span 3;
-            //     grid-row:unset;
-            // }
-
-            .phone-list{
-                .item{font-size:1.5em;}
+            @include media($phone){
+                .phone-list{
+                    i.fal{
+                        display:none;
+                    }
+                }
             }
+
+            // .phone-list{
+            //     .item{font-size:1.5em;}
+            // }
             .actions{
                 padding:10px;
                 text-align:center;

@@ -8,6 +8,7 @@
     @include media($phone){
         &:not(.si-flex-row-phone){
             flex-direction: column;
+            --flex-gap:0;
         }
     }
 }
@@ -108,4 +109,13 @@
     .si-flex-justify-stretch-phone{
         justify-content: stretch;
     }
+}
+
+
+// si-hide-empty
+.si-hide-hard{
+    display:none!important;
+}
+.si-hide-soft{
+    opacity:0!important;
 }

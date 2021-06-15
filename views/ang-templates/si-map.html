@@ -5,7 +5,7 @@
             
                 <div class="item-content">
                     
-                    <div class="image"><a class="si-button" href="{{selectedItem.permalink}}"><img ng-src="{{selectedItem.photos[0].url}}" /></a></div>
+                    <div class="image"><a href="{{selectedItem.permalink}}"><img ng-src="{{selectedItem.photos[0].url}}" /></a></div>
                     <div class="item-infos">
                         <div class="subcategory">{{selectedItem.subcategory}}</div>
                         <div class="price">{{selectedItem.short_price}}</div>
@@ -23,7 +23,7 @@
                         
                     </div>
                     <div class="more-infos">
-                        <a class="si-button" href="{{selectedItem.permalink}}">{{'More infos' | translate}}</a>
+                        <a href="{{selectedItem.permalink}}"><button type="button" class="si-button">{{'More infos' | translate}}</button></a>
                     </div>
 
                     <div class="flags">

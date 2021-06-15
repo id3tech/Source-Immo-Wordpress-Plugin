@@ -1814,4 +1814,40 @@ add_action('si_broker_detail_begin', function(){
 		return $permalink;
 	  }, 10, 2 );
 }, 5,0);
+
+add_action('si_office_detail_begin', function(){
+	add_filter( 'WPML_filter_link', function($lang_url, $lang){
+    global $office_data;
+    global $sitepress;
+    $lHomeUrl= $sitepress->language_url( $lang["code"] );
+    
+		$permalink_format = SourceImmo::current()->get_office_permalink($lang['code']);
+    $permalink = SourceImmoListingsResult::buildPermalink($office_data, $permalink_format,$lang["code"]);
+    
+    if(isset($_GET['view'])){
+      $permalink = $permalink . '?view=' . $_GET['view'];
+    }
+    
+    //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
+    return $permalink;
+	  }, 10, 2 );
+}, 5,0);
+
+add_action('si_agency_detail_begin', function(){
+	add_filter( 'WPML_filter_link', function($lang_url, $lang){
+    global $agency_data;
+    global $sitepress;
+    $lHomeUrl= $sitepress->language_url( $lang["code"] );
+    
+		$permalink_format = SourceImmo::current()->get_agency_permalink($lang['code']);
+    $permalink = SourceImmoBrokersResult::buildPermalink($agency_data, $permalink_format,$lang["code"]);
+    
+    if(isset($_GET['view'])){
+      $permalink = $permalink . '?view=' . $_GET['view'];
+    }
+    
+    //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
+		return $permalink;
+	  }, 10, 2 );
+}, 5,0);
 #endregion

@@ -1195,5 +1195,104 @@ function siListSlider($compile){
 }]);
 
 
+siApp
+.directive('siHideEmpty', ['$parse', function($parse){
+    return {
+        restrict:'A',
+        scope: {
+            options: '=?siHideEmpty'
+        },
+        link: function($scope,$element,$attr){
+            $scope.options = Object.assign({
+                method: 'hard', // hard: display none|soft: opacity 0
+            },$scope.options);
+            // let lShowContent = false;
+            // if($attr.siHideEmpty != ''){
+            //     const lHideExpression = $parse($attr.siHideEmpty)($scope);
+            //     $scope.applyExpression(lHideExpression);
+            // }
+            // else{
+            //     $scope.$watch(
+            //         function(){
+            //             return $attr.siHideEmpty;
+            //         },
+            //         function($new,$old){
+            //             if($new != ''){
+            //                 const lHideExpression = $parse($new)($scope);
+            //                 $scope.applyExpression(lHideExpression);
+            //             }
+            //         }
+            //     );
+            // }
+            $element[0].classList.add('si-hide-' + $scope.options.method);
+            $scope.init();
+            
+        },
+        controller: function($scope, $element, $timeout, $q){
 
+            $scope.init = function(){
+                $scope.hasContent().then($scope.reveal);
+            }
+
+            $scope.hasContent = function(){
+                const lDeferred = $q.defer();
+
+                // Test content availability from expression
+                if($scope.options.when != undefined){
+                    
+                    if(typeof($scope.options.when) == 'function'){
+                        const lExpressionResult = $scope.options.when();
+                        if(lExpressionResult.then != undefined){
+                            return lExpressionResult;
+                        }
+                        else{
+                            if(lExpressionResult === true) return $q.resolve();
+
+                            $scope.$watch($scope.options.when, function($new,$old){
+                                if($new === true){
+                                    lDeferred.resolve();
+                                }
+                            })
+                        
+                        }
+                    }
+                    else{
+                        if($scope.options.when === true) return $q.resolve();
+                        $scope.$watch(function(){
+                            return $scope.options.when;
+                        }, function($new,$old){
+                            if($new === true){
+                                lDeferred.resolve();
+                            }
+                        });
+                    }
+                    
+                    return lDeferred.promise;
+                }
+
+                // Test content availability from element actual content
+                // Let it be a little, just in case
+                $timeout(function(){
+                    if($element[0].innerText.trim() != ''){
+                        // make sure there's no hidden children
+                        if(
+                            Array.from($element[0].children)
+                                .filter(function($e){ return !$e.classList.contains('ng-hide')})
+                                .some(function($e){ return $e.innerText != ''})
+                        ){
+                            lDeferred.resolve();
+                        }
+                    }
+                }, 250);
+
+
+                return lDeferred.promise;
+            }
+
+            $scope.reveal = function(){
+                $element[0].classList.remove('si-hide-' + $scope.options.method);
+            }
+        }
+    }
+}]);
 

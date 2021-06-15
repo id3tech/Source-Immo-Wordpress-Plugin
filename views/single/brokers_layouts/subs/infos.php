@@ -1,8 +1,8 @@
     <?php echo do_shortcode('[si_broker_part part="name"]') ?>
 
-    <?php echo do_shortcode('[si_broker_part part="about"]') ?>
+    <?php echo do_shortcode('[si_broker_part part="about" hide_empty="1"]') ?>
 
-    <div class="si-row extras si-background-small-contrast si-container-padding si-element-radius">
+    <div si-hide-empty class="si-row extras si-background-small-contrast si-container-padding si-element-radius">
         <?php echo do_shortcode('[si_broker_part part="specs"]') ?>
         <?php echo do_shortcode('[si_broker_part part="rating"]') ?>
     </div>

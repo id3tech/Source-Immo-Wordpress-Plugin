@@ -40,7 +40,9 @@ class SiUpdater{
     $pluginInfos = $this->getRepoPluginInfo();
     
     // Check the versions if we need to do an update
-    if(version_compare( $pluginInfos->version, $transient->checked[$this->slug],'<=' )) return $transient;
+    if(isset($transient->checked[$this->slug])){
+      if(version_compare( $pluginInfos->version, $transient->checked[$this->slug],'<=' )) return $transient;
+    }
    
     // Update the transient to include our updated plugin data
     $obj = new stdClass();

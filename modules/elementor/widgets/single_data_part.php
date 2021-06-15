@@ -91,6 +91,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             ]
         ];
 
+
         $this->add_control(
             'content_type',
             [
@@ -280,6 +281,47 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             ]
         ); 
 
+        $this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+            [
+                'name' => 'content_typograghy',
+                'label' => __('Typography'),
+                'scheme' => \Elementor\Scheme_Typography::TYPOGRAPHY_1,
+                'default' => null,
+                'selector' => '{{WRAPPER}} .si-allowed-elementor-typography',
+                'conditions' => [
+                    'relation' => 'or',
+                    'terms' => [
+                        ['name' => 'content_part_listing', 'operator' => 'in', 'value' => ['location','description','summary']],
+                        ['name' => 'content_part_broker', 'operator' => 'in', 'value' => ['name','contact','license','address','about']],
+                        ['name' => 'content_part_office', 'operator' => 'in', 'value' => ['name','agency_name','contact','address']],
+                        ['name' => 'content_part_agency', 'operator' => 'in', 'value' => ['name','license','contact','address']]
+                    ]
+                ]
+                // 'condition' => [
+                //     'content_part_listing' => ['location','description','summary'],
+                //     'content_part_broker' => ['name','contact','address','about'],
+                //     'content_part_office' => ['name','agency_name','contact','address'],
+                //     'content_part_agency' => ['name','license_type','contact','address']
+                // ]
+            ]
+        );
+
+        $this->add_control(
+            'hide_empty',
+            [
+                'label' => __('Hide when empty', SI),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'placeholder' => '',
+                'options' => [
+                    '' => __('No', SI),
+                    'hard' => __('Yes (hard)', SI),
+                    'office' => __('Yes (soft)', SI)
+                ],
+                'default' => ''
+            ]
+        );
+
     }
 
     /**
@@ -342,6 +384,14 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
         $shortcode_attrs[] = 'part="' . $contentPart . '"';
         $shortcode_attrs[] = 'align="' . implode(' ', $contentAlign) . '"';
 
+        if($settings['hide_empty'] != ''){
+            $shortcode_attrs[] = 'hide_empty="' . $settings['hide_empty'] . '"';
+        }
+
+        if(in_array($contentPart, ['summary','contact','address','description','about','name','license','agency_name'])){
+            $classes[] = 'si-allowed-elementor-typography';
+            $partClasses[] = 'si-allowed-elementor-typography';
+        }
 
         if($contentPart == 'media_box'){
             $contentHeight = [];
@@ -482,6 +532,10 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             'si-part-' . $contentPart,
             implode(' ', $contentAlign)
         ];
+
+        if(in_array($contentPart, ['summary','contact','address','description','about','name','license','agency_name'])){
+            $classes[] = 'si-allowed-elementor-typography';
+        }
 
         if($contentPart == 'offices'){
             $layoutMode = [];

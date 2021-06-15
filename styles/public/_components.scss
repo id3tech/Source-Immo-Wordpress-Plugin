@@ -1,9 +1,15 @@
 #top .si-tabs,
 .si-tabs{
+    overflow: hidden;
     .si-tab-button-container{
         display: flex;
         flex-direction: row;
         border-bottom: solid 1px var(--element-border-color);
+
+        @include media($phone){
+            justify-content: center;
+        }
+
         .si-tab-label{
             padding: 1em 1.5em;
             position:relative;
@@ -872,6 +878,11 @@ si-checkbox, si-radio{
         &.com{
             &:after{
                 content: "\f290";
+            }
+        }
+        &.ind{
+            &:after{
+                content: "\f3b3";
             }
         }
         &.revenue_prop{

@@ -53,7 +53,7 @@
                 <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php echo(apply_filters('si_label', __("Filters",SI))) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
                 <div class="si-dropdown-panel">
                     <div class="si-dropdown-item {{filter.hasFilter(['agencies']) ? 'has-filters' : ''}}" ng-click="toggleExpand($event,'agencies')"><?php echo(apply_filters('si_label', __('Agencies', SI))) ?></div>
-                    <div class="si-dropdown-item 
+                    <div ng-if="false" class="si-dropdown-item 
                         {{filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}" 
                         ng-click="toggleExpand($event,'others')"><?php echo(apply_filters('si_label', __('More', SI))) ?></div>
 

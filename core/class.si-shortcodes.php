@@ -368,6 +368,7 @@ class SiShorcodes{
                 'part' => '',
                 'align' => 'align-stretch',
                 'class' => '',
+                'hide_empty' => false
             ), $atts )
         );
 
@@ -381,9 +382,20 @@ class SiShorcodes{
             $lResult = ob_get_clean();
         }
         $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $attrPart = [];
         $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
 
-        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';
+        if($hide_empty !== false){
+            if(in_array($hide_empty, ['soft','hard'])){
+                $attrPart[] = 'si-hide-empty="{method:\'' . $hide_empty . '\'}"';
+                
+            }
+            else{
+                $attrPart[] = 'si-hide-empty';
+            }
+        }
+        
+        $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $attrPart) .'>' . $lResult . '</div>';
         
         return $lResult;
     }
@@ -460,6 +472,7 @@ class SiShorcodes{
                 'part' => '',
                 'class' => '',
                 'align' => 'align-stretch',
+                'hide_empty' => false
             ), $atts )
         );
 
@@ -474,9 +487,21 @@ class SiShorcodes{
         }
 
         $sanitizedPart = sanitize_title(str_replace('_','-',$part));
+        $attrPart = [];
         $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
 
-        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';        
+        if($hide_empty !== false){
+            if(in_array($hide_empty, ['soft','hard'])){
+                $attrPart[] = 'si-hide-empty="{method:\'' . $hide_empty . '\'}"';
+                
+            }
+            else{
+                $attrPart[] = 'si-hide-empty';
+            }
+        }
+        
+
+        $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $attrPart) .'>' . $lResult . '</div>';        
         return $lResult;
     }
 
@@ -598,6 +623,7 @@ class SiShorcodes{
                 'part' => '',
                 'class' => '',
                 'align' => 'align-stretch',
+                'hide_empty' => false
             ), $atts )
         );
 
@@ -611,10 +637,21 @@ class SiShorcodes{
             $lResult = ob_get_clean();
         }
 
+        $attrPart = [];
         $sanitizedPart = sanitize_title(str_replace('_','-',$part));
         $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+        if($hide_empty !== false){
+            if(in_array($hide_empty, ['soft','hard'])){
+                $attrPart[] = 'si-hide-empty="{method:\'' . $hide_empty . '\'}"';
+                
+            }
+            else{
+                $attrPart[] = 'si-hide-empty';
+            }
+        }
+        
 
-        $lResult = '<div class="'. implode(' ', $classes) .'">' . $lResult . '</div>';        
+        $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $attrPart) .'>' . $lResult . '</div>';        
         return $lResult;
     }
 
@@ -833,7 +870,8 @@ class SiShorcodes{
                 'height' => '',
                 'tabs' => '',
                 'allow_toggle' => '',
-                'media_picture_fit' => null
+                'media_picture_fit' => null,
+                'hide_empty' => false
             ), $atts )
         );
 
@@ -858,6 +896,15 @@ class SiShorcodes{
         $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
         
         if($adapt) $partAttr[] = 'si-adaptative-class';
+        if($hide_empty !== false){
+            if(in_array($hide_empty, ['soft','hard'])){
+                $partAttr[] = 'si-hide-empty="{method:\'' . $hide_empty . '\'}"';
+                
+            }
+            else{
+                $partAttr[] = 'si-hide-empty';
+            }
+        }
 
         $lResult = '<div class="'. implode(' ', $classes) .'" '. implode(' ', $partAttr) .'>' . $lResult . '</div>';
 

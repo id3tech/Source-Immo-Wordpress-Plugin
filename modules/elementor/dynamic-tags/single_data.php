@@ -61,7 +61,7 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                             'agency.name' => __( 'Agency name', SI ),
                             'email' => __('Email', SI),
                             'main_phone' => __('Phone', SI),
-                            'location.address' => __('Address', SI)
+                            'location.full_address' => __('Address', SI)
                         ]
                     ],
                     [
@@ -69,7 +69,9 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                         'options' => [
                             'ref_number' => __( 'Reference number', SI ),
                             'name' => __( 'Name', SI ),
-                            'license' => __( 'License', SI )
+                            'license_type' => __( 'License', SI ),
+                            'location.full_address' => __('Address', SI),
+                            'main_phone' => __('Phone', SI)
                         ]
                     ]
                 ]

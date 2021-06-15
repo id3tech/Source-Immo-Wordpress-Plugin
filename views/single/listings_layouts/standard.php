@@ -1,4 +1,4 @@
-<?php echo do_shortcode('[si_listing_part part="header" adapt="true"]'); ?>
+<?php echo do_shortcode('[si_listing_part part="header"]'); ?>
 
 <?php echo do_shortcode('[si_listing_part part="media_box"]'); ?>
 

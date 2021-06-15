@@ -1115,12 +1115,13 @@ html{
     
             @include media($phone){
                 grid-template-columns: 1fr;
+                place-items:center;
+                gap:0;
+                padding:10px 0;
             }
             .si-search-input{
                 place-self: center end;
-                @include media($phone){
-                    place-self: center stretch;
-                }
+                
                 display: grid;
                 grid-template-columns: 1fr auto;
                 place-items: center stretch;
@@ -1128,8 +1129,21 @@ html{
                 border:var(--element-border);
                 padding:5px 10px;
                 border-radius:var(--element-border-radius);
+                width: 33vw;
+                @include media($tablet){
+                    width: 45vw;
+                }
+                @include media($phone){
+                    place-self: center stretch;
+                    width:100%;
+                }
                 input{
-                    width:250px;outline:none;border:none;
+                    // min-width:200px;
+                    // max-width:100%;
+                    width:100%;
+                    outline:none;
+                    border:none;
+
                     &::placeholder{
                         color:var(--text-color);opacity:0.5;
                     }

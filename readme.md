@@ -1,4 +1,4 @@
-# Version 1.2.12
+# Version 1.2.16
 
 
 ### Intuitive admin interface
@@ -93,9 +93,31 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.16
+* Normalized buttons
+* Removed style from address and phone number in Office and Agency
+* Added Elementor's Typography tool for some Single item part (Name, Contact, Address, etc)
+* Added si-hide-empty attribute directive to hide empty (no text content) elements
+** Two methods supported:
+*** Hard: set the element to display:none
+*** Soft: set the element opacity to 0 (still take space)
+** Directly on element attribute
+** Single item part shortcode
+* Fix layout busting in details page on mobile
+* Minor layout fixes
+
+Version 1.2.15
+* Fix language switch for Office and Agency
+
+Version 1.2.14
+* Fix missing permalink on redirect
+
+Version 1.2.13
+* More accurate industry icon (map)
+
 Version 1.2.12
 * Map legend
-* More accurate farm icon
+* More accurate farm icon (map)
 * Detail link on image
 * Empty permalink part has default value
 * Icon in quicksearch for Office and agency

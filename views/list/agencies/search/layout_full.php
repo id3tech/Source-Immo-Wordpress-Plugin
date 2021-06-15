@@ -48,7 +48,7 @@
         <button type="button" class="reset-button si-button" data-ng-if="filter.hasFilters()" data-ng-click="resetFilters()" title="<?php echo(apply_filters('si_label', __('Reset', SI))) ?>"><i class="fal fa-undo"></i></button>
         
         
-        <div class="filter-menu">
+        <div ng-if="false" class="filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
                 <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php echo(apply_filters('si_label', __("Filters",SI))) ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
                 <div class="si-dropdown-panel">

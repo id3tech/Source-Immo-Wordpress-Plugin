@@ -701,7 +701,6 @@
       if($data!=null){
         $this->agencies = $data->items;
         $this->metadata = $data->metadata;
-        //Debug::write($this->cities);
   
         foreach ($this->agencies as $item) {
           $this->preprocess_item($item);
@@ -715,11 +714,18 @@
     public function preprocess_item(&$item){
       global $dictionary;
   
-      //$item->location = (object) array();
-      //$item->listings_count = 0;
       $item->franchisor = isset($item->franchisor_code) ? $dictionary->getCaption($item->franchisor_code , 'franchisor') : $item->franchisor;
+      $item->license_type = isset($item->license_type_code) ? $dictionary->getCaption($item->license_type_code , 'agency_license_type') : $item->license_type;
       
-  
+      if(isset($item->main_office)){
+        $item->location = $item->main_office->location;
+
+        $item->location->full_address = $item->location->address->street_number . ' ' . $item->location->address->street_name . ', ' . $item->location->city;
+        
+        $item->main_phone = $item->main_office->phones->office;
+      }
+
+
       $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_agency_permalink());
     }
   }
@@ -767,7 +773,14 @@
       
       foreach($lAttrList as $lAttr){
         $lValue = $lAttr['value'];
+        if($lValue == ''){
+          $lValue = __('other ' . end(explode('.',$lAttr['key'])),SI);
+        }
+
         $lFriendlyValue = sanitize_title($lValue);
+
+       
+
         $lResult = str_replace(
             array(
               '{{' . $lAttr['key'] . '}}',
@@ -776,7 +789,10 @@
             ), $lFriendlyValue , $lResult);
       }
      
+
+
       $lFinalPermalink = '/'. str_replace(' ','-',$lResult);
+      
       if(strpos($lHomeUrl,$lTwoLetterLocale)!==false) $lFinalPermalink = '/' . $lTwoLetterLocale . $lFinalPermalink; 
       return $lFinalPermalink;
     }
@@ -850,7 +866,6 @@
 
 #region Schemas
 /** SCHEMAS */
-
 
 class BaseDataSchema{
   public $_schema = array(
@@ -1047,6 +1062,7 @@ class ListingOpenHouseSchema extends BaseDataSchema{
     }
   }
 }
+
 #endregion
 
 
