@@ -5,22 +5,7 @@ html, body{ scroll-behavior: smooth;}
     
     &.listing-single, &.broker-single, &.office-single{
         .si-content{
-            .si-part{
-                &.si-allowed-elementor-typography{
-                    *{
-                        font-size: inherit;
-                        font-family: inherit;
-                        font-weight: inherit;
-                        color: inherit;
-                        text-transform: inherit;
-                        font-style: inherit;
-                        text-decoration: inherit;
-                        line-height: inherit;
-                        letter-spacing: inherit;
-                    }
-                }
-                //display:contents;
-            }
+            
         }
     }
 
@@ -29,19 +14,36 @@ html, body{ scroll-behavior: smooth;}
             overflow:hidden;
         }
 
+        // &.si-allowed-elementor-typography{
+        //     *:not(.si-part){
+        //         font-size: inherit;
+        //         font-family: inherit;
+        //         font-weight: inherit;
+        //         color: inherit;
+        //         text-transform: inherit;
+        //         font-style: inherit;
+        //         text-decoration: inherit;
+        //         line-height: inherit;
+        //         letter-spacing: inherit;
+        //     }
+        // }
+
         &.si-allowed-elementor-typography{
-            *{
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                color: inherit;
-                text-transform: inherit;
-                font-style: inherit;
-                text-decoration: inherit;
-                line-height: inherit;
-                letter-spacing: inherit;
-            }
+                    
+                .si-apply-typography,.si-apply-typography *{
+                    font-size: inherit;
+                    font-family: inherit;
+                    font-weight: inherit;
+                    color: inherit;
+                    text-transform: inherit;
+                    font-style: inherit;
+                    text-decoration: inherit;
+                    line-height: inherit;
+                    letter-spacing: inherit;
+                }
+            
         }
+
         //display:contents;
     }
 
@@ -1729,7 +1731,7 @@ html, body{ scroll-behavior: smooth;}
             // grid-row: 1;
             display:grid;
             gap:var(--layout-gutter);
-            padding:10px;
+            
             @include media($phone){
                 .phone-list{
                     i.fal{
@@ -1840,7 +1842,9 @@ html, body{ scroll-behavior: smooth;}
         .main-office-address{
             display:grid;
             grid-template-columns: auto 1fr;
-            i.fa-map-marker-alt{padding:5px;}    
+            i.fa-map-marker-alt{
+                
+            }
              @include media($phone){
                 grid-template-columns: 1fr;
                 place-items:center;
@@ -1867,7 +1871,11 @@ html, body{ scroll-behavior: smooth;}
             // grid-row: 1;
             display:grid;
             gap:var(--layout-gutter);
-            padding:10px;
+            .phone-list{
+                .item{
+                    display: flex;
+                }
+            }
             @include media($phone){
                 .phone-list{
                     i.fal{

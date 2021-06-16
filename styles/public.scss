@@ -1130,12 +1130,16 @@ html{
                 padding:5px 10px;
                 border-radius:var(--element-border-radius);
                 width: 33vw;
+                max-width: 400px;
+
                 @include media($tablet){
                     width: 45vw;
+                    max-width: unset;
                 }
                 @include media($phone){
                     place-self: center stretch;
                     width:100%;
+                    
                 }
                 input{
                     // min-width:200px;

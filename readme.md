@@ -1,4 +1,4 @@
-# Version 1.2.16
+# Version 1.2.17
 
 
 ### Intuitive admin interface
@@ -93,6 +93,11 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.2.17
+* Minor visual normalization
+* Fix Price slider on mobile
+* Refined typography support
+
 Version 1.2.16
 * Normalized buttons
 * Removed style from address and phone number in Office and Agency

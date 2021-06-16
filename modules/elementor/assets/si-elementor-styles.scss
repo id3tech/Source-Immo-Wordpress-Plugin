@@ -104,6 +104,11 @@ body, #top{
                     }
                 }
 
+                si-small-list{
+                    .si-list-header{
+
+                    }
+                }
                 
             }
             .si-elementor-widget{
@@ -268,16 +273,19 @@ body, #top{
                 }
 
                 &.si-allowed-elementor-typography{
-                    .si-part *{
-                        font-size: inherit;
-                        font-family: inherit;
-                        font-weight: inherit;
-                        color: inherit;
-                        text-transform: inherit;
-                        font-style: inherit;
-                        text-decoration: inherit;
-                        line-height: inherit;
-                        letter-spacing: inherit;
+                    
+                    .si-part:not(.si-prevent-typography){
+                        .si-apply-typography,.si-apply-typography *{
+                            font-size: inherit;
+                            font-family: inherit;
+                            font-weight: inherit;
+                            color: inherit;
+                            text-transform: inherit;
+                            font-style: inherit;
+                            text-decoration: inherit;
+                            line-height: inherit;
+                            letter-spacing: inherit;
+                        }
                     }
                 }
             }

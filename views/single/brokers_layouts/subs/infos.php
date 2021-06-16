@@ -1,4 +1,5 @@
     <?php echo do_shortcode('[si_broker_part part="name"]') ?>
+    <?php echo do_shortcode('[si_broker_part part="license"]') ?>
 
     <?php echo do_shortcode('[si_broker_part part="about" hide_empty="1"]') ?>
 
@@ -7,7 +8,7 @@
         <?php echo do_shortcode('[si_broker_part part="rating"]') ?>
     </div>
 
-    <?php echo do_shortcode('[si_broker_part part="contact"]') ?>
+    <?php echo do_shortcode('[si_broker_part part="contact_with_title"]') ?>
 
     <?php echo do_shortcode('[si_broker_part part="office"]') ?>
     

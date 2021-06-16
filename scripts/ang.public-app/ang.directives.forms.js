@@ -1064,14 +1064,17 @@ siApp
             $scope.applyPointerEvent = function($elm, $elm_index,  $type){
                 angular.element($elm).on($scope.eventMaps[$type].down, function(event) {
                     lPositionRef = event;
-                    
+                    console.log(event)
                     const lPointerMoveHndl = function(event){
                         return $scope.$apply(function() {
                             
                             let lPositionRef = event;
+                           
                             if($type=='touch'){
-                                lPositionRef = event.originalEvent.touches[0];
-                            }
+                                lPositionRef = (event.touches != undefined)
+                                                    ? event.touches[0]
+                                                    : event.originalEvent.touches[0];
+                            } 
                             
                             const lElmBox = $scope.element.getBoundingClientRect();
 
@@ -1095,8 +1098,10 @@ siApp
 
                     // Prevent default dragging of selected content
                     if($type=='touch'){
-                        lPositionRef = event.originalEvent.touches[0];
-                    }
+                        lPositionRef = (event.touches != undefined)
+                                            ? event.touches[0]
+                                            : event.originalEvent.touches[0];
+                    } 
                     event.preventDefault();
                     
                     $document.on($scope.eventMaps[$type].move, lPointerMoveHndl);
