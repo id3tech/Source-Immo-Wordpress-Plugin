@@ -1,4 +1,4 @@
-# Version 1.2.17
+# Version 1.3.1
 
 
 ### Intuitive admin interface
@@ -93,6 +93,15 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.3.1
+* Fix search in small lists
+* Fix version constant bug
+
+Version 1.2.18
+* Minor visual normalization
+* Fix map in single listing
+
+
 Version 1.2.17
 * Minor visual normalization
 * Fix Price slider on mobile

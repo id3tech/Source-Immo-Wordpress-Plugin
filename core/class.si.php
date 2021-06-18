@@ -20,10 +20,6 @@ class SourceImmo {
 
 
   public function __construct(){
-    $pluginInfos = get_plugin_data(SI_PLUGIN);
-
-    define( 'SI_VERSION', $pluginInfos['Version'] );
-
     $this->configs = SourceImmoConfig::load();
 
     $this->addons = new SourceImmoAddons;

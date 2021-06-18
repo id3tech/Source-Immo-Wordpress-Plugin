@@ -704,10 +704,10 @@ function siSmallList($sce,$compile){
         },
         template: '<div class="si-list-header" ng-if="options.show_header">' + 
                         '<h3 ng-cloak>{{getListTitle()}} {{options.typeof_show_header}}</h3>' +
-                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="filter_keywords"><i class="far fa-search"></i></div>' + 
+                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="listFilter.keywords"><i class="far fa-search"></i></div>' + 
                     '</div>' +
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : filter_keywords"></div></div>',
+                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>',
         link: function($scope, $element, $attrs){
             if($scope.options != undefined){       
                 $scope.options.typeof_show_header = typeof($scope.options.show_header);
@@ -723,6 +723,9 @@ function siSmallList($sce,$compile){
             $scope.view_id = null;
             $scope.list = [];
             $scope._element = null;
+            $scope.listFilter = {
+                keywords:''
+            };
 
             $scope.columnWidths = {
                 listings: {
