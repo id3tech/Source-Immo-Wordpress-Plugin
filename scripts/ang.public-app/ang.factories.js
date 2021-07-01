@@ -1497,11 +1497,21 @@ function $siUI($rootScope, $timeout, $q){
 
     $scope.enterFullscreen = function($element, $onExit){
         const lAvailableFn = ['requestFullscreen','mozRequestFullScreen','webkitRequestFullscreen','msRequestFullscreen'].find(function($att){ return $element[$att] !== undefined});
-        if(lAvailableFn == null) return $q.reject();
+        console.log('$siUI/enterFullscreen',$element, lAvailableFn);
 
+        if(lAvailableFn === null || lAvailableFn === undefined) return $q.reject();
+        if($element === undefined) return $q.reject();
         
         return $q( function($resolve){
-            $element[lAvailableFn]().then( function(){
+            console.log('$siUI/enterFullscreen', typeof($element[lAvailableFn]) );
+            const lFullscreenPromise = $element[lAvailableFn]();
+            if(lFullscreenPromise == undefined){
+                $scope.$isFullscreen = true;
+                $timeout($resolve, 250);
+                return;
+            }
+
+            lFullscreenPromise.then( function(){
                 
 
                 if(typeof($onExit) == 'function'){

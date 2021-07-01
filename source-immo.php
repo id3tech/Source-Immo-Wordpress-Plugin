@@ -3,14 +3,14 @@
 Plugin Name: Source.immo
 Plugin URI: https://source.immo
 Description: Connect to your Source.immo account and display your normalized and always up to date real estate listings and related data on your web site. 
-Version: 1.3.1
+Version: 1.4.2
 Author: ID-3 Technologies
 Author URI: https://id-3.net/source-immo
 License: GPLv2 or later
 Text Domain: si
 */
 
-define( 'SI_VERSION', '1.3.1' );
+define( 'SI_VERSION', '1.4.2' );
 define( 'SI_NAME', 'Source.immo');
 define( 'SI', 'si' );
 define( 'SI_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');

@@ -406,7 +406,7 @@ siApp
         },
         controllerAs: 'ctrl',
         replace:true,
-        templateUrl: directiveTemplatePath('si-image-slider'),
+        templateUrl: directiveTemplatePath('si-image-slider','2'),
         link: function (scope, element, attrs) {
             scope.$element = element[0];
             
@@ -415,12 +415,18 @@ siApp
             scope.init();
         },
         controller: function ($scope,$rootScope,$element, $q,$siApi,$rootScope,$siDictionary, $siHooks,$siUI, $siUtils,$timeout) {
-            $scope.expand_mode = false;
+            //$scope.model.expand_mode = false;
             $scope.picture_grid_mode = false;
             
-            $scope.position = {
-                current_picture_index : 0
+            $scope.model = {
+                current_index : 0,
+                viewport: {
+                    width: 870,
+                    height: 870 * 16 / 9
+                },
+                expand_mode: false
             };
+
     
             $scope.init = function(){
                 $scope.index = 0;   
@@ -437,23 +443,8 @@ siApp
                     $scope.set(lIndex,false);
                 });
 
-                $element[0].addEventListener('touchstart', $scope.handleTouchStart, false);        
-                $element[0].addEventListener('touchmove', $scope.handleTouchMove, false);
-    
-                if($scope.pictures){
-                    // if($siUtils.isLegacyBrowser()){
-                    //     const jqElm = jQuery($scope.$element)
-                    //     jqElm.find('.viewport .trolley').width(jqElm.width() * $scope.pictures.length);
-                    //     window.setTimeout(function(){
-                            
-                    //         jqElm.find('.viewport .trolley .item').each(function($i,$e){
-                    //             jQuery($e).width(jqElm.width());
-                    //         })
-                    //     },200);
-                    // }
-                    
-                }
-
+                $scope.applyViewportHandlers();
+                
                 var options = {
                     root: document.documentElement
                   }
@@ -480,32 +471,80 @@ siApp
                     }
                     lWindowResizeDebounce = window.setTimeout(function(){
                         $scope.detectBoxSize();
+                        
+                        $scope.selectGridPicture($scope.model.current_index);
                         lWindowResizeDebounce=null;
                     }, 500);
                     
                 });
                 
+                $scope.$on('si/single:ready',function(){
+                    $timeout(function(){
+                        console.log('si/single:ready - triggered');
+                        $scope.detectBoxSize();
+                        $scope.selectGridPicture(0);
+                    },1000);    
+                });
 
+            }
 
-                $timeout(function(){
-                    $scope.detectBoxSize();
-                })
-
+            $scope.isInViewport =  function(el) {
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            
+                );
             }
 
             $scope._touchDown = {
                 x:null,
                 y:null
             }
+            $scope.applyViewportHandlers = function(){
+                const viewport = $element[0];
 
+                viewport.addEventListener('touchstart', $scope.handleTouchStart, false);        
+                viewport.addEventListener('touchmove', $scope.handleTouchMove, false);
+                viewport.addEventListener('touchend', $scope.handleTouchEnd, false);
+
+                const thumbsViewport = $element[0].querySelector('.picture-grid-viewport');
+                thumbsViewport.addEventListener('touchstart', $event => {
+                    
+                    $event.stopPropagation();
+                }, false);   
+    
+            }
             $scope.handleTouchStart = function(evt) {
                 const firstTouch = evt.touches[0];   
+                console.log('touchStart triggered');
                 $scope._touchDown = {
                     x: firstTouch.clientX,
                     y: firstTouch.clientY
                 }                                   
                 
-            };                                                
+            };  
+            
+            $scope.handleTouchEnd = function(evt) {
+                
+                if ( ! $scope._touchDown.x || ! $scope._touchDown.y ) {
+                    return;
+                }
+
+                if($scope._touchDown.diffX > 0){
+                    $scope.nextPicture();
+                }
+                else if($scope._touchDown.diffX < 0){
+                    $scope.previousPicture();
+                }
+
+                /* reset values */
+                $scope._touchDown.x = null;
+                $scope._touchDown.y = null;  
+                
+            };  
             
             $scope.handleTouchMove = function(evt) {
                 if ( ! $scope._touchDown.x || ! $scope._touchDown.y ) {
@@ -517,39 +556,31 @@ siApp
             
                 var xDiff = $scope._touchDown.x - xUp;
                 var yDiff = $scope._touchDown.y - yUp;
-            
-                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-                    if ( xDiff > 0 ) {
-                        /* left swipe */ 
-                        $scope.next();
-                    } else {
-                        /* right swipe */
-                        $scope.previous();
-                    }                       
-                } else {
-                    if ( yDiff > 0 ) {
-                        /* up swipe */ 
-                    } else { 
-                        /* down swipe */
-                    }                                                                 
-                }
-                /* reset values */
-                $scope._touchDown.x = null;
-                $scope._touchDown.y = null;                                             
+
+                $scope._touchDown.diffX = xDiff;
+                $scope._touchDown.diffY = yDiff;
+                return;                                       
             };
     
-            $scope.next = function(){
+            $scope.nextPicture = function($event){
+                if($event != undefined){
+                    $event.stopPropagation();
+                }
                 
                 //console.log($scope.index, '/', $scope.pictures.length-1);
-                let lNewIndex = $scope.index+1;
+                let lNewIndex = $scope.model.current_index+1;
                 if(lNewIndex >=  $scope.pictures.length){
                     lNewIndex= 0;
                 }
                 $scope.set(lNewIndex);
             }
     
-            $scope.previous = function(){
-                let lNewIndex = $scope.index-1;
+            $scope.previousPicture = function($event){
+                if($event != undefined){
+                    $event.stopPropagation();
+                }
+
+                let lNewIndex = $scope.model.current_index-1;
                 if(lNewIndex ==  -1){
                     lNewIndex= $scope.pictures.length-1;
                 }
@@ -557,38 +588,68 @@ siApp
             }
     
             $scope.set = function($index, $triggerEvents){
-                $triggerEvents = typeof $triggerEvents == 'undefined' ? true : $triggerEvents;
-                $scope.index = $index;
-                const lViewport = $scope.$element.querySelector('.viewport');
-                const lViewportWidth =lViewport.getBoundingClientRect().width;
-                if(window.innerWidth <= 640){
-                    
-                    lViewport.scrollTo($index * lViewportWidth,0);
+               
+                if($scope.model.current_index == $index){
+                    $timeout(_ => {
+                    $scope.selectGridPicture($index);
+                    });
                     return;
                 }
-    
-                $scope.picture_grid_mode =false;
-                
-                $scope.updateTrolley(lViewportWidth,$index);
-    
-                if($triggerEvents){
-                    const lItem = $scope.pictures[$index];
-                    $rootScope.$broadcast('mediabox-picture-select', lItem);
+                //$timeout(function(){
+                    $scope._working_set = true;
+                    $triggerEvents = $triggerEvents == undefined ? false : $triggerEvents;
+                    const lViewport = $scope.$element.querySelector('.viewport');
+                    const lViewportWidth = $scope.$element.getBoundingClientRect().width;
+                    
+                    lViewport.scrollLeft = 0;
+
+                    $timeout(_ => {
+                        $scope.model.current_index = $index;
+                    });
+                    
+                        //if(window.innerWidth <= 640){
+                            //lViewport.scrollTo($index * lViewportWidth,0);
+                            //return;
+                        //}
+                    $timeout(_ => {
+                        $scope.picture_grid_mode =false;
+                        
+                        $scope.updateTrolley(lViewportWidth,$index);
+            
+                        if($triggerEvents !== false){
+                            const lItem = $scope.pictures[$index];
+                            //$rootScope.$broadcast('mediabox-picture-select', lItem);
+                        }
+                        $scope.selectGridPicture($index);
+                    },200);
+
+                    $scope._working_set = false;
+                //});
+            }
+
+            $scope.selectGridPicture = function($index){
+                const lGridPictures = $element[0].querySelectorAll('.picture-grid-viewport .trolley .item');
+                const lGridPicture = lGridPictures[$index];
+                //console.log('selectGridPicture', $index, lGridPicture);
+
+                Array.from(lGridPictures).forEach(function($e){
+                    $e.classList.remove('si-highlight');
+                });
+
+                if(lGridPicture != null){
+                    //console.log('selectGridPicture', $index, lGridPicture);
+                    //lGridPicture.parentElement.scrollTop = -1 * lGridPicture.offsetTop;
+                    if($scope.isInViewport(lGridPicture)){
+                        lGridPicture.scrollIntoView({behavior: "smooth",  block: 'nearest', inline: 'nearest'});    
+                    }
+                    lGridPicture.classList.add('si-highlight');
+                    
                 }
-    
-                try{
-                    $scope.$digest();
-                }catch($e){}
-    
             }
     
     
             $scope.toggleExpand = function(){
-                $scope.expand_mode = !$scope.expand_mode;
-            }
-    
-            $scope.getPosition = function(){
-                return '-' + ($scope.position.current_picture_index * 100) + '%';
+                $scope.model.expand_mode = !$scope.model.expand_mode;
             }
     
             // watch for alias to be valid then init directive
@@ -602,12 +663,28 @@ siApp
                 $event.preventDefault();
                 $event.stopPropagation();
             }
+            $scope.toggleFullscreen = function($event){
+                $event.stopPropagation();
+
+                if($scope.model.expand_mode == true){
+                    $scope.exitFullscreen().then(function(){
+                        $scope.model.expand_mode = false;
+                    });
+                }
+                else{
+                    $scope.enterFullscreen().then(function(){
+                        $scope.model.expand_mode = true;
+                    });;
+                }
+            }
             $scope.enterFullscreen = function(){
-                $q( function($resolve){
+
+                return $q( function($resolve){
                     $siUI.enterFullscreen($element[0], function(){
                         $scope._postExitFullscreen();
                     }).then(
                         function success(){
+                            console.log('enterFullscreen@success');
                             $siUI.lockScreenOrientation('landscape-primary').then(
                                 function(){},
                                 function(){}
@@ -616,6 +693,7 @@ siApp
                             return $q.resolve();
                         },
                         function fail(){
+                            console.log('enterFullscreen@fail');
                             $scope.$container = $scope.$element.parentElement;
 
                             $scope.$viewport = $scope.$element.querySelector('.viewport');
@@ -624,114 +702,36 @@ siApp
                             document.body.style.overflow = 'hidden';
                             window.addEventListener('wheel', $scope.preventScroll);
                             window.scrollTo(0,0);
+                            return $q.resolve();
                         }
                     ).then(function(){
-                        $timeout(function(){
-                            console.log('expand_mode activated');
-                            $scope.expand_mode = true;
+                        console.log('expand_mode activated');
+
+                        $timeout(function(){    
+                            $scope.model.expand_mode = true;
                             $resolve();
                         }, 250);
                     })
                 })
                 .then( function(){
                     $timeout(function(){
-                        console.log('detectbox size');
-                        $scope.detectBoxSize();
+                        $scope.detectBoxSize($element[0]);
                     },500);
-                })
-                return;
-
-                if("orientation" in screen){
-                    screen.orientation.unlock();
-                }
-
-                if($scope.expand_mode){
-                    // compress back
-                    $scope.$container.append($scope.$element);
-                    $scope.handleBodyOrientation();
-                }
-                else{
-                    // expand
-                    $scope.handleBodyOrientation();
-
-                    $scope.$container =$scope.$element.parentElement;
-
-                    $scope.$viewport = $scope.$element.querySelector('.viewport');
-                    document.body.append($scope.$element);
-
-                    document.body.style.overflow = 'hidden';
-                    window.addEventListener('wheel', $scope.preventScroll);
-                    window.scrollTo(0,0);
-                }
-               
-                $scope.expand_mode = !$scope.expand_mode;
-                
-                $timeout(function(){
-                    
-                    $scope.detectBoxSize();
-                },500);
-
-                return;
-
-
-                if (
-                    document.fullscreenElement ||
-                    document.webkitFullscreenElement ||
-                    document.mozFullScreenElement ||
-                    document.msFullscreenElement
-                  ) {
-                    if (document.exitFullscreen) {
-                      document.exitFullscreen();
-                    } 
-                    else if (document.mozCancelFullScreen) {
-                      document.mozCancelFullScreen();
-                    } 
-                    else if (document.webkitExitFullscreen) {
-                      document.webkitExitFullscreen();
-                    } 
-                    else if (document.msExitFullscreen) {
-                      document.msExitFullscreen();
-                    }
-    
-                    $scope.expand_mode = false;
-                    //console.log('exit fullscreen');
-                  } 
-                  else {
-                    
-                    if ($scope.$element.requestFullscreen) {
-                      $scope.$element.requestFullscreen();
-                      console.log('requestFullscreen');
-                    } 
-                    else if ($scope.$element.mozRequestFullScreen) {
-                      $scope.$element.mozRequestFullScreen();
-                      console.log('mozRequestFullscreen');
-                    } 
-                    else if ($scope.$element.webkitRequestFullscreen) {
-                      $scope.$element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                      console.log('webkitRequestFullscreen');
-                    } 
-                    else if ($scope.$element.msRequestFullscreen) {
-                      $scope.$element.msRequestFullscreen();
-                      console.log('msRequestFullscreen');
-                    }
-
-                    //console.log('enter fullscreen');
-                    if("orientation" in screen){
-                        screen.orientation.lock("portrait-primary");
-                    }
-
-                    console.log('Entering Fullscreen');
-                    
-                    $scope.expand_mode = true;
-                  }
-    
+                });
                 
             }
             $scope.exitFullscreen = function($redraw){
                 $redraw = $redraw === undefined ? true : $redraw;
 
-                return $q(function($resolve){    
-                    $siUI.exitFullscreen().then(
+                return $q(function($resolve){   
+                    const lExitPromise = $siUI.exitFullscreen();
+                    if(lExitPromise === undefined){
+                        return $scope._postExitFullscreen().then(function(){
+                            $resolve();
+                        });
+                    }
+
+                    lExitPromise.then(
                         function success(){
                             $siUI.unlockScreenOrientation();
                         },
@@ -748,17 +748,13 @@ siApp
                     });
                 });
 
-                // compress back
-                $scope.$container.append($scope.$element);
-                $scope.expand_mode = false;
-                ;
             }
 
             $scope._postExitFullscreen = function(){
                 console.log('_postExitFullscreen');
                 return $q(function($resolve){
                     $timeout(function(){
-                        $scope.expand_mode = false;
+                        $scope.model.expand_mode = false;
                         $resolve();
                     },250);
                 }).then( function() {
@@ -799,24 +795,27 @@ siApp
                     const lViewport = $scope.$element.querySelector('.viewport');
                     const lViewportWidth =lViewport.getBoundingClientRect().width;
                     const lTransformation = 'translateX(-' + ($scope.index * lViewportWidth) + 'px)';
-                    return '--item-count:' + $scope.pictures.length + ';transform:' + lTransformation;
+                    return 'transform:' + lTransformation;
                 }
 
-                return '--item-count:' + $scope.pictures.length + ';--item-index:' + $scope.index;
+                return '';
             }
 
-            $scope.detectBoxSize = function(){
-                const lElm = $scope.$element;
+            $scope.detectBoxSize = function($relativeElm=null){
+                if($relativeElm == null) $relativeElm = $element[0].parentElement;
+                const gridElm = $element[0].querySelector('.picture-grid-viewport');
+
+                const lGridElmRect = gridElm.getBoundingClientRect();
+                const  lRelativeRect = $relativeElm.getBoundingClientRect();
                 
-                const lElmRect = lElm.getBoundingClientRect();
-                
-                lElm.style.setProperty('--viewport-width', lElmRect.width + 'px');
-                lElm.style.setProperty('--viewport-height', Math.min(lElmRect.height,window.innerHeight) + 'px');
-                
+                $scope.model.viewport.width =  lRelativeRect.width - lGridElmRect.width;
+                $scope.model.viewport.height = lRelativeRect.height; //$scope.model.viewport.width * 3 / 4; //Math.min(lHeight, $scope.model.viewport.width * 16 / 9 );
+
                 if($siUtils.isLegacyBrowser()){
-                    const lPictures = Array.from(lElm.querySelectorAll('.viewport .trolley .item'));
+
+                    const lPictures = Array.from(lViewportElm.querySelectorAll('.viewport .trolley .item'));
                     lPictures.forEach(function($p){
-                        $p.style.width = lElmRect.width + 'px';
+                        //$p.style.width = lElmRect.width + 'px';
                     })
                 }
             }

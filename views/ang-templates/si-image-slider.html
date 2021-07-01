@@ -1,30 +1,33 @@
-<div class="si-image-slider {{expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}">
+<div class="si-image-slider {{model.expand_mode?'expanded' : ''}} {{picture_grid_mode?'grid' : ''}} {{!showGrid ? 'no-grid' : '' }}"
+    style="--item-count:{{pictures.length}};--item-index:{{model.current_index}};--viewport-width:{{model.viewport.width}}px;--viewport-height:{{model.viewport.height}}px;"
+    ng-dblclick="toggleFullscreen($event)">
     <div class="viewport"> 
-        <div class="trolley" style="{{getTrolleyStyle()}}">
-            <div class="item" data-ng-repeat="img in pictures track by $index">
+        <div class="trolley" style="{{getTrolleyStyle()}}" >
+            <div class="item" data-ng-repeat="img in pictures track by $index" >
                 <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" si-image-auto-fit="{{pictureFit}}" />
                 <div class="caption"><label>{{getImageCaption(img)}}</label></div>
             </div>
         </div>
+        
     </div>
 
     <div class="picture-grid-viewport">
         <div class="trolley">
-        <div class="item" data-ng-repeat="img in pictures track by $index" data-ng-click="set($index)">
-            <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
+            <div class="item" data-ng-repeat="img in pictures track by $index" data-ng-click="set($index,$event)">
+                <img data-ng-src="{{img.url}}" alt="{{getImageAlt(img)}}" />
+            </div>
         </div>
-    </div>
     </div>
 
     <div class="navigation-controls" data-ng-show="pictures.length > 1">
-        <div class="nav-btn next" data-ng-click="next()"><i class="fal fa-fw fa-angle-right"></i></div>
-        <div class="nav-btn previous" data-ng-click="previous()"><i class="fal fa-fw fa-angle-left"></i></div>
+        <div class="nav-btn next" data-ng-click="nextPicture($event)" data-ng-dblclick="nextPicture($event)"><i class="fal fa-fw fa-angle-right"></i></div>
+        <div class="nav-btn previous" data-ng-click="previousPicture($event)" data-ng-dblclick="previousPicture($event)"><i class="fal fa-fw fa-angle-left"></i></div>
     </div>
     
     <div class="controls">
         <div class="nav-btn picture-grid" data-ng-click="togglePictureGrid()"><i class="fas fa-th"></i> <label>{{'All pictures'.translate()}}</label></div>
-        <div class="nav-btn expand" ng-if="!expand_mode" data-ng-click="enterFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>
+        <div class="nav-btn expand" ng-if="!model.expand_mode" data-ng-click="enterFullscreen()"><i class="fas fa-expand-wide"></i> <label>{{'Fullscreen'.translate()}}</label></div>
+        <div ng-if="model.expand_mode" class="close-btn" ng-click="exitFullscreen()"><i class="fal fa-times"></i></div>
     </div>
 
-    <div ng-if="expand_mode" class="close-btn" ng-click="exitFullscreen()"><i class="fal fa-times"></i></div>
 </div>

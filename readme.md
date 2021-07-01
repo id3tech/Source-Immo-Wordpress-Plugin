@@ -1,4 +1,4 @@
-# Version 1.3.1
+# Version 1.4.2
 
 
 ### Intuitive admin interface
@@ -93,6 +93,33 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.4.2
+* Fix image slider on MacOS
+* Fix-ishh the "auto-scroll" bug
+
+Version 1.4.1
+* New image slider
+
+Version 1.3.6
+* Remove thumbnail on mobile in fullscreen/landscape mode
+
+Version 1.3.5
+* Prevent double-click on navigation arrow to toggle fullscreen
+* Add handler on thumbnails to highlight the current picture
+
+
+Version 1.3.4
+* Add selection visual hint in image slider
+* Add double-click handler on image slider to toggle Fullscreen
+
+Version 1.3.3
+* Fix agent name sorting
+* Modify picture viewer in listings to show the list of picture in thumbnail form
+
+
+Version 1.3.2
+* Fix tabs height to fit tab active content
+
 Version 1.3.1
 * Fix search in small lists
 * Fix version constant bug

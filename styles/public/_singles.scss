@@ -386,8 +386,8 @@ html, body{ scroll-behavior: smooth;}
         .si-mediabox{
             position:relative;    
             place-self: stretch;
-            --ratio-num: 4;
-            --ratio-div: 3;
+            --ratio-num: 16;
+            --ratio-div: 9;
             --ratio: var(--ratio-num) / var(--ratio-div);
             --invert-ratio: var(--ratio-div) / var(--ratio-num);
             
@@ -404,10 +404,14 @@ html, body{ scroll-behavior: smooth;}
             // }
             @include media($tablet){
             //     --viewport-height:300px;
+                --ratio-num: 4;
+                --ratio-div: 3;
             }
             @include media($phone){
             //     --viewport-height:calc(100% - 40px);
-                    --viewport-width: 100vw;
+                --viewport-width: 100vw;
+                --ratio-num: 4;
+                --ratio-div: 4;
             }
             @include media($tablet){
                 --viewport-height: var(--viewport-height-tablet)!important;
@@ -527,6 +531,12 @@ html, body{ scroll-behavior: smooth;}
                     grid-template-columns: repeat(5,100%);
                     place-items:stretch;
                     transition:0.25s;
+                    @supports not (aspect-ratio: 1 / 1){
+                        grid-template-columns: repeat(5,var(--viewport-width));
+                    }
+                    @include media($tablet){
+                        grid-template-columns: repeat(5,100%);
+                    }
                     .tab-content {
                         position:relative;
                         iframe{border:none;width:100%;height:100%;}
@@ -569,13 +579,13 @@ html, body{ scroll-behavior: smooth;}
             }
             &.select-streetview{
                 >.viewport>.trolley{
-                    transform:translateX(-300%);
+                    transform:translateX(-400%);
                     .placeholder{opacity:0;}
                 }
             }
             &.select-map{
                 >.viewport>.trolley{
-                    transform:translateX(-400%);
+                    transform:translateX(-300%);
                     .si-map-container{
                         margin:0;
                     }

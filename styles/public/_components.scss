@@ -56,7 +56,10 @@
 
         .si-tab-content{
             width:100%;
-
+            max-height:0px;
+            &.active{
+                max-height: unset;
+            }
         }
     }
 }
@@ -473,6 +476,9 @@ si-checkbox, si-radio{
                 transform:translate(50%,-50%);
             }
         }
+    }
+    .si-dropdown-panel{
+        display:none;
     }
     &.has-value{
         .si-dropdown-button{font-weight: 700;}
@@ -1214,7 +1220,7 @@ body.si-modal-open{
     pointer-events:none;
     opacity:0;
     transition:0.25s;
-    
+    overscroll-behavior: contain;
     &::before{
         content:"";
         display:block;
@@ -1433,18 +1439,40 @@ body.si-modal-open{
     position:relative;
     width:100%;height:100%;
     overflow:hidden;
-    
+    display:grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "viewport picture-grid";
+    place-items: stretch;
+    --grid-size: 250px;
+
+    @include media($tablet){
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+        grid-template-areas: "viewport" "picture-grid";
+        --grid-size: 120px;
+    }
+
     .viewport{
-        position: absolute;
-        width:100%;height:100%;
-        top:0px;left:0px;
+        //position: absolute;
+        //top:0px;left:0px;
+        width:100%;
+        height:100%;
+        
         overflow:hidden;
+        grid-area: viewport;
+        pointer-events: none;
+        @supports not (aspect-ratio: 1 / 1){
+            width:var(--viewport-width);
+        } 
+        @include media($tablet){
+            --viewport-width: 100%;
+        }
         @include media($phone){
             //overflow-y:hidden;
-            overflow-x:auto;
+            overflow-x:overlay;
             scroll-behavior: smooth;
-            scroll-snap-type: x mandatory;
-
+            scroll-snap-type: block mandatory;
+            
             &::-webkit-scrollbar{
                 height:0px;
                 background: transparent;
@@ -1457,32 +1485,60 @@ body.si-modal-open{
 
         .trolley{
             display:grid;
-            grid-template-rows: 100%;
-            grid-template-columns: repeat(var(--item-count), var(--viewport-width));
+            //grid-template-rows: 100%;
+            //grid-template-columns: repeat(var(--item-count), calc(var(--viewport-width) - var(--grid-size)));
+            grid-auto-flow: column;
+            grid-auto-columns: var(--viewport-width) ;
             place-items: stretch;
-            position: absolute;
-            height:100%;
-            top:0px;left:0px;
+            //position: absolute;
+            position:relative;
+            //height:100%;
+            left:0px!important;
             transition:250ms;
-            transform: translateX(calc(-1 * var(--viewport-width) * var(--item-index)));
+            width:max-content;
+            height: 100%;
+            transform: translateX(calc(( -1 * var(--viewport-width) ) * var(--item-index)));
+            
+            @include media($tablet){
+                grid-auto-columns: var(--viewport-width);
+                //height:calc(100% - (var(--grid-size) / 2) ) ;
+                transform: translateX(calc( ( -1 * var(--viewport-width) ) * var(--item-index)));
+            }
+            
             @include media($phone){
-                display:grid;
-                grid-auto-flow: column;
-                position:relative;
-                transform:none;
+                //position:relative;
+                
+                grid-auto-columns: 100vw;
+                height: 100%;
+                // scroll-snap-align: start;
+                // scroll-snap-stop: always;
+
+                transform: translateX(calc(-100vw * var(--item-index)));
+                //transform:none;
                 //width: calc(var(--item-count) *  100vw);
             }
 
             .item{
-                height:100%;
+                height:var(--viewport-height);
                 position:relative;
-                min-width:var(--viewport-width);
+                width:var(--viewport-width);
+                @include media($tablet){
+                    //width:var(--viewport-width);
+                    width:100%;
+                    height:100%;
+                }
                 @include media($phone){
-                    
-                    scroll-snap-align: start;
+                    //width:100vw;
+                    scroll-snap-align: center;
                     scroll-snap-stop: always;
                 }
-                img{object-fit: cover;width: 100%;height:100%;}
+                img{
+                    object-fit: cover;
+                    width: 100%;
+                    height:100%;
+                    position:absolute;
+                    inset:0;
+                }
                 .caption{
                     position: absolute;
                     bottom:0px;left:0px;
@@ -1497,8 +1553,8 @@ body.si-modal-open{
                     }
                     &::before{
                         content:"";
-                        position: absolute;top:0px;left:0px;width:100%;height:100%;
-                        background-color:var(--high-contrast-color);
+                        position: absolute;bottom:0px;left:0px;width:100%;height:150%;
+                        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 50%,rgba(0,0,0,1) 100%);
                         opacity:0.5;
                     }
                     @include media($phone){
@@ -1529,33 +1585,95 @@ body.si-modal-open{
     }
     
     .picture-grid-viewport{
-        position: absolute;
-        top:0px;left:0px;
-        width:100%;height:100%;
-        overflow-y:auto;
+        // position: absolute;
+        // top:0px;left:0px;
+        // width:100%;height:100%;
+        user-select: none;
+        grid-area: picture-grid;
+        overflow: hidden overlay;
         z-index:99;
         transition:250ms;
-        transform:translateY(100%);
-        opacity:0;
-        pointer-events: none;
-        background:var(--high-contrast-color);
-        
-        .trolley{
+        //transform:translateY(100%);
+        //opacity:0;
+        //pointer-events: none;
+        width: var(--grid-size);
+        height: var(--viewport-height);
 
-            position: absolute;
+        @include media($tablet){
+            width: auto;
+            height: calc(var(--grid-size) * 0.5);
+            overflow: overlay hidden;
+        }
+
+        
+
+        background:var(--background-color);
+        //color: var(--high-contrast-text-color);
+        overscroll-behavior: contain;
+        scroll-behavior: smooth;
+        transition:0.25s;
+        //margin-right:-26px;
+        &::-webkit-scrollbar{
+            width: 20;
+            background:transparent;
+            z-index: 99;
+            overflow: hidden;
+            transition:0.25s;
+        }
+        &::-webkit-scrollbar-thumb {
+            width: 20;
+            border-radius: 13px;
+            background-clip: padding-box;
+            border: 10px solid transparent;
+            transition:0.25s;
+        }
+        &::-webkit-scrollbar-track{
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {        
+          box-shadow: inset currentColor 0 0 30px;
+        }
+        &:hover{
+            &::-webkit-scrollbar-thumb {
+                border-width: 5px
+            }
+        }
+
+        .trolley{
+            //margin-right:-26px;
+            //position: absolute;
             display:grid;
-            top:0px;left:0px;width:100%;
-            grid-template-columns: repeat(auto-fill,minmax(150px,1fr));    
-            grid-template-rows: 120px;
-            gap:var(--layout-gutter);
+            //top:0px;left:0px;width:100%;
+            //grid-template-columns: repeat(auto-fill,minmax(150px,1fr));    
+            grid-auto-flow: row;
+            grid-auto-rows: auto;
+            gap:calc(var(--layout-gutter) / 2);
             place-items:stretch;
-            padding:10px;
+            padding-left :calc(var(--layout-gutter) / 2);
+
+            @include media($tablet){
+                grid-auto-flow: column;
+                grid-auto-rows: unset;
+                grid-auto-columns: calc(var(--grid-size) * 0.5);
+                height:calc(var(--grid-size) * 0.5);
+                padding-top :calc(var(--layout-gutter) / 2);
+                padding-left:unset;
+            }
         }
         .item{
             height:100%;
             position:relative;
-            img{object-fit: cover;width: 100%;height:100%;}
+            transition:0.25s;
             
+            &.si-highlight{
+                opacity:0.25;
+                pointer-events: none;
+            }
+            img{object-fit: cover;width: 100%;height:100%;}
+            @include media($tablet){
+                width:auto;
+                height:100%;
+            }
         }
     }
     &.grid{
@@ -1571,7 +1689,7 @@ body.si-modal-open{
         right:10px;
         font-size: 20px;
         cursor:pointer;
-        color:var(--button-fg-color);;
+        color:var(--button-fg-color, #fff);;
         border-radius:50%;
         width:30px;
         height:30px;
@@ -1635,7 +1753,11 @@ body.si-modal-open{
 
 
     .navigation-controls{
-        position: absolute;top:0px;left:0px;width:100%;height:100%;
+        position: absolute;
+        top:0px;
+        left:0px;
+        width:100%;
+        height:var(--viewport-height);
         pointer-events: none;
         --nav-control-size: 40px;
         @include media($phone){
@@ -1671,8 +1793,13 @@ body.si-modal-open{
                 }
             }
             &.next{
-                top:50%;right:0px;transform:translateX(100%) translateY(-50%);
+                top:50%;
+                right:var(--grid-size);
+                transform:translateX(100%) translateY(-50%);
                 border-radius: var(--element-border-radius) 0 0 var(--element-border-radius);
+                @include media($tablet){
+                    right:0px;
+                }
             }
             &.previous{
                 top:50%;left:0px;transform:translateX(-100%) translateY(-50%);
@@ -1684,8 +1811,11 @@ body.si-modal-open{
 
     .controls{
         z-index:999;
-        position: absolute;bottom:0px;left:0px;
-        width: 100%;height:50px;
+        position: absolute;
+        top:0px;left:0px;
+        width: var(--viewport-width);
+        height:50px;
+
         .nav-btn{
             position: absolute;height:40px;
             transition:0.25s;
@@ -1721,12 +1851,12 @@ body.si-modal-open{
             &.expand{
                 top:50%;right:5px;transform:translateY(-50%);
                 grid-template-columns: auto;
-
+                text-shadow:1px 1px 2px #000000;
                 label{display:none;}
             }
             &.picture-grid{
                 top:50%;left:5px;transform:translateY(-50%);
-                
+                display:none;
                 width:auto;
                 @include media($phone){
                     label{display:none;}
@@ -1771,7 +1901,8 @@ body.si-modal-open{
         height:100vh;
         z-index: 9999;
         animation: si-image-slider-in 250ms ease-out forwards;
-
+        --background-color: #000000;
+        
         &.is-safari{
             @media screen and (orientation: portrait) {
                 height: calc(100vh - 75px);
@@ -1783,12 +1914,19 @@ body.si-modal-open{
         .viewport{
             
 
-            background:rgba(#000,0.75);
+            background:var(--background-color);
             .trolley{
                 .item{
                     img{object-fit: contain!important;}
                 }
             }
+        }
+
+        @media screen and (max-width: 1200px) and (orientation: landscape){
+            .picture-grid{
+                display:none;
+            }
+            --grid-size: 0px;
         }
     }
 }

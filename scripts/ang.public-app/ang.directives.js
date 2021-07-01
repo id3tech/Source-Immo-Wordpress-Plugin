@@ -773,7 +773,7 @@ function siSmallList($sce,$compile){
                 $scope.fetchList();
             });
 
-            $scope.$watch('filter_keywords', function($new, $old){
+            $scope.$watch('listFilter.keywords', function($new, $old){
                 if($new == $old) return;
 
                 $timeout(function(){
@@ -789,6 +789,8 @@ function siSmallList($sce,$compile){
             $scope.getSearchPlaceholder = function(){
                 return 'Filter list with keywords'.translate()
             }
+
+
 
             $scope.init = function(){
                 $scope._element = $element;

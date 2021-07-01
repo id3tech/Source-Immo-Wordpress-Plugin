@@ -324,7 +324,7 @@ siApp
         {name: 'price', label: 'Price'},
       ],
       brokers: [
-        {name: 'last_name', label: 'Name'},
+        {name: 'name', label: 'Name'},
         {name: 'listing_count', label: 'Number of listings'},
       ],
       cities: [

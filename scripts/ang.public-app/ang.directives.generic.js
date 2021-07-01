@@ -917,7 +917,16 @@ siApp
                     else{
                         $e.classList.remove('active');
                     }
-                })
+                });
+
+                $scope.content_elms.forEach(function($e,$i){
+                    if($i == $tabContentElementIndex){
+                        $e.classList.add('active');
+                    }
+                    else{
+                        $e.classList.remove('active');
+                    }
+                });
 
                 $scope.selected_tab_index = $tabContentElementIndex;
                 $scope.tabContentResize();

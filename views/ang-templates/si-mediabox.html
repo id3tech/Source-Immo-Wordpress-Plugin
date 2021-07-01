@@ -43,16 +43,16 @@
                 <label class="placeholder">{{'Virtual tour'.translate()}}</label>
                 <iframe data-ng-if="tabIsAvailable('virtual-tours')" data-ng-src="{{model.virtual_tour.trusted_url}}" allowFullscreen="1"></iframe>
             </div>
-            <div class="tab-content streetview"
-                >
-                <label class="placeholder">{{'Street view'.translate()}}</label>
-                <si-streetview data-ng-if="tabIsAvailable('streetview')" class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-streetview>
-            </div>
             <div class="tab-content map"
                 >
                 <label class="placeholder">{{'Map'.translate()}}</label>
                 <si-map data-ng-if="tabIsAvailable('map')" class="detail-map" zoom="14" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-map>
                 <ll-content-widget ng-if="false && hasAddon('locallogic')"></ll-content-widget>
+            </div>
+            <div class="tab-content streetview"
+                >
+                <label class="placeholder">{{'Street view'.translate()}}</label>
+                <si-streetview data-ng-if="tabIsAvailable('streetview')" class="detail-streetview" latlng="{lat: model.location.latitude, lng: model.location.longitude}"></si-streetview>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-<div class="address">
+<div class="address si-apply-typography">
     <i class="fal fa-map-marker-alt"></i>
     <div class="info-content">
         <div itemprop="streetAddress">{{model.location.street_address}}</div> 

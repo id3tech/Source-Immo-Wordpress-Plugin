@@ -213,7 +213,7 @@ class SourceImmoConfig {
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
     
-    $brokerList   = new SourceImmoList('','brokers','brokers','last_name');
+    $brokerList   = new SourceImmoList('','brokers','brokers','name');
     $cityList     = new SourceImmoList('','cities','cities','name');
     $officeList   = new SourceImmoList('','offices','offices','name');
     $agencyList   = new SourceImmoList('','agencies','agencies','name');

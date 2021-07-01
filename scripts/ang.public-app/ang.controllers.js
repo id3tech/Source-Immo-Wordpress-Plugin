@@ -206,12 +206,16 @@ function singleListingCtrl(
                 return;
             })
             .then(function(){
+                $rootScope.$broadcast('si/single:ready');
+
                 if($scope.$loadingElement === undefined) return;
                 //$scope.$loadingElement.remove();
                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
                 $element[0].style.removeProperty('display');
-
             });
+        }
+        else{
+            $rootScope.$broadcast('si/single:ready');
         }
 
         //$timeout(function(){
