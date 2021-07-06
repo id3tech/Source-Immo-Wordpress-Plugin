@@ -431,7 +431,7 @@ siApp
             $scope.init = function(){
                 $scope.index = 0;   
                 
-                if(['Safari','Mobile'].every(function($w){ return navigator.userAgent.indexOf($w) >= 0})){
+                if(['Safari','Mobile','like Mac OS'].every(function($w){ return navigator.userAgent.indexOf($w) >= 0})){
                     $element[0].classList.add('is-safari');
                     
                     
@@ -490,6 +490,9 @@ siApp
 
             $scope.isInViewport =  function(el) {
                 const rect = el.getBoundingClientRect();
+
+                console.log('isInViewport', rect.bottom, window.innerHeight + window.scrollY)
+
                 return (
                     rect.top >= 0 &&
                     rect.left >= 0 &&
@@ -498,7 +501,7 @@ siApp
             
                 );
             }
-
+            $scope.touch_sensitivity = 100
             $scope._touchDown = {
                 x:null,
                 y:null
@@ -532,11 +535,12 @@ siApp
                 if ( ! $scope._touchDown.x || ! $scope._touchDown.y ) {
                     return;
                 }
-
-                if($scope._touchDown.diffX > 0){
+                
+                if(Math.abs($scope._touchDown.diffY) - $scope.touch_sensitivity > 0) return;
+                if(($scope._touchDown.diffX - $scope.touch_sensitivity) > 0){
                     $scope.nextPicture();
                 }
-                else if($scope._touchDown.diffX < 0){
+                else if(($scope._touchDown.diffX + $scope.touch_sensitivity) < 0){
                     $scope.previousPicture();
                 }
 
@@ -639,7 +643,7 @@ siApp
                 if(lGridPicture != null){
                     //console.log('selectGridPicture', $index, lGridPicture);
                     //lGridPicture.parentElement.scrollTop = -1 * lGridPicture.offsetTop;
-                    if($scope.isInViewport(lGridPicture)){
+                    if($scope.isInViewport($element[0])){
                         lGridPicture.scrollIntoView({behavior: "smooth",  block: 'nearest', inline: 'nearest'});    
                     }
                     lGridPicture.classList.add('si-highlight');
@@ -807,9 +811,19 @@ siApp
 
                 const lGridElmRect = gridElm.getBoundingClientRect();
                 const  lRelativeRect = $relativeElm.getBoundingClientRect();
+                let lWidth = lRelativeRect.width - lGridElmRect.width;
+                lWidth = Math.max(Math.min(lWidth,window.innerWidth),0);
+                if(lWidth == 0){
+                    lWidth = window.innerWidth;
+                }
+                $scope.model.viewport.width =  lWidth;
                 
-                $scope.model.viewport.width =  lRelativeRect.width - lGridElmRect.width;
-                $scope.model.viewport.height = lRelativeRect.height; //$scope.model.viewport.width * 3 / 4; //Math.min(lHeight, $scope.model.viewport.width * 16 / 9 );
+                let lHeight = lRelativeRect.height;
+                lHeight = Math.max(Math.min(lHeight, window.innerHeight),0);
+                if(lHeight == 0){
+                    lHeight = window.innerHeight;
+                }
+                $scope.model.viewport.height = lHeight; //$scope.model.viewport.width * 3 / 4; //Math.min(lHeight, $scope.model.viewport.width * 16 / 9 );
 
                 if($siUtils.isLegacyBrowser()){
 

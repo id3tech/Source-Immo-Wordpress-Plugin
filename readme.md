@@ -1,4 +1,4 @@
-# Version 1.4.2
+# Version 1.4.3
 
 
 ### Intuitive admin interface
@@ -93,6 +93,9 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.4.3
+* Fix minor bug in image slider
+
 Version 1.4.2
 * Fix image slider on MacOS
 * Fix-ishh the "auto-scroll" bug

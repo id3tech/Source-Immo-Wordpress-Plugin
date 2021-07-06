@@ -2391,8 +2391,6 @@ body#top.si-modal-open > div:first-child, body#top.si-modal-open #wrap_all, body
 
 @supports not (aspect-ratio: 1/1) { #top .si-image-slider .viewport, .si-image-slider .viewport { width: var(--viewport-width); } }
 
-@media screen and (max-width: 800px) { #top .si-image-slider .viewport, .si-image-slider .viewport { --viewport-width: 100%; } }
-
 @media screen and (max-width: 640px) { #top .si-image-slider .viewport, .si-image-slider .viewport { overflow-x: overlay; scroll-behavior: smooth; -ms-scroll-snap-type: block mandatory; scroll-snap-type: block mandatory; }
   #top .si-image-slider .viewport::-webkit-scrollbar, .si-image-slider .viewport::-webkit-scrollbar { height: 0px; background: transparent; }
   #top .si-image-slider .viewport::-webkit-scrollbar-thumb, .si-image-slider .viewport::-webkit-scrollbar-thumb { background: transparent; } }
@@ -2421,6 +2419,8 @@ body#top.si-modal-open > div:first-child, body#top.si-modal-open #wrap_all, body
 
 @media screen and (max-width: 420px) { #top .si-image-slider .viewport .trolley .item .caption, .si-image-slider .viewport .trolley .item .caption { bottom: unset; top: 0px; }
   #top .si-image-slider .viewport .trolley .item .caption label, .si-image-slider .viewport .trolley .item .caption label { width: 100%; text-align: center; font-size: 1rem; } }
+
+#top .si-image-slider.is-safari:not(.expanded) .viewport, #top .si-image-slider.is-safari:not(.expanded) .controls, .si-image-slider.is-safari:not(.expanded) .viewport, .si-image-slider.is-safari:not(.expanded) .controls { width: 100%; }
 
 #top .si-image-slider .counter, .si-image-slider .counter { display: none; position: absolute; top: 10px; right: 10px; font-size: 30px; font-weight: 600; color: #fff; pointer-events: none; }
 

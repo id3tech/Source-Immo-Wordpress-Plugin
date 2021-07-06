@@ -1464,9 +1464,7 @@ body.si-modal-open{
         @supports not (aspect-ratio: 1 / 1){
             width:var(--viewport-width);
         } 
-        @include media($tablet){
-            --viewport-width: 100%;
-        }
+        
         @include media($phone){
             //overflow-y:hidden;
             overflow-x:overlay;
@@ -1574,6 +1572,13 @@ body.si-modal-open{
                 }
             }
         }
+    }
+    &.is-safari:not(.expanded){
+        .viewport,.controls{
+            //@media screen and (max-width: $tablet) and (orientation: portrait){
+               width: 100%;
+            //}
+        } 
     }
     
     .counter{
