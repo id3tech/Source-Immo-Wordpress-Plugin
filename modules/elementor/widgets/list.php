@@ -133,7 +133,7 @@ class Elementor_SI_List_Widget extends \Elementor\Widget_Base
 
 
 
-    function _content_template(){  
+    function content_template(){  
     ?>
     <#
         const type = settings.type;

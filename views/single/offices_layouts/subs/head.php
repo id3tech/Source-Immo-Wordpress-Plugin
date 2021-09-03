@@ -1,6 +1,5 @@
 <div class="head">
-    <h3 class="agency-name">{{model.agency.name}}</h3> 
-    <h1 class="name">
-        {{model.name}}
-    </h1>
+    <h1 class="office-name notranslate">{{model.name}}</h1>
+    <div class="agency-name notranslate">{{model.agency.name}}</div> 
+    <div class="license-name">{{model.agency.license_type}}</div> 
 </div>

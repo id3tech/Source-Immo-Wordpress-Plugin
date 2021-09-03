@@ -767,7 +767,9 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
      */
     $scope.preprocess = function(){
         // set basic information from dictionary
-        $scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
+        $siCompiler.compileBrokerItem($scope.model);
+
+        //$scope.model.license_type = $scope.getCaption($scope.model.license_type_code,'broker_license_type');
         //$scope.model.languages    = 'N/A'.translate();
         let lExpertises           = [];
         $scope.model.listings.forEach(function($e,$i,$arr){
@@ -1018,6 +1020,36 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
     $scope.preprocess = function(){
         $siCompiler.compileOfficeItem($scope.model);
     }
+
+    /**
+     * Send message to office via API
+     */
+    $scope.sendMessage = function(){
+        //console.log('message data:', $scope.message_model);
+        sessionStorage.setItem('user_infos',JSON.stringify({
+            firstname: $scope.message_model.firstname,
+            lastname: $scope.message_model.lastname,
+            phone: $scope.message_model.phone,
+            email: $scope.message_model.email
+        }));
+
+        let lSent = $siHooks.do('single-office-send-message', $scope.message_model);
+
+        if(lSent!==true){
+            let lDestEmails = $scope.model.email;
+            lDestEmails = $siHooks.filter('single-office-message-emails', lDestEmails, $scope.model);
+            
+            lMessage = {
+                type: 'office_message',
+                destination: lDestEmails,
+                data: $scope.message_model
+            }
+
+            $siApi.rest('message', {params:lMessage}).then(function($response){
+                $scope.request_sent = true;
+            })
+        }
+    }
 });
 
 /**
@@ -1115,4 +1147,34 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
      $scope.preprocess = function(){
          $siCompiler.compileAgencyItem($scope.model);
      }
+
+     /**
+     * Send message to agency via API
+     */
+    $scope.sendMessage = function(){
+        //console.log('message data:', $scope.message_model);
+        sessionStorage.setItem('user_infos',JSON.stringify({
+            firstname: $scope.message_model.firstname,
+            lastname: $scope.message_model.lastname,
+            phone: $scope.message_model.phone,
+            email: $scope.message_model.email
+        }));
+
+        let lSent = $siHooks.do('single-agency-send-message', $scope.message_model);
+
+        if(lSent!==true){
+            let lDestEmails = $scope.model.main_office.email;
+            lDestEmails = $siHooks.filter('single-agency-message-emails', lDestEmails, $scope.model);
+            
+            lMessage = {
+                type: 'agency_message',
+                destination: lDestEmails,
+                data: $scope.message_model
+            }
+
+            $siApi.rest('message', {params:lMessage}).then(function($response){
+                $scope.request_sent = true;
+            })
+        }
+    }
  });

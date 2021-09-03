@@ -93,8 +93,7 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
      * @since 1.0.0
      * @access protected
      */
-    protected function render()
-    {
+    protected function render(){
         if (isset($_GET['action']) && $_GET['action'] == 'elementor') return;
         if (strpos($_SERVER['REQUEST_URI'],'admin-ajax') !== false) return;
         
@@ -122,7 +121,7 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
         echo ($shortcode);
     }
 
-    function _content_template()
+    function content_template()
     {
     ?>
         <div class="si-elementor-widget">

@@ -31,6 +31,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     let $scope = {};
     
     $scope.viewMetas = {};
+    $scope._cache = [];
 
     /**
      * API call gateway that renew token if needed
@@ -245,11 +246,22 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
         }
         // if(typeof $options.params == 'undefined'){$options.params = {};}
         // $options.params.at = $scope.auth_token.key;
+        const lQueryHash = $siUtils.hash($options);
+
+        // Check in cached responses
+        const lCached = $scope.getCachedResult(lQueryHash);
+        if(lCached != null) return $q.resolve(lCached);
+        // Check in pending query
+        const lPending = $scope.getPending(lQueryHash);
+        if(lPending != null) return lPending.defered.promise;
+        
+        $rootScope.$broadcast('$siApi/call/start');
 
         // Setup promise object
         let lPromise = $q(function($resolve, $reject){
             // add auth data
             $siConfig.get().then(function($configs){
+                
                 $options.headers = {
                     'x-si-account'      : $configs.account_id,
                     'x-si-api'          : $configs.api_key,
@@ -257,12 +269,22 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
                     'x-si-appVersion'   : $configs.app_version
                 }
 
+                
+                $scope.addPending(lQueryHash);
+                
+
                 $http($options)
                 .then(
                     // On success
                     function success($result){
                         if($result.status=='200'){
+                            $scope.cacheQuery(lQueryHash,$result.data);
+
                             $resolve($result.data);
+                            
+                            $scope.executePendings(lQueryHash, $result.data);
+
+                            $rootScope.$broadcast('$siApi/call/completed');
                         }
                         else{
                             $reject(null);
@@ -322,6 +344,53 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
         });
 
         return lPromise;
+    }
+
+
+    //#region Call Pending Management
+    $scope._queryPendings = [];
+    $scope.getPending = function($hash){
+        return  $scope._queryPendings.find($q => $q.hash == $hash);
+    }
+
+    $scope.addPending = function($hash){
+        //console.log('$siApi/addPending',$hash);
+        const lDefered = $q.defer();
+        $scope._queryPendings.push({hash: $hash, defered: lDefered});
+        return lDefered.promise;
+    }
+
+    $scope.executePendings = function($hash, $data){
+        $scope._queryPendings
+            .filter($q => $q.hash == $hash)
+            .forEach($q => {
+                console.log('$siApi/executePendings@resolving',$hash);
+                $q.defered.resolve($data);
+            });
+
+        $scope._queryPendings = $scope._queryPendings.filter($q => $q.hash != $hash);
+    }
+
+
+    //#endregion
+
+
+    $scope.cacheQuery = function($hash,$result){
+        //const lHash = $siUtils.hash($queryOptions);
+        $scope._cache.push({hash: $hash, value: $result});
+        if($scope._cache.length > 20){
+            $scope._cache.shift();
+        }
+    }
+
+    $scope.getCachedResult = function($hash){
+        //const lHash = $siUtils.hash($queryOptions);
+        const lResult = $scope._cache.find(function($c){
+            return $c.hash == $hash;
+        });
+
+        if(lResult == null) return null;
+        return lResult.value;
     }
 
     return $scope;
@@ -662,6 +731,8 @@ function $siCompiler($siConfig,$siList, $siUtils){
                 $scope.compileOfficeItem($item.office);
             }
         }
+
+        $scope.compileLinks($item);
     }
 
     $scope.compileListingRooms = function($item){
@@ -724,11 +795,16 @@ function $siCompiler($siConfig,$siList, $siUtils){
                                                     $item.location.address.street_number,
                                                     $item.location.address.street_name
                                                 );
+        if(!isNullOrEmpty($item.location.address.door)){
+            $item.location.street_address += ', suite {0}'.translate().format($item.location.address.door);
+        }
         $item.location.full_address = '{0} {1}, {2}'.format(
                                                 $item.location.address.street_number,
                                                 $item.location.address.street_name,
                                                 $item.location.city
                                             );
+        if($item.agency) $scope.compileAgencyItem($item.agency);
+        $scope.compileLinks($item);
 
         $item.permalink = $siUtils.getPermalink($item,'office');
     }
@@ -777,6 +853,17 @@ function $siCompiler($siConfig,$siList, $siUtils){
         $item.city      = $siUtils.getCaption($item.city_code, 'city');
 
         $item.permalink = $siUtils.getPermalink($item,'city');
+    }
+
+    $scope.compileLinks = function($item){
+        if($item.links != undefined){
+            $item.links.socials = Object.keys($item.links).filter($k => $k!='website').map($k => {
+                return {
+                    type: $k,
+                    url: $item.links[$k]
+                }
+            });
+        }
     }
 
     return $scope;
@@ -1027,7 +1114,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         });
         
 
-        let lResult = $scope.sanitize('/' + $siTemplate.interpolate(lRoute.route, $scope));
+        let lResult = $scope.sanitize($siTemplate.interpolate(lRoute.route, $scope));
         
 
         // check if permalink overrides is allowed
@@ -1064,8 +1151,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             });
         }
 
-        if(siCtx.use_lang_in_path) lResult = '/' + siCtx.locale + lResult;
+        if(siCtx.use_lang_in_path) lResult = siCtx.locale + lResult;
 
+        lResult = siCtx.root_url + lResult;
+        
         // add hook for custom permalink for type
         lResult = $siHooks.filter('si/list/item/permalink', lResult, $item);
         lResult = $siHooks.filter($type + '_permalink', lResult, $item);
@@ -1484,6 +1573,23 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         if(!isNaN(lParentZIndex)) lElmZindex += lParentZIndex;
 
         return Number(lElmZindex);
+    }
+
+    $scope.sortObjectKeys = function($obj){
+        return $obj;
+    }
+    $scope.hash = function($obj){
+        const lSorted = $scope.sortObjectKeys($obj);
+        const jsonstring = JSON.stringify(lSorted, function(k, v) { return v === undefined ? "undef" : v; });
+        
+        // Remove all whitespace
+        let hash = 0;
+        for (let i = 0; i < jsonstring.length; i++) {
+            let character = jsonstring.charCodeAt(i);
+            hash = ((hash<<5)-hash)+character;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash;
     }
 
     return $scope;

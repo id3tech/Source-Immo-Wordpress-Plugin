@@ -692,6 +692,11 @@ $locales.fr = {};$locales.fr.global =
     , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
     , "Market" : "Marché"
     , "Neighborhood" : "Quartier"
+
+    // PUBLIC - SINGLE
+    , "Follow on" : "Suivre sur"
+    , "Website" : "Site web"
+    
     // PUBLIC - SINGLE BROKER
     , "Sorry, this broker could not be found." : "Désolé, ce courtier est introuvable."
     , "It's possible that this broker is no longer member of the team or the link you used to access this page is invalid." : "Il est probable que ce courtier ne fasse plus partie de l'équipe ou le lien que vous avez utilisé pour accéder à cette page soit invalide."

@@ -67,6 +67,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'picture' => __('Picture', SI),
                 'cities' => __('City list', SI),
                 'office' => __('Office', SI),
+                'links' => __('Links', SI),
                 'listings' => __('Broker listings', SI),
                 'reviews' => __('Comments', SI),
             ],
@@ -76,6 +77,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'tabs' => __('Tabs', SI),
                 'address' => __('Address', SI),
                 'contact' => __('Contact', SI),
+                'links' => __('Links', SI),
                 'picture' => __('Picture', SI),
                 'brokers' => __('Office brokers', SI),
                 'listings' => __('Office listings', SI),
@@ -86,6 +88,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'tabs' => __('Tabs', SI),
                 'address' => __('Address', SI),
                 'contact' => __('Contact', SI),
+                'links' => __('Links', SI),
                 'brokers' => __('Agency brokers', SI),
                 'offices' => __('Agency offices', SI),
                 'listings' => __('Agency listings', SI),
@@ -287,7 +290,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             [
                 'name' => 'content_typograghy',
                 'label' => __('Typography'),
-                'scheme' => \Elementor\Scheme_Typography::TYPOGRAPHY_1,
+                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
                 'default' => null,
                 'selector' => '{{WRAPPER}} .si-allowed-elementor-typography',
                 'conditions' => [

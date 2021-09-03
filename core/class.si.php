@@ -18,6 +18,7 @@ class SourceImmo {
 
   public $modules = null;
 
+  public $state = 'active';
 
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
@@ -30,6 +31,47 @@ class SourceImmo {
     //}
   }
 
+  public function activate($network_wide){
+    //flush_rewrite_rules();
+    if ( is_multisite() && $network_wide ) { 
+
+        foreach (get_sites(['fields'=>'ids']) as $blog_id) {
+            switch_to_blog($blog_id);
+            $this->apply_routes(true);
+            restore_current_blog();
+        } 
+
+    } else {
+        //run in single site context
+        $this->apply_routes(true);
+    }
+  }
+  public function activateNewBlog($blog_id){
+    //run in single site context
+    //if ( is_plugin_active_for_network( 'my-plugin-name-dir/my-plugin-name.php' ) ) {
+      switch_to_blog($blog_id);
+      $this->apply_routes(true);
+      restore_current_blog();
+    //}
+  }
+
+  public function deactivate($network_wide){
+    if ( is_multisite() && $network_wide ) { 
+      foreach (get_sites(['fields'=>'ids']) as $blog_id) {
+          switch_to_blog($blog_id);
+          $this->state = 'deactivate';
+          flush_rewrite_rules();
+          restore_current_blog();
+      } 
+
+    } else {
+      $this->state = 'deactivate';
+      flush_rewrite_rules();
+    }
+  }
+
+
+
   /**
   * Initializes WordPress hooks
   */
@@ -40,12 +82,11 @@ class SourceImmo {
     add_filter( 'si-city-name', array($this, 'format_city_name'),10,2);
 
     $this->register_filters(array(
-      // add route rules
-      //'init' => 'apply_routes',
       'query_vars' => 'update_routes_query_var',
       'rewrite_rules_array' => 'update_routes',
       'locale' => 'detect_locale',
-      'wp_get_nav_menu_items' => 'exclude_menu_pages'
+      'wp_get_nav_menu_items' => 'exclude_menu_pages',
+      'wpmu_new_blog' => 'activateNewBlog'
     ));
     $this->register_actions(array(
       'template_redirect',
@@ -53,7 +94,7 @@ class SourceImmo {
     ));
 
     if (!is_admin() ){
-      $this->apply_routes();
+      //$this->apply_routes();
 
       $this->register_filters(array(
         'language_attributes' => 'set_html_attributes',
@@ -62,6 +103,7 @@ class SourceImmo {
 
       $this->register_actions(array(
         'wp_enqueue_scripts' => 'load_resources',
+        //'init', 'apply_routes'
       ));
 
       add_action('wp_ajax_abc_ajax', array($this,'validate_file_version'),1);
@@ -257,54 +299,36 @@ class SourceImmo {
     return null;
   }
 
-  public function apply_routes(){
-    flush_rewrite_rules();
+  public function apply_routes($flush_rules_cache=false){
+    $routes = $this->update_routes([]);
+    // if(is_array($routes) && count($routes)>0){
+    //   flush_rewrite_rules();
+    // }
 
-    $routes = $this->update_routes(array());
-    
     foreach ($routes as $key => $value) {
       add_rewrite_rule($key, $value,'top');
     }
+    
+    
+    if($flush_rules_cache){
+       flush_rewrite_rules();
+    }
+    
   }
 
   /**
   * Set routes based on configurations
   */
   public function update_routes($rules) {
-    // check if routes exists
+    if($this->state == 'deactivate'){return $rules;}
     $newrules = array();
-
-    // add routes
-    foreach($this->configs->listing_routes as $route){
-      $ruleKey=array();$matches=array();
-      
-      $this->getRulesAndMatches($route->route,$ruleKey,$matches);
-
-      if(count($ruleKey)>0){
-        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&' . implode('&', $matches);
-
-        array_splice($ruleKey, 1,3,'print');
-        if(count($ruleKey)>0){
-          $matches = array('ref_number=$matches[1]');
-          $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=print&' . implode('&', $matches);
-        }
-      }
-
-      // shortcut
-      if(!str_null_or_empty($route->shortcut)){
-        $ruleKey=array();$matches=array();
-        $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
-        $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=shortcut&' . implode('&', $matches);  
-      }
-      
-      //$newrules['proprietes/(\D?\d+)(/(.+)/(.+)/(\D+))?/?'] = 'index.php?ref_number=$matches[1]&transaction=$matches[3]&genre=$matches[4]&city=$matches[5]';
-    }
-
+  
     $routeMappings = [
-      'broker' => 'brokers',
-      'city' => 'cities',
-      'office' => 'offices',
-      'agency' => 'agencies'
+      'listing' => 'listings',
+      'broker'  => 'brokers',
+      'city'    => 'cities',
+      'office'  => 'offices',
+      'agency'  => 'agencies'
     ];
 
     foreach($routeMappings as $single => $plurial){
@@ -313,82 +337,42 @@ class SourceImmo {
         $ruleKey=array();$matches=array();
         $this->getRulesAndMatches($route->route,$ruleKey,$matches);
         
-
         $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=' . $plurial . '&' . implode('&', $matches);
+
+        // print
+        if($single == 'listing'){
+          $this->getPrintRule($ruleKey);
+          if(count($ruleKey)>0){
+            $matches = array('ref_number=$matches[1]');
+            $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=listings&mode=print&' . implode('&', $matches);
+          }
+        }
 
         // shortcut
         if(!str_null_or_empty($route->shortcut)){
           $ruleKey=array();$matches=array();
           $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
+          
           $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=' . $plurial . '&mode=shortcut&' . implode('&', $matches);  
         }
       }
     }
 
-    // // add routes
-    // foreach($this->configs->broker_routes as $route){
-    //   $ruleKey=array();$matches=array();
-    //   $this->getRulesAndMatches($route->route,$ruleKey,$matches);
-      
+    return array_merge($newrules, $rules);    
+  }
 
-    //   $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=brokers&' . implode('&', $matches);
+  public function getPrintRule(&$rules){
+    $result = [];
+    foreach ($rules as $value) {
+      if($value != '(.+)' && $value != ''){
+        $result[] = $value;
+      }
+    }
 
-    //   // shortcut
-    //   if(!str_null_or_empty($route->shortcut)){
-    //     $ruleKey=array();$matches=array();
-    //     $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
-    //     $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=brokers&mode=shortcut&' . implode('&', $matches);  
-    //   }
-    // }
+    $result[] = 'print';
+    $result[] = '(.+)';
 
-    // // add routes
-    // foreach($this->configs->city_routes as $route){
-    //   $ruleKey=array();$matches=array();
-    //   $this->getRulesAndMatches($route->route,$ruleKey,$matches);
-
-    //   $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=cities&' . implode('&', $matches);
-
-    //   // shortcut
-    //   if(!str_null_or_empty($route->shortcut)){
-    //     $ruleKey=array();$matches=array();
-    //     $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
-    //     $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=cities&mode=shortcut&' . implode('&', $matches);  
-    //   }
-    // }
-
-
-    // // add routes
-    // foreach($this->configs->office_routes as $route){
-    //   $ruleKey=array();$matches=array();
-    //   $this->getRulesAndMatches($route->route,$ruleKey,$matches);
-
-    //   $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=offices&' . implode('&', $matches);
-
-    //   // shortcut
-    //   if(!str_null_or_empty($route->shortcut)){
-    //     $ruleKey=array();$matches=array();
-    //     $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
-    //     $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=offices&mode=shortcut&' . implode('&', $matches);  
-    //   }
-    // }
-
-    // // add routes
-    // foreach($this->configs->agency_routes as $route){
-    //   $ruleKey=array();$matches=array();
-    //   $this->getRulesAndMatches($route->route,$ruleKey,$matches);
-
-    //   $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=agencies&' . implode('&', $matches);
-
-    //   // shortcut
-    //   if(!str_null_or_empty($route->shortcut)){
-    //     $ruleKey=array();$matches=array();
-    //     $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
-    //     $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=agencies&mode=shortcut&' . implode('&', $matches);  
-    //   }
-    // }
-
-    //__c($newrules, $rules);
-    return array_merge($newrules, $rules);
+    $rules = $result;
   }
 
   public function getRulesAndMatches($route, &$rules=null, &$matches=null){
@@ -397,6 +381,7 @@ class SourceImmo {
 
     $routeParts = explode('/', $route);
     $index = 0;
+
     foreach ($routeParts as $part) {
       if(strpos($part,'{{')===false){
         $rules[] = $part;
@@ -574,8 +559,9 @@ class SourceImmo {
   public function load_resources(){
     
     $mapKeyParams = '';
-    if(!empty($this->configs->map_api_key)){
-      $mapKeyParams = 'key=' . $this->configs->map_api_key;
+    $mapApiKey = $this->configs->get_map_api_key();
+    if(!empty($mapApiKey)){
+      $mapKeyParams = 'key=' . $mapApiKey;
     }
 
     wp_deregister_script( 'moment');
@@ -671,6 +657,32 @@ class SourceImmo {
   }
 
 
+  function get_root_url($lang=null){
+    
+    
+    $lRootUrl = get_bloginfo('url');
+    $lRootUrl = str_replace(['http://', 'https://'],'', $lRootUrl);
+    
+    if(class_exists('Sitepress')){
+      global $sitepress;
+      $lTwoLetterLocale = $lang!=null ? $lang : si_get_locale();
+      $localeBaseUrl = $sitepress->language_url( $lTwoLetterLocale );
+      $localeBaseUrl = str_replace(['http://', 'https://'],'', $localeBaseUrl);
+      $localeBaseUrl = trim($localeBaseUrl,'/');
+      
+      if($localeBaseUrl != $lRootUrl && strpos($localeBaseUrl,'?')===false) $lRootUrl = $localeBaseUrl;
+    }
+    
+    
+    if(strpos($lRootUrl,'/') !== false){
+      $lRootUrl = substr($lRootUrl,strpos($lRootUrl,'/')) . '/';
+    }
+    else{
+      $lRootUrl = '/';
+    }
+
+    return $lRootUrl;
+  }
 
   /**
    * Add JS script context object to the document
@@ -681,7 +693,7 @@ class SourceImmo {
     // $lConfigFileUrl = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
     // $lConfigFilePath = str_replace('//' . $_SERVER['HTTP_HOST'], ABSPATH, $lConfigFileUrl);
     // $lConfigVersion = '';
-    
+    $lRootUrl = $this->get_root_url();
 
     $lConfigPath = SourceImmoConfig::getFileUrl(true);
 
@@ -699,7 +711,9 @@ class SourceImmo {
                   'city_routes : ' . json_encode($this->configs->city_routes) . ', ' .
                   'office_routes : ' . json_encode($this->configs->office_routes) . ', ' .
                   'agency_routes : ' . json_encode($this->configs->agency_routes) . ', ' .
-                  'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . 
+                  'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . ', '.
+                  'map_api_key: "' . $this->configs->get_map_api_key() . '" ' . ',' .
+                  'root_url: "' . $lRootUrl . '"' .
                 '};'
       );
 
@@ -717,17 +731,19 @@ class SourceImmo {
       foreach ($locale_file_paths as $filePath) {
         
         // echo(SI_PLUGIN_DIR);
+        if(file_exists($filePath)){
 
-        $fileUrl = si_to_plugin_root($filePath);
-        $localeName = basename($filePath);
+          $fileUrl = si_to_plugin_root($filePath);
+          $localeName = basename($filePath);
 
-        wp_enqueue_script(
-                          'si-locales-' . $localeName, 
-                          SI_PLUGIN_URL . $fileUrl, 
-                          null, 
-                          filemtime($filePath), 
-                          true
-                        );
+          wp_enqueue_script(
+                            'si-locales-' . $localeName, 
+                            SI_PLUGIN_URL . $fileUrl, 
+                            null, 
+                            filemtime($filePath), 
+                            true
+                          );
+        }
       }
       // wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
       //           null, 
@@ -1488,16 +1504,16 @@ class SourceImmo {
   * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
   * @static
   */
-  public static function plugin_activation() {
-
+  public static function plugin_activation($network_wide) {
+    self::current()->activate($network_wide);
   }
 
   /**
   * Removes all connection options
   * @static
   */
-  public static function plugin_deactivation( ) {
-
+  public static function plugin_deactivation($network_wide ) {
+    self::current()->deactivate($network_wide);
   }
 
   public static function styleToAttr($styles){
@@ -1574,8 +1590,9 @@ class SiSharing{
     add_filter('document_title_parts', array($this, 'override_title'),10);
     add_filter('wp_head', array($this,'seo_metas'),10,1);
     add_filter('single_post_title', array($this, 'page_title'), 10,1);
-   
-    //add_action('the_post', array($this,'change_post'));
+    // add_filter('elementor/utils/get_the_archive_title', array($this, 'page_title'), 100,1);
+    // add_filter( 'get_post_metadata', [$this,'page_meta'], 100, 4 );
+    // add_action('the_post', array($this,'change_post'));
 
     //Yoast
     add_filter('wpseo_title', array($this, 'title'), 10,1);
@@ -1611,10 +1628,27 @@ class SiSharing{
   }
 
   public function page_title($title='',$id=null){
+    global $post;
     if($this->title != null && $id==null){
       $title = $this->title;
     }
+
+    if($title == 'test'){
+      return $post->ID;
+    }
     return $title;
+  }
+
+  public function page_meta($metadata, $object_id, $meta_key, $single){
+    if($meta_key == 'subtitle'){
+      if(isset($this->object->location)){
+        return $this->object->location->city;
+      }
+      else if(isset($this->object->license_type)){
+        return $this->object->license_type;
+      }
+    }
+    return $metadata;
   }
 
   public function title($title='',$sep=''){

@@ -1234,13 +1234,18 @@ siApp
             
         },
         controller: function($scope, $element, $timeout, $q){
-
+            $scope.deferredContentCheck = null;
+            
             $scope.init = function(){
+                $scope.$on('$siApi/call/completed', function(){
+                    $scope.checkContent()//.then($scope.reveal);
+                });
                 $scope.hasContent().then($scope.reveal);
             }
 
             $scope.hasContent = function(){
-                const lDeferred = $q.defer();
+                if($scope.deferredContentCheck == null) $scope.deferredContentCheck = $q.defer();
+                //const lDeferred = $q.defer();
 
                 // Test content availability from expression
                 if($scope.options.when != undefined){
@@ -1255,7 +1260,8 @@ siApp
 
                             $scope.$watch($scope.options.when, function($new,$old){
                                 if($new === true){
-                                    lDeferred.resolve();
+                                    $element[0]
+                                    $scope.deferredContentCheck.resolve();
                                 }
                             })
                         
@@ -1267,31 +1273,46 @@ siApp
                             return $scope.options.when;
                         }, function($new,$old){
                             if($new === true){
-                                lDeferred.resolve();
+                                $scope.deferredContentCheck.resolve();
                             }
                         });
                     }
                     
-                    return lDeferred.promise;
+                    return $scope.deferredContentCheck.promise;
                 }
 
-                // Test content availability from element actual content
-                // Let it be a little, just in case
                 $timeout(function(){
-                    if($element[0].innerText.trim() != ''){
-                        // make sure there's no hidden children
-                        if(
-                            Array.from($element[0].children)
-                                .filter(function($e){ return !$e.classList.contains('ng-hide')})
-                                .some(function($e){ return $e.innerText != ''})
-                        ){
-                            lDeferred.resolve();
-                        }
-                    }
+                    $scope.checkContent();
                 }, 250);
 
 
-                return lDeferred.promise;
+                return $scope.deferredContentCheck.promise;
+            }
+
+
+
+            $scope.checkContent = function(){
+                if(!$element[0].classList.contains('si-hide-' + $scope.options.method)) return;
+
+                console.log('siHideEmpty/checkContent',$element[0], $element[0].innerText.trim())
+                if($element[0].innerText.trim() != ''){ 
+                    // make sure there's no hidden children
+                    if(
+                        Array.from($element[0].children)
+                            .filter(function($e){ return !$e.classList.contains('ng-hide')})
+                            .some(function($e){ return $e.innerText != ''})
+                    ){
+                        $scope.deferredContentCheck.resolve();
+                    }
+                    else{
+                        $scope.deferredContentCheck.resolve();
+                    }
+                }
+                // else if ($iteration < 4){
+                //     $timeout(_ => {
+                //         $scope.checkContentTimeoutHandler($deferred,$iteration+1);
+                //     },250);
+                // }
             }
 
             $scope.reveal = function(){

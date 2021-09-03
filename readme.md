@@ -1,4 +1,4 @@
-# Version 1.4.3
+# Version 1.4.8
 
 
 ### Intuitive admin interface
@@ -93,6 +93,27 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 
 
 ## Change log
+Version 1.4.9
+* Network activation
+** Fix search engine tab (view id)
+** Fix view name for lists
+
+Version 1.4.8
+* Add activation protocole for network
+
+Version 1.4.7
+* Fix rewrite_rule bug
+
+Version 1.4.6
+* Minor bug fix for locale.js skip when file don't exists
+* Minimize number of call to flush_rewrite_rules
+
+Version 1.4.5
+* Fix hide-empty racing bug
+
+Version 1.4.4
+* Optimized api calls with call stack and cached result
+
 Version 1.4.3
 * Fix minor bug in image slider
 

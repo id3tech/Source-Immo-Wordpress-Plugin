@@ -675,11 +675,13 @@
       //$item->listings_count = 0;
       
       $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : $item->location->city;
-      $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : $item->location->region;
+      $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : (isset($item->location->region) ? $item->location->region : '');
       $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
       $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
       $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';
-  
+      if( isset($item->location->address->door) ){
+        $item->location->street_address .= ', suite ' . $item->location->address->door;
+      }
       if(str_null_or_empty($item->location->city) && isset($item->location->address->street_name)){
         $addressParts = explode(',',$item->location->address->street_name);
         $item->location->street_address = $addressParts[0];
@@ -718,6 +720,9 @@
       $item->license_type = isset($item->license_type_code) ? $dictionary->getCaption($item->license_type_code , 'agency_license_type') : $item->license_type;
       
       if(isset($item->main_office)){
+        $officeProcessor = new SourceImmoOfficesResult();
+        $officeProcessor->preprocess_item($item->main_office);
+        
         $item->location = $item->main_office->location;
 
         $item->location->full_address = $item->location->address->street_number . ' ' . $item->location->address->street_name . ', ' . $item->location->city;
@@ -763,10 +768,10 @@
   
     public static function buildPermalink($item, $format, $lang=null){
       $lResult = $format;
-      global $sitepress;
+      
       $lTwoLetterLocale = $lang!=null ? $lang : si_get_locale();
       
-      $lHomeUrl= $sitepress == null ? '/' : $sitepress->language_url( $lTwoLetterLocale );
+      $rootUrl = SourceImmo::current()->get_root_url();
   
       $lAttrList = self::getAttributeValueList($item);
       $item->has_custom_page = false;
@@ -774,7 +779,8 @@
       foreach($lAttrList as $lAttr){
         $lValue = $lAttr['value'];
         if($lValue == ''){
-          $lValue = __('other ' . end(explode('.',$lAttr['key'])),SI);
+          $lKeyArr = explode('.',$lAttr['key']);
+          $lValue = __('other ' . end($lKeyArr),SI);
         }
 
         $lFriendlyValue = sanitize_title($lValue);
@@ -788,12 +794,8 @@
               '{{get' . $lAttr['key'] . '(item)}}'
             ), $lFriendlyValue , $lResult);
       }
-     
-
-
-      $lFinalPermalink = '/'. str_replace(' ','-',$lResult);
       
-      if(strpos($lHomeUrl,$lTwoLetterLocale)!==false) $lFinalPermalink = '/' . $lTwoLetterLocale . $lFinalPermalink; 
+      $lFinalPermalink = $rootUrl . str_replace(' ','-',$lResult);
       return $lFinalPermalink;
     }
   

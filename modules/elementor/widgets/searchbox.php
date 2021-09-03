@@ -106,7 +106,7 @@ class Elementor_SI_Searchbox_Widget extends \Elementor\Widget_Base {
 		echo( $shortcode );
     }
 
-	function _content_template() {
+	function content_template() {
         ?>
         <div class="si-elementor-widget">
             <div class="si">

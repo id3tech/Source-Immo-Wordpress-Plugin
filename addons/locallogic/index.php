@@ -13,30 +13,35 @@ class siLocalLogicAddon extends SourceImmoAddon{
             // Token use to display forms
             'sdk_token' => '',
             'allow_demographic' => false
-        );
+        );   
+    }
 
-        
-        
+    public function get_sdk_token(){
+        return apply_filters('licenses/local_logic', $this->active_configs->sdk_token);
     }
 
     public function register_hooks(){
         if (!is_admin() ){
-            // Add a style
-            $style_version = filemtime(SI_LOCALLOGIC_ADDON_DIR . '/assets/styles.min.css');
-            $style_url = SI_LOCALLOGIC_ADDON_URL . '/assets/styles.min.css';
-            wp_enqueue_style( 'si-addon-locallogic-style', $style_url, null, $style_version);
-    
-            $script_version = filemtime(SI_LOCALLOGIC_ADDON_DIR . '/assets/scripts.js');
-            $script_url = SI_LOCALLOGIC_ADDON_URL . '/assets/scripts.js';
-            wp_enqueue_script( 'si-addon-locallogic-script', $script_url, ['si-public-app'], $script_version);
+            $token = $this->get_sdk_token();
 
-            if(!str_null_or_empty($this->active_configs->sdk_token)){
-                $remoteScriptUrl = 'https://cdn.locallogic.co/sdk/?token=' . $this->active_configs->sdk_token . '&callback=siInitLocallogic';
+            if(!str_null_or_empty($token)){
+                // Add a style
+                $style_version = filemtime(SI_LOCALLOGIC_ADDON_DIR . '/assets/styles.min.css');
+                $style_url = SI_LOCALLOGIC_ADDON_URL . '/assets/styles.min.css';
+                wp_enqueue_style( 'si-addon-locallogic-style', $style_url, null, $style_version);
+        
+                $script_version = filemtime(SI_LOCALLOGIC_ADDON_DIR . '/assets/scripts.js');
+                $script_url = SI_LOCALLOGIC_ADDON_URL . '/assets/scripts.js';
+                wp_enqueue_script( 'si-addon-locallogic-script', $script_url, ['si-public-app'], $script_version);
+
+                
+                $remoteScriptUrl = 'https://cdn.locallogic.co/sdk/?token=' . $token . '&callback=siInitLocallogic';
                 wp_enqueue_script( 'si-addon-locallogic-remote-script', $remoteScriptUrl, ['jquery'], true,true);
+            
+                // add_action('si_listing_single_start', array($this,'listing_single_start'),5,2);
+                add_filter('si_listing_part_path',array($this,'listing_part_path_filter'),5,2);
+                add_filter('si_listing_part_params',array($this,'listing_part_params_filter'),5,2);
             }
-            // add_action('si_listing_single_start', array($this,'listing_single_start'),5,2);
-            add_filter('si_listing_part_path',array($this,'listing_part_path_filter'),5,2);
-            add_filter('si_listing_part_params',array($this,'listing_part_params_filter'),5,2);
         }
 
         add_shortcode('ll_demographics', [$this, 'render_demographics_shortcode']);
@@ -44,7 +49,9 @@ class siLocalLogicAddon extends SourceImmoAddon{
 
     public function listing_part_path_filter($part_path, $part){
         if(in_array($part, array('neighborhood','demographics'))){
-            if(!str_null_or_empty($this->active_configs->sdk_token)){
+            $token = $this->get_sdk_token();
+
+            if(!str_null_or_empty($token)){
                 if($part == 'demographics' && $this->active_configs->allow_demographic !== true) return $part_path;
                 $part_path = SI_LOCALLOGIC_ADDON_DIR . "/views/single_listing_{$part}.php";
             }
@@ -70,8 +77,9 @@ class siLocalLogicAddon extends SourceImmoAddon{
             ), $atts )
         );
 
+        $token = $this->get_sdk_token();
         if($lat == 0 || $lng == 0) return '';
-        if(str_null_or_empty($this->active_configs->sdk_token)) return '';
+        if(str_null_or_empty($token)) return '';
 
         ob_start();
 
@@ -79,7 +87,7 @@ class siLocalLogicAddon extends SourceImmoAddon{
             'lat'   => $lat,
             'lng'   => $lng,
             'lang'  => 'fr',
-            'key'   => $this->active_configs->sdk_token
+            'key'   => $token
         ]);
 
         include 'views/demographics.php';

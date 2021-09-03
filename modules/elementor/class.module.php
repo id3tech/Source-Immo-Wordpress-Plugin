@@ -1,5 +1,6 @@
 <?php
 
+if(!class_exists('SI_Elementor_Module')){
 class SI_Elementor_Module extends \SI\Bases\Module{
 
     public $_module_path = SI_ELEMENTOR_MODULE_PATH;
@@ -77,6 +78,7 @@ class SI_Elementor_Module extends \SI\Bases\Module{
         $dynTags = [
             //'listing_data' => 'SourceImmoListingDataTags',
             //'broker_data' => 'SourceImmoBrokerDataTags',
+            'counter' => 'SourceImmoCounterTags',
             'single_data' => 'SourceImmoSingleDataTags',
             'single_data_container' => 'SourceImmoSingleDataContainerTags',
             'list_meta' => 'SourceImmoListMetaTags'
@@ -122,5 +124,4 @@ class SI_Elementor_Module extends \SI\Bases\Module{
     }
 }
 SourceImmo::current()->register_modules(new SI_Elementor_Module);
-
-
+}

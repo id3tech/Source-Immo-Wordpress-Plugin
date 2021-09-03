@@ -1996,7 +1996,7 @@ function siMediabox($parse){
             $scope.tabIsAvailable = function($name){
                 if($scope.configs){
                     if(['map','streetview'].includes($name)){
-                        if($scope.configs.map_api_key == '') return false;
+                        if(siCtx.map_api_key == '') return false;
                     }
                 }
                 if(!$scope.tabs) return true;

@@ -1225,6 +1225,7 @@ html, body{ scroll-behavior: smooth;}
         .si-content{
             //@include gridAreas('left-column','right-column');
             gap: var(--layout-gutter);
+            grid-auto-rows:max-content;
             label.placeholder{
                 padding:20px 0;
                 opacity:0.5;
@@ -1255,17 +1256,19 @@ html, body{ scroll-behavior: smooth;}
 
         .si-part-infos{
             display:grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            place-items: start stretch;
-            gap: calc(var(--layout-gutter) * 2);
+            grid-template-columns: 1fr;
+            //grid-template-rows: auto auto auto 1fr;
+            place-items: center;
+            gap: var(--layout-gutter);
             
 
-            .si-row{
+            > .si-row{
                 display:grid;
                 gap:var(--layout-gutter);
-                grid-column: 1 / span 2;
+                //grid-column: 1 / span 2;
+                
                 grid-template-columns: 1fr 1fr;
-
+                width: 100%;
                 .si-part-rating{
                     place-self: center end;
                 }
@@ -1275,12 +1278,97 @@ html, body{ scroll-behavior: smooth;}
                 }
             }
             .si-part-picture{
-                grid-column: 3;
-                grid-row:1 / span 4;
+                // grid-column: 1;
+                // grid-row:1 / span 4;
+                //padding-bottom: var(--layout-gutter);
+
+                .picture{
+                    max-width:300px;
+                    border-radius: var(--element-border-radius);
+                    overflow: hidden;
+                    //box-shadow: 0 1rem 1rem #0005;
+                }
             }
             .si-part{
                 &.si-part-name, &.si-part-about{
-                    grid-column: 1 / span 2;
+                    //grid-column: 2;
+                }
+                &.si-part-license{
+                    margin-top: calc(-1 * var(--layout-gutter));
+                }
+
+                &.si-part-about{
+                    //padding: var(--layout-gutter) 0; 
+                    text-align: center;
+                }
+                
+                &.si-part-contact{
+                    //padding-bottom: var(--layout-gutter);
+                    text-align: center;
+                    .contact{
+                    display:flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    gap:var(--layout-gutter);
+                    align-items:center;
+                }
+                    .phone-list{
+                        display:flex;
+                        flex-direction:row;
+                        gap:var(--layout-gutter);
+                    }
+
+                    .actions:nth-child(2){
+                        display:flex;
+                        flex-direction:row;
+                        align-items: center;
+                        gap:var(--layout-gutter);
+                        &::before{
+                            content:"";
+                            height:1em;
+                            width:1px;
+                            background:currentColor;
+                            opacity:0.5;
+
+                        }
+                    }
+                }
+                &.si-part-links{
+                    //padding-bottom: var(--layout-gutter);
+                    text-align:center;
+                    
+                    .link-list{
+                        display:flex;
+                        flex-direction:row;
+                        align-items: center;
+                        gap:var(--layout-gutter);
+                    }
+                    .website{
+                        display:flex;
+                        flex-direction:row;
+                        align-items: center;
+                        gap:var(--layout-gutter);
+                        &:nth-child(2){
+                            &::before{
+                                content:"";
+                                width: 1px;
+                                height: 1em;
+                                display:inline-block;
+                                background:currentColor;
+                            }
+                        }
+                    }
+                    > .link{
+                        display:flex;
+                        flex-direction:row;
+                        align-items: center;
+                        gap:var(--layout-gutter);
+                    }
+                }
+
+                &.si-part-office{
+                    //padding: var(--layout-gutter) 0;
+                    text-align:center;
                 }
             }
         }
@@ -1458,7 +1546,7 @@ html, body{ scroll-behavior: smooth;}
         .name{margin-bottom:0px;}
         .license-title{
             font-size:1.3em;
-            text-transform:uppercase;
+            //text-transform:uppercase;
             opacity: 0.75;
         }
         
@@ -1485,16 +1573,17 @@ html, body{ scroll-behavior: smooth;}
             
             .phone-list{
                 .item{
-                    font-size:1.25rem;
-                    padding:0.5rem 0; 
+                    font-size:1.25em;
+                    padding:0.5em 0; 
                     color: var(--text-color);
                 }
             }
-            .actions{
-            }
+            
         }
 
-        
+        .link{
+
+        }
         
 
         .listing-list{
@@ -1527,17 +1616,10 @@ html, body{ scroll-behavior: smooth;}
                 grid-template-columns: 1fr;
                 .name{
                     text-transform: uppercase;
+                    font-size:1.25em;
                 }
                 .location{
-                    @include gridAreas('icon','address','city','country');
-                
-                    display:grid;
-                    grid-template-columns: auto 1fr;
-                    gap:0 1rem;
-                    grid-template-areas: 
-                        "icon address"
-                        "icon country"
-                    ;
+                    
                 }
                 
             }
@@ -1669,7 +1751,8 @@ html, body{ scroll-behavior: smooth;}
         .si-content{
             
             grid-template-columns: 1fr;
-            grid-template-rows: auto;
+            //grid-template-rows: max-content;
+            grid-auto-rows:max-content;
             place-items: start stretch;
             gap: var(--layout-gutter);
 
@@ -1681,26 +1764,109 @@ html, body{ scroll-behavior: smooth;}
         }
 
         .head{
+            display:grid;
+            //gap:var(--layout-gutter);
+            
             // grid-column: 2;
             // grid-row: 1;
             // @include media($phone){
             //     grid-column: 1 / span 3;
             //     grid-row:unset;
             // }
-            .name{margin-bottom:0px;}
-            @include media($phone){
-                text-align: center;
+            
+            .office-name{margin-bottom:0px;}
+            .agency-name{
+                font-size:1.3em;
+            }
+            .license-name{
+                opacity:0.75;
+                font-size:1.3em;
+                //margin-top:calc(-1 * var(--layout-gutter));
             }
         }
 
-        .bio{
-            grid-column: 1 / -1;
-            column-count: 2;
-            column-gap: 1rem;
-            @include media($phone){
-                grid-row:unset;
-                column-count: 1;
+        .si-part-infos{
+            display:grid;
+            grid-template-columns: 1fr;
+            place-items: start stretch;
+            gap: var(--layout-gutter);
+            .head{
+                text-align: center;
             }
+            .address{
+                text-align:center;            
+            }
+
+            .link{
+                text-align:center;
+                display:flex;
+                flex-direction:row;
+                justify-content: center;
+                align-items: center;
+                gap:var(--layout-gutter);
+    
+                .link-list{
+                    display:flex;
+                    flex-direction:row;
+                    align-items: center;
+                    gap:var(--layout-gutter);
+                }
+                .website{
+                    display:flex;
+                    flex-direction:row;
+                    align-items: center;
+                    gap:var(--layout-gutter);
+                    &:nth-child(2){
+                        &::before{
+                            content:"";
+                            width: 1px;
+                            height: 1em;
+                            display:inline-block;
+                            background:currentColor;
+                        }
+                    }
+                }
+            }
+
+            .contact{
+                // grid-column: 3;
+                // grid-row: 1;
+                display:flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items:center;
+                gap:var(--layout-gutter);
+    
+                .phone-list{
+                    display:flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    gap:var(--layout-gutter);
+                    .item{
+                        font-size:1.25em;
+                    }
+                }
+                
+                .actions:nth-child(2){
+                    display:flex;
+                    flex-direction:row;
+                    align-items: center;
+                    gap:var(--layout-gutter);
+                    &::before{
+                        content:"";
+                        height:1em;
+                        width:1px;
+                        background:currentColor;
+                        opacity:0.5;
+    
+                    }
+                }
+            }
+        }
+        
+        
+
+        .bio{
             
             .button{display:none;}
             p:first-child{margin-top:0px;}
@@ -1719,19 +1885,7 @@ html, body{ scroll-behavior: smooth;}
             }
         }
 
-        .address{
-            display:grid;
-            grid-template-columns: auto 1fr;
-            i.fa-map-marker-alt{padding:5px;}   
-            @include media($phone){
-                grid-template-columns: 1fr;
-                place-items:center;
-                text-align: center;
-                i.fa-map-marker-alt{
-                    display:none;
-                }
-            } 
-        }
+        
 
         .picture{
             grid-column: 1;
@@ -1744,30 +1898,21 @@ html, body{ scroll-behavior: smooth;}
                 grid-row:unset;
             }
         }
-        .contact{
-            // grid-column: 3;
-            // grid-row: 1;
-            display:grid;
-            gap:var(--layout-gutter);
-            
-            @include media($phone){
-                .phone-list{
-                    i.fal{
-                        display:none;
-                    }
-                }
-            }
 
-            // .phone-list{
-            //     .item{font-size:1.5em;}
-            // }
-            .actions{
-                padding:10px;
-                text-align:center;
-            }
+        .link-list{
+            display:flex;
+            flex-direction:row;
+            align-items: center;
+            gap:var(--layout-gutter);
         }
+
+        
         .office-list-tabs{
             grid-column: 1 / -1;
+            .si-tab-button-container{
+                justify-content: center;
+            }
+            
             //grid-row: 3;
             @include media($phone){
                 grid-row:unset;
@@ -1805,7 +1950,8 @@ html, body{ scroll-behavior: smooth;}
         .si-content{
             
             grid-template-columns: 1fr;
-            grid-template-rows: auto;
+            //grid-template-rows: auto;
+            grid-auto-rows:max-content;
             place-items: start stretch;
             gap: var(--layout-gutter);
 
@@ -1817,20 +1963,97 @@ html, body{ scroll-behavior: smooth;}
         }
 
         .head{
-            // grid-column: 2;
-            // grid-row: 1;
-            // @include media($phone){
-            //     grid-column: 1 / span 3;
-            //     grid-row:unset;
-            // }
-            @include media($phone){
+            .name{margin-bottom:0px;}
+            .license-name{
+                font-size:1.3em;
+                opacity:0.75;
+
+            }
+        }
+        .si-part-infos{
+            display:grid;
+            grid-template-columns: 1fr;
+            place-items: start stretch;
+            gap: var(--layout-gutter);
+            .head{
+                text-align: center;
+            }
+            .main-office-address{
                 text-align: center;
             }
 
-            .name{margin-bottom:0px;}
-            
+            .link{
+                text-align:center;
+                display:flex;
+                flex-direction:row;
+                justify-content: center;
+                align-items: center;
+                gap:var(--layout-gutter);
+    
+                .website{
+                    &:nth-child(2){
+                        &::before{
+                            content:"";
+                            width: 1px;
+                            height: 1em;
+                            display:inline-block;
+                            background:currentColor;
+                        }
+                    }
+                }
+            }
+
+            .contact{
+                
+                display:flex;
+                justify-content: center;
+                align-items: center;
+    
+                gap:var(--layout-gutter);
+                .phone-list{
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap:var(--layout-gutter);
+    
+                    .item{
+                        display: flex;
+                        align-items: center;
+                        font-size:1.25em;
+                    }
+                }
+
+                .actions:nth-child(2){
+                    display:flex;
+                    flex-direction:row;
+                    align-items: center;
+                    gap:var(--layout-gutter);
+                    &::before{
+                        content:"";
+                        height:1em;
+                        width:1px;
+                        background:currentColor;
+                        opacity:0.5;
+    
+                    }
+                }
+            }
         }
 
+        .link{
+            .link-list{
+                display:flex;
+                flex-direction:row;
+                align-items: center;
+                gap:var(--layout-gutter);
+            }
+            .website{
+                display:flex;
+                flex-direction:row;
+                align-items: center;
+                gap:var(--layout-gutter);
+            }
+        }
         .bio{
             grid-column: 1 / -1;
             column-count: 2;
@@ -1857,21 +2080,7 @@ html, body{ scroll-behavior: smooth;}
             }
         }
 
-        .main-office-address{
-            display:grid;
-            grid-template-columns: auto 1fr;
-            i.fa-map-marker-alt{
-                
-            }
-             @include media($phone){
-                grid-template-columns: 1fr;
-                place-items:center;
-                text-align: center;
-                i.fa-map-marker-alt{
-                    display:none;
-                }
-            }
-        }
+        
 
         .picture{
             grid-column: 1;
@@ -1884,34 +2093,12 @@ html, body{ scroll-behavior: smooth;}
                 grid-row:unset;
             }
         }
-        .contact{
-            // grid-column: 3;
-            // grid-row: 1;
-            display:grid;
-            gap:var(--layout-gutter);
-            .phone-list{
-                .item{
-                    display: flex;
-                }
-            }
-            @include media($phone){
-                .phone-list{
-                    i.fal{
-                        display:none;
-                    }
-                }
-            }
-
-            // .phone-list{
-            //     .item{font-size:1.5em;}
-            // }
-            .actions{
-                padding:10px;
-                text-align:center;
-            }
-        }
-        .office-list-tabs{
+        
+        .agency-list-tabs{
             grid-column: 1 / -1;
+            .si-tab-button-container{
+                justify-content: center;
+            }
             //grid-row: 3;
             @include media($phone){
                 grid-row:unset;

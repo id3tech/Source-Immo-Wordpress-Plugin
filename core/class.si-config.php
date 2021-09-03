@@ -221,6 +221,52 @@ class SourceImmoConfig {
     $this->lists = array(
       $listingList,$brokerList,$cityList,$officeList,$agencyList
     );
+
+    add_action('si/configs/setup', [$this,'setup'], 5, 3);
+  }
+
+  public function setup($api_key,$account_id,$view_id){
+    // Load current configs
+    $savedConfigs = $this->loadConfigFile();
+    
+    if($savedConfigs !== false){
+      // Parse current configs if any
+      if($this->parse(json_decode($savedConfigs, true))){
+        
+      }
+    }
+
+    $this->app_version = SI_VERSION;
+    $previousDefaultView = $this->default_view;
+
+    // Set new basic information
+    $this->api_key          = $api_key;
+    $this->account_id       = $account_id;
+    $this->default_view     = $view_id;
+    $site_title = get_bloginfo( 'name' );
+
+    // Update view id in lists
+    foreach($this->lists as $list){
+      $list->source = [
+        'id' => $view_id,
+        'account_id' => $account_id,
+        'name' => 'Default'
+      ];
+      
+      if($list->search_engine_options->tabbed == true && isset($list->search_engine_options->tabs)){
+        foreach($list->search_engine_options->tabs as $tab){
+          if($tab->view_id == $previousDefaultView){
+            $tab->view_id = $view_id;
+            foreach($tab->caption as &$lang){
+              $lang = str_replace('{{site_title}}',$site_title, $lang);
+            }
+          }
+        }
+      }
+    }
+
+    // Save new configurations
+    $this->save();
   }
 
   public static function getFileUrl($addVersion=false){
@@ -337,7 +383,7 @@ class SourceImmoConfig {
     $this->normalizeRoutes();
 
     //update_option(SI_OPTION_KEY, json_encode($this));
-    SourceImmo::current()->apply_routes();
+    SourceImmo::current()->apply_routes(true);
     return $this->saveConfigFile();
   }
 
@@ -472,6 +518,11 @@ class SourceImmoConfig {
       $attr = str_replace(array('{','}','"'),'',$attr);
     }
     return implode(';',$lAttrList);
+  }
+
+
+  public function get_map_api_key(){
+    return apply_filters('licenses/google_map', $this->map_api_key);
   }
 }
 

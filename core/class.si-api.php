@@ -335,6 +335,7 @@ class SourceImmoApi {
 
     SourceImmo::current()->configs->parse($config_value);
     SourceImmo::current()->configs->save();
+    SourceImmo::current()->apply_routes(true);
 
     // delete access token cache
     self::clear_access_token();
@@ -898,7 +899,7 @@ class SourceImmoApi {
       array(
         array(
           'methods' => WP_REST_Server::READABLE,
-          //'permission_callback' => array( 'SourceImmoApi', 'privileged_permission_callback' ),
+          'permission_callback' => '__return_true',
           'callback' => array( 'SourceImmoApi', 'module' ),
           'args' => array(
             'module' => array(

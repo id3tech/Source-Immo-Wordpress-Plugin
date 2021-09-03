@@ -4,4 +4,9 @@
             <i class="fal fa-fw fa-{{getPhoneIcon(key)}}"></i> {{phone}}
         </div>
     </div>
+
+    
+    <div class="actions" ng-if="model.email">
+        <?php echo do_shortcode('[si_office_part part="info_request" class="si-prevent-typography"]') ?>
+    </div>
 </div>

@@ -77,10 +77,20 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                 ]
             ]
         );
+
+        $this->add_control(
+            'ifEmpty',
+            [
+                'label' => __( 'Fallback', SI ),
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'default' => ''
+            ]
+        );
     }
 
     public function render() {
         $field = $this->get_settings( 'field' );
+        $fallback = $this->get_settings( 'ifEmpty' );
         
         if(is_admin()){
             $admin_print = "[{$field}]";
@@ -107,9 +117,28 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
 
             return;
         }
-        else{
-            echo('no model found');
+        elseif($fallback != ''){
+            if(strpos($fallback,'[[') !== false){
+                $formatVars = ['page_title' => function(){ return get_the_title();}];
+                $result = $fallback;
+                foreach ($formatVars as $key => $var) {
+                    
+                    if(strpos($result, '[[' . $key .']]') !== false ){
+                        $value = $var();
+                        $result = str_replace('[[' . $key .']]',$value, $result);
+                    }
+                }
+
+                $result = preg_replace('/(\[\[.+]])/', '', $result);
+
+                if($result != ''){
+                    echo($result);
+                    return;
+                }
+            }
+          
         }
-        echo('');
+        
+        return null;
     }
 }
