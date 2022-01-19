@@ -40,6 +40,8 @@ siApp
 
   $scope._pageInit_ = function(){
     $scope.show('general');
+
+    
   }
 
   $scope.addRouteElement = function($item,$elm){
@@ -106,11 +108,24 @@ siApp
     const lButton = lAdminPanel.querySelector('.nav-button.' + $panel_id);
     const lTarget = lAdminPanel.querySelector('#' + $panel_id);
 
+
+    $scope.panelChanged($panel_id);
+
     lNavButtons.forEach($e => $e.classList.remove('selected'));
     lSections.forEach($e => $e.classList.remove('selected'));
 
     lTarget.classList.add('selected');
     lButton.classList.add('selected');
+  }
+
+  $scope.panelChanged = function($panel_id){
+    panelChangeAction = {
+      'advanced' : _ => {
+        $scope.load_wp_menus();
+      }
+    }
+
+    if(panelChangeAction[$panel_id] != undefined) panelChangeAction[$panel_id]();
   }
 
 });
@@ -135,11 +150,12 @@ siApp
  * MAIN ROOT CONTROLLER
  */
 siApp
-.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils, $siConfigs){
+.controller('mainCtrl', function($scope, $rootScope, $mdDialog, $q, $http, $mdToast,$timeout,$siApi,$siList,$siUI,$siUtils, $siUser, $siConfigs, $siWP){
   $scope._status = 'initializing';
   $scope.loaded_components = [];
   $scope.wpSiApiSettings = wpSiApiSettings;
   $scope.notices = [];
+  $scope.user = $siUser;
 
   $scope.configs = {};
   $scope.lang_codes = {
@@ -183,26 +199,26 @@ siApp
     },
     list_item_layouts:{
       listings: [
-        {name: 'standard', label: 'Standard'},
+        {name: 'standard', label: 'Standard', vars: ['address','city','photo','price','category','subcategory','rooms','flags','open_houses']},
         {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       brokers : [
-        {name: 'standard', label: 'Standard'},
+        {name: 'standard', label: 'Standard', vars: ['photo','fullname','title','phone']},
         {name: 'double-layer', label: 'Double Layers (advanced)'}
       ],
       cities: [
-        {name: 'standard', label: 'Standard'}
-        
+        {name: 'standard', label: 'Standard', vars: ['name','listing_count']}
       ],
       offices: [
-        {name: 'standard', label: 'Standard'} 
+        {name: 'standard', label: 'Standard', vars: ['name','agency_name','phone','listing_count']}
       ],
       agencies: [
-        {name: 'standard', label: 'Standard'} 
+        {name: 'standard', label: 'Standard', vars: ['name','license','phone']}
       ]
     },
     list_item_vars: {
       listings: [
+        {name:'photo', label: 'Photo'},
         {name:'ref_number',label: 'Ref. number'},
         {name:'price', label: 'Price'},
         {name:'address',label: 'Address'},
@@ -217,33 +233,42 @@ siApp
         {name:'open_houses',label: 'Open houses'}
       ],
       brokers: [
+        {name:'photo', label: 'Photo'},
         {name:'fullname', label: 'Fullname'},
+        {name:'company_name', label: 'Company name'},
         {name:'first_name',label:'First name'},
         {name:'last_name',label:'Last name'},
         {name:'title',label:'Title'},
         {name:'phone',label:'Phone'},
         {name:'email',label:'Email'},
         {name:'office',label:'Office'},
-        {name:'listing_count',label:'Listings'},
+        {name:'contacts', label: 'Contacts'},
+        {name:'counters',label:'Listings'},
       ],
       cities :[
         {name:'name',label: 'Name'},
         {name:'region', label: 'Region'},
-        {name:'listing_count',label:'Listings'},
+        {name:'counters',label:'Listings'},
         {name:'code',label: 'Code'}
       ],
       offices :[
         {name:'name',label: 'Name'},
         {name:'agency-name',label: 'Agency name'},
-        {name:'listing_count',label:'Counters'},
+        {name:'counters',label:'Counters'},
         {name:'address',label:'Address'},
+        {name:'phone',label:'Phone'},
+        {name:'email',label:'Email'},
+        {name:'contacts', label: 'Contacts'},
         {name:'code',label: 'Code'},
       ],
       agencies :[
         {name:'name',label: 'Name'},
-        {name:'listing_count',label:'Counters'},
+        {name:'counters',label:'Counters'},
         {name:'address', label: 'Address'},
-        {name:'license',label:'Title'},
+        {name:'phone',label:'Phone'},
+        {name:'email',label:'Email'},
+        {name:'contacts', label: 'Contacts'},
+        {name:'license',label:'License'},
       ]
     },
     list_item_image_hover_effects:{
@@ -339,6 +364,67 @@ siApp
       agencies: [
         {name: 'name', label: 'Name'}
       ]
+    },
+    styles : {
+      'container_width' : '1170px',
+      'font_name' : 'inherit',
+      'highlight' : '#ff9900',
+      'highlight_text_color' : '#333',
+      'text_color' : '#333',
+      'background_color' : '#fff',
+      'input_placeholder_color' : 'rgba(#333,0.5)',
+      'layout_gutter' : '20px',
+      'padding': '20px',
+      'border_width' : '1px',
+      'border_style' : 'solid',
+      'border_color' : '#aaa',
+      'border_radius' : '0px',
+
+      // 'container_border_color' : '[element_border_color]',
+      // 'container_border' : ' solid 1px [container_border_color]',
+      // 'container_border_radius' : '[element_border_radius]',
+      // 'container_padding' : ' [layout_gutter]',
+      // 'element_border_color' : '#aaa',
+      // 'element_border' : 'solid 1px [element_border_color]',
+      // 'element_border_radius' : '0px',
+      // 'element_padding': '10px',
+      // 'component_border_color' : '#aaa',
+      // 'component_border' : '[border_style] [border_width] [border_color]',
+      // 'component_border_radius' : '[border_radius]',
+      
+      'list_item_separator_color' : '#aaa',
+      'list_item_separator' : 'solid 1px [list_item_separator_color]',
+      'list_item_padding': '10px',
+      'high_contrast_color' : '#333',
+      'high_contrast_text_color' : '#fff',
+      'medium_contrast_color' : '#b9b9b9',
+      'medium_contrast_text_color' : '[text_color]',
+      'small_contrast_color' : '#e2e2e2',
+      'small_contrast_text_color' : '[text_color]',
+      
+      'error_color' : '#850000',
+      'button_border_color' : '#aaa',
+      'button_border_style' : 'none',
+      'button_border_width' : '1px',
+      'button_border_radius' : '0',
+      'button_bg_color' : '#333',
+      'button_text_color' : '#fff',
+      'button_font_name' : '[font_name]',
+      'button_hover_bg_color' : '#ff9900',
+      'button_hover_text_color' : '#333',
+      'button_alt_bg_color' : '#777',
+      'button_alt_text_color' : '#fff',
+      'button_alt_hover_bg_color' : '#9d9d9d',
+      'button_alt_hover_text_color' : '#fff',
+      'uls_label': 'ULS: ',
+      'listing_item_sold_bg_color' : '#ff8800',
+      'listing_item_sold_text_color' : '#fff',
+      //'listing_item_column_width' : '340px',
+      'listing_item_picture_ratio' : '3 / 2',
+      'thumbnail_picture_size' : '100px',
+      //'broker_item_column_width' : '210px',
+      'broker_item_picture_ratio' : '3.2 / 4',
+      //'office_item_column_width' : '320px',
     }
   }
 
@@ -406,41 +492,54 @@ siApp
   $scope.init = function(){
     $scope.load_configs().then(_ => {
       $q.all([
-        $scope.load_wp_pages(),
-        $scope.load_wp_menus(),
+        //$scope.load_wp_menus(),
         $scope.load_data_views(),
-        $scope.load_wp_forms(),
+        //$scope.load_wp_forms(),
         $scope.load_dictionary(),
         $scope.load_addons()
       ])
       .then(
         _ => {
           //$siList.init($scope.configs.default_view);
-
+          
+          
           $scope._status = 'ready';
           if($scope.configs.registered == false){
             $scope.startRegistration();
             return;
+          }
+          else{
+            //$siUser.isReady().then(_ => {
+              $rootScope.$broadcast('si/ready');
+            //});
           }
           
           $scope.checkIntegrity();
         },
         _ => {
           $scope._status = 'ready';
+          $rootScope.$broadcast('si/ready');
         }
       )
+      .then( _ => {
+            
+        $scope.$on('save-request', function(){
+          $scope.save_configs();
+        });
+
+        $scope.$on('reload-pages', function(){
+          //$scope.load_wp_pages();
+        })
+
+        $scope.getWhatNew();
+
+      })
       .catch($err => {
         $scope._status = 'ready';
+        $rootScope.$broadcast('si/ready');
       })
     });
     
-    $scope.$on('save-request', function(){
-      $scope.save_configs();
-    });
-
-    $scope.$on('reload-pages', function(){
-      $scope.load_wp_pages();
-    })
   }
 
   $scope.load_configs = function(){
@@ -483,11 +582,38 @@ siApp
     });
   }
 
+  $scope.getWhatNew = function(){
+    $siApi.rest('readme').then($content => {
+      // extract latest version content
+      const fileContent = $content;//.replace(/\\r\\n/g,'\r\n');
+      const expression = /## Change log\r\nversion[^\r\n]+\r\n(([^\r\n]+\r\n)+)/gm
+      const extractRE = new RegExp(/## Change log\r\nversion[^\r\n]+\r\n(([^\r\n]+\r\n)+)/gm,'gm');
+      const testResult = extractRE.test(fileContent);
+      if(testResult){
+        extractRE.lastIndex = 0;
+        const extractResult = extractRE.exec(fileContent);
+        const converter = new showdown.Converter();
+        $scope.whatNewText = converter.makeHtml(extractResult[1]);
+      }
+      
+    })
+  }
+
   $scope.reset_all_configs = function(){
     $siUI.confirm('All your configurations will be lost.\nAre you sure you want to reset all settings?')
-    .then(function(){
-      return $scope.reset_configs();
-    })
+    .then(
+      function(){
+        return $siUI.confirm('Before we proceed','Would you like to backup the current configuration?',{ok:'Yes',cancel:'No'}).then( 
+          _ => {
+            $scope.exportConfigs();
+            return $scope.reset_configs();
+          },
+          _ =>{
+            return $scope.reset_configs();
+          }
+        );
+      }
+    )
     .then(function(){
       $siUI.show_toast('Configurations cleared');
     })
@@ -509,6 +635,7 @@ siApp
   
   $scope.backupConfigs = function($silent){
     $silent = (typeof $silent == undefined) ? false : $silent;
+    
     return $siConfigs.backup().then(function(){
       if(!$silent){
         $siUI.show_toast('Settings backup done');
@@ -517,6 +644,58 @@ siApp
     });
   }
 
+  $scope.exportConfigs = function(){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify($siConfigs.configs));
+    var downloadAnchorNode = document.createElement('a');
+    const exportName = 'si-configs.' + location.hostname + '.' + moment().format('YYYY-MM-DD');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+
+  $scope.importConfigs = function(){
+
+    $siUI.getLocalFile('.json').then($fileContent => {
+      const newConfigs = JSON.parse($fileContent);
+      if(newConfigs == null) return $siUI.alert('Error','File content is not valid');
+      if(['app_id','api_key','account_id'].some($k => newConfigs[$k] == undefined)) return $siUI.alert('Error','File content is not valid');
+      const fnSaveNewConfigs = function ($data){
+        $timeout(_ => {
+          //$siUI.confirm('Last question','Do you want to overwrite all settings?', {ok:'Overwrite', cancel: 'Import layou'})
+          $scope.configs = $data;
+          $scope.save_configs();
+        },500)
+      }
+      $siUI.confirm('Warning','Are you sure you want to apply these configurations?',{ok:'Yes',cancel:'No'}).then( _ => {
+        $siUI.confirm('Before we proceed','Would you like to backup the current configuration?',{ok:'Yes',cancel:'No'}).then( 
+          _ => {
+            $scope.exportConfigs();
+            fnSaveNewConfigs(newConfigs);
+            //console.log('importConfigs',newConfigs );
+          },
+          _ => {
+            fnSaveNewConfigs(newConfigs);
+            //console.log('importConfigs', newConfigs);
+          }
+        )
+      });
+    });
+  }
+
+  $scope.showReadme = function(){
+    $siUI.dialog('log-info');
+  }
+
+  $scope.openStyleEditor = function(){
+    console.log('openStyleEditor', $siConfigs.configs.styles);
+    $siUI.dialog('style-editor', $siConfigs.configs.styles).then( $styles => {
+      //console.log('openStyleEditor', $styles);
+      $siConfigs.configs.styles = JSON.stringify($styles);
+      $scope.save_configs();
+    });
+  }
 
   $scope.changeDefaultView = function($view){
     $scope.configs.lists
@@ -543,13 +722,23 @@ siApp
         .then(_ => {
           console.log('saving configs', $scope.configs);
           
-          $siConfigs.save($scope.configs).then(function($response){
-            if(!$silent){
-              $scope.show_toast('Save completed');
+          $siConfigs.save($scope.configs).then(
+            function($response){
+              if(!$silent){
+                $scope.show_toast('Save completed');
+              }
+              $scope.checkIntegrity();
+              $resolve();
+            },
+            function($reason){
+              if($reason == 403){
+                $siUI.alert('Failed to save, nonce expired. The page will reload').then(_ => {
+                  window.location.reload(true);
+                });
+                
+              }
             }
-            $scope.checkIntegrity();
-            $resolve();
-          });
+          );
         });
     });
   }
@@ -593,25 +782,29 @@ siApp
   }
 
   $scope.load_wp_pages = function(){
-    return $q(function($resolve, $reject){
-      $scope.load_wp_languages().then($languages => {
+    // return $siWP.loadPages().then($pages => {
+    //   $scope.loaded_components.push('file');
+    // });
+
+      // return $q(function($resolve, $reject){
+      //   $scope.load_wp_languages().then($languages => {
+          
+
         
+      //     $q.all([
+      //       $scope.api('page/list',{locale: 'fr', type: ''},{method : 'GET'}),
+      //       $scope.api('page/list',{locale: 'en', type: ''},{method : 'GET'})
+      //     ])
+      //     .then($results => {
+      //       $scope.wp_pages.fr = $results[0];
+      //       $scope.wp_pages.en = $results[1];
 
-      
-        $q.all([
-          $scope.api('page/list',{locale: 'fr', type: ''},{method : 'GET'}),
-          $scope.api('page/list',{locale: 'en', type: ''},{method : 'GET'})
-        ])
-        .then($results => {
-          $scope.wp_pages.fr = $results[0];
-          $scope.wp_pages.en = $results[1];
-
-          $scope.loaded_components.push('file');
-          $resolve($scope.wp_pages);
-        })
-        .catch($err => {console.error($err)})
-      });
-    });
+      //       $scope.loaded_components.push('file');
+      //       $resolve($scope.wp_pages);
+      //     })
+      //     .catch($err => {console.error($err)})
+      //   });
+      // });
   }
 
   $scope.load_wp_menus = function(){
@@ -629,7 +822,7 @@ siApp
           return;
         }
 
-        $scope.data_views = $response.data_views;
+        $rootScope.data_views = $scope.data_views = $response.data_views;
         $scope.loaded_components.push('list');
         $resolve($response.data_views);
       });
@@ -703,9 +896,35 @@ siApp
     }) 
   }
 
+  $scope.switchAccount = function(){
+    $siUser.getCredentials().then($credentials => {
+      $siUI.dialog('change-datasources',$credentials,{clickOutsideToClose:false}).then($result => {
+        $siConfigs.replaceAccount($result).then(_ => {
+          // Reload view and dictionnary;
+          $scope.load_data_views();
+          $scope.load_dictionary();
+          $siUI.show_toast('Account switched successfully');
+        });
+
+      })
+    })
+
+    // $siUI.confirm('Attention','Once disconnected from your account, all your real estate data will disapear from your site.\nAre you sure you want to continue?').then(function(){
+    //   $scope.backupConfigs(true).then(function(){
+    //     $scope.reset_configs()
+    //     .then( function(){
+    //       $scope.show_toast('Configuration reset');
+    //     })
+    //     .then(function(){
+    //       $scope.startRegistration();
+    //     });
+    //   });
+    // });
+  }
+
   $scope.startRegistration = function(){
     console.log('startRegistration');
-    $siUI.dialog('~/views/admin/dialogs/register.html',null,{multiple: true, clickOutsideToClose:false,hasBackdrop: false}).then(function(){
+    $siUI.dialog('register',null,{multiple: true, clickOutsideToClose:false,hasBackdrop: false}).then(function(){
       window.location.reload(true);
     });
   }
@@ -1198,45 +1417,63 @@ siApp
 
   $scope.generateLayoutPage = function($layout, $groupType){
    
-    
     const lTypeMaps = {
       listings: {
-        title: 'Listing details',
+        title: {
+          en : 'Listing - details',
+          fr : 'Propriété - détails'
+        },
         content: '[si_listing]',
         layouts: $scope.configs.listing_layouts
       },
       brokers:{
-        title: 'Broker details',
+        title: { 
+          en : 'Broker - details',
+          fr : 'Courtier - détails'
+        },
         content: '[si_broker]',
         layouts: $scope.configs.broker_layouts
       },
       offices:{
-        title: 'Office details',
+        title: {
+          en : 'Office - details',
+          fr : 'Bureau - détails'
+        },
         content: '[si_office]',
         layouts: $scope.configs.office_layouts
       },
       cities:{
-        title: 'City details',
+        title: {
+          en : 'City - details',
+          fr : 'Ville - détails'
+        },
         content: '[si_city]',
         layouts: $scope.configs.city_layouts
       },
       agencies:{
-        title: 'Agency details',
+        title: {
+          en: 'Agency - details',
+          fr: 'Agence - détails'
+        },
         content: '[si_agency]',
         layouts: $scope.configs.agency_layouts
       }
     }
 
     const lLayoutInfos = lTypeMaps[$groupType];
-    const lPageTitle    = $layout.lang == 'en' ? lLayoutInfos.title : lLayoutInfos.title.translate();
+    const lPageTitle    = lLayoutInfos.title[$layout.lang];
     const lPageContent  = lLayoutInfos.content;
     const lOriginalPageId = lLayoutInfos.layouts.filter($l => $l.page != null && $l.lang!=$layout.lang).reduce( ($result,$cur) => $cur.page, null);
 
-
-    $scope.api('page',{lang: $layout.lang, page_id: 'NEW', title: lPageTitle, content: lPageContent, original_page_id: lOriginalPageId}).then($response => {
-      $layout.page = $response;
+    $siWP.addPage(lPageTitle, lPageContent, $layout.lang, lOriginalPageId).then( $pageId => {
+      $layout.page = $pageId;
       $scope.save_configs();
-    });
+    })
+
+    // $scope.api('page',{lang: $layout.lang, page_id: 'NEW', title: lPageTitle, content: lPageContent, original_page_id: lOriginalPageId}).then($response => {
+    //   $layout.page = $response;
+    //   $scope.save_configs();
+    // });
   }
 
   $scope.clearAllLayoutPage = function(){

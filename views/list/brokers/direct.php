@@ -27,8 +27,8 @@ if($side_scroll){
 }
 
 foreach ($configs->list_layout->item_row_space as $key => $value) {
-    $width = round(100 / $value);
-    $list_styles[] = "--{$key}-column-width:{$width}";
+    if($value > 10){$value = round(100 / $value);}
+    $list_styles[] = "--{$key}-column-width:$value";
 }
 ?>
 

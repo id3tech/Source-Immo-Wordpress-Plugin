@@ -16,7 +16,7 @@ $panelKey = 'categories';
                 
                 <div class="list-container subcategories" ng-if="subcategory_list.length <= 15">
                     <si-checkbox
-                        data-ng-repeat="item in subcategory_list | orderBy: 'parent'"
+                        data-ng-repeat="item in subcategory_list | orderBy: 'caption'"
                         data-si-value="{{item.__$key}}"
                         data-ng-model="filter.data.subcategories"
                         si-change="filter.update()"

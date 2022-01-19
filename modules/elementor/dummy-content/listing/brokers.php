@@ -13,7 +13,7 @@
                 <div class="phone ng-binding ng-scope">bureau : (514) 555-1360</div><!-- end ngRepeat: (key,phone) in item.phones -->
             </div>
             <div class="actions">
-                <a class="button ng-binding" href="#">Autres propriétés</a>
+                <a class="si-button ng-binding" href="#">Autres propriétés</a>
             </div>
 
         </article><!-- end ngRepeat: item in list | filter : filter_keywords -->

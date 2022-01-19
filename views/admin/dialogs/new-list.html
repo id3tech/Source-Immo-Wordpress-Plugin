@@ -1,0 +1,30 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>New list of {{model.type.translate()}}</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content" layout="column">
+
+        <p lstr>Select the type of list that best describe what you want to display:</p>
+        <md-radio-group ng-model="presets.selected" ng-change="updateModel()">
+            <md-radio-button ng-repeat="item in presets.list" ng-value="item.value">
+                <h3>{{item.label.translate()}}</h3><p>{{item.description.translate()}}</p>
+            </md-radio-button>
+        </md-radio-group>
+
+    </div> 
+
+</md-dialog-content>
+
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

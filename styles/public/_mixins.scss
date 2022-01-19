@@ -1,0 +1,69 @@
+
+@mixin gridAreas($areas...){
+    @each $item in $areas {
+        .#{$item} {
+            grid-area: #{$item};
+        }
+    }
+}
+@mixin gridLayout($columns, $rows, $gap:0){
+    display:grid;
+    grid-template-columns: #{$columns};
+    grid-template-rows: #{$rows};
+    gap: $gap;
+}
+
+@mixin reset(){
+    background:unset;
+    color:unset;
+    font-size:unset;
+}
+
+
+@mixin media($size){
+    @media screen and (max-width: $size){
+        @content;
+    }
+}
+
+@mixin media-gt($size){
+    @media screen and (min-width: $size+1){
+        @content;
+    }
+}
+
+@mixin absoluteFill(){
+    position:absolute;
+    content:"";
+    top:0px;left:0px;bottom:0px;right:0px;
+}
+
+
+@mixin slimScrollbar(){
+    &::-webkit-scrollbar{
+        width: 20;
+        background:transparent;
+        z-index: 99;
+        overflow: hidden;
+        transition:0.25s;
+    }
+    &::-webkit-scrollbar-thumb {
+        width: 20;
+        border-radius: 13px;
+        background-clip: padding-box;
+        border: 10px solid transparent;
+        transition:0.25s;
+    }
+    &::-webkit-scrollbar-track{
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {        
+      box-shadow: inset currentColor 0 0 30px;
+    }
+    &:hover{
+        &::-webkit-scrollbar-thumb {
+            border-width: 5px
+        }
+    }
+}
+

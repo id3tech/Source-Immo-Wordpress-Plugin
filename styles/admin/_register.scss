@@ -1,5 +1,5 @@
 
-&#register{
+&#register-dialog{
     min-width: 50vw;
     box-shadow: none;
     background-color: #f1f1f1;
@@ -7,7 +7,18 @@
     .md-dialog-content{
         min-height: 50vh;
     }
-    
+    .state-loader{
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%,-50%);
+        display:none;
+    }
+    &.si-state-loading{
+        .state-loader{
+            display:block;
+        }
+    }
     ng-include{display:contents;}
 
     .registration-step{
@@ -165,7 +176,7 @@
             transition:0.25s;
             &.show{
                 opacity:1;
-                max-height:50vh;
+                max-height:60vh;
                 overflow:hidden auto;
             }
         }
@@ -174,16 +185,25 @@
     .account-list,.key-list,.view-list{
         display:grid;
         grid-template-columns:1fr;
-        grid-gap:10px;
+        gap:1rem;
+        margin-right:0.25rem;
+
         .account-item,.key-item, .view-item{
             display:grid;
             grid-template-columns:auto 1fr auto;
-            grid-gap:10px;
+            gap:1rem;
             place-items:center stretch;
             span{
                 border-bottom:dotted 1px #ccc;
             }
         }
+    }
+
+    .account-container{
+        display:grid;
+        gap:1rem;
+        grid-template-rows: auto 1fr;
+
     }
 
     .account-filter{
@@ -192,9 +212,9 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding: 5px 15px;
+        padding: 1em 1.5em;
         border: solid 1px #cdcdcd;
-        border-radius: 50px;
+        border-radius: 2em;
         overflow:hidden;
 
         input{
@@ -208,10 +228,14 @@
     .account-list{
         max-height: 35vh;
         overflow: hidden auto;
+        overflow: hidden overlay;
+        
         &::-webkit-scrollbar {
+            
             width: 5px;
         }
         &::-webkit-scrollbar-track {
+            margin-block: 1rem;
             box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
         }
         
@@ -222,13 +246,30 @@
     }
 
     .page-select-container{
-        display:grid;
-        grid-template-columns: max-content 1fr 1fr;
-        place-items: center stretch;
-        gap:10px;
+        p{
+            margin: 2em 0 1em 0;
+            > md-select{
+                display:inline-flex;
+            }
+        }
         .page-select-section{
-            display:contents;
-
+            display:flex;
+            align-items: center;
+            gap:1ch;
+            
+            .page-select-part{
+                display:flex;
+                align-items: center;
+                gap:1.25ch;
+                md-select{
+                    font-weight: bold;
+                    margin:0;
+                    .md-select-value{
+                        border: solid 1px rgba(0,0,0,0.12);
+                        padding: 0.25em 1em;
+                    }
+                }
+            }
             &.header{
                 > div{
                     font-size:10px;

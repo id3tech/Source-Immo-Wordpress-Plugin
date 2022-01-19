@@ -12,8 +12,14 @@ $dictionary = new SourceImmoDictionary($meta->dictionary);
 $data = SourceImmoApi::get_data($configs, $sc_atts);
 $resultView = new SourceImmoCitiesResult($data);
 
+$list_styles =[];
+foreach ($configs->list_layout->item_row_space as $key => $value) {
+    if($value > 10){$value = round(100 / $value);}
+    $list_styles[] = "--{$key}-column-width:$value";
+}
+
 ?>
-<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
+<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" style="<?php echo(implode(';', $list_styles)) ?>">
     <?php
     if(is_array($resultView->cities) && !empty($resultView->cities)){
         if($configs->show_list_meta==true){

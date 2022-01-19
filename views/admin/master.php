@@ -20,32 +20,29 @@ if($lTwoLetterLocale == ''){
     
     
     <div flex layout="row" layout-align="end center" ng-show="configs.registered && current_page=='home'">
-      <md-button class="md-raised md-primary" ng-click="signout()"><i class="fal fa-sign-out"></i> <?php _e('Sign out',SI) ?></md-button> 
+      <md-button class="" ng-click="openStyleEditor()"><i class="fal fa-palette"></i> <lstr>Style editor</lstr></md-button> 
       
-      <md-menu  ng-cloak ng-if="false">
-        <md-button class="md-icon-button" ng-click="$mdMenu.open()"><md-icon class="fal fa-cogs"></md-icon></md-button>
+      <md-menu  ng-cloak>
+        <md-button class="" ng-click="$mdMenu.open()"><md-icon class="fal fa-fw fa-user-circle"></md-icon> <span>{{user.info.name}}</span></md-button>
         <md-menu-content>
           <md-menu-item>
-            <md-button ng-click="switchAccount()"><i class="fal fa-user-circle"></i> <?php _e('Switch account',SI) ?></md-button>
-            
+            <md-button ng-click="switchAccount()"><md-icon class="fal fa-people-arrows"></md-icon> <lstr>Connect to another account</lstr></md-button>
+          </md-menu-item>
+          
+          
+          <md-divider></md-divider>
+
+          <md-menu-item>
+            <md-button class="" ng-click="exportConfigs()"><md-icon class="fal fa-fw fa-download"></md-icon> <lstr>Export configurations</lstr></md-button>
           </md-menu-item>
           <md-menu-item>
-            <md-button disabled ng-click="copy(configs.api_key)" title="<?php _e('API key',SI)?>"><i class="fal fa-key"></i> <span>{{configs.api_key}}</span></md-button>
-          </md-menu-item>
-          <md-menu-item>
-            <md-button disabled ng-click="copy(configs.account_id)" title="<?php _e('Account ID',SI)?>"><i class="fal fa-user"></i> <span>{{configs.account_id}}</span></md-button>
+            <md-button class="" ng-click="importConfigs()"><md-icon class="fal fa-fw fa-cloud-download"></md-icon> <lstr>Import configurations</lstr></md-button>
           </md-menu-item>
 
           <md-divider></md-divider>
 
           <md-menu-item>
-            <md-button class="" ng-click="save_configs()"><i class="fal fa-save"></i> <?php _e('Save settings', SI)?></md-button>
-          </md-menu-item>
-          <md-menu-item>
-            <md-button ng-click="clearAccessToken()"><i class="fal fa-eraser"></i> <?php _e('Clear access token',SI) ?></md-button>
-          </md-menu-item>
-          <md-menu-item>
-            <md-button class="" ng-click="reset_configs()"><i class="fal fa-undo"></i> <?php _e('Reset to demo settings', SI)?></md-button>
+            <md-button class="md-warn" ng-click="reset_all_configs()"><md-icon class="fal fa-fw fa-pump-soap"></md-icon> <lstr>Reset settings</lstr></md-button>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
@@ -70,7 +67,7 @@ if($lTwoLetterLocale == ''){
     <div class="page-container" style="{{pages[current_page].style}}">
     <?php
     SourceImmo::page('admin/configs/index','home');
-    SourceImmo::page('admin/lists/index','listEdit');
+    //SourceImmo::page('admin/lists/index','listEdit');
     ?>
     </div>
   </div>
@@ -80,10 +77,15 @@ if($lTwoLetterLocale == ''){
         locale: '<?php echo $lTwoLetterLocale ?>',
         base_path: '<?php echo SI_PLUGIN_URL ?>', 
         api_root: '<?php echo SI_API_HOST ?>', 
+        app_version: '<?php echo SI_VERSION ?>',
         root:'<?php echo esc_url_raw( rest_url() ) ?>', 
-        nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>'
+        nonce: '<?php echo wp_create_nonce( 'wp_rest' ) ?>',
+        si_user_account: <?php echo json_encode(SourceImmo::current()->get_account_user()); ?>
       };
   </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   
   <!-- Angular Material requires Angular.js Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -98,7 +100,9 @@ if($lTwoLetterLocale == ''){
 
   <script src="<?php echo plugins_url( 'scripts/tinyColor.min.js' , SI_PLUGIN ) ?>"></script>
   <script src="<?php echo plugins_url( 'scripts/mdColorPicker.min.js' , SI_PLUGIN ) ?>"></script>
+  <script src="<?php echo plugins_url( 'scripts/ngSortable.js' , SI_PLUGIN ) ?>"></script>
   <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , SI_PLUGIN ) ?>"></script>
+
   <script type="text/javascript">
   $locales.init('<?php echo($lTwoLetterLocale); ?>');
   </script>
@@ -117,4 +121,5 @@ if($lTwoLetterLocale == ''){
   
   <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , SI_PLUGIN ) ?>"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
 </div>

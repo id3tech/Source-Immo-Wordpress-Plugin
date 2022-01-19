@@ -1,0 +1,379 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>Editing</lstr>: {{model.alias}}</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content-1" layout="column">
+        <md-tabs md-dynamic-height md-selected="tab.selectedIndex" md-border-bottom>
+            <md-tab>
+                <md-tab-label><lstr>General</lstr></md-tab-label>
+                <md-tab-body>
+                    <div class="general-tab">
+                        <div>
+                            <div class="required-input-list">
+                                <md-input-container class="{{!aliasIsValid ? 'md-input-invalid' : ''}}">
+                                    <label lstr>Alias of the list</label>
+                                    <input ng-model="model.alias" ng-change="validateAlias()" />
+                                    <div class="hint" lstr>Used by shortcodes to display the corresponding list of data</div>
+                                    
+                                    <i  ng-if="!aliasIsValid" class="input-error far fa-exclamation-triangle" title="{{'The alias is already used'.translate()}}"></i>
+                                    
+                                </md-input-container>
+                            
+                                
+                                <md-input-container>
+                                    <label lstr>Fill list with</label>
+                                    <md-select ng-model="model.$$source_id" ng-change="updateSource()">
+                                        <md-option ng-repeat="item in data_views" value="{{item.id}}">{{item.name}}</md-option>
+                                    </md-select>
+
+                                    <div class="hint" lstr>Choose one of your Source.Immo data view</div>
+                                </md-input-container>
+                            
+
+                                <md-input-container>
+                                    <label lstr>Rendering method</label>
+                                    <md-select ng-model="model.list_layout.preset">
+                                        <md-option ng-repeat="item in global_list.list_layouts[model.type]" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                    </md-select>
+                                    <div class="hint" lstr>Choose <em>Server side</em> when you want to display a small list of data (like Featured items)</div>
+                                </md-input-container>
+                            
+                            </div>
+
+                        </div>
+                        <md-list>
+                            <md-subheader class="md-no-sticky"><lstr>Limiting</lstr></md-subheader>
+                            <md-list-item>
+                                <p lstr>Limit the number of displayed elements</p>
+                                
+                                <md-input-container>
+                                    <input type="number" ng-model="model.limit" ng-change="validate()" />
+                                </md-input-container>
+                            </md-list-item>
+                            
+                            <md-list-item>
+                                <p>{{(model.limit > 0 ? "Shuffle first {0} elements" : "Shuffle first page").translate().format(model.limit)}}</p>
+                                <md-switch ng-model="model.shuffle"></md-switch>
+                            </md-list-item>
+
+                            <md-subheader class="md-no-sticky"><lstr>Sorting</lstr></md-subheader>
+                            <md-list-item>
+                                <p lstr>Primary sorting by priority groups</p>
+                                
+                                <md-input-container>
+                                    <md-select ng-model="model.priority_group_sort">
+                                        <md-option ng-value="null"><lstr>None</lstr></md-option>
+                                        <md-option value="priority-asc"><lstr>Sort by priority</lstr></md-option>
+                                        <md-option value="priority-desc"><lstr>Sort by reverse priority</lstr></md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </md-list-item>
+
+                            
+                            <md-list-item>
+                                <p lstr>Sort by</p>
+                                
+                                <md-input-container>
+                                    <md-select ng-model="model.sort">
+                                        <md-option ng-value="null" lstr>(Default)</md-option>
+                                        <md-option ng-repeat="elm in global_list.list_ordering_field[model.type]" ng-value="elm.name">{{elm.label.translate()}}</md-option>
+                                    </md-select>
+                                    
+                                </md-input-container>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <p lstr>Sort from</p>
+                                <md-input-container>
+                                    <md-select ng-model="model.sort_reverse">
+                                        <md-option ng-value="true" ><lstr>Higher to lower</lstr> <i class="fal fa-fw fa-sort-amount-down"></i></md-option>
+                                        <md-option ng-value="false"><lstr>Lower to higher</lstr> <i class="fal fa-fw fa-sort-amount-up"></i></md-option>
+                                    </md-select>
+                                    
+                                </md-input-container>
+                            </md-list-item>
+                        </md-list>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+            
+
+            <md-tab>
+                <md-tab-label><lstr>List display</lstr></md-tab-label>
+                <md-tab-body>
+                    <div class="list-rendering-tab">
+                        <div>
+
+                        <md-list>
+                            <md-subheader class="md-no-sticky"><lstr>Displayed items per row</lstr></md-subheader>
+                            <md-list-item>
+                                <p><i class="fal fa-fw fa-desktop"></i> <lstr>On a desktop</lstr></p>
+                                <md-input-container>
+                                    <md-select ng-model="model.list_layout.item_row_space.desktop">
+                                        <md-option value="1">1</md-option>
+                                        <md-option value="2">2</md-option>
+                                        <md-option value="3">3</md-option>
+                                        <md-option value="4">4</md-option>
+                                        <md-option value="5">5</md-option>
+                                        <md-option value="6">6</md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </md-list-item>
+                            <md-list-item>
+                                <p><i class="fal fa-fw fa-laptop"></i> <lstr>On a laptop</lstr></p>
+                                <md-input-container >
+                                    <md-select ng-model="model.list_layout.item_row_space.laptop">
+                                        <md-option value="1">1</md-option>
+                                        <md-option value="2">2</md-option>
+                                        <md-option value="3">3</md-option>
+                                        <md-option value="4">4</md-option>
+                                        <md-option value="5">5</md-option>
+                                        <md-option value="6">6</md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <p><i class="fal fa-fw fa-tablet"></i> <lstr>On a tablet</lstr></p>
+                                <md-input-container >
+                                    
+                                    <md-select ng-model="model.list_layout.item_row_space.tablet">
+                                        <md-option value="1">1</md-option>
+                                        <md-option value="2">2</md-option>
+                                        <md-option value="3">3</md-option>
+                                        <md-option value="4">4</md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <p><i class="fal fa-fw fa-mobile"></i> <lstr>On a mobile</lstr></p>
+                                <md-input-container >
+                                    
+                                    <md-select ng-model="model.list_layout.item_row_space.mobile">
+                                        <md-option value="1">1</md-option>
+                                        <md-option value="2">2</md-option>
+                                        <md-option value="3">3</md-option>
+                                        <md-option value="4">4</md-option>
+                                    </md-select>
+                                </md-input-container>                            
+                            </md-list-item>
+                        </md-list>
+                            
+                            <md-input-container style="width:100%">
+                                <label lstr>Custom list classes</label>
+                                <si-class-selector ng-model="model.list_layout.scope_class"></si-class-selector>
+                            </md-input-container>
+                        </div>
+                        
+
+                        <div class="preview-container">
+        
+                            <si-list-preview ng-model="model"></si-list-preview>
+
+                        </div>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab>
+                <md-tab-label><lstr>List item display</lstr></md-tab-label>
+                <md-tab-body>
+                    <div class="list-item-rendering">
+                        <div layout="column" layout-align="start stretch" layout-padding>
+                            <md-input-container>
+                                <label lstr>Layout</label>
+                                <md-select ng-model="model.list_item_layout.layout" ng-disabled="listItemLayoutList.length <= 1">
+                                    <md-option ng-repeat="item in listItemLayoutList" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                </md-select>
+                            </md-input-container>
+                    
+                            
+                            <md-input-container>
+                                <md-checkbox ng-model="model.is_default_type_configs"><lstr>Default list item display</lstr></md-checkbox>
+                                <div class="hint" lstr>Use that layout in other types sub lists.</div>
+                            </md-input-container>
+
+                            <md-input-container>
+                                <label lstr>Custom classes</label>  
+                                <si-class-selector ng-model="model.list_item_layout.scope_class" filter="{{model.type}}"></si-class-selector>
+                            </md-input-container>
+
+                            <md-input-container>
+                                <label lstr>Hover custom classes</label>  
+                                <si-class-selector ng-model="model.list_item_layout.scope_class_hover" filter="{{model.type}}"></si-class-selector>
+                            </md-input-container>
+
+                            
+                            <md-input-container ng-if="model.type=='listings'">
+                                <md-checkbox ng-model="layerVariations.sold"><lstr>Show sold version</lstr></md-checkbox>
+                            </md-input-container>
+                            
+                        </div>
+
+                        <div>
+                            <div class="list-item-layer-container layout-{{model.list_item_layout.layout}}">
+                                <div class="layer-preview {{layerVariations.sold ? 'show-sold' : ''}}">
+                                    <h4 lstr>Primary layer</h4>
+                                    <si-list-item-layer ng-model="model" si-layer="main"></si-list-item-layer>
+                                </div>
+                                
+                                
+                                <div class="layer-preview {{layerVariations.sold ? 'show-sold' : ''}}" ng-if="model.list_item_layout.layout=='double-layer'">
+                                    <h4 lstr>Secondary layer</h4>
+                                    <si-list-item-layer  ng-model="model" si-layer="secondary"></si-list-item-layer>                               
+                                </div>
+
+                                <div>
+                                    <md-input-container ng-if="false">
+                                        <label><lstr>Displayed values</lstr></label>
+                                        <md-select multiple ng-model="model.list_item_layout.displayed_vars.main" md-selected-text="getDisplayedVarSelectionText(model.list_item_layout.displayed_vars.main)" >
+                                          <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+
+                                    <md-input-container ng-if="listItemImageHoverEffects.length > 0">
+                                        <label lstr>Image hover effect</label>
+                                        <md-select ng-model="model.list_item_layout.image_hover_effect">
+                                            <md-option ng-repeat="item in listItemImageHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                
+                                <div ng-if="model.list_item_layout.layout=='double-layer'">
+                                    <md-input-container ng-if="false">
+                                        <label><lstr>Displayed values</lstr></label>
+                                        <md-select multiple ng-model="model.list_item_layout.displayed_vars.secondary" md-selected-text="getDisplayedVarSelectionText(model.list_item_layout.displayed_vars.secondary)" >
+                                          <md-option ng-repeat="item in availVars" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                    
+                                        
+                                    <md-input-container>
+                                        <label lstr>Display effect</label>
+                                        <md-select ng-model="model.list_item_layout.secondary_layer_effect">
+                                            <md-option ng-repeat="item in listItemLayerHoverEffects" ng-value="item.name">{{item.label.translate()}}</md-option>
+                                        </md-select>
+                                    </md-input-container>
+
+                                    
+                                    <md-input-container ng-if="['fade','slide'].includes(model.list_item_layout.secondary_layer_effect)">
+                                        <label lstr>Background opacity</label>
+                                        <input type="number" min="0" max="100" step="1" ng-model="model.list_item_layout.secondary_layer_bg_opacity" /><md-icon class="fal fa-percent"></md-icon>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab ng-if="model.list_layout.preset == 'direct'">
+                <md-tab-label><lstr>Filters</lstr></md-tab-label>
+                <md-tab-body>
+
+                    <si-filter-group ng-model="model.filter_group" si-type="model.type"></si-filter-group>
+                        
+                    <div ng-show="model.search_token!=null"><lstr>Search token</lstr> : {{model.search_token | truncate : 26}}</div>
+
+                    <script  type="text/ng-template" id="filter-group">
+                        <div class="grid-row header" ng-show="model.filters.length>0">
+                            <div><lstr>Attribute</lstr></div>
+                            <div><lstr>Operator</lstr></div>
+                            <div><lstr>Value</lstr></div>
+                            <div></div>
+                        </div>
+
+                        <div>
+                            <div class="filters"  ng-repeat="filter in model.filters">
+                                <si-filter-item si-type="type" class="grid-row" ng-model="filter" on-remove="removeFromList(filter, model, 'filters')"></si-filter-item>
+                
+                                <div class="filter-operator">{{model.operator.translate()}}</div>
+                            </div>
+                
+                            <div class="subgroups" ng-repeat="group in model.filter_groups">
+                                
+                                <si-filter-group si-type="type" ng-model="group" ng-parent="model"></si-filter-group>
+                                
+                                <div class="filter-operator">{{model.operator.translate()}}</div>
+                            </div>
+                        </div>
+                
+                        
+                
+                        <div layout="row" layout-align="center center">
+                            <md-menu>
+                                <md-button class="md-raised md-primary md-icon-button" ng-click="$mdOpenMenu()"><i class="fal fa-plus"></i></md-button>
+                                <md-menu-content>
+                                    <md-menu-item><md-button ng-click="addFilter()"><lstr>Add a filter</lstr></md-button></md-menu-item>
+                                    <md-menu-item><md-button ng-click="addFilterGroup()"><lstr>Add filter group</lstr></md-button></md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
+                            
+                            <md-menu>
+                                <md-button class="md-icon-button" ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-v"></i></md-button>
+                                <md-menu-content>
+                                    <md-menu-item>
+                                        <md-button ng-click="switchOperator('and')"><lstr>Use AND operator</lstr></md-button>
+                                    </md-menu-item>
+                                    <md-menu-item>
+                                        <md-button ng-click="switchOperator('or')"><lstr>Use OR operator</lstr></md-button>
+                                    </md-menu-item>
+                                    <md-divider  ng-show="parent!=null"></md-divider>
+                                    <md-menu-item ng-show="parent!=null">
+                                        <md-button ng-click="removeGroup()"><i class="fal fa-times"></i> <lstr>Remove group</lstr></md-button>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu> 
+                        </div>
+                
+                    </script>
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab ng-if="false">
+                <md-tab-label><lstr>Advanced</lstr></md-tab-label>
+                <md-tab-body>
+                    <div layout="column">
+                        <h3 lstr>Styling</h3>
+                        <div layout="column" layout-align="start stretch" layout-padding></div>
+
+                            <md-input-container>
+                                <label lstr>List custom style</label>
+                                <textarea rows="8" ng-model="model.list_layout.custom_css"></textarea>
+                            </md-input-container>
+                        
+                            <md-input-container>
+                                <label lstr>Item custom style</label>
+                                <textarea rows="4" ng-model="model.list_item_layout.custom_css"></textarea>
+                            </md-input-container>
+                            
+                        </div>
+
+                        <note lstr>Use the keyword <em>selector</em> to target the element wrapper</note>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+        </md-tabs>
+        
+
+        
+
+        
+        
+
+
+    </div>
+</md-dialog-content>
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-disabled="!isActionValid(button)" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

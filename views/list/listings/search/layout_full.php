@@ -1,5 +1,3 @@
-
-
     <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}" ng-if="configs.search_engine_options.tabbed">
         <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
                 class="si-tab {{configs.current_view == tab.view_id ? 'active' : ''}}"
@@ -20,7 +18,7 @@
         
     </div>
 
-    <div class="inputs" style="--input-count: {{getInputCount()}}">
+    <div class="inputs">
         <div class="search-box">
             
             <si-search-box 

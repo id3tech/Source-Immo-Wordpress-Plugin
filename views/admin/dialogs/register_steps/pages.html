@@ -1,36 +1,45 @@
 <div class="infos">
     <h2 lstr>Integration</h2>
-    <p lstr>Configure where to display your real estate data.</p>
+    <p><lstr>Configure where to display your real estate data.</lstr></p>
 </div>
 
+
+
 <div class="page-select-container">
+    
+    
+    <div ng-repeat="layout in model.layouts">
+        <h3><i class="fas fa-{{layout.icon}}"></i> <span>{{layout.type_name.translate()}}</span></h3>
+        
+        <div class="page-select-section">
+            <div class="page-select-part list-pages">
+                <label lstr>Use the page</label>
+                <md-select ng-model="layout.page">
+                    <md-option value="NEW"><lstr>(Create a new page)</lstr></md-option>
+                    <md-option value="NONE"><lstr>(None)</lstr></md-option>
+                    <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
+                </md-select>
+                <label lstr>to display <em>the list</em></label>
+            </div>
 
-    <div class="page-select-section header">
-        <div></div>
-        <div lstr>List page</div>
-        <div lstr>Page for details</div>
+            <div class="page-select-part detail-pages">
+                <label lstr>and the page</label>
+                <md-select ng-model="layout.detail_page">
+                    <md-option value="NEW"><lstr>(Create a new page)</lstr></md-option>
+                    <md-option value="NONE"><lstr>(None)</lstr></md-option>
+                    <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
+                </md-select>
+                <label lstr>for <em>details</em>.</label>
+            </div>
+        </div>
     </div>
 
-    <div class="page-select-section" ng-repeat="layout in model.layouts">
-        <div>
-            <h3><i class="fas fa-{{layout.icon}}"></i> <span>{{layout.type_name.translate()}}</span></h3>
-        </div>
-
-        <div class="list-pages">
-            <md-select ng-model="layout.page">
-                <md-option value="NEW" lstr>(Create a new page)</md-option>
-                <md-option value="NONE" lstr>(None)</md-option>
-                <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
-            </md-select>
-        </div>
-
-        <div class="detail-pages">
-            <md-select ng-model="layout.detail_page">
-                <md-option value="NEW" lstr>(Create a new page)</md-option>
-                <md-option value="NONE" lstr>(None)</md-option>
-                <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
-            </md-select>
-        </div>
-    </div>
+    <p>
+        <lstr>Create or select pages in</lstr>
+        <md-select ng-model="languages.selected" ng-change="updatePageList()">
+            <md-option ng-repeat="lang in languages.list" ng-value="lang.code">{{lang.name}}</md-option>
+        </md-select>
+    </p>
+    
 
 </div>

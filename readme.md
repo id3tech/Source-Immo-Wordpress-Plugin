@@ -1,4 +1,4 @@
-# Version 1.4.8
+# Version 2.0.06
 
 
 ### Intuitive admin interface
@@ -33,6 +33,8 @@ Complete informations about a real estate listing
 * Room details
 * Mortgage calculator
 * Neighborhood widget (with Local Logic)
+* Image gallery (side scroll)
+* Image grid
 * Navigation of search results
 * Printable version
 * Filters
@@ -87,16 +89,70 @@ Add some specific information with Dynamic Tags (Elementor Pro Only)
 * Office data
 * Agency data
 
+### GTM support
+All events are prefixed with **si**.
+You can add triggers in GTM for these events:
+* si/formSubmit
+* si/listing/view
+* si/listing/startImageRotator
+* si/listing/viewImage
+* si/listing/print
+* si/broker/view
+* si/office/view
+* si/agency/view
+* si/share
+* si/search
+
+
 
 ### filters
 
 
 
 ## Change log
+version 2.0.06
+* New and improved design for data type management
+    * Permalink and page details configurations are now grouped by language
+    * More intuitive list configuration
+* Slick and simple list/search engine/item design for easier customization 
+* New class system
+* New style editor
+* Import/export configurations
+* New image visuals for listings: Gallery and Grid
+* GTM support
+* fix resize glitch on mediabox image slider and search panels
+
+
+
+
+version 1.4.18
+* Minor bug fix for network license hooks
+
+version 1.4.17
+* Minor bug fix for office's agency type
+
+version 1.4.16
+* Minor UI adjustment for Elementor typeography inheritance
+
+version 1.4.14
+* Minor UI adjustment for broker, office and agency details
+
+version 1.4.13
+* Design simplification for broker, office and agency details
+    * Choice of two layout from Elementor widget
+        * Linear: Mobile design all the way
+        * Original: For laptop+ screen, informations are displayed in 2 columns
+* Add links for broker, office and agency (from main office)
+    * social media
+    * website
+* Add contact form support for office and agency (when email is provided)
+* Add agency license name where needed
+* Fix permalink generation for 
+
 Version 1.4.9
 * Network activation
-** Fix search engine tab (view id)
-** Fix view name for lists
+    * Fix search engine tab (view id)
+    * Fix view name for lists
 
 Version 1.4.8
 * Add activation protocole for network
@@ -163,11 +219,11 @@ Version 1.2.16
 * Removed style from address and phone number in Office and Agency
 * Added Elementor's Typography tool for some Single item part (Name, Contact, Address, etc)
 * Added si-hide-empty attribute directive to hide empty (no text content) elements
-** Two methods supported:
-*** Hard: set the element to display:none
-*** Soft: set the element opacity to 0 (still take space)
-** Directly on element attribute
-** Single item part shortcode
+    * Two methods supported:
+        * Hard: set the element to display:none
+        * Soft: set the element opacity to 0 (still take space)
+    * Directly on element attribute
+    * Single item part shortcode
 * Fix layout busting in details page on mobile
 * Minor layout fixes
 

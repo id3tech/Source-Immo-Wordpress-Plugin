@@ -4,10 +4,8 @@
 
 siApp
 .controller('publicCtrl', 
-function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig){
+function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig,$siDataLayer){
    
-
-
     $scope.model = null;
     $scope.broker_count = 0;
     $scope.listing_count = 0;
@@ -140,7 +138,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
  */
 siApp
 .controller('staticDataCtrl', 
-function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$element){
+function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$element,$siDataLayer){
     $scope.init = function($alias){
         const $configs = $statics[$alias].configs;
         const $data = $statics[$alias].data;
@@ -157,7 +155,7 @@ siApp
 .controller('singleListingCtrl', 
 function singleListingCtrl(
         $scope,$rootScope,$element, $q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
-        $siHooks,$siFavorites,$siShare, $siCompiler){
+        $siHooks,$siFavorites,$siShare, $siCompiler,$siDataLayer){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
@@ -302,6 +300,8 @@ function singleListingCtrl(
                 $siHooks.addFilter('si.share.data',$scope.setShareData);
 
                 $rootScope.$broadcast('si/model:ready');
+
+                $siDataLayer.pushEvent('si/listing/view', {id: $scope.model.ref_number});
             })
             // print data to console for further informations
             //console.log($scope.model);
@@ -382,7 +382,19 @@ function singleListingCtrl(
             $scope.model.important_flags.push({icon: 'vector-square',value: lAvailableAreaStr , caption: 'Available area'.translate() })
         }
 
+
+        // Building
+        if($scope.model.building.construction_year) $scope.model.building.attributes.push({code: 'construction_year', caption: 'Construction year'.translate(), values: [{caption: $scope.model.building.construction_year}]});
+        if($scope.model.building.dimension) $scope.model.building.attributes.push({code: 'dimension', caption: 'Dimension'.translate(), values: [{caption: $siUtils.formatDimension($scope.model.building.dimension)}]});
+        // Lot
+        if($scope.model.land.dimension) $scope.model.land.attributes.push({code: 'dimension', caption: 'Dimension'.translate(), values: [{caption: $siUtils.formatDimension($scope.model.land.dimension)}]});
+
         // from attributes
+        // append to rightful domains
+        const lBuildingCodes = ['CUPBOARD','WINDOWS','WINDOW TYPE','ROOFING','FOUNDATION','GARAGE','SIDING','BATHR./WASHR','BASEMENT','EASY ACCESS'];
+        const lLotCodes = ['LANDSCAPING','DRIVEWAY','PARKING','POOL','TOPOGRAPHY','VIEW','ZONING','PROXIMITY'];
+        const lOtherCodes = ['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'];
+
         $scope.model.attributes.forEach(function($e){
             $e.caption = $scope.getCaption($e.code, 'attribute');
             $e.values.forEach(function($v){
@@ -395,11 +407,9 @@ function singleListingCtrl(
                 }
             });
 
-            // append to rightful domains
+            
+            
             // Building
-            const lBuildingCodes = ['CUPBOARD','WINDOWS','WINDOW TYPE','ROOFING','FOUNDATION','GARAGE','SIDING','BATHR./WASHR','BASEMENT','EASY ACCESS'];
-            const lLotCodes = ['LANDSCAPING','DRIVEWAY','PARKING','POOL','TOPOGRAPHY','VIEW','ZONING','PROXIMITY'];
-            const lOtherCodes = ['HEATING SYSTEM','HEATING ENERGY','HEART STOVE','WATER SUPPLY','SEWAGE SYST.','EQUIP. AVAIL'];
             if(lBuildingCodes.includes($e.code)){
                 $scope.model.building.attributes.push($e);
             }
@@ -556,7 +566,7 @@ function singleListingCtrl(
 
             $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
-                
+                $siDataLayer.pushEvent('si/formSubmit', lMessage);
             })
         }
     }
@@ -577,6 +587,7 @@ function singleListingCtrl(
         const lPrintLinkFinal = '/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1] + window.location.search;
         //console.log('print', lPrintLinkFinal);
         window.open(lPrintLinkFinal);
+        $siDataLayer.pushEvent('si/listing/print', {id: $scope.model.ref_number});
     }
 
     $scope.hasDimension = function($dimension){
@@ -584,6 +595,7 @@ function singleListingCtrl(
     }
 
     $scope.shareTo = function($social_media){
+        $siDataLayer('si/share', $social_media);
         $siShare.execute($social_media);
     }
 
@@ -618,7 +630,7 @@ function singleListingCtrl(
  */
 siApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks){
+function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks,$siDataLayer){
     $scope.filter_keywords = '';
     $scope.message_model = {};
 
@@ -653,6 +665,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
 
                 $element[0].style.removeProperty('display');
+
             })
             .then(function(){
                 $scope.$on('si-list-loaded', function($event, $type,$list){
@@ -741,6 +754,9 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
             //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
             // print data to console for further informations
             //console.log($scope.model);
+
+            
+            $siDataLayer.pushEvent('si/broker/view', {id: $scope.model.ref_number});
         });
     }
 
@@ -907,6 +923,8 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
 
             $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
+
+                $siDataLayer.pushEvent('si/formSubmit', lMessage);
             })
         }
     }
@@ -1010,6 +1028,8 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
             //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
             // print data to console for further informations
             //console.log($scope.model);
+
+            $siDataLayer.pushEvent('si/office/view', {id: $scope.model.ref_number});
         });
     }
 
@@ -1047,6 +1067,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
 
             $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
+                $siDataLayer.pushEvent('si/formSubmit', lMessage);
             })
         }
     }
@@ -1137,6 +1158,8 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
              //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
              // print data to console for further informations
              //console.log($scope.model);
+
+             $siDataLayer.pushEvent('si/agency/view', {id: $scope.model.ref_number});
          });
      }
  
@@ -1174,6 +1197,8 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
 
             $siApi.rest('message', {params:lMessage}).then(function($response){
                 $scope.request_sent = true;
+                
+                $siDataLayer.pushEvent('si/formSubmit', lMessage);
             })
         }
     }

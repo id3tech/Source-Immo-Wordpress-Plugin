@@ -15,7 +15,55 @@
                 <div class="trolley">
                     <div class="tab-content picture-gallery">
                         <!-- ngIf: tabIsAvailable('pictures') -->
-                        <div class="si-image-slider   " data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'" style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); --viewport-width:100%; --viewport-height:460px;">
+
+                        <div class="si-image-slider   " style="--item-count:41;--item-index:0;--viewport-width:870px;--viewport-height:630px;" ng-dblclick="toggleFullscreen($event)" data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-picture-fit="cover" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'">
+                            <div class="viewport"> 
+                                <div class="trolley" style="">
+                                    <!-- ngRepeat: img in pictures track by $index -->
+                                    <div class="item ng-scope" data-ng-repeat="img in pictures track by $index">
+                                        <img alt="Frontage" si-image-auto-fit="cover" src="<?php echo SI_PLUGIN_URL ?>styles/assets/shadow_listing.jpg" style="object-fit: cover;">
+                                        <div class="caption"><label class="ng-binding">Frontage</label></div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                            <div class="picture-grid-viewport">
+                                <div class="trolley">
+                                    <!-- ngRepeat: img in pictures track by $index -->
+                                    <div class="item ng-scope si-highlight">
+                                        <img  alt="Frontage" src="<?php echo SI_PLUGIN_URL ?>styles/assets/shadow_listing.jpg">
+                                    </div><!-- end ngRepeat: img in pictures track by $index -->
+                                    <div class="item ng-scope">
+                                        <img  alt="Hallway" src="<?php echo SI_PLUGIN_URL ?>styles/assets/shadow_listing.jpg">
+                                    </div><!-- end ngRepeat: img in pictures track by $index -->
+                                    <div class="item ng-scope">
+                                        <img alt="Hallway" src="<?php echo SI_PLUGIN_URL ?>styles/assets/shadow_listing.jpg">
+                                    </div><!-- end ngRepeat: img in pictures track by $index -->
+                                    <div class="item ng-scope">
+                                        <img  alt="Living room" src="<?php echo SI_PLUGIN_URL ?>styles/assets/shadow_listing.jpg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="navigation-controls" data-ng-show="pictures.length > 1">
+                                <div class="nav-btn next" ><i class="fal fa-fw fa-angle-right"></i></div>
+                                <div class="nav-btn previous"><i class="fal fa-fw fa-angle-left"></i></div>
+                            </div>
+                            
+                            <div class="controls">
+                                <!-- ngIf: !model.expand_mode --><div class="nav-btn expand ng-scope" ng-if="!model.expand_mode"><i class="fas fa-expand-wide"></i> <label class="ng-binding">Fullscreen</label></div><!-- end ngIf: !model.expand_mode -->
+                                <!-- ngIf: model.expand_mode -->
+                            </div>
+
+                        </div>
+
+
+
+
+                        
+                        <div class="si-image-slider   " data-ng-if="tabIsAvailable('pictures')" data-si-pictures="model.photos" data-si-gap="0" data-si-show-picture-grid="pictureListDisplay!='thumbnails'" 
+                            style="display:none;touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); --viewport-width:100%; --viewport-height:460px;">
                             <div class="viewport">
                                 <div class="trolley" style="--item-count:17;--item-index:0">
                                     <!-- ngRepeat: img in pictures track by $index -->

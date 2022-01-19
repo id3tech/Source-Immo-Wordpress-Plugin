@@ -58,12 +58,14 @@
     <div class="si-input-container">
         <label>{{'Payments'.translate()}}</label>
 
-        <div class="si-input si-dropdown">
-            <div class="si-dropdown-button">
-                {{frequencies[data.frequency].translate()}}
-            </div>
-            <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
-                <div class="si-dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
+        <div class="si-input">
+            <div class="si-dropdown">
+                <div class="si-dropdown-button">
+                    {{frequencies[data.frequency].translate()}}
+                </div>
+                <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
+                    <div class="si-dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
+                </div>
             </div>
             <i class="extra fal fa-repeat"></i>
         </div>

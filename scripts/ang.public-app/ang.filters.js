@@ -200,7 +200,14 @@ siApp
 }]);
 
 siApp
-.filter('formatPrice', ['$siUtils', function dimensionFilter($siUtils){
+.filter('formatPhone', ['$siUtils', function formatPhone($siUtils){
+    return function($value,$format){
+        return $siUtils.formatPhone($value,$format);
+    }
+}]);
+
+siApp
+.filter('formatPrice', ['$siUtils', function formatPrice($siUtils){
     return function($value){
         if(!isNaN($value)){
             return $value.formatPrice();
@@ -309,11 +316,47 @@ siApp
 })
 
 siApp
+.filter('siImageCaption', ['$siUtils', function siImageCaption($siUtils){
+    return function($img){
+        return $siUtils.getCaption($img.category_code,'photo_category');
+    }
+}])
+
+siApp
+.filter('siVideoThumbnail', function(){
+    return function($video, $fallbackImageUrl=''){
+        let url = $fallbackImageUrl;
+
+        if($video.type == 'youtube'){
+            url = '//i3.ytimg.com/vi/' + $video.id  + '/hqdefault.jpg'
+        }
+        if($video.type == 'vimeo'){
+
+        }
+        
+        return url;
+    }
+});
+
+siApp
+.filter('siVirtualTourThumbnail', function(){
+    return function($virtualTour, $fallbackImageUrl=''){
+        let url = $fallbackImageUrl;
+        if($virtualTour.type == 'matterport'){
+            url = '//my.matterport.com/api/v1/player/models/' + $virtualTour.id + '/thumb';
+        }
+
+        return url;
+    };
+})
+
+siApp
 .filter('siElementExists', function(){
     return function($element){
         return document.querySelectorAll($element).length > 0
     }
-})
+});
+
 
 function $lateBind($callback){
     let $scope = {

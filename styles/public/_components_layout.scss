@@ -3,7 +3,7 @@
 .si-flex-row{
     display:flex;
     flex-direction: row;
-    gap: var(--flex-gap, var(--layout-gutter));
+    gap: var(--flex-gap, var(--si-layout-gutter));
 
     @include media($phone){
         &:not(.si-flex-row-phone){
@@ -16,7 +16,7 @@
 .si-flex-column{
     display:flex;
     flex-direction: column;
-    gap: var(--flex-gap, var(--layout-gutter));
+    gap: var(--flex-gap, var(--si-layout-gutter));
 }
 
 .si-flex-align-start{
@@ -57,18 +57,21 @@
 .si-flex-justify-stretch{
     justify-content: stretch;
 }
+[flex]{
+    flex:1;
+}
 
 @include media($phone){
     .si-flex-row-phone{
         display:flex;
         flex-direction: row;
-        gap: var(--flex-gap, var(--layout-gutter));
+        gap: var(--flex-gap, var(--si-layout-gutter));
     }
     
     .si-flex-column-phone{
         display:flex;
         flex-direction: column;
-        gap: var(--flex-gap, var(--layout-gutter));
+        gap: var(--flex-gap, var(--si-layout-gutter));
     }
     
     .si-flex-align-start-phone{

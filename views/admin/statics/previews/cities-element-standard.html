@@ -2,5 +2,14 @@
 <div class="name si-label si-background-high-contrast"  ng-show="previewLayerHasVar('name')">{{item.name}}</div>
 <div class="code si-label si-background-high-contrast" ng-show="previewLayerHasVar('code')">{{item.code}}</div>
 <div class="region si-label si-background-small-contrast" ng-show="previewLayerHasVar('region')">{{item.region}}</div>
+
+
+<div class="si-label"  ng-show="layoutAllowVar('listing_count')">
+    <div class="counters">
+        <div class="counter"><i class="icon fal fa-fw fa-home"></i> <span class="count">230</span> <span class="label"><lstr>listings</lstr></span></div>
+        <div class="counter"><i class="icon fal fa-fw fa-user-tie"></i> <span class="count">42</span> <span class="label"><lstr>brokers</lstr></span></div>
+    </div>
+</div>
+
 <div class="listings-count si-label " ng-show="previewLayerHasVar('listing_count')">{{item.listings_count}} {{(item.listings_count>1 ? 'listings' : 'listing').translate()}}</div>
 

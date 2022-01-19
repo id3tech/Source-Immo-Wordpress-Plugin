@@ -50,7 +50,8 @@ class SourceImmoAdmin {
 
     if($page == $ressource_location  . self::CONFIG_PAGE_KEY){
       wp_enqueue_media();
-      wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
+      //wp_enqueue_style( 'fontawesome5', plugins_url('/styles/fa/all.min.css', SI_PLUGIN) );
+      wp_enqueue_script('font-awesome-5','https://kit.fontawesome.com/92900d5f46.js');
       wp_enqueue_style( 'si-style', plugins_url('/styles/admin.min.css', SI_PLUGIN) );
       wp_enqueue_style( 'si-color-picker-style', plugins_url('/styles/mdColorPicker.min.css', SI_PLUGIN) );
     }

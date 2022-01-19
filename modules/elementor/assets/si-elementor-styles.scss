@@ -275,7 +275,9 @@ body, #top{
                 &.si-allowed-elementor-typography{
                     
                     .si-part:not(.si-prevent-typography){
-                        .si-apply-typography,.si-apply-typography *{
+                        .si-apply-typography,
+                        .si-apply-typography > *:not(.si-prevent-typography){
+                            
                             font-size: inherit;
                             font-family: inherit;
                             font-weight: inherit;
@@ -285,6 +287,18 @@ body, #top{
                             text-decoration: inherit;
                             line-height: inherit;
                             letter-spacing: inherit;
+                            *:not(.si-prevent-typography) *{
+
+                                font-size: inherit;
+                                font-family: inherit;
+                                font-weight: inherit;
+                                color: inherit;
+                                text-transform: inherit;
+                                font-style: inherit;
+                                text-decoration: inherit;
+                                line-height: inherit;
+                                letter-spacing: inherit;
+                            }
                         }
                     }
                 }

@@ -28,8 +28,8 @@ if($side_scroll){
 }
 
 foreach ($configs->list_layout->item_row_space as $key => $value) {
-    $width = round(100 / $value);
-    $list_styles[] = "--{$key}-column-width:{$width}";
+    if($value > 10){$value = round(100 / $value);}
+    $list_styles[] = "--{$key}-column-width:{$value}";
 }
 
 
@@ -52,18 +52,22 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
             echo('<style>');
             $styles = explode("\n",$configs->list_item_layout->custom_css);
             foreach ($styles as $style) {
-                echo('.si-list .si-item .item-content ' . $style);
+                //echo('.si-list .si-item .item-content ' . $style);
             }
             echo('</style>');
         }
 
         echo('<div class="si-list">');
-            
+            $itemIndex = 0;
             foreach ($resultView->listings as $item) {
-                echo('<div class="item-' . $item->ref_number . ' city-' . sanitize_title($item->location->city_code) . '">');
+                $cityCode = (isset($item->location->city_code)) ? $item->location->city_code : 'NA';
+
+                echo('<div class="item-' . $item->ref_number . ' city-' . sanitize_title($cityCode) . '" style="--si-item-index:' . $itemIndex . '">');
                 SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->layout}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
                 echo('</div>');
+
+                $itemIndex++;
             }
         
         echo('</div>');

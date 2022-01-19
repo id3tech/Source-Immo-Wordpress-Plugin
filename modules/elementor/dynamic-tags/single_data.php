@@ -59,6 +59,7 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
                             'ref_number' => __( 'Reference number', SI ),
                             'name' => __( 'Name', SI ),
                             'agency.name' => __( 'Agency name', SI ),
+                            'agency.license_type' => __( 'Agency license type', SI ),
                             'email' => __('Email', SI),
                             'main_phone' => __('Phone', SI),
                             'location.full_address' => __('Address', SI)
@@ -105,13 +106,16 @@ class SourceImmoSingleDataTags extends \Elementor\Core\DynamicTags\Tag {
         if($siModel != null){
             $result = $siModel;
             $modelProperties = explode('.',$field);
+            
             foreach ($modelProperties as $prop) {
+                if($result == null) break;
                 if(!property_exists($result, $prop)) break;
                 $result = $result->{$prop};
             }
             
             // The result should not be the same as the result
             if($result == $siModel) return;
+            if(!is_string($result) && !is_numeric($result)) return;
 
             echo($result);
 

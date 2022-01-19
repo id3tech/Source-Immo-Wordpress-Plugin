@@ -16,6 +16,10 @@ class SourceImmoApi {
     return wp_create_nonce( 'wp_rest' );
   }
 
+  public static function readme($request){
+    return file_get_contents(SI_PLUGIN_DIR . 'readme.md');
+  }
+
   /**
    * Update page content
    * @static
@@ -170,8 +174,10 @@ class SourceImmoApi {
     global $sitepress;
     $lang = $request->get_param('locale');
     $type = $request->get_param('type');
+    $currentLang = null;
 
     if($sitepress && $lang!=null){
+      $currentLang = $sitepress->get_current_language();
       $sitepress->switch_lang( $lang, true );
     }
 
@@ -202,7 +208,11 @@ class SourceImmoApi {
         $lResult[] = $page;
       }
     }
-    
+
+    if($sitepress && $currentLang!=null){
+      $sitepress->switch_lang( $currentLang, true );
+    }
+
     return $lResult;
   }
 
@@ -528,6 +538,9 @@ class SourceImmoApi {
 
     $list_config->access_token = $lAccessToken->key;
     $lTwoLetterLocale = si_get_locale();
+    if($list_config->source == null) return [];
+    if($list_config->source->id == null) return [];
+
 
     $lResult = HttpCall::to('~','view', $list_config->source->id, $lTwoLetterLocale)
                           ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
@@ -557,7 +570,14 @@ class SourceImmoApi {
     }
     $st = $lFilters["st"];
 
-    $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $list_config->source->id,  $lTwoLetterLocale,'items')
+    $sourceId = SourceImmo::current()->get_default_view();
+
+    if($list_config->source != null && $list_config->source->id == null){
+      $sourceId = $list_config->source->id;
+    }
+
+
+    $lResult = HttpCall::to('~', $list_config->getViewEndpoint(), $sourceId,  $lTwoLetterLocale,'items')
                     ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
                     ->get($lFilters, true);
     
@@ -629,6 +649,7 @@ class SourceImmoApi {
    * @param id          String identifier for the broker
    */
   public static function get_broker_data($id){
+
     $lResult = self::get_data_of('broker',$id);
     
     return $lResult;
@@ -666,6 +687,21 @@ class SourceImmoApi {
     $lResult = self::get_data_of('office',$id);
     
     return $lResult;
+  }
+
+
+  public static function get_office_list(){
+    $account_id = SourceImmo::current()->get_account_id();
+    $api_key = SourceImmo::current()->get_api_key();
+    $lTwoLetterLocale = si_get_locale();
+    $view_id = si_view_id(SourceImmo::current()->configs->default_view);
+
+    $lResult = HttpCall::to('~', 'office/view', $view_id,  $lTwoLetterLocale,'items')
+                          ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
+                          ->get(null, true);
+    
+    $data_list = $lResult->items;
+    return $data_list;
   }
 
   /**
@@ -925,6 +961,14 @@ class SourceImmoApi {
     // Addons
     self::_register_addons_routes();
 
+
+    register_rest_route( 'si-rest','/readme',[
+      [
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => '__return_true',
+        'callback' => ['SourceImmoApi', 'readme']
+      ]
+    ]);
   }
 
   

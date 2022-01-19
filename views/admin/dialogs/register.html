@@ -1,5 +1,4 @@
-<md-dialog aria-label="" ng-init="init()" id="register">
-    <form ng-cloak>
+
       
       <md-dialog-content>
         <div class="md-dialog-content">
@@ -47,11 +46,12 @@
                 </div>
             </div>
         </div>
+
+        <i class="state-loader fal fa-spinner-third fa-2x fa-spin"></i>
       </md-dialog-content>
   
       <md-dialog-actions layout="row">
         <span flex></span>
         <md-button ng-repeat="button in actions" ng-click="button.action()" ng-disabled="!isNavButtonEnabled(button,wizard_step)">{{button.label.translate()}}</md-button>
       </md-dialog-actions>
-    </form>
-  </md-dialog>
+    

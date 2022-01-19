@@ -1,0 +1,551 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><i class="fa fa-fw fa-palette"></i> <lstr>Style editor</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content" >
+        
+        <div class="style-menu">
+
+
+            <!-- BG/FG for highlight color -->
+            <div class="style-menu-item" data-palette="highlight" ng-click="showPalette($event)">
+                <span lstr>Highlight</span>
+            </div>
+
+            <!-- BG/FG for buttons states (normal/:hover) -->
+            <div class="style-menu-item" data-palette="button" ng-click="showPalette($event)">
+                <span lstr>Button</span>
+            </div>
+
+            <div class="style-menu-item" data-palette="border" ng-click="showPalette($event)">
+                <span lstr>Border</span>
+            </div>
+
+            <div class="style-menu-item" data-palette="background" ng-click="showPalette($event)">
+                <span lstr>Background</span>
+            </div>
+
+            <!-- Padding, Grid/flex gutter -->
+            <div class="style-menu-item" data-palette="space" ng-click="showPalette($event)">
+                <span lstr>Spacing</span>
+            </div>
+
+            <!-- Listings/brokers/offices dimensions -->
+            <div class="style-menu-item" data-palette="list-item" ng-click="showPalette($event)">
+                <span lstr>List item</span>
+            </div>
+
+            <!-- font, mls-label,  -->
+            <div class="style-menu-item" data-palette="misc" ng-click="showPalette($event)">
+                <span lstr>Miscellanous</span>
+            </div>
+
+            <div class="style-menu-item" data-palette="adv" ng-click="showPalette($event)">
+                <span lstr>Advanced</span>
+            </div>
+        </div>
+
+        <div class="style-palettes">
+
+            <div class="palette" data-palette="highlight">
+
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-highlight">si-highlight</div>
+
+                            <div class="si-highlight-background">si-highlight-background</div>
+                        </div>
+                    </div>
+                </div>
+
+                <md-list>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-highlighter"></md-icon>
+                        <p lstr>Highlight color</p>
+
+                        <div
+                            md-color-picker="options.colorPicker"
+                            ng-model="model.highlight"
+                            placeholder="{{defaultStyles.highlight}}"
+                        ></div>
+                    </md-list-item>
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-text"></md-icon>
+                        <p lstr>Highlight foreground</p>
+
+                        <div
+                            md-color-picker="options.colorPicker"
+                            ng-model="model.highlight_text_color"
+                            placeholder="{{defaultStyles.highlight_text_color}}"
+                        ></div>
+                    </md-list-item>
+                </md-list>
+                
+
+            </div>
+
+            <div class="palette" data-palette="button">
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-button">si-button</div>
+                        </div>
+                    </div>
+                </div>
+
+                <md-tabs md-center-tabs md-dynamic-height md-border-bottom>
+                    <md-tab label="normal">
+                        
+                        <md-list>
+                            
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                                <p lstr>Background color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_bg_color" placeholder="{{defaultStyles.button_bg_color}}"></div>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-text"></md-icon>
+                                <p lstr>Text color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_text_color" placeholder="{{defaultStyles.button_text_color}}"></div>
+                            </md-list-item>
+
+                            <md-subheader><lstr>Border</lstr></md-subheader>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-tint"></md-icon>
+                                <p lstr>Color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_border_color" placeholder="{{defaultStyles.button_border_color}}"></div>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-border-style"></md-icon>
+                                <p lstr>Style</p>
+                                
+                                <md-select ng-model="model.button_border_style" placeholder="(Default)">
+                                    <md-option value="">(Default)</md-option>
+                                    <md-option value="solid"><lstr>Solid</lstr></md-option>
+                                    <md-option value="dashed"><lstr>Dashed</lstr></md-option>
+                                    <md-option value="dotted"><lstr>Dotted</lstr></md-option>
+                                    <md-option value="double"><lstr>Double</lstr></md-option>
+                                </md-select>
+                                
+                            </md-list-item>
+        
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-arrows-h"></md-icon>
+                                <p lstr>Thickness</p>
+                                <md-input-container md-no-float>    
+                                    <input ng-model="model.button_border_width" placeholder="{{defaultStyles.button_border_width}}" />
+                                </md-input-container>
+                            </md-list-item>
+        
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-bezier-curve"></md-icon>
+                                <p lstr>Corner roundness</p>
+        
+                                <md-input-container md-no-float>
+                                    <input ng-model="model.button_border_radius" placeholder="{{defaultStyles.button_border_radius}}" />
+                                </md-input-container>
+                            </md-list-item>
+
+                            
+                        </md-list>
+                        
+                    </md-tab>
+
+                    <md-tab label="{{'hover'.translate()}}">
+                        <md-list>
+                            
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                                <p lstr>Background color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_hover_bg_color"  placeholder="{{defaultStyles.button_hover_bg_color}}"></div>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-text"></md-icon>
+                                <p lstr>Text color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_hover_text_color"  placeholder="{{defaultStyles.button_hover_text_color}}"></div>
+                            </md-list-item>
+
+                            <md-subheader><lstr>Border</lstr></md-subheader>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-tint"></md-icon>
+                                <p lstr>Color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.button_hover_border_color"  placeholder="{{defaultStyles.button_hover_border_color}}"></div>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-border-style"></md-icon>
+                                <p lstr>Style</p>
+                                
+                                <md-select ng-model="model.button_hover_border_style" placeholder="(Default)">
+                                    <md-option value="">(Default)</md-option>
+                                    <md-option value="solid"><lstr>Solid</lstr></md-option>
+                                    <md-option value="dashed"><lstr>Dashed</lstr></md-option>
+                                    <md-option value="dotted"><lstr>Dotted</lstr></md-option>
+                                    <md-option value="double"><lstr>Double</lstr></md-option>
+                                </md-select>
+                                
+                            </md-list-item>
+        
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-arrows-h"></md-icon>
+                                <p lstr>Thickness</p>
+                                <md-input-container md-no-float>    
+                                    <input ng-model="model.button_hover_border_width" placeholder="{{defaultStyles.button_hover_border_width}}" />
+                                </md-input-container>
+                            </md-list-item>
+        
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-lg fa-bezier-curve"></md-icon>
+                                <p lstr>Corner roundness</p>
+        
+                                <md-input-container  md-no-float>
+                                    <input ng-model="model.button_hover_border_radius" placeholder="{{defaultStyles.button_hover_border_radius}}" />
+                                </md-input-container>
+                            </md-list-item>
+                        </md-list>
+                        
+                    </md-tab>
+                </md-tabs>
+
+            </div>
+
+            <div class="palette" data-palette="border">
+
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-padding si-border si-border-radius">si-border si-border-radius</div>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <md-list>
+                    
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-tint"></md-icon>
+                        <p lstr>Color</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.border_color" placeholder="{{defaultStyles.border_color}}"></div>
+                    </md-list-item>
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-border-style"></md-icon>
+                        <p lstr>Style</p>
+                        
+                            <md-select ng-model="model.border_style" placeholder="(Default)">
+                                <md-option value="">(Default)</md-option>
+                                <md-option value="solid"><lstr>Solid</lstr></md-option>
+                                <md-option value="dashed"><lstr>Dashed</lstr></md-option>
+                                <md-option value="dotted"><lstr>Dotted</lstr></md-option>
+                                <md-option value="double"><lstr>Double</lstr></md-option>
+                            </md-select>
+                        
+                    </md-list-item>
+
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-arrows-h"></md-icon>
+                        <p lstr>Thickness</p>
+                        <md-input-container  md-no-float>    
+                            <input ng-model="model.border_width" placeholder="{{defaultStyles.border_width}}" />
+                        </md-input-container>
+                    </md-list-item>
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-bezier-curve"></md-icon>
+                        <p lstr>Corner roundness</p>
+
+                        <md-input-container md-no-float>
+                            <input ng-model="model.border_radius" placeholder="{{defaultStyles.border_radius}}" />
+                        </md-input-container>
+                    </md-list-item>
+                </md-list>
+
+            </div>
+
+            <div class="palette" data-palette="background">
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-padding si-background">si-background</div>
+                            <div class="si-padding si-background-small-contrast">si-background-small-contrast</div>
+                            <div class="si-padding si-background-medium-contrast">si-background-medium-contrast</div>
+                            <div class="si-padding si-background-high-contrast">si-background-high-contrast</div>
+                        </div>
+                    </div>
+                </div>
+
+                <md-list>
+                    <md-subheader><lstr>Global background</lstr></md-subheader>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw  fa-send-back"></md-icon>
+                        <p lstr>Background</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.background_color"  placeholder="{{defaultStyles.background_color}}"></div>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-text"></md-icon>
+                        <p lstr>Foreground</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.text_color"  placeholder="{{defaultStyles.text_color}}"></div>
+                    </md-list-item>
+
+                    <md-subheader><lstr>Small contrast background</lstr></md-subheader>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                        <p lstr>Background</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.small_contrast_color"  placeholder="{{defaultStyles.small_contrast_color}}"></div>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-text"></md-icon>
+                        <p lstr>Foreground</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.small_contrast_text_color"  placeholder="{{defaultStyles.small_contrast_text_color}}"></div>
+                    </md-list-item>
+
+                    <md-subheader><lstr>Medium contrast background</lstr></md-subheader>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                        <p lstr>Background</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.medium_contrast_color"  placeholder="{{defaultStyles.medium_contrast_color}}"></div>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw  fa-text"></md-icon>
+                        <p lstr>Foreground</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.medium_contrast_text_color"  placeholder="{{defaultStyles.medium_contrast_text_color}}"></div>
+                    </md-list-item>
+
+                    <md-subheader><lstr>High contrast background</lstr></md-subheader>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                        <p lstr>Background</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.high_contrast_color"  placeholder="{{defaultStyles.high_contrast_color}}"></div>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-text"></md-icon>
+                        <p lstr>Foreground</p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.high_contrast_text_color"  placeholder="{{defaultStyles.high_contrast_text_color}}"></div>
+                    </md-list-item>
+
+                </md-list>
+
+            </div>
+
+            <div class="palette" data-palette="space">
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-padding si-padding-preview">
+                                <div class="si-flex-list si-gutter-preview">
+                                    <div>Item 1</div>
+                                    <div>Item 2</div>
+                                    <div>Item 3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <note>List of items with si-padding class</note>
+                </div>
+
+                <md-list>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-border-outer"></md-icon>
+                        <p><lstr>Padding</lstr> <i class="legend legend-padding">&nbsp;</i></p>
+
+                        <md-input-container md-no-float>
+                            <input ng-model="model.padding" placeholder="{{defaultStyles.padding}}" />
+                        </md-input-container>
+                    </md-list-item>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-border-inner"></md-icon>
+                        <p><lstr>Grid spacing</lstr> <i class="legend legend-grid-spacing">&nbsp;</i></p>
+
+                        <md-input-container  md-no-float>
+                            <input ng-model="model.layout_gutter" placeholder="{{defaultStyles.layout_gutter}}" />
+                        </md-input-container>
+                    </md-list-item>
+                </md-list>
+
+                
+
+                
+            </div>
+
+            <div class="palette" data-palette="list-item">
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div ng-if="layoutSelectedTabIndex==0">
+                                <div class="si-item listing-item {{showFloatingPrice ? 'si-price-float':''}} si-ghost-item">
+                                    <div class="picture"><img /></div>
+                                    <div class="si-price-sold si-space-emphasis si-big-emphasis "><lstr>Sold</lstr></div>
+                                    <div class="si-label price si-big-emphasis">500 000$</div>
+                                    <div class="si-label city">Metropolis</div>
+                                    <div class="si-label address">12345 Main street</div>
+                                </div>
+
+                            </div>
+                            <div ng-if="layoutSelectedTabIndex==1">
+                                <div class="si-item broker-item si-ghost-item">
+                                    <div class="picture"><img /></div>
+                                    <div class="si-label fullname si-big-emphasis">John Doe</div>
+                                    <div class="si-label license">Real estate broker</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+
+                <md-tabs md-center-tabs md-dynamic-height md-border-bottom md-selected="layoutSelectedTabIndex">
+                    <md-tab label="{{'Listings'.translate()}}">
+                        
+                        
+
+                        <md-list>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-ruler-triangle"></md-icon>
+                                <p lstr>Picture ratio</p>
+                                <md-input-container md-no-float>
+                                    <input ng-model="model.listing_item_picture_ratio" placeholder="{{defaultStyles.listing_item_picture_ratio}}" />
+                                </md-input-container>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-expand-arrows"></md-icon>
+                                <p lstr>Picture coverage</p>
+                                <md-select ng-model="model.listing_item_picture_fit"  placeholder="(Default)">
+                                    <md-option>(Default)</md-option>
+                                    <md-option value="cover"><lstr>Cover the area</lstr></md-option>
+                                    <md-option value="contain"><lstr>Is contained within the area</lstr></md-option>
+                                </md-select>
+                            </md-list-item>
+
+
+                            <md-subheader><lstr>Sold flag</lstr></md-subheader>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-tag"></md-icon>
+                                <p lstr>With .si-price-float class</p>
+                                <md-checkbox ng-model="showFloatingPrice"></md-checkbox>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw {{showFloatingPrice ? 'fa-send-back' : 'fa-text'}}"></md-icon>
+                                <p ng-if="showFloatingPrice" lstr>Background color</p>
+                                <p ng-if="!showFloatingPrice" lstr>Color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.listing_item_sold_bg_color"  placeholder="{{defaultStyles.listing_item_sold_bg_color}}"></div>
+                            </md-list-item>
+                            
+                            <md-list-item ng-if="showFloatingPrice">
+                                <md-icon class="fal fa-fw fa-text"></md-icon>
+                                <p lstr>Text color</p>
+                                <div md-color-picker="options.colorPicker" ng-model="model.listing_item_sold_text_color"  placeholder="{{defaultStyles.listing_item_sold_text_color}}"></div>
+                            </md-list-item>
+                        </md-list>
+                        
+                    </md-tab>
+                    <md-tab label="{{'Brokers'.translate()}}">
+                        <md-list>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-ruler-triangle"></md-icon>
+                                <p lstr>Picture ratio</p>
+                                <md-input-container  md-no-float>
+                                    <input ng-model="model.broker_item_picture_ratio" placeholder="{{defaultStyles.broker_item_picture_ratio}}" />
+                                </md-input-container>
+                            </md-list-item>
+                            <md-list-item>
+                                <md-icon class="fal fa-fw fa-expand-arrows"></md-icon>
+                                <p lstr>Picture coverage</p>
+
+                                <md-select ng-model="model.broker_item_picture_fit" placeholder="(Default)">
+                                    <md-option value="">(Default)</md-option>
+                                    <md-option value="cover"><lstr>Cover the area</lstr></md-option>
+                                    <md-option value="contain"><lstr>Is contained within the area</lstr></md-option>
+                                </md-select>
+                                
+                            </md-list-item>
+                            
+                        </md-list>
+                        
+            
+                        
+                    </md-tab>
+                    
+                </md-tabs>  
+            </div>
+
+            <div class="palette" data-palette="misc">
+
+                <div class="palette-preview si-style-editor-preview">
+                    <h2 lstr>Preview</h2>
+                    <div si-style-preview="model">
+                        <div class="si-preview-viewport">
+                            <div class="si-label si-padding"><lstr>The quick brown fox jumps over the lazy dog.</lstr></div>
+
+                            <div class="si-label si-padding listing-item">
+                                <div class="ref-number">12345</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <md-list>
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-font"></md-icon>
+                        <p><lstr>Font name</lstr></p>
+                        <md-input-container md-no-float>
+                            <input ng-model="model.font_name" placeholder="{{defaultStyles.font_name}}" />
+                        </md-input-container>
+                    </md-list-item>
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-font"></md-icon>
+                        <p><lstr>Text color</lstr></p>
+                        <div md-color-picker="options.colorPicker" ng-model="model.text_color"  placeholder="{{defaultStyles.text_color}}"></div>
+                    </md-list-item>
+
+                    <md-list-item>
+                        <md-icon class="fal fa-fw fa-lg fa-tag"></md-icon> 
+                        <p><lstr>ULS label</lstr></p>
+                        <md-input-container  md-no-float>
+                            <input ng-model="model.uls_label" placeholder="{{defaultStyles.uls_label}}" />
+                        </md-input-container>
+                    </md-list-item>
+                </md-list>
+                
+
+            </div>
+
+            <div class="palette palette-advanced" data-palette="adv">
+
+                <md-input-container>
+                    <label lstr>Custom style</label>
+                    <textarea class="si-large-text-input" ng-model="model.custom_style" rows="30" placeholder="{{'Add custom style'.translate()}}">
+
+                    </textarea>
+                </md-input-container>
+
+            </div>
+        </div>
+    </div> 
+
+</md-dialog-content>
+
+
+
+<md-dialog-actions layout="row">
+    <md-button ng-click="reset()"><lstr>Reset</lstr></md-button>
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

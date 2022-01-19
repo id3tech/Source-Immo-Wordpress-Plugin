@@ -24,6 +24,14 @@ siApp
     return function($value){
         return Math.floor($value);
     }
+});
+
+siApp
+.filter('toDashCase', function(){
+    return function($value){
+        if($value == undefined) return '';
+        return $value.replace(/[A-Z]/,($c) => $c.toLowerCase()).replace(/(\s|_)/g,'-').replace(/[A-Z]/g, ($c) => '-' + $c.toLowerCase());
+    }
 })
 
 siApp

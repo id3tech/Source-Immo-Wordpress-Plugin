@@ -3,13 +3,14 @@
     <div class="si-style-editor-preview" si-style-preview="rawModel" ng-show="showPreview!==false">
         <div layout="row" layout-align="space-between center">
             <h4 lstr >Preview</h4>
-
-            <md-button ng-click="reset()"><lstr>Reset</lstr></md-button>
         </div>
         
 
-        <div class="viewport">
-            <div ng-include="previewPath"></div>
+        <div class="si-preview-viewport">
+            <!-- all elements -->
+            <div ng-if="false" ng-include="previewPath"></div>
+
+
         </div>
     </div>
 
@@ -49,8 +50,45 @@
             
         </div>
 
-        <h4 class="fullrow" ng-click="openGroup('containers')"  ng-show="isEditable('containers')" lstr>Containers</h4>
-        <div id="style-containers" ng-show="isEditable('containers')" class="style-group global-group">
+        <h4 class="fullrow" ng-click="openGroup('layout')"  ng-show="isEditable('layout')" lstr>Layout</h4>
+        <div id="style-layout" ng-show="isEditable('layout')" class="style-group global-group">
+            <div
+                md-color-picker="options.colorPicker"
+                ng-model="model.border_color"
+                ng-model-options="{debounce:500}"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.border_color)}})"
+                icon="fad fa-border-all"
+            ></div>
+        
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border style</lstr> (<lstr params="defaultValues.border_style">default {0}</lstr>)</label>
+                <input ng-model="model.border_style" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-style"></md-icon>
+                <label><lstr>Border width</lstr> (<lstr params="defaultValues.border_width">default {0}</lstr>)</label>
+                <input ng-model="model.border_width" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.border_radius" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+
+
+            <md-input-container>
+                <md-icon class="far fa-lg fa-border-outer"></md-icon>
+                <label><lstr>Padding</lstr> (<lstr params="defaultValues.padding">default {0}</lstr>)</label>
+                <input ng-model="model.padding" ng-model-options="{updateOn:'blur'}" />
+            </md-input-container>
+        </div>
+
+
+        <h4 class="fullrow" ng-click="openGroup('containers')"  ng-show="false && isEditable('containers')" lstr>Containers</h4>
+        <div id="style-containers" ng-show="false && isEditable('containers')" class="style-group global-group">
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.container_border_color"
@@ -79,8 +117,8 @@
             </md-input-container>
         </div>
 
-        <h4 class="fullrow" ng-click="openGroup('list-container')"  ng-show="isEditable('list-container')" lstr>Panels - List items</h4>
-        <div id="style-list-container" ng-show="isEditable('list-container')" class="style-group global-group">
+        <h4 class="fullrow" ng-click="openGroup('list-container')"  ng-show="false && isEditable('list-container')" lstr>Panels - List items</h4>
+        <div id="style-list-container" ng-show="false && isEditable('list-container')" class="style-group global-group">
             <div
                 md-color-picker="options.colorPicker"
                 ng-model="model.list_item_separator_color"
@@ -102,8 +140,8 @@
             </md-input-container>
         </div>
 
-        <h4 class="fullrow" ng-click="openGroup('elements')"  ng-show="isEditable('elements')" lstr>Elements</h4>
-        <div id="style-elements" ng-show="isEditable('elements')" class="style-group global-group">
+        <h4 class="fullrow" ng-click="openGroup('elements')"  ng-show="false && isEditable('elements')" lstr>Elements</h4>
+        <div id="style-elements" ng-show="false && isEditable('elements')" class="style-group global-group">
             <div>
                 <div
                     md-color-picker="options.colorPicker"
@@ -200,25 +238,25 @@
             ></div>
         </div>
 
-        <h4 ng-click="openGroup('components')" ng-show="isEditable('components')" lstr>Components</h4>
-        <div id="style-components" class="style-group" ng-show="isEditable('components')">
+        <h4 ng-click="openGroup('buttons')" ng-show="isEditable('buttons')" lstr>Buttons</h4>
+        <div id="style-buttons" class="style-group" ng-show="isEditable('buttons')">
             <div
                 md-color-picker="options.colorPicker"
-                ng-model="model.component_border_color"
-                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.component_border_color)}})"
+                ng-model="model.button_border_color"
+                label="{{'Border color'.translate()}} ({{'default {0}'.translate().format(defaultValues.button_border_color)}})"
                 icon="fad fa-border-all"
             ></div>
         
             <md-input-container>
                 <md-icon class="far fa-lg fa-border-style"></md-icon>
-                <label><lstr>Border</lstr> (<lstr params="defaultValues.component_border">default {0}</lstr>)</label>
-                <input ng-model="model.component_border" ng-model-options="{updateOn:'blur'}" />
+                <label><lstr>Border</lstr> (<lstr params="defaultValues.button_border">default {0}</lstr>)</label>
+                <input ng-model="model.button_border" ng-model-options="{updateOn:'blur'}" />
             </md-input-container>
             
             <md-input-container>
                 <md-icon class="far fa-lg fa-bezier-curve"></md-icon>
-                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.component_border_radius">default {0}</lstr>)</label>
-                <input ng-model="model.component_border_radius" ng-model-options="{updateOn:'blur'}" />
+                <label><lstr>Corner roundness</lstr> (<lstr params="defaultValues.button_border_radius">default {0}</lstr>)</label>
+                <input ng-model="model.button_border_radius" ng-model-options="{updateOn:'blur'}" />
             </md-input-container>
 
 
@@ -351,8 +389,8 @@
             </md-input-container> -->
         </div>
 
-        <h4  ng-show="isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
-        <div  ng-show="isEditable('office')" id="style-office" class="style-group">
+        <h4  ng-show="false && isEditable('office')" ng-click="openGroup('office')" lstr>Office item</h4>
+        <div  ng-show="false && isEditable('office')" id="style-office" class="style-group">
             <md-input-container  class="fullrow">
                 <md-icon class="far fa-lg fa-arrows-h"></md-icon> 
                 <label><lstr>Column width</lstr> (<lstr params="defaultValues.office_item_column_width">default {0}</lstr>)</label>
@@ -374,4 +412,7 @@
     </div>
 
    
+    <div class="actions">
+        <md-button class="md-raised md-warn" ng-click="reset()"><lstr>Reset</lstr></md-button>
+    </div>
 </div>

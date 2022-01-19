@@ -1,0 +1,42 @@
+<div class="layer {{layer}}-layer ">
+    <div class="layer-content">
+        <div class="si-label price si-space-emphasis si-big-emphasis" ng-show="layoutAllowVar('price',true)">450 000$</div>  
+        <div class="si-label si-price-sold si-space-emphasis si-big-emphasis" ng-show="layoutAllowVar('price',true)"><lstr>Sold</lstr></div>  
+        
+        <div class="si-label city si-weight-emphasis" ng-show="layoutAllowVar('city',true)"><lstr>City</lstr></div>
+        <div class="si-label civic-address" ng-show="layoutAllowVar('address',true)"><lstr>1234 street name</lstr></div>
+        <div class="si-label region" ng-show="layoutAllowVar('region')"><lstr>Region</lstr></div>
+        
+
+        <div class="si-label category" ng-show="layoutAllowVar('category',true)">Residential</div>
+        <div class="si-label subcategory" ng-show="layoutAllowVar('subcategory',true)">Cottage</div>
+        <div class="si-label ref-number" ng-show="layoutAllowVar('ref_number')">3909890</div>
+
+        <div class="si-label available_area" ng-show="layoutAllowVar('available_area')">2300 sqr.ft.</div>
+
+        <div class="si-label" ng-show="layoutAllowVar('rooms',true)">
+            <div class="rooms">
+                <div class="room bed"><i class="icon fal fa-fw fa-bed"></i> <span class="count">3</span> <span class="label">Bedrooms</span></div>
+                <div class="room bath"><i class="icon fal fa-fw fa-bath"></i> <span class="count">2</span> <span class="label">Bathrooms</span></div>
+                <div class="room hand-holding-water"><i class="icon fal fa-fw fa-hand-holding-water"></i> <span class="count">1</span> <span class="label">Water room</span></div>
+            </div>
+        </div>
+        
+        <div class="si-label description" ng-show="layoutAllowVar('description')">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Vis labore scripta ne, ut alii mediocritatem his.</div>
+        
+        <div class="flags si-label" ng-show="layoutAllowVar('flags',true)">
+            <i class="video far fa-video"></i>
+            <i class="virtual-tour far fa-vr-cardboard"></i>
+        </div>
+        
+        <div class="si-label open-houses" ng-show="layoutAllowVar('open_houses',true)">
+            <div class="open-house-item">
+                <i class="fal fa-calendar-alt"></i> <span>{{'Open house'.translate()}}</span> <span am-time-ago="item.open_houses[0].start_date"></span>
+            </div>
+        </div>
+
+        <div class="link-button">
+        <a href="#" class="si-button"><lstr>Learn more</lstr></a>
+        </div>
+    </div>
+  </div>

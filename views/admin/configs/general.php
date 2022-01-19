@@ -1,9 +1,15 @@
 <div class="general-infos">
     <div class="welcome-message">
-        <h1><?php _e('Welcome', SI) ?></h1>
-        <p><?php _e('Thank you for using source.immo plugin for Worpress.', SI) ?></p>
+        <h1 lstr>Welcome</h1>
+        <p lstr>Thank you for using source.immo plugin for Worpress.</p>
 
-        <p><?php _e("This plugin is used to display your real estate data. To manage the data, please visit the <a href=\"https://portal.source.immo\" target=\"_blank\">source.immo portal</a>", SI) ?></p>
+        <p lstr>This plugin is used to display your real estate data. To manage the data, please visit the <a href="https://portal.source.immo" target="_blank">source.immo portal</a></p>
+
+        
+        <h2>Version <?php echo SI_VERSION?></h2>
+        <h4 lstr>What's new</h4>
+        <p class="si-markdown-text" ng-bind-html="whatNewText"></p>
+        <md-button ng-click="showReadme()"><lstr>Read change logs</lstr></md-button>
     </div>
 
     <div class="notice-list">

@@ -1,7 +1,7 @@
 <?php
-$classes = array();
+$scope_class = array();
 if(isset($item->open_houses) && count($item->open_houses)>0){
-    $classes[] = 'has-open-house';
+    $scope_class[] = 'has-open-house';
 }
 
 
@@ -11,7 +11,7 @@ if($item->status_code=='SOLD'){
 
 ?>
 
-<article class="si-item si-listing-item si-small-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
+<article class="si-item si-listing-item si-small-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$scope_class) ?>"
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="item-content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">

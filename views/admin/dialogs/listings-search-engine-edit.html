@@ -1,0 +1,73 @@
+
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <h2 lstr>Search engine's configuration</h2>
+          <span flex></span>
+          <md-button class="md-icon-button" ng-click="cancel()">
+            <md-icon class="fal fa-times" aria-label="Close dialog"></md-icon>
+          </md-button>
+        </div>
+      </md-toolbar>
+  
+      <md-dialog-content>
+        <div class="md-dialog-content" layout="column">
+          
+            <md-input-container>
+              <label lstr>Display</label>
+              <md-select ng-model="model.type">
+                  <md-option value="full"><lstr>Standard</lstr></md-option>
+                  <md-option value="focused"><lstr>Target certain fields of research</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container>
+              <label lstr>Search box placeholder</label>
+              <si-localized>
+                <input type="text" ng-model="model.search_box_placeholder[$localized.current]" />
+              </si-localized>
+            </md-input-container>
+  
+            <md-input-container ng-if="false">
+              <label lstr>Orientation</label>
+              <md-select ng-model="model.orientation">
+                  <md-option value="h"><lstr>Horizontal</lstr></md-option>
+                  <md-option value="v"><lstr>Vertical</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container ng-if="model.type == 'full'">
+              <label lstr>Filter tags</label>
+              <md-select ng-model="model.filter_tags">
+                  <md-option value="none"><lstr>None</lstr></md-option>
+                  <md-option value="inside"><lstr>Inside search box</lstr></md-option>
+                  <md-option value="outside"><lstr>Outside search box</lstr></md-option>
+              </md-select>
+            </md-input-container>
+  
+            <md-input-container ng-if="false">
+              <md-checkbox ng-model="model.sticky">
+                <lstr ng-show="model.orientation == 'h'">When scrolling, stick the search engine to viewport top</lstr>
+                <lstr ng-show="model.orientation == 'v'">When scrolling, stick the search engine to viewport side</lstr>
+              </md-checkbox>
+            </md-input-container>
+            
+            <md-input-container ng-if="model.type=='focused'">
+              <label lstr>Criterias to display</label>
+              <md-select ng-model="model.fields" multiple>
+                <md-option ng-repeat="field in fieldList | orderBy: 'caption' track by $index" ng-value="field.key">{{field.caption}}</md-option>
+              </md-select>
+            </md-input-container>
+
+
+            <md-input-container>
+              <label lstr>Element classes</label>
+              <si-class-selector ng-model="model.scope_class" filter="search"></si-class-selector>
+            </md-input-container>
+        </div>
+      </md-dialog-content>
+  
+      <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+      </md-dialog-actions>
+    

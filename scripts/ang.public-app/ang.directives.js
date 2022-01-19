@@ -99,7 +99,7 @@ function siList(){
                     }
                     return $result
                 });
-
+                
                 $siConfig.getList($scope.alias).then(function($configs){
                     $scope.configs = $configs;
                     //if(isNullOrUndefined($scope.configs.current_view)) $scope.configs.current_view = $configs.source.id;
@@ -126,6 +126,7 @@ function siList(){
             }
 
             $scope.hasMapKeyApi = function(){
+                if(siCtx.map_api_key != '') return true;
                 if($scope._global_configs == undefined) return false;
                 if($scope._global_configs == null) return false;
                 if($scope._global_configs.map_api_key == '') return false;
@@ -224,13 +225,13 @@ function siList(){
                         ref_number: 'XXXXXX',
                         first_name: 'First name',
                         last_name: 'Last name',
+                        name: 'Lorem ipsum 2000',
                         license_type : 'License type',
                         listing_count: 0,
                         office: {name : 'Office'},
                         email: 'email@example.com',
                         phones:{mobile:'555-555-5555'},
                         description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.'
-                        
                     });
                 }
             }
@@ -629,12 +630,25 @@ function siList(){
                                 ? 'main' 
                                 : $layer;
 
+                
                 if($scope.configs == null) return $default;
                 if($scope.configs.list_item_layout == undefined) return $default;
                 
                 if($scope.configs.list_item_layout.displayed_vars == undefined) return $default;
+
+                if($item == 'flags' && $layer == 'main'){
+                    if($scope.configs.list_item_layout.displayed_vars.main == undefined) return true;
+                    if($scope.configs.list_item_layout.displayed_vars.main.includes($item)) return true;
+                    if($scope.configs.list_item_layout.displayed_vars.secondary && !$scope.configs.list_item_layout.displayed_vars.secondary.includes($item)) return true;
+                    return false;
+                }
+
+
                 if($scope.configs.list_item_layout.displayed_vars[$layer] == undefined) return $default;
 
+                if($item == 'region'){
+                    console.log('display region',$scope.configs.list_item_layout.displayed_vars[$layer])
+                }
                 return $scope.configs.list_item_layout.displayed_vars[$layer].includes($item);
             }
 
@@ -702,18 +716,17 @@ function siSmallList($sce,$compile){
             filters: '=siFilters',
             options: '=?siOptions'
         },
-        template: '<div class="si-list-header" ng-if="options.show_header">' + 
-                        '<h3 ng-cloak>{{getListTitle()}} {{options.typeof_show_header}}</h3>' +
-                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="listFilter.keywords"><i class="far fa-search"></i></div>' + 
-                    '</div>' +
-                    '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>' +
-                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>',
+        template: ['<div class="si-list-header" ng-if="options.show_header">', 
+                        '<h3 ng-cloak>{{getListTitle()}} {{options.typeof_show_header}}</h3>',
+                        '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="listFilter.keywords"><i class="far fa-search"></i></div>',
+                    '</div>',
+                    '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>',
+                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>'].join(''),
         link: function($scope, $element, $attrs){
             if($scope.options != undefined){       
                 $scope.options.typeof_show_header = typeof($scope.options.show_header);
                 $scope.options.show_header = (typeof($scope.options.show_header) == 'string') ? $scope.options.show_header === 'true' : $scope.options.show_header;
             }
-
 
             $scope.init();
         },
@@ -783,6 +796,9 @@ function siSmallList($sce,$compile){
 
             $scope.getItemTemplateInclude = function(){
                 if($scope.options.item_template != undefined) return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
+                // if($scope.listItemLayout){
+                //     return siCtx.base_path + 'views/list/' + $scope.type + '/' + $scope.listItemLayout.layout + '.php';
+                // }
                 return 'si-template-for-' + $scope.type;
             }
 
@@ -799,6 +815,14 @@ function siSmallList($sce,$compile){
                 }
                 $siConfig.get().then(function($configs){
                     $scope.configs = $configs;
+
+                    const listConfig = $scope.configs.lists.find($l => $l.type == $scope.type && $l.is_default_type_configs);
+                    if(listConfig != null){
+                        $scope.listItemLayout = listConfig.list_item_layout;
+                        $element[0].classList.add('si-inherit-list-configs');
+                    }
+                    console.log('siSmallList/init', $scope.listItemLayout);
+
                     $scope.applyColumnWidth();
                 });
 
@@ -921,12 +945,23 @@ function siSmallList($sce,$compile){
             }
             
             $scope.applyColumnWidth = function(){
-                console.log('applyColumnWidth',$scope.options.columns );
-                const lWidths = angular.merge($scope.columnWidths[$scope.type],$scope.options.columns);
+                
+                let lWidths = angular.merge($scope.columnWidths[$scope.type],$scope.options.columns);
+
+                if($scope.listItemLayout){
+                   lWidths = angular.merge(lWidths, $scope.listItemLayout.item_row_space);
+                }
+
+                console.log('applyColumnWidth',lWidths );
+
                 if(lWidths == undefined) return;
 
                 Object.keys(lWidths).forEach(function($k){
-                    $scope._element[0].style.setProperty('--' + $k + '-column-width', lWidths[$k]);
+                    let value = lWidths[$k];
+                    if(value > 10){
+                        value = Math.round(100 / value);
+                    }
+                    $scope._element[0].style.setProperty('--' + $k + '-column-width', value );
                 });
             }
 
@@ -978,6 +1013,37 @@ function siSmallList($sce,$compile){
                 }
                 
                 return lClassList.join(' ');
+            }
+
+            $scope.layoutAllowVar = function($item, $layer, $default){
+                $default = ($default != undefined) 
+                                ? $default 
+                                : (typeof $layer === 'boolean') 
+                                    ? $layer 
+                                    : false;
+
+                $layer = $layer == undefined
+                            ? 'main'
+                            : (typeof $layer === 'boolean')
+                                ? 'main' 
+                                : $layer;
+
+                
+                if($scope.listItemLayout == null) return $default;
+                if($scope.listItemLayout == undefined) return $default;
+                
+                if($scope.listItemLayout.displayed_vars == undefined) return $default;
+
+                if($item == 'flags' && $layer == 'main'){
+                    if($scope.listItemLayout.displayed_vars.main.includes($item)) return true;
+                    if(!$scope.listItemLayout.displayed_vars.secondary.includes($item)) return true;
+                    return false;
+                }
+
+
+                if($scope.listItemLayout.displayed_vars[$layer] == undefined) return $default;
+
+                return $scope.listItemLayout.displayed_vars[$layer].includes($item);
             }
 
             
@@ -1281,10 +1347,12 @@ siApp
                     return $scope.deferredContentCheck.promise;
                 }
 
-                $timeout(function(){
+                const observer = new MutationObserver( $mutations => {
                     $scope.checkContent();
-                }, 250);
+                    observer.disconnect();
+                })
 
+                observer.observe($element[0], {subtree:true, characterData:true})
 
                 return $scope.deferredContentCheck.promise;
             }
@@ -1294,7 +1362,6 @@ siApp
             $scope.checkContent = function(){
                 if(!$element[0].classList.contains('si-hide-' + $scope.options.method)) return;
 
-                console.log('siHideEmpty/checkContent',$element[0], $element[0].innerText.trim())
                 if($element[0].innerText.trim() != ''){ 
                     // make sure there's no hidden children
                     if(
@@ -1322,3 +1389,151 @@ siApp
     }
 }]);
 
+siApp
+.directive('siHoverClass', function(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$atts){
+            const lAttClasses = $atts.siHoverClass.trim();
+            if(lAttClasses == undefined || lAttClasses == '') return;
+
+            const lClassList = lAttClasses.split(' ');
+            if(lClassList.length == 0)return;
+            
+            $element[0].addEventListener('mouseover', function(){
+                $element[0].classList.add(...lClassList);
+            });
+            $element[0].addEventListener('mouseout', function(){
+                $element[0].classList.remove(...lClassList);
+            });
+        }
+    }
+})
+
+siApp
+.directive('siAnimateWaitViewport', function(){
+    return {
+        restrict: 'C',
+        link: function($scope,$element,$attrs){
+            if(window.siWaitViewportObserver == undefined){
+                window.siWaitViewportObserver = new IntersectionObserver(function($entries){
+                    $entries.forEach($entry => {
+                        if($entry.isIntersecting){
+                            $entry.target.classList.remove('si-animate-wait-viewport');
+                            window.siWaitViewportObserver.unobserve($entry.target);
+                        }
+                    })
+                }, {
+                    threshold: 0.5
+                });
+            }
+
+            window.siWaitViewportObserver.observe($element[0]);
+        }
+    }
+});
+
+siApp
+.directive('siListScroller', function(){
+    return {
+        restrict: 'C',
+        link: function($scope,$element,$attrs){
+            const lElm = $element[0];
+            const lElmContainer = lElm.querySelector('.si-list-scroller-container');
+            
+
+            $scope.listScrollLeft = function(){
+                const itemWidth = lElm.querySelector('.si-scroller-item').getBoundingClientRect().width;
+                lElm.scrollBy(-itemWidth,0);
+            }
+
+            $scope.listScrollRight = function(){
+                const itemWidth = lElm.querySelector('.si-scroller-item').getBoundingClientRect().width;
+                console.log('listScrollRight', itemWidth);
+                lElm.scrollBy(itemWidth,0);
+            }
+
+            const lResizeObs = new ResizeObserver( ($entries) => {
+                console.log('siListScroller/resized', $entries);
+                $entries[0].target.scrollTo(0,0);
+            });
+            lResizeObs.observe(lElm);
+        }
+    }
+});
+
+siApp
+.directive('siAnchorTo', function siAnchorTo(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attrs){
+            const elm = $element[0];
+            let lAnchorSelector = $attrs.siAnchorTo;
+            const lRelativeContainerClass = ['.layer-content','.si-item'].find($q => elm.closest($q));
+
+            if(lRelativeContainerClass == null) return;
+
+            const lRelativeContainer = elm.closest(lRelativeContainerClass);
+
+            const observer = new MutationObserver( $mutations => {
+                // $mutations.forEach( $m => {
+                //     if($m.attributeName=='class'){
+                //         $scope.applyAnchor(lAnchorSelector, lRelativeContainer, observer);
+                //     }
+                //     else if($m.attributeName==null){
+                        
+                //     }
+                // });
+
+                $scope.applyAnchor(lAnchorSelector, lRelativeContainer, observer);
+            });
+            
+            observer.observe(lRelativeContainer,{childList:true});
+            //observer.observe(elm,{attributes:true});
+
+            $scope.applyAnchor(lAnchorSelector, lRelativeContainer);
+        },
+        controller: function($scope,$element){
+
+            $scope.applyAnchor = function($selector, $container, $observer=null){
+                const elm = $element[0];
+                const hasFloatingClass = Array.from(elm.classList).some($c => $c.indexOf('si-float-')>=0);
+                if(!hasFloatingClass) return;
+
+                if(!$selector.startsWith('.') && !$selector.startsWith('#')) $selector = '.' + $selector;
+                const lAnchorElm = $container.querySelector($selector);
+            
+                if(lAnchorElm != null){
+                    //elm.classList.add('si-anchored');
+
+                    elm.style.setProperty('--si-anchor-offset-top', lAnchorElm.offsetTop + 'px');
+                    elm.style.setProperty('--si-anchor-offset-left', lAnchorElm.offsetLeft + 'px');
+                    elm.style.setProperty('--si-anchor-offset-height', lAnchorElm.offsetHeight + 'px');
+                    elm.style.setProperty('--si-anchor-offset-width', lAnchorElm.offsetWidth + 'px');
+                }
+                
+                if($observer!=null){
+                    $observer.disconnect();
+                }
+            }
+
+        }
+
+
+    }
+});
+
+siApp
+.directive('siScopeHref', function siScopeHref(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attr){
+            $element[0].addEventListener('click', ($event) => {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                window.location = $attr.siScopeHref;
+            })
+        }
+    }
+})

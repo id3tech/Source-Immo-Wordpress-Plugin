@@ -12,7 +12,7 @@ siApp
             scope: {},
             link: function($scope, $element, $attrs){
                 
-                //$scope.init();
+                $scope.init();
             },
             controller : function($scope, $element, $rootScope,$timeout,$q){
                 $scope._resizeTimeoutHndl = null;
@@ -20,14 +20,14 @@ siApp
                 $scope._initFailRetry = 0;
 
                 $scope.init = function(){
-                    console.log('siAdaptativeClass/init')
-                    $scope.classInit();
+                    //console.log('siAdaptativeClass/init')
+                    //$scope.classInit();
                     $scope.addResizeListener();
                 }
 
                 $scope.$on('si/load', function(){
-                    console.log('siAdaptativeClass@si/load')
-                    $scope.init();
+                    //console.log('siAdaptativeClass@si/load')
+                    //$scope.init();
                 });
 
                 $scope.classInit = function(){
@@ -40,7 +40,7 @@ siApp
                     $scope.updateClass().then(
                         function success(){
                             $scope._class_initiliazed = true;
-                            console.log('siAdaptativeClass/classInit::updateClassPromise','success to update class');
+                            //console.log('siAdaptativeClass/classInit::updateClassPromise','success to update class');
                         },
                         function fail($errorCode){
                             if('#ReferenceElementNoWidth' == $errorCode){
@@ -66,15 +66,38 @@ siApp
                 // },1000);
 
                 $scope.addResizeListener = function(){
-                    window.addEventListener("resize", function($event){
-                        if($scope._resizeTimeoutHndl != null){
-                            window.clearTimeout($scope._resizeTimeoutHndl);
-                        }
+                    if(window.siResizeObserver == undefined) window.siResizeObserver = new ResizeObserver($scope.resizeHandler);
 
-                        $scope._resizeTimeoutHndl = window.setTimeout(function(){
-                            $scope.updateClass();
-                        }, 100);
-                    });
+                    console.log('siAdaptativeClass/addResizeListener',window.siResizeObserver);
+                    window.siResizeObserver.observe($element[0]);
+
+                    // window.addEventListener("resize", function($event){
+                    //     if($scope._resizeTimeoutHndl != null){
+                    //         window.clearTimeout($scope._resizeTimeoutHndl);
+                    //     }
+
+                    //     $scope._resizeTimeoutHndl = window.setTimeout(function(){
+                    //         $scope.updateClass();
+                    //     }, 100);
+                    // });
+                }
+
+                $scope.resizeHandler = function($entries){
+                    //console.log('siAdaptativeClass/resize',$entries);
+
+                    $entries.forEach($entry => {
+                        const lEntryWidth = $entry.contentRect.width;
+                        $entry.target.classList.remove('si-adapt-small-phone-size','si-adapt-phone-size','si-adapt-tablet-size','si-adapt-laptop-size','si-adapt-max-size');
+
+                        if(lEntryWidth >= 1024) $entry.target.classList.add('si-adapt-max-size');
+                        
+                        if(lEntryWidth < 1024) $entry.target.classList.add('si-adapt-laptop-size');
+                        
+                        if(lEntryWidth < 800) $entry.target.classList.add('si-adapt-tablet-size');
+                        if(lEntryWidth < 640) $entry.target.classList.add('si-adapt-phone-size');
+                        if(lEntryWidth < 320) $entry.target.classList.add('si-adapt-small-phone-size');
+                        
+                    })
                 }
 
                 $scope.updateClass = function(){
@@ -158,7 +181,7 @@ siApp
                         if(lClass != null){
                             // apply class if found
                             lElm.classList.add(lClass);
-                            console.log('siAdaptativeClass/resolve with', lClass);
+                            //console.log('siAdaptativeClass/resolve with', lClass);
                             $rootScope.$broadcast('container-resize');
                             $resolve();
                             return;
@@ -1054,6 +1077,65 @@ siApp
     }
 });
 
+// UTILS
+
+siApp
+.directive('siLinkFrom', function siLinkFrom(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attrs){
+            $element[0].classList.add('si-link-from');
+
+            const target = $attrs.siLinkFrom;
+            const linkElement = target == '' ? $element[0] : $element[0].querySelector(target);
+
+            if(linkElement != undefined){
+                const link = linkElement.innerHTML;
+
+                $element[0].classList.add('si-link-from');
+
+                $element[0].addEventListener('click', function($event){
+                    
+                    $event.stopPropagation();
+                    $event.preventDefault();
+
+                    const prefix = link.indexOf('@')>=0
+                                        ? 'mailto'
+                                        : 'tel'
+                    window.location = `${prefix}:${link}`;
 
 
+                    return false;
+                });
+            }
+        }
+    }
+})
+
+siApp
+.directive('siTextTruncate', function siTextTruncate(){
+    return {
+        restrict: 'C',
+        template:'<div class="si-truncated" ng-transclude></div>',
+        transclude:true,
+        link: function($scope,$element,$attrs){
+            const el = $element[0];
+            
+            el.style.pointerEvents = 'auto';
+            
+            el.addEventListener('mouseover',_ => {
+                if($attrs.title != undefined) return;
+                const truncatedEl = el.children[0];
+                const rawValue = truncatedEl.innerText;
+                
+                if(truncatedEl.scrollWidth > truncatedEl.clientWidth){
+                    truncatedEl.setAttribute('title',rawValue);
+                    
+                }
+            },{once:true});
+            
+            //if(rawEmail.indexOf('<wbr>')>=0) return;
+        }
+    }
+})
 

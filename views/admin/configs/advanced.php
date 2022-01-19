@@ -4,10 +4,7 @@
         <h2 class="md-headline"><?php _e('Information',SI)?></h2>
 
         <div class="block-content" layout="row" layout-align="space-between center">
-            <div layout="column" layout-align="start stretch">
-                <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
-                <div><?php echo(SI_API_HOST)?></div>
-            </div>
+            
             <div layout="column" layout-align="start stretch">
                 <h4><i class="fas fa-user-circle"></i> <?php _e('Account ID',SI)?></h4>
                 <div>{{configs.account_id}}</div>
@@ -17,6 +14,10 @@
                 <div>{{configs.api_key}}</div>
             </div>
             
+            <div layout="column" layout-align="start stretch">
+                <h4><i class="fas fa-server"></i> <?php _e('API Host',SI)?></h4>
+                <div><?php echo(SI_API_HOST)?></div>
+            </div>
         </div>
     </div>
 
@@ -51,6 +52,7 @@
                             caption="Your logo" placeholder="Choose an image"></si-wp-media>
             
         </div>
+
     </div>
 
 
@@ -77,6 +79,19 @@
             </md-input-container>
             <p>
                 <em class="note"><?php _e('Leave the previous fields blank to use default values',SI) ?></em>
+            </p>
+        </div>
+    </div>
+
+    <div class="config-grid-block">
+        <h2 class="md-headline" lstr>Formatting</h2>
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <md-input-container flex md-no-float>
+                <label lstr>Phone number</label>
+                <input autocomplete="off" ng-model="configs.phone_format" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" placeholder="000-000-0000"  />
+            </md-input-container>
+            <p>
+                <em class="note"><lstr>Leave the previous fields blank to use default values</lstr></em>
             </p>
         </div>
     </div>
@@ -128,7 +143,7 @@
         </div>
     </div>
 
-    <div class="config-grid-block">
+    <div class="config-grid-block" ng-if="false">
         <h2 class="md-headline"><?php _e('Configs tools',SI)?></h2>
         <div class="block-content">
             <div layout="row" layout-align="start center">

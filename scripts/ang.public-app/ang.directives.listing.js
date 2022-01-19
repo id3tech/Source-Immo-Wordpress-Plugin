@@ -36,7 +36,7 @@ siApp
 
             $scope.init(lAmount);
         },
-        controller: function($scope, $q,$rootScope, $http) {
+        controller: function($scope, $q,$rootScope, $http,$siDataLayer) {
             $scope.downpayment_selection = 'manual';
             $scope.cities = {};
 
@@ -130,6 +130,7 @@ siApp
                     $scope.process_multi();
                 }
     
+                
                 $scope.save();
             }
     
@@ -159,7 +160,7 @@ siApp
                 }
     
                 $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
-                
+                $siDataLayer.pushEvent('si/calcutor/use',lResult);
                 if(typeof($scope.on_change) == 'function'){
                     $scope.on_change({'$result' : lResult});
                 }
@@ -460,23 +461,29 @@ siApp
                     observer.observe($scope.$element);
                 }
 
-                $scope.$on('container-resize', function(){
-                    //console.log('container-resize');
+                const resizeObserver = new ResizeObserver( ($entries) => {
                     $scope.detectBoxSize();
-                })
-                let lWindowResizeDebounce = null;
-                window.addEventListener('resize', function(){
-                    if(lWindowResizeDebounce!=null){
-                        window.clearTimeout(lWindowResizeDebounce);
-                    }
-                    lWindowResizeDebounce = window.setTimeout(function(){
-                        $scope.detectBoxSize();
-                        
-                        $scope.selectGridPicture($scope.model.current_index);
-                        lWindowResizeDebounce=null;
-                    }, 500);
-                    
                 });
+
+                resizeObserver.observe($element[0]);
+
+                // $scope.$on('container-resize', function(){
+                //     //console.log('container-resize');
+                //     $scope.detectBoxSize();
+                // })
+                // let lWindowResizeDebounce = null;
+                // window.addEventListener('resize', function(){
+                //     if(lWindowResizeDebounce!=null){
+                //         window.clearTimeout(lWindowResizeDebounce);
+                //     }
+                //     lWindowResizeDebounce = window.setTimeout(function(){
+                //         $scope.detectBoxSize();
+                        
+                //         $scope.selectGridPicture($scope.model.current_index);
+                //         lWindowResizeDebounce=null;
+                //     }, 500);
+                    
+                // });
                 
                 $scope.$on('si/single:ready',function(){
                     $timeout(function(){
@@ -850,7 +857,7 @@ siApp
             }
             $scope.init($element, lOptions);
         },
-        controller: function($scope, $timeout, $q, $siApi, $siConfig){
+        controller: function($scope, $timeout, $q, $siApi, $siConfig, $siDataLayer){
             $scope.rotator_start_timeout_hndl = null;
             $scope.rotator_stop_timeout_hndl = null;
             $scope.rotator_interval_hndl = null;
@@ -893,19 +900,12 @@ siApp
 
                 return $q(function($resolve, $reject){
                     $siConfig.get().then(function($configs){
-                        
-                        const lList = $configs.lists.find(function($l){ return $l.alias == $scope.options.alias});
-                        if(lList != null){
-                            const lStoreViewId = sessionStorage.getItem('si/{0}/view'.format(lList.alias));
-                            const lActiveViewId = (lStoreViewId != null && lList.source.id != lStoreViewId)
-                                                    ? lStoreViewId
-                                                    : lList.source.id;
+                        let lActiveViewId = $configs.default_view;
 
-                            $siApi.call('listing/view/' + lActiveViewId + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
-                                $scope.image_list = $response;
-                                $resolve($response);
-                            });
-                        }
+                        $siApi.call('listing/view/' + lActiveViewId + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
+                            $scope.image_list = $response;
+                            $resolve($response);
+                        });
                     })
                     
                 });
@@ -919,6 +919,7 @@ siApp
                     $scope.rotator_active = true;
                     const lPictureColl = $pictures.slice(1);
                     
+                    $siDataLayer.pushEvent('si/listing/startImageRotator', {id: $scope.options.ref_number});
                     const lShowNext = function(){
                         const lPreviousImage = $scope.$element.querySelector('.image .rotator-picture');
                         
@@ -2300,7 +2301,7 @@ siApp
                         lOffsetValue = $scope.trolleyOffset;
                     }
 
-
+                    $siDataLayer.pushEvent('si/listing/viewImage', {id: $scope.model.ref_number, index: lOffsetValue});
                     $scope.trolleyOffset = lOffsetValue;
                 }
 
@@ -2391,3 +2392,138 @@ siApp
         }
     }
 ]);
+
+siApp
+.directive('siLightboxSource', function siLightboxSource(){
+    class siLightbox{
+        constructor($source, $index=0){
+            this.create();
+            this.list = Array.from($source.children).map($child => angular.copy($child));
+
+            this.listNavPrevious.addEventListener('click', _ => {
+                this.previous()
+            });
+            this.listNavNext.addEventListener('click', _ => {
+                this.next();
+            });
+            this.closeButton.addEventListener('click', _ => {
+                this.close();
+            })
+
+            this.show($index);
+        }
+
+
+        close(){
+            this.element.remove(); 
+        }
+
+        create(){
+            const elm = document.createElement('div');
+            elm.classList.add('si','si-lightbox');
+            elm.innerHTML = `
+            <div class="si-lightbox-viewport">
+                <div class="si-lightbox-current"></div>
+                <div class="si-lightbox-nav">
+                    <div class="si-button nav-previous"><i class="fal fa-fw fa-arrow-left"></i></div>
+                    <div class="si-button nav-next"><i class="fal fa-fw fa-arrow-right"></i></div>
+                </div>
+            </div>
+            <div class="close-lightbox"><i class="fal fa-fw fa-times"></i></div>
+            `;
+
+            document.body.append(elm);
+            this.element = elm;
+
+            this.listContainer = this.element.querySelector('.si-lightbox-current');
+            this.listNavPrevious = this.element.querySelector('.si-lightbox-nav .nav-previous');
+            this.listNavNext = this.element.querySelector('.si-lightbox-nav .nav-next');
+            this.closeButton = this.element.querySelector('.close-lightbox');
+        }
+
+        show($index){
+            const removePromise = new Promise( ($resolve) => {
+                if(this.listContainer.children.length > 0){
+                    this.listContainer.children[0].addEventListener('animationend', _ => {
+                        this.listContainer.children[0].classList.remove('removing');
+                        this.listContainer.children[0].remove();
+                        //window.setTimeout(_ => {
+                            $resolve();
+                        //},100);
+                        
+                    },{once:true})
+                    this.listContainer.children[0].classList.add('removing');
+                }
+                else{
+                    $resolve();
+                }
+            })
+            
+            removePromise.then( _ => {
+                console.log('siLightbox/show',$index);
+                const currentItem = this.list[$index];
+
+                if(currentItem.dataset.videoId != undefined){
+                    this.listContainer.append(this.createVideoElement(currentItem.dataset.videoId,currentItem.dataset.videoType))
+                }
+                else if(currentItem.dataset.sourceUrl != undefined){
+                    this.listContainer.append(this.createIFrameElement(currentItem.dataset.sourceUrl))
+                }
+                else{
+                    this.listContainer.append(currentItem);
+                }
+                
+                this.currentIndex = $index;
+            })
+            
+        }
+
+        createIFrameElement($url){
+            const elm = new DOMParser().parseFromString(`<div class="si-iframe-item"><iframe src="${$url}" allow="autoplay; encrypted-media" allowfullscreen=""></iframe></div>`,'text/html').body.firstChild;
+
+            return elm;
+        }
+
+        createVideoElement($videoId, $videoType='youtube'){
+            
+            const urlMaps = {
+                youtube: `https://www.youtube.com/embed/${$videoId}?autoplay=1&mute=1&rel=0&loop=1`,
+                vimeo: `https://player.vimeo.com/video/${$videoId}?autoplay=1&mute=1`
+            };
+            const iFrameUrl = urlMaps[$videoType];
+
+            return this.createIFrameElement(iFrameUrl)
+            
+        }
+
+        previous(){
+            const newIndex = (this.currentIndex == 0) ? this.list.length-1 : this.currentIndex - 1;
+            this.show(newIndex);
+        }
+
+        next(){
+            const newIndex = (this.currentIndex + 1) % (this.list.length);
+            this.show(newIndex);
+        }
+    }
+
+
+    return{
+        restrict: 'A',
+        link: function($scope,$element,$attr){
+            const elm = $element[0];
+            const observer = new MutationObserver( $mutations => {
+                Array.from(elm.children).forEach( ($child,$index) => {
+                    $child.addEventListener('click', function(event){
+                        console.log('creating new siLightbox', siLightbox)
+                        new siLightbox(elm, $index);
+                    });
+                });
+                observer.disconnect();
+            });
+
+            observer.observe(elm,{childList:true});
+        }
+    }
+});
+

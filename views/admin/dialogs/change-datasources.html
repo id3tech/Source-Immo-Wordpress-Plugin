@@ -1,0 +1,76 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>Change data sources</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content-1" layout="column">
+
+        <md-tabs md-dynamic-height md-selected="tab.selectedIndex" md-border-bottom>
+            <md-tab>
+                <md-tab-label><lstr>Step 1</lstr></md-tab-label>
+                <md-tab-body>
+                    <h2><lstr>Step 1: Select an account</lstr></h2>
+                    
+                    <div class="loader" ng-if="lists.fetching == 'accounts'">
+                        <i class="fal fa-2x fa-spinner-third fa-spin"></i>
+                    </div>
+
+                    <div class="si-list si-accounts">
+                        <div class="si-list-item {{item._selected ? 'selected' : ''}}"
+                                ng-repeat="item in lists.accounts.items" ng-click="selectAccount(item)">
+                            <div class="item-label account-name">{{item.account.name}}</div>
+                        </div>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab ng-disabled="model.account_id == null">
+                <md-tab-label><lstr>Step 2</lstr></md-tab-label>
+                <md-tab-body>
+                    <h2><lstr>Step 2: Select an API key</lstr></h2>
+
+                    <div class="loader" ng-if="lists.fetching == 'keys'">
+                        <i class="fal fa-2x fa-spinner-third fa-spin"></i>
+                    </div>
+
+                    <div class="si-list si-keys">
+                        <div class="si-list-item {{item._selected ? 'selected' : ''}}"
+                                ng-repeat="item in lists.api_keys.items" ng-click="selectKey(item)">
+                            <div class="item-label key-name">{{item.name}}</div>
+                        </div>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab ng-disabled="model.api_key == null">
+                <md-tab-label><lstr>Step 3</lstr></md-tab-label>
+                <md-tab-body>
+                    <h2><lstr>Step 3: Select a data view</lstr></h2>
+
+                    <div class="loader" ng-if="lists.fetching == 'views'">
+                        <i class="fal fa-2x fa-spinner-third fa-spin"></i>
+                    </div>
+
+                    <div class="si-list si-views">
+                        <div class="si-list-item {{item._selected ? 'selected' : ''}}"
+                                ng-repeat="item in lists.views" ng-click="selectView(item)">
+                            <div class="item-label view-name">{{item.name}}</div>
+                        </div>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+        </md-tabs>
+
+    </div>
+
+</md-dialog-content>
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-disabled="!isActionValid(button)" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

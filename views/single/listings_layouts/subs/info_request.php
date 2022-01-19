@@ -9,44 +9,44 @@ $communication_mode = isset($layout->communication_mode) ? $layout->communicatio
     if($communication_mode  == 'basic'){
     ?>
     <form name="requestForm">
-    <div class="firstname input-container">
+    <div class="firstname si-input-container si-float-label">
         <label><?php _e('First name', SI) ?></label>
-        <div class="input">
+        <div class="si-input">
             <input type="text" data-ng-model="message_model.firstname" required />
         </div>
     </div>
 
-    <div class="lastname input-container">
+    <div class="lastname si-input-container si-float-label">
         <label><?php _e('Last name', SI) ?></label>
-        <div class="input" >
+        <div class="si-input" >
             <input type="text" data-ng-model="message_model.lastname" required />
         </div>
     </div>
 
-    <div class="phone input-container">
+    <div class="phone si-input-container si-float-label">
         <label><?php _e('Phone', SI) ?></label>
-        <div class="input">
+        <div class="si-input">
             <input type="text" data-ng-model="message_model.phone" required />
         </div>
     </div>
 
-    <div class="email input-container">
+    <div class="email si-input-container si-float-label">
         <label><?php _e('Email', SI) ?></label>
-        <div class="input">
+        <div class="si-input">
             <input type="text" data-ng-model="message_model.email" required />
         </div>
     </div>
 
-    <div class="subject input-container">
+    <div class="subject si-input-container si-float-label">
         <label><?php _e('Subject', SI) ?></label>
-        <div class="input">
+        <div class="si-input">
             <input type="text" data-ng-model="message_model.subject" required />
         </div>
     </div>
 
-    <div class="message input-container">
+    <div class="message si-input-container si-float-label">
         <label><?php _e('Message', SI) ?></label>
-        <div class="input">
+        <div class="si-input">
             <textarea rows="5" data-ng-model="message_model.message"></textarea>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <div class="si-summary si-apply-typography">
-    <div class="ref-number">111111111</div>
+    <div class="si-label ref-number">111111111</div>
     
     <?php si_dummy_include('listing/location.php') ?>
     

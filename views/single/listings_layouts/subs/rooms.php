@@ -1,5 +1,5 @@
 <div class="rooms si-detail-section {{sectionOpened('rooms')?'opened':''}}" 
-        data-ng-if="isAvailableSection('rooms') && ((model.rooms | siHasValue) || ( (model.units | siHasValue) && model.units[0].dimension | siHasValue))">
+        data-ng-if="isAvailableSection('rooms') && ((model.rooms | siHasValue) || ( (model.units | siHasValue) && (model.units[0] && model.units[0].dimension | siHasValue) ))">
     <div class="si-title" data-ng-click="toggleSection('rooms')">
         <div>
             {{
@@ -16,7 +16,7 @@
         <div class="unit-list" data-ng-repeat="unit in model.units track by $index">
             
             
-            <div class="flags" data-ng-show="model.units.length>1"
+            <div class="flags" 
                 style="--unit-flag-count:{{unit.flags.length}};">
                 <div class="unit-name">
                     <h4 data-ng-show="['OFFICE','INDUSTRY','COMMERCIAL'].includes(unit.category_code) || model.units.length>1">

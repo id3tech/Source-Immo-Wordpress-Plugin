@@ -31,13 +31,48 @@ body.wp-admin{
       }
     }
   }
+
+  md-list-item{
+    > div:not(.md-list-item-text) > p, > p{
+      font-size:16px;
+    }
+    > md-input-container{
+      margin-top:0;
+    }
+  }
+
+  md-chips{
+    .md-chips{
+      .md-chip-input-container:first-child{
+        float:unset;
+      }
+    }
+  }
+
+  md-radio-button{
+    .md-label{
+      > h3,> p{
+        margin:0;
+      }
+    }
+  }
+
   md-input-container.md-input-focused label:not(.md-no-float), 
   md-input-container.md-input-has-placeholder label:not(.md-no-float), 
   md-input-container.md-input-has-value label:not(.md-no-float){
     transform: translate3d(0,6px,0);
   }
-
+  md-backdrop.md-menu-backdrop{
+    z-index:999998;
+  }
+  .md-open-menu-container,
+  .md-autocomplete-suggestions-container{
+    z-index:999999;
+  }
   .md-button{
+    &:not(.md-icon-buttoon){
+      padding: 0 1em;
+    }
     &.md-primary.md-raised{
       color:#fff!important;
       * {color: #fff !important;}

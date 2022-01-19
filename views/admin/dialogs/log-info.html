@@ -1,0 +1,24 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>What's new in version {{version}}</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content" >
+        <div ng-if="isLoading"><i class="fal fa-fw fa-spinner fa-spin"></i></div>
+        <div class="si-markdown-text" ng-if="!isLoading" ng-bind-html="content"></div>
+    </div> 
+
+</md-dialog-content>
+
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

@@ -118,6 +118,14 @@ if(!function_exists('str_null_or_empty')){
   }
 }
 
+if(!function_exists('arr_empty')){
+  function arr_empty($val){
+    if($val == null) return true;
+    if(!is_array($val)) return true;
+    return count($val) == 0;
+  }
+}
+
 if(!function_exists('hook_from_key')){
   function hook_from_key(...$keys){
     array_unshift($keys, SI);

@@ -406,7 +406,7 @@ function $siDictionary($q,$rootScope){
     $scope.source = null;
     $scope._loadCallbacks = [];
 
-    $scope.init = function($source, $overwrite){
+    $scope.init = function($source, $overwrite,$view_id){
         if($scope.source == null){
             $scope.source = $source;
         }
@@ -422,7 +422,7 @@ function $siDictionary($q,$rootScope){
             $fn();
         })
 
-        $rootScope.$broadcast('$siDictionary/init',$source);
+        $rootScope.$broadcast('$siDictionary/init',$source,$view_id);
         //$scope.sortData();
     }
 
@@ -721,6 +721,12 @@ function $siCompiler($siConfig,$siList, $siUtils){
     }
 
     $scope.compileBrokerItem = function($item){
+
+        if($item.phones != null){
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
+        }
+
+
         if($item.permalink == undefined){
             $item.license_type = $siUtils.getCaption($item.license_type_code, 'broker_license_type');
             $item.permalink = $siUtils.getPermalink($item,'broker');
@@ -903,13 +909,26 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         return $siDictionary.getCaption($key,$domain,$asAbbr);
     }
 
-    $scope.formatPhone = function($phone){
-        const cleaned = ('' + $phone).replace(/\D/g, '')
-        const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
+    $scope.formatPhone = function($phone, $format=null){
+        const cleaned = ('' + $phone).replace(/\D/g, '');
+
+        const match = cleaned.match(/^(\d{10})$/)
         if (match) {
-            return match[1] + '.' + match[2] + '.' + match[3]
+            const phone_format = $format || $siConfig._data.phone_format || '000-000-0000';
+            let digitIndex = 0;
+            $phone = phone_format.split('').reduce( ( $result, $char) => {
+                if($char === '0'){
+                    $result += cleaned[digitIndex];
+                    digitIndex++;
+                }
+                else{
+                    $result += $char;
+                }
+                return $result;
+            },'')
         }
-        return null
+
+        return $phone;
     }
 
     $scope.labelOf = function($value, $list){
@@ -996,8 +1015,13 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
     $scope.formatDimension = function($dimension){
         let lResult = '';
         if($dimension != undefined){
-            
-            if(typeof $dimension.width != 'undefined'){
+            // const implicitAreaKey = ['sf','mc'].find($k => $dimension['area_' + $k] != undefined);
+            // if(implicitAreaKey != null) {
+            //     const implicitUnit = $siDictionary.getCaption(implicitAreaKey.toUpperCase(),'dimension_unit');
+            //     return $dimension['area_' + implicitAreaKey] + ' ' + implicitUnit;
+            // }
+
+            if($dimension.width != undefined){
                 let lUnit = $siDictionary.getCaption($dimension.unit_code,'dimension_unit',true);
                 
                 const lUnitFormat = {
@@ -1025,6 +1049,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
                         return '{0} x {1}'.format($width,$length);
                     },
+                    
                 }
     
                 if(lUnitFormat[$dimension.unit_code] != undefined){
@@ -1078,7 +1103,8 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         
         return lValuesToCheck.some(function($value){
             if($value == null) return false;
-
+            if($value == undefined) return false;
+            
             if(Array.isArray($value)) return $value.length > $arrayOffset;
             if(typeof $value === "object") return Object.keys($value).length > 0;
             if(typeof $value == 'string') return $value != '';
@@ -1151,7 +1177,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             });
         }
 
-        if(siCtx.use_lang_in_path) lResult = siCtx.locale + lResult;
+        //if(siCtx.use_lang_in_path) lResult = siCtx.locale + lResult;
 
         lResult = siCtx.root_url + lResult;
         
@@ -1964,5 +1990,36 @@ function siShare($q,$siHooks,$siUtils){
 
     return $scope;
 }]);
+
+siApp
+.factory('$siDataLayer', function $siDataLayer($rootScope){
+    const $scope = {};
+
+    $scope.init = function(){
+        $rootScope.$on('si/triggerEvent', function($event, $key, $data){
+            $scope.pushEvent($key, $data);
+        });
+
+        $rootScope.$on('si/pushData', function($event, $data){
+            $scope.push($data);
+        });
+    }
+
+    $scope.push = function($data){
+        console.log('$siDataLayer/push', $data);
+        if(window.dataLayer == undefined) return;
+        if(!Array.isArray(window.dataLayer)) return;
+
+        window.dataLayer.push($data);
+    }
+
+    $scope.pushEvent = function($eventName, $data = null){
+        $scope.push(Object.assign({'event': $eventName}, $data));
+    }
+    
+
+    $scope.init();
+    return $scope;
+})
 
 

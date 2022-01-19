@@ -1,0 +1,1507 @@
+html{
+    font-size:14px;
+}
+
+@include media-gt($phone){
+    :root{
+        --si-container-width:  750px;
+    }
+}
+@include media-gt($tablet){
+    :root{
+        --si-container-width:  992px;
+    }
+}
+@include media-gt($laptop){
+    :root{
+        --si-container-width:  1170px;
+    }
+}
+
+
+@include media($phone){
+    :root{
+        --si-container-width:  100%;
+    }
+}
+
+.si-list-of-item{
+    --si-list-element-width: 1120px;
+}
+
+#top .si, // enfold overrides
+#top .si-modal,
+.si-modal,
+.si{
+    *{box-sizing: border-box;}
+    font-family: var(--si-font-name);
+    
+    display:grid;
+    font-size: 16px;
+    
+    a{
+        color: var(--si-text-color);
+        text-decoration: none !important;
+        &:hover{
+            color:inherit;
+            text-decoration:inherit;
+        }
+    }
+    .fal,.far,.fas{
+        font-family: "Font Awesome 5 Pro"!important;
+        color:inherit;
+    }
+    //div{color:var(--si-text-color);}
+    label{font-weight: 400;color:var(--si-text-color);}
+    h1,h2,h3,h4,h5,h6{color:var(--si-text-color);}
+    td,li,p{color:var(--si-text-color);}
+    .nowrap{
+        white-space: nowrap;
+    }
+
+    .grid-layout-row{
+        display:grid;
+    }
+    .grid-layout-column{
+        display:grid;
+        grid-template-columns:1fr;
+        grid-template-rows:auto;
+        gap:var(--si-layout-gutter);
+    }
+
+    .layout-row{
+        display:flex;
+        justify-content: flex-start;
+        flex-direction: row;
+        align-items: center;
+    }
+    .layout-column{
+        display:flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        align-items: center;
+    }
+    .layout-space-between{
+        justify-content: space-between;
+        align-items: center;
+    }
+    .layout-space-between-start{
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .layout-space-between-end{
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    label.si-placeholder{
+        padding:var(--si-padding);
+        font-weight: 400;
+        opacity:0.75;
+        text-align:center;
+        text-transform: uppercase;
+        position: absolute;
+        top:50%;
+        left:50%;
+        transform:translate(-50%,-50%);
+
+        .fa-spinner-third{
+            display:block;
+            font-size:250px;
+            margin:15vh auto;
+            opacity:0.5;
+        }
+    }
+}
+
+
+// ************************
+// LIST
+// ************************
+#top .si,
+.si{    
+    // -------------------------
+    // Elements initialization 
+    // ------------------------- 
+    .sticky-anchor{position: absolute;}
+
+     
+    .sort-container{
+        grid-area: sort;
+    }
+    .pages-container{
+        grid-area: pages;
+    }
+    .pages-container{
+        grid-area: pages;
+    }
+    .view-switch{
+        grid-area: switch;
+        display:flex;
+        flex-direction: row;
+        .switch-item{
+            font-size:24px;
+            position:relative;
+            padding: 10px;
+            color:var(--si-text-color);
+            cursor:pointer;
+            i{color:inherit;}
+            &::after{
+                content:"";
+                position: absolute;bottom:0px;left:50%;transform:translateX(-50%);
+                transition:0.25s;
+                background-color:var(--si-highlight);
+                width:0px;height:3px;
+            }
+            &.active{
+                color:var(--si-highlight);
+                &::after{
+                    width:100%;
+                }
+            }
+        }
+    }
+    .list-meta{
+        grid-area: meta;
+        .list-count{
+            em{font-weight: 700;font-style:normal;}
+        }
+    }
+    .next-page{
+        grid-column: 1 / span 3;
+        place-self: center center;
+        text-align: center;
+    }
+    .si-list-container{
+        //grid-area: list;
+        grid-column: 1 / span 3;
+        display:grid;
+        place-items:stretch;
+        gap:var(--si-layout-gutter);
+        width:100%;
+
+        @include media($phone){
+            border:none;
+            padding:0px;
+        }
+
+        .map-container{
+            grid-column: 1 / span 3;
+        } 
+    }
+    .si-list-header{
+        grid-area: header;
+        display:grid;
+        gap:var(--si-layout-gutter);
+        grid-template-columns: 1fr 1fr 1fr;
+        align-items: center;
+    }
+    
+    [class^=item]{
+        perspective: 100vw;
+    }
+    
+    // .si-list{
+    //     grid-column: 1 / span 3;
+    //     -ms-grid-column: 1;
+    //     -ms-grid-column-span: 3;
+    //     display:grid;
+        
+
+
+    //     // display:flex;
+    //     // flex-wrap:wrap;
+    //     // flex-direction: row;
+    //     // margin: calc(-1 * (var(--si-layout-gutter) / 2));
+    //     gap:var(--si-layout-gutter);
+    //     grid-template-columns: repeat(var(--desktop-column-width),1fr);
+    //     place-items: stretch;
+        
+        
+    //     @include media($laptop){
+    //         grid-template-columns: repeat(var(--laptop-column-width),1fr);
+    //     }
+    //     @include media($tablet){
+    //         grid-template-columns: repeat(var(--tablet-column-width),1fr);
+    //     }
+    //     @include media($phone){
+    //         grid-template-columns: repeat(var(--mobile-column-width),1fr);
+    //     }
+    //     > div{
+    //         display:grid;place-items:stretch;
+    //         // margin: calc(var(--si-layout-gutter) / 2);
+    //         // width: calc(var(--desktop-column-width) - var(--si-layout-gutter));
+    //         // @include media($laptop){
+    //         //     width: var(--laptop-column-width);
+    //         // }
+    //         // @include media($tablet){
+    //         //     width: var(--tablet-column-width);
+    //         // }
+    //         // @include media($phone){
+    //         //     width: var(--mobile-column-width);
+    //         // }
+    //     }
+
+
+    // }
+    // .si-item{
+    //     //max-width:360px;
+        
+    //     div,span{color: var(--si-text-color);}
+
+    //     // Map info window
+    //     &.info-window{
+    //         max-width:250px;
+    //         img{max-width:100%;}
+    //         border:none;
+    //         .item-content{
+    //             padding:10px;
+    //         display:grid;
+    //         //@include gridAreas('image','price','ref_number','category','subcategory','address');
+    //         //grid-template-columns: 2fr 1fr;
+    //         //grid-template-rows: auto 180px auto;
+    //         // grid-template-areas : 
+    //         //         "price ref_number"
+    //         //         "image image"
+    //         //         "subcategory subcategory"
+    //         //         "address address"
+    //         //     ;
+    //         place-items: center stretch;
+    //         gap:var(--si-layout-gutter);
+    //         .price{
+    //             font-size:1.5em;
+    //         }
+    //         .image{height:100%;width:100%;}
+    //         .ref_number{font-style:italic;padding:10px;text-align:right;}
+    //         .subcategory{text-transform:uppercase;}
+    //         .category{}
+    //         .description{
+    //             display:none;    
+    //         }
+    //     }
+
+    //     }
+    //     // list item
+    //     // ----------------
+    //     overflow: hidden;
+    //     justify-self: stretch;
+    //     transition:0.25s;
+    //     position:relative;
+    //     display:flex;flex-direction:column; justify-content: stretch;
+
+    //     > a{box-shadow: none;display:contents;}
+
+    //     &.img-hover-effect-zoom{
+    //         .image{
+    //             img{
+    //                 transition:0.25s;
+    //             }
+    //         }
+    //         &:hover{
+    //             .image{
+    //                 img{
+    //                     transform:scale(1.05);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     &.img-hover-effect-gallery{
+    //         .image{
+    //             img.rotator-picture{
+    //                 transition: opacity 0.75s;
+    //                 opacity:0;
+    //                 position: absolute;
+    //                 top:0;
+    //                 left:0;
+
+    //                 &.show{
+    //                     opacity:1;
+    //                 }
+    //             }
+    //         }
+            
+    //     }
+
+    //     .item-content{
+    //         display:grid;
+    //         position:relative;
+    //         color:inherit;
+    //         place-items:stretch;
+    //         font-size:1em;
+    //         padding:0px;
+    //         flex:1;
+    //         grid-template-rows: auto 1fr auto;
+    //         .image{
+    //             position:relative;
+    //             overflow:hidden;
+                
+    //             img{
+    //                 object-fit: cover;
+    //                 object-position: center;
+    //                 width:100%;
+    //                 height:100%;
+    //                 display:block;
+    //                 padding:0px;
+    //             }
+    //         }
+
+            
+    //         .si-data-label{
+    //             //padding:0 var(--element-padding);
+    //             text-overflow: ellipsis;
+    //             overflow: hidden;
+    //             white-space: nowrap;
+                
+    //             &::after{
+    //                 content: "";
+    //                 display: inline-block;
+    //                 height: 1em;
+    //             }
+    //             &[ng-hide]{
+    //                 display:none!important;
+    //             }
+    //         }
+    //     }
+
+    //     &.si-double-layer-item-layout{
+    //         .item-content{
+    //             display:block;
+    //             .image{
+    //                 transition:0.25s;
+    //             }
+    //             .layer-container{
+    //                 height:100%;
+    //                 .layer{
+    //                     &.secondary-layer{
+                            
+    //                     }
+                        
+    //                     display: flex;
+    //                     flex-direction: column;
+    //                     justify-content: flex-end;
+    //                     overflow:hidden;
+    //                     .si-data-label{
+    //                         transition: 0.1s;
+    //                         overflow: hidden;
+    //                     }
+    //                 }
+    //                 .secondary-layer{
+    //                     @include absoluteFill();
+    //                     //padding: var(--container-padding);
+    //                     justify-content: center;
+    //                     overflow:hidden;
+    //                     z-index:5;
+    //                 }
+    //             }
+    //         }
+
+    //         &.primary-layer-fix{
+    //             .item-content{
+    //                 display:grid;
+    //             }
+    //             .layer-container{
+    //                 display:contents;
+    //             }
+                
+    //             .layer{
+    //                 &.primary-layer{
+    //                     //display:contents;
+                        
+    //                 }
+    //             }
+    //         }
+
+    //         &.layer-hover-slide{
+    //             .secondary-layer{
+    //                 transform:translateY(100%);
+    //                 transition: 0.25s;
+    //                 //--si-text-color: var(--high-contrast-text-color);
+    //                 z-index:5;
+    //                 > * {position:relative; z-index:1;}
+    //                 &::before{
+    //                     @include absoluteFill();
+    //                     background: var(--background-color);
+    //                     opacity:var(--bg-opacity);
+    //                     z-index:1;
+    //                 }
+    //             }
+    //             &:hover{
+    //                 &.primary-layer-fix{
+    //                     .image{
+    //                         z-index:2;
+    //                         transform: translateY(50%) scale(3);    
+    //                         filter: blur(1px);
+    //                     }
+    //                     //.primary-layer .si-data-label{padding:0;height:0;}
+    //                 }
+    //                 .secondary-layer{
+    //                     transition: 0.25s;
+    //                     transform:translateY(0%);
+    //                 }
+    //             }
+    //         }
+
+    //         &.layer-hover-fade{
+    //             .secondary-layer{
+    //                 opacity:0;
+    //                 transition: 0.25s;
+    //                 //--si-text-color: var(--high-contrast-text-color);
+                    
+    //                 > * {position:relative; z-index:1;}
+    //                 &::before{
+    //                     @include absoluteFill();
+    //                     background: var(--background-color);
+    //                     opacity:var(--bg-opacity);
+    //                     z-index:1;
+    //                 }
+    //             }
+    //             &:hover{
+    //                 &.primary-layer-fix{
+    //                     .image{
+    //                         z-index:2;
+    //                         transform: translateY(50%) scale(3);    
+    //                         filter: blur(1px);
+    //                     }
+    //                 }
+    //                 .secondary-layer{
+    //                     opacity:1;
+    //                     transition: 0.25s;
+    //                 }
+    //             }
+    //         }
+
+    //         &.layer-hover-flip{
+    //             overflow:visible;
+    //             .layer-container{
+    //                 display:block;
+    //                 transition: 0.75s;
+    //                 transform-style: preserve-3d;
+    //             }
+    //             .layer,.image{
+    //                 backface-visibility: hidden;
+    //                 transform-style: preserve-3d;
+    //                 overflow:hidden;
+                    
+    //             }
+    //             .secondary-layer{
+    //                 transform: rotateY(180deg);
+    //                 --si-text-color: var(--high-contrast-text-color);
+                    
+    //                 > * {position:relative; z-index:1;}
+    //                 &::before{
+    //                     @include absoluteFill();
+    //                     background: var(--high-contrast-color);
+    //                     //opacity:0.75;
+    //                     z-index:1;
+    //                 }
+    //             }
+    //             &:hover{
+    //                 .layer-container{
+    //                     transform: rotateY(180deg);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     &.si-element-border:not(.si-element-padding){
+    //         .layer.primary-layer{
+    //             padding: var(--element-padding);
+    //             padding-top:0;
+    //         }
+    //     }
+
+    //     // LISTINGS 
+    //     &.si-listing-item{
+    //         .si-price-sold{
+    //             display:none;
+    //         }
+    //         &.sold{
+    //             .price{
+    //                 display:none;
+    //             }
+    //             .si-price-sold{
+    //                 display:revert;
+    //             }
+    //         }
+
+    //         // @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
+    //         //                     'description','address','region','state','country','civic-address',
+    //         //                     'open-houses','flags');
+            
+    //         .item-content{
+    //             gap: 0; 
+               
+    //             --row-space: calc( 
+    //                     var(--si-list-element-width) - ( 
+    //                         var(--si-layout-gutter) * var(--desktop-column-width)
+    //                     )
+    //                 );
+    //             --item-column-width : calc(var(--row-space) / var(--desktop-column-width));
+
+    //             @include media($laptop){
+    //                 --item-column-width : calc( var(--row-space) / var(--laptop-column-width));
+    //             }
+    //             @include media($tablet){
+    //                 --item-column-width : calc( var(--row-space) / var(--tablet-column-width));
+    //             }
+    //             @include media($phone){
+    //                 --item-column-width : calc( var(--row-space) / var(--phone-column-width));
+    //             }
+    //         }
+            
+    //         .open-houses{
+    //             display:none;
+    //             text-align:center;
+    //             position: absolute;
+    //             top:calc(var(--listing-item-column-width) * var(--listing-item-picture-ratio));
+                
+    //             transform:translateY(-100%);
+    //             width:100%;
+    //             i,span{position:relative;z-index:2;}
+
+    //             &::before{
+    //                 @include absoluteFill();
+    //                 background-color:var(--si-highlight);
+    //                 opacity:0.75;
+    //                 z-index:1;
+    //             }
+    //         }
+    //         .flags{
+    //             display:none;
+    //             position: absolute;
+    //             top:var(--element-v-space);
+    //             right:var(--element-v-space);
+    //             grid-template-columns:1fr;
+    //             grid-template-rows:auto;
+    //             gap:var(--si-layout-gutter);
+    //             $flag-size: 35px;
+    //             .far{
+    //                 display:none;
+    //                 width: $flag-size; height: $flag-size; line-height: $flag-size;
+    //                 border-radius:50%;text-align:center;
+    //                 background-color:var(--si-highlight);
+    //                 color:var(--si-highlight-text-color);
+    //                 margin:0px;
+    //                 padding:0px;
+    //             }
+    //         }
+            
+           
+    //         .image{
+                
+    //             //height:calc(var(--item-column-width) * var(--listing-item-picture-ratio));
+    //             width:100%;
+    //             aspect-ratio: var(--listing-item-picture-ratio, 4 / 3);
+    //             text-align: unset;
+    //             background: url('assets/shadow_property.jpg') no-repeat;
+    //             background-size: cover;
+    //             img{
+    //                 text-indent: -1000px;
+    //                 width:100%;height:100%;
+    //                 object-fit: var(--listing-item-picture-fit);
+    //                 object-position: center;
+    //             }
+    //         }
+
+    //         .rooms{
+    //             display:inline-flex;
+    //             flex-direction: row;
+    //             align-items: center;
+    //             height: 2.5em;
+    //             gap: 0.5rem;
+
+    //             .room.hand-holding-water{grid-row:1;grid-column:2;}
+    //             .room.bath{grid-column: 3;}
+    //             .room{
+    //                 white-space: nowrap;
+    //                 .icon{opacity: 0.75;}
+    //                 .label{display:none;}
+    //             }
+    //         }
+
+    //         .subcategory{}
+            
+    //         &.has-open-house{
+    //             .open-houses{display:block;}
+    //         }
+    //         &.has-flags{
+    //             .flags{display:block;}
+    //         }
+    //         &.has-virtual-tour{
+    //             .flags{
+    //                 .virtual-tour{display:block;}
+    //             }
+    //         }
+    //         &.has-video{
+    //             .flags{
+    //                 .video{display:block;}
+    //             }
+    //         }
+
+    //         // @include media($phone){
+    //         //     overflow:visible;
+    //         //     .image{
+    //         //         margin:0 calc(-50vw + 50%);
+    //         //     }       
+    //         // }
+
+    //         // &:not(.style-custom){
+    //         //     .civic-address{
+    //         //         font-size:0.8em;
+    //         //         text-overflow: ellipsis;
+    //         //         white-space: nowrap;
+    //         //         overflow: hidden;
+    //         //     }
+    //         //     .city{
+    //         //         //font-size:0.8em;
+    //         //     }
+                
+                
+    //         //     .price,.si-price-sold{
+    //         //         //--element-margin: calc(-1 * var(--element-padding));
+    //         //         padding: var(--element-padding) 0;
+    //         //         //margin-inline:var(--element-margin);
+    //         //     }
+    //         //     .city{
+    //         //         //font-size:0.8em;
+    //         //         &::after{content:"\00a0";}
+    //         //     }
+                
+    //         //     .description,
+    //         //     .region{
+    //         //         font-size:0.8em;
+    //         //     }
+
+    //         //     .description{
+    //         //         white-space: normal;
+    //         //     }
+                
+    //         //     .ref-number{
+    //         //         font-size:0.8em;
+    //         //         &::before{content:var(--uls-label);}
+    //         //     }
+    //         //     .category,.subcategory{font-size:0.8em;}
+    //         // }
+
+
+    //         &.si-small-item-layout{
+    //             .item-content{
+    //                 // grid-template-areas: 
+    //                 //     "civic-address civic-address"
+    //                 //     "city city"
+    //                 //     "image image"
+    //                 //     "price price"
+    //                 //     "category rooms"
+    //                 //     "subcategory ref-number"
+    //                 //     "open-houses open-houses";
+    //             }
+    //         }
+ 
+    //         &.si-minimal-item-layout{
+    //          .item-content{
+    //                 // grid-template-areas: 
+    //                 //     "civic-address civic-address"
+    //                 //     "city city"
+    //                 //     "image image"
+    //                 //     "price price"
+    //                 //     "rooms rooms"
+    //                 //     "open-houses open-houses";
+    //             }
+    //         }
+
+           
+    //         &.style-standard{
+    //             &.si-single-layer-item-layout .item-content,
+    //             &.si-double-layer-item-layout .layer.primary-layer{
+    //                 // @include gridAreas('ref-number','category','subcategory','price','city','image', 'rooms',
+    //                 // 'description','address','region','state','country','civic-address',
+    //                 // 'open-houses');
+    //             }
+    //             &.si-double-layer-item-layout{
+    //                 //.image{grid-area:image;}
+    //                 &.layer-hover-flip{
+    //                     .item-content{display:block;}
+    //                     .layer-container{
+    //                         display:grid;
+    //                         grid-template-columns: 1fr;
+    //                         grid-template-rows: auto;
+    //                         // grid-template-areas: 
+    //                         //     "civic-address civic-address"
+    //                         //     "city city"
+    //                         //     "image image"
+    //                         //     "price price"
+    //                         //     "open-houses open-houses"
+    //                         //     "category rooms"
+    //                         //     "subcategory subcategory"
+    //                         //     "region region"
+    //                         //     ;
+    //                     }
+    //                 }
+    //             }
+    //             .layer{
+                    
+    //             }
+    //             .civic-address{
+    //                 //padding-bottom:0;
+    //             }
+    //             .city{
+    //                 //padding-top:0;
+    //                 font-weight: 700;
+    //             }
+    //             .price{
+    //                 //text-align:center;
+    //                 font-size: 1.2em;
+    //                 font-weight: 700;
+    //             }
+    //             .category,.rooms{
+    //                 //padding-bottom:0;
+    //             }
+    //             .subcategory{
+    //                 //padding-top:0;
+    //             }
+    //             .flags{
+    //                 grid-column: 2;
+    //                 grid-row: 3;
+    //                 padding: 0.25rem;
+    //                 place-self: start end;
+    //             }
+    //             .rooms{
+                    
+    //             }
+    //             .item-content{
+    //                 //gap: 0;
+                    
+    //                 grid-template-columns:1fr;
+    //                 //grid-template-rows: repeat(7,auto) 1fr auto;
+    //                 // grid-template-areas: 
+    //                 //     "civic-address civic-address"
+    //                 //     "city city"
+    //                 //     "image image"
+    //                 //     "price price"
+    //                 //     "open-houses open-houses"
+    //                 //     "category rooms"
+    //                 //     "subcategory subcategory"
+    //                 //     "region region"
+    //                 //     ;
+                    
+    //                 @include media($phone){
+    //                     grid-template-rows: auto;
+    //                 }
+    
+    
+    //             }
+    //         }
+
+    //     }
+
+    //     // BROKERS
+    //     &.si-broker-item{
+    //         //@include gridAreas('image','name','contact','title','listings-count');
+    //         .item-content{
+    //             // grid-gap: 0;
+    //             grid-template-columns: 1fr;
+    //             grid-template-rows: auto;
+    //             // grid-template-areas: 
+    //             //     "image image"
+    //             //     "name name"
+    //             //     "title title"
+    //             //     "contact contact";
+    //             --item-column-width : calc( var(--si-list-element-width) / var(--desktop-column-width));
+    //             @include media($laptop){
+    //                 --item-column-width : calc( var(--si-list-element-width) / var(--laptop-column-width));
+    //             }
+    //             @include media($tablet){
+    //                 --item-column-width : calc( var(--si-list-element-width) / var(--tablet-column-width));
+    //             }
+    //             @include media($phone){
+    //                 --item-column-width : calc( var(--si-list-element-width) / var(--phone-column-width));
+    //             }
+
+    //             .si-data-label{
+    //                 text-align:center;
+    //             }
+                
+    //             .image{
+    //                 background: url('assets/shadow_broker.jpg') no-repeat;
+    //                 background-size: cover;
+    //                 //height: calc(var(--item-column-width) * var(--broker-item-picture-ratio));
+    //                 aspect-ratio: var(--broker-item-picture-ratio, 3 / 4);
+
+    //                 // height: calc((var(--si-list-element-width) / var(--desktop-column-width)) * var(--broker-item-picture-ratio)) auto;
+    //                 // @include media($laptop){
+    //                 //     height: calc((var(--si-list-element-width) / var(--laptop-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+    //                 // }
+    //                 // @include media($tablet){
+    //                 //     height: calc((var(--si-list-element-width) / var(--tablet-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+    //                 // }
+    //                 // @include media($phone){
+    //                 //     height: calc((var(--si-list-element-width) / var(--phone-column-width)) * var(--broker-item-picture-ratio)) auto;
+                        
+    //                 // }
+    //                 img{text-indent: -1000px;}
+    //             }
+    //             .email{
+    //                 text-overflow: ellipsis;
+    //                 width: 100%;
+    //                 overflow: hidden;
+    //                 white-space: nowrap;
+    //             }
+    //             .email,.phone{
+                    
+    //                 font-size:1.2rem;
+    //             }
+
+    //             .office{
+                    
+                    
+    //             }
+    //             .last-name{padding:0;}
+    //             .first-name,.last-name, .title{
+                    
+                    
+    //             }
+    //             .first-name{
+    //                 font-size:1rem;
+    //                 text-transform: uppercase;
+    //             }
+    //             .last-name,.fullname{
+    //                 overflow: hidden;
+    //                 text-overflow: ellipsis;
+    //                 white-space: nowrap;
+    //                 text-transform: uppercase;
+    //             }
+
+    //             .title{
+    //                 font-size:0.8rem;
+    //                 overflow: hidden;
+    //                 text-overflow: ellipsis;
+    //                 white-space: nowrap;
+    //             }
+    //             .listings-count{
+    //                 padding:10px;
+    //                 text-transform: uppercase;
+    //                 text-align:center;
+    //                 &.no-listings{
+    //                     opacity:0.5;
+    //                 }
+    //             }
+
+    //         }
+    //         &.si-card-item-layout{
+    //             @include gridAreas('photo','name','contact','title','listings-count');
+    //             &::after, &::before{display:none;}
+    //             cursor:normal;
+    //             border-radius:0;
+    //             border:none;
+    //             display:grid;
+    //             gap:0 10px;
+    //             grid-template-columns: auto 1fr;
+    //             grid-template-rows: minmax(30px, auto) auto;
+    //             grid-template-areas: 
+    //                 "photo name" 
+    //                 "photo license" 
+    //                 "photo contact"
+    //                 "photo actions"
+    //             ;
+    //             padding:10px;
+    //             @include media($small-phone){
+    //                 grid-template-rows: 1fr;
+    //                 grid-template-columns: 1fr;
+    //                 grid-template-areas: 
+    //                     "photo" "name" 
+    //                     "license" 
+    //                     "contact"
+    //                     "actions"
+    //                 ;
+    //                 place-items:center;
+    //             }
+
+    //             .photo{
+    //                 width:100px;height:100px;overflow:hidden;
+    //                 border-radius:50%;background:#fff;
+    //                 text-align: unset;
+    //                 img{
+    //                     object-fit:var(--broker-item-picture-fit);
+    //                     width:100%;
+    //                 }
+    //             }
+    //             .name{
+    //                 font-size:1.25em;font-weight: 600;
+    //                 margin:0px;color:inherit;
+    //                 @include media($small-phone){
+    //                     text-align:center;
+    //                 }
+    //             }
+    //             .contact{
+    //                 align-self: start;
+    //                 margin-bottom:10px;
+    //                 color:inherit;
+    //             }
+    //             .license{
+    //                 grid-area: license;
+    //                 text-transform: uppercase;
+    //                 opacity:0.6;
+    //                 font-size:0.8em;
+    //                 margin-bottom:10px;
+    //                 color:inherit;
+    //             }
+    //         }
+    //         &.si-small-item-layout{
+    //             .item-content{
+    //                 // grid-template-areas: "image image"
+    //                 //                         "name name"
+    //                 //                         "title title";
+    //                 //grid-template-rows: auto;
+    //             }
+    //         }
+            
+    //     }
+
+    //     &.si-city-item{
+    //         display:grid;
+    //         place-items:stretch;
+    //         a{}
+    //         .item-content{
+    //             .si-data-label{
+    //                 text-align:center;
+    //             }
+
+    //             .region-code{
+    //                 display:none;
+    //             }
+    //             .code{
+    //                 font-style: italic;
+    //                 font-size: 0.8em;
+    //             }
+    //             .name{
+    //                 font-size:1.25em;
+    //                 min-height: 4em;
+    //                 text-transform: uppercase;
+    //                 display:flex;
+    //                 flex-direction: column;
+    //                 justify-content: center;
+
+    //                 em{
+    //                     display:block;
+    //                     text-transform: none;
+    //                     font-style:normal;
+    //                     font-size: 0.75em;
+    //                 }
+    //             }
+
+    //         }
+    //     }
+
+    //     &.si-office-item{
+    //         .image{
+    //             background: url('assets/shadow_office.jpg') no-repeat;
+    //             background-size: cover;
+    //             img{text-indent: -1000px;}
+    //         }
+
+    //         .name{
+    //             font-size: 1.5em;
+    //             padding:1em;
+    //         }
+    //         .agency-name{
+    //             text-transform: uppercase;
+    //         }
+
+    //         .office-counters{
+    //             display:flex;
+    //             flex-direction: row;
+    //             gap:1em;
+    //             justify-content: center;
+    //             align-items: center;
+    //             font-size: 1.25em;
+    //             em{
+    //                 font-style: normal;
+    //                 font-weight: 700;
+    //             }
+    //         }
+
+    //         .si-data-label{
+    //             text-align:center;
+    //         }
+    //     }
+    // }
+
+    si-small-list{
+        .si-list-header{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            place-items:center start;
+    
+            @include media($phone){
+                grid-template-columns: 1fr;
+                place-items:center;
+                gap:0;
+                padding:10px 0;
+            }
+            .si-search-input{
+                place-self: center end;
+                
+                display: grid;
+                grid-template-columns: 1fr auto;
+                place-items: center stretch;
+                margin:10px 0;
+                //border:var(--element-border);
+                padding:5px 10px;
+                //border-radius:var(--element-border-radius);
+                width: 33vw;
+                max-width: 400px;
+
+                @include media($tablet){
+                    width: 45vw;
+                    max-width: unset;
+                }
+                @include media($phone){
+                    place-self: center stretch;
+                    width:100%;
+                    
+                }
+                input{
+                    // min-width:200px;
+                    // max-width:100%;
+                    width:100%;
+                    outline:none;
+                    border:none;
+
+                    &::placeholder{
+                        color:var(--si-text-color);opacity:0.5;
+                    }
+                }
+            }
+        }
+        .si-list-container{
+            opacity:0;max-height:0px;overflow:hidden;
+            transition:0.25s;
+        }
+        .loader{
+            text-align:center;
+            transition:0.25s;
+        }
+        &.loaded{
+            .loader{
+                opacity:0;
+                max-height:0px;
+                overflow:hidden;
+            }
+            .si-list-container{
+                opacity:1;max-height:unset;overflow:unset;
+                display:grid;
+                gap:var(--si-layout-gutter);
+            }
+        }
+
+    }
+    
+    si-small-list.si-list-of-listings,
+    &.si-list-of-listings{
+        
+        > .si-search-filter-tags{
+            grid-row: 2;
+            grid-column: 1 / span 3;
+        }
+        > .si-list-container,
+        .si-list{
+            // grid-template-columns: repeat( auto-fill, minmax(var(--listing-item-column-width), 1fr) );
+            // @include media($tablet){
+            //     grid-template-columns: repeat(auto-fill, minmax(calc(var(--listing-item-column-width) * 0.8), 1fr));
+            // }
+        }
+    }
+
+    si-small-list.si-list-of-brokers,
+    &.si-list-of-brokers{
+        
+        
+
+        > .si-list-container,
+        .si-list{
+            
+            // grid-template-columns: repeat( auto-fill, minmax(var(--broker-item-column-width), 1fr) );
+            // @include media($tablet){
+            //     --broker-item-picture-ratio: 1.6;
+            //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
+            // }
+
+            // @include media($phone){
+            //     grid-template-columns: repeat( auto-fill, minmax(calc(var(--broker-item-column-width)), 1fr) );
+            // }
+        }
+
+    }
+
+    &.si-list-of-cities{
+        .si-list{
+            //grid-template-columns: repeat( auto-fill, minmax(var(--city-item-column-width), 1fr) );
+        }
+    }
+
+    
+
+    @include media($phone){
+        .dropdown-toggle{
+            position: relative;
+        }
+    }
+}
+
+// -------------------------
+// STANDARD LAYOUT 
+// ------------------------- 
+#top .si,
+.si{
+    &.standard-layout{
+        
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+        gap:var(--si-layout-gutter);
+        // grid-template-areas: 
+        //     "search search search"
+        //     "list list list"
+        //     ;
+        
+
+        &.search-orientation-v{
+            grid-template-columns: auto 1fr;
+            grid-template-areas: "search list";
+        }
+
+        // search container
+        // ----------------
+        
+
+        // map container
+        // ----------------
+        .map-container{
+            
+            .viewport{height:640px;width:100%;}
+        }
+
+        // list-meta
+        // ----------------
+        .list-meta{
+            .list-count{text-align:center;};
+        }
+
+        // main list container
+        // ----------------
+        .si-list-container{
+            
+            // grid-template-areas:
+            //     "header header header"
+            //     "list list list"
+            //     "footer footer footer"
+            //     "next-page next-page next-page";
+            
+            &.display-mode-map{
+                // grid-template-areas:
+                //     "header header header"
+                //     "map map map"
+                //     ;
+            }
+            .si-list-header{
+                //grid-area:header;
+                grid-column:  1 / span 3;
+                grid-row:1;
+                grid-template-areas:
+                    "switch meta sort";
+                    
+                @include media($phone){
+                    grid-template-columns:1fr 1fr;
+                    grid-template-areas:
+                    "switch sort"
+                    "meta meta";
+                    place-items:center start; 
+                }
+                .si-sort-container{
+                    grid-area:sort;
+                    place-self: center end;
+                    text-align:right;
+                    .si-dropdown-button{
+                        font-size:24px;
+                    }
+                }
+            }
+            .si-loading{
+                //grid-area: next-page;
+                
+                
+                grid-column: 1 / span 3;
+            }
+            
+            .si-list{
+                //grid-area:list;
+                
+            }
+        }
+
+        &.si-list-of-listings{
+           .search-container{
+            .search-trigger{display:none;}
+           }
+
+           .si-list-of-ghost{
+            
+               .si-item{
+                   .image{
+                        //padding-bottom: calc(100% * var(--listing-item-picture-ratio));
+                   }
+               }
+           }
+        }
+
+        &.si-list-of-brokers{
+            .si-list-header{
+                grid-template-areas: "meta . sort";
+                .list-meta{
+                    .list-count{
+                        text-align:left;
+                    }
+                }
+                @include media($phone){
+                    grid-template-areas: "meta sort";
+                }
+            }
+            
+            .si-item{
+                // .item-content{
+                //     grid-template-areas: 
+                //         "image image"
+                //         "name name"
+                //         "title title"
+                //         "contact contact";
+                //     ;
+                // }
+                // &.si-with-office{
+                //     .item-content{
+                //     grid-template-areas: 
+                //         "image image"
+                //         "name name"
+                //         "title title"
+                //         "office office"
+                //         "contact contact";
+                //     }
+                // }
+            }
+            .search-container{
+                .search-trigger{display:none;}
+ 
+                &.show-trigger{
+                    //grid-template-columns: 1fr 150px;
+                    //.advanced{
+                        //grid-template-areas: "trigger";
+                    
+                    //}
+
+                    .search-trigger{display:block;}
+                }
+            }
+            .no-result{
+                grid-column: 1 / span 3;
+                @include media($tablet){
+                    grid-column: 1;
+                }
+            }
+            label.placeholder{
+                padding:20px;font-weight: 400;opacity:0.5;text-align:center;text-transform: uppercase;
+            }
+            .si-list-of-ghost{
+                .si-item{
+                    .image{
+                        //padding-bottom: calc(100% * var(--broker-item-picture-ratio));
+                    }
+                }
+            }
+
+            // .filter-panel{
+            //     .filter-panel-content{
+            //         .filter-list{margin:20px 0;}
+            //     }
+            //     &.expanded{
+            //         .filter-panel-content{padding:10px 20px;}
+            //     }
+            // }
+        }
+
+        &.si-list-of-offices{
+            
+        }
+    }
+}
+
+
+
+// -------------------------
+// DIRECT LAYOUT 
+// ------------------------- 
+#top .si,
+ .si{
+    &.direct-layout{
+        grid-template-columns: 120px 1fr 60px;
+        grid-template-rows: auto;
+        gap:var(--si-layout-gutter);
+        grid-template-areas: 
+            "list list list"
+            "meta meta meta"
+        ;
+        label.placeholder{
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+        }
+        
+        .si-list-empty{
+            grid-column: 1 / span 3;
+            grid-row: auto;
+        }
+        .list-meta{
+            .list-count{text-align:center;};
+        }
+
+        &[si-side-scroll]{
+            @include media($phone){
+                .si-list{
+                    grid-template-columns: repeat(var(--mobile-column-width), var(--side-scroll-width));
+                    > div:last-child{
+                        padding-right: var(--side-scroll-padding);
+                        width: calc(100% + var(--side-scroll-padding));
+                    }
+                }
+            }
+            
+        }
+    }
+ }
+
+
+#top .si-favorites-button,
+.si-favorites-button{
+    // arrow
+    .si-favorites-toggle-button{
+        position:relative;
+        a{outline:none;}
+        
+        //.label{display:none;}
+        &.panel-opened{
+            &::before{
+                transition:0.25s;
+                opacity:1;
+                top:100%;
+            }
+        }
+    }
+    
+}
+.menu{
+    .si-favorites-button{
+        button{
+            @include reset;
+            font-weight: inherit;
+        }
+    }
+}
+
+
+#top .si-favorites-panel,
+.si-favorites-panel{
+    pointer-events: none;
+    opacity:0;
+    position: fixed;
+    top: var(--origin-y);
+    left: var(--origin-x);
+    max-width:1200px;
+    z-index:9999;
+    border: var(--si-border, var(--si-border-width,0) var(--si-border-style,solid) var(--si-border-color,currentColor));
+    border-radius: var(--si-border-radius);
+    background: var(--si-small-contrast-color);
+    --si-text-color: var(--si-small-contrast-text-color);
+    --listing-item-column-width: 225px;
+    width:0px;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    place-items: stretch;
+    padding:1rem;
+    max-height:0px;
+    overflow:hidden;
+    transform: translate(-50%,-50%);
+    transition: all 0.25s;
+    
+
+    .si-list-of-listings{display:contents;}
+    .favorite-list-container{
+        overflow:hidden;
+        overflow-y:auto;
+
+        label.placeholder{
+            display:block;
+            padding:20px;font-weight: 400;opacity:0.75;text-align:center;text-transform: uppercase;
+            i{vertical-align: sub;}
+            sub{display:block;}
+        }
+    }
+    h3{text-align:center;}
+    .list-container{
+        display:grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--listing-item-column-width),1fr));
+    }
+    .si-list{
+        grid-area:unset;
+        place-self: stretch;
+        
+        .si-item{
+            
+            div,span{color: var(--si-text-color);}
+
+            .item-content{
+                grid-template-rows:auto;
+            }
+            
+        }
+    }
+    .close-button{
+        position: absolute;
+        top:1.25rem;
+        right:1.25rem;
+        cursor:pointer;
+    }
+
+    &.opened{
+        opacity:1;pointer-events: auto;
+        width:80vw;
+        max-height:80vh;
+        box-shadow: 0px 0px 10px #00000099;
+        padding:2.5rem;
+        left:50%;
+        top:50%;
+        .list-container{
+            .si-item{
+                .remove-button{
+                    opacity:1;
+                    pointer-events: auto;
+                }
+            }
+        }
+    }
+}
+
+
+#top .si-loading,
+.si-loading{
+    text-align:center;
+}
+
+.si-auto-columns{
+    display:grid;
+    grid-auto-flow: column;       
+    grid-auto-columns: 1fr;
+    gap: var(--si-layout-gutter);
+
+    @include media($phone){
+        grid-auto-flow:row;
+        gap:calc(var(--si-layout-gutter) / 2);
+    }
+}

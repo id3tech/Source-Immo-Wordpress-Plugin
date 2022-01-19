@@ -53,6 +53,8 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'location' => __('Location', SI),
                 //'lot_specs' => __('Lot specs', SI),
                 'media_box' => __('Media box (Pictures, Video, Map)', SI),
+                'image_gallery' => __('Image gallery', SI),
+                'image_grid' => __('Image grid', SI),
                 //'other_specs' => __('Other specs', SI),
                 //'rooms' => __('Rooms', SI),
                 'summary' => __('Summary *', SI)
@@ -60,6 +62,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             'broker' => [
                 'name' => __('Name', SI),
                 'license' => __('License type', SI),
+                'company' => __('Company name', SI),
                 'about' => __('About', SI),
                 'specs' => __('Specs', SI),
                 'rating' => __('Rating', SI),
@@ -522,7 +525,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
             'content_align_tablet' => '-tablet',
             'content_align_mobile'=> '-mobile'];
         foreach ($contentAlignMaps as $key => $value) {
-            if (isset($settings[$key]) && $settings[$key]!='') $contentAlign[] = $settings[$key] . $value;
+            if (isset($settings[$key]) && $settings[$key]!='') $contentAlign[] = 'si-' . $settings[$key] . $value;
         }
 
         $classes = [

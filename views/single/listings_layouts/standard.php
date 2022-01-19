@@ -2,7 +2,7 @@
 
 <?php echo do_shortcode('[si_listing_part part="media_box"]'); ?>
 
-<?php echo do_shortcode('[si_listing_part part="summary"]'); ?>
+<?php echo do_shortcode('[si_listing_part part="summary" align="align-center-center"]'); ?>
 
 <?php echo do_shortcode('[si_listing_part part="brokers"]'); ?>
 

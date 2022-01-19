@@ -10,33 +10,80 @@ siAdminDirectiveTemplatePath = function($path, $useTimeVersioning){
 
 // siApp
 // .directive('siAutocomplete')
-/**
- * lstr
- * 
- */
+
+
 siApp
-.directive('lstr', ['$parse', function lstr($parse){
-    return {
-        restrict: 'E,A',
-        compile: function compile(tElement, tAttrs, transclude) {
-            return {
-               pre: function preLink(scope, iElement, iAttrs, controller) {
-                    let lTranslatedContent = iElement.html().translate();
-                    let lFormatParams = iAttrs.params;
-                    if(lFormatParams == null && iAttrs.lstr != '') lFormatParams = iAttrs.lstr;
-                    
-                    if(lFormatParams != null){
-                        lFnFormatParams = $parse(lFormatParams);
-                        lFormatParams = lFnFormatParams(scope);
-                        if(!Array.isArray(lFormatParams)) lFormatParams = [lFormatParams];
-                        
-                        lTranslatedContent = lTranslatedContent.format.apply(lTranslatedContent, lFormatParams);
-                    }
-                    iElement.html('<span>' + lTranslatedContent + '</span>');
-               }
-            }
+.directive('lstr', ['$parse','$compile','$timeout', function lstr($parse,$compile,$timeout){
+  return {
+      restrict: 'E,A',
+      compile: function compile(tElement, tAttrs, transclude) {
+          return {
+             pre: function preLink(scope, iElement, iAttrs, controller) {
+                  if(iElement.html() == undefined) return 'NA';
+                  
+                  let lTranslatedContent = iElement.html().translate();
+
+                  let lFormatParams = iAttrs.params;
+                  if(lFormatParams == null && iAttrs.lstr != '') lFormatParams = iAttrs.lstr;
+                  
+                  if(lFormatParams != null){
+                      lFnFormatParams = $parse(lFormatParams);
+                      lFormatParams = lFnFormatParams(scope);
+                      if(!Array.isArray(lFormatParams)) lFormatParams = [lFormatParams];
+                      
+                      lTranslatedContent = lTranslatedContent.format.apply(lTranslatedContent, lFormatParams);
+                  }
+
+                  scope._originalTranslation = lTranslatedContent;
+
+                  lTranslatedContent = scope.parseContent(lTranslatedContent);
+
+                  iElement.html('<span>' + lTranslatedContent + '</span>');
+
+                  
+             }
+          }
+      },
+      controller: function($scope,$element,$timeout){
+        $scope.reparseTimeoutHdl = null;
+
+        $scope.reparse = function(){
+          if($scope.reparseTimeoutHdl!= null){
+            $timeout.cancel($scope.reparseTimeoutHdl);
+            $scope.reparseTimeoutHdl = null;
+          }
+
+          $scope.reparseTimeoutHdl = $timeout(_ => {
+            $element.html($scope.parseContent($scope._originalTranslation));
+          });
         }
-    }
+
+        $scope.parseContent = ($content) => {
+          if($content.indexOf('{{')>=0){
+            let lWatchApplied = false;
+
+            $content = $content.replace(/(\{\{(?:[^}]+)}})/g, ($match) => {
+              const lExpression = $match.replace(/(\{|\})/g,'');
+              const lParseFn = $parse(lExpression);
+              let lParsed = lParseFn($scope);
+              
+              if(lParsed == undefined && !lWatchApplied) {
+                $scope.$watch(lExpression, function($old,$new){
+                  if($old == $new) return;
+                  $scope.reparse();
+                })
+                lWatchApplied = true;
+                return $match;
+              }
+
+              return lParsed;
+            })
+
+          }
+          return $content;
+        }
+      }
+  }
 }]);
 
 siApp
@@ -133,6 +180,401 @@ siApp
     }
   }
 }]);
+
+siApp
+.directive('layoutGap', function layoutGap(){
+  return {
+    restrict: 'A',
+    link: function($scope,$element,$attrs){
+      const gap = $attrs.layoutGap || 1;
+      $element[0].style.gap = gap + 'rem';
+    }
+  }
+})
+
+
+siApp
+.directive('siDataGroupEditor', [ 
+function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: true,
+    templateUrl: siAdminDirectiveTemplatePath('si-data-group-editor'),
+    link: function($scope, $element, $attrs){
+      const lAssoc = {
+        'listings' : 'listing',
+        'cities' : 'city',
+        'brokers' : 'broker',
+        'offices' : 'office',
+        'agencies': 'agency'
+      }
+
+      $scope.groupType = $attrs.siType;
+      $scope.routes = lAssoc[$scope.groupType] + '_routes';
+      $scope.layout = lAssoc[$scope.groupType] + '_layouts';
+      
+      
+
+      $scope.init();
+
+    },
+    controller: function($scope,$siUtils, $siApi, $q, $timeout,$siUI,$siWP){
+      $scope.wp = $siWP;
+
+      $scope.lang_codes = [
+        {key: 'fr', label : 'Français'},
+        {key: 'en', label : 'English'},
+        {key: 'es', label : 'Español'}
+      ]
+
+      $scope.details_defaults = {
+        fr: {
+          listings: {
+            route: {
+              route: 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+              shortcut: 'propriete/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          brokers: {
+            route: {
+              route: 'courtiers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+              shortcut: 'courtier/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          offices: {
+            route: {
+              route: 'bureaux/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'bureau/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          agencies: {
+            route: {
+              route: 'agences/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'agence/{{item.ref_number}}/'
+            },
+            layout: {
+              communication_mode: 'basic',
+              form_id:null
+            },
+          },
+          cities: {
+            route: {
+              route: 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'ville/{{item.ref_number}}/'
+            },
+            layout: {},
+          }
+        },
+        en: {
+          listings: {
+            route: {
+              route: 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+              shortcut: 'listing/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          brokers: {
+            route: {
+              route: 'brokers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+              shortcut: 'broker/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          offices: {
+            route: {
+              route: 'offices/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'office/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          agencies: {
+            route: {
+              route: 'agencies/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'agency/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          cities: {
+            route: {
+              route: 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'city/{{item.ref_number}}/'
+            },
+            layout: {},
+          }
+        },
+        es: {
+          listings: {
+            route: {
+              route: 'propiedades/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+              shortcut: 'propiedad/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          brokers: {
+            route: {
+              route: 'agentes/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+              shortcut: 'agente/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          offices: {
+            route: {
+              route: 'oficinas/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'despacho/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          agencies: {
+            route: {
+              route: 'agencias/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'agencia/{{item.ref_number}}/'
+            },
+            layout: {},
+          },
+          cities: {
+            route: {
+              route: 'ciudad/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+              shortcut: 'ciudades/{{item.ref_number}}/'
+            },
+            layout: {},
+          }
+        }
+      }
+
+      $scope.init = function(){
+        $scope.$on('si/ready', function(){
+          console.log('siDataGroupEditor/init', $scope.wp.pages);
+          $scope.prepare();
+        });
+      }
+
+      $scope.prepare = function(){
+        console.log('siDataGroupEditor/prepare',$scope.configs);
+
+        const langList = $scope.configs[$scope.routes].map($r => {
+          const layoutItem = $scope.configs[$scope.layout].find($l => $l.lang==$r.lang);
+
+          //if(layoutItem != null && layoutItem.page != null && $siWP.pages[layoutItem.lang].find($p => $p.ID == layoutItem.page) == undefined) delete layoutItem.page;
+
+          return {
+            lang: $r.lang,
+            route: $r,
+            layout: layoutItem
+          }
+        });
+
+        $scope.langList = langList;
+        
+        console.log('siDataGroupEditor/prepare', langList);
+      }
+
+      $scope.hasMinLangCount = function(){
+        return ($scope.langList.length > 1);
+      }
+
+      $scope.rebuild = function(){
+        const {routes,layouts} = $scope.langList.reduce( ($result, $langItem) => {
+          
+          $result.routes.push($langItem.route);
+          $result.layouts.push($langItem.layout);
+          return $result;
+        },{routes:[],layouts:[]});
+
+        $scope.configs[$scope.layout] = layouts;
+        $scope.configs[$scope.routes] = routes;
+
+        console.log('siDataGroupEditor/rebuild',$scope.configs);
+        $scope.$emit('save-request');
+      }
+
+      $scope.langNotConfigure = function($item){
+        return $scope.langList.filter($l => $l.lang == $item.key).length == 0
+      }
+      
+      $scope.resetDetails = function($langItem){
+        const $lang = $langItem.lang;
+        const lDefault = $scope.details_defaults[$lang][$scope.groupType];
+
+        $langItem.route = Object.assign($langItem.route, lDefault.route);
+        $langItem.layout = Object.assign($langItem.route,{
+          page: null,
+            communication_mode: 'basic',
+            form_id:null
+        }, lDefault.route);
+
+        
+        $scope.rebuild();
+      }
+
+      $scope.addLangItem = function($lang){
+        const lDefault = $scope.details_defaults[$lang][$scope.groupType];
+
+        $scope.langList.push({
+          lang: $lang,
+          route: Object.assign({
+            lang: $lang
+          },lDefault.route),
+          layout: Object.assign({
+            lang: $lang,
+            page: null,
+            communication_mode: 'basic',
+            form_id:null
+          },lDefault.layout)
+        });
+
+        $scope.rebuild();
+      }
+
+      $scope.editLayoutPage = function($layout){
+        window.open(`/wp-admin/post.php?post=${$layout.page}&action=edit`);
+      }
+
+      $scope.removeLang = function($index){
+        $scope.langList.splice($index,1);
+        $scope.rebuild();
+      }
+
+      //#region LIST 
+      $scope.add = function($type){
+        const lOtherList = $scope.configs.lists.filter($l => $l.type == $type);
+        $siUI.dialog('new-list',{type:$type, otherList: lOtherList}).then($result => {
+          //console.log($result);
+          $scope.configs.lists.push($result);
+          $scope.$emit('save-request');
+
+        })
+        // $scope.show_page('listEdit', $type).then(function($result){
+        //   lNew = $result;
+        //   $scope.configs.lists.push(lNew);
+        //   $scope.$emit('save-request');
+        // });
+      }
+
+      $scope.edit = function($list){
+        $scope.modify($list);
+        return;
+        
+        $scope.show_page('listEdit', $list).then(function($result){
+          console.log('new list data', $result);
+          for (const key in $result) {
+            if ($result.hasOwnProperty(key)) {
+              const element = $result[key];
+              $list[key] = element;
+            }
+          }
+          
+          //$scope.confirm("Do you want to save the changes you've made?").then(function(){
+            $scope.$emit('save-request');
+          //});
+        });
+      }
+
+      $scope.modify = function($list){
+        return $siUI.dialog('list-edit', $list).then( ($result) => {
+          console.log($result);
+          for (const key in $result) {
+            if ($result.hasOwnProperty(key)) {
+              const element = $result[key];
+              $list[key] = element;
+            }
+          }
+          if($list.is_default_type_configs==true){
+            $scope.configs.lists
+              .filter( $l => $l.type == $list.type)
+              .filter( $l => $l != $list)
+              .forEach($l => {
+                $l.is_default_type_configs = false;
+              });
+          }
+          $scope.$emit('save-request');
+        })
+      }
+
+      $scope.clone = function($list){
+        $siUI.confirm('Are you sure you want to clone this list?').then(_ => {
+          const listCopy = angular.copy($list);
+          listCopy.alias = $scope.getValidAlias(listCopy.alias);
+          listCopy.is_default_type_configs = false;
+
+          $scope.configs.lists.push(listCopy);
+          $scope.$emit('save-request');
+        })
+      }
+
+      $scope.remove = function($list){
+        $scope.confirm('Are you sure you want to remove this list?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
+          let lNewlists = [];
+          $scope.configs.lists.forEach(function($e){
+            if($e!=$list){
+              lNewlists.push($e);
+            }
+          });
+          $scope.configs.lists = lNewlists;
+
+          $scope.show_toast('List removed');
+          $scope.$emit('save-request');
+        });
+      }
+
+      $scope.getListShortcode = function($list, $type=null){
+        switch($type){
+          case 'search':
+            return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
+            break;
+          case 'searchbox':
+              return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
+              break;
+          case 'gallery':
+            return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
+            break;
+          default:
+            return '[si alias="' + $list.alias + '"]';
+        }
+      }
+
+      $scope.countFilters = function($list){
+        let lResult = 0;
+        if($list.filter_groups!=null){
+          $list.filter_groups.forEach(function($e){
+            lResult += $e.filters.length;
+          });
+        }
+        return lResult;
+      }
+
+          
+      $scope.getValidAlias = function($draft){
+        let lResult = $draft;
+        let index = 1;
+        const usedNames = $scope.configs.lists.filter($l => $l.type == $scope.groupType).map($l => $l.alias);
+        while (usedNames.includes(lResult)) {
+          lResult = $draft + '-' + index;
+          index++;
+        }
+        return lResult;
+      }
+
+      //#endregion
+
+      $scope.selectPage = function($langItem){
+        const dialogParams = {lang: $langItem.lang};
+        if($langItem.layout == undefined) $langItem.layout = {page:''};
+        
+        dialogParams.page= $langItem.layout.page
+
+        $siUI.dialog('page-picker', dialogParams).then($newPage => {
+          $langItem.layout.page = $newPage;
+          $scope.$emit('save-request');
+        })
+      }
+    }
+  }
+}])
+
 
 siApp
 .directive('siRouteBox', function siRouteBox($siUtils, $siList,$siUI){
@@ -577,103 +1019,6 @@ siApp
   
 });
 
-siApp
-.directive('siDataGroupEditor', ['$siUtils', '$siApi', '$q', '$timeout' , function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: true,
-    templateUrl: siAdminDirectiveTemplatePath('si-data-group-editor'),
-    link: function($scope, $element, $attrs){
-      const lAssoc = {
-        'listings' : 'listing',
-        'cities' : 'city',
-        'brokers' : 'broker',
-        'offices' : 'office',
-        'agencies': 'agency'
-      }
-
-      $scope.groupType = $attrs.siType;
-      $scope.routes = lAssoc[$scope.groupType] + '_routes';
-      $scope.layout = lAssoc[$scope.groupType] + '_layouts';
-
-      $scope.lang_codes = {
-        fr: 'Français',
-        en: 'English',
-        es: 'Español'
-      }
-    },
-    controller: function($scope){
-      
-      
-      $scope.add = function($type){
-        $scope.show_page('listEdit', $type).then(function($result){
-          lNew = $result;
-          $scope.configs.lists.push(lNew);
-          $scope.$emit('save-request');
-        });
-      }
-
-      $scope.edit = function($list){
-        $scope.show_page('listEdit', $list).then(function($result){
-          console.log('new list data', $result);
-          for (const key in $result) {
-            if ($result.hasOwnProperty(key)) {
-              const element = $result[key];
-              $list[key] = element;
-            }
-          }
-          
-          //$scope.confirm("Do you want to save the changes you've made?").then(function(){
-            $scope.$emit('save-request');
-          //});
-        });
-      }
-
-      $scope.remove = function($list){
-        $scope.confirm('Are you sure you want to remove this list?', 'This action could renders some sections of your site blank', {ok: 'Continue'}).then(function(){
-          let lNewlists = [];
-          $scope.configs.lists.forEach(function($e){
-            if($e!=$list){
-              lNewlists.push($e);
-            }
-          });
-          $scope.configs.lists = lNewlists;
-
-          $scope.show_toast('List removed');
-          $scope.$emit('save-request');
-        });
-      }
-
-      $scope.getListShortcode = function($list, $type=null){
-        switch($type){
-          case 'search':
-            return '[si_search alias="' + $list.alias + '" result_page="/proprietes/" standalone="true"]';
-            break;
-          case 'searchbox':
-              return '[si_searchbox alias="' + $list.alias + '" placeholder="Type here to begin your search..." result_page="/proprietes/"]';
-              break;
-          case 'gallery':
-            return '[si_list_slider alias="' + $list.alias + '" limit="10"]';
-            break;
-          default:
-            return '[si alias="' + $list.alias + '"]';
-        }
-      }
-
-      $scope.countFilters = function($list){
-        let lResult = 0;
-        if($list.filter_groups!=null){
-          $list.filter_groups.forEach(function($e){
-            lResult += $e.filters.length;
-          });
-        }
-        return lResult;
-      }
-
-    }
-  }
-}])
 
 siApp
 .directive('siSvg', ['$parse','$compile', function siSvg($parse,$compile){
@@ -914,20 +1259,26 @@ siApp
         'background_color' : '#fff',
         'input_placeholder_color' : 'rgba(#333,0.5)',
         'layout_gutter' : '20px',
-        'container_border_color' : '[element_border_color]',
-        'container_border' : ' solid 1px [container_border_color]',
-        'container_border_radius' : '[element_border_radius]',
-        'container_padding' : ' [layout_gutter]',
-        'element_border_color' : '#aaa',
-        'element_border' : 'solid 1px [element_border_color]',
-        'element_border_radius' : '0px',
-        'element_padding': '10px',
-        'component_border_color' : '#aaa',
-        'component_border' : ' solid 1px [component_border_color]',
-        'component_border_radius' : '[element_border_radius]',
-        'list_item_separator_color' : '#aaa',
-        'list_item_separator' : 'solid 1px [list_item_separator_color]',
-        'list_item_padding': '10px',
+        'padding': '20px',
+        'border-width' : '1px',
+        'border-style' : 'solid',
+        'border-color' : 'currentColor',
+        'border-radius' : '10px',
+
+        // 'container_border_color' : '[element_border_color]',
+        // 'container_border' : ' solid 1px [container_border_color]',
+        // 'container_border_radius' : '[element_border_radius]',
+        // 'container_padding' : ' [layout_gutter]',
+        // 'element_border_color' : '#aaa',
+        // 'element_border' : 'solid 1px [element_border_color]',
+        // 'element_border_radius' : '0px',
+        // 'element_padding': '10px',
+        // 'component_border_color' : '#aaa',
+        // 'component_border' : ' solid 1px [component_border_color]',
+        // 'component_border_radius' : '[element_border_radius]',
+        // 'list_item_separator_color' : '#aaa',
+        // 'list_item_separator' : 'solid 1px [list_item_separator_color]',
+        // 'list_item_padding': '10px',
         'high_contrast_color' : '#333',
         'high_contrast_text_color' : '#fff',
         'medium_contrast_color' : '#b9b9b9',
@@ -936,6 +1287,9 @@ siApp
         'small_contrast_text_color' : '[text_color]',
         
         'error_color' : '#850000',
+        'button_border_color' : '#aaa',
+        'button_border' : '[border_style] [border_width] [border_color]',
+        'button_border_radius' : '[border_radius]',
         'button_bg_color' : '#333',
         'button_text_color' : '#fff',
         'button_font_name' : '[font_name]',
@@ -949,13 +1303,13 @@ siApp
         'listing_item_sold_bg_color' : '#ff8800',
         'listing_item_sold_text_color' : '#fff',
         'listing_item_column_width' : '340px',
-        'listing_item_picture_ratio' : '0.75',
+        'listing_item_picture_ratio' : '3 / 2',
         'listing_item_picture_fit' : 'cover',
         'thumbnail_picture_size' : '100px',
         'broker_item_column_width' : '210px',
-        'broker_item_picture_ratio' : '1.25',
+        'broker_item_picture_ratio' : '3.4 / 4',
         'cover_item_picture_fit' : 'cover',
-        'office_item_column_width' : '320px',
+        //'office_item_column_width' : '320px',
       }
 
       $scope.init = function($element){
@@ -973,7 +1327,7 @@ siApp
         $scope.registerModelWatcher();
 
         if($scope.editables == null){
-          $scope.editables = ['global','containers','list-container','elements','bg-fg','components','listing','broker','office','custom-css'];
+          $scope.editables = ['global','layout','buttons','containers','list-container','elements','bg-fg','components','listing','broker','office','custom-css'];
         }
         const lFirstGroup = $scope.editables ? $scope.editables[0] : 'global';
         console.log('first group', lFirstGroup);
@@ -1037,7 +1391,7 @@ siApp
         const lModel = Object.keys($scope.model).reduce(
           ($result,$k) => {
             if($scope.model[$k]!=null && $scope.model[$k] != undefined){
-              const lNewKey = '--' + $k.replace(/(_)/g,'-');
+              const lNewKey = '--si-' + $k.replace(/(_)/g,'-');
               $result[lNewKey] = $scope.model[$k];
             }
             return $result;
@@ -1057,7 +1411,7 @@ siApp
 
         const lModel = Object.keys(lParsedModel).reduce(
           ($result, $k) => {
-            const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
+            const lNewKey = $k.replace('--si-','').replace(/(-)/g,'_');
             $result[lNewKey] = lParsedModel[$k]
             return $result;
           },{}
@@ -1069,7 +1423,9 @@ siApp
       }
 
       $scope.reset = function(){
-        $siUI.confirm('Attention','All style customisation will be lost.\nDo you want to continue?',{ok:'Yes',cancel:'No'}).then(function(){
+        $siUI.confirm('Attention','All style customisation will be lost.\nDo you want to continue?',{ok:'Yes',cancel:'No'}).then(function($response){
+          console.log('confirm', $response);
+
           $scope.model = {};
           $scope.update();
         });
@@ -1107,7 +1463,7 @@ siApp
           {}
         )
         const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
-        const lPreviewElm = $scope.$element.querySelector('.si-style-editor-preview .viewport');
+        const lPreviewElm = $scope.$element.querySelector('.si-style-editor-preview .si-preview-viewport');
 
         // remove all styles
         lPreviewElm.style.cssText = '';
@@ -1118,13 +1474,15 @@ siApp
           let lValue =  lEffectiveStyle[$k];
           const lSubVarRegex = /\[(.+)\]/g;
           if(lValue.match(lSubVarRegex)){
-            lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
+            lValue = lValue.replace(lSubVarRegex,'var(--$1)');
             lValue = lValue.replace(/_/g,'-');
           }
           if($k == 'uls_label'){
             lValue = '"' + lValue + '"';
           }
-          lPreviewElm.style.setProperty('--preview-' + lStyleKey, lValue);
+
+          console.log(lStyleKey)
+          lPreviewElm.style.setProperty('--' + lStyleKey, lValue);
           
         });
         
@@ -1192,8 +1550,845 @@ siApp
     replace: true,
     template: '<div ng-include="path"></div>'
   }
-}])
+}]);
 
+
+siApp
+.directive('siListPreview', function siListPreview(){
+  return {
+    restrict: 'E',
+    replace:true,
+    require: 'ngModel',
+    scope: {
+      model: '=ngModel'
+    },
+    template: `
+    <div class="si-list-preview si-style-editor-preview {{model.type}}-preview">
+      <div si-style-preview="computedStyles">
+        <div class="si-preview-viewport list-layout-{{model.list_layout.preset}} search-layout-orientation-{{model.search_engine_options.orientation}}">
+          <div ng-if="model.search_engine_options.type == 'full'" class="si-container search-engine-tabs-container search-type-{{model.type}} search-layout-type-{{model.search_engine_options.type}} search-layout-orientation-{{model.search_engine_options.orientation}}">
+              <div class="list-components">
+                  <div class="component tabs {{!model.search_engine_options.tabbed ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.search_engine_options.tabbed"></md-checkbox>
+                      <div class="component-elements">
+                          <si-search-tabs-editor si-model="model.search_engine_options"></si-search-tabs-editor>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="si-container search-engine-container search-type-{{model.type}} {{model.search_engine_options.scope_class}} search-layout-type-{{model.search_engine_options.type}}  search-layout-orientation-{{model.search_engine_options.orientation}}">
+              <div class="list-components" >
+                  
+                  <div class="component  {{!model.searchable ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.searchable"></md-checkbox>
+                      <div class="component-elements">
+                          <si-include 
+                              path-format="~/views/admin/statics/previews/{0}-search-{1}.html"
+                              path-params="[model.type, model.search_engine_options.type]"></si-include>
+                          <md-button class="config-button md-raised md-primary"  ng-click="editSearchEngine()"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="si-container {{model.list_layout.scope_class}}">
+              <div class="list-components si-grid" >
+                  <div class="component list-map-toggle {{!model.mappable ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.mappable"></md-checkbox>
+                      <div class="component-elements toggles">
+                          <i class="fal fa-2x fa-list si-highlight"></i>
+                          <i class="fal fa-2x fa-map-marker-alt"></i>
+                          <md-button class="config-button md-raised md-primary" ng-show="false" ng-click="editSearchEngine()"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                      </div>
+                      
+                  </div>
+
+                  <div class="component list-meta {{!model.show_list_meta ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
+                      <label class="component-elements">{{localModel.previewItems.length}} {{model.type.translate()}}</label>
+                  </div>
+
+                  <div class="component list-sort {{!model.sortable ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.sortable"></md-checkbox>
+                      <div class="component-elements  sort">
+                          <i class="fal fa-2x fa-sort-amount-down"></i>
+                      </div>
+                  </div>
+
+                  <div class="component list-items">
+                      <md-checkbox ng-checked="true" disabled></md-checkbox>
+                      
+                      <div class="component-elements si-grid" style="--item-row-space:{{model.list_layout.item_row_space.desktop}}">
+                          
+                          <div class="si-element" ng-repeat="item in localModel.previewItems | limitTo : model.list_layout.item_row_space.desktop track by $index">
+                              <lstr>List item</lstr>
+                          </div>
+
+                          <md-button class="config-button si-configure-element-button md-raised md-primary"  ng-click="editListItem()"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      </div>
+    </div>
+    `,
+    link: function($scope,$element,$attrs){
+      $scope.init();
+    },
+    controller: function($scope,$rootScope,$q,$siUI){
+      $scope.localModel ={
+        previewItems :[]
+      };
+
+      $scope.init = function(){
+        
+        $scope.localModel.previewItems = [
+          {label: 'List item'},
+          {label: 'List item'},
+          {label: 'List item'},
+          {label: 'List item'}
+        ];  
+
+        console.log('siListPreview/init',  $scope.localModel.previewItems);
+      }
+
+      $scope.editListItem = function(){
+        $scope.$emit('siListPreview/editListItem');
+      }
+
+      $scope.editSearchEngine = function(){
+        $siUI.dialog($scope.model.type + '-search-engine-edit',$scope.model.search_engine_options).then($result => {
+          $scope.model.search_engine_options = $result;
+        });
+      }
+    }
+  }
+});
+
+siApp
+.directive('siListItemLayer', [function siListItemLayer(){
+  return {
+    restrict: 'E',
+    require: 'ngModel',
+    scope: {
+      model: '=ngModel',
+      layer: '@siLayer'
+    },
+    replace:true,
+    template: `
+    <div class="si-list-item-layer layer-{{layer}} si-style-editor-preview">
+      <div si-style-preview>
+        <div class="si-preview-viewport">
+          <div class="si-list-item {{singularType}}-item si-element si-background {{model.list_item_layout.scope_class}}" ng-sortable="sortableOptions">
+            <si-layer-var ng-repeat="var in vars.list" ng-model="var"  si-on-remove="remove($index)" type="{{model.type}}"></si-layer-var>
+          </div>
+        </div>
+        
+      </div>
+
+      <md-menu class="si-layer-menu">
+        <md-button class="md-raised md-primary md-icon-button" ng-click="$mdMenu.open()"><i class="fal fa-plus"></i></md-button>
+        <md-menu-content>
+            <md-menu-item><md-button ng-click="addVar('group')"><lstr>Group</lstr></md-button></md-menu-item>
+            <md-menu-item><md-button ng-click="addVar('link_button')"><lstr>Link button</lstr></md-button></md-menu-item>
+            <md-divider></md-divider>
+            <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label}}</md-button></md-menu-item>
+          </md-menu-content>
+      </md-menu>
+
+      <script type="text/ng-template" id="layout-for-group">
+        <div class="si-label-group " data-group="{{model.$$hashKey}}" ng-sortable="sortableOptions">
+          <si-layer-var ng-repeat="subvar in item.items" si-on-remove="removeItem($index)" ng-model="subvar" type="{{type}}"></si-layer-var>
+        </div>
+        <div class="si-group-var-action">
+          <md-button class="md-icon-button" ng-click="openConfig()" title="{{'Manage classes'.translate()}}"><i class="fal fa-tag"></i></md-button>
+          <md-menu class="si-var-group-menu">
+              <md-button class="md-icon-button md-raised" ng-click="$mdMenu.open()"><i class="fal fa-plus"></i></md-button>
+              <md-menu-content>
+                <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label}}</md-button></md-menu-item>
+              </md-menu-content>
+          </md-menu>
+          <md-button class="md-icon-button" ng-click="remove()" title="{{'Remove'.translate()}}"><i class="fal fa-trash"></i></md-button>
+        </div>
+      </script>
+
+      <script type="text/ng-template" id="layout-for-any">
+        {{item.key}}
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-link_button">
+        <div class="si-button"><lstr>Learn more</lstr></div>
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-photo">
+        <div class="image">
+          <img src="{{item.imageUrl}}" />
+        </div>
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-description">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </script>
+
+      <script type="text/ng-template" id="layout-for-address">
+        <div class="si-label civic-address">1597 boul. Dagenais O.</div>
+      </script>
+      
+      <script type="text/ng-template" id="layout-for-ref_number">
+        123910
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-phone">
+        514-555-8654
+      </script>
+      
+      <script type="text/ng-template" id="layout-for-available_area">
+        1200 sqr.ft.
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-price">  
+          <div class="si-price">625 000$</div>
+          <div class="si-price-sold" lstr>Sold</div>
+      </script> 
+
+      <script type="text/ng-template" id="layout-for-contacts">
+        <div class="contacts ">
+            <div class="contact phone">
+                <i class="icon fal fa-fw fa-phone"></i><span class="label">514-555-8654</div>
+            <div class="contact email">
+                <i class="icon fal fa-fw fa-envelope"></i> <span class="label">info@realestate.com</span></div>
+        </div>
+      </script>
+
+      <script type="text/ng-template" id="layout-for-counters">
+        <div class="counters">
+            <div class="counter"><i class="icon fal fa-fw fa-home"></i> <span class="count">23</span> <span class="label"><lstr>listing</lstr>s</span></div>
+            <div class="counter" ng-if="['offices','agencies'].includes(type)"><i class="icon fal fa-fw fa-user-tie"></i> <span class="count">12</span> <span class="label"><lstr>broker</lstr>s</span></div>
+        </div>
+      </script>
+
+      <script type="text/ng-template" id="layout-for-rooms">
+        <div class="rooms">
+            <div class="room bed"><i class="icon fal fa-fw fa-bed"></i> <span class="count">3</span> <span class="label" lstr>Bedroom</span></div>
+            <div class="room bath"><i class="icon fal fa-fw fa-bath"></i> <span class="count">2</span> <span class="label" lstr>Bathroom</span></div>
+            <div class="room tint"><i class="icon fal fa-fw fa-tint"></i> <span class="count">1</span> <span class="label" lstr>Water room</span></div>
+        </div>
+      </script>
+      
+      <script type="text/ng-template" id="layout-for-flags">
+        <div class="flags">
+          <i class="video far fa-video"></i>
+          <i class="virtual-tour far fa-vr-cardboard"></i>
+        </div>
+      </script>
+
+      <script type="text/ng-template" id="layout-for-open_houses">
+        
+          <div class="open-house-item">
+              <i class="fal fa-calendar-alt"></i> <span lstr>Open house</span> <span lstr>in 3 days</span>*
+          </div>
+        
+      </script>
+    </div>
+    `,
+    link: function($scope,$element,$attr){
+      $scope.layerInfo = null;
+      $scope.init();
+    },
+    controller: function($scope,$rootScope,$element,$timeout,$q){
+      $scope.computedStyles = {};
+      $scope.vars = {
+        list : []
+      };
+      $scope.availableVarList = [];
+      $scope.sortableOptions = {
+        group:{
+          name: 'si-layer-var',
+          put: function (to, from, dragged) {
+            
+            let toLvl = 0;
+            parentContainer = to.el;
+            do{
+              toLvl++;
+              if(parentContainer.parentContainer != null){
+                parentContainer = parentContainer.parentContainer.closest('[ng-sortable]');
+              }
+              else{
+                parentContainer = null;
+              }
+            } while (parentContainer != null && toLvl<5);
+            
+            if(toLvl == 1 && dragged.classList.contains('group')) return false;
+
+            if(toLvl > 1) {
+              return false;
+            }
+            
+            return true;
+            
+          }
+        },
+        animation: 150,
+        fallbackOnBody: true,
+        swapThreshold: 0.7,
+        emptyInsertThreshold: 8
+      }
+
+      $scope.init = function(){
+        const singularTypeMap = {
+          brokers: 'broker',
+          listings: 'listing',
+          offices: 'office',
+          agencies: 'agency',
+          cities: 'city'
+        }
+
+        $scope.availableVarList = $rootScope.global_list.list_item_vars[$scope.model.type];
+        $scope.updateVarList($scope.validateVarList($scope.model.list_item_layout.displayed_vars[$scope.layer]));
+        console.log('siListItemLayer/init', $scope.varList);
+
+        $scope.layerInfo = {};
+        $scope.layerInfo.path = wpSiApiSettings.base_path + `views/admin/statics/previews/${$scope.model.type}-item-layer.html`;
+      
+        $scope.singularType = singularTypeMap[$scope.model.type];
+        if(!['agencies','cities'].includes($scope.model.type)){
+          $scope.imageUrl     = wpSiApiSettings.base_path + `styles/assets/shadow_${singularTypeMap[$scope.model.type]}.jpg`;
+        }
+        $scope.styleActive  = $scope.model.list_item_layout.preset != 'custom';
+
+        
+        $scope.$on('listItemLayer/vars:changed',function($event,$layer){
+          //if($layer == $scope.layer){
+            //console.log('listItemLayer/vars:changed',$scope.model.list_item_layout.displayed_vars[$scope.layer])
+          //}
+          $scope.updateModel();
+        });
+
+        $scope.$on('si/layerVar/removed', function($event, $index, $groupIndex=null){
+          console.log('si/layerVar/removed', $index, $groupIndex);
+
+          const newVarList = $scope.vars.list;
+
+          if($groupIndex!=null){
+            newVarList[$groupIndex].items.splice($index,1);
+          }
+          else{
+            newVarList.splice($index,1);
+          }
+          
+          $scope.updateVarList(newVarList);
+          
+        });
+
+        $scope.$on('listItemLayer/vars/promote', function($event, $var){
+          console.log('var promotion detected', $var);
+
+          $scope.vars.list.filter($v => $v.key=='group').forEach($group => {
+            const foundIndex = $group.items.findIndex($v => $v.key == $var.key);
+            console.log('searched index=', foundIndex);
+
+            if(foundIndex >= 0){
+              $group.items.splice(foundIndex,1);
+              $scope.vars.list.push($var);
+              console.log('var has been promoted', $var);
+            }
+          });
+
+          $scope.updateVarList($scope.vars.list);
+
+        })
+
+        $scope.$watch('vars.list', function($new,$old){
+          //console.log('var list changed', $new);
+          $scope.updateModel();
+        },true);
+      }
+
+      $scope.updateVarList = function($varList){
+        $scope.varList = [];
+        
+        $timeout( _ => {
+          console.log('updateVarList', $varList);
+
+          $scope.vars.list = $varList;
+          $timeout( _ => {
+            $scope.applySortHandlers();
+          },250);
+        },500)
+      }
+
+      $scope.remove = function($index){
+        $scope.vars.list.splice($index,1);
+        console.log('remove root item at',$index, $scope.vars.list);
+      }
+      
+      $scope.addVar = function($var){
+        if($scope.vars.list == undefined) $scope.vars.list = [];
+        $scope.vars.list.push({key: $var, classes: []});
+        
+        $timeout( _ => {
+          $scope.applySortHandlers();
+        },250);
+        //$scope.updateModel();
+      }
+
+
+      $scope.applySortHandlers = function(){
+        let sortableCount = 0;
+        const sortContainers = Array.from($element[0].querySelectorAll('.si-sortable-container'));
+        sortContainers.forEach($container => {
+          new Sortable($container, {
+            group:{
+              name: 'si-layer-var',
+              put: function (to, from, dragged) {
+                
+                let toLvl = 0;
+                parentContainer = to.el;
+                do{
+                  toLvl++;
+                  if(parentContainer.parentContainer != null){
+                    parentContainer = parentContainer.parentContainer.closest('.si-sortable-container');
+                  }
+                  else{
+                    parentContainer = null;
+                  }
+                } while (parentContainer != null && toLvl<5);
+                
+                if(toLvl == 1 && dragged.classList.contains('group')) return false;
+
+                if(toLvl > 1) {
+                  return false;
+                }
+                
+                return true;
+                
+              }
+            },
+            animation: 150,
+            fallbackOnBody: true,
+            swapThreshold: 0.7,
+            emptyInsertThreshold: 8,
+            onEnd: function($event){
+              const elm = $event.item;
+              const workingList = $scope.vars.list;
+              const sourceList = $event.from.dataset.group == undefined ? workingList : workingList.find($e => $e.$$hashKey == $event.from.dataset.group).items;
+              const targetList = $event.to.dataset.group == undefined ? workingList : workingList.find($e => $e.$$hashKey == $event.to.dataset.group).items;
+              
+              const varItem = sourceList.splice($event.oldIndex,1)[0];
+              targetList.splice($event.newIndex,0,varItem);
+              
+              console.log('vars sort completed:', workingList, varItem);
+
+              $scope.updateVarList(angular.copy(workingList));
+            }
+          });
+
+          // const sortables = Array.from($container.querySelectorAll('.si-layer-var:not(.group)'));
+          // sortables.forEach( ($elm,$i) => {
+          //   new Sortable($elm, {
+          //     group:'si-layer-var',
+          //     animation: 150,
+          //     fallbackOnBody: true,
+          //     swapThreshold: 0.7,
+          //     emptyInsertThreshold: 8,
+          //   });
+          //   sortableCount++;
+          // })
+        });
+
+        console.log('applySortHandlers',sortContainers.length, sortableCount);
+      }
+
+      $scope.validateVarList = function($list){
+        if($list == undefined) $list = [];
+
+        $list.forEach($e => {
+          if(['listing_count'].includes($e)) $e = 'counters';
+        });
+
+        if($list.every($e => typeof $e == 'string')) return $scope.getStructuredVarList($list);
+
+        const result = $list.map($item => {
+          if(typeof $item != 'string') return $item;
+
+          const varItem = {
+            key: $item,
+            classes: [],
+            items: []
+          }
+
+          return varItem;
+        });
+
+        if(['listings','brokers'].includes($scope.type)){
+          if($scope.layer == 'main'){
+            if(!result.find($e => $e.key == 'photo')){
+              result.splice(1,0,{key: 'photo'});
+            }
+          }
+        }
+
+        return result;
+      }
+
+      $scope.getStructuredVarList = function($list){ 
+        const structuredMap = {
+          'listings' : _ => $scope.getStructuredVarListForListings($list),
+          'brokers' : _ => $scope.getStructuredVarListForBrokers($list),
+          'offices' : _ => $scope.getStructuredVarListForOffices($list),
+          'agencies' : _ => $scope.getStructuredVarListForAgencies($list),
+          'cities' : _ => $scope.getStructuredVarListForCities($list),
+        }
+
+        if(structuredMap[$scope.model.type] != undefined) return structuredMap[$scope.model.type]();
+
+        return $list;
+      }
+
+      $scope.getStructuredVarListForListings = function(){
+        const structure = [];
+
+        if($scope.layer == 'main'){
+          structure.push(
+            {
+              key:'group',
+              classes: 'si-background-high-contrast si-padding',
+              items: [
+                {key:'address', classes: 'si-text-upper si-text-truncate'},
+                {key:'city',classes:'si-text-truncate'}
+              ]
+            },
+            {key:'photo', classes: 'si-float-anchor'},
+            {key:'price', classes: 'si-background-small-contrast si-padding si-space-emphasis si-big-emphasis'},
+            {
+              key:'group',
+              classes: 'si-padding',
+              items: [
+                {key: 'category', classes: 'si-font-emphasis'},
+                {key: 'subcategory',classes: 'si-text-truncate'},
+                {key: 'rooms'},
+                {key: 'open_houses', classes: 'si-weight-emphasis'}
+              ]
+            },
+            {key: 'flags', classes: 'si-float-top-right'},
+          );
+        }
+        else{
+          structure.push(
+            {
+              key:'group',
+              classes:'si-padding',
+              items: [
+                {key: 'ref_number'},
+                {key: 'description'}
+              ]
+            }
+          )
+        }
+
+        return structure;
+      }
+      $scope.getStructuredVarListForBrokers = function(){
+        const structure = [
+          {key:'photo'},
+          {
+            key:'group',
+            classes: 'si-background-high-contrast si-padding',
+            items: [
+              {key:'first_name',classes: 'si-text-upper'},
+              {key:'last_name', classes: 'si-text-upper si-size-emphasis'},
+              {key:'license'}
+            ]
+          },
+          {key:'phone', classes: 'si-padding si-size-emphasis'}
+        ];
+
+        return structure;
+      }
+      $scope.getStructuredVarListForOffices = function(){
+        const structure = [
+          {
+            key:'name', 
+            classes: 'si-padding si-background-high-contrast si-big-emphasis si-text-align-center'
+          },
+          {
+            key:'group',
+            classes: 'si-padding si-text-align-center',
+            items: [
+              //{key:'agency_name',classes: 'si-text-truncate si-text-upper'},
+              {key:'address'},
+              {key:'phone'}
+            ]
+          },
+          {key:'counters', classes: 'si-padding si-background-small-contrast si-weight-emphasis si-text-align-center'}
+        ];
+
+        return structure;
+      }
+      $scope.getStructuredVarListForAgencies = function(){
+        const structure = [
+          {
+            key:'group', 
+            classes: 'si-padding si-background-high-contrast  si-text-align-center',
+            items: [
+              {key: 'name', classes: 'si-big-emphasis'},
+              {key: 'license', classes: 'si-text-small'}
+            ]
+          },
+          {
+            key:'group',
+            classes: 'si-padding si-text-align-center',
+            items: [
+              //{key:'agency_name',classes: 'si-text-truncate si-text-upper'},
+              {key:'address'},
+              {key:'phone'}
+            ]
+          },
+          {key:'counters', classes: 'si-padding si-background-small-contrast si-weight-emphasis si-text-align-center'}
+        ];
+
+        return structure;
+      }
+      $scope.getStructuredVarListForCities = function(){
+        const structure = [
+          {
+            key:'group',
+            classes: 'si-padding si-background-high-contrast  si-text-align-center',
+            items: [
+              {
+                key:'name', 
+                classes: 'si-big-emphasis'
+              },
+              {key:'region'}
+            ]
+          },
+          {key:'counters', classes: 'si-padding si-background-small-contrast si-weight-emphasis si-text-align-center'}
+        ];
+
+        return structure;
+      }
+
+      $scope.updateModel = function(){
+        $scope.model.list_item_layout.displayed_vars[$scope.layer] = $scope.vars.list;
+        console.log('siListItemLayer/updateModel', $scope.model.list_item_layout, $scope.vars.list);
+      }
+    }
+  }
+}]);
+
+siApp
+.directive('siLayerVar', function siLayerVar(){
+  return {
+    restrict: 'E',
+    replace:true,
+    require: '^ngModel',
+    scope: {
+      model: '=ngModel',
+      index: '=',
+      rootIndex: '=?',
+      onRemove: '&?siOnRemove',
+      type: '@'
+    },
+    template: `
+    <div class="si-layer-var {{item.key | toDashCase}} {{item.classes.join(' ')}}" si-anchor-to="si-float-anchor">
+      <div class="si-layer-var-content" ng-include="item.template"></div>
+      <div class="si-layer-var-options" ng-if="item.key != 'group'">
+          <md-button class="md-icon-button" ng-click="openConfig()" title="{{'Manage classes'.translate()}}"><i class="fal fa-tag"></i></md-button>
+          <md-button class="md-icon-button" ng-click="remove()" title="{{'Remove'.translate()}}"><i class="fal fa-trash"></i></md-button>
+      </div>
+    </div>
+    `,
+    link: function($scope,$element,$attr, $ngModelCtrl){
+      $scope.$ngModelCtrl = $ngModelCtrl;
+      $scope.init();
+    },
+    controller: function($scope,$rootScope,$element,$siUI){
+      $scope.item = {};
+      $scope.sortableOptions = {
+        group:{
+          name: 'si-layer-var',
+          put: function (to, from, dragged) {
+            
+            let toLvl = 0;
+            parentContainer = to.el;
+            do{
+              toLvl++;
+              if(parentContainer.parentContainer != null){
+                parentContainer = parentContainer.parentContainer.closest('[ng-sortable]');
+              }
+              else{
+                parentContainer = null;
+              }
+            } while (parentContainer != null && toLvl<5);
+            
+            if(toLvl == 1 && dragged.classList.contains('group')) return false;
+
+            if(toLvl > 1) {
+              return false;
+            }
+            
+            return true;
+            
+          }
+        },
+        animation: 150,
+        fallbackOnBody: true,
+        swapThreshold: 0.7,
+        emptyInsertThreshold: 8,
+      }
+
+      $scope.init = function(){
+        const singularTypeMap = {
+          brokers: 'broker',
+          listings: 'listing',
+          offices: 'office',
+          agencies: 'agency',
+          cities: 'city'
+        }
+        $scope.availableVarList = $rootScope.global_list.list_item_vars[$scope.type];
+        $scope.item = angular.copy($scope.model);
+        if(document.querySelector('#layout-for-' + $scope.model.key)){
+          $scope.item.template = 'layout-for-' + $scope.model.key;
+        }
+        else{
+          $scope.item.template = 'layout-for-any';
+        }
+        
+        if(!['agencies','cities'].includes($scope.type)){
+          $scope.item.imageUrl     = wpSiApiSettings.base_path + `styles/assets/shadow_${singularTypeMap[$scope.type]}.jpg`;
+        }
+        $scope.applyClasses();
+
+        $scope.$on('listItemLayer/vars:changed',function($event){
+          $scope.updateModel();
+        });
+      }
+
+      $scope.updateModel = function(){
+        
+        $scope.model.classes = $scope.item.classes.join(' ');
+
+        console.log('updating model', $scope.item, $scope.model);
+
+        $scope.model.items = $scope.item.items;
+        
+        //$scope.$ngModelCtrl.$setViewValue($scope.model);
+      }
+
+      $scope.applyClasses = function(){
+
+        if($scope.item.classes == null || $scope.item.classes == undefined) $scope.item.classes = [];
+        if(!Array.isArray($scope.item.classes)) $scope.item.classes = [$scope.item.classes];
+
+        if(!['photo','group'].includes($scope.item.key)){
+          $scope.item.classes.push('si-label');
+        }
+
+      }
+
+      $scope.remove = function(){
+
+        //$scope.$emit('si/layerVar/removed', $scope.index, $scope.rootIndex);
+        if(typeof $scope.onRemove == 'function'){
+          $scope.onRemove()
+        }
+      }
+
+      $scope.removeItem = function($index){
+        console.log('remove group item at', $index);
+        $scope.item.items.splice($index,1);
+      }
+
+      $scope.addVar = function($var){
+        if($scope.item.items == undefined) $scope.item.items = [];
+        $scope.item.items.push({key: $var, classes: []});
+        
+        $scope.updateModel();
+      }
+
+      $scope.openConfig = function(){
+        if($scope.model.classes == undefined) $scope.model.classes = '';
+
+        $siUI.dialog('layer-var-edit', angular.copy($scope.model)).then($result => {
+          
+          $scope.item.classes = [$result.classes];
+
+          $scope.updateModel();
+          
+
+          if($result.classes.indexOf('si-float-') >= 0){
+            // This item should be place to root
+            console.log('var promotion triggered', $scope.model);
+            $scope.$emit('listItemLayer/vars/promote', $scope.model);
+          }
+          else{
+            $scope.$emit('listItemLayer/vars:changed');
+          }
+        });
+      }
+    }
+  }
+})
+
+siApp
+.directive('siAnchorTo', function siAnchorTo(){
+  return {
+    restrict: 'A',
+    link: function($scope,$element,$attrs){
+      let lTargetElmQuery = $attrs.siAnchorTo;
+      if(lTargetElmQuery == undefined) return;
+
+      if(!['.','#'].includes(lTargetElmQuery[0])) lTargetElmQuery = '.' + lTargetElmQuery;
+      const elm = $element[0];
+
+      if(elm.classList.contains(lTargetElmQuery) || elm.querySelector(lTargetElmQuery)) return ;
+
+      
+      const parentElm = elm.closest('.si-list-item');
+      const targetElm = parentElm.querySelector(lTargetElmQuery);
+
+      const fnApplyAnchorOffset = () => {
+        const lTargetElm = parentElm.querySelector(lTargetElmQuery);
+        if(lTargetElm == null) return;
+
+        const lOffsetElm = lTargetElm.closest('.si-layer-var');
+
+        
+        
+        elm.style.setProperty('--si-anchor-offset-top',lTargetElm.offsetTop + 'px');
+        elm.style.setProperty('--si-anchor-offset-left',lTargetElm.offsetLeft + 'px');
+        elm.style.setProperty('--si-anchor-offset-width',lTargetElm.offsetWidth + 'px');
+        elm.style.setProperty('--si-anchor-offset-height',lTargetElm.offsetHeight + 'px');
+      }
+
+      if(targetElm != null){
+        fnApplyAnchorOffset();
+      }
+
+      const parentObserver = new MutationObserver(_ => {
+        window.setTimeout( _ => {
+          console.log('siAnchorTo@observer trigger');
+          fnApplyAnchorOffset();
+        }, 500);
+      });
+
+      parentObserver.observe(parentElm,{childList:true});
+
+      const elmObserver = new MutationObserver( $mutations => {
+
+        if(!$mutations.some($m => $m.attributeName == 'class')) return;
+
+        window.setTimeout( _ => {
+          fnApplyAnchorOffset();
+        }, 500);
+      });
+
+      elmObserver.observe(elm, {attributes: true});
+    }
+  }
+})
 
 /**
  * siStylePreview
@@ -1207,70 +2402,27 @@ siApp
       model: '=siStylePreview'
     },
     link: function($scope, $element, $attrs){
-      $scope.$element = $element[0];
-
       $scope.init();
     },
-    controller: function($scope){
+    controller: function($scope,$rootScope,$element, $siConfigs){
+      $scope.workModel = {};
+
+      $scope.defaultValues = $rootScope.global_list.styles
+
       
-
-      $scope.defaultValues = {
-        'container_width' : '1170px',
-        'font_name' : 'inherit',
-        'highlight' : '#ff9900',
-        'highlight_text_color' : '#333',
-        'text_color' : '#333',
-        'background_color' : '#fff',
-        'input_placeholder_color' : 'rgba(#333,0.5)',
-        'layout_gutter' : '20px',
-        'container_border_color' : '[element_border_color]',
-        'container_border' : ' solid 1px [container_border_color]',
-        'container_border_radius' : '[element_border_radius]',
-        'container_padding' : ' [layout_gutter]',
-        'element_border_color' : '#aaa',
-        'element_border' : 'solid 1px [element_border_color]',
-        'element_border_radius' : '0px',
-        'element_padding': '10px',
-        'component_border_color' : '#aaa',
-        'component_border' : ' solid 1px [component_border_color]',
-        'component_border_radius' : '[element_border_radius]',
-        
-        'list_item_separator_color' : '#aaa',
-        'list_item_separator' : 'solid 1px [list_item_separator_color]',
-        'list_item_padding': '10px',
-        'high_contrast_color' : '#333',
-        'high_contrast_text_color' : '#fff',
-        'medium_contrast_color' : '#b9b9b9',
-        'medium_contrast_text_color' : '[text_color]',
-        'small_contrast_color' : '#e2e2e2',
-        'small_contrast_text_color' : '[text_color]',
-        
-        'error_color' : '#850000',
-        'button_bg_color' : '#333',
-        'button_text_color' : '#fff',
-        'button_font_name' : '[font_name]',
-        'button_hover_bg_color' : '#ff9900',
-        'button_hover_text_color' : '#333',
-        'button_alt_bg_color' : '#777',
-        'button_alt_text_color' : '#fff',
-        'button_alt_hover_bg_color' : '#9d9d9d',
-        'button_alt_hover_text_color' : '#fff',
-        'uls_label': 'ULS: ',
-        'listing_item_sold_bg_color' : '#ff8800',
-        'listing_item_sold_text_color' : '#fff',
-        'listing_item_column_width' : '340px',
-        'listing_item_picture_ratio' : '0.75',
-        'thumbnail_picture_size' : '100px',
-        'broker_item_column_width' : '210px',
-        'broker_item_picture_ratio' : '1.25',
-        'office_item_column_width' : '320px',
-      }
-
-
       $scope.init = function(){
-        $scope.$watch('model', function(){
+        console.log('siStylePreview/init on', $element[0]);
+        
+        $scope.$on('siStyleUpdate', function($event){
           $scope.updateElement();
-        })
+        });
+        
+        $scope.$watch(function(){
+          return JSON.stringify($scope.model);
+        }, $scope.updateElement);
+
+        
+        $scope.updateElement();
       }
 
 
@@ -1280,17 +2432,24 @@ siApp
         if($value == '') return {};
         let lParsedModel = {};
 
+        //console.log('Model to parse',$value);
+
+        
+        
         if(Array.isArray($value)){
           $value.forEach($v => {
             lParsedModel = Object.assign(lParsedModel, JSON.parse($v));
           })
         }
-        else{
+        else if(typeof $value == 'string'){
           lParsedModel = JSON.parse($value);
+        }
+        else{
+          lParsedModel = $value;
         }
 
         
-        console.log('rawModel parsed', lParsedModel);
+        //console.log('rawModel parsed', lParsedModel);
 
         const lModel = Object.keys(lParsedModel).filter(
           function($k){
@@ -1298,19 +2457,21 @@ siApp
           }
         ).reduce(
           function ($result, $k){
-            const lNewKey = $k.replace('--','').replace(/(-)/g,'_');
+            const lNewKey = $k.replace('--si-','').replace(/(-)/g,'_');
             $result[lNewKey] = lParsedModel[$k]
             return $result;
           },{}
         );
-        console.log('Parsed model',lModel);
+        //console.log('Parsed model',lModel);
         return lModel;
       }
 
 
       $scope.updateElement = function(){
-        const lJSONModel = $scope.parseModel($scope.model);
-
+        
+        const lModelToParse = ($scope.model == undefined || Object.keys($scope.model).length == 0) ? $siConfigs.configs.styles : $scope.model;
+        const lJSONModel = $scope.parseModel(lModelToParse);
+        console.log('siStylePreview/updateElement', lJSONModel);
         const lModel = Object.keys(lJSONModel).reduce(
           ($result,$key) => {
             if(lJSONModel[$key] != ''){
@@ -1321,13 +2482,14 @@ siApp
           },
           {}
         );
+        
 
         const lEffectiveStyle = Object.assign({},$scope.defaultValues, lModel);
-        console.log('Model',lModel, 'Effective', lEffectiveStyle);
+        //console.log('Model',lModel, 'Effective', lEffectiveStyle, 'RawModel', $siConfigs.configs.styles);
         
-        const lPreviewElm = $scope.$element.querySelector('.viewport');
+        const lPreviewElm = $element[0].querySelector('.si-preview-viewport');
         if(lPreviewElm == null) {
-          console.log('.viewport on', $scope.$element, 'not found');
+          console.log('.viewport on', $element, 'not found');
           return false;
         }
         // remove all styles
@@ -1336,23 +2498,24 @@ siApp
         Object.keys(lEffectiveStyle).forEach($k => {
 
           const lStyleKey = $k.replace(/_/g,'-');
+
           let lValue =  lEffectiveStyle[$k];
           const lSubVarRegex = /\[(.+)\]/g;
           //console.log($k,'=', lValue, 'in', lEffectiveStyle);
           if(lValue!=undefined){   
             if(lValue.match(lSubVarRegex)){
-              lValue = lValue.replace(lSubVarRegex,'var(--preview-$1)');
+              lValue = lValue.replace(lSubVarRegex,'var(--si-$1)');
               lValue = lValue.replace(/_/g,'-');
             }
             
             if($k == 'uls_label'){
               lValue = '"' + lValue + '"';
             }
-            lPreviewElm.style.setProperty('--preview-' + lStyleKey, lValue);
+            lPreviewElm.style.setProperty('--si-' + lStyleKey, lValue);
           }
         });
 
-
+        //console.log('.viewport preview updated', lPreviewElm);
       }
 
     }
@@ -1363,7 +2526,7 @@ siApp
 .directive('siNotice', [function siNotice(){
   return {
     restrict: 'E',
-    templateUrl : wpSiApiSettings.base_path + '/views/admin/statics/si-notice.html',
+    templateUrl : wpSiApiSettings.base_path + 'views/admin/statics/si-notice.html',
     replace: true,
     scope: {
       model: '=siModel'
@@ -1533,7 +2696,7 @@ siApp
       model: '=siModel',
       active_addons: '=siActiveAddons'
     },
-    templateUrl: siAdminDirectiveTemplatePath('si-addon-config'),
+    templateUrl: siAdminDirectiveTemplatePath('si-addon'),
     replace: true,
     link: function($scope, $element, $attrs){
       $scope.init();
@@ -1598,4 +2761,135 @@ siApp
 
     }
   }
-}])
+}]);
+
+siApp
+.directive('siLargeTextInput', function siLargeTextInput(){
+  return {
+    restrict: 'C',
+    link: function($scope,$element,$attr){
+      $element[0].addEventListener('keydown', function($event){
+        if($event.key == 'Tab'){
+          
+          //$event.stopPropagation();
+          $event.preventDefault();
+          var start = this.selectionStart;
+          var end = this.selectionEnd;
+
+          // set textarea value to: text before caret + tab + text after caret
+          this.value = this.value.substring(0, start) +
+            "\t" + this.value.substring(end);
+
+          // put caret at right position again
+          this.selectionStart =
+          this.selectionEnd = start + 1;
+        }
+      })
+    }
+  }
+})
+
+siApp
+.directive('siClassSelector', function siClassSelector(){
+  return {
+    restrict: 'E',
+    require: '^ngModel',
+    scope: {
+      filter: '@?',
+      model : '=ngModel'
+    },
+    template: `
+      <md-chips ng-model="selectedItems" 
+          md-autocomplete-snap
+          md-transform-chip="transformChip($chip)"
+          md-add-on-blur="true"
+          md-on-add="updateModel()" md-on-remove="updateModel()"
+        >
+        <md-autocomplete
+            md-selected-item="selectedItem"
+            md-search-text="searchText"
+            md-items="item in querySearch(searchText)"
+            md-require-match="false"
+            placeholder="{{'Add a class'.translate()}}"
+            >
+          <span md-highlight-text="searchText">{{item}}</span>
+        </md-autocomplete>
+        <md-chip-template>
+          <span>
+            <strong>{{$chip}}</strong>
+          </span>
+        </md-chip-template>
+      </md-chips>
+    `,
+    controllerAs: 'ctrl',
+    link: function($scope,$element,$attr,$ngModelCtrl){
+      $scope.$ngModelCtrl = $ngModelCtrl;
+      $scope.init();
+    },
+    controller: function($scope,$q,$timeout){
+      $scope.selectedItems = [];
+      $scope.searchText = '';
+      $scope.selectedItem = null;
+      $scope.classList = [
+        'si-padding','si-padding-inline','si-padding-block','si-padding-size-slim','si-padding-size-half','si-padding-size-quarter','si-padding-size-three-quarter',
+        'si-border','si-border-top', 'si-border-bottom','si-border-curved', 'si-border-round',
+        'si-box-shadow','si-box-shadow-weak','si-box-shadow-strong',
+        'si-no-background', 'si-background-small-contrast','si-background-medium-contrast','si-background-high-contrast',
+        'si-text-align-left','si-text-align-center','si-text-align-right', 'si-text-upper','si-text-lower','si-text-truncate',
+//        'si-link-button',
+        'si-content-gap','si-content-small-gap','si-content-big-gap',
+        'si-animate-fade-in','si-animate-slide-in-bottom','si-animate-slide-in-top','si-animate-slide-in-left','si-animate-slide-in-right',
+        'si-animate-fast','si-animate-slow',
+        'si-animate-delay', 'si-animate-delay-slight', 'si-animate-delay-chain', 'si-animate-wait-viewport'
+      ];
+      $scope.typeSpecificClassList = {
+        listings : [],
+        brokers: [],
+        offices: [],
+        agencies: [],
+        search: ['si-input-background-small-contrast','si-input-background-medium-contrast','si-input-background-high-contrast', 'si-input-radius', 'si-input-big-radius', 'si-input-border-top', 'si-input-border-bottom'],
+        layerVar: [
+                    'si-show-labels','si-hide-icons',
+                    'si-pull-up','si-pull-left','si-pull-up-left','si-pull-up-right','si-pull-right','si-pull-down','si-pull-down-left','si-pull-down-right',
+                    'si-slim-pull-up','si-slim-pull-left','si-slim-pull-up-left','si-slim-pull-up-right','si-slim-pull-right','si-slim-pull-down','si-slim-pull-down-left','si-slim-pull-down-right',
+                    'si-float-anchor', 'si-float-center','si-float-top','si-float-left','si-float-right','si-float-bottom',
+                    'si-float-top-left','si-float-top-center','si-float-top-right',
+                    'si-float-center-left','si-float-center-center','si-float-center-right',
+                    'si-float-bottom-left','si-float-bottom-center','si-float-bottom-right'
+                  ]
+      }
+      $scope.init = function(){
+        if($scope.model && $scope.model != ''){
+          $scope.selectedItems = $scope.model.split(' ');
+        }
+        
+      }
+
+      $scope.querySearch = function($text){
+          if(!$text) return [];
+
+          const allClasses = [...$scope.classList];
+          if($scope.filter!=undefined && $scope.typeSpecificClassList[$scope.filter]){
+            allClasses.push(...$scope.typeSpecificClassList[$scope.filter]);
+          }
+
+          const result = allClasses.filter($c => $c.indexOf($text.toLowerCase().replace(/\s/g,'-')) >= 0 );
+          console.log('querySearch', result.length);
+          return result;
+      }
+
+      $scope.transformChip = function($chip){
+        console.log('transformChip', $chip);
+        return $chip;
+      }
+
+      $scope.updateModel = function(){
+        console.log('siClassSelector/updateModel',$scope.selectedItems);
+        $timeout(_ => {
+          $scope.$ngModelCtrl.$setViewValue($scope.selectedItems.join(' '));
+        })
+      }
+
+    }
+  }
+})

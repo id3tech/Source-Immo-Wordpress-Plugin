@@ -1,0 +1,26 @@
+<div class="layer {{layer}}-layer">
+
+    <div class="fullname si-label si-big-emphasis" ng-show="layoutAllowVar('fullname')">Clark Wayne</div>
+    <div class="firstname si-label si-weight-emphasis" ng-show="layoutAllowVar('first_name',true)">Clark</div>
+    <div class="lastname si-label si-big-emphasis" ng-show="layoutAllowVar('last_name',true)">Wayne</div>
+    <div class="license si-label" ng-show="layoutAllowVar('title',true)"><lstr>Real estate broker</lstr></div>
+    <div class="office si-label" ng-show="layoutAllowVar('office')">Immo 2000</div>
+
+    <div class="phone si-label si-space-emphasis si-font-emphasis" ng-show="layoutAllowVar('phone')">520-555-8652</div>
+    <div class="email si-label" ng-show="layoutAllowVar('email')">clark.wayne@immo2000.com</div>
+
+    <div class="si-label" ng-if="layoutAllowVar('contacts')">
+        <div class="contacts ">
+            <div class="contact phone"><i class="icon fal fa-fw fa-phone"></i> <span class="label">520-555-8652</span></div>
+            <div class="contact email"><i class="icon fal fa-fw fa-envelope"></i> <span class="label">clark.wayne@immo2000.com</span></div>
+        </div>
+    </div>
+
+
+    <div class="listing-count si-label" ng-show="layoutAllowVar('listing_count')">{{'{0} listings'.translate().format(15)}}</div>
+
+
+    <div class="link-button">
+      <a href="#" class="si-button"><lstr>Learn more</lstr></a>
+    </div>
+</div>

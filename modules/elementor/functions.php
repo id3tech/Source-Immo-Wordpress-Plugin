@@ -16,8 +16,9 @@ include SI_ELEMENTOR_MODULE_PATH . "/class.module.php";
 if(!function_exists('si_dummy_include')){
 	function si_dummy_include($path){
 		$filePath = SI_ELEMENTOR_MODULE_PATH . '/dummy-content/' . $path;
+		
 		if(file_exists($filePath)){
-
+			
 			$pathParts = explode('/', $path);
 
 			$partClasses = ['si-part'];
@@ -26,8 +27,7 @@ if(!function_exists('si_dummy_include')){
 			echo('<div class="' . implode(' ',$partClasses) .'">');
 			include $filePath;
 			echo('</div>');
-		}
-		
+		}		
 	}
 
 }

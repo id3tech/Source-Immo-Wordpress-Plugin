@@ -4,6 +4,7 @@
 
 <?php si_dummy_include('broker/name.php') ?>
 <?php si_dummy_include('broker/license.php') ?>
+<?php si_dummy_include('broker/company.php') ?>
 
 <?php si_dummy_include('broker/about.php') ?>
 

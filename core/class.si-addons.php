@@ -36,9 +36,15 @@ class SourceImmoAddons{
         if($active_addons == null) return;
         
         foreach($this->items as $addon){
-            if(array_key_exists($addon->name, $active_addons)){
-                $addon->active_configs = $active_addons->{$addon->name}->configs;
-                $addon->register_hooks();
+            $hasKey = is_array($active_addons) ? array_key_exists($addon->name, $active_addons) : isset($active_addons->{$addon->name});
+            
+                
+            if($hasKey){    
+                $config = (is_array($active_addons)) ? $active_addons[$addon->name]->configs :  $active_addons->{$addon->name}->configs;
+                if($config){
+                    $addon->active_configs = $config;
+                    $addon->register_hooks();
+                }
             }
         }
     }

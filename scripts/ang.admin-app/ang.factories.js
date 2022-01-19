@@ -136,7 +136,8 @@ function $siUtils($siApi,$q){
       'listings' : {
         search_engine_options : {
           type : 'full',
-          filter_tags: 'none'
+          filter_tags: 'none',
+          scope_class: 'si-border'
         },
         displayed_vars: {
           main: ["address", "city", "price", "rooms","category", "subcategory"]
@@ -155,8 +156,8 @@ function $siUtils($siApi,$q){
     lList.sort = $sort==''  ? null : $sort;
     lList.sort_reverse = $sortReverse;
     lList.limit = $limit;
-    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : ''};
-    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : ''};
+    lList.list_layout       = {type: 'standard', preset: 'standard', scope_class : 'si-border'};
+    lList.list_item_layout  = {type: 'standard', preset: 'standard', scope_class : 'si-border'};
     
     lList.searchable = true;
     lList.sortable = true;
@@ -173,9 +174,59 @@ function $siUtils($siApi,$q){
     return lList;
   }
 
+  $scope.strToJson = function($source){
+    
+  }
+
   
   return $scope;
 }]);
+
+siApp
+.factory('$siUser', ['$siApi','$siUI', '$q','$rootScope',
+function $siUser($siApi, $siUI, $q,$rootScope){
+    const $scope = {
+      info: null,
+      isLoggedIn: false,
+      credentials: null
+    }
+    
+    $scope.init = function(){
+      $scope.load();
+
+      if($scope.info != null){
+        $scope.isLoggedIn = true;
+      }
+    }
+
+
+    $scope.load = function(){
+      $scope.info = wpSiApiSettings.si_user_account;
+    }
+
+    $scope.getCredentials = function(){
+      //if($scope.credentials != null) return $q.resolve($scope.credentials);
+
+      return $scope.login();
+    }
+
+    $scope.login = function(){
+      const lDefer = $q.defer();
+
+      $siUI.dialog('account-login',null,{clickOutsideToClose: false}).then($result => {
+          $scope.credentials = $result;
+          lDefer.resolve($result);
+      })
+
+
+      return lDefer.promise;
+    }
+
+
+    $scope.init();
+    return $scope;
+}
+])
 
 
 siApp
@@ -276,11 +327,18 @@ siApp
 
 siApp
 .factory('$siApi', [
-  '$http','$q',
-  function $siApi($http,$q){
+  '$http','$q', '$interval',
+  function $siApi($http,$q,$interval){
     const $scope = {
-      nonceTimeout: 10
+      nonceTimeout: 2
     };
+    
+    $scope.init = function(){
+      $interval( _ => {
+        //$scope.renewNonce();
+      },$scope.nonceTimeout * 60 * 1000);
+      console.log('$siApi/init');
+    }
 
     $scope.renewNonce = function(){
       console.log('$siApi/renewNonce');
@@ -309,11 +367,7 @@ siApp
           )
       });
     }   
-    window.setInterval(function(){
-      $scope.renewNonce();
-    }, $scope.nonceTimeout * 60 * 1000 );
-
-
+    
     $scope.rest = function($path, $data, $options){
       $options = angular.merge({
         url     : wpSiApiSettings.root + 'si-rest/' + $path,
@@ -339,11 +393,12 @@ siApp
                 $resolve($result.data);
               }
               else{
-                $reject(null);
+                $reject($result.status);
               }
             },
             // On fail
             function fail($error){
+              $reject($error.status);
               console.log('Fail on path', $path, 'with data' , $data , $error);
             }
           )
@@ -434,6 +489,8 @@ siApp
       
     }
 
+    $scope.init();
+
     return $scope;
   }
 ])
@@ -449,6 +506,9 @@ siApp
       $siApi.rest('configs')
         .then(function($configs){
           $scope.configs = $configs;
+          
+          $resolve($scope.configs);
+
         })
         .then(function(){
           return $scope.loadBackup()
@@ -457,8 +517,6 @@ siApp
           if($backup != null && $backup != ''){
             $scope.configsBackup = JSON.parse($backup);
           }
-          
-          $resolve($scope.configs);
         });
     });
   }
@@ -572,6 +630,30 @@ siApp
 
   }
 
+  $scope.replaceAccount = function($newCredentials){
+    const lPreviousValues = {
+      account_id :$scope.configs.account_id,
+      api_key: $scope.configs.api_key,
+      default_view: $scope.configs.default_view
+    };
+
+    console.log('$siConfigs/replaceAccount',angular.copy($scope.configs));
+    
+    $scope.configs.account_id = $newCredentials.account_id;
+    $scope.configs.api_key = $newCredentials.api_key;
+    $scope.configs.default_view = $newCredentials.default_view.id;
+
+    $scope.configs.lists.forEach($e => {
+      if($e.source.id == lPreviousValues.default_view){
+        $e.source = $newCredentials.default_view;
+      }
+    });
+
+    console.log('$siConfigs/replaceAccount',$scope.configs);
+
+    return $scope.save($scope.configs);
+  }
+
   return $scope;
 }]);
 
@@ -602,7 +684,7 @@ siApp
                     .targetEvent($options.ev)
                     lDialog._options.parent = angular.element(document.body);
 
-    $mdDialog.show(
+    return $mdDialog.show(
       lDialog
     );
   }
@@ -627,7 +709,7 @@ siApp
     
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
-          .title(lTitle)
+          .title(lTitle.translate())
           .htmlContent(lMessage.translate().replace("\n",'<br>'))
           .multiple($options.multiple)
           .targetEvent($options.ev)
@@ -635,7 +717,18 @@ siApp
           .cancel($options.cancel.translate());
 
     confirm._options.parent = angular.element(document.body);
-    return $mdDialog.show(confirm);
+    return $q(($resolve,$reject) => {
+      $mdDialog.show(confirm).then(
+        function acknowledge(){
+          console.log(`user has acknowledged ${lMessage}`);
+          $resolve();
+        },
+        function reject(){
+          console.log(`user has rejected ${lMessage}`);
+          $reject();
+        }
+      );
+    });
   }
 
   /**
@@ -664,45 +757,94 @@ siApp
    * @param {*} $params parameters to pass to the dialog
    * @param {*} $options options for the dialog
    */
-  $scope.dialog = function($template, $params=null, $options=null){
+  $scope.dialog = function($name, $params=null, $options=null){
     const lOptions = Object.assign({
         parent: angular.element(document.body),
         targetEvent: null,
         clickOutsideToClose:true,
         fullscreen: true,
         multiple:true,
+        id: $name + '-dialog',
         locals : {
           $params: $params
         }
       },$options
     );
 
-    if($template.match(/^~.+\.(html|php|vbhtml|cshtml)/).length > 0){
-      lOptions.templateUrl = $template.replace('~', wpSiApiSettings.base_path) + '?t=' + (new Date()).getTime();
-      // detect controller from filename
-      if(lOptions.controller == undefined){
-        const lPageName = $template.split("/").last().match(/(.+)\./)[1];
-        const lCtrlName = lPageName.replace(/-|\./g,'_') + 'Ctrl';
-        console.log('search for controller', lCtrlName, typeof window[lCtrlName]);
-        if(typeof window[lCtrlName] == 'function'){
-          console.log('assign root base function as dialog controller');
-          lOptions.controller = window[lCtrlName];
-        }
-        else{
-          const lCtrlProvider = siApp._invokeQueue
-                                  .filter($p => $p[0] == "$controllerProvider")
-                                  .find($p => $p[2][0] == lCtrlName);
-          if(lCtrlProvider != null) lOptions.controller = lCtrlProvider[2][1];
-        }
+    normalizeName = $name.replace(/(-\D)/gi, ($m) => $m.substr(1,2).toUpperCase() + $m.substr(2))
+    templatePath = wpSiApiSettings.base_path + 'views/admin/dialogs/' + $name + '.html?t=' + (new Date()).getTime();
+    dialogController = normalizeName + 'DialogCtrl';
+
+    console.log('$siUI/dialog', templatePath,dialogController,$params);
+
+    lOptions.template = `<md-dialog id="${$name}-dialog" ng-controller="${dialogController}" ng-init="init($params)"><ng-include src="'${templatePath}'"></ng-include></md-dialog>`;
+    lOptions.controller = 'siDialogController'
+
+    // if($template.match(/^~.+\.(html|php|vbhtml|cshtml)/).length > 0){
+    //   lOptions.templateUrl = $template.replace('~', wpSiApiSettings.base_path) + '?t=' + (new Date()).getTime();
+    //   // detect controller from filename
+    //   if(lOptions.controller == undefined){
+    //     const lPageName = $template.split("/").last().match(/(.+)\./)[1];
+    //     const lCtrlName = lPageName.replace(/-|\./g,'_') + 'Ctrl';
+    //     console.log('search for controller', lCtrlName, typeof window[lCtrlName]);
+    //     if(typeof window[lCtrlName] == 'function'){
+    //       console.log('assign root base function as dialog controller');
+    //       lOptions.controller = window[lCtrlName];
+    //     }
+    //     else{
+    //       const lCtrlProvider = siApp._invokeQueue
+    //                               .filter($p => $p[0] == "$controllerProvider")
+    //                               .find($p => $p[2][0] == lCtrlName);
+    //       if(lCtrlProvider != null) lOptions.controller = lCtrlProvider[2][1];
+    //     }
         
-      }
-    }
-    else{
-      lOptions.template = $template.replace(/~/g, wpSiApiSettings.base_path);
-    }
+    //   }
+    // }
+    // else{
+    //   lOptions.template = $template.replace(/~/g, wpSiApiSettings.base_path);
+    // }
     
     
     return $mdDialog.show(lOptions);
+  }
+
+  $scope.getLocalFile = function($fileFilter = ''){
+    
+    if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+      console.log('The File APIs are not fully supported in this browser.');
+      return $q.reject();
+    }
+
+    const lDefer = $q.defer();
+    const inputElm = document.createElement('input');
+    inputElm.setAttribute('type','file');
+    inputElm.setAttribute('accept', $fileFilter);
+    inputElm.style.opaciy = 0;
+    inputElm.style.position = "absolute";
+
+    inputElm.addEventListener('change', _ => {
+      if (!inputElm.files) {
+        console.log("This browser doesn't seem to support the `files` property of file inputs.");
+        lDefer.reject();
+      } else if (!inputElm.files[0]) {
+        console.log("No file selected.");
+        lDefer.reject();
+        inputElm.remove();
+      } else {
+        let file = inputElm.files[0];
+        let fr = new FileReader();
+        fr.onload = _ => {
+          lDefer.resolve(fr.result);
+          inputElm.remove();
+        };
+        fr.readAsText(file);
+      }
+    });
+    
+    document.body.appendChild(inputElm);
+    inputElm.click();
+
+    return lDefer.promise;
   }
 
   $scope.getPortalCredentials = function(){
@@ -721,6 +863,74 @@ siApp
 
   return $scope;
 }]);
+
+
+siApp
+.factory('$siWP', ['$rootScope','$q', '$siApi', function $siWP($rootScope,$q,$siApi){
+
+  const $scope = {
+    pages: {},
+    languages: null
+  };
+
+
+  $scope.loadPages = function(){
+    return $q(function($resolve, $reject){
+      $scope.loadLanguages().then($languages => {
+        callList = $languages.map( $l => function(){return $scope.loadPagesForLang($l.code)});
+        $q.all(callList.map($c => $c()))
+        .then($results => {
+          $languages.forEach( ($l,$index) => {
+            $scope.pages[$l.code] = $results[$index];
+          })
+          
+          console.log('loadPages', $scope.pages);
+          $resolve($scope.pages);
+        })
+        .catch($err => {console.error($err)})
+      });
+    });
+  }
+
+  $scope.loadPagesForLang = function($lang){
+    return $siApi.rest('page/list',{locale: $lang, type: ''},{method: 'GET'});
+  }
+
+  $scope.loadLanguages = function(){
+    return $q(function($resolve, $reject){
+      if($scope.languages != null){
+        $resolve($scope.languages);
+        return;
+      }
+      
+      $siApi.rest('language/list',null,{method : 'GET'})
+      .then($result => {
+        $scope.languages = $result;
+        
+        $resolve($scope.languages);
+      })
+      .catch($err => {console.error($err)})
+    });
+  }
+
+  $scope.updatePage  = function ($id, $newContent){
+
+  }
+
+  $scope.addPage = function($title, $content, $lang, $originalId){
+    return $q( ($resolve, $reject) => {
+      $siApi.rest('page',{lang: $lang, page_id: 'NEW', title: $title, content: $content, original_page_id: $originalId}).then($response => {
+        
+        $resolve($response);
+
+        $scope.loadPages();
+      });
+    });
+  }
+
+
+  return $scope;
+}])
 
 /**
  * Sets basic page handler interface function

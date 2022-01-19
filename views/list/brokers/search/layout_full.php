@@ -19,7 +19,7 @@
     
 </div>
 
-<div class="inputs {{(!isFieldFiltered('searchbox')) ? 'no-searchbox' : ''}}" style="--input-count: {{getInputCount()}}">
+<div class="inputs {{(!isFieldFiltered('searchbox')) ? 'no-searchbox' : ''}}" >
     <div class="search-box" ng-if="isFieldFiltered('searchbox')" >
         <si-search-box
             alias="<?php echo $configs->alias ?>" 
@@ -31,8 +31,7 @@
         ng-click="toggleExpand($event,'letters')"
         ng-if="isFieldFiltered('letters')"><span><?php echo(apply_filters('si_label', __('Letter', SI))) ?></span> <i class="fal fa-angle-down"></i></div>
     <div class="si-panel-button si-hover-shade offices {{isExpanded('offices')}} {{filter.hasFilter('offices') ? 'has-filters' : ''}}" 
-        ng-show="officeList.length > 1"
-        ng-if="isFieldFiltered('offices')"
+        ng-if="officeList.length > 1 && isFieldFiltered('offices')"
          ng-click="toggleExpand($event,'offices')"><span><?php echo(apply_filters('si_label', __('Offices', SI))) ?></span> <i class="fal fa-angle-down"></i></div>
 
     <div class="si-panel-button si-hover-shade more-button {{isExpanded('others')}} 

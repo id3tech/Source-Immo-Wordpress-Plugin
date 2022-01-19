@@ -54,6 +54,9 @@ class SourceImmoSingleDataContainerTags extends \Elementor\Core\DynamicTags\Tag 
     }
 
     public function render() {
+
+        return;
+
         $controller = $this->get_settings( 'controller' );
         $ref_number = $this->get_settings( 'ref_number' );
         $loading_text = $this->get_settings( 'loading_text' );

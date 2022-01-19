@@ -1,0 +1,22 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2 lstr>Edit block classes</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+<md-dialog-content>
+
+    <md-input-container md-no-float>
+        <label></label>
+        <si-class-selector ng-model="model.classes" filter="layerVar"></si-class-selector>
+    </md-input-container>
+
+</md-dialog-content>
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

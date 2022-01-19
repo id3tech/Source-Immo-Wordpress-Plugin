@@ -1,5 +1,4 @@
-<md-dialog aria-label="" ng-init="init()" id="agencies-list-item-edit">
-    <form ng-cloak>
+
       <md-toolbar>
         <div class="md-toolbar-tools">
           <h2 lstr>List item edit</h2>
@@ -83,7 +82,7 @@
               si-model="model.list_item_layout.styles" 
               si-change="updateStyles($styles)"
               si-show-preview="false"
-              si-editables="['office','bg-fg','elements']" ></si-style-editor>
+              si-editables="['broker','bg-fg','elements']" ></si-style-editor>
 
             <md-input-container>
               <label lstr>Custom class</label>
@@ -104,5 +103,4 @@
         <span flex></span>
         <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
       </md-dialog-actions>
-    </form>
-  </md-dialog>
+    

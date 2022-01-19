@@ -52,32 +52,50 @@ if(typeof String.prototype.trimChar === 'undefined'){
 
 }
 
+if(typeof String.prototype.toCamelCase === 'undefined'){
+    String.prototype.toCamelCase = function(){
+        let lResult = this;
+        lResult.replace(/(-[a-z])/g, ($match) => {
+            return $match.substring(1,2).toUpperCase() + $match.substring(2);
+        });
+        return lResult;
+    }
+}
+
+
 
 if(typeof [].firstOrDefault === 'undefined'){
-    Array.prototype.firstOrDefault = function($default){
-        if(this.length > 0) return this[0];
-        return $default;
-    }
+	Object.defineProperty(Array.prototype, 'firstOrDefault', {
+		value: function($default){
+			if(this.length > 0) return this[0];
+			return $default;
+		}
+	});
 }
 
 if(typeof [].last === 'undefined' ){
-    Array.prototype.last = function(){
-        if(this.length == 0) return null;
-        return this[this.length - 1];
-    }
+	Object.defineProperty(Array.prototype, 'last', {
+		value: function(){
+			if(this.length == 0) return null;
+			return this[this.length - 1];
+		}
+	});
 }
 
 if(typeof [].any === 'undefined'){
-    Array.prototype.any = function(){
-        if(this.length < 1) return null;
-        if(this.length == 1) return this[0];
+	Object.defineProperty(Array.prototype, 'any', {
+		value: function(){
+			if(this.length < 1) return null;
+			if(this.length == 1) return this[0];
 
-        const lIndex = Math.round(Math.random() * this.length-1);
-        const lResult = this[lIndex];
-        
-        return isNullOrEmpty(lResult) ? this[0] : lResult;
-    }
+			const lIndex = Math.round(Math.random() * this.length-1);
+			const lResult = this[lIndex];
+
+			return isNullOrEmpty(lResult) ? this[0] : lResult;
+		}
+	});
 }
+
 
 if(typeof Number.formatPrice === 'undefined' ){
 

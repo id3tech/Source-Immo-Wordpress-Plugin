@@ -1,0 +1,39 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>Select a page</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content" >
+        <div class="si-search-container">
+            <input type="search" ng-model="pageFilterQuery">
+            <i class="fal fa-search"></i>
+        </div>
+
+        <div ng-if="isLoading"><i class="fal fa-fw fa-spinner fa-spin"></i></div>
+        
+        <div class="si-page-list">
+            <div class="si-page-item {{item._selected ? 'selected' : ''}}" ng-repeat="item in pageList | orderBy: 'post_title' | filter: pageFilterQuery" ng-click="selectPage(item)">
+                <div class="page-name">{{item.post_title}}</div>
+                <div class="page-info" layout="row" layout-align="start center" layout-gap="1">
+                    <div><i class="fal fa-hashtag"></i>{{item.ID}}</div>
+                    <div><i class="fal fa-link"></i>/{{item.post_name}}</div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+
+</md-dialog-content>
+
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-disabled="!button.isValid()" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

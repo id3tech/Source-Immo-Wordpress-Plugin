@@ -4,7 +4,7 @@
             data-ng-click="cancelEvent($event)">
             <div class="modal-header">
                     <h3 class="modal-title"><i class="fal fa-comments-alt"></i> {{modal_title.translate()}}</h3>
-                    <button type="button" data-ng-click="close()" class="button close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" data-ng-click="close()" class="si-button close" data-dismiss="modal" aria-label="Close">
                         <i class="fal fa-times"></i>
                     </button>
                 </div>
@@ -14,8 +14,8 @@
     
         </div>
         <div class="modal-footer">
-            <button type="button" class="button" data-ng-click="close()"  data-ng-show="options.close_label!=null">{{options.close_label.translate()}}</button>
-            <button type="button" class="button" data-ng-click="closeWithValue()" ng-disabled="!isFormValid()">{{options.ok_label.translate()}}</button>
+            <button type="button" class="si-button" data-ng-click="close()"  data-ng-show="options.close_label!=null">{{options.close_label.translate()}}</button>
+            <button type="button" class="si-button" data-ng-click="closeWithValue()" ng-disabled="!isFormValid()">{{options.ok_label.translate()}}</button>
         </div>
     </div>
 </div>

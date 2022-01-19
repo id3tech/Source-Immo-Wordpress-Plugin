@@ -1,5 +1,4 @@
-<md-dialog aria-label="" ng-init="init()">
-    <form ng-cloak>
+
       <md-toolbar>
         <div class="md-toolbar-tools">
           <h2 lstr>Search engine's configuration</h2>
@@ -23,7 +22,9 @@
 
           <md-input-container>
             <label lstr>Search box placeholder</label>
-            <input ng-model="model.search_box_placeholder" />
+            <si-localized>
+              <input type="text" ng-model="model.search_box_placeholder[$localized.current]" />
+            </si-localized>
           </md-input-container>
 
           <md-input-container ng-if="false">
@@ -40,6 +41,14 @@
               <lstr ng-show="model.orientation == 'v'">When scrolling, stick the search engine to viewport side</lstr>
             </md-checkbox>
           </md-input-container>
+
+
+          
+
+          <md-input-container>
+            <label lstr>Element classes</label>
+            <si-class-selector ng-model="model.scope_class" filter="search"></si-class-selector>
+          </md-input-container>
         </div>
       </md-dialog-content>
   
@@ -47,5 +56,4 @@
         <span flex></span>
         <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
       </md-dialog-actions>
-    </form>
-  </md-dialog>
+    

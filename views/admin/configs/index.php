@@ -30,9 +30,6 @@
         <i class="fal fa-fw fa-city"></i> <lstr>Cities</lstr>
       </div>
 
-      <div class="nav-button styles" ng-click="show('styles')">
-        <i class="fal fa-fw fa-palette"></i> <lstr>Styles</lstr>
-      </div>
 
       <div class="nav-button addons" ng-if="addons.length > 0" ng-click="show('addons')">
         <i class="fal fa-fw fa-cogs"></i> <lstr>Addons</lstr>
@@ -50,9 +47,6 @@
       <?php SourceImmo::view('admin/configs/general') ?>
     </section>
 
-    <section id="styles">
-      <?php SourceImmo::view('admin/configs/styles') ?>
-    </section>
     
     <section id="listings">
       <si-data-group-editor si-type="listings"></si-data-group-editor>

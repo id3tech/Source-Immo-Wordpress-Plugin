@@ -441,17 +441,22 @@ siApp
         fields: [],
       }
     }
+
+    
+    $scope.$on('siListPreview/editListItem', function(){
+      $scope.editListItem($scope.model.type);
+    })
   }
 
   $scope.editSearchEngine = function($type){
-    $siUI.dialog('~/views/admin/dialogs/' + $type + 'SearchEngineEdit.html',$scope.model.search_engine_options).then($result => {
+    $siUI.dialog($type + '-search-engine-edit',$scope.model.search_engine_options).then($result => {
       $scope.model.search_engine_options = $result;
     });
   }
 
   $scope.editListItem = function($type){
 
-    $siUI.dialog('~/views/admin/dialogs/' + $type + 'ListItemEdit.html',$scope.model).then($result => {
+    $siUI.dialog($type + '-list-item-edit',$scope.model).then($result => {
       $scope.model = $result;
       $scope.computeStyles();
       console.log('editListItem return with', $result);

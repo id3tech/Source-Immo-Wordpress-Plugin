@@ -20,7 +20,7 @@
         
     </div>
 
-    <div class="inputs" style="--input-count: {{getInputCount()}}">
+    <div class="inputs">
         <div class="search-box">
             
             <si-search-box 

@@ -18,7 +18,7 @@ $locales.fr.global = Object.assign($locales.fr.global,
         , "Region" : "Région"
         , "Full address" : "Adresse complète"
         , "Civic address" : "Adresse civique"
-
+        , "Company name" : "Nom de société"
         , "Source.Immo - List meta" : "Source.Immo - Meta de liste"
         , "List alias" : "Alias de liste"
         , "Value of" : "Valeur de"

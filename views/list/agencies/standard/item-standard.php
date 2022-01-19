@@ -2,7 +2,7 @@
 /**
  * Standard list item view
  */
-$scope_class = array('si-item si-office-item si-single-layer-item-layout');
+$scope_class = array('si-item si-office-item si-single-layer-item-layout  si-background');
 $attrs = [
     'data-agency-code="{{item.agency.ref_number}}"'
 ];
@@ -30,20 +30,11 @@ if(isset($configs)){
     class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak
         <?php echo(implode(' ', $attrs)) ?> >
     <a href="{{item.permalink}}">
-        <div class="item-content si-background">
-            
-            <div class="si-data-label name <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('name',true)">{{item.name}}</div>
-            <div class="si-data-label license-type <?php echo($styleActive ? 'si-background-high-contrast' : '') ?>"  ng-show="layoutAllowVar('license',true)">{{item.license_type}}</div>
-            
-            <div class="si-data-label address <?php echo($styleActive ? '' : '') ?>"   ng-show="layoutAllowVar('address',true)">
-                <div itemprop="streetAddress">{{item.main_office.location.street_address}}</div> 
-                <span itemprop="city">{{item.main_office.location.city}}</span>, <span>{{item.main_office.location.state}}</span>, <span>{{item.main_office.location.address.postal_code}}</span>
+        <div class="item-content">
+            <div class="layer-container">
+                <?php siShowStandardItemLayer($configs); ?>
             </div>
             
-            <div class="si-data-label office-counters  <?php echo($styleActive ? 'si-background-small-contrast' : '') ?>"  ng-show="layoutAllowVar('listing_count',true)">
-                <div><i class="fal fa-home"></i> <em>{{item.listings_count}}</em></div>
-                <div ng-if="item.brokers_count>0"><i class="fal fa-user-tie"></i> <em>{{item.brokers_count}}</em></div>
-            </div>
         </div>
     </a>
 </article>

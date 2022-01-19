@@ -50,6 +50,20 @@ class Elementor_SI_Single extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_control(
+            'layout_mode',
+            [
+                'label' => __('Layout', SI),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'placeholder' => '',
+                'options' => [
+                    'linear' => __('Linear', SI),
+                    'original' => __('Original', SI),
+                ],
+                'default' => 'linear'
+            ]
+        );
+
 
         // $this->end_controls_section();
 
@@ -78,8 +92,11 @@ class Elementor_SI_Single extends \Elementor\Widget_Base
         }
 
         $contentType = isset($settings['content_type']) ? $settings['content_type'] : 'listing';
+        $layout_mode = isset($settings['layout_mode']) ? $settings['layout_mode'] : 'linear';
         
-        $shortcode_attrs = [];
+        $shortcode_attrs = [
+            'class="si-layout-' . $layout_mode . '"'
+        ];
         
         $shortcode = do_shortcode(shortcode_unautop('[si_'. $contentType . ' ' . implode(' ', $shortcode_attrs) . ']'));
         echo ($shortcode);
@@ -89,6 +106,7 @@ class Elementor_SI_Single extends \Elementor\Widget_Base
         $settings = $this->get_settings_for_display();
         $contentType = isset($settings['content_type']) ? $settings['content_type'] : 'listing';
         
+
         if(file_exists(SI_ELEMENTOR_MODULE_PATH . '/dummy-content/' . $contentType . '.php')){
             include SI_ELEMENTOR_MODULE_PATH . '/dummy-content/' . $contentType . '.php';
         }

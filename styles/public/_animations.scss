@@ -1,0 +1,172 @@
+.si-animate-base{
+    --si-anim-offset-x: 0px;
+    --si-anim-offset-y: 0px;
+    animation-name: var(--si-anim-name);
+    animation-fill-mode: forwards;
+    animation-duration: var(--si-anim-duration, 0.25s);
+    animation-timing-function: ease;
+    animation-delay: calc(var(--si-anim-duration, 0.25s) * var(--si-anim-delay,0) * var(--si-item-index,0));
+    transform-origin: center;
+}
+.si-animate{
+    @extend .si-animate-base;
+
+}
+.si-animate-fast{
+    --si-anim-duration: 0.125s;
+}
+.si-animate-slow{
+    --si-anim-duration: 1s;
+}
+
+.si-animate-delay{
+    --si-anim-delay:0.5;
+}
+.si-animate-delay-chain{
+    --si-anim-delay: 1;
+}
+.si-animate-delay-slight{
+    --si-anim-delay: 0.25;
+}
+.si-animate-wait-viewport{
+    animation-play-state:paused;
+}
+
+// Helper classes
+
+
+.si-animate-fade-in{
+    @extend .si-animate-base;
+    opacity:0;
+    --si-anim-name: siAnimFadeIn;
+}
+.si-animate-fade-out{
+    @extend .si-animate-base;
+    opacity:1;
+    --si-anim-name: siAnimFadeOut;
+}
+
+
+.si-animate-slide-in-bottom{
+    @extend .si-animate-base;
+    opacity:0;
+    transform:translate(var(--si-anim-offset-x), calc(100% + var(--si-anim-offset-y)));
+    --si-anim-name: siAnimSlideInBottom;
+}
+.si-animate-slide-out-bottom{
+    @extend .si-animate-base;
+    opacity:1;
+    transform:translate(var(--si-anim-offset-x), calc(var(--si-anim-offset-y)));
+    --si-anim-name: siAnimSlideOutBottom;
+}
+
+.si-animate-slide-in-top{
+    @extend .si-animate-base;
+    opacity:0;
+    transform:translate(var(--si-anim-offset-x), calc(-100% + var(--si-anim-offset-y)));
+    --si-anim-name: siAnimSlideInTop;
+}
+.si-animate-slide-out-top{
+    @extend .si-animate-base;
+    opacity:1;
+    transform:translate(var(--si-anim-offset-x), calc(var(--si-anim-offset-y)));
+    --si-anim-name: siAnimSlideOutTop;
+}
+
+
+.si-animate-slide-in-left{
+    @extend .si-animate-base;
+    opacity:0;
+    transform:translate(calc(-100% + var(--si-anim-offset-x)), var(--si-anim-offset-y));
+    --si-anim-name: siAnimSlideInLeft;
+}
+.si-animate-slide-out-left{
+    @extend .si-animate-base;
+    opacity:1;
+    transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y));
+    --si-anim-name: siAnimSlideOutLeft;
+}
+
+.si-animate-slide-in-right{
+    @extend .si-animate-base;
+    opacity:0;
+    transform:translate(calc(100% + var(--si-anim-offset-x)), var(--si-anim-offset-y));
+    --si-anim-name: siAnimSlideInRight;
+}
+.si-animate-slide-out-right{
+    @extend .si-animate-base;
+    opacity:1;
+    transform:translate(var(--si-anim-offset-x), calc(var(--si-anim-offset-y)));
+    --si-anim-name: siAnimSlideOutRight;
+}
+
+.si-animate-test{
+    @extend .si-animate-slide-in-bottom;
+}
+
+// KEYFRAMES
+
+@keyframes siAnimFadeIn {
+    100% {
+        opacity:1;
+    }
+}
+@keyframes siAnimFadeOut {
+    100% {
+        opacity:0;
+    }
+}
+
+@keyframes siAnimSlideInBottom {
+    100% {
+        opacity:1;
+        transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y))
+    }
+}
+@keyframes siAnimSlideOutBottom {
+    100% {
+        opacity:0;
+        transform:translate(var(--si-anim-offset-x), calc(100% + var(--si-anim-offset-y)))
+    }
+}
+
+@keyframes siAnimSlideInTop {
+    100% {
+        opacity:1;
+        transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y))
+    }
+}
+@keyframes siAnimSlideOutTop {
+    100% {
+        opacity:0;
+        transform:translate(var(--si-anim-offset-x), calc(-100% + var(--si-anim-offset-y)))
+    }
+}
+
+
+@keyframes siAnimSlideInLeft {
+    100% {
+        opacity:1;
+        transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y))
+    }
+}
+@keyframes siAnimSlideOutLeft {
+    100% {
+        opacity:0;
+        transform:translate(calc(-100% + var(--si-anim-offset-x)), var(--si-anim-offset-y))
+    }
+}
+
+@keyframes siAnimSlideInRight {
+    100% {
+        opacity:1;
+        transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y))
+    }
+}
+@keyframes siAnimSlideOutRight {
+    100% {
+        opacity:0;
+        transform:translate(calc(100% + var(--si-anim-offset-x)), var(--si-anim-offset-y))
+    }
+}
+

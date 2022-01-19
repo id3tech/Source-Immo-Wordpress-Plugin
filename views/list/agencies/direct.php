@@ -10,22 +10,30 @@ $meta = SourceImmoApi::get_list_meta($configs);
 $dictionary = new SourceImmoDictionary($meta->dictionary);
 
 $data = SourceImmoApi::get_data($configs, $sc_atts);
-$resultView = new SourceImmoOfficesResult($data);
+$resultView = new SourceImmoAgenciesResult($data);
+
+
+$list_attrs = [];
+
+$list_styles =[];
+foreach ($configs->list_layout->item_row_space as $key => $value) {
+    if($value > 10){$value = round(100 / $value);}
+    $list_styles[] = "--{$key}-column-width:$value";
+}
 
 ?>
-<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" >
+<div class="<?php echo(implode(' ' , $global_container_classes)) ?>" 
+    style="<?php echo(implode(';', $list_styles)) ?>"
+    >
     <?php
-    if(is_array($resultView->offices) && !empty($resultView->offices)){
-
-        
-
+    if(is_array($resultView->agencies) && !empty($resultView->agencies)){
         if($configs->show_list_meta==true){
             SourceImmo::view("list/{$configs->type}/direct/list-meta",
                 array("configs" => $configs, "global_meta" => $meta, "result"=> $resultView));
         }
         
         echo('<div class="si-list">');
-            foreach ($resultView->offices as $item) {
+            foreach ($resultView->agencies as $item) {
                 echo('<div class="item-' . $item->ref_number . '">');
                 SourceImmo::view("list/{$configs->type}/direct/item-{$configs->list_item_layout->layout}", 
                     array("configs" => $configs, "item" => $item, "dictionary"=> $dictionary));
@@ -35,7 +43,7 @@ $resultView = new SourceImmoOfficesResult($data);
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        echo(apply_filters('si_label', __('No office to display', SI)));
+        echo(apply_filters('si_label', __('No agency to display', SI)));
         echo('</label>');
     }
     ?>

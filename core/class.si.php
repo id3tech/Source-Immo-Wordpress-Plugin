@@ -133,8 +133,20 @@ class SourceImmo {
     return $this->configs->account_id;
   }
 
+  public function get_account_user(){
+    $userData = get_transient('si/user/data');
+    if($userData != null){
+      return json_decode($userData);
+    }
+    return null;
+  }
+
   public function get_api_key() {
     return $this->configs->api_key;
+  }
+
+  public function get_default_view(){
+    return $this->configs->default_view;
   }
 
   public function get_list_configs($alias){
@@ -269,7 +281,7 @@ class SourceImmo {
     
     if(property_exists($this->configs,$type . '_layouts')){
       $layout_list = $this->configs->{$type . '_layouts'};
-
+      
       $lResult = $layout_list[0];
       foreach ($layout_list as $layout) {
         if($locale == $layout->lang){
@@ -278,6 +290,7 @@ class SourceImmo {
       }
     }
     
+
     return $lResult;
   }
 
@@ -618,13 +631,16 @@ class SourceImmo {
   }
 
   public function unload_theme_resources(){
-    $themeStylesheet =  strtolower(get_stylesheet());
+    $themeData       = wp_get_theme();
+    $themeTemplate = strtolower($themeData->get_template());
+    $themeStylesheet =  strtolower($themeData->get_stylesheet());
     $themeStylesheet = str_replace(
                             ['-child','-theme'],
                             ['',''],
                             $themeStylesheet
                         );
   
+    
     $styleVariations = [
         'style',
         'stylesheet',
@@ -634,8 +650,11 @@ class SourceImmo {
     
     $baseVariations = [
       $themeStylesheet,
-      $themeStylesheet . '-parent'
+      $themeStylesheet . '-parent',
     ];
+    if($themeTemplate != $themeStylesheet){
+      $baseVariations[] = $themeTemplate;
+    }
 
     foreach ($baseVariations as $base) {
       wp_dequeue_style( $base );
@@ -767,8 +786,10 @@ class SourceImmo {
       $customStyles = null;
       foreach($styles as $styleRaw){
         $style = explode(':', str_replace('"','', $styleRaw));
-        
-        if('---custom-style' === $style[0]){
+        $styleKey = preg_replace(['/(\-{2,3})/','/\-{2}si\-/','/\_/'],['','','-'],$style[0]);
+        $styleValue = isset($style[1]) ? $style[1] : '';
+
+        if(in_array($styleKey, ['custom-style'])){
           array_splice($style,0,1);
           if($style != ''){
             $style = implode(':',$style);
@@ -777,13 +798,13 @@ class SourceImmo {
           //__c($style);
         }
         else{
-          $configStyles[] = str_replace('"','', $styleRaw);
+          $configStyles[] = '--si-' . $styleKey . ':'. $styleValue;
         }
         
       }
       if(count($configStyles) > 0 ){
         $configStyles = 'body{' . implode(';',$configStyles) . '}';
-        if($customStyles != null) $configStyles = $configStyles . $customStyles;
+        if($customStyles != null) $configStyles = $configStyles . ' ' . $customStyles;
 
         wp_register_style( 'si-custom-style', false, array('si-style') );
         wp_enqueue_style( 'si-custom-style');
@@ -936,6 +957,7 @@ class SourceImmo {
 
       // Add hook to data
       $listing_data = apply_filters(hook_from_key('listing','single'), $listing_data);
+      
       
 
       self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));

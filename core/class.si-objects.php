@@ -8,16 +8,44 @@
   
     public function __construct($data=null){
       if($data!=null){
+
+        //TODO: Get office list too
+        $offices = $this->getOfficeList();
+        
         $this->brokers = $data->items;
         $this->metadata = $data->metadata;
-  
+        
         foreach ($this->brokers as $item) {
+          if(!isset($item->office)){
+            $item->office = current(array_filter($offices, function($off) use ($item){
+              return $item->office_id == $off->id;
+            }));
+          }
           $this->preprocess_item($item);
+          
           $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_broker_permalink());
         }
   
         self::validatePagePermalinks($this->brokers, 'broker');
       }
+    }
+
+    public function getOfficeList(){
+      $account_id = SourceImmo::current()->get_account_id();
+      $api_key = SourceImmo::current()->get_api_key();
+
+      $sourceId = SourceImmo::current()->get_default_view();
+      $lTwoLetterLocale = substr(get_locale(),0,2);
+
+      $lResult = HttpCall::to('~', 'office/view', $sourceId,  $lTwoLetterLocale,'items')
+                    ->with_credentials($account_id, $api_key, SI_APP_ID, SI_VERSION)
+                    ->get(null,true);
+
+        
+      $officeData = new SourceImmoOfficesResult($lResult);
+
+
+      return $officeData->offices;
     }
   
     public function preprocess_item(&$item){
@@ -25,11 +53,22 @@
     
       
       $item->fullname = $item->first_name . ' ' . $item->last_name;
+      if(!isset($item->company_name)) $item->company_name = '';
+     
       if(isset($item->office)) {
         $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
         $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
+        
+        if(!isset($item->agency) && isset($item->office->agency)) $item->agency = $item->office->agency;
+        if(!isset($item->office->agency)) $item->agency = json_decode(json_encode(['name'=> $item->office->agency_name]));
       }
-  
+      
+      if(!isset($item->agency)) $item->agency = json_decode(json_encode(['name'=>'']));
+
+      foreach($item->phones as $key => $value){
+        $item->phones->$key = $this->formatPhone($value);
+      }
+
       $item->main_phone = (isset($item->phones->mobile)) ? $item->phones->mobile : $item->phones->office;
   
       if(isset($item->license_type_code)){
@@ -670,24 +709,36 @@
   
     public function preprocess_item(&$item){
       global $dictionary;
+      if($item == null) return;
   
       //$item->location = (object) array();
       //$item->listings_count = 0;
       
-      $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : $item->location->city;
-      $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : (isset($item->location->region) ? $item->location->region : '');
-      $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
-      $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
-      $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';
-      if( isset($item->location->address->door) ){
-        $item->location->street_address .= ', suite ' . $item->location->address->door;
+      if($item->location != null){
+        $item->location->city = isset($item->location->city_code) ? $dictionary->getCaption($item->location->city_code , 'city') : $item->location->city;
+        $item->location->region = isset($item->location->region_code) ? $dictionary->getCaption($item->location->region_code , 'region') : (isset($item->location->region) ? $item->location->region : '');
+        $item->location->country = isset($item->location->country_code) ? $dictionary->getCaption($item->location->country_code , 'country') : '';
+        $item->location->state = isset($item->location->state_code) ? $dictionary->getCaption($item->location->state_code , 'state') : '';
+        $item->location->street_address = isset($item->location->address->street_number) ? $item->location->address->street_number . ' ' . $item->location->address->street_name : '';
+        if( isset($item->location->address->door) ){
+          $item->location->street_address .= ', suite ' . $item->location->address->door;
+        }
+        if(str_null_or_empty($item->location->city) && isset($item->location->address->street_name)){
+          $addressParts = explode(',',$item->location->address->street_name);
+          $item->location->street_address = $addressParts[0];
+          $item->location->city = $addressParts[1];
+          $item->location->state = $addressParts[2];
+          $item->location->address->postal_code = $addressParts[3];
+        }
       }
-      if(str_null_or_empty($item->location->city) && isset($item->location->address->street_name)){
-        $addressParts = explode(',',$item->location->address->street_name);
-        $item->location->street_address = $addressParts[0];
-        $item->location->city = $addressParts[1];
-        $item->location->state = $addressParts[2];
-        $item->location->address->postal_code = $addressParts[3];
+
+      foreach($item->phones as $key => $value){
+        $item->phones->$key = $this->formatPhone($value);
+      }
+
+      if(isset($item->agency)){
+        $compiler = new SourceImmoAgenciesResult();
+        $compiler->preprocess_item($item->agency);
       }
   
       $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_office_permalink());
@@ -701,7 +752,9 @@
     public function __construct($data=null){
       
       if($data!=null){
-        $this->agencies = $data->items;
+        $this->agencies = array_filter($data->items, function($item){
+          return isset($item->main_office);
+        });
         $this->metadata = $data->metadata;
   
         foreach ($this->agencies as $item) {
@@ -716,7 +769,7 @@
     public function preprocess_item(&$item){
       global $dictionary;
   
-      $item->franchisor = isset($item->franchisor_code) ? $dictionary->getCaption($item->franchisor_code , 'franchisor') : $item->franchisor;
+      $item->franchisor = isset($item->franchisor_code) ? $dictionary->getCaption($item->franchisor_code , 'franchisor') : (isset($item->franchisor) ? $item->franchisor : '');
       $item->license_type = isset($item->license_type_code) ? $dictionary->getCaption($item->license_type_code , 'agency_license_type') : $item->license_type;
       
       if(isset($item->main_office)){
@@ -858,6 +911,27 @@
           }
         }
       }
+    }
+
+    public static function formatPhone($value){
+      $phoneFormat = SourceImmo::current()->configs->phone_format;
+      if(str_null_or_empty($phoneFormat)) $phoneFormat = '000-000-0000';
+      $result = '';
+      $poolIndex = 0;
+      $value = preg_replace('/\D/', '', $value);
+
+      for($i=0;$i<strlen($phoneFormat);$i++){
+        if($phoneFormat[$i] == 0){
+          $result .= $value[$poolIndex];
+          $poolIndex ++;
+        }
+        else{
+          $result .= $phoneFormat[$i];
+        }
+      }
+      
+
+      return $result;
     }
   }
   
@@ -1183,6 +1257,7 @@ class SourceImmoRoute{
     public $smart_focus_tolerance = 5;
     public $search_engine_options = null;
     public $search_token = null;
+    public $is_default_type_configs = false;
   
     public function __construct($source='',$alias='listings',$type='listings',$sort='',$displayedVars=null){
       $this->source = $source;
@@ -1276,6 +1351,7 @@ class SourceImmoRoute{
     public $tabs = null;
     public $tabbed = false;
     public $filter_tags = 'none';
+    public $scope_class = '';
     public $search_box_placeholder = array('en'=> 'Type here to begin your search...', 'fr' => 'Tapez ici pour commencer votre recherche ...');
     Public $fields = null;
 

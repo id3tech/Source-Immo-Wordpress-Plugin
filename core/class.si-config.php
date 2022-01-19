@@ -75,6 +75,7 @@ class SourceImmoConfig {
    */
   public $site_logo = null;
 
+
   /**
    * Form from name
    */
@@ -143,6 +144,8 @@ class SourceImmoConfig {
   public $favorites_button_menu = null;
 
   public $active_addons = null;
+
+  public $phone_format = '000-000-0000';
   
   /**
    * Configuration constructor class
@@ -155,7 +158,7 @@ class SourceImmoConfig {
     // set defaut DEMO value
     // $this->api_key        = '09702f24-a71e-4260-bd54-ca19217fd6a9';
     // $this->account_id     = 'fb8dc8a8-6c92-42c5-b65d-2f28f755539b';
-    
+    $this->phone_format = '000-000-0000';
     $this->registered     = false;
 
     $this->supported_locales = ['fr','en'];
@@ -212,11 +215,15 @@ class SourceImmoConfig {
     $listingList = new SourceImmoList('','listings','listings','contract_start_date');
     $listingList->sort_reverse = true;
     $listingList->limit = 30;
+    $listingList->is_default_type_configs = true;
     
     $brokerList   = new SourceImmoList('','brokers','brokers','name');
+    $brokerList->is_default_type_configs = true;
     $cityList     = new SourceImmoList('','cities','cities','name');
     $officeList   = new SourceImmoList('','offices','offices','name');
+    $officeList->is_default_type_configs = true;
     $agencyList   = new SourceImmoList('','agencies','agencies','name');
+    $agencyList->is_default_type_configs = true;
     
     $this->lists = array(
       $listingList,$brokerList,$cityList,$officeList,$agencyList
@@ -271,6 +278,7 @@ class SourceImmoConfig {
 
   public static function getFileUrl($addVersion=false){
     $lUploadDir   = wp_upload_dir();
+
     $lConfigPath = $lUploadDir['basedir'] . '/_sourceimmo/_configs.json';
     $lResult = str_replace(array('http://','https://'),'//',$lUploadDir['baseurl'] . '/_sourceimmo/_configs.json');
     $lUrlVersion = '';
@@ -299,14 +307,20 @@ class SourceImmoConfig {
       else{
         $instance->state = 'parse_failed';
       }
-      
+
+      $configsUpdated = $instance->validate_version();
+
       $instance->app_version = SI_VERSION;
     
       $instance->normalizeRoutes();
 
       //$instance->normalizeValues();
 
-      //$instance->saveConfigFile();
+      if($configsUpdated){
+        $instance->addLog('saveConfigFile::upgrade configs to current app version');
+        $instance->saveConfigFile();
+      }
+      
     }
     else{
       $instance->state = 'load_failed';
@@ -385,6 +399,43 @@ class SourceImmoConfig {
     //update_option(SI_OPTION_KEY, json_encode($this));
     SourceImmo::current()->apply_routes(true);
     return $this->saveConfigFile();
+  }
+
+  public function validate_version(){
+    if(version_compare($this->app_version,SI_VERSION,'<')){
+      return $this->upgrade_to_current_version();;
+    }
+
+    return false;
+  }
+
+  public function upgrade_to_current_version(){
+    $changeApplied = false;
+
+    // prior to version 2.0.0
+    if(version_compare($this->app_version,'2.0.0','<')){
+      // Add border to some list elements
+      foreach ($this->lists as $list){
+        //$list->list_layout->scope_class = 'si-border';
+        $list->search_engine_options->scope_class = 'si-border';
+        $list->list_item_layout->scope_class = 'si-border';
+      }
+
+      $layouts = ['listing_layouts','broker_layouts','office_layouts','agency_layouts','city_layouts'];
+      foreach($layouts as $layoutItem){
+        if(isset($this->{$layoutItem}) && count($this->{$layoutItem}) > 0){
+          foreach($this->{$layoutItem} as $localeLayoutItem){
+            if(isset($localeLayoutItem->page) && is_numeric($localeLayoutItem->page)){
+              $localeLayoutItem->page = get_post_field( 'post_name', $localeLayoutItem->page );
+            }
+          }
+        }
+      }
+
+      $changeApplied = true;
+    }
+
+    return $changeApplied;
   }
 
   public function saveConfigFile(){

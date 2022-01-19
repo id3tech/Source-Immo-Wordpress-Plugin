@@ -111,13 +111,17 @@ class SiShorcodes{
         $listConfig     = SourceImmo::current()->get_list_configs($alias);
         $resultUrl      = isset($result_page) ? $result_page : get_the_permalink( $listConfig->result_page );
         $search_layout  = isset($listConfig->search_engine_options->type) ? $listConfig->search_engine_options->type : 'full';
-        $search_tabbed  = isset($listConfig->search_engine_options->tabs) && count($listConfig->search_engine_options->tabs)>0;
+        $search_tabbed  = isset($listConfig->search_engine_options->tabs) && count($listConfig->search_engine_options->tabs)>1;
 
         $searchContainerClasses = array('search-container');
         if($search_tabbed){
             $searchContainerClasses[] = 'si-has-tabs';
         }
+
+        if(isset($listConfig->search_engine_options->scope_class)) $searchContainerClasses[] = $listConfig->search_engine_options->scope_class;
+        
         ob_start();
+
         
         echo('<div class="si standard-layout">');
         echo('<si-search si-alias="'. $alias . '" class="' . implode(' ', $searchContainerClasses) . '" si-result-url="' . $resultUrl . '" si-standalone="' . $standalone . '"></si-search>');
@@ -170,7 +174,7 @@ class SiShorcodes{
                 echo('<style for="' . $alias . '">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') , $listConfig->list_layout->custom_css) . '</style>');
             }
             if(!str_null_or_empty($listConfig->list_item_layout->custom_css)){
-                echo('<style for="' . $alias . '_item">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') . ' .si-item' , $listConfig->list_item_layout->custom_css) . '</style>');
+                //echo('<style for="' . $alias . '_item">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') . ' .si-item' , $listConfig->list_item_layout->custom_css) . '</style>');
             }
 
 
@@ -258,7 +262,13 @@ class SiShorcodes{
             ],
         ], json_decode($options,true));
 
-        
+        // search for default item layout 
+        $listConfig = current(array_filter(SourceImmo::current()->configs->lists, function($l) use ($type) {
+            return $type == $l->type && $l->is_default_type_configs;
+        }));
+        if($listConfig != null){
+            $layout = $listConfig->list_item_layout->layout;
+        }
         ?>
         
         <si-small-list class="<?php echo($class) ?>"
@@ -266,7 +276,7 @@ class SiShorcodes{
                 si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
         <?php
         echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');
-        SourceImmo::view("list/{$type}/standard/item-{$layout}");
+        SourceImmo::view("list/{$type}/standard/item-{$layout}", ['configs'=> $listConfig]);
         echo('</script>');
         $lResult = ob_get_clean();
 
@@ -314,7 +324,7 @@ class SiShorcodes{
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
-                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+                echo('<label class="si-placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
             }
             echo('<div class="si-content"  ng-cloak >');
 
@@ -408,7 +418,8 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => 'Loading office'
+                'load_text' => 'Loading office',
+                'class' => ''
             ), $atts )
         );
         if($ref_number == ''){
@@ -428,11 +439,11 @@ class SiShorcodes{
         ?>
         
         <div data-ng-controller="singleOfficeCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si office-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
-                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+                echo('<label class="si-placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
             }
             echo('<div class="si-content"  ng-cloak si-adaptative-class >');
 
@@ -559,7 +570,8 @@ class SiShorcodes{
         extract( shortcode_atts(
             array(
                 'ref_number' => '',
-                'load_text' => 'Loading agency'
+                'load_text' => 'Loading agency',
+                'class' => ''
             ), $atts )
         );
         if($ref_number == ''){
@@ -579,11 +591,11 @@ class SiShorcodes{
         ?>
         
         <div data-ng-controller="singleAgencyCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si agency-single {{model.status}} {{model!=null?'loaded':''}}">
+                class="si agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
-                echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+                echo('<label class="si-placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
             }
             echo('<div class="si-content"  ng-cloak si-adaptative-class >');
 
@@ -751,9 +763,7 @@ class SiShorcodes{
             $lAlias = $lListConfig->alias;
         }
         do_action('si_start_of_template', null);
-        if($load_text != null){
-            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
-        }
+        
         echo('<div class="si-content"  ng-cloak si-adaptative-class >');
 
         SourceImmo::view('single/cities_layouts/standard', array(
@@ -765,7 +775,6 @@ class SiShorcodes{
         ));
 
         echo('</div>');
-        
         do_action('si_end_of_template');
 
         $result = ob_get_contents();
@@ -811,12 +820,11 @@ class SiShorcodes{
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
-        ?>
+        
+        //echo("<div data-ng-controller=\"singleListingCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        echo("<div class=\"si listing-single {$class} {{model.status}} {{model!=null?'loaded':''}}\">");
+        
 
-        <div data-ng-controller="singleListingCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si listing-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
-
-        <?php
         add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
             return $media_picture_fit;
         });
@@ -825,7 +833,7 @@ class SiShorcodes{
         do_action('si_start_of_template', $load_text);
         
         if($load_text != null){
-            echo('<label class="placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
+            echo('<label class="si-placeholder"  data-ng-show="model==null">' .  __($load_text,SI) . ' <i class="fal fa-spinner fa-spin"></i></label>');
         }
         echo('<div class="si-content"  ng-cloak si-adaptative-class >');
 
@@ -841,9 +849,10 @@ class SiShorcodes{
 
         do_action('si_end_of_template');
         do_action('si_listing_single_end');
-        ?>
-        </div>
-        <?php
+        
+        echo('</div>');
+        //echo('</div>');
+        
         if(SourceImmo::current()->configs->prefetch_data){
         ?> 
             <script type="text/javascript">
@@ -893,7 +902,7 @@ class SiShorcodes{
             $lResult = ob_get_clean();
         }
         $sanitizedPart = sanitize_title(str_replace('_','-',$part));
-        $classes = ['si-part', $align, 'si-part-' . $sanitizedPart, $class];
+        $classes = ['si-part', 'si-'.$align, 'si-part-' . $sanitizedPart, $class];
         
         if($adapt) $partAttr[] = 'si-adaptative-class';
         if($hide_empty !== false){

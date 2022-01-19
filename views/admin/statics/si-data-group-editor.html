@@ -3,9 +3,10 @@
     
     <div class="content">
         <div class="lists group-section" style="--item-color:#3C8EBD" id="lists" ng-controller="listCollectionCtrl">
+            <div class="group-section-title"><i class="far fa-list"></i> <lstr>Lists</lstr></div>
             <div class="list">
                 <div class="list-item list-item-header">
-                    <h3 class="title"><i class="far fa-list"></i> <lstr>Lists</lstr></h3>
+                    <div class="main">Alias</div>
                     
                     <div class="shortcode" lstr>Shortcode</div>
                     <div class="layout" lstr>Layout</div>
@@ -14,18 +15,21 @@
                     <div class="actions"></div>
                 </div>
 
-                <div class="list-item data-row" ng-repeat="list in configs.lists | filter : {'type' : groupType}">
-                    <div class="title" ng-click="edit(list)">
-                        <div>{{list.alias}}</div>
+                <div class="list-item data-row {{list.is_default_type_configs ? 'is-default' : ''}}" ng-repeat="list in configs.lists | filter : {'type' : groupType}">
+                    <div class="main" ng-click="modify(list)">
+                        <div class="list-alias">{{list.alias}}</div>
                         <sub>source: {{list.source.name}}</sub>
                     </div>
                     
                     <div class="shortcode">
                         <div ng-click="copy(getListShortcode(list))">
-                            <i class="fal fa-lg fa-copy"></i> {{getListShortcode(list)}}
+                            <i class="fal fa-lg fa-copy"></i>
                         </div>
+                        <md-button  ng-if="list.type!='listings'" ng-click="copy(getListShortcode(list))">
+                            {{getListShortcode(list)}}
+                        </md-button>
                         <md-menu ng-if="list.type=='listings'">
-                            <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"><i class="fal  fa-lg fa-ellipsis-v"></i></md-button>
+                            <md-button ng-click="$mdOpenMenu();$event.stopPropagation()">{{getListShortcode(list)}} <i class="fal  fa-angle-down"></i></md-button>
                             <md-menu-content>
                                 <md-menu-item>
                                     <md-button ng-click="copy(getListShortcode(list))"><md-icon class="fal fa-list"></md-icon> <lstr>Copy complete list layout shortcode</lstr></md-button>
@@ -51,18 +55,108 @@
                     <div class="limit">{{(list.limit==0)? 'unlimited'.translate() : list.limit}}</div>
 
                     <div class="actions">
-                        <md-button class="md-icon-button" ng-click="edit(list)"><md-icon class="fal fa-pencil"></md-icon></md-button>
-                        <md-button class="md-icon-button" ng-disabled="configs.lists.length==1" ng-click="remove(list)"><md-icon class="fal fa-times"></md-icon></md-button>
+                        <md-menu >
+                            <md-button class="md-icon-button" ng-click="$mdOpenMenu();$event.stopPropagation()"> <i class="fal fa-ellipsis-v"></i></md-button>
+                            <md-menu-content>
+                                <md-menu-item><md-button ng-click="edit(list)"><md-icon class="fal fa-pencil"></md-icon> <lstr>Edit</lstr></md-button></md-menu-item>
+                                <md-menu-item><md-button ng-click="clone(list)"><md-icon class="fal fa-copy"></md-icon> <lstr>Clone</lstr></md-button></md-menu-item>
+                                <md-divider></md-divider>
+                                <md-menu-item  ng-disabled="(configs.lists | filter : {'type' : groupType}).length==1"><md-button ng-click="remove(list)"><md-icon class="fal fa-trash"></md-icon> <lstr>Delete</lstr></md-button></md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                        
                     </div>
                 </div>
             
+                <md-button class="add-button md-primary md-raised md-icon-button" ng-click="add(groupType)"><i class="fal fa-plus"></i></md-button>
             </div>
-            <div class="list-action">
-                <md-button ng-click="add(groupType)"><i class="fal fa-plus"></i> <lstr>Add</lstr></md-button>
-            </div>
+            
         </div>
 
-        <div class="links group-section"  ng-show="(configs.lists | filter : {'type' : groupType}).length > 0" style="--item-color:#68217A" id="links">
+        <div class="single group-section" ng-if="(configs.lists | filter : {'type' : groupType}).length > 0">      
+            <div class="group-section-title"><i class="far fa-file"></i> <lstr>Details</lstr></div>
+
+            <div class="lang-list-container">
+                <div class="lang-item" ng-repeat="langItem in langList track by $index">
+                    <div class="lang-item-header lang-{{langItem.lang}}">
+                        <h3>{{langItem.lang}}</h3>
+
+                        <md-menu>
+                            <md-button class="md-icon-button" 
+                              ng-click="$mdOpenMenu()"><i class="far fa-ellipsis-v"></i></md-button>
+                            <md-menu-content>
+                                
+                                <md-menu-item>
+                                    <md-button ng-click="resetDetails(langItem)"><md-icon class="fal fa-sync"></md-icon> <lstr>Reset to default</lstr></md-button>
+                                </md-menu-item>
+
+                                <md-divider></md-divider>
+                                <md-menu-item>
+                                    <md-button  ng-disabled="langItem.layout.page == null" ng-click="editLayoutPage(langItem.layout)"><md-icon class="fal fa-pencil"></md-icon> <lstr>Edit page</lstr></md-button>
+                                </md-menu-item>
+                                <md-menu-item ng-if="langItem.layout.page == null">
+                                    <md-button ng-click="generateLayoutPage(langItem.layout, groupType)"><md-icon class="fal fa-file-plus"></md-icon> <lstr>Generate page</lstr></md-button>
+                                </md-menu-item>
+                                
+
+                                <md-divider></md-divider>
+                                <md-menu-item>
+                                    <md-button ng-disabled="!hasMinLangCount()" ng-click="removeLang($index)">
+                                        <md-icon class="fal fa-trash"></md-icon> <lstr>Remove this language</lstr>
+                                    </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </div>
+                    
+                    <div class="lang-item-body">
+                        <h4><i class="far fa-link"></i> <lstr>Permalinks</lstr></h4>
+                        <si-route-box class="route-item" 
+                            route="langItem.route" list="configs[routes]"
+                            type="{{groupType}}" si-change="rebuild()"
+                        ></si-route-box>
+
+                        <h4><i class="far fa-pencil-ruler"></i> <lstr>Details</lstr></h4>
+                        <md-input-container>
+                            <label lstr>Layout page</label>
+                            <input type="text" ng-model="langItem.layout.page"  ng-change="rebuild()" required />
+                            <md-icon class="fal fa-ellipsis-h" ng-click="selectPage(langItem)"></md-icon>
+                            
+                        </md-input-container>
+
+                        <md-input-container ng-if="groupType != 'cities'">
+                            <label lstr>Method used to build forms and manage results</label>
+                            <md-select ng-model="langItem.layout.communication_mode" ng-change="rebuild()" >
+                                <md-option value="basic" lstr>Basic</md-option>
+                                <md-option value="wpcf7_contact_form">Contact Form 7</md-option>
+                                <md-option value="gravity_form">Gravity Form</md-option>
+                            </md-select>
+                        </md-input-container>
+                            
+                        <md-input-container ng-if="groupType != 'cities'">
+                            <label lstr>Form to use</label>
+                            <md-select ng-disabled="!['wpcf7_contact_form','gravity_form'].includes(langItem.layout.communication_mode)" ng-model="langItem.layout.form_id" ng-change="rebuild()" >
+                                <md-option ng-repeat="item in formList | filter : {'type':langItem.layout.communication_mode} " value="{{item.id}}">{{item.title}}</md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+
+                
+                <md-menu ng-if="lang_codes.length > langList.length">
+                    <md-button ng-click="$mdMenu.open()"><i class="fal fa-plus"></i> <lstr>Add language</lstr></md-button>
+                    <md-menu-content>
+                        <md-menu-item ng-repeat="lang in lang_codes | filter: langNotConfigure">
+                            <md-button ng-click="addLangItem(lang.key)">{{lang.label}}</md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+
+            </div>
+            
+        </div>
+
+        <div class="links group-section" ng-if="false"  ng-show="(configs.lists | filter : {'type' : groupType}).length > 0" style="--item-color:#68217A" id="links">
             <div class="list route-list">
                 <div class="route-item list-item-header">
                     <h3><i class="far fa-link"></i> <lstr>Permalinks</lstr></h3>
@@ -75,7 +169,7 @@
                 <si-route-box class="route-item" 
                         ng-repeat="route in configs[routes]" 
                         route="route" list="configs[routes]"
-                        type="{{groupType}}" si-change="save_configs()"
+                        type="{{groupType}}" si-change="rebuild()"
                     ></si-route-box>
             </div>
 
@@ -91,7 +185,7 @@
             </div>
         </div>
 
-        <div class="details group-section" id="details" ng-show="(configs.lists | filter : {'type' : groupType}).length > 0"  style="--item-color:#17A05D">
+        <div ng-if="false" class="details group-section" id="details" ng-show="(configs.lists | filter : {'type' : groupType}).length > 0"  style="--item-color:#17A05D">
             <div class="list layout-list">
                 <div class="layout-item list-item-header">
                     <h3><i class="far fa-pencil-ruler"></i> <lstr>Details</lstr></h3>
@@ -105,9 +199,11 @@
                 <div class="layout-item" ng-repeat="layoutItem in configs[layout]">
                     <h4>{{lang_codes[layoutItem.lang]}}</h4>
 
-                    <md-select ng-model="layoutItem.page" ng-change="save_configs()">
-                        <md-option ng-repeat="item in wp_pages[layoutItem.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
-                    </md-select>
+                    <md-input-container>
+                        <md-select ng-model="layoutItem.page" ng-change="save_configs()" required>
+                            <md-option ng-repeat="item in wp.pages[layoutItem.lang]" value="{{item.ID}}">{{item.post_title}}</md-option>
+                        </md-select>
+                    </md-input-container>
 
                     <div>
                         <md-menu>

@@ -442,7 +442,7 @@ siApp
                     $scope._element.classList.add('layout-' + lSearchEngineOptions.type);
                     
                     $scope._element.classList.add('orientation-' + lSearchEngineOptions.orientation);
-                    if(lSearchEngineOptions.tabs != undefined && lSearchEngineOptions.tabs.length > 0){
+                    if(lSearchEngineOptions.tabs != undefined && lSearchEngineOptions.tabs.length > 1){
                         $scope._element.classList.add('si-has-tabs');
                     }
                     const lListElement = $scope._element.closest('.si-list-of-' + $scope.configs.type);
@@ -562,15 +562,34 @@ siApp
                         delete lContainer._relative_style;
                     });
 
-                    window.addEventListener('resize', function(){
-                        if(window._resizeTimeoutHndl != null){
-                            window.clearTimeout(window._resizeTimeoutHndl);
-                        }
-                        window._resizeTimeoutHndl = window.setTimeout(function(){
-                            $scope._element._rect = $scope._element.getBoundingClientRect();
-                            $scope.updateExpandPanelPosition(true);
-                        }, 500);
-                    })
+                    const resizeObserver = new ResizeObserver( ($entries) => {
+                        const elmEntry = $entries[0];
+                        $scope._element._rect = elmEntry.contentRect;
+                        $scope.updateExpandPanelPosition(true);
+                    });
+
+                    resizeObserver.observe($scope._element);
+                    
+                    const inputsContainer = $scope._element.querySelector('.inputs');
+                    const fnApplyInputCount = _ => {
+                        
+                        const lValidChild = Array.from(inputsContainer.children).filter($child => !$child.classList.contains('ng-hide'));
+                        console.log('fnApplyInputCount',lValidChild)
+                        inputsContainer.style.setProperty('--input-count', lValidChild.length - 1);
+                    }
+                    fnApplyInputCount();
+                    const searchInputObserver = new MutationObserver(fnApplyInputCount);
+                    searchInputObserver.observe(inputsContainer,{childList:true})
+
+                    // window.addEventListener('resize', function(){
+                    //     if(window._resizeTimeoutHndl != null){
+                    //         window.clearTimeout(window._resizeTimeoutHndl);
+                    //     }
+                    //     window._resizeTimeoutHndl = window.setTimeout(function(){
+                    //         $scope._element._rect = $scope._element.getBoundingClientRect();
+                    //         $scope.updateExpandPanelPosition(true);
+                    //     }, 500);
+                    // })
 
                     $scope.$on('close-everything', function(){
                         $scope.closePanels();
@@ -590,7 +609,6 @@ siApp
 
                 // bind events
                 $scope.registerEvents();
-                
             }
     
             /**
@@ -600,6 +618,7 @@ siApp
             $scope.isReady = function(){
                 // check for dictionary and configs perequisits
                 if($scope.dictionary!=null && $scope.configs != null){
+                    console.log('siSearch/isReady::dictionary and configs are already loaded')
                     $scope.is_ready = true; 
                     return $q.resolve();
                 }
@@ -629,7 +648,7 @@ siApp
                             
                             $scope.current_view_id = lActiveView;
                             //$scope.configs.current_view = $configs.source.id;
-
+                            console.log('siSearch/isReady::loading view', lActiveView)
                             $scope.loadViewMeta(lActiveView,$configs.type)
                                 .then(function(){
                                     $scope.is_ready = true;
@@ -686,8 +705,10 @@ siApp
                     });
                 });
 
-                $scope.$on('$siDictionary/init', function($event,$lexicon){
-                    //console.log('$siDictionary/init:triggered', $lexicon);
+                $scope.$on('$siDictionary/init', function($event,$lexicon,$view_id){
+                    console.log('$siDictionary/init:triggered', $siDictionary);
+                    if($scope.current_view_id != $view_id) return;
+                    
                     $scope.dictionary = $siDictionary.source;
 
                     if($scope.dictionary!=undefined && $scope.dictionary.region!=undefined){
@@ -890,7 +911,7 @@ siApp
                 ])
                 .then(
                     function($results){
-                        $siDictionary.init($results[0].dictionary,true);
+                        $siDictionary.init($results[0].dictionary,true,$view_id);
 
                         $scope.viewFilters = Object.keys($results[0])
                                                     .filter(function($k){ return $k.indexOf('filter_group')>0})
@@ -1074,7 +1095,7 @@ siApp
 
                     const lElmRect = $scope._element._rect; 
                     const lCompStyle = $scope._element._computedStyle;
-                    const lBorderWidth = lCompStyle.borderWidth;
+                    const lBorderWidth = (lCompStyle != undefined) ? lCompStyle.borderWidth : 0;
                     const lTop = $scope.getElementOffset($scope._element,'offsetTop');
                     const lLeft = $scope.getElementOffset($scope._element,'offsetLeft');
 
@@ -1115,7 +1136,7 @@ siApp
             
             $scope.ensureClickTrap = function(){
 
-                const lClickTrap = document.body;
+                const lClickTrap = document.querySelector('html');
 
                 lClickTrap.addEventListener('click',function($event){
                     $scope.closePanels();
@@ -2362,7 +2383,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
            
             $scope.init();
         },
-        controller: function($scope, $q, $element, $siApi, $rootScope, $siDictionary, $siUtils,$timeout,$siFilters){
+        controller: function($scope, $q, $element, $siApi, $rootScope, $siDictionary, $siUtils,$timeout,$siFilters, $siDataLayer){
             $scope.configs = null;
             $scope.suggestions = [];
             $scope.is_ready = false;
@@ -2562,6 +2583,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                                     
                                     $siApi.api($scope.getEndpoint(),lQueryParams,{method: 'GET'}).then(function($qsItems){
                                         // add extra in caption
+                                        $siDataLayer.pushEvent('si/search', lQueryParams);
                                         $qsItems.forEach(function($e){
                                             if(typeof $e.context != 'undefined'){
                                                 Object.keys($e.context).forEach(function($k){
