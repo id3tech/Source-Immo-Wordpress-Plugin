@@ -1,4 +1,4 @@
-# Version 2.0.22
+# Version 2.0.23
 
 
 ### Intuitive admin interface
@@ -114,7 +114,7 @@ Support for WPML and Polylang
 
 
 ## Change log
-version 2.0.22
+version 2.0.23
 * Add fallback data for empty layout vars
 * Default list configuration (sort and shuffle) are now applied to sublist too.
 * Fix Safari slow rendering bug

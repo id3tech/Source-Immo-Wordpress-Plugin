@@ -2444,7 +2444,7 @@ siApp
                 }
             }, {once: true});
 
-            this.show($index);
+            //this.show($index);
         }
 
 
@@ -2600,9 +2600,11 @@ siApp
             const elm = $element[0];
             const observer = new MutationObserver( $mutations => {
                 Array.from(elm.children).forEach( ($child,$index) => {
-                    $child.addEventListener('click', function(event){
-                        //console.log('creating new siLightbox', siLightbox)
-                        new siLightbox(elm, $index);
+                    $child.dataset.index = $index;
+
+                    $child.addEventListener('click', (event) => {
+                        const lbInstance = new siLightbox(elm);
+                        lbInstance.show(event.srcElement.dataset.index);
                     });
                 });
                 observer.disconnect();

@@ -795,7 +795,7 @@ html, body{ scroll-behavior: smooth;}
                     }
                 }
             }
-
+            .caption,i.fad,i.fal,img{pointer-events: none;}
             .caption{
                 position:absolute;
                 top:50%;
