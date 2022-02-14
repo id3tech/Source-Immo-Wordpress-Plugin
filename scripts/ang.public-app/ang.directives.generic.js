@@ -68,7 +68,7 @@ siApp
                 $scope.addResizeListener = function(){
                     if(window.siResizeObserver == undefined) window.siResizeObserver = new ResizeObserver($scope.resizeHandler);
 
-                    console.log('siAdaptativeClass/addResizeListener',window.siResizeObserver);
+                    //console.log('siAdaptativeClass/addResizeListener',window.siResizeObserver);
                     window.siResizeObserver.observe($element[0]);
 
                     // window.addEventListener("resize", function($event){
@@ -670,6 +670,16 @@ siApp
             }
         },
         controller: function($scope){
+            $scope.$on('si-display-switch-list', function(){
+                $timeout(function(){
+                    if($scope.observer != undefined){
+                        $scope.applyObserver();
+                    }
+                    else{
+                        $scope.applyAllImageSource();
+                    }
+                })
+            });
             $scope.$on('si-list-loaded', function(){
                 //console.log('list loaded triggered');
                 

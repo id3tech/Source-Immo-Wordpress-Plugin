@@ -850,6 +850,7 @@ siApp
 
       $scope.filter_key_list = {
         'listings' : [
+          {value: 'ref_number'                , label: 'Ref. number', value_type: 'text', op_in: ['in','not_in']},
           {value: 'price.sell.amount'         , label: 'Selling price', value_type: 'number', op_out: ['like','not_like']},
           {value: 'price.lease.amount'        , label: 'Leasing price', value_type: 'number', op_out: ['like','not_like']},
           {value: 'location.country_code'     , label: 'Country', value_type: 'list', choices: 'getCountryList', op_in: ['in','not_in']},
@@ -867,6 +868,7 @@ siApp
           {value: 'status_code'               , label: 'Status', value_type: 'text', choices: 'SOLD:Sold|AVAILABLE:Available', op_in: ['equal','not_equal_to']},
         ],
         'brokers' : [
+          {value: 'ref_number'                , label: 'Ref. number', value_type: 'text', op_in: ['in','not_in']},
           {value: 'first_name'                , label: 'First name', value_type: 'text', op_in: ['like','not_like']},
           {value: 'last_name'                 , label: 'Last name', value_type: 'text', op_in: ['like','not_like']},
           {value: 'license_type_code'         , label: 'License type', value_type: 'list', choices: 'getLicenseList', op_in: ['in','not_in']}
@@ -1753,12 +1755,21 @@ siApp
           <div class="si-price-sold" lstr>Sold</div>
       </script> 
 
+      <script type="text/ng-template" id="layout-for-phones">
+        <div class="phone-list ">
+            <div class="si-phone mobile">
+                <i class="icon fal fa-fw fa-mobile"></i> <span class="prefix"><lstr>mobile</lstr>:</span> <span class="label">514-555-8654</span></div>
+            <div class="si-phone office">
+                <i class="icon fal fa-fw fa-building"></i> <span class="prefix"><lstr>office</lstr>:</span> <span class="label">450-967-8200</span></div>
+        </div>
+      </script>
+
       <script type="text/ng-template" id="layout-for-contacts">
         <div class="contacts ">
             <div class="contact phone">
-                <i class="icon fal fa-fw fa-phone"></i><span class="label">514-555-8654</div>
+                <i class="icon fal fa-fw fa-phone"></i> <span class="prefix"><lstr>mobile</lstr>:</span> <span class="label">514-555-8654</span></div>
             <div class="contact email">
-                <i class="icon fal fa-fw fa-envelope"></i> <span class="label">info@realestate.com</span></div>
+                <i class="icon fal fa-fw fa-envelope"></i><span class="prefix"><lstr>email</lstr>:</span> <span class="label">info@realestate.com</span></div>
         </div>
       </script>
 
@@ -1926,7 +1937,11 @@ siApp
       
       $scope.addVar = function($var){
         if($scope.vars.list == undefined) $scope.vars.list = [];
-        $scope.vars.list.push({key: $var, classes: []});
+
+        const newVar = {key: $var, classes: []};
+        if($var == 'group') newVar.items = [];
+
+        $scope.vars.list.push(newVar);
         
         $timeout( _ => {
           $scope.applySortHandlers();
@@ -2195,7 +2210,7 @@ siApp
     <div class="si-layer-var {{item.key | toDashCase}} {{item.classes.join(' ')}}" si-anchor-to="si-float-anchor">
       <div class="si-layer-var-content" ng-include="item.template"></div>
       <div class="si-layer-var-options" ng-if="item.key != 'group'">
-          <md-button class="md-icon-button" ng-click="openConfig()" title="{{'Manage classes'.translate()}}"><i class="fal fa-tag"></i></md-button>
+          <md-button class="md-icon-button" ng-click="openConfig()" title="{{'Options'.translate()}}"><i class="fal fa-cog"></i></md-button>
           <md-button class="md-icon-button" ng-click="remove()" title="{{'Remove'.translate()}}"><i class="fal fa-trash"></i></md-button>
       </div>
     </div>
@@ -2237,6 +2252,14 @@ siApp
         fallbackOnBody: true,
         swapThreshold: 0.7,
         emptyInsertThreshold: 8,
+        onUpdate: function($data){
+          console.log('ngSort/update',$data);
+          //$scope.updateModel();
+        },
+        onAdd: function($data){
+          console.log('ngSort/add',$data,$scope.item.items);
+          
+        }
       }
 
       $scope.init = function(){
@@ -2269,6 +2292,7 @@ siApp
       $scope.updateModel = function(){
         
         $scope.model.classes = $scope.item.classes.join(' ');
+        $scope.model.fallback = $scope.item.fallback;
 
         console.log('updating model', $scope.item, $scope.model);
 
@@ -2299,6 +2323,7 @@ siApp
       $scope.removeItem = function($index){
         console.log('remove group item at', $index);
         $scope.item.items.splice($index,1);
+        $scope.updateModel();
       }
 
       $scope.addVar = function($var){
@@ -2311,9 +2336,10 @@ siApp
       $scope.openConfig = function(){
         if($scope.model.classes == undefined) $scope.model.classes = '';
 
-        $siUI.dialog('layer-var-edit', angular.copy($scope.model)).then($result => {
+        $siUI.dialog('layer-var-edit', {var: angular.copy($scope.model), type: $scope.type}).then($result => {
           
           $scope.item.classes = [$result.classes];
+          $scope.item.fallback = $result.fallback;
 
           $scope.updateModel();
           
@@ -2350,15 +2376,20 @@ siApp
       const targetElm = parentElm.querySelector(lTargetElmQuery);
 
       const fnApplyAnchorOffset = () => {
-        const lTargetElm = parentElm.querySelector(lTargetElmQuery);
-        if(lTargetElm == null) return;
+        let lTargetElm = parentElm.querySelector(lTargetElmQuery);
+        if(lTargetElm == null) lTargetElm = parentElm;
 
-        const lOffsetElm = lTargetElm.closest('.si-layer-var');
+        //const lOffsetElm = lTargetElm.closest('.si-layer-var');
 
         
-        
-        elm.style.setProperty('--si-anchor-offset-top',lTargetElm.offsetTop + 'px');
-        elm.style.setProperty('--si-anchor-offset-left',lTargetElm.offsetLeft + 'px');
+        if(lTargetElm != parentElm){
+          elm.style.setProperty('--si-anchor-offset-top',lTargetElm.offsetTop + 'px');
+          elm.style.setProperty('--si-anchor-offset-left',lTargetElm.offsetLeft + 'px');  
+        }
+        else{
+          elm.style.setProperty('--si-anchor-offset-top','0px');
+          elm.style.setProperty('--si-anchor-offset-left','0px');
+        }
         elm.style.setProperty('--si-anchor-offset-width',lTargetElm.offsetWidth + 'px');
         elm.style.setProperty('--si-anchor-offset-height',lTargetElm.offsetHeight + 'px');
       }
@@ -2835,7 +2866,7 @@ siApp
         'si-border','si-border-top', 'si-border-bottom','si-border-curved', 'si-border-round',
         'si-box-shadow','si-box-shadow-weak','si-box-shadow-strong',
         'si-no-background', 'si-background-small-contrast','si-background-medium-contrast','si-background-high-contrast',
-        'si-text-align-left','si-text-align-center','si-text-align-right', 'si-text-upper','si-text-lower','si-text-truncate',
+        'si-text-align-left','si-text-align-center','si-text-align-right',
 //        'si-link-button',
         'si-content-gap','si-content-small-gap','si-content-big-gap',
         'si-animate-fade-in','si-animate-slide-in-bottom','si-animate-slide-in-top','si-animate-slide-in-left','si-animate-slide-in-right',
@@ -2849,7 +2880,9 @@ siApp
         agencies: [],
         search: ['si-input-background-small-contrast','si-input-background-medium-contrast','si-input-background-high-contrast', 'si-input-radius', 'si-input-big-radius', 'si-input-border-top', 'si-input-border-bottom'],
         layerVar: [
-                    'si-show-labels','si-hide-icons',
+                    'si-show-labels','si-hide-icons','si-show-prefixes',
+                    'si-emphasis','si-big-emphasis','si-2x-emphasis','si-space-emphasis','si-font-emphasis','si-size-emphasis','si-weight-emphasis',
+                    'si-text-truncate','si-text-small','si-text-upper','si-text-lower',
                     'si-pull-up','si-pull-left','si-pull-up-left','si-pull-up-right','si-pull-right','si-pull-down','si-pull-down-left','si-pull-down-right',
                     'si-slim-pull-up','si-slim-pull-left','si-slim-pull-up-left','si-slim-pull-up-right','si-slim-pull-right','si-slim-pull-down','si-slim-pull-down-left','si-slim-pull-down-right',
                     'si-float-anchor', 'si-float-center','si-float-top','si-float-left','si-float-right','si-float-bottom',

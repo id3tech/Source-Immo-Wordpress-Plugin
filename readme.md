@@ -1,4 +1,4 @@
-# Version 2.0.06
+# Version 2.0.22
 
 
 ### Intuitive admin interface
@@ -104,13 +104,24 @@ You can add triggers in GTM for these events:
 * si/search
 
 
+### Multilanguage support
+Support for WPML and Polylang
+
+
 
 ### filters
 
 
 
 ## Change log
-version 2.0.06
+version 2.0.22
+* Add fallback data for empty layout vars
+* Default list configuration (sort and shuffle) are now applied to sublist too.
+* Fix Safari slow rendering bug
+* Fix localisation bug
+* Minor bug fixes
+
+version 2.0.17
 * New and improved design for data type management
     * Permalink and page details configurations are now grouped by language
     * More intuitive list configuration
@@ -121,6 +132,8 @@ version 2.0.06
 * New image visuals for listings: Gallery and Grid
 * GTM support
 * fix resize glitch on mediabox image slider and search panels
+* Improve support for Polylang
+* Add hooks for broker's "genre" and "title"
 
 
 

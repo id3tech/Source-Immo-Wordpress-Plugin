@@ -1,6 +1,6 @@
 <div class="broker">
-  
-    <div class="photo"><img src="<?php echo($broker->photo_url)?>" /></div>
+    
+    <div class="photo"><img src="<?php echo($broker->photo->url)?>" /></div>
     <div class="infos">
         <div class="name"><?php echo($broker->first_name)?> <?php echo($broker->last_name)?></div>
         <div class="license"><?php echo($broker->license_type)?></div>
@@ -15,7 +15,7 @@
             }
 
             foreach ($broker->phones as $key => $value) {
-                echo '<div class="contact-item phone"><span>' . __($key,SI) . '</span><em>' . $value . '</em></div>';
+                echo '<div class="contact-item phone phone-type-' . $key . '"><span class="si-label">' . __($key,SI) . '</span><em class="si-value">' . $value . '</em></div>';
             }
 
             ?>

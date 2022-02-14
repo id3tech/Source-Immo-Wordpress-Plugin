@@ -52,6 +52,35 @@ if(typeof String.prototype.trimChar === 'undefined'){
 
 }
 
+if(typeof String.prototype.trimCharLeft === 'undefined'){
+
+    String.prototype.trimCharLeft = function($char){
+        let lResult = this;
+        while(lResult.charAt(0)==$char) {
+            lResult = lResult.substring(1);
+        }
+    
+        return lResult;
+    }
+
+}
+
+if(typeof String.prototype.trimCharRight === 'undefined'){
+
+    String.prototype.trimCharRight = function($char){
+        let lResult = this;
+        
+    
+        while(lResult.charAt(lResult.length-1)==$char) {
+            lResult = lResult.substring(0,lResult.length-1);
+        }
+    
+        return lResult;
+    }
+
+}
+
+
 if(typeof String.prototype.toCamelCase === 'undefined'){
     String.prototype.toCamelCase = function(){
         let lResult = this;
@@ -178,7 +207,7 @@ if(typeof String.translate === 'undefined'){
         $scope._current_lang_ = '';
         $scope.file_path = '';
 
-        $scope.init = function($used_language){
+        $scope.init = function($used_language, $file=null){
             console.log('translate support', $used_language);
             // create language containers
             $scope.supported_languages.forEach(function($l){
@@ -186,6 +215,13 @@ if(typeof String.translate === 'undefined'){
             });
 
             $scope._current_lang_ = $used_language;
+            if($file!=null){
+                $scope.load($file);
+            }
+            else if ($localePreload){
+                $scope[$scope._current_lang_].global = $localePreload;
+            }
+            
         }
 
         $scope.load = function($files,$domain){
@@ -203,6 +239,15 @@ if(typeof String.translate === 'undefined'){
                     $scope[$scope._current_lang_][$domain] = $scope.merge_data($scope[$scope._current_lang_][$domain], $response);
                 });
             });
+        }
+
+        $scope.append = function($data,$domain){
+            if($data == null || Object.keys($data).length == 0) return;
+            if(typeof $domain == 'undefined'){
+                $domain = 'global';
+            }
+            if($scope[$scope._current_lang_] == undefined) $scope[$scope._current_lang_] = {};
+            $scope[$scope._current_lang_][$domain] = $scope.merge_data($scope[$scope._current_lang_][$domain], $data);
         }
 
 
@@ -223,6 +268,10 @@ if(typeof String.translate === 'undefined'){
                             // var lData = '';
                             // eval('lData = ' + xhr.responseText);
                             // success(lData);
+                            //let lFileContent = xhr.responseText;
+
+                            //if(!lFileContent.startsWith('{')) lFileContent = lFileContent.substring(lFileContent.indexOf('{'));
+
                             success(JSON.parse(xhr.responseText));
                 } else {
                     if (error)

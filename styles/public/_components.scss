@@ -673,6 +673,7 @@ si-checkbox, si-radio{
     margin-top:0;
     .si-map-viewport-container{
         position:relative;
+        overflow:hidden;
     }
 
     @include media($phone){
@@ -1512,7 +1513,12 @@ body.si-modal-open{
                 padding:1em 1.5em;
                 background: var(--si-high-contrast-color);
                 --si-text-color:var(--si-high-contrast-text-color);
-
+                @media screen and (orientation:portrait){
+                    @include media($tablet){
+                        transform: translate(-50%,100%);
+                        border-radius: 0 0 var(--si-border-radius) var(--si-border-radius) ;
+                    }
+                }
                 label{
                     color:var(--si-text-color)
                 }
@@ -1571,13 +1577,17 @@ body.si-modal-open{
         
         .si-button{
             pointer-events: auto;
-            opacity:0;
             transition:0.25s ease;
-            &.nav-previous{
-                transform:translateX(-100%);
-            }
-            &.nav-next{
-                transform:translateX(100%);
+            
+            @include media-gt($laptop){
+                opacity:0;
+                &.nav-previous{
+                    
+                    transform:translateX(-100%);
+                }
+                &.nav-next{
+                    transform:translateX(100%);
+                }
             }
         }
     }

@@ -210,7 +210,7 @@ siApp
                 ];
                 
                 if(downpayment_ratio < 0.05){
-                    console.log('Downpayment ratio is inferior to the 5% limit');
+                    //console.log('Downpayment ratio is inferior to the 5% limit');
                     return 0;
                 }
                 
@@ -274,10 +274,7 @@ siApp
             }
 
             $scope.preload = function(){
-                let lData = sessionStorage.getItem('si.mortgage-calculator');
-                if(lData != null){
-                    //$scope.data = JSON.parse(lData);
-                }
+                //let lData = sessionStorage.getItem('si.mortgage-calculator');
             }
     
             $scope.save = function(){
@@ -487,7 +484,7 @@ siApp
                 
                 $scope.$on('si/single:ready',function(){
                     $timeout(function(){
-                        console.log('si/single:ready - triggered');
+                        //console.log('si/single:ready - triggered');
                         $scope.detectBoxSize();
                         $scope.selectGridPicture(0);
                     },1000);    
@@ -498,7 +495,7 @@ siApp
             $scope.isInViewport =  function(el) {
                 const rect = el.getBoundingClientRect();
 
-                console.log('isInViewport', rect.bottom, window.innerHeight + window.scrollY)
+                //console.log('isInViewport', rect.bottom, window.innerHeight + window.scrollY)
 
                 return (
                     rect.top >= 0 &&
@@ -529,7 +526,7 @@ siApp
             }
             $scope.handleTouchStart = function(evt) {
                 const firstTouch = evt.touches[0];   
-                console.log('touchStart triggered');
+                //console.log('touchStart triggered');
                 $scope._touchDown = {
                     x: firstTouch.clientX,
                     y: firstTouch.clientY
@@ -695,7 +692,7 @@ siApp
                         $scope._postExitFullscreen();
                     }).then(
                         function success(){
-                            console.log('enterFullscreen@success');
+                            //console.log('enterFullscreen@success');
                             $siUI.lockScreenOrientation('landscape-primary').then(
                                 function(){},
                                 function(){}
@@ -704,7 +701,7 @@ siApp
                             return $q.resolve();
                         },
                         function fail(){
-                            console.log('enterFullscreen@fail');
+                            //console.log('enterFullscreen@fail');
                             $scope.$container = $scope.$element.parentElement;
 
                             $scope.$viewport = $scope.$element.querySelector('.viewport');
@@ -716,7 +713,7 @@ siApp
                             return $q.resolve();
                         }
                     ).then(function(){
-                        console.log('expand_mode activated');
+                        //console.log('expand_mode activated');
 
                         $timeout(function(){    
                             $scope.model.expand_mode = true;
@@ -748,7 +745,7 @@ siApp
                         },
                         function fail(){
                             // compress back
-                            console.log('exit fullscreen failed');
+                            //console.log('exit fullscreen failed');
                             $scope.$container.append($scope.$element);
                             window.removeEventListener('wheel', $scope.preventScroll);
                         }
@@ -762,7 +759,7 @@ siApp
             }
 
             $scope._postExitFullscreen = function(){
-                console.log('_postExitFullscreen');
+                //console.log('_postExitFullscreen');
                 return $q(function($resolve){
                     $timeout(function(){
                         $scope.model.expand_mode = false;
@@ -1173,7 +1170,18 @@ siApp
             }
     
             $scope.display = function(){
-                $scope.mapInit();
+                $scope.viewportObserver = new IntersectionObserver(function($entryList){
+                    if(!$entryList.some($e => $e.isIntersecting)) return;
+
+                    //console.log('siMap about to mapInit');
+                    $scope.mapInit();
+                    $scope.viewportObserver.disconnect();
+                },{
+                    threshold: 0.2
+                });
+
+                //console.log('siMap/display');
+                $scope.viewportObserver.observe($scope.$element);
             }
     
             $scope.mapInit = function(){
@@ -2056,7 +2064,7 @@ function siMediabox($parse){
             
                 if (domReady && !iframe) {
                     // DOM is ready and iframe does not exist. Log a message
-                    window.console && console.log('$scope.callPlayer: Frame not found; id=' + frame_id);
+                    //window.console && console.log('$scope.callPlayer: Frame not found; id=' + frame_id);
                     if (queue) clearInterval(queue.poller);
                 } else if (func === 'listening') {
                     // Sending the "listener" message to the frame, to request status updates
@@ -2272,7 +2280,7 @@ siApp
 
                 $scope.init = function($element){
                     $scope._element = $element;
-
+                    
                     // listen to MediaBox Picture events
                     $scope.$on('mediabox-picture-next', function(){
                         $scope.next();
@@ -2400,17 +2408,86 @@ siApp
             this.create();
             this.list = Array.from($source.children).map($child => angular.copy($child));
 
-            this.listNavPrevious.addEventListener('click', _ => {
-                this.previous()
+            this.listNavPrevious.addEventListener('click', $event => {
+                $event.stopPropagation();
+                this.previous();
             });
-            this.listNavNext.addEventListener('click', _ => {
+            this.listNavNext.addEventListener('click', $event => {
+                $event.stopPropagation();
                 this.next();
             });
-            this.closeButton.addEventListener('click', _ => {
+            this.closeButton.addEventListener('click', $event => {
+                $event.stopPropagation();
                 this.close();
-            })
+            });
+
+            this.listContainer.addEventListener('click', $event => {
+                $event.stopPropagation();
+            });
+
+            this.element.addEventListener('click', _ => {
+                this.close();
+            });
+
+            this.element.addEventListener('touchstart', $event => {
+                this.handleTouchStart($event);
+            }, false);        
+            this.element.addEventListener('touchmove', $event => {
+                this.handleTouchMove($event);
+            }, false);
+            this.xDown = null;
+            this.yDown = null;
+
+            window.addEventListener('keydown', $event => {
+                if($event.key == 'Escape'){
+                    this.close();
+                }
+            }, {once: true});
 
             this.show($index);
+        }
+
+
+        getTouches(evt) {
+            return evt.touches ||             // browser API
+                evt.originalEvent.touches; // jQuery
+        }                                                     
+                                                                                   
+        handleTouchStart(evt) {
+            const firstTouch = this.getTouches(evt)[0];                                      
+            this.xDown = firstTouch.clientX;                                      
+            this.yDown = firstTouch.clientY;                                      
+        }                                              
+                                                                                   
+        handleTouchMove(evt) {
+            if ( ! this.xDown || ! this.yDown ) {
+                return;
+            }
+        
+            var xUp = evt.touches[0].clientX;                                    
+            var yUp = evt.touches[0].clientY;
+        
+            var xDiff = this.xDown - xUp;
+            var yDiff = this.yDown - yUp;
+                                                                                
+            if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                if ( xDiff > 0 ) {
+                    /* right swipe */ 
+                    this.next();
+                } else {
+                    /* left swipe */
+                    this.previous();
+                }                       
+            } else {
+                if ( yDiff > 0 ) {
+                    /* down swipe */ 
+                } else { 
+                    /* up swipe */
+                }                                                                 
+            }
+            /* reset values */
+            this.xDown = null;
+            this.yDown = null;                                             
         }
 
 
@@ -2460,11 +2537,11 @@ siApp
             })
             
             removePromise.then( _ => {
-                console.log('siLightbox/show',$index);
+                //console.log('siLightbox/show',$index);
                 const currentItem = this.list[$index];
 
                 if(currentItem.dataset.videoId != undefined){
-                    this.listContainer.append(this.createVideoElement(currentItem.dataset.videoId,currentItem.dataset.videoType))
+                    this.listContainer.append(this.createVideoElement(currentItem.dataset.videoId,currentItem.dataset.videoType,currentItem.dataset.videoUrl))
                 }
                 else if(currentItem.dataset.sourceUrl != undefined){
                     this.listContainer.append(this.createIFrameElement(currentItem.dataset.sourceUrl))
@@ -2484,8 +2561,17 @@ siApp
             return elm;
         }
 
-        createVideoElement($videoId, $videoType='youtube'){
-            
+        createVideoElement($videoId, $videoType='youtube',$videoUrl=''){
+            const idValidationMaps = {
+                youtube: ($id) => $id,
+                vimeo: ($id) => {
+                    const idRegEx = /\d{9}/
+                    if(isNaN($id ) && idRegEx.test($videoUrl)) return idRegEx.exec($videoUrl)[0];
+                    return $id;
+                }
+            }
+            $videoId = idValidationMaps[$videoType]($videoId);
+
             const urlMaps = {
                 youtube: `https://www.youtube.com/embed/${$videoId}?autoplay=1&mute=1&rel=0&loop=1`,
                 vimeo: `https://player.vimeo.com/video/${$videoId}?autoplay=1&mute=1`
@@ -2515,7 +2601,7 @@ siApp
             const observer = new MutationObserver( $mutations => {
                 Array.from(elm.children).forEach( ($child,$index) => {
                     $child.addEventListener('click', function(event){
-                        console.log('creating new siLightbox', siLightbox)
+                        //console.log('creating new siLightbox', siLightbox)
                         new siLightbox(elm, $index);
                     });
                 });

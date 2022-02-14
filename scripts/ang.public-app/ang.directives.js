@@ -29,7 +29,7 @@ function siList(){
         link : function($scope, $element, $attrs){
             $scope.init();
         },
-        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, 
+        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $timeout,
                                 $siUtils,$siFavorites,$siConfig,$siList,$siHooks,
                                 $siCompiler) {
             $scope.configs = null;
@@ -57,8 +57,9 @@ function siList(){
              * Initialize the controller
              */
             $scope.init = function(){
-                $scope.buildGhostList();
                 
+                $scope.buildGhostList();
+                //return;
 
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
                 
@@ -68,6 +69,9 @@ function siList(){
 
                 $scope.$on('si-{0}-display-switch-list'.format($scope.alias), function(){
                     $scope.display_mode = 'list';
+                    console.log('list display switched to list');
+                    // Send the signal to childrens
+                    $scope.$broadcast('si-display-switch-list');
                 });
 
                 $scope.$on('si-{0}-view-change'.format($scope.alias), function($event, $newView){
@@ -111,6 +115,7 @@ function siList(){
 
                     $siApi.renewToken().then(function(){
                         $scope.start();
+                        
                     });
                 });
             }
@@ -181,18 +186,18 @@ function siList(){
                 if(lSearchToken == $scope.configs.search_token 
                     && typeof $preloadDatas != 'undefined'
                     && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
-                    //console.log('loading from preloaded data');
+                    console.log('loading from preloaded data');
                     const lItems = $preloadDatas[$scope.configs.alias].items;
 
                     if(typeof $scope._preloadedList == 'undefined'){
-                        //console.log('compile list');
+                        console.log('compile list');
                         if($scope.configs.type=='listings'){
                             $scope._preloadedList = $siCompiler.compileListingList(lItems);
                         }
                         else{
                             $scope._preloadedList = $siCompiler.compileBrokerList(lItems);
                         }
-                        //console.log('compile done');
+                        console.log('compile done');
                     }
                     
                     $scope.list = $scope._preloadedList;
@@ -205,7 +210,6 @@ function siList(){
                     $rootScope.$broadcast('si-list-loaded');
                     $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
                     $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-
 
                     return true;
                 }
@@ -297,11 +301,14 @@ function siList(){
             }
     
             $scope.setLoadingState = function($is_loading){
-                $scope.is_loading_data = $is_loading;
-                try{
-                    $scope.$digest();
-                }
-                catch(error){}
+                $timeout( _ => {
+                    $scope.is_loading_data = $is_loading;
+                });
+                
+                // try{
+                //     $scope.$digest();
+                // }
+                // catch(error){}
 
             }
     
@@ -325,6 +332,7 @@ function siList(){
                         
                         $siApi.api($scope.getEndpoint() + '/items', lParams,{method:'GET'}).then(function($response){
                             // set list/meta
+                            
                             const lSingularType = $siUtils.getSingularType($scope.configs.type,false);
                             if(lSingularType != null){
                                 const lCompileMethod = 'compile{0}List'.format(lSingularType);
@@ -332,7 +340,12 @@ function siList(){
                                     $siCompiler[lCompileMethod]($response.items);
                                 }
                             }
-                            $scope.list = $response.items;
+                            //$scope.list = $response.items.slice(0,1);
+                            //$timeout(_ => {
+                                $scope.list = $response.items;
+                                
+                            //})
+                            
                             $scope.ghost_list = [];
                             
                             $scope.listMeta = $response.metadata;
@@ -340,8 +353,8 @@ function siList(){
                             $scope.setLoadingState(false);
                             // broadcast new list
                             $rootScope.$broadcast('si-list-loaded');
-                            $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
-                            $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                                $rootScope.$broadcast('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
+                                $scope.$emit('si-' + $scope.configs.type + '-update', $scope.list,$scope.listMeta);
 
                             // print list to console for further information
                             $scope.saveListToStorage($scope.configs.type);
@@ -647,7 +660,7 @@ function siList(){
                 if($scope.configs.list_item_layout.displayed_vars[$layer] == undefined) return $default;
 
                 if($item == 'region'){
-                    console.log('display region',$scope.configs.list_item_layout.displayed_vars[$layer])
+                    //console.log('display region',$scope.configs.list_item_layout.displayed_vars[$layer])
                 }
                 return $scope.configs.list_item_layout.displayed_vars[$layer].includes($item);
             }
@@ -813,15 +826,17 @@ function siSmallList($sce,$compile){
                 if($element[0].closest('.si') == null){
                     $element[0].parentElement.classList.add('si');
                 }
+
                 $siConfig.get().then(function($configs){
                     $scope.configs = $configs;
 
                     const listConfig = $scope.configs.lists.find($l => $l.type == $scope.type && $l.is_default_type_configs);
                     if(listConfig != null){
+                        $scope.listLayout = listConfig.list_layout;
                         $scope.listItemLayout = listConfig.list_item_layout;
                         $element[0].classList.add('si-inherit-list-configs');
                     }
-                    console.log('siSmallList/init', $scope.listItemLayout);
+                    
 
                     $scope.applyColumnWidth();
                 });
@@ -870,7 +885,20 @@ function siSmallList($sce,$compile){
                     
                 });
 
-                
+                const resizeObserver = new ResizeObserver( $entries => {
+                    //console.log('smallList/resizeObs', $entries);
+                    if($entries[0].contentBoxSize[0].inlineSize < 640){
+                        $element[0].classList.add('si-size-mobile');
+                    }
+                    else if($entries[0].contentBoxSize[0].inlineSize < 800){
+                        $element[0].classList.add('si-size-tablet');
+                    }
+                    else if($entries[0].contentBoxSize[0].inlineSize < 1024){
+                        $element[0].classList.add('si-size-laptop');
+                    }
+                });
+
+                resizeObserver.observe($element[0]);
             }
 
             $scope.fetchList = function(){
@@ -886,7 +914,7 @@ function siSmallList($sce,$compile){
                 
                 $siFilters.with().getSearchToken(lFilters).then(function($token){
 
-                    console.log('fetch list of',lSingularType);
+                    //console.log('fetch list of',lSingularType);
 
                     $siUtils.all({
                         lexicon: function() { return $siApi.getViewDictionary($scope.view_id, $locales._current_lang_) },
@@ -903,7 +931,7 @@ function siSmallList($sce,$compile){
 
                         $scope.list = $siCompiler['compile' + lSingularType + 'List']($results.list.items);
 
-                        console.log('List of',lSingularType,'fetched', $scope.list, $results.list.items);
+                        //console.log('List of',lSingularType,'fetched', $scope.list, $results.list.items);
                     
 
                         $scope._element.addClass("loaded");
@@ -926,8 +954,26 @@ function siSmallList($sce,$compile){
             }
 
             $scope.getBaseFilter = function(){
-                if(!$scope.options || !$scope.options.filter) return {};
+                // Get default list settings, if any
                 const lResult = {};
+                const listConfig = $scope.configs.lists.find($l => $l.type == $scope.type && $l.is_default_type_configs);
+                if(listConfig != null){
+                    //lResult.max_item_count = listConfig.limit;
+                    if(listConfig.sort != null && listConfig.sort != '' && listConfig.sort != 'auto'){
+                        lResult.sort_fields = [{field: listConfig.sort, desc: listConfig.sort_reverse}];
+                    }
+                    console.log('getBaseFilter', listConfig);
+                    if(listConfig.priority_group_sort){
+                        if(lResult.sort_fields == undefined) lResult.sort_fields = [];
+                        const lPriorityDesc = listConfig.priority_group_sort.indexOf('-desc')>0 ? true : false;
+                        lResult.sort_fields.unshift({field: 'priority', desc: lPriorityDesc});
+                    }
+
+                    if(listConfig.shuffle) lResult.shuffle = listConfig.shuffle;
+
+                }
+                if(!$scope.options || !$scope.options.filter) return lResult;
+                
                 
                 if($scope.options.filter.max_item_count > 0){
                     lResult.max_item_count = $scope.options.filter.max_item_count;
@@ -948,11 +994,11 @@ function siSmallList($sce,$compile){
                 
                 let lWidths = angular.merge($scope.columnWidths[$scope.type],$scope.options.columns);
 
-                if($scope.listItemLayout){
-                   lWidths = angular.merge(lWidths, $scope.listItemLayout.item_row_space);
+                if($scope.listLayout){
+                   lWidths = angular.merge(lWidths, $scope.listLayout.item_row_space);
                 }
 
-                console.log('applyColumnWidth',lWidths );
+                //console.log('applyColumnWidth',lWidths );
 
                 if(lWidths == undefined) return;
 
@@ -1275,7 +1321,7 @@ siApp
         },
         link: function($scope,$element,$attr){
             $scope.options = Object.assign({
-                method: 'hard', // hard: display none|soft: opacity 0
+                method: $attr.siHideEmpty || 'hard', // hard: display none|soft: opacity 0
             },$scope.options);
             // let lShowContent = false;
             // if($attr.siHideEmpty != ''){
@@ -1449,12 +1495,12 @@ siApp
 
             $scope.listScrollRight = function(){
                 const itemWidth = lElm.querySelector('.si-scroller-item').getBoundingClientRect().width;
-                console.log('listScrollRight', itemWidth);
+                //console.log('listScrollRight', itemWidth);
                 lElm.scrollBy(itemWidth,0);
             }
 
             const lResizeObs = new ResizeObserver( ($entries) => {
-                console.log('siListScroller/resized', $entries);
+                //console.log('siListScroller/resized', $entries);
                 $entries[0].target.scrollTo(0,0);
             });
             lResizeObs.observe(lElm);
@@ -1467,24 +1513,22 @@ siApp
     return {
         restrict: 'A',
         link: function($scope,$element,$attrs){
+            
             const elm = $element[0];
+            const elmContainer = elm.parentElement;
+
+            const hasFloatingClass = Array.from(elm.classList).some($c => $c.indexOf('si-float-')>=0);
+            if(!hasFloatingClass) return;
+
+
             let lAnchorSelector = $attrs.siAnchorTo;
             const lRelativeContainerClass = ['.layer-content','.si-item'].find($q => elm.closest($q));
-
+            
             if(lRelativeContainerClass == null) return;
 
             const lRelativeContainer = elm.closest(lRelativeContainerClass);
 
             const observer = new MutationObserver( $mutations => {
-                // $mutations.forEach( $m => {
-                //     if($m.attributeName=='class'){
-                //         $scope.applyAnchor(lAnchorSelector, lRelativeContainer, observer);
-                //     }
-                //     else if($m.attributeName==null){
-                        
-                //     }
-                // });
-
                 $scope.applyAnchor(lAnchorSelector, lRelativeContainer, observer);
             });
             
@@ -1497,20 +1541,25 @@ siApp
 
             $scope.applyAnchor = function($selector, $container, $observer=null){
                 const elm = $element[0];
-                const hasFloatingClass = Array.from(elm.classList).some($c => $c.indexOf('si-float-')>=0);
-                if(!hasFloatingClass) return;
+                const floatClass = Array.from(elm.classList).find($c => $c.startsWith('si-float-'));
+                if(floatClass == null) return;
+
+                const listContainer = elm.closest('.si-list-container');
+                if(listContainer.style.cssText.indexOf('--' + floatClass + '-offset-top') >= 0) return;
 
                 if(!$selector.startsWith('.') && !$selector.startsWith('#')) $selector = '.' + $selector;
-                const lAnchorElm = $container.querySelector($selector);
-            
-                if(lAnchorElm != null){
-                    //elm.classList.add('si-anchored');
-
-                    elm.style.setProperty('--si-anchor-offset-top', lAnchorElm.offsetTop + 'px');
-                    elm.style.setProperty('--si-anchor-offset-left', lAnchorElm.offsetLeft + 'px');
-                    elm.style.setProperty('--si-anchor-offset-height', lAnchorElm.offsetHeight + 'px');
-                    elm.style.setProperty('--si-anchor-offset-width', lAnchorElm.offsetWidth + 'px');
+                let lAnchorElm = $container.querySelector($selector);
+                
+                if(lAnchorElm == null){
+                    lAnchorElm = $container;
                 }
+                
+                
+                listContainer.style.setProperty('--' + floatClass + '-offset-top', lAnchorElm.offsetTop + 'px');
+                listContainer.style.setProperty('--' + floatClass + '-offset-left', lAnchorElm.offsetLeft + 'px');
+                listContainer.style.setProperty('--' + floatClass + '-offset-height', lAnchorElm.offsetHeight + 'px');
+                listContainer.style.setProperty('--' + floatClass + '-offset-width', lAnchorElm.offsetWidth + 'px');
+            
                 
                 if($observer!=null){
                     $observer.disconnect();

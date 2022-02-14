@@ -1,4 +1,4 @@
-$locales.fr.global = Object.assign($locales.fr.global, 
+$localePreload = Object.assign($localePreload, 
 {
     "Lead grabber token" : "Jeton du Lead grabber"
 }

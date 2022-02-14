@@ -63,6 +63,15 @@ class SourceImmoConfig {
    */
   public $mode = 'PROD';
 
+  
+  /**
+   * Isolation mode for single page rendering. 
+   * NONE => No isolation. The controller is added to the body to allow controller model data to be display anywhere on the page
+   * ISOLATE => Confine the controller to the Shortcode scope.
+   * @var string
+   */
+  public $isolation = 'NONE';
+
   /**
    * Prefetch data server side to allow api call caching
    * @var boolean

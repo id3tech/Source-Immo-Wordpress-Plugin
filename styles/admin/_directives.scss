@@ -785,6 +785,9 @@ body.wp-admin #si-app,
                     }
                   
                   }
+                  md-input-container{
+                    .md-errors-spacer{display:none;}
+                  }
                 }
                 
 
@@ -1216,6 +1219,7 @@ body.wp-admin #si-app,
               .si-float-left,
               .si-float-right,
               .si-float-center,
+              .si-float-center-center,
               .si-float-center-left,
               .si-float-center-right,
               .si-float-bottom,
@@ -1256,6 +1260,12 @@ body.wp-admin #si-app,
 
               .si-float-center{
                 top:calc(var(--si-anchor-offset-top) + (var(--si-anchor-offset-height) / 2));
+                left:0px;
+                width:100%;
+                transform: translate(0%,-50%);
+              }
+              .si-float-center-center{
+                top:calc(var(--si-anchor-offset-top) + (var(--si-anchor-offset-height) / 2));
                 left:50%;
                 transform: translate(-50%,-50%);
               }
@@ -1273,7 +1283,8 @@ body.wp-admin #si-app,
                 transform:translateY(-100%) translateX(-50%);
               }
 
-              .rooms,.contacts,.counters{
+              .rooms,.contacts,.counters,.phone-list{
+                .prefix,
                 .label{
                   display:none;
                 }
@@ -1289,12 +1300,17 @@ body.wp-admin #si-app,
                   display:inline-block;
                 }
 
-                .rooms,.contacts,.counters{
-                  flex-direction: column;
+                .rooms,.contacts,.counters,.phone-list{
+                  flex-direction: column!important;
                   .label{
                     
                   }
                 } 
+              }
+              .si-show-prefixes{
+                .prefix{
+                  display:inline-block;
+                }
               }
   
               .si-container{
@@ -1633,10 +1649,10 @@ body.wp-admin #si-app,
                 }
               }
 
-              .link-button{display:none;margin-top: 0.5em;}
-              .si-link-button{
-                .link-button{display:revert;}
-              }
+              .link-button{margin-top: 0.5em;}
+              // .si-link-button{
+              //   .link-button{display:revert;}
+              // }
   
               .list-toggler-button{
                   display:inline-grid;
@@ -1735,6 +1751,7 @@ body.wp-admin #si-app,
                 //   } 
                 // }
 
+                .phone-list,
                 .contacts{
                   display:inline-flex;
                   flex-direction: row;

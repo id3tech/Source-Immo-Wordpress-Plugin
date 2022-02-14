@@ -1001,25 +1001,34 @@ siApp
   }
 
   $scope.login = function(){
-    $siApi.portal('auth/login', $scope.login_infos).then($response => {
-      
-      if([10,20].includes($response.statusCode)){
-        //$siUI.alert($response.message);
-        $siUI.alert($response.message.translate())
-        return false;
-      }
+    $scope.actions[0]._working = true;
+    $siApi.portal('auth/login', 
+      $scope.login_infos).then(
+        $response => {
+          $scope.actions[0]._working = false;
+          if($response.statusCode == undefined || [10,20].includes($response.statusCode)){
+            //$siUI.alert($response.message);
+            $siUI.alert($response.message.translate())
+            return false;
+          }
 
-      $siUser.info = {
-        token: $response.authTokenKey,
-        user: {
-          name: $response.context.user.name,
+          $siUser.info = {
+            token: $response.authTokenKey,
+            user: {
+              name: $response.context.user.name,
+            }
+          }
+          
+          $scope.closeAndReturn($response);
+          
+          console.log('login', $response);
+        },
+        $error => {
+          const message = Object.keys($error.modelState).map($k => $error.modelState[$k].join(' ').translate());
+          $siUI.alert(message.join(' '));
+          $scope.actions[0]._working = false;
         }
-      }
-      
-      $scope.closeAndReturn($response);
-
-      console.log('login', $response);
-    });
+    );
   }
 
   $scope.isActionValid = function($button){
@@ -1031,31 +1040,36 @@ siApp
   }
 })
 
-siApp
-.controller('signinDialogCtrl', function signinCtrl($scope, $rootScope, $mdDialog,$siUI){
-  BaseDialogController('signin',$scope, $rootScope, $mdDialog);
-
-  $scope.login_infos = {
-    email: '',
-    password: ''
-  }
-  $scope.title = 'Please signin'
-  $scope.actions = [
-    {label: 'Submit', action : _ => {$scope.login();}}
-  ]
+// siApp
+// .controller('signinDialogCtrl', function signinCtrl($scope, $rootScope,$siUI){
+  
+//   $scope.login_infos = {
+//     email: '',
+//     password: ''
+//   }
+//   $scope.title = 'Please signin'
+//   $scope.actions = [
+//     {label: 'Submit', action : _ => {$scope.login();}}
+//   ]
 
   
-  $scope.login = function(){
-    $scope.portalApi('auth/login', $scope.login_infos).then($response => {
-      if($response.statusCode==200){
-        $scope.closeAndReturn($response);
-      }
-      else{
-        $siUI.show_toast($response.message.translate());
-      }
-    });
-  }
-});
+//   $scope.login = function(){
+//     $scope.portalApi('auth/login', $scope.login_infos).then(
+//       $response => {
+//         if($response.statusCode==200){
+//           $scope.closeAndReturn($response);
+//         }
+//         else{
+//           $siUI.show_toast($response.message.translate());
+//         }
+//       },
+//       $error => {
+//         const message = Object.keys($error.modelState).map($k => $error.modelState[$k].join(' ').translate());
+//         $siUI.alert(message.join(' '));
+//       }
+//     );
+//   }
+// });
 
 siApp
 .controller('layerVarEditDialogCtrl', function layerVarEditDialogCtrl($scope, $rootScope){
@@ -1067,10 +1081,13 @@ siApp
     { label: 'OK', action: function () { $scope.buildAndClose($scope.model) } },
     { label: 'Cancel', action: function () { $scope.cancel(); } },
   ];
-  
+  $scope.availableVarList = [];
+
   $scope.init = function($params){
     //$scope.model.classes = $params.classes.join(' ');
-    $scope.model = $params;
+    $scope.model = $params.var;
+
+    $scope.availableVarList = $rootScope.global_list.list_item_vars[ $params.type];
   }
 
   $scope.buildAndClose = function($data){

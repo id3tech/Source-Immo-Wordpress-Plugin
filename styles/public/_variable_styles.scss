@@ -220,6 +220,18 @@
       }
       padding: 0 var(--si-padding,0);
     }
+    .si-padding-top{
+      padding-top: var(--si-padding,0);
+    }
+    .si-padding-left{
+      padding-top: var(--si-padding,0);
+    }
+    .si-padding-bottom{
+      padding-top: var(--si-padding,0);
+    }
+    .si-padding-right{
+      padding-top: var(--si-padding,0);
+    }
 
     .si-border{
         border: var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc));   
@@ -247,7 +259,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        line-height: 1;
+        line-height: 1.1em;
       }
     }
     // .si-label.si-text-truncate{
@@ -270,6 +282,12 @@
         display:inline-block!important;
       }
     }
+    .si-show-prefixes{
+      .prefix{
+        display:inline-block!important;
+      }
+    }
+
     .si-text-align-center{
       text-align:center;
       --si-text-align: center;
@@ -310,7 +328,7 @@
     }
     .si-space-emphasis{
       //padding:0.5em 0;
-      min-height: 2em;
+      min-height: 3.5em;
       display:inline-flex;
       align-items: center;
       justify-content: var(--si-text-align);
@@ -334,6 +352,25 @@
     .si-text-small-contrast{
       --si-text-color: var(--si-small-contrast-text-color);
     }
+
+
+    [class^='si-text-max-lines-'],[class*=' si-text-max-lines-']{
+      display: -webkit-box;
+      -webkit-line-clamp: var(--si-line-count);
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      
+      // for backward compatibility
+      overflow: hidden;
+      line-height: 1.5em;
+      height: calc(1.5em *  var(--si-line-count));
+    }
+    @for $i from 2 to 10 {
+      .si-text-max-lines-#{$i}{
+        --si-line-count: #{$i};
+      }  
+    }
+    
 
     .si-content-small-gap{
       --content-gap:calc(var(--si-layout-gutter,1rem) / 2);
@@ -662,6 +699,7 @@
     .si-float-left,
     .si-float-right,
     .si-float-center,
+    .si-float-center-center,
     .si-float-center-left,
     .si-float-center-right,
     .si-float-bottom,
@@ -702,6 +740,12 @@
 
     .si-float-center{
       top:calc(var(--si-anchor-offset-top) + (var(--si-anchor-offset-height) / 2));
+      left:0;
+      width:100%;
+      transform: translate(0%,-50%);
+    }
+    .si-float-center-center{
+      top:calc(var(--si-anchor-offset-top) + (var(--si-anchor-offset-height) / 2));
       left:50%;
       transform: translate(-50%,-50%);
     }
@@ -717,5 +761,16 @@
     }
     .si-float-bottom-center{
       transform:translateY(-100%) translateX(-50%);
+    }
+
+    $floatVariants : si-float-top, si-float-top-left, si-float-top-center,si-float-top-right,si-float-left,si-float-right,si-float-center,si-float-center-center,si-float-center-left,si-float-center-right,si-float-bottom,
+                      si-float-bottom-left,si-float-bottom-center,si-float-bottom-right;
+    @each $variant in $floatVariants {
+      .#{$variant}{
+        --si-anchor-offset-top: var(--#{$variant}-offset-top);
+        --si-anchor-offset-height: var(--#{$variant}-offset-height);
+        --si-anchor-offset-left: var(--#{$variant}-offset-left);
+        --si-anchor-offset-width: var(--#{$variant}-offset-width);
+      }
     }
 }

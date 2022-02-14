@@ -159,6 +159,20 @@ class SourceImmo {
     return null;
   }
 
+  public function get_route($type, $locale=null){
+    if($locale==null){
+      $locale = si_get_locale();
+    }
+
+    $typedRoutes = $this->configs->{$type . '_routes'};
+    foreach($typedRoutes as $route){
+      if($route->lang == $locale) return $route;
+    }
+
+    return null;
+  }
+  
+
   public function exclude_menu_pages( $items) {
     // Iterate over the items to search and destroy
     $layouts = ['listing','city','office','broker'];
@@ -177,7 +191,7 @@ class SourceImmo {
     }
 
     return $items;
-}
+  }
 
   public function get_permalink($type){
     $lTypeConvertion = array(
@@ -275,8 +289,9 @@ class SourceImmo {
   /**
    * @param string $type Type of the layout
    */
-  public function get_detail_layout($type){
-    $locale = si_get_locale();
+  public function get_detail_layout($type,$locale=null){
+    if($locale == null) $locale = si_get_locale();
+
     $lResult = null;
     
     if(property_exists($this->configs,$type . '_layouts')){
@@ -292,6 +307,15 @@ class SourceImmo {
     
 
     return $lResult;
+  }
+
+  public function get_isolation($type=null, $locale=null){
+    if($type == null) return $this->configs->isolation;
+    $default = $this->configs->isolation;
+    $layoutInfo = $this->get_detail_layout($type,$locale);
+    if(isset($layoutInfo->isolation) && $layoutInfo->isolation != '' && $layoutInfo->isolation != 'inherit') return $layoutInfo->isolation;
+
+    return $default;
   }
 
   public function get_default_list($type){
@@ -344,11 +368,17 @@ class SourceImmo {
       'agency'  => 'agencies'
     ];
 
+
+
     foreach($routeMappings as $single => $plurial){
       // add routes
       foreach($this->configs->{$single . '_routes'} as $route){
         $ruleKey=array();$matches=array();
+        //$rootUrl = $this->get_root_url($route->lang);
+
         $this->getRulesAndMatches($route->route,$ruleKey,$matches);
+        
+        $routeKey = implode('/',$ruleKey);
         
         $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=' . $plurial . '&' . implode('&', $matches);
 
@@ -425,8 +455,9 @@ class SourceImmo {
   }
   
   function detect_locale($locale){
+    global $locale;
     $request_locale = get_query_var( 'lang' );
-    //Debug::write($request_locale);
+    
     if($request_locale && !isset($this->_locale_switched)){
       $this->_locale_switched = true;
 
@@ -434,9 +465,12 @@ class SourceImmo {
       if($sitepress){
         $sitepress->switch_lang($request_locale);
       }
+      
+        
       $locale = $request_locale . '_CA';
-
+      
     }
+    
     
     return $locale;
   }
@@ -459,7 +493,7 @@ class SourceImmo {
       $objectWrapper->preprocess_item($model);
 
       $model->permalink = SourceImmoListingsResult::buildPermalink($model, SourceImmo::current()->get_listing_permalink($lang), $lang);
-
+      //__c($model->permalink);
       $viewQuery = (isset($_GET['view'])) ? '?view='.$_GET['view'] : '';
 
       if(wp_redirect($model->permalink . $viewQuery)){
@@ -535,7 +569,6 @@ class SourceImmo {
     }
   }
   
-  
   function redirect_agencies($ref_number,$lang=null){
     // load data
     $model = json_decode(SourceImmoApi::get_agency_data($ref_number));
@@ -603,7 +636,7 @@ class SourceImmo {
     // wp_enqueue_style("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.css", array('si-style'), "1", "all");
 	  // wp_enqueue_script("rzslider", "https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.6.1/rzslider.min.js", array('angular'), '', true);
 
-    wp_enqueue_script( 'si-prototype', plugins_url('/scripts/ang.prototype.js', SI_PLUGIN), null, 
+    wp_register_script( 'si-prototype', plugins_url('/scripts/ang.prototype.js', SI_PLUGIN), null, 
                             filemtime(SI_PLUGIN_DIR . '/scripts/ang.prototype.js'), true );
 
     $this->load_module_resources();
@@ -676,9 +709,12 @@ class SourceImmo {
   }
 
 
+  private $_root_url = [];
+
   function get_root_url($lang=null){
     
-    
+    if(isset($this->_root_url[$lang])) return $this->_root_url[$lang];
+
     $lRootUrl = get_bloginfo('url');
     $lRootUrl = str_replace(['http://', 'https://'],'', $lRootUrl);
     
@@ -691,6 +727,20 @@ class SourceImmo {
       
       if($localeBaseUrl != $lRootUrl && strpos($localeBaseUrl,'?')===false) $lRootUrl = $localeBaseUrl;
     }
+    else if(function_exists('pll_home_url')){
+      $lTwoLetterLocale = $lang!=null ? $lang : si_get_locale();
+      $localeBaseUrl = pll_home_url($lang);
+      $localeBaseUrl = str_replace(['http://', 'https://'],'', $localeBaseUrl);
+      $localeBaseUrl = trim($localeBaseUrl,'/');
+      if($localeBaseUrl != $lRootUrl && strpos($localeBaseUrl,'?')===false) $lRootUrl = $localeBaseUrl;
+
+      $langPosInUrl = strpos($lRootUrl,$lTwoLetterLocale);
+      if($langPosInUrl !== false){
+        $lRootUrl = substr($lRootUrl,0, $langPosInUrl) . $lTwoLetterLocale;
+      }
+
+      
+    }
     
     
     if(strpos($lRootUrl,'/') !== false){
@@ -700,6 +750,7 @@ class SourceImmo {
       $lRootUrl = '/';
     }
 
+    $this->_root_url[$lang] = $lRootUrl;
     return $lRootUrl;
   }
 
@@ -717,12 +768,16 @@ class SourceImmo {
     $lConfigPath = SourceImmoConfig::getFileUrl(true);
 
     $currentPagePath = $_SERVER['REQUEST_URI'];
-
-    wp_add_inline_script( 'si-prototype', 
+    wp_register_script( 'si-init', '', [], '', true );
+    wp_enqueue_script( 'si-init'  );
+    wp_add_inline_script( 'si-init', 
+        'var siCtx = {}, siApiSettings = {};' .
+        'function siContextInit(){' .
+          'console.log("siContextInit");'.
         //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
         '$locales.init("' . $lTwoLetterLocale . '");' .
-        'var siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
-        'var siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
+        'window.siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
+        'window.siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
                   'version:"' . str_replace(' ','-', SI_VERSION) . '", ' .
                   'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' .
                   'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' .
@@ -733,7 +788,9 @@ class SourceImmo {
                   'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . ', '.
                   'map_api_key: "' . $this->configs->get_map_api_key() . '" ' . ',' .
                   'root_url: "' . $lRootUrl . '"' .
-                '};'
+                '};' .
+        '};'
+        //'window.addEventListener("DOMContentLoaded",function(){ siContextInit(); });'
       );
 
   }
@@ -742,6 +799,7 @@ class SourceImmo {
    * Add locale (language) JSON file reference to the document
    */
   public function load_locale_file(){
+    
     $lTwoLetterLocale = si_get_locale();
 
     if($lTwoLetterLocale!='en'){
@@ -758,10 +816,13 @@ class SourceImmo {
           wp_enqueue_script(
                             'si-locales-' . $localeName, 
                             SI_PLUGIN_URL . $fileUrl, 
-                            null, 
+                            ['si-prototype','si-init'], 
                             filemtime($filePath), 
                             true
                           );
+
+          // wp_enqueue_script(
+          //                   'si-locales-' . $localeName);
         }
       }
       // wp_enqueue_script('si-locales', plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.js', SI_PLUGIN), 
@@ -800,6 +861,12 @@ class SourceImmo {
         else{
           $configStyles[] = '--si-' . $styleKey . ':'. $styleValue;
         }
+
+        if(in_array($styleKey, ['listing-item-picture-ratio','broker-item-picture-ratio'])){
+          $styleValue = $this->invertRatio($styleValue);
+          
+          $configStyles[] = '--si-' . $styleKey . '-inverse:'. $styleValue;
+        }
         
       }
       if(count($configStyles) > 0 ){
@@ -811,6 +878,26 @@ class SourceImmo {
         wp_add_inline_style('si-custom-style',str_replace('\n', "", $configStyles));
       }
     }
+  }
+
+  public function invertRatio($n, $tolerance = 1.e-6) {
+      if(strpos($n,'/') !== false){
+        $splitedValue = explode('/',$n);
+        return $splitedValue[1] . ' / ' . $splitedValue[0];
+      }
+
+      $h1=1; $h2=0;
+      $k1=0; $k2=1;
+      $b = 1/$n;
+      do {
+          $b = 1/$b;
+          $a = floor($b);
+          $aux = $h1; $h1 = $a*$h1+$h2; $h2 = $aux;
+          $aux = $k1; $k1 = $a*$k1+$k2; $k2 = $aux;
+          $b = $b-$a;
+      } while (abs($n-$h1/$k1) > $n*$tolerance);
+
+      return round($k1 / $h1,2);
   }
 
   /**
@@ -977,6 +1064,12 @@ class SourceImmo {
     // load data
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
     if($model != null){
+      $brokerIds = array_map(function($item){
+        return $item->ref_number;
+      }, $model->brokers);
+      $brokers = json_decode(SourceImmoApi::get_broker_list($brokerIds));
+
+      $model->brokers = $brokers;
       
       do_action('si/listing/print', $model);
 
@@ -1832,21 +1925,37 @@ class SiSharing{
 #region WPML FILTER
 
 add_action('si_listing_detail_begin', function(){
-	add_filter( 'WPML_filter_link', function($lang_url, $lang){
-    global $listing_data;
-    global $sitepress;
-    $lHomeUrl= $sitepress->language_url( $lang["code"] );
-    
-		$permalink_format = SourceImmo::current()->get_listing_permalink($lang['code']);
-    $permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format,$lang["code"]);
-    
-    if(isset($_GET['view'])){
-      $permalink = $permalink . '?view=' . $_GET['view'];
-    }
-    
-    //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
-    return $permalink;
+	  add_filter( 'WPML_filter_link', function($lang_url, $lang){
+      global $listing_data;
+      global $sitepress;
+      $lHomeUrl= $sitepress->language_url( $lang["code"] );
+      
+      $permalink_format = SourceImmo::current()->get_listing_permalink($lang['code']);
+      $permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format,$lang["code"]);
+      
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
+      
+      //if(strpos($lHomeUrl,$lang["code"])!==false) $permalink = '/' . $lang['code'] . $permalink;
+      return $permalink;
 	  }, 10, 2 );
+
+    add_filter( 'pll_the_language_link', function($url, $slug ) {
+      global $listing_data;
+      $permalink_format = SourceImmo::current()->get_listing_permalink($slug);
+      $permalink = SourceImmoListingsResult::buildPermalink($listing_data, $permalink_format,$slug);
+      
+      if(isset($_GET['view'])){
+        $permalink = $permalink . '?view=' . $_GET['view'];
+      }
+
+      //$homeUrl = pll_home_url($slug);
+      //__c($permalink);
+      return $permalink;
+    }, 10, 2 );
+    
+    
 }, 5,0);
 
 add_action('si_broker_detail_begin', function(){

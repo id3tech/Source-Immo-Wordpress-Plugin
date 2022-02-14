@@ -64,7 +64,7 @@
       }
       
       if(!isset($item->agency)) $item->agency = json_decode(json_encode(['name'=>'']));
-
+      
       foreach($item->phones as $key => $value){
         $item->phones->$key = $this->formatPhone($value);
       }
@@ -824,8 +824,8 @@
       
       $lTwoLetterLocale = $lang!=null ? $lang : si_get_locale();
       
-      $rootUrl = SourceImmo::current()->get_root_url();
-  
+      $rootUrl = SourceImmo::current()->get_root_url($lTwoLetterLocale);
+      
       $lAttrList = self::getAttributeValueList($item);
       $item->has_custom_page = false;
       
@@ -848,6 +848,8 @@
             ), $lFriendlyValue , $lResult);
       }
       
+      if(strpos($lResult,ltrim($rootUrl,'/')) !== false) $lResult = str_replace(ltrim($rootUrl,'/'), '', $lResult);
+
       $lFinalPermalink = $rootUrl . str_replace(' ','-',$lResult);
       return $lFinalPermalink;
     }
@@ -914,14 +916,16 @@
     }
 
     public static function formatPhone($value){
-      $phoneFormat = SourceImmo::current()->configs->phone_format;
-      if(str_null_or_empty($phoneFormat)) $phoneFormat = '000-000-0000';
+      $defaultFormat = '000-000-0000';
+      $phoneFormat = isset(SourceImmo::current()->configs->phone_format) ? SourceImmo::current()->configs->phone_format :  $defaultFormat;
+      if(str_null_or_empty($value)) return '';
+      if(str_null_or_empty($phoneFormat)) $phoneFormat = $defaultFormat;
       $result = '';
       $poolIndex = 0;
       $value = preg_replace('/\D/', '', $value);
 
       for($i=0;$i<strlen($phoneFormat);$i++){
-        if($phoneFormat[$i] == 0){
+        if($phoneFormat[$i] == '0'){
           $result .= $value[$poolIndex];
           $poolIndex ++;
         }
@@ -1178,6 +1182,7 @@ class SourceImmoRoute{
     public $use_styles = true;
     public $primary_layer_position = 'fix';
     public $secondary_layer_bg_opacity = 75;
+    public $isolation = 'inherit';
     public $item_row_space = array();
     public $custom_css = '';
   
@@ -1257,6 +1262,7 @@ class SourceImmoRoute{
     public $smart_focus_tolerance = 5;
     public $search_engine_options = null;
     public $search_token = null;
+    public $priority_group_sort = null;
     public $is_default_type_configs = false;
   
     public function __construct($source='',$alias='listings',$type='listings',$sort='',$displayedVars=null){

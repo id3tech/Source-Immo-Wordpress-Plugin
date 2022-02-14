@@ -25,5 +25,5 @@
 
 <md-dialog-actions layout="row">
     <span flex></span>
-    <md-button ng-repeat="button in actions" ng-disabled="!isActionValid(button)" ng-click="button.action()">{{button.label.translate()}}</md-button>
+    <md-button ng-repeat="button in actions" ng-disabled="button._working===true || !isActionValid(button)" ng-click="button.action()"><i class="fal fa-spin fa-spinner" ng-if="button._working===true"></i>{{button.label.translate()}}</md-button>
 </md-dialog-actions>

@@ -1,4 +1,4 @@
-$locales.fr.global = Object.assign($locales.fr.global, 
+$localePreload = Object.assign($localePreload, 
 {
     "Loading details text" : "Texte du chargement des détails"
     , "Listing's details display" : "Affichage des détails de l'inscription"

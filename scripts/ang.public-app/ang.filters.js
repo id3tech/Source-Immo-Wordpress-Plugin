@@ -357,6 +357,36 @@ siApp
     }
 });
 
+siApp
+.filter('siBrokerTitle', ['$siHooks', function($siHooks){
+    return function($value, $id){
+        $value = $siHooks.filter('si/broker/title', $value, $id);
+        return $value;
+    }
+}])
+
+siApp
+.filter('siApplyGenre', ['$siHooks', function($siHooks){
+    return function($value, $id, $genre){
+        $genre = $siHooks.filter('si/broker/genre', $genre, $id);
+        
+        if($genre === 'F'){ 
+            const lGenreMap = {
+                "Courtier" : 'Courtière'
+                ,"immobilier" : "immobilière"
+                ,"résidentiel" : 'résidentielle'
+                ,"commercial" : "commerciale"
+                ,"agréé" : "agréée"
+            };
+
+            $value = Object.keys(lGenreMap).reduce( ($result, $k) => {
+                return $result.replace($k, lGenreMap[$k]);
+            },$value);
+        }
+        return $value;
+    }
+}])
+
 
 function $lateBind($callback){
     let $scope = {

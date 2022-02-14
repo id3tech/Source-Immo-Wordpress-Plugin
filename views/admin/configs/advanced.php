@@ -51,6 +51,14 @@
                             si-change="logoChanged($media)"
                             caption="Your logo" placeholder="Choose an image"></si-wp-media>
             
+
+            <md-input-container flex>
+                <label lstr>Isolation mode</label>
+                <md-select ng-model="configs.isolation" ng-change="save_configs()">
+                    <md-option value="NONE"><lstr>None</lstr></md-option>
+                    <md-option value="ISOLATE"><lstr>Isolate</lstr></md-option>
+                </md-select>
+            </md-input-container>
         </div>
 
     </div>

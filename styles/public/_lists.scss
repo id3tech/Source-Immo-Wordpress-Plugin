@@ -212,6 +212,9 @@
                 }
             }
 
+            .si-fallback-content{
+                display:none;
+            }
             
             // .si-label{
             //     //padding:0 var(--element-padding);
@@ -468,6 +471,8 @@
               }
             }
 
+            
+
             .si-label-group{
                 display:grid;
             }
@@ -552,18 +557,21 @@
               }
             }
             
-
+            .phone-list,
             .contacts{
               display:inline-flex;
               flex-direction: row;
               gap:0.25em 0.5em;
               justify-content: var(--si-text-align);
 
+              > .si-phone,
               .contact{
                 display:inline-grid;
                 gap:0.25em;
-                grid-template-columns: auto 1fr;
-
+                grid-template-columns: auto auto 1fr;
+                .prefix{
+                    display:none;
+                }
                 .label{
                     display:none;
                     white-space: nowrap;
@@ -585,7 +593,8 @@
             }
 
             .si-show-labels{
-                .rooms, .contacts, .counters{
+                .rooms, .contacts, .counters, .phone-list,
+                &.rooms, &.contacts, &.counters, &.phone-list{
                     flex-direction:column;
                 }
             }
@@ -689,8 +698,15 @@
                 //height:calc(var(--item-column-width) * var(--si-listing-item-picture-ratio));
                 width:100%;
                 aspect-ratio: var(--si-listing-item-picture-ratio, 4 / 3);
+                @include safari{
+                    aspect-ratio: unset;
+                    padding-bottom: calc(100% * var(--si-listing-item-picture-ratio-inverse, 3 / 4));
+                    img{
+                        position:absolute;
+                    }
+                }
                 text-align: unset;
-                background: url('assets/shadow_property.jpg') no-repeat;
+                //background: url('assets/shadow_property.jpg') no-repeat;
                 background-size: cover;
                 img{
                     text-indent: -1000px;
@@ -851,7 +867,13 @@
                     background-size: cover;
                     //height: calc(var(--item-column-width) * var(--broker-item-picture-ratio));
                     aspect-ratio: var(--si-broker-item-picture-ratio, 3 / 4);
-
+                    @include safari{
+                        aspect-ratio: unset;
+                        padding-bottom: calc(100% * var(--si-broker-item-picture-ratio-inverse, 3 / 4));
+                        img{
+                            position:absolute;
+                        }
+                    }
                     // height: calc((var(--list-element-width) / var(--desktop-column-width)) * var(--broker-item-picture-ratio)) auto;
                     // @include media($laptop){
                     //     height: calc((var(--list-element-width) / var(--laptop-column-width)) * var(--broker-item-picture-ratio)) auto;
@@ -950,6 +972,7 @@
                     img{
                         object-fit:var(--si-broker-item-picture-fit);
                         width:100%;
+                        height: 100%;
                     }
                 }
                 .name{
@@ -963,6 +986,12 @@
                     align-self: start;
                     margin-bottom:10px;
                     color:inherit;
+
+                    .phone{
+                        .prefix{
+                            display:none;
+                        }
+                    }
                 }
                 .license{
                     grid-area: license;

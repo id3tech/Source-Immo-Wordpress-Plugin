@@ -478,12 +478,21 @@ siApp
       
   
       return $q(($resolve,$reject) => {
-        $http(lOptions).then($response => {
-          //$scope.dialog('signin', null);
-          if($response.status==200){
-            $resolve($response.data);
+        $http(lOptions).then(
+          $response => {
+            //$scope.dialog('signin', null);
+            if($response.status==200){
+              $resolve($response.data);
+            }
+            else{
+              $reject($response.data);
+            }
+          },
+          $error => {
+            console.log('call to', lOptions.url,'return an error' ,$error);
+            $reject($error.data);
           }
-        })
+        )
         .catch($err => { console.log($path, 'call failed', $err) });
       })
       
@@ -673,7 +682,7 @@ siApp
 
     $options = angular.merge({
       ev: null,
-      ok: 'OK'
+      ok: 'OK',
     }, $options);
     
     // Appending dialog to document.body to cover sidenav in docs app
@@ -681,6 +690,7 @@ siApp
                     .clickOutsideToClose(false)
                     .textContent($message.translate())
                     .ok($options.ok)
+                    .multiple(true)
                     .targetEvent($options.ev)
                     lDialog._options.parent = angular.element(document.body);
 
@@ -805,7 +815,20 @@ siApp
     // }
     
     
-    return $mdDialog.show(lOptions);
+    return $q( ($resolve,$reject) => {
+      $mdDialog.show(lOptions).then(
+        $result => {
+          if($result == null || $result == undefined){
+            return $reject();
+          }
+
+          $resolve($result);
+        },
+        $error => {
+          $reject($error);
+        }
+      )
+    })
   }
 
   $scope.getLocalFile = function($fileFilter = ''){

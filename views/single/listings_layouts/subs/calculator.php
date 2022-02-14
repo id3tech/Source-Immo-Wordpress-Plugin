@@ -18,11 +18,11 @@
         </div>
         
         <div class="result-item transfer-taxes">
-            <label><?php _e('Transfer taxes',SI) ?>*</label>
+            <label><?php _e('Transfer duties',SI) ?>*</label>
             <div class="value"><em>{{calculator_result.transfer_tax.formatPrice()}}</em></div>
         </div>
 
         
-        <div class="notice">*<?php _e('This amount is displayed for information only. The amount for the transfer tax is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount.',SI)?></div>
+        <div class="notice">*<?php _e('This amount is displayed for information only. The amount for the transfer duties is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount.',SI)?></div>
     </div>
 </div>

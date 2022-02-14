@@ -262,17 +262,21 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
             // add auth data
             $siConfig.get().then(function($configs){
                 
-                $options.headers = {
+                const headers = {
                     'x-si-account'      : $configs.account_id,
                     'x-si-api'          : $configs.api_key,
                     'x-si-appId'        : $configs.app_id,
-                    'x-si-appVersion'   : $configs.app_version
+                    'x-si-appVersion'   : $configs.app_version,
+                    //'acc'               : $configs.account_id,
+                    //'api'               : $configs.api_key,
                 }
+
+                $options.headers = headers;
+                //$options.url = $options.url + ($options.url.indexOf('?')>0 ? '&' : '?') + Object.keys(headers).filter($k => !$k.startsWith('x-')).map($k => $k + '=' + headers[$k]).join('&');
 
                 
                 $scope.addPending(lQueryHash);
                 
-
                 $http($options)
                 .then(
                     // On success
@@ -364,7 +368,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
         $scope._queryPendings
             .filter($q => $q.hash == $hash)
             .forEach($q => {
-                console.log('$siApi/executePendings@resolving',$hash);
+                //console.log('$siApi/executePendings@resolving',$hash);
                 $q.defered.resolve($data);
             });
 
@@ -1178,7 +1182,10 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         }
 
         //if(siCtx.use_lang_in_path) lResult = siCtx.locale + lResult;
-
+        if(lResult.indexOf(siCtx.root_url.trimCharLeft('/')) >= 0) {
+            lResult = lResult.replace(siCtx.root_url.trimCharLeft('/'),'');
+        }
+        // console.log('getPermalink',siCtx.root_url);
         lResult = siCtx.root_url + lResult;
         
         // add hook for custom permalink for type
@@ -1629,13 +1636,13 @@ function $siUI($rootScope, $timeout, $q){
 
     $scope.enterFullscreen = function($element, $onExit){
         const lAvailableFn = ['requestFullscreen','mozRequestFullScreen','webkitRequestFullscreen','msRequestFullscreen'].find(function($att){ return $element[$att] !== undefined});
-        console.log('$siUI/enterFullscreen',$element, lAvailableFn);
+        //console.log('$siUI/enterFullscreen',$element, lAvailableFn);
 
         if(lAvailableFn === null || lAvailableFn === undefined) return $q.reject();
         if($element === undefined) return $q.reject();
         
         return $q( function($resolve){
-            console.log('$siUI/enterFullscreen', typeof($element[lAvailableFn]) );
+            //console.log('$siUI/enterFullscreen', typeof($element[lAvailableFn]) );
             const lFullscreenPromise = $element[lAvailableFn]();
             if(lFullscreenPromise == undefined){
                 $scope.$isFullscreen = true;
@@ -1649,10 +1656,10 @@ function $siUI($rootScope, $timeout, $q){
                 if(typeof($onExit) == 'function'){
 
                     const fnExitHandler = function($event){
-                        console.log('fullscreenchange event triggered');
+                        //console.log('fullscreenchange event triggered');
                         if($scope.$isFullscreen == true){
                             ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
-                                console.log($e, 'event unregistered');
+                                //console.log($e, 'event unregistered');
                                 document.removeEventListener($e, fnExitHandler);
                             });
 
@@ -1662,7 +1669,7 @@ function $siUI($rootScope, $timeout, $q){
                     
                     $timeout(function(){
                         ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function($e){
-                            console.log($e, 'event registered');
+                            //console.log($e, 'event registered');
                             document.addEventListener($e, fnExitHandler);
                         });
                     }, 500);
@@ -1678,7 +1685,7 @@ function $siUI($rootScope, $timeout, $q){
 
     $scope.exitFullscreen = function(){
         if(!$scope.$isFullscreen) {
-            console.log('is not fullscreen ', $scope.$isFullscreen);
+            //console.log('is not fullscreen ', $scope.$isFullscreen);
             return $q.reject();
         }
 
@@ -1698,7 +1705,7 @@ function $siUI($rootScope, $timeout, $q){
                 .then(
                     function success(){ $resolve() },
                     function failed(){
-                        console.log('cannot lock screen');
+                        //console.log('cannot lock screen');
                         $reject();
                     }
                 )
@@ -1824,6 +1831,8 @@ function $siHooks($q){
     }
 
     $scope.addFilter = function($key, $func, $priority){
+        console.log('$siHooks/addFilter', $key);
+
         let lNewFilter = {key: $key, fn: $func};
         
         if($priority == undefined || $priority > $scope._filters.length - 1){
@@ -2006,7 +2015,7 @@ siApp
     }
 
     $scope.push = function($data){
-        console.log('$siDataLayer/push', $data);
+        //console.log('$siDataLayer/push', $data);
         if(window.dataLayer == undefined) return;
         if(!Array.isArray(window.dataLayer)) return;
 
@@ -2020,6 +2029,6 @@ siApp
 
     $scope.init();
     return $scope;
-})
+});
 
 

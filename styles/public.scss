@@ -66,6 +66,7 @@ $desktop : 1440px;
     //--si-listing-item-sold-text-color: #fff;
     --si-listing-item-column-width : 340px;
     --si-listing-item-picture-ratio : 3 / 2;
+    --si-listing-item-picture-ratio-inverse : 2 / 3;
     --si-listing-item-picture-fit: cover;
 
     --si-thumbnail-picture-size: 100px;
@@ -78,6 +79,7 @@ $desktop : 1440px;
     // brokers
     --si-broker-item-column-width : 210px;
     --si-broker-item-picture-ratio : 3.4 / 4;
+    --si-broker-item-picture-ratio : 4 / 3.4;
     --si-broker-item-picture-fit: cover;
 
     // cities

@@ -1,4 +1,4 @@
-$locales.fr = {};$locales.fr.global = 
+console.log('loading fr locale strings');$localePreload = 
 {
     "Save" : "Sauvegarder"
     , "Apply" : "Appliquer"
@@ -322,9 +322,16 @@ $locales.fr = {};$locales.fr.global =
     , "Lower to higher" : "Plus petit au plus grand"
     , "Show sold version" : "Afficher la version vendu"
     , "Default list item display" : "Affichage d'élément de liste par défaut"
+    , "Default configuration for" : "Configuration par défaut pour"
+    , "Use this configuration for other types sub lists." : "Utilisez cette configuration pour les sous-listes de ce type."
     , "Use that layout in other types sub lists." : "Utilisez cette mise en page dans d'autres types sous-listes."
     , "The alias is already used" : "Cet alias est déjà utilisé"
-
+    , "Isolation mode" : "Méthode d'isolation"
+    , "Isolate" : "Isolé"
+    , "Inherit" : "Hérité"
+    , "Fallback data" : "Donnée de secours"
+    , "Use this fallback data if {{model.key}} is empty." : "Utilisez cette donnée de secours si {{model.key}} est vide."
+    
     // Dialog - New list
     , "New list of {{model.type.translate()}}" : "Nouvelle liste de {{model.type.translate()}}"
     , "Select the type of list that best describe what you want to display:" : "Sélectionnez le type de liste qui décrit le mieux ce que vous souhaitez afficher:"
@@ -510,7 +517,8 @@ $locales.fr = {};$locales.fr.global =
     , "Flags" : "Indicateurs"
     , "Open houses" : "Visites libres"
     , "Region" : "Région"
-
+    , "Construction year" : "Année de construction"
+    
     // Office item values
     , "Agencies" : "Agences"
     , "Agency name" : "Nom de l'agence"
@@ -733,6 +741,7 @@ $locales.fr = {};$locales.fr.global =
     , "Mortgage insurance" : "Assurance hypotécaire"
     , "Property price" : "Prix de la propriété"
     , "Transfer tax for" : "Taxe de mutation pour"
+    , "Transfer duties for" : "Droits de mutation pour"
     , "Any city" : "Toute ville"
     , "Monthly" : "Par mois"
     , "Every two weeks" : "Aux 2 semaines"
@@ -755,6 +764,7 @@ $locales.fr = {};$locales.fr.global =
     , "other city" : "autre ville"
     , "other province" : "autre province"
     , "Transfer taxes" : "Taxes de mutation"
+    , "Transfer duties" : "Droits de mutation"
     , "dddd, MMMM Do" : "dddd Do MMMM"
     , "h:mm a" : "HH[h]mm"
     , "starting at" : "débutant"
@@ -794,8 +804,8 @@ $locales.fr = {};$locales.fr.global =
     , "Click on the social media you want to share this page." : "Cliquez sur le média social où vous voulez partager cette page."
     , "This amount is displayed for information only. This amount may vary depending on the city and may also change over time. Consult your real estate broker for the exact amount." 
         : "Ce montant est affiché à titre indicatif seulement. Ce montant peut varier en fonction de la ville et peut également changer avec le temps. Consultez votre courtier immobilier pour le montant exact."
-    , "This amount is displayed for information only. The amount for the transfer tax is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount."
-        : "Ce montant est affiché à titre indicatif seulemen. Le montant de la taxe de mutation est basé sur les barèmes imposés par la municipalité ou les calculs de base généralement en vigueur au Québec. Consultez votre courtier immobilier pour obtenir le montant exact."
+    , "This amount is displayed for information only. The amount for the transfer duties is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount."
+        : "Ce montant est affiché à titre indicatif seulement. Le montant des droits de mutation est basé sur les barèmes imposés par la municipalité ou les calculs de base généralement en vigueur au Québec. Consultez votre courtier immobilier pour obtenir le montant exact."
     , "Type here to begin your search..." : "Tapez ici pour commencer votre recherche ..."
     , "Market" : "Marché"
     , "Neighborhood" : "Quartier"

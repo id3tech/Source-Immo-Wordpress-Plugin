@@ -103,9 +103,7 @@ if($lTwoLetterLocale == ''){
   <script src="<?php echo plugins_url( 'scripts/ngSortable.js' , SI_PLUGIN ) ?>"></script>
   <script src="<?php echo plugins_url( 'scripts/ang.prototype.js' , SI_PLUGIN ) ?>"></script>
 
-  <script type="text/javascript">
-  $locales.init('<?php echo($lTwoLetterLocale); ?>');
-  </script>
+  
   <?php
   if($lTwoLetterLocale != 'en'){
   
@@ -118,6 +116,9 @@ if($lTwoLetterLocale == ''){
       }
   }
   ?>
+  <script type="text/javascript">
+  $locales.init('<?php echo($lTwoLetterLocale); ?>');
+  </script>
   
   <script src="<?php echo plugins_url( 'scripts/ang.admin-app.min.js' , SI_PLUGIN ) ?>"></script>
 

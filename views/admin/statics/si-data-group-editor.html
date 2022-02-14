@@ -123,11 +123,20 @@
                             <md-icon class="fal fa-ellipsis-h" ng-click="selectPage(langItem)"></md-icon>
                             
                         </md-input-container>
+                        <md-input-container>
+                            <label lstr>Isolation mode</label>
+                            <md-select ng-model="langItem.layout.isolation" ng-change="rebuild()" >
+                                <md-option value="inherit"><lstr>Inherit</lstr></md-option>
+                                <md-option value="NONE"><lstr>None</lstr></md-option>
+                                <md-option value="ISOLATE"><lstr>Isolate</lstr></md-option>
+                            </md-select>
+                            
+                        </md-input-container>
 
                         <md-input-container ng-if="groupType != 'cities'">
                             <label lstr>Method used to build forms and manage results</label>
                             <md-select ng-model="langItem.layout.communication_mode" ng-change="rebuild()" >
-                                <md-option value="basic" lstr>Basic</md-option>
+                                <md-option value="basic"><lstr>Basic</lstr></md-option>
                                 <md-option value="wpcf7_contact_form">Contact Form 7</md-option>
                                 <md-option value="gravity_form">Gravity Form</md-option>
                             </md-select>

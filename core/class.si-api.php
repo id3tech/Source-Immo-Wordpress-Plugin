@@ -654,6 +654,18 @@ class SourceImmoApi {
     
     return $lResult;
   }
+
+  public static function get_broker_list($ids){
+    if(!is_array($ids)) $ids = [$ids];
+    $lResult = [];
+
+    foreach($ids as $id){
+      $lResult[] = json_decode(self::get_data_of('broker',$id));
+    }
+    
+    
+    return json_encode($lResult);
+  }
   
 
   /**

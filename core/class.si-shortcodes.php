@@ -317,10 +317,14 @@ class SiShorcodes{
         }
         
         ob_start();
+        $isolation = SourceImmo::current()->get_isolation('broker');
+        if($isolation == 'ISOLATE'){
+            echo("<div data-ng-controller=\"singleBrokerCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        }
+
         ?>
         
-        <div data-ng-controller="singleBrokerCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -340,7 +344,10 @@ class SiShorcodes{
             ?>
         </div>
         <?php
-        
+        if($isolation == 'ISOLATE'){
+            echo("</div>");
+        }
+
         if(SourceImmo::current()->configs->prefetch_data){
         ?>                
         <script type="text/javascript">
@@ -436,10 +443,13 @@ class SiShorcodes{
         }
         
         ob_start();
+        $isolation = SourceImmo::current()->get_isolation('office');
+        if($isolation == 'ISOLATE'){
+            echo("<div data-ng-controller=\"singleOfficeCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        }
         ?>
         
-        <div data-ng-controller="singleOfficeCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -461,6 +471,10 @@ class SiShorcodes{
         </div>
         <?php
         
+        if($isolation == 'ISOLATE'){
+            echo("</div>");
+        }
+
         if(SourceImmo::current()->configs->prefetch_data){
         ?>                
         <script type="text/javascript">
@@ -588,10 +602,14 @@ class SiShorcodes{
         }
         
         ob_start();
+        $isolation = SourceImmo::current()->get_isolation('agency');
+        if($isolation == 'ISOLATE'){
+            echo("<div data-ng-controller=\"singleAgencyCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        }
+
         ?>
         
-        <div data-ng-controller="singleAgencyCtrl" data-ng-init="init('<?php echo($ref_number) ?>')" 
-                class="si agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -612,7 +630,10 @@ class SiShorcodes{
             ?>
         </div>
         <?php
-        
+        if($isolation == 'ISOLATE'){
+            echo("</div>");
+        }
+
         if(SourceImmo::current()->configs->prefetch_data){
         ?>                
         <script type="text/javascript">
@@ -820,8 +841,12 @@ class SiShorcodes{
         ob_start();
         
         SourceImmo::view('single/listings_layouts/_schema',array('model' => $listing_data));
+        $isolation = SourceImmo::current()->get_isolation('listing');
         
-        //echo("<div data-ng-controller=\"singleListingCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        if($isolation == 'ISOLATE'){
+            echo("<div data-ng-controller=\"singleListingCtrl\" data-ng-init=\"init('{$ref_number}')\">");
+        }
+
         echo("<div class=\"si listing-single {$class} {{model.status}} {{model!=null?'loaded':''}}\">");
         
 
@@ -851,7 +876,9 @@ class SiShorcodes{
         do_action('si_listing_single_end');
         
         echo('</div>');
-        //echo('</div>');
+        if($isolation == 'ISOLATE'){
+            echo("</div>");
+        }
         
         if(SourceImmo::current()->configs->prefetch_data){
         ?> 

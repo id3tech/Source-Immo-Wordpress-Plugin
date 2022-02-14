@@ -46,6 +46,11 @@
                             
                             </div>
 
+                            <md-input-container>
+                                <md-checkbox ng-model="model.is_default_type_configs"><lstr>Default configuration for</lstr> {{model.type.translate()}}</md-checkbox>
+                                <div class="hint" lstr>Use this configuration for other types sub lists.</div>
+                            </md-input-container>
+
                         </div>
                         <md-list>
                             <md-subheader class="md-no-sticky"><lstr>Limiting</lstr></md-subheader>
@@ -194,11 +199,6 @@
                                 </md-select>
                             </md-input-container>
                     
-                            
-                            <md-input-container>
-                                <md-checkbox ng-model="model.is_default_type_configs"><lstr>Default list item display</lstr></md-checkbox>
-                                <div class="hint" lstr>Use that layout in other types sub lists.</div>
-                            </md-input-container>
 
                             <md-input-container>
                                 <label lstr>Custom classes</label>  

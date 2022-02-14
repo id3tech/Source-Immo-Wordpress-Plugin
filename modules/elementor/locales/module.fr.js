@@ -1,4 +1,4 @@
-$locales.fr.global = Object.assign($locales.fr.global, 
+$localePreload = Object.assign($localePreload, 
     {
         "Source.Immo - Single data" : "Source.Immo - Données d'un élément"
         , "Field" : "Champs"

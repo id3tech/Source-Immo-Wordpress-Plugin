@@ -435,19 +435,15 @@
 
 
                             <md-subheader><lstr>Sold flag</lstr></md-subheader>
+                            
                             <md-list-item>
-                                <md-icon class="fal fa-fw fa-tag"></md-icon>
-                                <p lstr>With .si-price-float class</p>
-                                <md-checkbox ng-model="showFloatingPrice"></md-checkbox>
-                            </md-list-item>
-                            <md-list-item>
-                                <md-icon class="fal fa-fw {{showFloatingPrice ? 'fa-send-back' : 'fa-text'}}"></md-icon>
-                                <p ng-if="showFloatingPrice" lstr>Background color</p>
-                                <p ng-if="!showFloatingPrice" lstr>Color</p>
+                                <md-icon class="fal fa-fw fa-send-back"></md-icon>
+                                <p lstr>Background color</p>
+                                
                                 <div md-color-picker="options.colorPicker" ng-model="model.listing_item_sold_bg_color"  placeholder="{{defaultStyles.listing_item_sold_bg_color}}"></div>
                             </md-list-item>
                             
-                            <md-list-item ng-if="showFloatingPrice">
+                            <md-list-item>
                                 <md-icon class="fal fa-fw fa-text"></md-icon>
                                 <p lstr>Text color</p>
                                 <div md-color-picker="options.colorPicker" ng-model="model.listing_item_sold_text_color"  placeholder="{{defaultStyles.listing_item_sold_text_color}}"></div>

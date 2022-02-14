@@ -10,7 +10,7 @@ class SourceImmoPageBuilder{
         $this->type = $type;
         $this->layout = SourceImmo::current()->get_detail_layout($type);
         $this->locale = substr(get_locale(),0,2);
-
+        
         //echo('layout:' . );
 
         remove_filter( 'the_content', 'wpautop' );
@@ -137,17 +137,19 @@ class SourceImmoPageBuilder{
 
         $pageTemplate = $this->get_page_template($page_id);
        
-
-        add_action( 'wp_body_open', function() {
-            $ref_number = get_query_var( 'ref_number');
-            $controllerName = $this->getSingleControllerName();
-            $className = $this->getSingleClassName();
-            $controller = "<div data-ng-controller=\"{$controllerName}\" ng-cloak data-ng-init=\"init('{$ref_number}')\" class=\"{{model!=null?'loaded':''}} si {$className}\"><div class=\"si-content\">";
-            echo($controller);
-        } );
-        add_action( 'wp_footer', function() {
-            echo("</div></div>");
-        } );
+        $isolation = SourceImmo::current()->get_isolation($this->type);
+        if($isolation != 'ISOLATE'){
+            add_action( 'wp_body_open', function() {
+                $ref_number = get_query_var( 'ref_number');
+                $controllerName = $this->getSingleControllerName();
+                $className = $this->getSingleClassName();
+                $controller = "<div data-ng-controller=\"{$controllerName}\" ng-cloak data-ng-init=\"init('{$ref_number}')\" class=\"{{model!=null?'loaded':''}} si {$className}\"><div class=\"si-content\">";
+                echo($controller);
+            } );
+            add_action( 'wp_footer', function() {
+                echo("</div></div>");
+            } );
+        }
 
         if($pageTemplate == null){
             wp_head();
@@ -315,7 +317,7 @@ function siShowDirectItemLayer($item, $configs,$layerName="main"){
     if(class_exists($typedRendererClassName)) $rendererClassName = $typedRendererClassName;
 
 
-    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main) || !in_array('photo',$configs->list_item_layout->displayed_vars->main)){
+    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main) || !$rendererClassName::has('photo',$configs->list_item_layout->displayed_vars->main)){
         $configs->list_item_layout->displayed_vars->main = $rendererClassName::updateToComplex($configs->list_item_layout->displayed_vars->main, $configs->type);
     }
 
@@ -366,13 +368,11 @@ function siShowStandardItemLayer($configs,$layerName="main"){
     $rendererClassName = 'siLayerVar';
     $typedRendererClassName = 'si'.ucfirst($configs->type).'LayerVar';
     if(class_exists($typedRendererClassName)) $rendererClassName = $typedRendererClassName;
-
-
-    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main) || !in_array('photo',$configs->list_item_layout->displayed_vars->main)){
+    
+    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main) || !$rendererClassName::has('photo',$configs->list_item_layout->displayed_vars->main)){
         $configs->list_item_layout->displayed_vars->main = $rendererClassName::updateToComplex($configs->list_item_layout->displayed_vars->main, $configs->type);
     }
 
-    //echo('render vars for ' . $configs->type);
     siShowLayerVars($configs->list_item_layout->displayed_vars->{$layerName},null, $configs->type);
 
     if($layerName == 'main'){
@@ -411,19 +411,22 @@ class siLayerVar{
     protected $is_sub;
     protected $data;
     protected $type = 'default';
+    protected $fallback;
 
     function __construct($src, $is_sub=false){
         $this->classes = [];
         $this->items = [];
         $this->is_sub = $is_sub;
+        
 
         if(is_string($src)){
             $this->key = $src;
         }
         else{
             $this->key = $src->key;
-            if(isset($src->classes)) $this->classes[] = $src->classes;
+            if(isset($src->classes)) $this->classes = is_array($src->classes) ? $src->classes   :  [$src->classes];
             if(isset($src->items)) $this->items = $src->items;
+            if(isset($src->fallback)) $this->fallback = $src->fallback;
         }
 
         $this->key = str_replace('listing_count', 'counters', $this->key);
@@ -438,9 +441,11 @@ class siLayerVar{
             if(isset($var->key) && $var->key == $key) return true;
         }
 
+        echo('var ' . $key . 'not found' );
         return false;
     }
     static function isSimple($varList){
+        
         if(!is_array($varList)) return true;
         return is_string($varList[0]);
     }
@@ -464,11 +469,18 @@ class siLayerVar{
         foreach ($renderMethods as $methodName) {
             
             if(method_exists($this, $methodName)){
-                return $this->{$methodName}();
+                
+                $renderResult = $this->{$methodName}();
+                if(isset($this->fallback) && !str_null_or_empty($this->fallback)){
+                    $this->renderTemplate($this->fallback);
+                }
+                return $renderResult;
+
             }
             else{
                 //echo($methodName . ' for ' . $this->key . ' does not exists');
             }
+
         }
         
     }
@@ -478,16 +490,25 @@ class siLayerVar{
         $this->render();
     }
 
-    function getAttributes(){
+    function getAttributes($applyHideEmpty=true){
         $attributes = [];
         if(!in_array('si-float-anchor',$this->classes)){ 
             $attributes[] = 'si-anchor-to="si-float-anchor"'; 
             $classeList = implode(' ',$this->classes);
 
-            if(strpos($classeList,'si-float-') !== false){
-                $attributes[] = 'si-hide-empty="hard"';
+            if($applyHideEmpty){
+                if(strpos($classeList,'si-float-') !== false) { 
+                    $attributes[] = 'si-hide-empty="hard"';
+                }
+                else if(isset($this->fallback) && !str_null_or_empty($this->fallback)){
+                    $attributes[] = 'si-hide-empty="fallback"';
+                }
             }
-    
+            
+        }
+
+        if(isset($this->fallback) && !str_null_or_empty($this->fallback)){
+            //$attributes[] = 'si-fallback-content="si-fallback-' . $this->key . '"';
         }
         
         
@@ -525,12 +546,25 @@ class siLayerVar{
         }
     }
 
-    function render_default(){
+    function renderTemplate($key){
+        $method = $key;
+        if(!method_exists($this, 'render_' . $method)) {
+            $method = 'default';
+        }
+
+        echo('<div class="si-fallback-content">');
+        $this->{'render_' . $method}($key);
+        echo('</div>');
+        
+    }
+    
+    function render_default($key=null){
+        if($key == null) $key = $this->key;
         if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
-        $keyClass = str_replace('_','-', $this->key);
+        $keyClass = str_replace('_','-', $key);
         $classes = implode(' ',$this->classes);
         
-        echo "<div class=\"si-label {$classes} {$keyClass} \" {$this->getAttributes()}>{$this->getValue($this->key)}</div>";
+        echo "<div class=\"si-label {$classes} {$keyClass} \" {$this->getAttributes()}>{$this->getValue($key)}</div>";
     }
 
     function render_spacer(){
@@ -557,7 +591,7 @@ class siLayerVar{
     function render_photo(){
         ?>
         <div class="image si-lazy-loading <?php echo implode(' ', $this->classes) ?>">
-                <img data-si-src="<?php echo $this->getValue('photo_url') ?>" data-si-srcset="<?php echo $this->getValue('photo_url') ?>" />
+            <img data-si-src="<?php echo $this->getValue('photo_url') ?>" data-si-srcset="<?php echo $this->getValue('photo_url') ?>" />
         </div>         
         <?php
     }
@@ -590,8 +624,8 @@ class siLayerVar{
         $price = ($this->data == null) ? '{{formatPrice(item)}}' : $this->data->price_text;
         $classes = implode(' ',$this->classes);
         
-        echo "<div class=\"si-label {$classes} price\">{$price}</div>";
-        echo "<div class=\"si-label {$classes} si-price-sold\">{$price}</div>";
+        echo "<div class=\"si-label {$classes} price\" {$this->getAttributes()}>{$price}</div>";
+        echo "<div class=\"si-label {$classes} si-price-sold\" {$this->getAttributes()}>{$price}</div>";
         
     }
 
@@ -602,6 +636,26 @@ class siLayerVar{
         
         echo "<div class=\"si-label phone {$classes}\" {$this->getAttributes()}>";
         echo $this->getValue(['phones.mobile', 'phones.office']);
+        echo "</div>";
+    }
+
+    function render_phones(){
+        $mobileValue = $this->getValue('phones.mobile');
+        $officeValue = $this->getValue('phones.office');
+        $mobileTest = ($this->data == null) ? 'item.phones.mobile' : "'' != '{$mobileValue}'";
+        $officeTest = ($this->data == null) ? 'item.phones.office' : "'' != '{$officeValue}'";
+
+        $classes = implode(' ',$this->classes);
+        
+        echo "<div class=\"si-label phone-list {$classes}\" {$this->getAttributes()}>";
+        ?>
+        <div class="si-phone mobile" ng-if="<?php echo $mobileTest ?>" title="<?php echo apply_filters('si/label', __('mobile',SI)) ?>: <?php echo $mobileValue ?>" si-scope-href="tel:<?php echo $mobileValue ?>">
+            <i class="icon fal fa-fw fa-mobile"></i> <span class="prefix"><?php echo apply_filters('si/label', __('mobile',SI)) ?>:</span> <span class="label"><?php echo $mobileValue ?></span>
+        </div>
+        <div class="si-phone office" ng-if="<?php echo $officeTest ?>" title="<?php echo apply_filters('si/label', __('office',SI)) ?>: <?php echo $officeValue ?>" si-scope-href="tel:<?php echo $officeValue ?>">
+            <i class="icon fal fa-fw fa-building"></i> <span class="prefix"><?php echo apply_filters('si/label', __('office',SI)) ?>:</span> <span class="label"><?php echo $officeValue ?></span>
+        </div>
+        <?php
         echo "</div>";
     }
 
@@ -621,9 +675,15 @@ class siLayerVar{
         <div class="si-label <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
             <div class="contacts ">
                 <div class="contact phone" title="<?php echo $phoneValue ?>">
-                    <i class="icon fal fa-fw fa-phone" si-scope-href="tel:<?php echo $phoneValue ?>"></i><span class="label"><?php echo $phoneValue ?></div>
+                    <i class="icon fal fa-fw fa-phone" si-scope-href="tel:<?php echo $phoneValue ?>"></i>
+                    <span class="prefix"><?php echo apply_filters('si/label', __('Phone',SI)) ?>:</span>
+                    <span class="label"><?php echo $phoneValue ?></span>
+                </div>
                 <div class="contact email" ng-if="<?php echo $emailTest ?>" title="<?php echo $emailValue ?>" si-scope-href="mailto:<?php echo $emailValue ?>">
-                    <i class="icon fal fa-fw fa-envelope"></i> <span class="label si-text-truncate"><?php echo $emailValue ?></span></div>
+                    <i class="icon fal fa-fw fa-envelope"></i>
+                    <span class="prefix"><?php echo apply_filters('si/label', __('Email',SI)) ?>:</span>
+                    <span class="label si-text-truncate"><?php echo $emailValue ?></span>
+                </div>
             </div>
         </div>
         <?php
@@ -633,6 +693,7 @@ class siLayerVar{
     function render_rooms(){
         //if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
         $classes = implode(' ',$this->classes);
+
         echo "<div class=\"si-label {$classes}\" {$this->getAttributes()}>";
         echo '<div class="rooms">';
 
@@ -664,20 +725,28 @@ class siLayerVar{
         $listingValue = $this->getValue('listings_count', 0);
         $listingTest = ($this->data == null) ? 'item.listings_count>0' : "{$listingValue}>0";
         ?>
-        <div class="si-label counters <?php echo $classes ?>">
+        <div class="si-label counters <?php echo $classes ?>" <?php echo $this->getAttributes() ?>>
             <div class="counter" ng-if="<?php echo $listingTest ?>"><i class="icon fal fa-fw fa-home"></i> <span class="count"><?php echo $listingValue ?></span> <span class="label"><lstr>listings</lstr></span></div>
         </div>
         <?php
     }
 
+    function render_available_area(){
+        $classes = implode(' ', $this->classes);
+        $value = $this->getValue('available_area');
+        $unit = $this->getValue('available_area_unit');
+
+        echo("<div class=\"si-label available_area {$classes}\" {$this->getAttributes()} >{$value} {$unit}</div>");
+    }
+
     function render_link_button(){
-        $linkButtonLabel = apply_filters('si/list-item/link-button-label',__('Learn more',SI));
+        $linkButtonLabel = apply_filters('si/list-item/link-button-label', __('Learn more',SI) );
 
-        if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding si-padding-size-slim';
-
+        //if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding si-padding-size-slim';
+        //if(!isset($this->classes) || !is_array($this->classes)) $this->classes = [$this->classes];
         $classes = implode(' ', $this->classes);
 
-        echo('<div class="si-item-link-button ' . $classes . '">');
+        echo('<div class="si-item-link-button ' . $classes . '" ' . $this->getAttributes(false) . '>');
         echo("<span class=\"si-button\">{$linkButtonLabel}</span>");
         echo('</div>');
     }
@@ -715,10 +784,38 @@ class siBrokersLayerVar extends siLayerVar{
 
     function render_license_type(){
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label si-truncate-text title {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type')}</div>";
+        $filter = 'siApplyGenre';
+        if($this->data == null) {
+            $filter .= ': item.ref_number';
+            $filter .= ': item.genre';
+        }
+        else {
+            $filter .= ": '{$this->data->ref_number}'";
+            $filter .= ": '{$this->data->genre}'";
+        }
+
+        echo "<div class=\"si-label license-type {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type','', $filter)}</div>";
     }
     function render_title(){
-        return $this->render_license_type();
+        $classes = implode(' ',$this->classes);
+        $filterGenre = 'siApplyGenre';
+        $filterTitle = 'siBrokerTitle';
+        
+        if($this->data == null) {
+            $filterGenre .= ': item.ref_number';
+            $filterTitle .= ': item.ref_number';
+            $filterGenre .= ': item.genre';
+        }
+        else {
+            $filterGenre .= ": '{$this->data->ref_number}'";
+            $filterTitle .= ": '{$this->data->ref_number}'";
+            $filterGenre .= ": '{$this->data->genre}'";
+        }
+
+        $filters = [$filterGenre, $filterTitle];
+
+
+        echo "<div class=\"si-label title {$classes}\" {$this->getAttributes()}>{$this->getValue(['title','license_type'],'',implode(' | ',$filters))}</div>";
     }
 
 
@@ -732,7 +829,7 @@ class siBrokersLayerVar extends siLayerVar{
                 'items' => [
                     ['key'=>'first_name', 'classes' => 'si-text-truncate si-text-upper'],
                     ['key'=>'last_name', 'classes' => 'si-text-truncate si-font-emphasis si-text-upper'],
-                    ['key'=>'title', 'classes' => 'si-text-small']
+                    ['key'=>'title', 'classes' => 'si-text-small si-text-truncate']
                 ]
             ],
             ['key' => 'phone', 'classes' => 'si-padding si-big-emphasis si-text-align-center']
@@ -806,7 +903,7 @@ class siAgenciesLayerVar extends siOfficesLayerVar{
 
     function render_license_type(){
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label si-truncate-text license-type {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type')}</div>";
+        echo "<div class=\"si-label si-text-truncate license-type {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type')}</div>";
     }
     function render_license(){
         return $this->render_license_type();
@@ -844,7 +941,6 @@ class siListingsLayerVar extends siLayerVar{
     }
 
     static function updateToComplex($varList){
-
         return json_decode(json_encode([
             [
                 'key' => 'group', 

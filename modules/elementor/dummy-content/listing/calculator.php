@@ -85,11 +85,11 @@
                         </div>
                         
                         <div class="result-item transfer-taxes">
-                            <label>Transfer taxes*</label>
+                            <label>Transfer duties*</label>
                             <div class="value"><em class="ng-binding">$3,815</em></div>
                         </div>
 
                         
-                        <div class="notice">*This amount is displayed for information only. The amount for the transfer tax is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount.</div>
+                        <div class="notice">*This amount is displayed for information only. The amount for the transfer duties is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount.</div>
                     </div>
                 </div>

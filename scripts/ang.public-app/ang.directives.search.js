@@ -574,7 +574,7 @@ siApp
                     const fnApplyInputCount = _ => {
                         
                         const lValidChild = Array.from(inputsContainer.children).filter($child => !$child.classList.contains('ng-hide'));
-                        console.log('fnApplyInputCount',lValidChild)
+                        //('fnApplyInputCount',lValidChild)
                         inputsContainer.style.setProperty('--input-count', lValidChild.length - 1);
                     }
                     fnApplyInputCount();
@@ -618,7 +618,7 @@ siApp
             $scope.isReady = function(){
                 // check for dictionary and configs perequisits
                 if($scope.dictionary!=null && $scope.configs != null){
-                    console.log('siSearch/isReady::dictionary and configs are already loaded')
+                    //console.log('siSearch/isReady::dictionary and configs are already loaded')
                     $scope.is_ready = true; 
                     return $q.resolve();
                 }
@@ -648,7 +648,7 @@ siApp
                             
                             $scope.current_view_id = lActiveView;
                             //$scope.configs.current_view = $configs.source.id;
-                            console.log('siSearch/isReady::loading view', lActiveView)
+                            //console.log('siSearch/isReady::loading view', lActiveView)
                             $scope.loadViewMeta(lActiveView,$configs.type)
                                 .then(function(){
                                     $scope.is_ready = true;
@@ -706,7 +706,7 @@ siApp
                 });
 
                 $scope.$on('$siDictionary/init', function($event,$lexicon,$view_id){
-                    console.log('$siDictionary/init:triggered', $siDictionary);
+                    //console.log('$siDictionary/init:triggered', $siDictionary);
                     if($scope.current_view_id != $view_id) return;
                     
                     $scope.dictionary = $siDictionary.source;

@@ -15,11 +15,24 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
 
 
     $scope.init = function(){
-        //console.log('publicCtrl/init');
+        console.log('publicCtrl/init');
+        
 
         if( document.readyState !== 'loading' ) {
             console.log('publicCtrl/init :: ready');
             $rootScope.$broadcast('si/ready');
+
+            if(siApp.$customExtensions!=undefined){
+                siApp.$customExtensions.forEach($ext => {
+                    if($ext._initialized != undefined) return;
+                    $ext._initialized = true;
+                    $ext.instance.init($rootScope,$siDictionary, $siUtils,$siHooks,$siConfig);
+
+                    $locales.append($ext.instance.get_locale($locales._current_lang_));
+                    console.log('init instance of', $ext.key);
+                
+                });
+            }
         } 
         else {
             document.addEventListener('DOMContentLoaded', function(){
@@ -131,6 +144,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         const lElements = document.querySelectorAll($query);
         return lElements.length > $minCount;
     }
+
 });
 
 /**

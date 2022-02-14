@@ -119,6 +119,10 @@
 .si-hide-hard{
     display:none!important;
 }
+.si-hide-fallback{
+    display:none!important;
+    + .si-fallback-content{display:revert!important;}
+}
 .si-hide-soft{
     opacity:0!important;
 }
