@@ -3,21 +3,25 @@
 Plugin Name: Source.immo
 Plugin URI: https://source.immo
 Description: Connect to your Source.immo account and display your normalized and always up to date real estate listings and related data on your web site. 
-Version: 2.0.23
+Version: 2.1.19
 Author: ID-3 Technologies
 Author URI: https://id-3.net/source-immo
 License: GPLv2 or later
 Text Domain: si
 */
 
-define( 'SI_VERSION', '2.0.23' );
+define( 'SI_VERSION', '2.1.19' );
 define( 'SI_NAME', 'Source.immo');
 define( 'SI', 'si' );
 define( 'SI_APP_ID', 'ead7575f-8d1c-42e7-9f59-4cf9e065167e');
 define( 'SI_MINIMUM_WP_VERSION', '4.0' );
 define( 'SI_PLUGIN', __FILE__);
 define( 'SI_PLUGIN_DIR', str_replace('\\', '/',plugin_dir_path( __FILE__ ) ) );
-define(	'SI_PLUGIN_URL', '/' . str_replace(str_replace('\\', '/', ABSPATH),'',SI_PLUGIN_DIR));
+
+$installationUrl = parse_url(get_site_url());
+$installationPath = isset($installationUrl['path']) ? $installationUrl['path'] : '';
+
+define(	'SI_PLUGIN_URL', $installationPath . '/' . str_replace(str_replace('\\', '/', ABSPATH),'',SI_PLUGIN_DIR));
 define( 'SI_DEVMODE', false );
 
 register_activation_hook( __FILE__, array( 'SourceImmo', 'plugin_activation' ) );
@@ -29,6 +33,7 @@ require_once( SI_PLUGIN_DIR . '/core/class.si-config.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-shortcodes.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-page-builder.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-addons.php' );
+require_once( SI_PLUGIN_DIR . '/core/class.si-lexicon.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si.php' );
 require_once( SI_PLUGIN_DIR . '/core/class.si-api.php' );
 

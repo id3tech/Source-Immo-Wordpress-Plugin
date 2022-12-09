@@ -237,13 +237,16 @@ siApp
         {name:'ref_number',label: 'Ref. number'},
         {name:'fullname', label: 'Fullname'},
         {name:'company_name', label: 'Company name'},
+        {name:'agency_name', label: 'Agency name'},
+        {name:'agency_license', label: 'Agency license'},
         {name:'first_name',label:'First name'},
         {name:'last_name',label:'Last name'},
         {name:'title',label:'Title'},
         {name:'phone',label:'Phone'},
+        {name:'description', label: 'Description'},
         {name:'phones',label:'Phone list'},
         {name:'email',label:'Email'},
-        {name:'office',label:'Office'},
+        {name:'address',label:'Office address'},
         {name:'contacts', label: 'Contacts'},
         {name:'counters',label:'Listings'},
       ],
@@ -292,31 +295,36 @@ siApp
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
-        {name: 'fade', label: 'Fade'}
+        {name: 'fade', label: 'Fade'},
+        {name: 'tilt', label: 'Tilt'}
       ],
       brokers: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
-        {name: 'fade', label: 'Fade'}
+        {name: 'fade', label: 'Fade'},
+        {name: 'tilt', label: 'Tilt'}
       ],
       cities: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
-        {name: 'fade', label: 'Fade'}
+        {name: 'fade', label: 'Fade'},
+        {name: 'tilt', label: 'Tilt'}
       ],
       offices: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
-        {name: 'fade', label: 'Fade'}
+        {name: 'fade', label: 'Fade'},
+        {name: 'tilt', label: 'Tilt'}
       ],
       agencies: [
         {name: 'none', label: 'None'},
         {name: 'slide', label: 'Slide'},
         {name: 'flip', label: 'Flip'},
-        {name: 'fade', label: 'Fade'}
+        {name: 'fade', label: 'Fade'},
+        {name: 'tilt', label: 'Tilt'}
       ],
     },
     list_item_layer_positions:{
@@ -492,6 +500,7 @@ siApp
   
 
   $scope.init = function(){
+    
     $scope.load_configs().then(_ => {
       $q.all([
         //$scope.load_wp_menus(),
@@ -690,6 +699,10 @@ siApp
     $siUI.dialog('log-info');
   }
 
+  $scope.showDocumentation = function(){
+    $siUI.dialog('documentation');
+  }
+
   $scope.openStyleEditor = function(){
     console.log('openStyleEditor', $siConfigs.configs.styles);
     $siUI.dialog('style-editor', $siConfigs.configs.styles).then( $styles => {
@@ -719,7 +732,9 @@ siApp
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
       // Make sure there's a default search token for lists
-      
+      if(!$silent){
+        $rootScope.$broadcast('si/working-state/changed', {icon: 'fa-spin fa-spinner-third', text: 'Saving configurations', class: 'working'});
+      }
       $scope.validateListConfigs()
         .then(_ => {
           console.log('saving configs', $scope.configs);
@@ -727,7 +742,8 @@ siApp
           $siConfigs.save($scope.configs).then(
             function($response){
               if(!$silent){
-                $scope.show_toast('Save completed');
+                //$scope.show_toast('Save completed');
+                $rootScope.$broadcast('si/working-state/changed', {icon: 'fa-check-circle', text: 'Save completed', class: 'done', hide_timeout: 2000});
               }
               $scope.checkIntegrity();
               $resolve();
@@ -1696,30 +1712,7 @@ siApp
    */
   $scope.copy = function($data){
     // Make sure $data is a string. If it's and object, transform via JSON
-    let lContent = '';
-    if($data !== null && typeof $data === 'object'){
-      lContent = JSON.stringify($data);
-    }
-    else{
-      lContent = $data;
-    }
-
-    let lTextarea = document.createElement("textarea");
-    lTextarea.textContent = lContent;
-    lTextarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
-    document.body.appendChild(lTextarea);
-    lTextarea.select();
-    try {
-      $scope.show_toast('Copied to clipboard');
-      document.execCommand("copy");  // Security exception may be thrown by some browsers.
-    } 
-    catch (ex) {
-        console.warn("Copy to clipboard failed.", ex);
-        return false;
-    } 
-    finally {
-      document.body.removeChild(lTextarea);
-    }
+    $siUtils.copyToClipboard($data);
 
   }
 

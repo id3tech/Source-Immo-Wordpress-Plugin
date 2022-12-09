@@ -71,7 +71,9 @@ if($lTwoLetterLocale == ''){
     ?>
     </div>
   </div>
-
+  
+  <si-working-state></si-working-state>
+  
   <script type="text/javascript">
     var wpSiApiSettings={
         locale: '<?php echo $lTwoLetterLocale ?>',

@@ -50,7 +50,7 @@ siApp
             }
             $scope.frequencies = {
                 '12' : 'Monthly',
-                '26' : 'Every two weeks',
+                '26' : 'Bi-weekly',
                 '52' : 'Weekly'
             }
             $scope.init = function($amount){
@@ -84,8 +84,15 @@ siApp
             }
 
             $scope.selectCity = function($city){
+                
                 $scope.selectedCity = $city;
-                $scope.cityCode = $city.code;
+                if($city != null){
+                    $scope.cityCode = $city.code;
+                }
+                else{
+                    $scope.cityCode = null;
+                }
+                
                 $scope.process();
             }
     
@@ -159,11 +166,17 @@ siApp
                     transfer_tax : $transferTax
                 }
     
-                $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
-                $siDataLayer.pushEvent('si/calcutor/use',lResult);
-                if(typeof($scope.on_change) == 'function'){
-                    $scope.on_change({'$result' : lResult});
-                }
+                //if($scope.result != undefined && $scope.result.mortgage.payment != lResult.mortgage.payment){
+                    if($scope.mode == 'standalone'){
+                        $siDataLayer.pushEvent('si/calcutor/use',lResult);
+                    }
+                    $rootScope.$broadcast('si-mortgage-calculator-result-changed', lResult);
+                    
+                    if(typeof($scope.on_change) == 'function'){
+                        $scope.on_change({'$result' : lResult});
+                    }
+                //}
+                
 
 
             
@@ -852,9 +865,9 @@ siApp
                 ref_number: lAttrsPairValues[0],
                 alias: lAttrsPairValues[1]
             }
-            $scope.init($element, lOptions);
+            $scope.init(lOptions);
         },
-        controller: function($scope, $timeout, $q, $siApi, $siConfig, $siDataLayer){
+        controller: function($scope, $timeout,$element, $q, $siApi, $siConfig, $siDataLayer){
             $scope.rotator_start_timeout_hndl = null;
             $scope.rotator_stop_timeout_hndl = null;
             $scope.rotator_interval_hndl = null;
@@ -864,9 +877,12 @@ siApp
             $scope.rotator_active = false;
             $scope.start_delay = 750;
 
-            $scope.init = function($element, $options){
+
+            $scope.init = function($options){
                 $scope.$element = $element[0];
                 $scope.options = $options;
+
+                
 
                 $scope.$element.addEventListener('mouseout', function($event){
                     if($scope.rotator_start_timeout_hndl != null){
@@ -895,11 +911,16 @@ siApp
             $scope.getPictures = function(){
                 if($scope.image_list != null) return $q.resolve($scope.image_list);
 
+                const listingElm = $element[0].closest('.si-listing-item');
                 return $q(function($resolve, $reject){
                     $siConfig.get().then(function($configs){
                         let lActiveViewId = $configs.default_view;
 
                         $siApi.call('listing/view/' + lActiveViewId + '/fr/items/ref_number/' + $scope.options.ref_number + '/photos/').then(function($response){
+                            if(listingElm.classList.contains('sold')){
+                                if($configs.sold_image_limit > 0 && $configs.sold_image_limit < $response.length) $response = $response.slice(0, $configs.sold_image_limit);
+                            }
+                            
                             $scope.image_list = $response;
                             $resolve($response);
                         });
@@ -2006,7 +2027,14 @@ function siMediabox($parse){
                 if($scope.configs){
                     if(['map','streetview'].includes($name)){
                         if(siCtx.map_api_key == '') return false;
+                        if($scope.model && $scope.model.status_code == 'SOLD'){
+                            if($scope.configs.sold_allow_map === 'false'){
+                                return false;
+                            }
+                        }
                     }
+
+                    
                 }
                 if(!$scope.tabs) return true;
 

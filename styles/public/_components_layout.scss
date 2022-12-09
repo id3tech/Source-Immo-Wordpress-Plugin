@@ -121,7 +121,7 @@
 }
 .si-hide-fallback{
     display:none!important;
-    + .si-fallback-content{display:revert!important;}
+    + .si-fallback-content{display:contents !important;}
 }
 .si-hide-soft{
     opacity:0!important;

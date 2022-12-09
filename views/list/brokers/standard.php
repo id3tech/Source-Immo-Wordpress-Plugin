@@ -52,7 +52,7 @@
 
         <label 
             ng-show="list != null && list.length == 0"
-            class="no-result placeholder"><?php echo(apply_filters('si_label', __("There's no real estate broker matching your search criteria",SI))) ?></label>
+            class="no-result placeholder"><?php si_label("There's no real estate broker matching your search criteria") ?></label>
     
         <div class="si-list si-list-of-ghost" data-ng-show="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
             <div ng-repeat="item in ghost_list">
@@ -63,7 +63,7 @@
         </div>
 
         <div class="next-page" data-ng-show="page_index>=2 && listMeta.next_token!=null && !is_loading_data">
-            <button type="button" class="si-button load-next-page" data-ng-click="showNextPage(true)"><?php echo(apply_filters('si_label', __('Load more', SI))) ?></button>
+            <button type="button" class="si-button load-next-page" data-ng-click="showNextPage(true)"><span><?php si_label('Load more') ?></span></button>
         </div>
         <si-loading data-si-label="Loading results" data-ng-show="is_loading_data"></si-loading>
 

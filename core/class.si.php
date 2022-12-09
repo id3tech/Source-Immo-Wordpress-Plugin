@@ -14,6 +14,8 @@ class SourceImmo {
 
   public $locales = null;
 
+  public $lexicon = null;
+
   public $addons = null;
 
   public $modules = null;
@@ -22,7 +24,8 @@ class SourceImmo {
 
   public function __construct(){
     $this->configs = SourceImmoConfig::load();
-
+    global $siLexicon;
+    $this->lexicon = $siLexicon;
     $this->addons = new SourceImmoAddons;
 
     //if (!is_admin() ){
@@ -770,29 +773,38 @@ class SourceImmo {
     $currentPagePath = $_SERVER['REQUEST_URI'];
     wp_register_script( 'si-init', '', [], '', true );
     wp_enqueue_script( 'si-init'  );
-    wp_add_inline_script( 'si-init', 
-        'var siCtx = {}, siApiSettings = {};' .
-        'function siContextInit(){' .
-          'console.log("siContextInit");'.
-        //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' .
-        '$locales.init("' . $lTwoLetterLocale . '");' .
-        'window.siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' .
-        'window.siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' .
-                  'version:"' . str_replace(' ','-', SI_VERSION) . '", ' .
-                  'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' .
-                  'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' .
-                  'broker_routes : ' . json_encode($this->configs->broker_routes) . ', ' .
-                  'city_routes : ' . json_encode($this->configs->city_routes) . ', ' .
-                  'office_routes : ' . json_encode($this->configs->office_routes) . ', ' .
-                  'agency_routes : ' . json_encode($this->configs->agency_routes) . ', ' .
-                  'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . ', '.
-                  'map_api_key: "' . $this->configs->get_map_api_key() . '" ' . ',' .
-                  'root_url: "' . $lRootUrl . '"' .
-                '};' .
-        '};'
+    
+    $inlineScript = [
+        'var siCtx = {}, siApiSettings = {};',
+        'function siContextInit(){',
+          //'console.log("siContextInit");',
+        //'$locales.init("' . $lTwoLetterLocale . '");$locales.load("' . plugins_url('/scripts/locales/global.'. $lTwoLetterLocale .'.json', SI_PLUGIN) . '");' ,
+        '$locales.init("' . $lTwoLetterLocale . '");' ,
+        'window.siApiSettings={locale:"' . $lTwoLetterLocale . '",rest_root:"' . esc_url_raw( rest_url() ) . '", nonce: "' . wp_create_nonce( 'wp_rest' ) . '", api_root:"' . SI_API_HOST . '"};' ,
+        'window.siCtx={locale:"' . $lTwoLetterLocale . '", config_path:"' . $lConfigPath . '", ' ,
+                  'version:"' . str_replace(' ','-', SI_VERSION) . '", ' ,
+                  'base_path:"' . plugins_url('/', SI_PLUGIN) . '", ' ,
+                  'listing_routes : ' . json_encode($this->configs->listing_routes) . ', ' ,
+                  'broker_routes : ' . json_encode($this->configs->broker_routes) . ', ' ,
+                  'city_routes : ' . json_encode($this->configs->city_routes) . ', ' ,
+                  'office_routes : ' . json_encode($this->configs->office_routes) . ', ' ,
+                  'agency_routes : ' . json_encode($this->configs->agency_routes) . ', ' ,
+                  'use_lang_in_path: ' . ((strpos($currentPagePath, $lTwoLetterLocale)===1) ? 'true':'false') . ', ' ,
+                  'map_api_key: "' . $this->configs->get_map_api_key() . '" ' . ',' ,
+                  'root_url: "' . $lRootUrl . '"' ,
+                '};' ,
+        '};',
+        '$localLexicon = ' . $this->lexicon->toJSON() . ';'
         //'window.addEventListener("DOMContentLoaded",function(){ siContextInit(); });'
-      );
+        ];
 
+      
+      if($lTwoLetterLocale=='en'){
+        $inlineScript[] = '$localePreload={};';
+      }
+
+
+      wp_add_inline_script( 'si-init', implode('', $inlineScript));
   }
 
   /**
@@ -849,6 +861,8 @@ class SourceImmo {
         $style = explode(':', str_replace('"','', $styleRaw));
         $styleKey = preg_replace(['/(\-{2,3})/','/\-{2}si\-/','/\_/'],['','','-'],$style[0]);
         $styleValue = isset($style[1]) ? $style[1] : '';
+        
+        if($styleValue == '') continue;
 
         if(in_array($styleKey, ['custom-style'])){
           array_splice($style,0,1);
@@ -859,6 +873,12 @@ class SourceImmo {
           //__c($style);
         }
         else{
+          if(count($style) > 2){
+            array_shift($style);
+            $styleValue = implode(':', $style);
+          }
+          if($styleKey == 'uls-label') $styleValue = "'" . $styleValue . "'";
+          
           $configStyles[] = '--si-' . $styleKey . ':'. $styleValue;
         }
 
@@ -989,6 +1009,7 @@ class SourceImmo {
       if($mode == 'shortcut'){
         // redirect to long
         $this->{'redirect_' . $type}($ref_number,$lang);
+        exit();
       }
       else{
         if($mode == 'print'){
@@ -997,13 +1018,18 @@ class SourceImmo {
         else{
           $mode = '_detail_template';
         }
-        add_filter( 'template_include', array($this, 'include_' . $type . $mode));
+        add_filter( 'template_include', array($this, 'include_' . $type . $mode), 99);
       }
     }
   }
 
   
-  function include_listings_detail_template(){
+  function include_listings_detail_template($template){
+
+    global $wp_query;
+    $wp_query->is_page = true;
+    
+
     $ref_number = get_query_var( 'ref_number' );
     global $permalink, $post,$listing_data;
     
@@ -1012,6 +1038,7 @@ class SourceImmo {
     global $siCurrentModel;
     $rawModel = SourceImmoApi::get_listing_data($ref_number);
     $siCurrentModel = $listing_data = json_decode( $rawModel);
+
     if($listing_data != null){
       do_action('si_listing_detail_begin');
 
@@ -1029,6 +1056,7 @@ class SourceImmo {
       });
 
       if(!isset($post)) $post = json_decode('{}');
+      //$post->type = 'page';
       $post->permalink = $permalink;
 
       // add hook for permalink
@@ -1043,9 +1071,8 @@ class SourceImmo {
       });
 
       // Add hook to data
-      $listing_data = apply_filters(hook_from_key('listing','single'), $listing_data);
-      
-      
+      //$listing_data = apply_filters(hook_from_key('listing','single'), $listing_data);
+      return SI_PLUGIN_DIR . 'views/single/listings.php';
 
       self::view('single/listings', array('ref_number'=>$ref_number, 'data' => $listing_data, 'permalink' => $permalink));
       die();
@@ -1069,6 +1096,9 @@ class SourceImmo {
       }, $model->brokers);
       $brokers = json_decode(SourceImmoApi::get_broker_list($brokerIds));
 
+      // Load global dictionary
+      $model->dictionary = SourceImmoApi::get_dictionary();
+      // Assign broker list
       $model->brokers = $brokers;
       
       do_action('si/listing/print', $model);
@@ -1083,6 +1113,7 @@ class SourceImmo {
       // $share_tool->addHook('listing');
 
       $listingWrapper = new SourceImmoListingsResult();
+      
       $dictionary = new SourceImmoDictionary($model->dictionary);
       $listingWrapper->preprocess_item($model);
       $listingWrapper->extendedPreprocess($model);

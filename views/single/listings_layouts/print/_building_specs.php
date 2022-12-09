@@ -2,8 +2,8 @@
 if(hasValue($model->building->short_dimension)){
 ?>
 <div class="area">
-    <label><?php _e('Building area', SI) ?>:</label>
-    <div class="value"><?php echo($model->building->short_dimension) ?></div>
+    <label><?php _e('Building dimensions', SI) ?>:</label>
+    <div class="value"><span><?php echo($model->building->short_dimension) ?></span></div>
 </div>
 <?php 
 }

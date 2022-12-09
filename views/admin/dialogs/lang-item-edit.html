@@ -1,0 +1,79 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2 lstr>Edit details options</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+<md-dialog-content>
+
+    <div class="md-dialog-content" layout="column" layout-align="stretch stretch">
+        <md-tabs md-dynamic-height>
+            <md-tab>
+                <md-tab-label><i class="fal fa-code-branch fa-rotate-90"></i> <lstr>Permalinks</lstr></md-tab-label>
+                <md-tab-body>
+                    <si-route-box class="route-item" 
+                        route="model.route" list="configs[routes]"
+                        type="{{groupType}}" si-change="rebuild()"
+                    ></si-route-box>
+
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab>
+                <md-tab-label><i class="fal fa-pencil-ruler"></i> <lstr>Detail page</lstr></md-tab-label>
+                <md-tab-body>
+
+                    
+                    <md-input-container>
+                        <label lstr>Isolation mode</label>
+                        <md-select ng-model="model.layout.isolation" ng-change="rebuild()" >
+                            <md-option value="inherit"><lstr>Inherit</lstr></md-option>
+                            <md-option value="NONE"><lstr>None</lstr></md-option>
+                            <md-option value="ISOLATE"><lstr>Isolate</lstr></md-option>
+                        </md-select>
+                        
+                    </md-input-container>
+
+                    <md-input-container>
+                        <label lstr>Layout page</label>
+                        <input type="text" ng-model="model.layout.page"  ng-change="rebuild()" required />
+                        <md-icon class="fal fa-ellipsis-h" ng-click="selectPage()"></md-icon>
+                        
+                    </md-input-container>
+            
+                </md-tab-body>
+            </md-tab>
+
+            <md-tab>
+                <md-tab-label><i class="fal fa-list-check"></i> <lstr>Contact form</lstr></md-tab-label>
+                <md-tab-body>
+                    <md-input-container ng-if="!['cities'].includes(groupType)">
+                        <label lstr>Method used to build forms and manage results</label>
+                        <md-select ng-model="model.layout.communication_mode" ng-change="rebuild()" >
+                            <md-option value="basic"><lstr>Basic</lstr></md-option>
+                            <md-option value="wpcf7_contact_form">Contact Form 7</md-option>
+                            <md-option value="gravity_form">Gravity Form</md-option>
+                        </md-select>
+                    </md-input-container>
+                        
+                    <md-input-container ng-if="!['cities'].includes(groupType)" ng-disabled="!['wpcf7_contact_form','gravity_form'].includes(model.layout.communication_mode)">
+                        <label lstr>Form to use</label>
+                        <input type="text" ng-model="model.layout.form_id"  ng-change="rebuild()" />
+                        <md-icon class="fal fa-ellipsis-h" ng-click="selectForm(model)"></md-icon>
+                    </md-input-container>
+                </md-tab-body>
+            </md-tab>
+        </md-tabs>
+       
+    </div>
+    
+</md-dialog-content>
+
+
+<md-dialog-actions layout="row">
+    <md-button ng-click="resetDetails()"><md-icon class="fal fa-sync"></md-icon> <lstr>Reset to default</lstr></md-button>
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

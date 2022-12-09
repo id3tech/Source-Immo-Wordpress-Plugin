@@ -418,6 +418,262 @@ siApp
 //#endregion Agencies Dialogs
 // ------------------------------------
 
+
+siApp
+.controller("langItemEditDialogCtrl", function langItemEditDialogCtrl($scope,$rootScope,$q,$siApi,$siConfigs, $siUI){
+  $scope.global_list = $rootScope.global_list;
+  $scope.data_views = $rootScope.data_views;
+  $scope.configs = {};
+  $scope.routes = null;
+  $scope.groupType = null;
+
+  $scope.details_defaults = {
+    fr: {
+      listings: {
+        route: {
+          route: 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+          shortcut: 'propriete/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      brokers: {
+        route: {
+          route: 'courtiers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+          shortcut: 'courtier/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      offices: {
+        route: {
+          route: 'bureaux/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'bureau/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      agencies: {
+        route: {
+          route: 'agences/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'agence/{{item.ref_number}}/'
+        },
+        layout: {
+          communication_mode: 'basic',
+          form_id:null
+        },
+      },
+      cities: {
+        route: {
+          route: 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'ville/{{item.ref_number}}/'
+        },
+        layout: {},
+      }
+    },
+    en: {
+      listings: {
+        route: {
+          route: 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+          shortcut: 'listing/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      brokers: {
+        route: {
+          route: 'brokers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+          shortcut: 'broker/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      offices: {
+        route: {
+          route: 'offices/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'office/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      agencies: {
+        route: {
+          route: 'agencies/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'agency/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      cities: {
+        route: {
+          route: 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'city/{{item.ref_number}}/'
+        },
+        layout: {},
+      }
+    },
+    es: {
+      listings: {
+        route: {
+          route: 'propiedades/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}/',
+          shortcut: 'propiedad/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      brokers: {
+        route: {
+          route: 'agentes/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}/',
+          shortcut: 'agente/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      offices: {
+        route: {
+          route: 'oficinas/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'despacho/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      agencies: {
+        route: {
+          route: 'agencias/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'agencia/{{item.ref_number}}/'
+        },
+        layout: {},
+      },
+      cities: {
+        route: {
+          route: 'ciudad/{{item.location.region}}/{{item.name}}/{{item.ref_number}}/',
+          shortcut: 'ciudades/{{item.ref_number}}/'
+        },
+        layout: {},
+      }
+    }
+  }
+  
+  $scope.route_default = {
+    listing : {
+      fr : 'proprietes/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
+      en : 'listings/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}',
+      es : 'casas/{{item.location.region}}/{{item.location.city}}/{{item.transaction}}/{{item.ref_number}}'
+    },
+    broker : {
+      fr : 'courtiers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}',
+      en : 'brokers/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}',
+      es : 'agentes/{{item.first_name}}-{{item.last_name}}/{{item.ref_number}}'
+    },
+    city : {
+      fr : 'villes/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
+      en : 'cities/{{item.location.region}}/{{item.name}}/{{item.ref_number}}',
+      es : 'ciudades/{{item.location.region}}/{{item.name}}/{{item.ref_number}}'
+    },
+    office : {
+      fr : 'bureaux/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
+      en : 'offices/{{item.location.city}}/{{item.name}}/{{item.ref_number}}',
+      es : 'oficinas/{{item.location.city}}/{{item.name}}/{{item.ref_number}}'
+    },
+    agency : {
+      fr : 'agences/{{item.name}}/{{item.ref_number}}',
+      en : 'agencies/{{item.name}}/{{item.ref_number}}',
+      es : 'agencias/{{item.name}}/{{item.ref_number}}'
+    }
+  }
+
+  $scope.actions = [
+    { label: 'OK', action: function () { $scope.buildAndClose($scope.model) } },
+    { label: 'Cancel', action: function () { $scope.cancel(); } },
+  ];
+
+
+  $scope.init = function($params){
+    $scope.routes = $params.routes;
+    $scope.groupType = $params.type;
+    $scope.model = $params.model;  
+
+    $siConfigs.load().then(function($response){
+      $scope.configs = $response;
+    });
+  }
+
+  $scope.getDisplayedVarSelectionText = function($selections){
+    const lLabels = $scope.availVars
+      .filter( $v => $selections.includes($v.name))
+      .reduce( ($result,$cur) => {
+        $result.push($cur.label.translate())
+        return $result;
+      },[]);
+    if(lLabels.length > 6) return '{0} out of {1} selected'.translate().format(lLabels.length, $scope.availVars.length);
+
+    return lLabels.join(', ');
+  }
+
+  $scope.validate = function(){
+    // add default value when missing
+    if($scope.model.priority_group_sort == undefined){
+      $scope.model.priority_group_sort = null;
+    }
+    if($scope.model.search_engine_options == undefined){
+      $scope.model.search_engine_options = {
+        type: 'full',
+        search_box_placeholder : {fr:'',en:''},
+        tabs: [],
+        fields: [],
+      }
+    }
+
+    if($scope.model.list_layout.item_row_space.mobile > 2){
+      $scope.model.list_layout.item_row_space.desktop = Math.round(100 / $scope.model.list_layout.item_row_space.desktop);
+      $scope.model.list_layout.item_row_space.laptop = Math.round(100 / $scope.model.list_layout.item_row_space.laptop);
+      $scope.model.list_layout.item_row_space.tablet = Math.round(100 / $scope.model.list_layout.item_row_space.tablet);
+      $scope.model.list_layout.item_row_space.mobile = Math.round(100 / $scope.model.list_layout.item_row_space.mobile);
+    }
+  }
+
+  $scope.validateAlias = function(){
+    $scope.aliasIsValid = true;
+    if($scope.usedAliasName.includes($scope.model.alias)){
+      $scope.aliasIsValid = false;
+    }
+  }
+
+  $scope.buildAndClose = function(){
+    return $scope.closeAndReturn($scope.model);
+  }
+
+  $scope.selectPage = function(){
+    const dialogParams = {lang: $scope.model.lang};
+        if($scope.model.layout == undefined) $scope.model.layout = {page:''};
+        
+        dialogParams.page= $scope.model.layout.page
+
+        $siUI.dialog('page-picker', dialogParams).then($newPage => {
+          $scope.model.layout.page = $newPage;
+        })
+  }
+  $scope.selectForm = function(){
+    const dialogParams = {lang: $scope.model.lang};
+    if($scope.model.layout == undefined) $scope.model.layout.form_id = '';
+    
+    dialogParams.form_id = $scope.model.layout.form_id;
+
+    $siUI.dialog('form-picker', dialogParams).then($form => {
+      $scope.model.layout.form_id = $form;
+      $scope.$emit('save-request');
+    })
+  }
+
+  $scope.isActionValid = function($button){
+    //if($button.label == 'OK') return $scope.aliasIsValid;
+    return true;
+  }
+  
+  $scope.resetDetails = function(){
+    const $lang = $scope.model.lang;
+    const lDefault = $scope.details_defaults[$lang][$scope.groupType];
+
+    $scope.model.route = Object.assign($scope.model.route, lDefault.route);
+    $scope.model.layout = Object.assign($scope.model.route,{
+      page: null,
+        communication_mode: 'basic',
+        form_id:null
+    }, lDefault.route);
+
+  }
+});
+
 siApp
 .controller("listEditDialogCtrl", function listEditDialogCtrl($scope,$rootScope,$q,$siApi,$siConfigs, $siUI){
   $scope.global_list = $rootScope.global_list;
@@ -442,7 +698,7 @@ siApp
   }
 
   $scope.init = function($params){
-    $scope.model = angular.copy($params);
+    $scope.model = structuredClone($params);
     if($scope.model.source != null){
       $scope.model.$$source_id =  $scope.model.source.id;
     }
@@ -515,12 +771,12 @@ siApp
     $scope.renewSearchToken().then(function($searchToken){
       $scope.model.search_token = $searchToken;
 
-      const lResult = angular.copy($scope.model);
+      const lResult = structuredClone($scope.model);
 
       lResult.show_list_meta = (lResult.show_list_meta == undefined) ? false : lResult.show_list_meta;
       
       // Make sure the source is configured
-      if(lResult.source == undefined){
+      if(lResult.source == undefined || lResult.source.id != lResult.$$source_id){
         lResult.source = $scope.data_views.find(function($e){ return($e.id == lResult.$$source_id);});
       }
       delete lResult.$$source_id;
@@ -1072,6 +1328,37 @@ siApp
 // });
 
 siApp
+.controller('layerVarAddCustomDialogCtrl', function layerVarAddCustomDialogCtrl($scope, $rootScope){
+  $scope.model = {
+    key: '',
+    content: {fr:'', en: '', es:''}
+  };
+
+  $scope.actions = [
+    { label: 'OK', action: function () { $scope.buildAndClose($scope.model) } },
+    { label: 'Cancel', action: function () { $scope.cancel(); } },
+  ];
+  $scope.availableVarList = [];
+
+  $scope.init = function($params){
+  }
+
+  $scope.buildAndClose = function($data){
+    $data.key = $data.key.sanitize();
+    $scope.closeAndReturn($data);
+  }
+
+  $scope.isValidAction = function($button){
+    if($button.label == 'OK'){
+      
+      return $scope.model.key != '' && ['fr','en','es'].some(k => $scope.model.content[k] != '');
+    }
+    return true;
+  }
+
+});
+
+siApp
 .controller('layerVarEditDialogCtrl', function layerVarEditDialogCtrl($scope, $rootScope){
   $scope.model = {
     classes: ''
@@ -1086,6 +1373,9 @@ siApp
   $scope.init = function($params){
     //$scope.model.classes = $params.classes.join(' ');
     $scope.model = $params.var;
+    if(['link_button'].includes($params.var.key)){
+      if($scope.model.label == undefined) $scope.model.label = {};
+    }
 
     $scope.availableVarList = $rootScope.global_list.list_item_vars[ $params.type];
   }
@@ -1845,6 +2135,55 @@ siApp
     $scope.closeAndReturn(selected.post_name);
   }
 
+});
+
+
+siApp
+.controller('formPickerDialogCtrl', function formPickerDialogCtrl($scope, $rootScope, $element, $timeout, $q, $siApi, $siWP){
+  $scope.model = {};
+  $scope.selectedForm = null;
+  $scope.formList = [];
+  $scope.isLoading = true;
+  $scope.actions = [
+    {label: 'Select',  action : _ => {$scope.buildAndClose();}, isValid: _ => { return $scope.formList.some($p => $p._selected===true)}},
+    {label: 'Cancel', action : _ => {$scope.cancel();}, isValid: _ => true}
+  ]
+
+  $scope.init = function($params){
+    $scope.model = $params;
+
+    $scope.fetchForms().then( _ => {
+
+    })
+  }
+
+  $scope.fetchForms = function(){
+    $scope.isLoading = true;
+    return $siApi.rest('form/list',null,{method : 'GET'}).then(function($response){
+      $response.forEach($p => {
+        if($p.title == $scope.model.form_id) $p._selected = true;
+        if($p.id == $scope.model.form_id) $p._selected = true;
+      })
+      $scope.isLoading = false;
+      $scope.formList = $response;
+    });
+
+  }
+
+  $scope.selectForm = function($form){
+    $scope.formList.forEach($p => {delete $p._selected});
+
+    $form._selected = true;
+  }
+
+  $scope.buildAndClose = function(){
+    const selected = $scope.formList.find($p => $p._selected===true);
+
+    console.log('formPickerDialog/buildAndClose', selected);
+
+    $scope.closeAndReturn(selected.id);
+  }
+
 })
 
 /**
@@ -1958,4 +2297,65 @@ siApp
     });
   }
 });
+
+
+siApp
+.controller('documentationDialogCtrl', function documentationDialogCtrl($scope,$rootScope,$siUtils,$q){
+  $scope.shortcodes = [
+    {name: 'Standalone calculator', description:'Display a calculator combining mortgage and tax transfer.', code: '[si_tool_calculator]'},
+    {name: 'Search', description:'Display a standalone search engine. You must provide a list alias and a valid result page.', code: '[si_search alias="listing-all" result_page="/listings"]'},
+    {name: 'Searchbox', description:'Display a simple search input box. You must provide a list alias and a valid result page.', code: '[si_searchbox alias="listing-all" result_page="/listings"]'},
+    {name: 'List slider', description:'Display slider of either listings, brokers, offices or agencies. You must provide a list alias.', code: '[si_list_slider alias="listing-all"]'},
+    {name: 'List of items', description:'Display a list of either listings, brokers, offices or agencies. You must provide a list alias.', code: '[si alias="listing-all"]'},
+    {name: 'Listing details', description:'Display all information about a listing', code: '[si_listing]'},
+    {name: 'Broker details', description:'Display all information about a broker', code: '[si_broker]'},
+    {name: 'Office details', description:'Display all information about a office', code: '[si_office]'},
+    {name: 'Agency details', description:'Display all information about a agency', code: '[si_agency]'},
+  ];
+
+  $scope.hooks = [
+    {name: 'Page template', description: 'Return the page template path for listing, broker, office or agency details', type:'filter', key: 'si/page_builder/get_page_template', params: ['$page_template']},
+    {name: 'Label', description: 'Change the label', type:'filter', key: 'si/label', params: ['$label']},
+    {name: 'Lexicon label', description: 'Change the label of a lexicon item', type:'filter', key: 'si/lexicon/label', params: ['$label']},
+    {name: 'Lexicon file path', description: 'Change the path for the lexicon base JSON file.', type:'filter', key: 'si/lexicon/path', params: ['$path','$locale']},
+    {name: 'Listing details content', description: 'Change the inner content of the listing details', type:'filter', key: 'si/listing/detail/content', params: ['$content', '$ref_number', '$listing_data']},
+    {name: 'Listing details class', description: 'Change the class for listing details', type:'filter', key: 'si/single-listing/class', params: ['$class']},
+    {name: 'Broker details content', description: 'Change the inner content of the broker details', type:'filter', key: 'si/broker/detail/content', params: ['$content', '$ref_number', '$broker_data']},
+    {name: 'Broker details class', description: 'Change the class for broker details', type:'filter', key: 'si/single-broker/class', params: ['$class']},
+    {name: 'Office details content', description: 'Change the inner content of the office details', type:'filter', key: 'si/office/detail/content', params: ['$content', '$ref_number', '$office_data']},
+    {name: 'Office details class', description: 'Change the class for office details', type:'filter', key: 'si/single-office/class', params: ['$class']},
+  ];
+
+  $scope.search = {
+    text: ''
+  }
+
+  $scope.init = function(){
+  }
+
+  $scope.copyToClipboard = function($text){
+    $siUtils.copyToClipboard($text);
+  }
+
+  $scope.getHookCode = function($hook){
+    if($hook.type == 'filter'){
+      return `
+      add_filter('${$hook.key}', function(${$hook.params.join(', ')}){
+        // Do your stuff here
+
+        return ${$hook.params[0]};
+      },10,${$hook.params.length});
+      `;
+    }
+    else{
+      return `
+      add_action('${$hook.key}', function(${$hook.params.join(', ')}){
+        // Do your stuff here
+
+      },10,${$hook.params.length});
+      `;
+    }
+  }
+});
+
 

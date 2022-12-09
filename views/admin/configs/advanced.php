@@ -104,6 +104,37 @@
         </div>
     </div>
 
+    
+    <div class="config-grid-block">
+        <h2 class="md-headline" lstr>New items</h2>
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <md-input-container flex md-no-float>
+                <label lstr>Time limit (in days)</label>
+                <input autocomplete="off" type="number" ng-model="configs.new_item_time_limit" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()" />
+            </md-input-container>
+        </div>
+    </div>
+    <div class="config-grid-block">
+        <h2 class="md-headline" lstr>Sold listing</h2>
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <md-input-container flex md-no-float>
+                <label lstr>Limit the number of photo</label>
+                <md-select ng-model="configs.sold_image_limit" ng-change="save_configs()">
+                    <md-option value="-1"><lstr>Show all pictures</lstr></md-option>
+                    <md-option value="1"><lstr>Only 1 image</lstr></md-option>
+                    <md-option value="4"><lstr>Only 4 images</lstr></md-option>
+                </md-select>
+            </md-input-container>
+            <md-input-container flex md-no-float>
+                <label lstr>Show map related elements</label>
+                <md-select ng-model="configs.sold_allow_map" ng-change="save_configs()">
+                    <md-option value="true"><lstr>Yes</lstr></md-option>
+                    <md-option value="false"><lstr>No</lstr></md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </div>
+
     <div class="config-grid-block">
         <h2 class="md-headline"><?php _e('Map',SI)?></h2>
         <div class="block-content">
@@ -126,7 +157,7 @@
     </div>
 
     
-    <div class="config-grid-block">
+    <div class="config-grid-block" ng-if="false">
         <h2 class="md-headline"><?php _e('Mode',SI)?></h2>
         <div class="block-content">
             <div layout="row" layout-align="start center">

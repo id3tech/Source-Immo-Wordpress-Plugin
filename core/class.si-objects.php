@@ -16,6 +16,7 @@
         $this->metadata = $data->metadata;
         
         foreach ($this->brokers as $item) {
+          
           if(!isset($item->office)){
             $item->office = current(array_filter($offices, function($off) use ($item){
               return $item->office_id == $off->id;
@@ -50,16 +51,22 @@
   
     public function preprocess_item(&$item){
       global $dictionary;
-    
+      
       
       $item->fullname = $item->first_name . ' ' . $item->last_name;
       if(!isset($item->company_name)) $item->company_name = '';
      
       if(isset($item->office)) {
-        $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
+        $officeCompiler = new SourceImmoOfficesResult();
+        $officeCompiler->preprocess_item($item->office);
+
+        // $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
         $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
         
-        if(!isset($item->agency) && isset($item->office->agency)) $item->agency = $item->office->agency;
+        if(!isset($item->agency) && isset($item->office->agency)) {
+          $item->agency = $item->office->agency;
+        }
+
         if(!isset($item->office->agency)) $item->agency = json_decode(json_encode(['name'=> $item->office->agency_name]));
       }
       
@@ -72,7 +79,7 @@
       $item->main_phone = (isset($item->phones->mobile)) ? $item->phones->mobile : $item->phones->office;
   
       if(isset($item->license_type_code)){
-        $item->license_type = $dictionary->getCaption($item->license_type_code , 'broker_license_type');
+        $item->license_type =  SourceImmo::current()->lexicon->get($dictionary->getCaption($item->license_type_code , 'broker_license_type'));
       }
 
       
@@ -169,18 +176,42 @@
     
     public function preprocess_item(&$item){
       global $dictionary;
-  
       
+      if(!isset($item->market_codes) || $item->market_codes==null){
+        $item->market_codes = $this->detectMarketCodes($item);
+      }
+      
+      $doorType = SourceImmo::current()->lexicon->get(__('apt.',SI));
+      if(isset($item->category_code)){
+        $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
+
+        if(in_array($item->category_code,['COM', 'IND'])){
+          $doorType = SourceImmo::current()->lexicon->get(__('suite',SI));
+        }
+      }
+      
+      $item->transaction = $this->getTransaction($item);
+      if(isset($item->subcategory_code)){
+        $item->subcategory = $dictionary->getCaption($item->subcategory_code , 'listing_subcategory');
+      }
+      else{
+        $item->subcategory='';
+      }
+
+      if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
+        $item->location->address->door = StringPrototype::format('{1} {0}',$item->location->address->door, $doorType);
+      }
+
       if(isset($item->location->address->street_number) && $item->location->address->street_number != ''){
         $item->location->civic_address = $item->location->address->street_number . ' ' . $item->location->address->street_name;
         if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
-          $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
+          $item->location->civic_address = $item->location->civic_address . ', ' .  $item->location->address->door;
         }
       }
       else if(isset($item->location->address->street_name) && $item->location->address->street_name != ''){
         $item->location->civic_address = $item->location->address->street_name;
         if(isset($item->location->address->door) && !str_null_or_empty($item->location->address->door)){
-          $item->location->civic_address = $item->location->civic_address . ', ' .  StringPrototype::format(__('apt. {0}',SI),$item->location->address->door);
+          $item->location->civic_address = $item->location->civic_address . ', ' .  $item->location->address->door;
         }
       }
       else{
@@ -199,17 +230,6 @@
         $item->location->full_address = $item->location->city;
       }
   
-      if(isset($item->category_code)){
-        $item->category = $dictionary->getCaption($item->category_code , 'listing_category');
-      }
-      
-      $item->transaction = $this->getTransaction($item);
-      if(isset($item->subcategory_code)){
-        $item->subcategory = $dictionary->getCaption($item->subcategory_code , 'listing_subcategory');
-      }
-      else{
-        $item->subcategory='';
-      }
   
       // Price
       if($item->status_code == 'SOLD'){
@@ -226,7 +246,7 @@
   
       // Areas
       $item->available_area = (isset($item->available_area)) ? $item->available_area : null;
-      $item->available_area_unit = (isset($item->available_area_unit_code)) ? $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit') : null;
+      $item->available_area_unit = (isset($item->available_area_unit_code)) ? $dictionary->getCaption($item->available_area_unit_code , 'dimension_unit', true) : null;
       
       
       if(isset($item->brokers)){
@@ -247,7 +267,8 @@
       
       
       if(isset($item->main_unit)){
-        $item->rooms = (object) array();
+        $item->counters = (object) array();
+        $item->counters->rooms = (object) array();
   
         $lIconRef = array(
           'bathroom_count' => 'bath',
@@ -278,7 +299,7 @@
           }
         }
         if(count($rooms)>0){
-          $item->rooms = json_decode(json_encode($rooms));
+          $item->counters->rooms = json_decode(json_encode($rooms));
         }
       }
     }
@@ -453,7 +474,7 @@
         }
 
         if(isset($item->available_area) && $item->available_area > 0){
-          $item->important_flags[] = array('icon'=> 'vector-square', 'value'=> $item->available_area . ' ' . $item->available_area_unit, 'caption' => __('Available area',SI));
+          $item->important_flags[] = array('icon'=> 'vector-square', 'value'=> StringPrototype::formatNumber($item->available_area) . ' ' . $item->available_area_unit, 'caption' => __('Available area',SI));
         }
     }
     public function buildProximityFlags(&$item){
@@ -498,6 +519,60 @@
         }
     }
 
+    public function detectMarketCodes($item){
+      $result =[];
+
+      if($this->isMarketCode($item,
+        ['REVENUE PROP','IND','COM','LOT'],
+        ['IND','COM'],
+        ['ZONING COMMERCIAL','ZONING INDUSTRIAL','ZONING RECREATIONAL','ZONING VACATION AREA']
+        )){
+          $result[] = 'COM';
+      }
+
+      if($this->isMarketCode($item,
+        ["FARM", "RESIDENTIAL",'MULTI-FAMILY'],
+        ['RESIDENTIAL'],
+        ["ZONING AGRICULTURAL", "ZONING RESIDENTIAL"]
+        )){
+          $result[] = 'RES';
+      }
+
+      if(count($result) == 0) $result[] = 'RES';
+
+      return $result;
+    }
+    public function isMarketCode($item,$filterCats,$filterSubcats,$filterAttrs){
+      if(!isset($item->category_code)) return [];
+      
+      if(in_array($item->category_code, $filterCats)){return true;}
+      else if(in_array($item->subcategory_code, $filterSubcats)){return true;}
+      else{
+        $itemAttr = array_map(
+          function($att){
+            if(!isset($att->value_code)) return null;
+            return $att->value_code;
+          },
+          array_filter(
+              $item->attributes, 
+              function($att){ 
+                return $att->code == 'ZONING';
+              }
+          )
+        );
+
+        if(is_array($itemAttr)){
+          foreach($itemAttr as $attr){
+            if(in_array($attr,$filterAttrs)){
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
+      
+    }
     
     public static function formatPrice($price){
       $lResult = array();
@@ -581,7 +656,7 @@
           if (isset($dimension->area)){
             $lUnit = $dictionary->getCaption($dimension->area_unit_code,'dimension_unit',true);
             //if(lUnit=='mc'){lUnit='m<sup>2</sup>';}
-            $lResultPart[] = StringPrototype::format('{0} {1}',$dimension->area, $lUnit);
+            $lResultPart[] = StringPrototype::format('{0} {1}',number_format($dimension->area,0,'.',' '), $lUnit);
           }
           
 
@@ -621,6 +696,10 @@
           }
           else if(count($lResultPart)>0){
             $lResult = $lResultPart[0];
+          }
+
+          if(isset($dimension->irregular) && $dimension->irregular === true){
+            $lResult .= ' irr.';
           }
       }
       return $lResult;
@@ -735,7 +814,7 @@
       foreach($item->phones as $key => $value){
         $item->phones->$key = $this->formatPhone($value);
       }
-
+      //(new SourceImmoAgenciesResult())->preprocess_item($item->office->agency);
       if(isset($item->agency)){
         $compiler = new SourceImmoAgenciesResult();
         $compiler->preprocess_item($item->agency);
@@ -780,7 +859,7 @@
 
         $item->location->full_address = $item->location->address->street_number . ' ' . $item->location->address->street_name . ', ' . $item->location->city;
         
-        $item->main_phone = $item->main_office->phones->office;
+        if(isset($item->main_office) && isset($item->main_office->phones->office)) $item->main_phone = $item->main_office->phones->office;
       }
 
 
@@ -848,8 +927,10 @@
             ), $lFriendlyValue , $lResult);
       }
       
-      if(strpos($lResult,ltrim($rootUrl,'/')) !== false) $lResult = str_replace(ltrim($rootUrl,'/'), '', $lResult);
-
+      if(!empty(ltrim($rootUrl,'/'))){
+        if(strpos($lResult,ltrim($rootUrl,'/')) !== false) $lResult = str_replace(ltrim($rootUrl,'/'), '', $lResult);
+      }
+      
       $lFinalPermalink = $rootUrl . str_replace(' ','-',$lResult);
       return $lFinalPermalink;
     }
@@ -1108,7 +1189,7 @@ class ListingSchema extends BaseDataSchema{
 
       $this->addOffer('Residence',$listing->price->sell->amount, $currency, $listing->location);
     }
-    else{
+    else if(isset($listing->price->lease)){
       $currency = (isset($listing->price->lease->currency)) ? $listing->price->lease->currency : '';
       $this->addOffer('Residence',$listing->price->lease->amount,$currency, $listing->location);
     }
@@ -1458,7 +1539,7 @@ class SourceImmoDictionary{
               }
           }
       }
-      return $lResult;
+      return SourceImmo::current()->lexicon->get($lResult);
     }
   
     public function getCaptionFrom($source, $key, $domain, $asAbbr=false){

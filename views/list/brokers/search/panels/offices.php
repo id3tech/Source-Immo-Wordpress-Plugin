@@ -4,7 +4,7 @@ $panelKey = 'offices';
 
 <div class="filter-panel offices-panel {{isExpanded('<?php echo($panelKey) ?>')}}">
     <div class="filter-panel-header">
-        <h4><?php echo(apply_filters('si_label', __('Office', SI))) ?></h4>
+        <h4><?php si_label('Office') ?></h4>
         <button class="button" type="button"  ng-click="toggleExpand($event,'<?php echo($panelKey) ?>')"><i class="fal fa-times"></i></button>
     </div>
     

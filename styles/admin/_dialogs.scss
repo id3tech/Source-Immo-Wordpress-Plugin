@@ -24,6 +24,23 @@ md-dialog{
         }
     }
 
+    &#lang-item-edit-dialog{
+        width: 50vw;
+        max-width: 1000px;
+        .md-dialog-content{
+            min-height:40vh;
+            padding:0;
+
+            md-tab-content{
+                padding:2rem;
+                > div{
+                    display:grid;
+                    gap:1rem;
+                }
+            }
+        }
+    }
+
     &#brokers-list-item-edit-dialog,
     &#offices-list-item-edit-dialog,
     &#agencies-list-item-edit-dialog,
@@ -232,6 +249,7 @@ md-dialog{
         }
     }
 
+    &#form-picker-dialog,
     &#page-picker-dialog{
         width: clamp(640px, 50vw, 1000px);
         height: 80vh;
@@ -261,7 +279,7 @@ md-dialog{
             }
         }
 
-
+        .si-form-list,
         .si-page-list{
             display: grid;
             grid-template-columns: repeat(2,1fr);
@@ -269,6 +287,7 @@ md-dialog{
             gap:1rem;
             overflow:hidden overlay;
 
+            .si-form-item,
             .si-page-item{
                 padding:1rem;
                 border-radius: 0.5em;
@@ -277,11 +296,13 @@ md-dialog{
                 &:not(.selected){
                     cursor:pointer;
                 }
+                .form-name,
                 .page-name{
                     font-size: 1.1rem;
                     font-weight: 700;
                     color:inherit;
                 }
+                .form-info,
                 .page-info{
                     opacity:0.75;
                     color:inherit;
@@ -299,7 +320,87 @@ md-dialog{
         }
     }
 
+    &#documentation-dialog{
+        min-height: 80vh;
+        min-width: 80vw;
+        md-dialog-content{
+           
+        }
+        .md-dialog-content{
+            
+            .si-search-container{
+                margin-inline: auto;
+                width: clamp(320px,60%, 800px);
+                padding:4px;
+                
+                position: relative;
+                font-size: 1.2rem;
+                overflow:hidden;
+                input{
+                    padding:0.5em 1em;
+                    width:100%;
+                    outline:none;
+                    border:none;
+                    border-radius: 0.25em;
+                    transition: 0.25s ease;
+                    box-shadow:0 0 0 1px #ccc;
+                }
+
+                i.fal{
+                    position:absolute;
+                    top: 50%;
+                    right:1rem;
+                    transform:translate(100%,-50%);
+                    opacity: 0;
+                    transition: 0.25s ease;
+                }
+
+                input:focus{ 
+                    box-shadow:0 0 0 2px var(--highlight,#27B5CA);
+                    + i.fal{
+                        transform:translate(0%,-50%);
+                        opacity:1;
+                    }
+                }
+
+            }
+            .si-list{
+                display:grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap:1rem;
+                @media screen and (max-width: 2500px){
+                    grid-template-columns: repeat(4, 1fr);
+                }
+                @media screen and (max-width: 2000px){
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
+                .si-list-item{
+                    display:grid;
+                    grid-template-columns: 1fr auto;
+                    padding: 1rem;
+                    background: #3332;
+                    border-radius:0.25rem;
+                    cursor:pointer;
+
+                    .si-item-name{
+                        font-size:1.1rem;
+                        font-weight: 600;
+                    }
+                    .si-item-actions{
+                        grid-column: 2;
+                        grid-row: 1 / span 2;
+                    }
+
+                }
+            }
+        }
+    }
+
     &#layer-var-edit-dialog{
+        width: 640px;
+    }
+    &#layer-var-add-custom-dialog{
         width: 640px;
     }
     &#style-editor-dialog{

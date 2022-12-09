@@ -35,28 +35,50 @@ siApp
             checkedValue: '@?siValue'
         },
         link: function($scope, $element, $attrs){
-            $scope.selected = $scope.checked;
+            if($attrs.siChecked != undefined){
+                //const checkedAtt = $parse($attrs.siChecked);
+                //console.log('siCheckbox/link',$attrs.siChecked,$scope.checked);
+            }
             
-            $scope.compareModelToValue();            
+            
+            $scope.init();
         },
         controller: function($scope, $timeout){
+            
 
-            $scope.$watch('model', function($new,$old){
-                
-                if ($new == null) return;
-                
-                $scope.compareModelToValue();
-            });
+            $scope.init = function(){
+                $scope.selected = false;
+                if($scope.checked != undefined){
+                    $scope.selected = $scope.checked;
+                }
+                else{
+                    $scope.compareModelToValue();   
+                }
 
-            $scope.$watch('checkedValue', function($new,$old){
-                if ($new == null) return;
-                
-                $scope.compareModelToValue();
-            });
+                //console.log('siCheckbox/init', typeof $scope.checked);
+                $scope.$watch('model', function($new,$old){
+                    
+                    if ($new == null) return;
+                    
+                    $scope.compareModelToValue();
+                });
 
-            $scope.$watch('checked', function($new,$old){
-                $scope.selected = $scope.checked;
-            })
+                $scope.$watch('checkedValue', function($new,$old){
+                    if ($new == null) return;
+                    
+                    $scope.compareModelToValue();
+                });
+
+                $scope.$watch('checked', function($new,$old){
+                    if($new == $old) return;
+                    if($new == undefined) $new = false;
+                    if($new == null) $new = false;
+                    if($new == '') $new = false;
+                    //console.log('siCheckbox@watch(checked)', $new,$old);
+                    
+                    $scope.selected = $new;
+                })
+            }
 
 
             $scope.toggleCheck = function($event){
@@ -91,6 +113,7 @@ siApp
             $scope.compareModelToValue = function(){
                 if($scope.model == null){
                     $scope.selected = false;
+                    return;
                 }
 
                 $timeout(function(){
@@ -105,10 +128,19 @@ siApp
                         $scope.selected = $scope.model == $scope.checkedValue;
                     }
                 });
+
             }
 
             $scope.isSelected = function(){
-                if (Array.isArray($scope.model)){
+                
+                if($scope.model === undefined || $scope.model === null){
+                    
+                    if($scope.checked == undefined) return false;
+                    //console.log('siCheckbox/isSelected', $scope.model, $scope.checked);
+                    return $scope.checked;
+
+                }
+                else if (Array.isArray($scope.model)){
                     if($scope.model.length > 0){
                         //console.log('checkbox:compareModelToValue', $scope.model, $scope.checkedValue);
                     }
@@ -118,6 +150,7 @@ siApp
                 else{
                     return $scope.model == $scope.checkedValue;
                 }
+
             }
         },
         template: '<div class="pretty p-icon p-pulse" ng-click="toggleCheck($event)">' +
@@ -212,7 +245,7 @@ siApp
                 if($value == undefined) return false;
                 if($scope.model == null) return false;
                 if(!Array.isArray($scope.model)) return false;
-
+                //console.log('hasValue', $value, 'in', $scope.model);
                 return $scope.model.includes($value);
             }
 
@@ -522,59 +555,73 @@ siApp
         replace: true,
         template: '<div class="si-select-child si-option"><si-checkbox si-checked="isChecked()" ng-show="showCheckbox()"></si-checkbox><div ng-transclude></div></div>',
         link: function($scope, $element, $attrs, $parentCtls){
-            
             const lValue = ($attrs.ngValue == undefined) ? $attrs.value : $parse($attrs.ngValue)($scope);
+            $scope.init(lValue,$parentCtls);
+        },
+        controller: function($scope,$rootScope,$element){
+            $scope.$parentControllers = null;
 
+            $scope.init = function($value, $parentCtls){
+                $scope.value = $value;
+                $scope.$parentControllers = $parentCtls;
+                $element[0].getValue = function(){ return $scope.value };
+                $element[0].getCaption = function(){
+                    return $q( function($resolve,$reject) {
+                        $timeout(function(){
+                            $resolve($element[0].innerText);
+                        });
+                    })
+                }
+
+                    
+                $element[0].addEventListener('click', function($event){
+                    
+                    $scope.$parentControllers.forEach( function($ctl) {
+                        if($ctl != null){
+                            if($ctl.allowMultipleSelection()){
+                                $event.stopPropagation();
+                                $event.preventDefault();
+
+                                $ctl.toggleValue($scope.value);
+                            }
+                            else{
+                                $ctl.selectValue($scope.value);
+                            }
+                            
+                        }
+                    });
+                
+
+                });
+                
+                $scope.$parentControllers.forEach(function($ctl){
+                    if($ctl != null){
+                        $ctl.addToChildList($element[0], $scope.value);
+                    }
+                })
+                
+            }
             $scope.showCheckbox = function(){
-                return $parentCtls.some( function($ctl) {
+                if($scope.$parentControllers == null) return false;
+
+                return $scope.$parentControllers.some( function($ctl) {
                     if($ctl != null){
                         return $ctl.allowMultipleSelection();
                     }
                 });
             }
             $scope.isChecked = function(){
-                return $parentCtls.some( function($ctl) {
+                if($scope.$parentControllers == null) return false;
+
+                return $scope.$parentControllers.some( ($ctl) => {
                     if($ctl != null){
-                        return $ctl.hasValue(lValue);
+                        const hasValue = $ctl.hasValue($scope.value);
+                        //console.log('isChecked', $scope.value, hasValue);
+                        return hasValue;
                     }
+                    return false;
                 });
             }
-            $element[0].getValue = function(){ return lValue };
-            $element[0].getCaption = function(){
-                return $q( function($resolve,$reject) {
-                    $timeout(function(){
-                        $resolve($element[0].innerText);
-                    });
-                })
-            }
-
-            $element[0].addEventListener('click', function($event){
-                
-                $parentCtls.forEach( function($ctl) {
-                    if($ctl != null){
-                        if($ctl.allowMultipleSelection()){
-                            $event.stopPropagation();
-                            $event.preventDefault();
-
-                            $ctl.toggleValue(lValue);
-                        }
-                        else{
-                            $ctl.selectValue(lValue);
-                        }
-                        
-                    }
-                });
-            
-
-            });
-            
-            $parentCtls.forEach(function($ctl){
-                if($ctl != null){
-                    $ctl.addToChildList($element[0], lValue);
-                }
-            })
-            
-
         }
     }
 }]);

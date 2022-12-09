@@ -15,11 +15,11 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
 
 
     $scope.init = function(){
-        console.log('publicCtrl/init');
+        //console.log('publicCtrl/init');
         
 
         if( document.readyState !== 'loading' ) {
-            console.log('publicCtrl/init :: ready');
+        //    console.log('publicCtrl/init :: ready');
             $rootScope.$broadcast('si/ready');
 
             if(siApp.$customExtensions!=undefined){
@@ -36,13 +36,13 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
         } 
         else {
             document.addEventListener('DOMContentLoaded', function(){
-                console.log('publicCtrl/init :: ready');
+                //console.log('publicCtrl/init :: ready');
                 $rootScope.$broadcast('si/ready');
             });
         }
 
         window.onload = function(){
-            console.log('publicCtrl/init :: load');
+            //console.log('publicCtrl/init :: load');
             $rootScope.$broadcast('si/load');
         }
         
@@ -105,7 +105,7 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
      * @param {object} $item 
      */
     $rootScope.formatPrice = function($item){
-        return $siUtils.formatPrice($item);
+        return $siUtils.formatPrice($item,undefined,'&nbsp;');
     }
 
     /**
@@ -168,13 +168,15 @@ function staticDataCtrl($scope, $rootScope,$siDictionary, $siUtils,$siHooks,$ele
 siApp
 .controller('singleListingCtrl', 
 function singleListingCtrl(
-        $scope,$rootScope,$element, $q,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
+        $scope,$rootScope,$element, $q,$filter,$siApi, $siDictionary, $siUtils,$siConfig, $sce, 
         $siHooks,$siFavorites,$siShare, $siCompiler,$siDataLayer){
     // model data container - listing
     $scope.model = null;
     $scope.permalinks = null;
     $scope.configs = null;
-    
+    $scope.context = {
+        sending_message: false
+    }
     
     // ui - media tabs selector
     $scope.selected_media = 'pictures';
@@ -202,8 +204,6 @@ function singleListingCtrl(
             $scope.$loadingElement = lLoadingTextElement;
         }
 
-
-
         if($ref_number != undefined){
             //console.log($ref_number);
             $scope.fetchPrerequisites().then(function($prerequisits){
@@ -214,20 +214,26 @@ function singleListingCtrl(
                 
                 if($scope.model.status_code=='SOLD'){
                     document.body.classList.add('listing-single','listing-sold');
+                    $element[0].classList.add('listing-sold');
                 }
                 return;
             })
             .then(function(){
                 $rootScope.$broadcast('si/single:ready');
+              
 
                 if($scope.$loadingElement === undefined) return;
                 //$scope.$loadingElement.remove();
                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
                 $element[0].style.removeProperty('display');
+
+                
             });
+
         }
         else{
             $rootScope.$broadcast('si/single:ready');
+            
         }
 
         //$timeout(function(){
@@ -315,7 +321,8 @@ function singleListingCtrl(
 
                 $rootScope.$broadcast('si/model:ready');
 
-                $siDataLayer.pushEvent('si/listing/view', {id: $scope.model.ref_number});
+                $siDataLayer.pushEvent('si/listing/view', {id: $scope.model.ref_number, trackType: 'listing'});
+                // $rootScope.$broadcast('si/trigger-event',{event: 'listing/view', eventGroup: 'access', itemId: $ref_number});
             })
             // print data to console for further informations
             //console.log($scope.model);
@@ -326,15 +333,25 @@ function singleListingCtrl(
      * Preprocess data information to create shortcut, icon list and groups
      */
     $scope.preprocess = function(){
+
+        // Basic compilation from the compiler
+        $siCompiler.compileListingItem($scope.model);
+
+        // Limit picture if required
+        if($scope.model.status_code == 'SOLD'){
+            if($scope.configs.sold_image_limit > 0 && $scope.configs.sold_image_limit < $scope.model.photos.length){
+                $scope.model.photos = $scope.model.photos.slice(0,$scope.configs.sold_image_limit);
+            }
+        }
         // set basic information from dictionary
-        $scope.model.location.city      = $scope.getCaption($scope.model.location.city_code, 'city');
-        $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
-        $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
-        $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
-        $scope.model.location.district  = $scope.getCaption($scope.model.location.district_code, 'district');
-        $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
-        $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
-        $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);
+        // $scope.model.location.city      = $scope.getCaption($scope.model.location.city_code, 'city');
+        // $scope.model.location.region    = $scope.getCaption($scope.model.location.region_code, 'region');
+        // $scope.model.location.country   = $scope.getCaption($scope.model.location.country_code, 'country');
+        // $scope.model.location.state     = $scope.getCaption($scope.model.location.state_code, 'state');
+        // $scope.model.location.district  = $scope.getCaption($scope.model.location.district_code, 'district');
+        // $scope.model.category           = $scope.getCaption($scope.model.category_code, 'listing_category');
+        // $scope.model.subcategory        = $scope.getCaption($scope.model.subcategory_code, 'listing_subcategory');
+        // $scope.model.available_area_unit= $scope.getCaption($scope.model.available_area_unit_code, 'dimension_unit',true);
 
         $scope.model.addendum           = ($scope.model.addendum) ? $scope.model.addendum.trim() : null;
 
@@ -347,33 +364,33 @@ function singleListingCtrl(
                                             })
                                             : null;
         
-        if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
-            $scope.model.location.civic_address = '{0} {1}'.format(
-                $scope.model.location.address.street_number,
-                $scope.model.location.address.street_name
-            );
-        }
-        else if ($scope.model.location.address.street_name!=''){
-            $scope.model.location.civic_address = $scope.model.location.address.street_name;
-        }
-        else{
-            $scope.model.location.civic_address = '';
-        }
+        // if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
+        //     $scope.model.location.civic_address = '{0} {1}'.format(
+        //         $scope.model.location.address.street_number,
+        //         $scope.model.location.address.street_name
+        //     );
+        // }
+        // else if ($scope.model.location.address.street_name!=''){
+        //     $scope.model.location.civic_address = $scope.model.location.address.street_name;
+        // }
+        // else{
+        //     $scope.model.location.civic_address = '';
+        // }
 
-        if($scope.model.location.civic_address != ''){
-            $scope.model.location.full_address = '{0} {1}, {2}'.format(
-                $scope.model.location.address.street_number,
-                $scope.model.location.address.street_name,
-                $scope.model.location.city
-            );
+        // if($scope.model.location.civic_address != ''){
+        //     $scope.model.location.full_address = '{0} {1}, {2}'.format(
+        //         $scope.model.location.address.street_number,
+        //         $scope.model.location.address.street_name,
+        //         $scope.model.location.city
+        //     );
 
-            if(!isNullOrEmpty($scope.model.location.address.door) && typeof  $scope.model.location.address.door != 'undefined'){
-                $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().format( $scope.model.location.address.door);
-            }
-        }
-        else{
-            $scope.model.location.full_address = $scope.model.location.city;
-        }
+        //     if(!isNullOrEmpty($scope.model.location.address.door) && typeof  $scope.model.location.address.door != 'undefined'){
+        //         $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().format( $scope.model.location.address.door);
+        //     }
+        // }
+        // else{
+        //     $scope.model.location.full_address = $scope.model.location.city;
+        // }
         
         
         $scope.model.building.attributes = [];
@@ -392,7 +409,7 @@ function singleListingCtrl(
         }
 
         if($scope.model.available_area){
-            const lAvailableAreaStr = $scope.model.available_area + ' ' + $scope.model.available_area_unit;
+            const lAvailableAreaStr = $filter('number')($scope.model.available_area) + ' ' + $scope.model.available_area_unit;
             $scope.model.important_flags.push({icon: 'vector-square',value: lAvailableAreaStr , caption: 'Available area'.translate() })
         }
 
@@ -474,6 +491,7 @@ function singleListingCtrl(
         });
 
         // rooms
+        
         $scope.model.rooms.forEach(function($r){
             $r.category = $siDictionary.getCaption({src:$r, key:'category_code'},'room_category');
             $r.level_category = $siDictionary.getCaption({src:$r, key: 'level_category_code'}, 'level_category');
@@ -543,6 +561,10 @@ function singleListingCtrl(
      * @param {number} $calculatorResult Result that comes out of the calculator
      */
     $scope.onMortgageChange = function($calculatorResult){
+        if(($scope.calculator_result.mortgage != undefined  && $scope.calculator_result.mortgage.mortgage > 25000) && $scope.calculator_result.mortgage.payment != $calculatorResult.mortgage.payment){
+            $siDataLayer.pushEvent('si/calcutor/use',Object.assign($calculatorResult,{id: $scope.model.ref_number, trackType: 'listing'}));
+        }
+
         // save result
         $scope.calculator_result = $calculatorResult;
     }
@@ -566,7 +588,7 @@ function singleListingCtrl(
         if(lSent!==true){
             let lDestEmails = $scope.model.brokers.map(function($e) {return $e.email});
             lDestEmails = $siHooks.filter('single-listing-message-emails', lDestEmails, $scope.model.brokers);
-            
+            $scope.context.sending_message = true;
             lMessage = {
                 type: 'information_request',
                 metadata: {
@@ -578,10 +600,23 @@ function singleListingCtrl(
                 data: $scope.message_model
             }
 
-            $siApi.rest('message', {params:lMessage}).then(function($response){
-                $scope.request_sent = true;
-                $siDataLayer.pushEvent('si/formSubmit', lMessage);
+            $siApi.rest('message/prepare', {data: $scope.message_model}).then( $hash => {
+                lMessage._hash = $hash;
+                $siApi.rest('message', {params:lMessage}).then(
+                    function($response){
+                        $scope.context.sending_message = false;
+                        if($response.error != undefined){
+                            alert($response.error.translate());
+                            return;
+                        }
+
+                        $scope.request_sent = true;
+                        $siDataLayer.pushEvent('si/formSubmit', Object.assign(lMessage,{id: $scope.model.ref_number, trackType: 'listing'}));
+                        // $rootScope.$broadcast('si/trigger-event',{event: 'info-request', eventGroup: 'form', itemId: $scope.model.ref_number});
+                    }
+                )
             })
+            
         }
     }
 
@@ -601,7 +636,8 @@ function singleListingCtrl(
         const lPrintLinkFinal = '/' + lPrintLink.join('/') + '/' + lPermalinkParts[lPermalinkParts.length - 1] + window.location.search;
         //console.log('print', lPrintLinkFinal);
         window.open(lPrintLinkFinal);
-        $siDataLayer.pushEvent('si/listing/print', {id: $scope.model.ref_number});
+        $siDataLayer.pushEvent('si/listing/print', {id: $scope.model.ref_number, trackType: 'listing'});
+        // $rootScope.$broadcast('si/trigger-event',{event: 'print', eventGroup: 'access', itemId: $scope.model.ref_number});
     }
 
     $scope.hasDimension = function($dimension){
@@ -609,8 +645,9 @@ function singleListingCtrl(
     }
 
     $scope.shareTo = function($social_media){
-        $siDataLayer('si/share', $social_media);
+        $siDataLayer.pushEvent('si/share', Object.assign($social_media,{id:$scope.model.ref_number, trackType: 'listing'}));
         $siShare.execute($social_media);
+        // $rootScope.$broadcast('si/trigger-event',{event: 'share', eventGroup: 'social', itemId: $scope.model.ref_number});
     }
 
     $scope.hasListOf = function($type){
@@ -647,6 +684,9 @@ siApp
 function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks,$siDataLayer){
     $scope.filter_keywords = '';
     $scope.message_model = {};
+    $scope.context = {
+        sending_message: false
+    }
 
     // model data container - broker
     $scope.model = null;
@@ -675,6 +715,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                 return $scope.loadSingleData($ref_number);
             })
             .then(function(){
+                
                 if($scope.$loadingElement === undefined) return;
                 $scope.$loadingElement.parentElement.removeChild($scope.$loadingElement);
 
@@ -770,7 +811,8 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
             //console.log($scope.model);
 
             
-            $siDataLayer.pushEvent('si/broker/view', {id: $scope.model.ref_number});
+            $siDataLayer.pushEvent('si/broker/view', {id: $scope.model.ref_number, trackType: 'broker'});
+            // $rootScope.$broadcast('si/trigger-event',{event: 'broker/view', eventGroup: 'access', itemId: $scope.model.ref_number});
         });
     }
 
@@ -935,11 +977,24 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                 data: $scope.message_model
             }
 
-            $siApi.rest('message', {params:lMessage}).then(function($response){
-                $scope.request_sent = true;
+            $siApi.rest('message/prepare', {data: $scope.message_model}).then( $hash => {
+                lMessage._hash = $hash;
+                $siApi.rest('message', {params:lMessage}).then(
+                    function($response){
+                        $scope.context.sending_message = false;
+                        if($response.error != undefined){
+                            alert($response.error.translate());
+                            return;
+                        }
 
-                $siDataLayer.pushEvent('si/formSubmit', lMessage);
+                        $scope.request_sent = true;
+                        $siDataLayer.pushEvent('si/formSubmit', Object.assign(lMessage,{id: $scope.model.ref_number, trackType: 'broker'}));
+                        // $rootScope.$broadcast('si/trigger-event',{event: 'info-request', eventGroup: 'form', itemId: $scope.model.ref_number});
+                    }
+                )
             })
+
+            
         }
     }
 
@@ -966,6 +1021,9 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
 
     // model data container - office
     $scope.model = null;
+    $scope.context = {
+        sending_message: false
+    }
 
     /**
      * Initialize controller
@@ -1043,7 +1101,8 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
             // print data to console for further informations
             //console.log($scope.model);
 
-            $siDataLayer.pushEvent('si/office/view', {id: $scope.model.ref_number});
+            $siDataLayer.pushEvent('si/office/view', {id: $scope.model.ref_number,trackType: 'office'});
+            // $rootScope.$broadcast('si/trigger-event',{event: 'office/view', eventGroup: 'access', itemId: $scope.model.ref_number});
         });
     }
 
@@ -1079,10 +1138,23 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
                 data: $scope.message_model
             }
 
-            $siApi.rest('message', {params:lMessage}).then(function($response){
-                $scope.request_sent = true;
-                $siDataLayer.pushEvent('si/formSubmit', lMessage);
+            $siApi.rest('message/prepare', {data: $scope.message_model}).then( $hash => {
+                lMessage._hash = $hash;
+                $siApi.rest('message', {params:lMessage}).then(
+                    function($response){
+                        $scope.context.sending_message = false;
+                        if($response.error != undefined){
+                            alert($response.error.translate());
+                            return;
+                        }
+
+                        $scope.request_sent = true;
+                        $siDataLayer.pushEvent('si/formSubmit', Object.assign(lMessage,{id: $scope.model.ref_number, trackType: 'office'}));
+                        // $rootScope.$broadcast('si/trigger-event',{event: 'info-request', eventGroup: 'form', itemId: $scope.model.ref_number});
+                    }
+                )
             })
+
         }
     }
 });
@@ -1096,7 +1168,9 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
  
      // model data container - office
      $scope.model = null;
- 
+     $scope.context = {
+        sending_message: false
+    }
      /**
       * Initialize controller
       * @param {string} $ref_number broker reference key
@@ -1173,7 +1247,8 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
              // print data to console for further informations
              //console.log($scope.model);
 
-             $siDataLayer.pushEvent('si/agency/view', {id: $scope.model.ref_number});
+             $siDataLayer.pushEvent('si/agency/view', {id: $scope.model.ref_number, trackType: 'agency'});
+            //  $rootScope.$broadcast('si/trigger-event',{event: 'office/view', eventGroup: 'access', itemId: $scope.model.ref_number});
          });
      }
  
@@ -1208,12 +1283,23 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
                 destination: lDestEmails,
                 data: $scope.message_model
             }
+            $siApi.rest('message/prepare', {data: $scope.message_model}).then( $hash => {
+                lMessage._hash = $hash;
+                $siApi.rest('message', {params:lMessage}).then(
+                    function($response){
+                        $scope.context.sending_message = false;
+                        if($response.error != undefined){
+                            alert($response.error.translate());
+                            return;
+                        }
 
-            $siApi.rest('message', {params:lMessage}).then(function($response){
-                $scope.request_sent = true;
-                
-                $siDataLayer.pushEvent('si/formSubmit', lMessage);
+                        $scope.request_sent = true;
+                        $siDataLayer.pushEvent('si/formSubmit', Object.assign(lMessage,{id: $scope.model.ref_number, trackType: 'agency'}));
+                        // $rootScope.$broadcast('si/trigger-event',{event: 'info-request', eventGroup: 'form', itemId: $scope.model.ref_number});
+                    }
+                )
             })
+
         }
     }
  });

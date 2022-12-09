@@ -19,7 +19,6 @@ foreach ($data as $item) {
 }
 ?>
 
-CONTACTEZ CETTE PERSONNE SANS TARDER!
 
 Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.
 
@@ -51,7 +50,6 @@ Content-Transfer-Encoding: 7bit
                         ?>
                     </table>
 
-                    <h3>CONTACTEZ CETTE PERSONNE SANS TARDER!</h3>
                     <p>Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.</p>
                 </td>
             </tr>

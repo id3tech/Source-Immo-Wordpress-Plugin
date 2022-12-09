@@ -4,14 +4,15 @@ var siApp = angular
 		siContextInit();
 		//$locationProvider.html5Mode(true);
     });
-siApp.run(function(amMoment) {
+siApp.run(function(amMoment,$locale) {
 	amMoment.changeLocale(siCtx.locale);
+	if(siCtx.locale == 'fr') $locale.NUMBER_FORMATS.GROUP_SEP = " ";
 });
 
 siApp.addCustomExtension = function($key, $instance){
 	if(siApp.$customExtensions == undefined) siApp.$customExtensions = [];
 	if($instance.prototype instanceof SiCustomExtension){
-		console.log($key, 'is not a valid custom extension');
+		// console.log($key, 'is not a valid custom extension');
 		return;
 	}
 	

@@ -20,6 +20,38 @@ class SourceImmoApi {
     return file_get_contents(SI_PLUGIN_DIR . 'readme.md');
   }
 
+
+  public static function compile_hash_data($data){
+    $data = json_decode(json_encode($data));
+    $now = new DateTime();
+    //$data->expire = self::roundUpToMinuteInterval($now);
+    $dataHash = SHA1(json_encode($data));
+    $nonce = wp_create_nonce('si/rest/hash');
+    return $nonce . '::' . $dataHash;
+  }
+
+  public static function compare_hashset($source_hash, $compare_hash){
+    list($source_nonce,$source_hashData) = explode('::', $source_hash);
+    list($compare_nonce,$compare_hashData) = explode('::', $compare_hash);
+
+    if(!wp_verify_nonce($source_nonce,'si/rest/hash')){ 
+      error_log('nonce is not valid');
+      return false;
+    }
+
+    error_log($source_hashData . ' == ' . $compare_hashData);
+
+    return $source_hashData == $compare_hashData;
+  }
+
+  public static function roundUpToMinuteInterval(\DateTime $dateTime, $minuteInterval = 5){
+    return $dateTime->setTime(
+        $dateTime->format('H'),
+        ceil($dateTime->format('i') / $minuteInterval) * $minuteInterval,
+        0
+    );
+  }
+
   /**
    * Update page content
    * @static
@@ -216,6 +248,20 @@ class SourceImmoApi {
     return $lResult;
   }
 
+  /**
+   * Get pages list
+   * @static
+   * GET /si-rest/page/get
+   */
+  public static function get_page($request){
+    $page_name = $request->get_param('page');
+
+    $pageInfo = get_page_by_path($page_name);
+    if($pageInfo === null){
+      error_log('Unable to find page from ' . $page_name);
+    }
+    return $pageInfo;
+  }
 
   /**
   * Get a valid access token from the server
@@ -420,7 +466,7 @@ class SourceImmoApi {
 
 
 
-  public static function get_dictionary($request){
+  public static function get_dictionary($request=null){
     $account_id = SourceImmo::current()->get_account_id();
     $api_key = SourceImmo::current()->get_api_key();
 
@@ -429,7 +475,11 @@ class SourceImmoApi {
     $viewId = si_view_id(SourceImmo::current()->configs->default_view);
 
     $lAccessToken = self::get_access_token();
-    $lang = $request->get_param('lang');
+    $lang = null;
+    if($request != null){
+      $lang = $request->get_param('lang');
+    }
+    
     $lTwoLetterLocale = isset($lang) ? $lang : si_get_locale();
 
     $lResult = HttpCall::to('~','view', $viewId, $lTwoLetterLocale)
@@ -800,6 +850,14 @@ class SourceImmoApi {
   }
   
   /**
+   * Prepare an email message 
+   */
+  public static function prepare_message($request){
+    $data = $request->get_param('data');
+    return self::compile_hash_data($data);
+  }
+
+  /**
    * Send an email message 
    */
   public static function send_message($request){
@@ -807,7 +865,34 @@ class SourceImmoApi {
     $data = $params->data;
     $metadata = isset($params->metadata) ? $params->metadata : null ;
     $type = $params->type;
+    $ip  = $_SERVER["REMOTE_ADDR"];
+
+    if(!filter_var($data->email, FILTER_VALIDATE_EMAIL) ){
+      header('HTTP/1.0 403 Forbidden');
+      return ['error' => 'Email is not valid'];
+      die();
+    }
+    if(!filter_var($ip, FILTER_VALIDATE_IP) ){ 
+      header('HTTP/1.0 403 Forbidden');
+      return ['error' => 'IP valid'];
+      die();
+    }
+
+    if(!isset($params->_hash)) {
+      error_log('SOURCE.IMMO: Someone send a message without _hash');
+      header('HTTP/1.0 403 Forbidden');
+      return ['error' => 'The request was malformed'];
+      die();
+    }
+    if(!self::compare_hashset($params->_hash, self::compile_hash_data($data))) {
+      error_log('SOURCE.IMMO: Someone tried to hack the message');
+      return ['error' => 'The request was modified'];
+      header('HTTP/1.0 403 Forbidden');
+      die();
+    }
     
+
+
     $destination = $params->destination;
     if(is_array($params->destination)) $destination = implode(',',$params->destination);
     
@@ -820,7 +905,7 @@ class SourceImmoApi {
       $destination = $configs->form_recipient;
     }
     $from_name = str_null_or_empty($configs->form_from_name) ? 'Your website' : $configs->form_from_name;
-    $from_address = str_null_or_empty($configs->form_from_address) ? 'no-reply@' . $_SERVER['HTTP_HOST'] :  $configs->form_from_address;
+    $from_address = str_null_or_empty($configs->form_from_address) ? get_option('admin_email') :  $configs->form_from_address;
 
     $labels = array(
       'firstname' => __('First name',SI),
@@ -848,19 +933,30 @@ class SourceImmoApi {
 
 
     // send email to destination
-    $headers = implode("\r\n", array(
+    $headerArr = array(
       'From: ' . $from_address,
-      'FromName: ' . $from_name,
-      'Content-Type: multipart/alternative; boundary="PHP-alt-' .$random_hash. '"'
-    ));
-    $lResult = mail($destination,$data->subject,$email_body,$headers);
+      'FromName: ' . $from_name
+    );
+    if(isset($data->email)){
+      $headerArr[] = 'Reply-To: ' . $data->email;
+    }
+    $headerArr[] = 'Content-Type: multipart/alternative; boundary="PHP-alt-' .$random_hash. '"';
 
-    return array(
-      'sent' => $lResult,
+    $headers = implode("\r\n", $headerArr);
+    $mailResult = mail($destination,$data->subject,$email_body,$headers);
+
+    $result = [
+      'sent' => $mailResult,
       'to' => $destination,
       'from' => $from_address,
       'from_name' => $from_name
-    );
+    ];
+
+    if($mailResult === false){
+      $result = ['error' => error_get_last()['message']];
+    }
+
+    return $result;
   }
 
   /*
@@ -1210,6 +1306,24 @@ class SourceImmoApi {
    * @static
    */
   static function _register_message_routes(){
+
+    register_rest_route( 'si-rest','/message/prepare',
+      array(
+        array(
+          'methods' => WP_REST_Server::CREATABLE,
+          'permission_callback' => ['SourceImmoApi','public_permission_callback'],
+          'callback' => array( 'SourceImmoApi', 'prepare_message' ),
+          'args' => array(
+            'data' => array(
+              'required' => true,
+              'type' => 'Object',
+              'description' => __( 'Message information', SI ),
+            )
+          )
+        ), // End POST
+      )
+    );
+
     //Write message
     register_rest_route( 'si-rest','/message',
       array(
@@ -1338,6 +1452,21 @@ class SourceImmoApi {
             'required' => true,
             'type' => 'String',
             'description' => __( 'Page ID', SI ),
+          )
+        )
+      )
+    );
+
+    register_rest_route( 'si-rest','/page/get',
+      array(
+        'methods' => WP_REST_Server::READABLE,
+        'permission_callback' => ['SourceImmoApi','public_permission_callback'],
+        'callback' => array( 'SourceImmoApi', 'get_page' ),
+        'args' => array(
+          'page' => array(
+            'required' => true,
+            'type' => 'String',
+            'description' => __( 'Page name', SI ),
           )
         )
       )

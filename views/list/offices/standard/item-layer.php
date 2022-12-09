@@ -28,5 +28,5 @@
 
 
 <div class="si-item-link-button">
-    <span class="si-button"><?php echo($linkButtonLabel)?></span>
+    <span class="si-button"><span><?php echo($linkButtonLabel)?></span></span>
 </div>

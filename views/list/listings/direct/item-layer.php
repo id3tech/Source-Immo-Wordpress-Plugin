@@ -38,11 +38,11 @@ if(isset($item->rooms)){?>
 <div class="open-houses" <?php layoutAllowVar('open-houses', $configs->list_item_layout,$layerName) ?>>
     <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
     <div class="open-house-item">
-        <i class="fal fa-calendar-alt"></i> <?php echo(apply_filters('si_label', __('Open house', SI))) ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
+        <i class="fal fa-calendar-alt"></i> <?php si_label('Open house') ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
     </div>
     <?php } ?>
 </div>
 
 <div class="si-item-link-button">
-    <span class="si-button"><?php echo($linkButtonLabel)?></span>
+    <span class="si-button"><span><?php echo($linkButtonLabel)?></span></span>
 </div>

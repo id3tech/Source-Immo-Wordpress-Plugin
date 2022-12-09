@@ -1,0 +1,32 @@
+
+Todo:
+  
+  WORDPRESS 6:
+    ☐ Block editor
+      ☐ Liste configurable (item sélectionnable, condition)
+      ☐ Carousel
+      ☐ Bloque de détails (pour la fiche)
+
+  PLUGINS:
+    ✔ Webcounter @done(22-07-14 14:37)
+
+
+  LISTE:
+    ☐ Split view (carte | liste)
+    ☐ Comparaison des propriétés
+    ☐ Favoris
+  
+  FICHE:
+    Propriété:
+      ☐ Alerte immobilière "Avertissez-moi quand d'autre propriétés de ce genre entre sur le marché"
+        ☐ Raffiner les critères
+        ☐ Push notification
+        ☐ Email
+      ☐ Calculatrice visuel
+    Courtier:
+      ☐ Présentation vidéo (bouton et/ou icone sur la photo du courtier)
+      ☐ Liens: Choisir entre un lien website à part OU l'icone avec la liste
+
+  THEME SUPPORTS:
+    ✔ Avada Fusion Builder 1.9 @done(22-07-12 10:33)
+    ✔ Enfold 5.0.1 @done(22-07-12 15:33)

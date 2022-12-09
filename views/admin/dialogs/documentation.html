@@ -1,0 +1,73 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2><lstr>Source.Immo plugin documentation</lstr></h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+
+<md-dialog-content>
+    
+    <div class="md-dialog-content" >
+        <div class="si-search-container">
+            <input ng-model="search.text" placeholder="{{'Filter shortcodes and hooks'.translate()}}">
+            <i class="fal fa-search"></i>
+        </div>
+
+        <div class="section" ng-if="(shortcodes | filter: search.text).length > 0">
+            <h3 lstr>Shortcodes</h3>
+            <div class="section-description" ng-if="search.text == ''">
+                <p lang="fr">Liste des shortcodes disponibles. Cliquez pour mettre le code dans votre presse-papier.</p>
+                <p lang="en">List of available shortcodes. Click to put the code in your clipboard.</p>
+            </div>
+            <div class="si-list">
+                <div class="si-list-item" ng-repeat="item in shortcodes | filter: search.text track by $index" ng-click="copyToClipboard(item.code)">
+                    <div class="si-item-name">{{item.name.translate()}}</div>
+                    <div class="si-item-description">{{item.description.translate()}}</div>
+                    <div class="si-item-actions">
+                        <md-button class="md-icon-button"><i class="fal fa-copy"></i></md-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" ng-if="(hooks | filter: search.text).length > 0">
+            <h3 lstr>Hooks</h3>
+            <div class="section-description" ng-if="search.text == ''">
+                <p lang="fr">Liste des crochets disponibles. Cliquez pour mettre le code dans votre presse-papiers.</p>
+                <p lang="en">List of available hooks. Click to put the code in your clipboard.</p>
+            </div>
+
+            <div class="si-list">
+                <div class="si-list-item" ng-repeat="item in hooks | filter: search.text track by $index" ng-click="copyToClipboard(getHookCode(item))">
+                    <div class="si-item-name">{{item.name.translate()}}</div>
+                    <div class="si-item-description">{{item.description.translate()}}</div>
+                    <div class="si-item-actions">
+                        <md-button class="md-icon-button"><i class="fal fa-copy"></i></md-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="section" ng-if="search.text == ''">
+            <h3 lstr>Templates override</h3>
+            <p lang="fr">Vous pouvez remplacer la plupart des éléments de mise en page en incluant un dossier spécial dans le répertoire du thème actif. Le nom du dossier doit être <em>source-immo</em> et le modèle que vous souhaitez remplacer doit respecter le chemin de répertoire correspondant à ce plugin.</p>
+            <p lang="fr">Exemple: vous souhaitez remplacer la disposition de la carte dans la liste des courtiers. Dans le répertoire du thème actif, ajoutez le fichier <em>source-immo/views/list/brokers/standard/item-standard.php</em> et bon codage.</p>
+            <p lang="fr">Petit conseil, pour vous éviter les casse-têtes, copiez le fichier d'origine dans votre répertoire de thème et modifiez-le.</p>
+
+            <p lang="en">You can overrides most of the items layout by including a special folder in the active theme directory. The folder name must be <em>source-immo</em> and the template you wish to overrides must respect the directory path from this plugin.</p>
+            <p lang="en">Example: You want to overrides the list item layout for the brokers. In the active theme directory, add the file <em>source-immo/views/list/brokers/standard/item-standard.php</em> and happy coding.</p>
+            <p lang="en">Small advice, to avoid most trouble, copy the original file to your theme directory and modify it.</p>
+        </div>
+    </div> 
+
+</md-dialog-content>
+
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

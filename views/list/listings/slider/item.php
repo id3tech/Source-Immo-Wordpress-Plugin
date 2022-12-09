@@ -21,6 +21,6 @@
     </div>
 
     <div class="link slide-data from-bottom" style="--delay:0.75s">
-        <a href="{{item.permalink}}" class="button"><?php echo(apply_filters('si_label', __('Details', SI))) ?></a>
+        <a href="{{item.permalink}}" class="si-button"><span><?php si_label('Details') ?></span></a>
     </div>
 </div>

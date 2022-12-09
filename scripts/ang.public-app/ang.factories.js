@@ -59,6 +59,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     }
 
     $scope.rest = function($path, $data, $options){
+
         return $scope.rest_call($path, $data, $options);
     }
 
@@ -311,6 +312,7 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
     }
 
     $scope.rest_call = function($path, $data, $options){
+
         $options = angular.merge({
             url     : siApiSettings.rest_root + 'si-rest/' + $path,
             method  : (typeof($data)=='undefined' || $data==null) ? 'GET' : 'POST',
@@ -397,6 +399,150 @@ function $siApi($http,$q,$siConfig,$rootScope,$siUtils){
         return lResult.value;
     }
 
+
+    /**
+    * Secure Hash Algorithm (SHA1)
+    * http://www.webtoolkit.info/
+    **/
+    $scope.SHA1 = function(msg) {
+        function rotate_left(n, s) {
+            var t4 = (n << s) | (n >>> (32 - s));
+            return t4;
+        };
+        function lsb_hex(val) {
+            var str = '';
+            var i;
+            var vh;
+            var vl;
+            for (i = 0; i <= 6; i += 2) {
+                vh = (val >>> (i * 4 + 4)) & 0x0f;
+                vl = (val >>> (i * 4)) & 0x0f;
+                str += vh.toString(16) + vl.toString(16);
+            }
+            return str;
+        };
+        function cvt_hex(val) {
+            var str = '';
+            var i;
+            var v;
+            for (i = 7; i >= 0; i--) {
+                v = (val >>> (i * 4)) & 0x0f;
+                str += v.toString(16);
+            }
+            return str;
+        };
+        function Utf8Encode(string) {
+            string = string.replace(/\r\n/g, '\n');
+            var utftext = '';
+            for (var n = 0; n < string.length; n++) {
+                var c = string.charCodeAt(n);
+                if (c < 128) {
+                    utftext += String.fromCharCode(c);
+                } else if ((c > 127) && (c < 2048)) {
+                    utftext += String.fromCharCode((c >> 6) | 192);
+                    utftext += String.fromCharCode((c & 63) | 128);
+                } else {
+                    utftext += String.fromCharCode((c >> 12) | 224);
+                    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                    utftext += String.fromCharCode((c & 63) | 128);
+                }
+            }
+            return utftext;
+        };
+        var blockstart;
+        var i,
+            j;
+        var W = new Array(80);
+        var H0 = 0x67452301;
+        var H1 = 0xEFCDAB89;
+        var H2 = 0x98BADCFE;
+        var H3 = 0x10325476;
+        var H4 = 0xC3D2E1F0;
+        var A,
+            B,
+            C,
+            D,
+            E;
+        var temp;
+        msg = Utf8Encode(msg);
+        var msg_len = msg.length;
+        var word_array = new Array();
+        for (i = 0; i < msg_len - 3; i += 4) {
+            j = msg.charCodeAt(i) << 24 | msg.charCodeAt(i + 1) << 16 | msg.charCodeAt(i + 2) << 8 | msg.charCodeAt(i + 3);
+            word_array.push(j);
+        }
+        switch (msg_len % 4) {
+            case 0: i = 0x080000000;
+                break;
+            case 1: i = msg.charCodeAt(msg_len - 1) << 24 | 0x0800000;
+                break;
+            case 2: i = msg.charCodeAt(msg_len - 2) << 24 | msg.charCodeAt(msg_len - 1) << 16 | 0x08000;
+                break;
+            case 3: i = msg.charCodeAt(msg_len - 3) << 24 | msg.charCodeAt(msg_len - 2) << 16 | msg.charCodeAt(msg_len - 1) << 8 | 0x80;
+                break;
+        }
+        word_array.push(i);
+        while ((word_array.length % 16) != 14) 
+            word_array.push(0);
+
+        word_array.push(msg_len >>> 29);
+        word_array.push((msg_len << 3) & 0x0ffffffff);
+        for (blockstart = 0; blockstart < word_array.length; blockstart += 16) {
+            for (i = 0; i < 16; i++) 
+                W[i] = word_array[blockstart + i];
+            
+            for (i = 16; i <= 79; i++) 
+                W[i] = rotate_left(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+            
+            A = H0;
+            B = H1;
+            C = H2;
+            D = H3;
+            E = H4;
+            for (i = 0; i <= 19; i++) {
+                temp = (rotate_left(A, 5) + ((B & C) | (~ B & D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+                E = D;
+                D = C;
+                C = rotate_left(B, 30);
+                B = A;
+                A = temp;
+            }
+            for (i = 20; i <= 39; i++) {
+                temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+                E = D;
+                D = C;
+                C = rotate_left(B, 30);
+                B = A;
+                A = temp;
+            }
+            for (i = 40; i <= 59; i++) {
+                temp = (rotate_left(A, 5) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+                E = D;
+                D = C;
+                C = rotate_left(B, 30);
+                B = A;
+                A = temp;
+            }
+            for (i = 60; i <= 79; i++) {
+                temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+                E = D;
+                D = C;
+                C = rotate_left(B, 30);
+                B = A;
+                A = temp;
+            }
+            H0 = (H0 + A) & 0x0ffffffff;
+            H1 = (H1 + B) & 0x0ffffffff;
+            H2 = (H2 + C) & 0x0ffffffff;
+            H3 = (H3 + D) & 0x0ffffffff;
+            H4 = (H4 + E) & 0x0ffffffff;
+        }
+        var temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+
+        return temp.toLowerCase();
+
+   }
+
     return $scope;
 }]);
 
@@ -427,6 +573,12 @@ function $siDictionary($q,$rootScope){
         })
 
         $rootScope.$broadcast('$siDictionary/init',$source,$view_id);
+
+        Object.keys($scope.source).forEach( k => {
+            //console.log('broadcasting', k);
+            $rootScope.$broadcast('si/dictionary/' + k, $scope.count(k));
+        })
+        
         //$scope.sortData();
     }
 
@@ -555,6 +707,11 @@ function $siDictionary($q,$rootScope){
 }]);
 
 siApp
+.factory('$siLexicon', ['$q','$rootScope', function($q,$rootScope){
+    return new SourceImmoLexicon();
+}]);
+
+siApp
 .factory('$siList', [
   '$siApi','$siDictionary','$rootScope',
   function $siList($siApi,$siDictionary, $rootScope){
@@ -655,8 +812,8 @@ siApp
 
 
 siApp
-.factory('$siCompiler', ['$siConfig','$siList', '$siUtils',
-function $siCompiler($siConfig,$siList, $siUtils){
+.factory('$siCompiler', ['$siConfig','$siList', '$siUtils','$siLexicon',
+function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
     const $scope = {};
 
     /**
@@ -675,7 +832,8 @@ function $siCompiler($siConfig,$siList, $siUtils){
     $scope.compileListingItem = function($item){
         
         if($item.category == undefined){
-            
+            $item.counters = {};
+
             $item.location.city = ($item.location.city != undefined) ? $item.location.city : $siUtils.getCaption($item.location.city_code, 'city');
             $item.location.region = $siUtils.getCaption($item.location.region_code, 'region');
             $item.location.district  = $siUtils.getCaption($item.location.district_code, 'district');
@@ -683,17 +841,37 @@ function $siCompiler($siConfig,$siList, $siUtils){
             $item.category = $siUtils.getCaption($item.category_code, 'listing_category');
             $item.transaction = $siUtils.getTransaction($item);
             
+            let doorType = $siLexicon.get('apt.'.translate());
+            if(['COM','IND'].includes($item.category_code)){
+                doorType = $siLexicon.get('suite'.translate());
+            }
+
             $item.short_price = $siUtils.formatPrice($item);
             $item.location.civic_address = '{0} {1}'.format(
-                                                        $item.location.address.street_number,
+                                                        $item.location.address.street_number || '',
                                                         $item.location.address.street_name
                                                     ).trim();
             if(!isNullOrEmpty($item.location.address.door)){
-                $item.location.civic_address += ', ' + 'apt. {0}'.translate().format($item.location.address.door);
+                $item.location.civic_address += ', ' + '{1} {0}'.format($item.location.address.door,doorType);
+            }
+
+            if($item.location.civic_address != ''){
+                $item.location.full_address = '{0} {1}, {2}'.format(
+                    $item.location.address.street_number || '',
+                    $item.location.address.street_name,
+                    $item.location.city
+                );
+
+                if(!isNullOrEmpty($item.location.address.door) && typeof  $item.location.address.door != 'undefined'){
+                    $item.location.full_address += ', ' + '{1} {0}'.format( $item.location.address.door, doorType);
+                }
+            }
+            else{
+                $item.location.full_address = $item.location.city;
             }
             
             if(!isNullOrEmpty($item.available_area)){
-                $item.available_area_unit = $siUtils.getCaption($item.available_area_unit_code,'dimension_unit');
+                $item.available_area_unit = $siUtils.getCaption($item.available_area_unit_code,'dimension_unit',true);
             }
 
             $scope.compileListingRooms($item);
@@ -730,16 +908,19 @@ function $siCompiler($siConfig,$siList, $siUtils){
             Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
         }
 
+        $item.fullname = $item.first_name + ' ' + $item.last_name;
+        if($item.office_ref_number != undefined){
+            $officeList = $siList.getOfficeList();
+            $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
+            $scope.compileOfficeItem($item.office);
+        }
+
+        if($item.license_type==undefined){
+            $item.license_type = $siLexicon.get($siUtils.getCaption($item.license_type_code, 'broker_license_type'));
+        }
 
         if($item.permalink == undefined){
-            $item.license_type = $siUtils.getCaption($item.license_type_code, 'broker_license_type');
             $item.permalink = $siUtils.getPermalink($item,'broker');
-            
-            if($item.office_ref_number != undefined){
-                $officeList = $siList.getOfficeList();
-                $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
-                $scope.compileOfficeItem($item.office);
-            }
         }
 
         $scope.compileLinks($item);
@@ -768,13 +949,13 @@ function $siCompiler($siConfig,$siList, $siUtils){
                 'waterroom_count' : 'Powder rooms'
             }
 
-            $item.rooms = {};
+            $item.counters.rooms = {};
 
             Object.keys($item.main_unit).forEach(function($k){
                 if($item.main_unit[$k] > 0){
                     const lLabel = $item.main_unit[$k] > 1 ? lPluralLabelRef[$k] : lLabelRef[$k];
                     
-                    if(typeof lIconRef[$k] != 'undefined') $item.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
+                    if(typeof lIconRef[$k] != 'undefined') $item.counters.rooms[lIconRef[$k]] = {count : $item.main_unit[$k], label : lLabel};
                 }
             });
         }
@@ -880,8 +1061,8 @@ function $siCompiler($siConfig,$siList, $siUtils){
 }]);
 
 siApp
-.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate' , '$siConfig', '$siHooks', '$q',
-function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q){
+.factory('$siUtils', ['$siDictionary', '$siTemplate', '$interpolate','$sce', '$siConfig', '$siHooks', '$q', '$siLexicon',
+function $siUtils($siDictionary,$siTemplate, $interpolate, $sce, $siConfig,$siHooks,$q, $siLexicon){
     let $scope = {};
     $scope.page_list = [];
 
@@ -910,7 +1091,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
      * @return {string} Caption matched or the key in case the something's missing or went wrong
      */
     $scope.getCaption = function($key, $domain, $asAbbr){
-        return $siDictionary.getCaption($key,$domain,$asAbbr);
+        return $siLexicon.get($siDictionary.getCaption($key,$domain,$asAbbr));
     }
 
     $scope.formatPhone = function($phone, $format=null){
@@ -918,7 +1099,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
 
         const match = cleaned.match(/^(\d{10})$/)
         if (match) {
-            const phone_format = $format || $siConfig._data.phone_format || '000-000-0000';
+            const phone_format = $siLexicon.get($format || $siConfig._data.phone_format || '000-000-0000');
             let digitIndex = 0;
             $phone = phone_format.split('').reduce( ( $result, $char) => {
                 if($char === '0'){
@@ -941,7 +1122,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
         
         const lItem = $list.find(function($e){ return $e.key == $value});
         if(lItem == null) return '';
-        return lItem.label;
+        return $siLexicon.get(lItem.label);
     }
 
     $scope.timeLength = function($value){
@@ -966,18 +1147,26 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
      * @param {object} $item Listing data object
      * @param {string} $format Return format. Supported values short|long
      */
-    $scope.formatPrice = function($item, $format){
+    $scope.formatPrice = function($item, $format,$empty=''){
         $format = $format!=undefined ? $format : 'short';
+        
 
         let lResult = [];
         if($item.status_code=='SOLD'){
-            if($item.price.sell != undefined){
-                lResult.push('Sold'.translate());
+            // when price.sell has value, it means the listing is sold
+            // ALSO, when there is neither price.sell or price.lease defined, we assume it's sold too
+            if($item.price.sell != undefined || ($item.price.sell == undefined && $item.price.lease == undefined) ){
+                lResult.push($siLexicon.get('Sold'.translate()));
             }
+            // Otherwise, it a rent
             else{
-                lResult.push('Rented'.translate());
+                lResult.push($siLexicon.get('Rented'.translate()));
             }
             return lResult.join('');
+        }
+
+        if($item.price.sell == undefined && $item.price.lease == undefined){
+            return $empty;
         }
 
         for(let $key in $item.price){
@@ -1260,6 +1449,20 @@ function $siUtils($siDictionary,$siTemplate, $interpolate,$siConfig,$siHooks,$q)
             if($item.virtual_tour_flag || $item.virtual_tour){
                 lHasFlags = true;
                 lResult.push('has-virtual-tour');
+            }
+
+            if($siConfig._data && $siConfig._data.new_item_time_limit > 0 ){
+                const date = ($item.contract && $item.contract.start_date) 
+                                ? $item.contract.start_date
+                                : $item.creation_date;
+                if(date != undefined){
+                    if(!moment(date).isValid()) console.log(date,'is not a valid date');
+
+                    if(moment(date).isAfter(moment().add(-1 * $siConfig._data.new_item_time_limit,'day'))){
+                        lHasFlags = true;
+                        lResult.push('is-new');
+                    }
+                }
             }
 
             if(lHasFlags){
@@ -1831,7 +2034,7 @@ function $siHooks($q){
     }
 
     $scope.addFilter = function($key, $func, $priority){
-        console.log('$siHooks/addFilter', $key);
+        //console.log('$siHooks/addFilter', $key);
 
         let lNewFilter = {key: $key, fn: $func};
         
@@ -2005,17 +2208,26 @@ siApp
     const $scope = {};
 
     $scope.init = function(){
-        $rootScope.$on('si/triggerEvent', function($event, $key, $data){
-            $scope.pushEvent($key, $data);
-        });
+        // $rootScope.$on('si/triggerEvent', function($event, $key, $data){
+        //     $scope.pushEvent($key, $data);
+        // });
 
-        $rootScope.$on('si/pushData', function($event, $data){
-            $scope.push($data);
-        });
+        // $rootScope.$on('si/pushData', function($event, $data){
+        //     $scope.push($data);
+        // });
     }
 
     $scope.push = function($data){
         //console.log('$siDataLayer/push', $data);
+        let eventGroup = 'access';
+        if($data.event.includes('form')) eventGroup = 'form';
+
+        $data = Object.assign($data,{
+            eventGroup: eventGroup
+        });
+
+        $rootScope.$broadcast('siDataLayer/push-event',$data);
+
         if(window.dataLayer == undefined) return;
         if(!Array.isArray(window.dataLayer)) return;
 

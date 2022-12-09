@@ -11,6 +11,18 @@ siAdminDirectiveTemplatePath = function($path, $useTimeVersioning){
 // siApp
 // .directive('siAutocomplete')
 
+siApp
+.directive('siClickScope', function siClickScope(){
+  return {
+    restrict: 'A',
+    link: function($scope,$element,$attr){
+      $element[0].addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      });
+    }
+  }
+})
 
 siApp
 .directive('lstr', ['$parse','$compile','$timeout', function lstr($parse,$compile,$timeout){
@@ -190,12 +202,96 @@ siApp
       $element[0].style.gap = gap + 'rem';
     }
   }
+});
+
+siApp
+.directive('siWorkingState', function siWorkingState(){
+  return {
+    restrict: 'E',
+    replace:true,
+    template: `
+    <div class="si-working-state {{model.class}}" ng-init="init()">
+      <div class="state-container">
+        <div class="state-icon"><i class="fal {{model.icon}}"></i></div>
+        <div class="state-text">{{model.text.translate()}}</div>
+      </div>
+    </div>
+    `,
+    controller: function($scope,$element,$timeout,$q){
+      $scope.model = {
+        icon: 'fa-check',
+        text: 'Done',
+        class: 'normal',
+        hide_timeout: 0
+      }
+      $scope.init = function(){
+        $scope.$on('si/working-state/changed', function($event, $data){
+          $scope.model.hide_timeout = 0;
+          $scope.show($data)
+            .then( visibilityChanged => {
+              if(visibilityChanged){
+                return;
+              }
+              console.log('already shown, update model')
+              return $scope.updateModel($data)
+            })
+            .then( _ => {
+
+              console.log('update of model done, component displayed', $scope.model, $data);
+
+              if($scope.model.hide_timeout > 0){
+                $timeout( _ => {
+                  $scope.hide();
+                }, $scope.model.hide_timeout);
+              }
+            })
+        })
+      }
+
+      $scope.show = function($data){
+        if($element[0].classList.contains('show')) return $q.resolve(false);
+        const defer = $q.defer();
+        
+        $element[0].addEventListener('transitionend', () => {
+          defer.resolve(true);
+        },{once:true});
+
+        $timeout(_ => {
+          angular.merge($scope.model, $data);
+          
+        })
+        $timeout(_ => {
+          $element[0].classList.add('show');
+        },250);
+        
+        return defer.promise;
+      }
+
+      $scope.hide = function(){
+        $element[0].classList.remove('show');
+      }
+
+      $scope.updateModel = function($newValue){
+        const defer = $q.defer();
+
+        $element[0].addEventListener('transitionend', () => {
+          angular.merge($scope.model, $newValue);
+          $element[0].classList.remove('si-switch');
+          defer.resolve();
+        },{once:true});
+
+        $element[0].classList.add('si-switch');
+
+        return defer.promise;
+      }
+    }
+  }
 })
 
 
 siApp
 .directive('siDataGroupEditor', [ 
-function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
+function siDataGroupEditor(){
   return {
     restrict: 'E',
     replace: true,
@@ -220,7 +316,7 @@ function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
 
     },
     controller: function($scope,$siUtils, $siApi, $q, $timeout,$siUI,$siWP){
-      $scope.wp = $siWP;
+      //$scope.wp = $siWP;
 
       $scope.lang_codes = [
         {key: 'fr', label : 'Français'},
@@ -347,7 +443,7 @@ function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
 
       $scope.init = function(){
         $scope.$on('si/ready', function(){
-          console.log('siDataGroupEditor/init', $scope.wp.pages);
+          //console.log('siDataGroupEditor/init', $siWP.pages);
           $scope.prepare();
         });
       }
@@ -392,23 +488,26 @@ function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
       }
 
       $scope.langNotConfigure = function($item){
+        if($scope.langList == undefined) return false;
+        if($scope.langList == null) return false;
+
         return $scope.langList.filter($l => $l.lang == $item.key).length == 0
       }
       
-      $scope.resetDetails = function($langItem){
-        const $lang = $langItem.lang;
-        const lDefault = $scope.details_defaults[$lang][$scope.groupType];
+      // $scope.resetDetails = function($langItem){
+      //   const $lang = $langItem.lang;
+      //   const lDefault = $scope.details_defaults[$lang][$scope.groupType];
 
-        $langItem.route = Object.assign($langItem.route, lDefault.route);
-        $langItem.layout = Object.assign($langItem.route,{
-          page: null,
-            communication_mode: 'basic',
-            form_id:null
-        }, lDefault.route);
+      //   $langItem.route = Object.assign($langItem.route, lDefault.route);
+      //   $langItem.layout = Object.assign($langItem.route,{
+      //     page: null,
+      //       communication_mode: 'basic',
+      //       form_id:null
+      //   }, lDefault.route);
 
         
-        $scope.rebuild();
-      }
+      //   $scope.rebuild();
+      // }
 
       $scope.addLangItem = function($lang){
         const lDefault = $scope.details_defaults[$lang][$scope.groupType];
@@ -429,8 +528,38 @@ function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
         $scope.rebuild();
       }
 
-      $scope.editLayoutPage = function($layout){
-        window.open(`/wp-admin/post.php?post=${$layout.page}&action=edit`);
+      $scope.editLangItem = function($langItem){
+        $siUI.dialog('lang-item-edit', {model: angular.copy($langItem), type: $scope.groupType, routes: $scope.routes}).then( $modified => {
+          angular.merge($langItem, $modified);
+          $scope.rebuild();
+        })
+      }
+
+      $scope.editLayoutPage = function($langItem){
+        const defer = $q.defer();
+
+        defer.promise.then( $page => {
+          // Get page id from permalink
+          $siWP.getPage($page).then($pageInfo => {
+            if($pageInfo == null){
+              return $siAlert('Unable to find the page');
+            }
+            window.open(`/wp-admin/post.php?post=${$pageInfo.ID}&action=edit`);
+          })
+          
+        });
+
+        if($langItem.layout.page == null){
+          $siUI.confirm('There is no layout page configured for this item. Would you like to select one?').then( _ => {
+            $scope.selectPage($langItem).then( $page => {
+              defer.resolve($page);
+            })
+          })
+        }
+        else{
+          defer.resolve($langItem.layout.page);
+        }
+
       }
 
       $scope.removeLang = function($index){
@@ -566,11 +695,24 @@ function siDataGroupEditor($siUtils, $siApi, $q, $timeout){
         
         dialogParams.page= $langItem.layout.page
 
-        $siUI.dialog('page-picker', dialogParams).then($newPage => {
+        return $siUI.dialog('page-picker', dialogParams).then($newPage => {
           $langItem.layout.page = $newPage;
           $scope.$emit('save-request');
+          return $newPage;
         })
       }
+
+      // $scope.selectForm = function($langItem){
+      //   const dialogParams = {lang: $langItem.lang};
+      //   if($langItem.layout == undefined) $langItem.layout.form_id = '';
+        
+      //   dialogParams.form_id = $langItem.layout.form_id;
+
+      //   $siUI.dialog('form-picker', dialogParams).then($form => {
+      //     $langItem.layout.form_id = $form;
+      //     $scope.$emit('save-request');
+      //   })
+      // }
     }
   }
 }])
@@ -691,6 +833,7 @@ siApp
       }
 
       $scope.elementIsUsed = function($elm, $partKey){
+        if($scope.route == undefined) return false;
         if($scope.route[$partKey] == '') return false;
         
         return $scope.route[$partKey].indexOf($elm)>=0;
@@ -698,6 +841,7 @@ siApp
 
       $scope.elementUseCount = function($partKey){
         let lResult = 0;
+        if($scope.route == undefined) return 0;
         if($scope.route_elements == null || $scope.route_elements==undefined) return 0;
         if($scope.route[$partKey]==undefined) return 0;
         let lRouteElms = $siUtils.toKeyArray($scope.route_elements);
@@ -1683,8 +1827,10 @@ siApp
     <div class="si-list-item-layer layer-{{layer}} si-style-editor-preview">
       <div si-style-preview>
         <div class="si-preview-viewport">
-          <div class="si-list-item {{singularType}}-item si-element si-background {{model.list_item_layout.scope_class}}" ng-sortable="sortableOptions">
-            <si-layer-var ng-repeat="var in vars.list" ng-model="var"  si-on-remove="remove($index)" type="{{model.type}}"></si-layer-var>
+          <div class="si-list-item {{singularType}}-item si-element si-background {{model.list_item_layout.scope_class}}">
+            <div class="layer" ng-sortable="sortableOptions">
+              <si-layer-var ng-repeat="var in vars.list" ng-model="var"  si-on-remove="remove($index)" type="{{model.type}}"></si-layer-var>
+            </div>
           </div>
         </div>
         
@@ -1696,7 +1842,9 @@ siApp
             <md-menu-item><md-button ng-click="addVar('group')"><lstr>Group</lstr></md-button></md-menu-item>
             <md-menu-item><md-button ng-click="addVar('link_button')"><lstr>Link button</lstr></md-button></md-menu-item>
             <md-divider></md-divider>
-            <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label}}</md-button></md-menu-item>
+            <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label.translate()}}</md-button></md-menu-item>
+            <md-divider></md-divider>
+            <md-menu-item><md-button ng-click="addCustomVar()"><lstr>Custom data</lstr></md-button></md-menu-item>
           </md-menu-content>
       </md-menu>
 
@@ -1709,7 +1857,11 @@ siApp
           <md-menu class="si-var-group-menu">
               <md-button class="md-icon-button md-raised" ng-click="$mdMenu.open()"><i class="fal fa-plus"></i></md-button>
               <md-menu-content>
-                <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label}}</md-button></md-menu-item>
+                <md-menu-item><md-button ng-click="addVar('link_button')"><lstr>Link button</lstr></md-button></md-menu-item>
+                <md-divider></md-divider>
+                <md-menu-item ng-repeat="var in availableVarList"><md-button ng-click="addVar(var.name)">{{var.label.translate()}}</md-button></md-menu-item>
+                <md-divider></md-divider>
+                <md-menu-item><md-button ng-click="addCustomVar()"><lstr>Custom data</lstr></md-button></md-menu-item>
               </md-menu-content>
           </md-menu>
           <md-button class="md-icon-button" ng-click="remove()" title="{{'Remove'.translate()}}"><i class="fal fa-trash"></i></md-button>
@@ -1717,11 +1869,11 @@ siApp
       </script>
 
       <script type="text/ng-template" id="layout-for-any">
-        {{item.key}}
+        {{item.key.translate()}}
       </script> 
 
       <script type="text/ng-template" id="layout-for-link_button">
-        <div class="si-button"><lstr>Learn more</lstr></div>
+        <div class="si-button">{{((item.label != undefined) ? item.label : 'Learn more') | translate }}</div>
       </script> 
 
       <script type="text/ng-template" id="layout-for-photo">
@@ -1743,7 +1895,7 @@ siApp
       </script> 
 
       <script type="text/ng-template" id="layout-for-phone">
-        514-555-8654
+        <i class="icon fal fa-fw fa-phone"></i> <span class="prefix"><lstr>phone</lstr>:</span> <span class="label">514-555-8654</span>
       </script>
       
       <script type="text/ng-template" id="layout-for-available_area">
@@ -1787,14 +1939,16 @@ siApp
             <div class="room tint"><i class="icon fal fa-fw fa-tint"></i> <span class="count">1</span> <span class="label" lstr>Water room</span></div>
         </div>
       </script>
-      
+
+
       <script type="text/ng-template" id="layout-for-flags">
         <div class="flags">
           <i class="video far fa-video"></i>
           <i class="virtual-tour far fa-vr-cardboard"></i>
+          <i class="new-item far fa-star"></i>
         </div>
       </script>
-
+    
       <script type="text/ng-template" id="layout-for-open_houses">
         
           <div class="open-house-item">
@@ -1808,7 +1962,7 @@ siApp
       $scope.layerInfo = null;
       $scope.init();
     },
-    controller: function($scope,$rootScope,$element,$timeout,$q){
+    controller: function($scope,$rootScope,$element,$timeout,$q,$siUI){
       $scope.computedStyles = {};
       $scope.vars = {
         list : []
@@ -1935,10 +2089,10 @@ siApp
         console.log('remove root item at',$index, $scope.vars.list);
       }
       
-      $scope.addVar = function($var){
+      $scope.addVar = function($var, $type='preset', $options=null){
         if($scope.vars.list == undefined) $scope.vars.list = [];
 
-        const newVar = {key: $var, classes: []};
+        const newVar = {key: $var, var_type:$type, classes: [], options: $options};
         if($var == 'group') newVar.items = [];
 
         $scope.vars.list.push(newVar);
@@ -1947,6 +2101,11 @@ siApp
           $scope.applySortHandlers();
         },250);
         //$scope.updateModel();
+      }
+      $scope.addCustomVar = function(){
+        $siUI.dialog('layer-var-add-custom').then($customVarData => {
+          $scope.addVar($customVarData.key, 'custom', { content : $customVarData.content });
+        })
       }
 
 
@@ -2207,7 +2366,7 @@ siApp
       type: '@'
     },
     template: `
-    <div class="si-layer-var {{item.key | toDashCase}} {{item.classes.join(' ')}}" si-anchor-to="si-float-anchor">
+    <div class="si-layer-var {{item.key | toDashCase}} {{item.classes.join(' ')}}" si-anchor-to="si-float-anchor" style="{{item.style}}">
       <div class="si-layer-var-content" ng-include="item.template"></div>
       <div class="si-layer-var-options" ng-if="item.key != 'group'">
           <md-button class="md-icon-button" ng-click="openConfig()" title="{{'Options'.translate()}}"><i class="fal fa-cog"></i></md-button>
@@ -2272,7 +2431,13 @@ siApp
         }
         $scope.availableVarList = $rootScope.global_list.list_item_vars[$scope.type];
         $scope.item = angular.copy($scope.model);
-        if(document.querySelector('#layout-for-' + $scope.model.key)){
+        let templateItem = null;
+        try {
+          templateItem = document.querySelector('#layout-for-' + $scope.model.key);
+        } catch (error) {
+          
+        }
+        if(templateItem != null){
           $scope.item.template = 'layout-for-' + $scope.model.key;
         }
         else{
@@ -2293,7 +2458,11 @@ siApp
         
         $scope.model.classes = $scope.item.classes.join(' ');
         $scope.model.fallback = $scope.item.fallback;
+        $scope.model.style = $scope.item.style;
+        $scope.model.var_type = $scope.item.var_type;
+        $scope.model.options = $scope.item.options;
 
+        if(['link_button'].includes($scope.model.key) ) $scope.model.label = $scope.item.label;
         console.log('updating model', $scope.item, $scope.model);
 
         $scope.model.items = $scope.item.items;
@@ -2326,27 +2495,39 @@ siApp
         $scope.updateModel();
       }
 
-      $scope.addVar = function($var){
+      $scope.addVar = function($var, $type='preset', $options=null){
         if($scope.item.items == undefined) $scope.item.items = [];
-        $scope.item.items.push({key: $var, classes: []});
-        
+
+        const newVar = {key: $var, var_type:$type, classes: [], options: $options};
+        $scope.item.items.push(newVar);
+
         $scope.updateModel();
+      }
+      $scope.addCustomVar = function(){
+        $siUI.dialog('layer-var-add-custom').then($customVarData => {
+          $scope.addVar($customVarData.key, 'custom', { content : $customVarData.content });
+        })
       }
 
       $scope.openConfig = function(){
         if($scope.model.classes == undefined) $scope.model.classes = '';
 
         $siUI.dialog('layer-var-edit', {var: angular.copy($scope.model), type: $scope.type}).then($result => {
-          
+          console.log('siLayerVar/openConfig@layer-var-edit', $scope.model);
           $scope.item.classes = [$result.classes];
           $scope.item.fallback = $result.fallback;
+          $scope.item.style = $result.style;
+          $scope.item.var_type = $result.var_type;
+          $scope.item.options = $result.options;
+          
+          if(['link_button'].includes($scope.model.key) ) $scope.item.label = $result.label;
 
           $scope.updateModel();
           
 
           if($result.classes.indexOf('si-float-') >= 0){
             // This item should be place to root
-            console.log('var promotion triggered', $scope.model);
+           
             $scope.$emit('listItemLayer/vars/promote', $scope.model);
           }
           else{
@@ -2869,27 +3050,30 @@ siApp
         'si-text-align-left','si-text-align-center','si-text-align-right',
 //        'si-link-button',
         'si-content-gap','si-content-small-gap','si-content-big-gap',
-        'si-animate-fade-in','si-animate-slide-in-bottom','si-animate-slide-in-top','si-animate-slide-in-left','si-animate-slide-in-right',
-        'si-animate-fast','si-animate-slow',
+        'si-animate-fade-in','si-animate-push-up','si-animate-push-down','si-animate-push-left','si-animate-push-right','si-animate-slide-in-bottom','si-animate-slide-in-top','si-animate-slide-in-left','si-animate-slide-in-right', 'si-animate-scale-up','si-animate-scale-down',
+        'si-animate-fast','si-animate-slower','si-animate-slow',
         'si-animate-delay', 'si-animate-delay-slight', 'si-animate-delay-chain', 'si-animate-wait-viewport'
       ];
       $scope.typeSpecificClassList = {
+        listItem: ['si-horizontal-layout'],
         listings : [],
         brokers: [],
         offices: [],
         agencies: [],
-        search: ['si-input-background-small-contrast','si-input-background-medium-contrast','si-input-background-high-contrast', 'si-input-radius', 'si-input-big-radius', 'si-input-border-top', 'si-input-border-bottom'],
+        search: [ 
+              'si-input-background-small-contrast','si-input-background-medium-contrast','si-input-background-high-contrast', 'si-input-radius', 'si-input-big-radius', 'si-input-border-top', 'si-input-border-bottom'
+            ],
         layerVar: [
-                    'si-show-labels','si-hide-icons','si-show-prefixes',
-                    'si-emphasis','si-big-emphasis','si-2x-emphasis','si-space-emphasis','si-font-emphasis','si-size-emphasis','si-weight-emphasis',
-                    'si-text-truncate','si-text-small','si-text-upper','si-text-lower',
-                    'si-pull-up','si-pull-left','si-pull-up-left','si-pull-up-right','si-pull-right','si-pull-down','si-pull-down-left','si-pull-down-right',
-                    'si-slim-pull-up','si-slim-pull-left','si-slim-pull-up-left','si-slim-pull-up-right','si-slim-pull-right','si-slim-pull-down','si-slim-pull-down-left','si-slim-pull-down-right',
-                    'si-float-anchor', 'si-float-center','si-float-top','si-float-left','si-float-right','si-float-bottom',
-                    'si-float-top-left','si-float-top-center','si-float-top-right',
-                    'si-float-center-left','si-float-center-center','si-float-center-right',
-                    'si-float-bottom-left','si-float-bottom-center','si-float-bottom-right'
-                  ]
+              'si-show-labels','si-hide-icons','si-show-prefixes',
+              'si-emphasis','si-big-emphasis','si-2x-emphasis','si-space-emphasis','si-font-emphasis','si-size-emphasis','si-weight-emphasis',
+              'si-text-truncate','si-text-small','si-text-upper','si-text-lower','si-font-2x',
+              'si-pull-up','si-pull-left','si-pull-up-left','si-pull-up-right','si-pull-right','si-pull-down','si-pull-down-left','si-pull-down-right',
+              'si-slim-pull-up','si-slim-pull-left','si-slim-pull-up-left','si-slim-pull-up-right','si-slim-pull-right','si-slim-pull-down','si-slim-pull-down-left','si-slim-pull-down-right',
+              'si-float-anchor', 'si-float-center','si-float-top','si-float-left','si-float-right','si-float-bottom',
+              'si-float-top-left','si-float-top-center','si-float-top-right',
+              'si-float-center-left','si-float-center-center','si-float-center-right',
+              'si-float-bottom-left','si-float-bottom-center','si-float-bottom-right',
+            ]
       }
       $scope.init = function(){
         if($scope.model && $scope.model != ''){

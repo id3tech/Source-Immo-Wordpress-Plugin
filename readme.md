@@ -1,4 +1,4 @@
-# Version 2.0.23
+# Version 2.1.19
 
 
 ### Intuitive admin interface
@@ -73,6 +73,7 @@ In this release:
 * [RE/MAX Québec](https://www.remax-quebec.com/) addon - Display an inner frame from remax-quebec.com website for listing details
 * [Prospects Software](https://www.prospects.com) integration addon - Show lead form in listing details
 * [Local Logic](https://www.locallogic.co) integration addon - Show neighborhood widget in listing details
+* [Web Counter](https://webcounter.id-3.net) integration addon - Simple stats tracker
 
 ### Elementor support
 Build custom page for listings and brokers with Elementor's widget
@@ -109,17 +110,70 @@ Support for WPML and Polylang
 
 
 
-### filters
-
-
-
 ## Change log
-version 2.0.23
+version 2.1.19
+* Normalization labels hook. Use filter "si/label" to overwrite static labels
+* Dynamic singular/plural search tabs label
+
+version 2.1.18
+* Add display custom data in lists
+* Add setting to limit informations for sold listings
+    * Limit pictures count
+    * Remove map-related components (Map, Streetview)
+* Secure message post on REST API
+* Minor redesign of list management to accomodate large number of list configuration
+* Minor bug fix
+
+version 2.1.16
+* Minor bug fix
+* String ajustment in calculator
+* String ajustment in list
+
+version 2.1.13
+* Fix virtual directory installation problem
+
+version 2.1.12
+* Support for Avada Fusion Theme Builder
+* Support for Enfold theme improved
+* Addon WebCounter added
+
+
+version 2.1.11
+* Fix style scope issue in detail page (listing, broker, office, etc)
+* Fix default layout for brokers in listing detail to 2 columns instead of 1
+* Fix remove empty phone from list in broker detail
+
+
+version 2.1.10
+* Print version for Listing has new models
+    * Residential (standard)
+    * Commercial
+* Remove "Request information" button from sold listing
+* Fix issue with view dissociation in sublist
+* Fix sold label placement in list
+* Fix issue with cities filter in the search engine (focused mode)
+* Minor ajustment for default listings list in regard to open house display
+* Minor ajustment on print sheet
+
+version 2.1.3
+* Flag for new property in the list
+* new Lexicon class for more string flexibility
+    * Change some strings here and there
+* Add more options on the surface area min-max scale
+    * Add "and more" and "or less" on the last option of the list
+* Squash some print bugs
+
+
+version 2.0.27
 * Add fallback data for empty layout vars
+* Add display data for broker list
 * Default list configuration (sort and shuffle) are now applied to sublist too.
 * Fix Safari slow rendering bug
 * Fix localisation bug
 * Minor bug fixes
+* Fix in focused type search
+* New secondary layer show effect: Tilt
+* New animations scale-up, scale-down
 
 version 2.0.17
 * New and improved design for data type management

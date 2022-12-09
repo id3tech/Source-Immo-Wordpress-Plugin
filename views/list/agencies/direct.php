@@ -43,7 +43,7 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
     }
     else{
         echo('<label class="placeholder si-list-empty">');
-        echo(apply_filters('si_label', __('No agency to display', SI)));
+        echo(_si_label('No agency to display'));
         echo('</label>');
     }
     ?>

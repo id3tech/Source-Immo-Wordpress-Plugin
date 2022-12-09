@@ -186,18 +186,18 @@ function siList(){
                 if(lSearchToken == $scope.configs.search_token 
                     && typeof $preloadDatas != 'undefined'
                     && typeof $preloadDatas[$scope.configs.alias] != 'undefined'){
-                    console.log('loading from preloaded data');
+                    // console.log('loading from preloaded data');
                     const lItems = $preloadDatas[$scope.configs.alias].items;
 
                     if(typeof $scope._preloadedList == 'undefined'){
-                        console.log('compile list');
+                        // console.log('compile list');
                         if($scope.configs.type=='listings'){
                             $scope._preloadedList = $siCompiler.compileListingList(lItems);
                         }
                         else{
                             $scope._preloadedList = $siCompiler.compileBrokerList(lItems);
                         }
-                        console.log('compile done');
+                        // console.log('compile done');
                     }
                     
                     $scope.list = $scope._preloadedList;
@@ -734,7 +734,7 @@ function siSmallList($sce,$compile){
                         '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="listFilter.keywords"><i class="far fa-search"></i></div>',
                     '</div>',
                     '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>',
-                    '<div class="si-list si-list-of-item"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>'].join(''),
+                    '<div class="si-list si-list-of-item si-list-container"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>'].join(''),
         link: function($scope, $element, $attrs){
             if($scope.options != undefined){       
                 $scope.options.typeof_show_header = typeof($scope.options.show_header);
@@ -839,51 +839,54 @@ function siSmallList($sce,$compile){
                     
 
                     $scope.applyColumnWidth();
-                });
+                })
+                .then( _ => {
 
-                $siApi.getDefaultDataView().then(function($view_id){
-                    $scope.view_id = $view_id;
-                    
-                    
-                    
-                    // $siHooks.addFilter('si/list/item/permalink', function($result, $item){
-                    //     if(isNullOrUndefined($scope._global_configs)) return $result;
-                    //     if(isNullOrUndefined($scope.configs)) return $result;
+                    $siApi.getDefaultDataView().then(function($view_id){
+                        $scope.view_id = $view_id;
                         
-                    //     const lQuery = '?view=' + $scope.configs.current_view;
-                    //     if($result.indexOf(lQuery) < 0){
-                    //         console.log('siSmallList@si/list/item/permalink - add view id to link',$result, lQuery);
-
-                    //         $result = $result + lQuery;
-                    //     }
-
-                    //     return $result
-                    // });
-
-                    $siHooks.addFilter('si/list/item/permalink', function($result, $item){
-                        const lCustomViewId = $siUtils.search('view');
-                        if(lCustomViewId == null) return $result;
                         
-
                         
-                        const lQuery = '?view=' + lCustomViewId;
-                        if($result.indexOf(lQuery) < 0){
-                            //console.log('- add view id to link',$result, lQuery);
-
-                            $result = $result + lQuery;
-                        }
-                        else{
-                            //console.log('- view id already in link', $result);
-                        }
-                    
-                        return $result
+                        // $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                        //     if(isNullOrUndefined($scope._global_configs)) return $result;
+                        //     if(isNullOrUndefined($scope.configs)) return $result;
+                            
+                        //     const lQuery = '?view=' + $scope.configs.current_view;
+                        //     if($result.indexOf(lQuery) < 0){
+                        //         console.log('siSmallList@si/list/item/permalink - add view id to link',$result, lQuery);
+    
+                        //         $result = $result + lQuery;
+                        //     }
+    
+                        //     return $result
+                        // });
+    
+                        $siHooks.addFilter('si/list/item/permalink', function($result, $item){
+                            const lCustomViewId = $siUtils.search('view');
+                            if(lCustomViewId == null) return $result;
+                            
+    
+                            
+                            const lQuery = '?view=' + lCustomViewId;
+                            if($result.indexOf(lQuery) < 0){
+                                //console.log('- add view id to link',$result, lQuery);
+    
+                                $result = $result + lQuery;
+                            }
+                            else{
+                                //console.log('- view id already in link', $result);
+                            }
+                        
+                            return $result
+                        });
+    
+                        
+    
+                        $scope.fetchList();
+                        
                     });
-
-                    
-
-                    $scope.fetchList();
-                    
                 });
+
 
                 const resizeObserver = new ResizeObserver( $entries => {
                     //console.log('smallList/resizeObs', $entries);
@@ -962,7 +965,7 @@ function siSmallList($sce,$compile){
                     if(listConfig.sort != null && listConfig.sort != '' && listConfig.sort != 'auto'){
                         lResult.sort_fields = [{field: listConfig.sort, desc: listConfig.sort_reverse}];
                     }
-                    console.log('getBaseFilter', listConfig);
+                    // console.log('getBaseFilter', listConfig);
                     if(listConfig.priority_group_sort){
                         if(lResult.sort_fields == undefined) lResult.sort_fields = [];
                         const lPriorityDesc = listConfig.priority_group_sort.indexOf('-desc')>0 ? true : false;
@@ -998,7 +1001,7 @@ function siSmallList($sce,$compile){
                    lWidths = angular.merge(lWidths, $scope.listLayout.item_row_space);
                 }
 
-                //console.log('applyColumnWidth',lWidths );
+                // console.log('applyColumnWidth',lWidths,$scope.options.columns );
 
                 if(lWidths == undefined) return;
 
@@ -1515,37 +1518,40 @@ siApp
         link: function($scope,$element,$attrs){
             
             const elm = $element[0];
+            
+
             const elmContainer = elm.parentElement;
 
             const hasFloatingClass = Array.from(elm.classList).some($c => $c.indexOf('si-float-')>=0);
             if(!hasFloatingClass) return;
 
-
+            
             let lAnchorSelector = $attrs.siAnchorTo;
             const lRelativeContainerClass = ['.layer-content','.si-item'].find($q => elm.closest($q));
             
             if(lRelativeContainerClass == null) return;
-
             const lRelativeContainer = elm.closest(lRelativeContainerClass);
 
             const observer = new MutationObserver( $mutations => {
-                $scope.applyAnchor(lAnchorSelector, lRelativeContainer, observer);
+                $scope.applyAnchor($element,lAnchorSelector, lRelativeContainer, observer);
             });
             
             observer.observe(lRelativeContainer,{childList:true});
             //observer.observe(elm,{attributes:true});
 
-            $scope.applyAnchor(lAnchorSelector, lRelativeContainer);
+            $scope.applyAnchor($element, lAnchorSelector, lRelativeContainer);
         },
-        controller: function($scope,$element){
+        controller: function($scope){
 
-            $scope.applyAnchor = function($selector, $container, $observer=null){
+            $scope.applyAnchor = function($element, $selector, $container, $observer=null){
                 const elm = $element[0];
+                
+
                 const floatClass = Array.from(elm.classList).find($c => $c.startsWith('si-float-'));
                 if(floatClass == null) return;
 
                 const listContainer = elm.closest('.si-list-container');
-                if(listContainer.style.cssText.indexOf('--' + floatClass + '-offset-top') >= 0) return;
+                if(listContainer == null || listContainer.style.cssText.indexOf('--' + floatClass + '-offset-top') >= 0) return;
 
                 if(!$selector.startsWith('.') && !$selector.startsWith('#')) $selector = '.' + $selector;
                 let lAnchorElm = $container.querySelector($selector);
@@ -1583,6 +1589,38 @@ siApp
 
                 window.location = $attr.siScopeHref;
             })
+        }
+    }
+});
+
+siApp
+.directive('siPluralize', function siPluralize(){
+    return {
+        restrict: 'A',
+        scope: {
+            options: '=siPluralize'
+        },
+        link: function($scope,$element,$attr){
+            console.log('siPluralize for', $scope.options);
+            if(!Array.isArray($scope.options.on)) $scope.options.on = [$scope.options.on];
+            const counters = {};
+
+            $scope.options.on.forEach( $key => {
+                counters[$key] = 0;
+
+                $scope.$on('si/' + $key, function($event, $count){
+                    counters[$key] = $count;
+                    const total = Object.keys(counters).reduce( (t,k) => t+counters[k],0);
+                    if(total > 1){
+                        $element[0].innerHTML = $scope.options.label;
+                    }
+                    
+                    console.log('siPluralize for ', $key, $count);
+                })
+            })
+            
+            //pluralLabel = $attr.siPluralizeLabel.translate();
+            //$scope.$on('list')
         }
     }
 })

@@ -1,0 +1,32 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <h2 lstr>Add a custom data</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()"><i class="fal fa-times" aria-label="Close dialog"></i></md-button>
+    </div>
+</md-toolbar>
+
+<md-dialog-content>
+    <div class="md-dialog-content" layout="column" layout-align="stretch stretch">
+        <md-input-container>
+            <label lstr>Key</label>
+            <input ng-model="model.key">
+        </md-input-container>
+    
+        
+        <md-input-container>
+            <label lstr>Label</label>
+            <si-localized>
+                <input type="text" ng-model="model.content[$localized.current]" />
+            </si-localized>
+        </md-input-container>
+
+    </div>
+    
+</md-dialog-content>
+
+
+<md-dialog-actions layout="row">
+    <span flex></span>
+    <md-button ng-repeat="button in actions" ng-disabled="!isValidAction(button)" ng-click="button.action()">{{button.label.translate()}}</md-button>
+</md-dialog-actions>

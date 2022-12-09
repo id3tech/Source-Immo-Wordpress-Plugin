@@ -219,8 +219,9 @@ body.wp-admin{
           transition:0.25s;
           opacity:0;
           &.selected{
-            max-height:150vh;
+            max-height:66vh;
             opacity:1;
+            overflow:hidden overlay;
 
             &#styles{
               padding:10px;
@@ -408,7 +409,10 @@ body.wp-admin{
   }
 
   lstr{display: inline-block;}
-
+  [ng-click]:not([disabled]){
+    cursor: pointer;
+  }
+  
   /* Grid and rows basics */
   .grid-layout{
     display:grid;
@@ -536,6 +540,28 @@ body.wp-admin{
         margin:initial;
         padding:initial;
       }
+    }
+  }
+
+  #si-app, .md-dialog-container{
+    [lang]{
+      display:none;
+    }
+  }
+}
+
+html[lang^="fr"]{
+  #si-app, .md-dialog-container{
+    [lang="fr"]{
+      display:revert;
+    }
+  }
+}
+
+html[lang^="en"]{
+  #si-app, .md-dialog-container{
+    [lang="en"]{
+      display:revert;
     }
   }
 }

@@ -1,9 +1,17 @@
+<?php
+    add_filter('wp_title', function($parts) use ($model){
+        return $model->location->full_address . ' - ' . $model->subcategory;
+    }, 10);
+    add_filter('document_title_parts', function($parts) use ($model){
+        return [$model->location->full_address, $model->subcategory];
+    }, 10);
+    
+?>
+
 <html class="listings print">
     <head>
-
-        
         <?php wp_head(); ?>
-        
+        <meta name="format-detection" content="telephone=no">
     </head>
     <body>
 
@@ -13,107 +21,32 @@
             echo('</div>');
         }?>
 
-
-        <page class="front-page">
-            
-            <?php SourceImmo::view('single/listings_layouts/print/front', array('model'=>$model))?>
-            
-        </page>
-
-        <page class="details">
-            
-            
-            <div class="page-layout">
-                <?php SourceImmo::view('single/listings_layouts/print/proximity_flags', array('model'=>$model))?>
-                
-                <?php SourceImmo::view('single/listings_layouts/print/addendum', array('model'=>$model))?>
-
-                
-                <?php SourceImmo::view('single/listings_layouts/print/inclusions', array('model'=>$model))?>
-                <?php SourceImmo::view('single/listings_layouts/print/exclusions', array('model'=>$model))?>
+<?php
+    $printLayout = dirname(__FILE__) . '/listings_layouts/print/index.php';
+    //$listingMarket = $model->
     
-            </div>
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
-        </page>
-
-        <page class="details-part2">
-            
-            
-            <div class="page-layout">
-
-                <?php SourceImmo::view('single/listings_layouts/print/building', array('model'=>$model))?>
-                <?php SourceImmo::view('single/listings_layouts/print/land', array('model'=>$model))?>
-                <?php SourceImmo::view('single/listings_layouts/print/other', array('model'=>$model))?>
-                <?php SourceImmo::view('single/listings_layouts/print/units', array('model'=>$model))?>
-                <?php SourceImmo::view('single/listings_layouts/print/financial', array('model'=>$model))?>
-                
-                
-            </div>
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'details'))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'details'))?></footer>
-        </page>
-
-        <?php 
-        
-        if(isset($model->rooms) && is_array($model->rooms) && count($model->rooms) > 0){
-            SourceImmo::view('single/listings_layouts/print/rooms', array('model'=>$model));
+    $printLayoutVariants = [$model->subcategory_code . '-' . $model->category, $model->category];
+    
+    array_push($printLayoutVariants, implode('-',$model->market_codes));
+    foreach($model->market_codes as $code){
+        if(!in_array($code,$printLayoutVariants)){
+            array_push($printLayoutVariants, $code);
         }
-        ?>
+    }
 
-        <?php
-        // split photos into groups of 12
-        $photoGroups = array();
-        $photoOffset = 0;
-        while (count($model->photos) > $photoOffset*12) {
-            $photoGroups[] = array_slice($model->photos,$photoOffset*12,12);
-            $photoOffset++;
+    foreach ($printLayoutVariants as $value) {
+        $value = sanitize_title($value);
+        $printDirectory = dirname(__FILE__) . '/listings_layouts/print-' . $value . '/index.php';
+        if(file_exists($printDirectory)){
+            $printLayout = $printDirectory;
+            break;
         }
+    }
+    $printLayout = apply_filters('si/listing/printLayout', $printLayout, $model);
+    
 
-        for ($i=0; $i < count($photoGroups); $i++) { 
-        ?>
-        <page class="photos">
-            <header><?php SourceImmo::view('single/listings_layouts/print/header', array('model'=>$model, 'page'=>'photos'))?></header>
-            <footer><?php SourceImmo::view('single/listings_layouts/print/footer', array('model'=>$model, 'page'=>'photos'))?></footer>
-            
-            <div class="page-layout">
-                <h3><?php 
-                    if(count($photoGroups) > 1){
-                        echo StringPrototype::format(__("Property's photos ({0}/{1})",SI),$i+1, count($photoGroups));
-                    }
-                    else{
-                        _e("Property's photos",SI);
-                    }
-                ?></h3>
-                <div class="photo-list">
-                    <?php
-                    foreach ($photoGroups[$i] as $photo) {
-                    ?>
-                    <div class="item">
-                        <div class="photo">
-                            
-                            <img src="<?php echo($photo->url) ?>" />
-                        </div>
-                        <label><?php echo($photo->category) ?></label>
-                    </div>
-                    <?php
-                    }
-                    ?>
-                </div>
-            </div>
-        </page>
-        <?php
-        }
-        ?>
-        
-        
-
-        <page class="last-page">
-            <?php SourceImmo::view('single/listings_layouts/print/back', array('model'=>$model))?>
-        
-                           
-        </page>
-
+    include $printLayout;
+?>
 
         <button class="print-button" onclick="fnPrint()"><i class="fal fa-print"></i></button>
         <script type="text/javascript">

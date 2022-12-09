@@ -1,5 +1,16 @@
 // Elementor widget icon
 body, #top{
+    &.single-listings,
+    &.single-brokers,
+    &.single-offices,
+    &.single-agencies{
+        [data-elementor-type="header"]{
+            header.elementor-section{
+                width:100%!important;
+            }
+        }
+    }
+
     .elementor-element {
         .elementor-widget-container{
             .si{
@@ -257,7 +268,7 @@ body, #top{
                         } 
                     }
 
-                    @media screen and (min-width: 640px){
+                    @media screen and (max-width: 640px){
                         &.no-toggle-mobile{
                             .si-detail-section{
                                 .si-title{
@@ -359,13 +370,17 @@ body, #top{
         
     }
 
-    .si.si-single{
+    .elementor-location-header section.elementor-section {
+        min-width: 100%;
+    }
+
+    .si.si-single-content{
         min-height:0px!important;
         display:unset;
     }
     
 
-    .si.si-single, .si.si-single .elementor-widget-container{
+    .si.si-single-content, .si.si-single-content .elementor-widget-container{
         > .si-part{
             display:grid;
             > div, > si-small-list{

@@ -168,7 +168,7 @@ class SiShorcodes{
 
             $scopeClass = $listConfig->list_layout->scope_class;
 
-            $global_container_classes = array('si', $listConfig->list_layout->preset . '-layout', "si-list-of-{$listConfig->type}", $scopeClass);
+            $global_container_classes = array('si','si-list-container', $listConfig->list_layout->preset . '-layout', "si-list-of-{$listConfig->type}", $scopeClass);
             
             if(!str_null_or_empty($listConfig->list_layout->custom_css)){
                 echo('<style for="' . $alias . '">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') , $listConfig->list_layout->custom_css) . '</style>');
@@ -287,7 +287,7 @@ class SiShorcodes{
     public function sc_si_listing_brokers($atts, $content=null){
         $ref_number = get_query_var( 'ref_number');
         ob_start();
-            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()" options="{columns:{desktop:1, laptop:1}}"]');
+            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()" options="{columns:{desktop:2, laptop:2}}"]');
         $lResult = ob_get_clean();
 
         return $lResult;
@@ -324,7 +324,7 @@ class SiShorcodes{
 
         ?>
         
-        <div class="si broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -449,7 +449,7 @@ class SiShorcodes{
         }
         ?>
         
-        <div class="si office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -609,7 +609,7 @@ class SiShorcodes{
 
         ?>
         
-        <div class="si agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -834,8 +834,8 @@ class SiShorcodes{
         }
         
         // filters
-        $load_text = apply_filters('si_listing_detail_load_text',$load_text);
-        $content = apply_filters('si_listing_detail_content', $content, $ref_number, $listing_data);
+        $load_text = apply_filters('si/label',$load_text);
+        $content = apply_filters('si/listing/detail/content', $content, $ref_number, $listing_data);
         $class = apply_filters('si/single-listing/class', $class);
         
         ob_start();
@@ -847,7 +847,7 @@ class SiShorcodes{
             echo("<div data-ng-controller=\"singleListingCtrl\" data-ng-init=\"init('{$ref_number}')\">");
         }
 
-        echo("<div class=\"si listing-single {$class} {{model.status}} {{model!=null?'loaded':''}}\">");
+        echo("<div class=\"si si-single-content listing-single {$class} {{model.status}} {{model!=null?'loaded':''}}\">");
         
 
         add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {
@@ -923,7 +923,7 @@ class SiShorcodes{
         if($part != ''){
             ob_start();
             $part_path = apply_filters('si_listing_part_path','single/listings_layouts/subs/' . $part,$part);
-            $part_params = apply_filters('si_listing_part_params', ['allow_toggle' => $allow_toggle,'height' => $height, 'tabs' => explode(',', $tabs)], $part);
+            $part_params = apply_filters('si_listing_part_params', ['align' => $align, 'allow_toggle' => $allow_toggle,'height' => $height, 'tabs' => explode(',', $tabs)], $part);
             SourceImmo::view($part_path, $part_params); 
 
             $lResult = ob_get_clean();

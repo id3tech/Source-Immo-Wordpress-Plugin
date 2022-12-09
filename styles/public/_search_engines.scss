@@ -238,7 +238,7 @@
                 align-items: center;
                 transition:0.25s;
                 color:var(--si-text-color);
-
+                user-select: none;
                 position: absolute;
                 opacity:0;
                 > span{ 
@@ -509,11 +509,36 @@
         }
 
         &.layout-focused{
-            --si-border-style: none;
+            //--si-border-style: none;
+            //background: unset;
+            @include media($tablet){
+                grid-template-columns: 1fr;
+            }
             .si-input-container{
                 &.si-float-label{
                     padding-top:unset;
                     //padding: var(--si-padding);
+                }
+
+            }
+
+            .inputs{
+                grid-template-columns:unset;
+                grid-auto-columns: 1fr;
+                grid-auto-flow:column;
+                gap:var(--si-layout-gutter);
+
+                @include media($tablet){
+                    grid-auto-flow:row;
+                    grid-auto-columns: 1fr;
+                    grid-auto-rows: auto;
+
+                }
+            }
+            .si-input-group{
+                padding-top:0;
+                > span{
+                    color: var(--si-text-color);
                 }
             }
 
@@ -527,6 +552,17 @@
                         }
                         .si-label{font-weight: 700;}
                     }
+                }
+            }
+
+            .search-action{
+                place-items: center start;
+                @include media($tablet){
+                    place-items: center end;
+                    place-self: end;
+                }
+                .reset-button{
+                    display:block;
                 }
             }
 
@@ -710,6 +746,11 @@
             --si-text-color: var(--si-high-contrast-text-color);
             --si-button-text-color: var(--si-text-color);
             --si-button-hover-text-color: var(--si-text-color);
+            .si-panel-header-title{
+                color: var(--si-text-color);
+                font-size: 1.5rem;
+                text-transform:uppercase;
+            }
             h3{padding:0px;margin:0px;}
             .button{
                 background:transparent;

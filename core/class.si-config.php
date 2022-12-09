@@ -101,6 +101,23 @@ class SourceImmoConfig {
    */
   public $form_recipient = '';
 
+  /**
+   * Time limit (in days) that an item is flagged as new
+   * @var int
+   */
+  public $new_item_time_limit = 10;
+
+  /**
+   * Number of image to display when a listing is sold
+   * @var int
+   */
+  public $sold_image_limit = -1;
+
+  /**
+   * Allow the display of map and street view in the media box
+   * @var int
+   */
+  public $sold_allow_map = true;
 
   /**
   * List configuration

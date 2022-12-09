@@ -1,0 +1,62 @@
+
+
+<div class="addon-setting-item" ng-if="false">
+    <label lstr>Counter widget</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.counter_widget_display" ng-change="saveAddonSettings()">
+            <md-option value="none"><lstr>None</lstr></md-option>
+            <md-option value="info-page"><lstr>Show on detail pages</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+<div class="addon-setting-item">
+    <label lstr>Distinguish unique visitors</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.track_visitors" ng-change="saveAddonSettings()">
+            <md-option value="no"><lstr>No</lstr></md-option>
+            <md-option value="yes"><lstr>Yes</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+
+<div class="addon-setting-item">
+    <label lstr>Compile listings events</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.track_listing_events" ng-change="saveAddonSettings()">
+            <md-option value="no"><lstr>No</lstr></md-option>
+            <md-option value="yes"><lstr>Yes</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+
+
+<div class="addon-setting-item">
+    <label lstr>Compile brokers events</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.track_broker_events" ng-change="saveAddonSettings()">
+            <md-option value="no"><lstr>No</lstr></md-option>
+            <md-option value="yes"><lstr>Yes</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+
+
+<div class="addon-setting-item">
+    <label lstr>Compile offices events</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.track_office_events" ng-change="saveAddonSettings()">
+            <md-option value="no"><lstr>No</lstr></md-option>
+            <md-option value="yes"><lstr>Yes</lstr></md-option>
+        </md-select>
+    </div>
+</div>
+
+<div class="addon-setting-item">
+    <label lstr>Compile agencies events</label>
+    <div class="addon-input">
+        <md-select ng-model="modelConfigs.track_agency_events" ng-change="saveAddonSettings()">
+            <md-option value="no"><lstr>No</lstr></md-option>
+            <md-option value="yes"><lstr>Yes</lstr></md-option>
+        </md-select>
+    </div>
+</div>

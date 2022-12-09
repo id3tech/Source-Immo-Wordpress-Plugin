@@ -11,7 +11,7 @@ html.print { margin-top: 0px !important; padding: 0px; background: #ccc !importa
 
 html.print * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 
-html.print body { background: #ccc !important; margin: 0px; padding: 0px; font-size: 0.12in; font-family: 'Open Sans'; line-height: 1.35; }
+html.print body { background: #ccc !important; --si-background-color: #fff!important; --si-text-color: #333!important; margin: 0px; padding: 0px; font-size: 0.12in; font-family: 'Open Sans'; line-height: 1.35; }
 
 html.print body p, html.print body label, html.print body span, html.print body td, html.print body li, html.print body em { font-family: 'Open Sans'; }
 
@@ -27,15 +27,15 @@ html.print body h5 { font-size: 1.15rem; }
 
 html.print body .info-panel { position: fixed; top: 0px; left: 0; bottom: 0; width: 25vw; overflow: hidden auto; }
 
-html.print body .print-button { position: fixed; display: block; left: calc(50%  + 5in); top: 1in; background-color: transparent; color: var(--si-highlight-text-color); width: 1in; height: 1in; line-height: 1in; text-align: center; border: none; }
+html.print body .print-button { position: fixed; display: block; left: calc(50%  + 5in); top: 1in; background-color: transparent !important; color: var(--si-highlight-text-color); width: 1in; height: 1in; line-height: 1in; text-align: center; border: none; }
 
 html.print body .print-button i { font-size: 2rem; z-index: 2; position: relative; }
 
-html.print body .print-button::before { content: ""; position: absolute; width: 80%; height: 80%; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); border-radius: 50%; background-color: var(--si-highlight); }
+html.print body .print-button::before { content: ""; position: absolute; width: 80%; height: 80%; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); border-radius: 50%; background-color: var(--si-highlight) !important; }
 
 html.print body .print-button:hover::before { width: 100%; height: 100%; -webkit-transition: 0.25s; transition: 0.25s; }
 
-html.print body page { display: block; margin: 20px auto; background: #ffffff; width: 8.5in; height: 11in; padding: 0.5in; position: relative; overflow: hidden; }
+html.print body page { display: block; margin: 20px auto; background: var(--si-background-color) !important; width: 8.5in; height: 11in; padding: 0.5in; position: relative; overflow: hidden; }
 
 html.print body page:nth-child(n+2) { counter-increment: page; }
 
@@ -51,11 +51,13 @@ html.print body page header { position: absolute; top: 0in; left: 0in; width: 10
 
 html.print body page footer { position: absolute; bottom: 0in; left: 0in; width: 100%; }
 
-html.print body page header, html.print body page footer { z-index: 99; background: var(--si-background-color); padding: 0.1in; height: 0.5in; }
+html.print body page header, html.print body page footer { z-index: 99; background: var(--si-background-color) !important; padding: 0.1in; height: 0.5in; }
 
-html.print body page header .page-counter, html.print body page footer .page-counter { position: absolute; right: 0px; bottom: 0px; width: 0.5in; height: 0.5in; line-height: 0.5in; background-color: var(--si-highlight); color: var(--si-highlight-text-color); text-align: center; font-style: normal; font-weight: 700; }
+html.print body page header .page-counter, html.print body page footer .page-counter { position: absolute; right: 0px; bottom: 0px; width: 0.5in; height: 0.5in; line-height: 0.5in; background-color: var(--si-highlight) !important; color: var(--si-highlight-text-color); text-align: center; font-style: normal; font-weight: 700; }
 
 html.print body page header .page-counter::after, html.print body page footer .page-counter::after { content: counter(page); }
+
+html.print body page header a::after, html.print body page footer a::after { display: none; }
 
 html.print body page note { display: block; font-style: italic; font-weight: 700; padding-left: 0.05in; margin: 0.05in 0; border-left: solid 0.02in var(--si-highlight); }
 
@@ -151,17 +153,23 @@ html.print body .opacity-95 { opacity: 0.95; }
 
 html.print body .opacity-100 { opacity: 1; }
 
+html.print body .si-truncated-text { position: relative; --lh: 1.5em; --max-lines: 12; line-height: var(--lh); max-height: calc((var(--max-lines) * var(--lh) ) - 1px); overflow: hidden; }
+
+html.print body .si-truncated-text::before { content: "..."; position: absolute; bottom: 0; right: 0; background: var(--si-background-color) !important; width: 2em; text-align: center; }
+
+html.print body .si-truncated-text::after { content: ""; position: absolute; right: 0; /* note: not using bottom */ width: 1rem; height: 1rem; background: var(--si-background-color) !important; }
+
 html.print body .panel { position: relative; overflow: hidden; padding: 0.25in; }
 
 html.print body .panel.hidden { display: none; }
 
-html.print body .panel.small-contrast { background-color: var(--si-small-contrast-color); }
+html.print body .panel.small-contrast { background-color: var(--si-small-contrast-color) !important; }
 
 html.print body .panel.bordered { padding-top: 0; padding-bottom: 0.15in; }
 
-html.print body .panel.bordered::after { content: ""; position: absolute; top: 0.15in; left: 0.1in; width: calc(100% - 0.2in); bottom: 0; pointer-events: none; border: solid 1px var(--si-highlight); border-radius: var(--si-border-radius); z-index: 2; }
+html.print body .panel.bordered::after { content: ""; position: absolute; top: 0.15in; left: 0.1in; width: calc(100% - 0.2in); bottom: 0; pointer-events: none; border: solid 1px var(--si-highlight); border-radius: var(--si-border-radius, 0); z-index: 2; }
 
-html.print body .panel.bordered h3 { position: relative; z-index: 4; display: inline-block; padding: 0 0.15in; left: -0.05in; place-self: start; }
+html.print body .panel.bordered h3 { position: relative; z-index: 4; display: inline-block; padding: 0 0.15in; left: -0.05in; place-self: start; background-color: var(--si-background-color) !important; }
 
 html.print body .panel.bordered .content { position: relative; padding-top: 0.15in; padding-bottom: 0; }
 
@@ -189,7 +197,7 @@ html.print body .panel .list .list-item label::after { content: ''; position: ab
 
 html.print body .panel .list .list-item .value { font-size: 1rem; text-align: right; place-self: start end; position: relative; z-index: 5; }
 
-html.print body .panel .list .list-item .value span { padding-left: 0.1in; background: var(--si-background-color); }
+html.print body .panel .list .list-item .value span { padding-left: 0.1in; background: var(--si-background-color) !important; }
 
 html.print body .panel .spec-grid { display: -ms-grid; display: grid; grid-gap: 0.01in; -ms-grid-columns: (1fr)[2]; grid-template-columns: repeat(2, 1fr); }
 
@@ -213,7 +221,7 @@ html.print body .panel .spec-grid.list-layout .spec label::after { content: ''; 
 
 html.print body .panel .spec-grid.list-layout .spec > div { text-align: right; place-self: start end; position: relative; z-index: 5; }
 
-html.print body .panel .spec-grid.list-layout .spec > div span { padding-left: 0.1in; background: var(--si-background-color); }
+html.print body .panel .spec-grid.list-layout .spec > div span { padding-left: 0.1in; background: var(--si-background-color) !important; }
 
 html.print body .icon-grid { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[5]; grid-template-columns: repeat(5, 1fr); gap: 0.05in; }
 
@@ -299,11 +307,11 @@ html.print body .page-layout > h5 { padding: 0.05in 0.25in; }
 
 html.print body .grid-layout { display: -ms-grid; display: grid; }
 
-html.print body .notepad { position: relative; overflow: hidden; }
+html.print body .notepad { position: relative; overflow: hidden; -ms-grid-rows: auto; grid-template-rows: auto; }
 
-html.print body .notepad .handwrite-zone { opacity: 0.25; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-image: -ms-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -ms-linear-gradient(var(--si-text-color) 1px, transparent 0); -webkit-background-size: 100% 2em; -moz-background-size: 100% 2em; /* In a perfect world... */ background-image: linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), linear-gradient(var(--si-text-color) 1px, transparent 0); background-size: 100% 2em; }
+html.print body .notepad .handwrite-zone { opacity: 0.25; background-image: -ms-linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), -ms-linear-gradient(var(--si-text-color) 1px, transparent 0) !important; -webkit-background-size: 100% 2em !important; -moz-background-size: 100% 2em !important; /* In a perfect world... */ background-image: linear-gradient(0deg, transparent 5em, rgba(255, 0, 0, 0.2) 0, transparent 5.1em), linear-gradient(var(--si-text-color) 1px, transparent 0) !important; background-size: 100% 2em !important; }
 
-html.print body .si-site-logo { height: 100px; }
+html.print body .si-site-logo { height: 1in; width: 2in; }
 
 html.print body .si-site-logo img { width: 100%; height: 100%; -o-object-fit: contain; object-fit: contain; -o-object-position: center; object-position: center; }
 
@@ -319,31 +327,31 @@ html.print.listings page header .ref_number { font-size: 0.6em; }
 
 html.print.listings page footer .more-info label { display: block; font-weight: 400; margin: 0px; padding: 0px; opacity: 0.8; }
 
-html.print.listings page.front-page .page-background { height: 9in; left: 0; top: 1in; -webkit-transform: unset; transform: unset; }
+html.print.listings page.front-page .page-background { height: 5.8in; left: -0.1in; top: 1in; -webkit-transform: unset; transform: unset; }
 
-html.print.listings page.front-page .page-background::after { background-color: var(--si-highlight); opacity: 0.25; mix-blend-mode: multiply; }
+html.print.listings page.front-page .page-background::after { background-color: var(--si-highlight) !important; opacity: 0.25; mix-blend-mode: multiply; }
+
+html.print.listings page.front-page .logo { position: absolute; top: 6.8in; left: 0.1in; padding: 0.1in; }
 
 html.print.listings page.front-page .panel { overflow: visible; }
 
-html.print.listings page.front-page .address-civic { position: absolute; bottom: 1.75in; left: 0.1in; font-size: 1in; text-transform: uppercase; line-height: 0.8em; letter-spacing: -0.1in; width: 30%; font-weight: 700; color: #fff; mix-blend-mode: soft-light; opacity: 1; text-shadow: 0 0 0.1in #000; }
+html.print.listings page.front-page .address-civic { position: absolute; top: 1.5in; left: 0.1in; font-size: 1in; text-transform: uppercase; line-height: 0.8em; letter-spacing: -0.1in; width: 30%; font-weight: 700; color: #fff; mix-blend-mode: soft-light; opacity: 0.5; text-shadow: 0 0 0.1in #000; }
 
 html.print.listings page.front-page .icon-ribbon .icon-grid { -ms-grid-columns: unset; grid-template-columns: unset; grid-auto-columns: 1fr; grid-auto-flow: column; }
 
-html.print.listings page.front-page .description { background: var(--si-background-color); position: absolute; bottom: 2.75in; right: 0; width: 60%; text-align: justify; padding: 0.2in; padding-right: 0.4in; z-index: 5; }
+html.print.listings page.front-page .description { background: var(--si-background-color) !important; position: absolute; bottom: 2.75in; right: 0; width: 60%; text-align: justify; padding: 0.2in; padding-right: 0.4in; z-index: 5; }
 
-html.print.listings page.front-page .description::before { content: ""; background-color: var(--si-highlight); border-radius: var(--si-border-radius); position: absolute; bottom: 0.1in; right: 0in; width: 0.05in; height: 125%; }
+html.print.listings page.front-page .description::before { content: ""; background-color: var(--si-highlight) !important; border-radius: var(--si-border-radius); position: absolute; bottom: 0.1in; right: 0in; width: 0.05in; height: 125%; }
 
-html.print.listings page.front-page .broker-infos { color: var(--si-text-color); background-color: var(--si-background-color); display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; place-items: center start; gap: 1rem; height: 1.5in; }
+html.print.listings page.front-page .broker-infos { color: var(--si-text-color) !important; background-color: var(--si-background-color) !important; display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; place-items: end stretch; gap: 1rem; }
 
-html.print.listings page.front-page .broker-infos .logo { place-self: stretch; }
+html.print.listings page.front-page .broker-infos .broker-list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; grid-auto-columns: auto; gap: 0.1in; place-items: stretch; }
 
-html.print.listings page.front-page .broker-infos .broker-list { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: auto; grid-gap: 0.1in; place-items: stretch; }
+html.print.listings page.front-page .broker-infos .broker-list .broker { background-color: var(--si-small-contrast-color) !important; --text-color: var(--si-small-contrast-text-color); border-radius: var(--si-border-radius); overflow: hidden; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; gap: 0.1in; padding: 0.1in; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker { background-color: var(--si-background-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--si-border-radius); grid-gap: 0.1in; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .infos { width: 100%; padding: 0; display: -ms-grid; display: grid; gap: 0.1in; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .infos { width: 100%; padding: 0; }
-
-html.print.listings page.front-page .broker-infos .broker-list .broker .photo { display: none; width: 1in; height: 1.4in; -ms-grid-column: 1; grid-column: 1; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .photo { width: 0.6in; height: 0.8in; -ms-grid-column: 1; grid-column: 1; border-radius: var(--si-border-radius); overflow: hidden; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
 
@@ -351,41 +359,51 @@ html.print.listings page.front-page .broker-infos .broker-list .broker .name { f
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .license { font-size: 0.7rem; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--si-border-color); }
+html.print.listings page.front-page .broker-infos .broker-list .broker .agency, html.print.listings page.front-page .broker-infos .broker-list .broker .company-name { display: none; }
+
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: center start; gap: 0.05in; }
+
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item.phone-type-office { display: none; }
 
 html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item span { font-size: 0.7rem; padding-right: 0.5em; }
 
-html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item em { font-size: 0.75rem; font-style: normal; place-self: end; }
+html.print.listings page.front-page .broker-infos .broker-list .broker .contact .contact-item em { font-size: 0.75rem; font-style: normal; }
 
-html.print.listings page.front-page .information { z-index: 10; color: var(--si-text-color); background-color: var(--si-background-color); -ms-grid-columns: 1fr 2fr; grid-template-columns: 1fr 2fr; -ms-grid-rows: auto; grid-template-rows: auto; grid-template-areas: "transaction price"  "ref_number price"; gap: 0 0.25in; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; padding-bottom: 0.75in; min-height: 1in; }
+html.print.listings page.front-page .information { z-index: 10; color: var(--si-text-color); background-color: var(--si-background-color) !important; -ms-grid-columns: 1fr 4in 1fr; grid-template-columns: 1fr 4in 1fr; -ms-grid-rows: auto; grid-template-rows: auto; grid-template-areas: "transaction . price"  "ref_number . price"; gap: 0 0.25in; -webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; box-shadow: rgba(0, 0, 0, 0.5) 0 0 0.25in; padding: 0.33in; }
 
 html.print.listings page.front-page .information .transaction { text-transform: uppercase; }
 
-html.print.listings page.front-page .information .address { font-size: 1.85rem; grid-column: span 2; padding: 0.2in 0.5in; text-transform: uppercase; background-color: var(--si-highlight); color: var(--si-highlight-text-color); -webkit-transform: translate(-50%, 50%); transform: translate(-50%, 50%); position: absolute; display: -ms-grid; display: grid; place-items: center; gap: 0.1in; bottom: 0; left: 50%; white-space: nowrap; }
+html.print.listings page.front-page .information .address { font-size: 1.85rem; width: 4in; grid-column: span 2; padding: 0.2in 0.5in; text-transform: uppercase; background-color: var(--si-highlight) !important; color: var(--si-highlight-text-color) !important; -webkit-transform: translate(-50%, 0%); transform: translate(-50%, 0%); position: absolute; display: -ms-grid; display: grid; place-items: center; gap: 0.1in; top: 0; left: 50%; text-align: center; }
 
-html.print.listings page.front-page .information .district { font-size: 0.5em; font-weight: 700; }
+html.print.listings page.front-page .information .civic { color: inherit !important; }
 
-html.print.listings page.front-page .information .city { font-size: 0.6em; position: relative; padding-top: 1rem; }
+html.print.listings page.front-page .information .district { font-size: 0.5em; font-weight: 700; color: inherit !important; }
+
+html.print.listings page.front-page .information .city { font-size: 0.6em; position: relative; padding-top: 1rem; color: inherit !important; }
 
 html.print.listings page.front-page .information .city::before { content: ""; position: absolute; top: 0px; height: 1pt; width: 0.5in; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); background: var(--si-highlight-text-color); }
 
-html.print.listings page.front-page .information .price { -ms-grid-row: 1; -ms-grid-row-span: 2; -ms-grid-column: 2; grid-area: price; font-size: 2rem; font-weight: 500; font-family: var(--si-title-font); padding-left: 0.2in; place-self: center end; }
+html.print.listings page.front-page .information .price { -ms-grid-row: 1; -ms-grid-row-span: 2; -ms-grid-column: 3; grid-area: price; font-size: 2rem; font-weight: 500; font-family: var(--si-title-font); padding-left: 0.2in; place-self: center end; }
 
 html.print.listings page.front-page .information .ref_number { -ms-grid-row: 2; -ms-grid-column: 1; grid-area: ref_number; font-size: 0.8em; }
 
 html.print.listings page.front-page .information .transaction { -ms-grid-row: 1; -ms-grid-column: 1; grid-area: transaction; }
 
-html.print.listings page.details .page-background::after { background-color: var(--si-background-color); opacity: 0.75; }
+html.print.listings page.details .page-background::after { background-color: var(--si-background-color) !important; opacity: 0.75; }
 
-html.print.listings page.details .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto 1fr auto; grid-template-rows: auto 1fr auto; place-items: stretch; grid-gap: 0.25in 0; padding: 0.1in; padding-bottom: 0.2in; }
+html.print.listings page.details .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto auto 1fr auto; grid-template-rows: auto auto 1fr auto; place-items: stretch; grid-gap: 0.25in 0; padding: 0.1in; padding-bottom: 0.2in; }
 
-html.print.listings page.details .panel.addendum { -ms-grid-column: 1; grid-column-start: 1; grid-column-end: max; }
+html.print.listings page.details .panel.si-empty { display: none !important; }
+
+html.print.listings page.details .panel.addendum { grid-column: 1 / -1; }
 
 html.print.listings page.details .panel.addendum .content { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0.25in; }
 
-html.print.listings page.details .panel.proximity { -ms-grid-column: 1; grid-column-start: 1; grid-column-end: max; }
+html.print.listings page.details .panel.description, html.print.listings page.details .panel.addendum { font-size: 0.1in; }
 
-html.print.listings page.details .panel.icon-ribbon { margin: 0.25in; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; border-radius: var(--si-border-radius); background-color: var(--si-highlight); --si-text-color:var(--si-highlight-text-color); color: var(--si-text-color); }
+html.print.listings page.details .panel.description, html.print.listings page.details .panel.proximity { grid-column: 1 / -1; }
+
+html.print.listings page.details .panel.icon-ribbon { margin: 0.25in; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; border-radius: var(--si-border-radius); background-color: var(--si-highlight) !important; --si-text-color:var(--si-highlight-text-color); color: var(--si-text-color); }
 
 html.print.listings page.details .panel.icon-ribbon .item { margin: 0.05in; padding: 0.05in; text-align: center; }
 
@@ -407,7 +425,7 @@ html.print.listings page.commercial-details .page-layout .panel .area .value { m
 
 html.print.listings page.commercial-details .page-layout .financial { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.25in; }
 
-html.print.listings page.details-part2 .page-background::after { background-color: var(--si-background-color); opacity: 0.75; }
+html.print.listings page.details-part2 .page-background::after { background-color: var(--si-background-color) !important; opacity: 0.75; }
 
 html.print.listings page.details-part2 .panel .area { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: center end; -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; margin-bottom: 0.1in; }
 
@@ -435,15 +453,15 @@ html.print.listings page.rooms .room-list .room-item > div { padding: 0.1in 0.1i
 
 html.print.listings page.rooms .room-list .room-item > div:first-child { padding-left: 0.1in; }
 
-html.print.listings page.rooms .room-list .room-item:nth-child(odd) { background-color: var(--si-small-contrast-color); color: var(--si-small-contrast-text-color); }
+html.print.listings page.rooms .room-list .room-item:nth-child(odd) { background-color: var(--si-small-contrast-color) !important; color: var(--si-small-contrast-text-color) !important; }
 
-html.print.listings page.rooms .room-list .room-item.list-header { background-color: transparent; font-style: italic; opacity: 0.75; border-bottom: solid 0.01in var(--si-border-color); }
+html.print.listings page.rooms .room-list .room-item.list-header { background-color: transparent !important; font-style: italic; opacity: 0.75; border-bottom: solid 0.01in var(--si-border-color); }
 
 html.print.listings page.rooms .room-list .room-item.list-header > div { padding: 0; }
 
 html.print.listings page.rooms .unit { position: relative; }
 
-html.print.listings page.rooms .unit .space-taken { position: absolute; top: 0px; left: 0px; width: 0.01in; background-color: red; }
+html.print.listings page.rooms .unit .space-taken { position: absolute; top: 0px; left: 0px; width: 0.01in; background-color: red !important; }
 
 html.print.listings page.rooms .unit .summary-data { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; background: var(--si-small-contrast-color); color: var(--si-small-contrast-text-color); border-radius: var(--si-border-radius); }
 
@@ -457,7 +475,7 @@ html.print.listings page.rooms .unit .summary-data .flag label { font-weight: 40
 
 html.print.listings page.photos .photo-list { padding: 0.2in; display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[3]; grid-template-columns: repeat(3, 1fr); -ms-grid-rows: auto; grid-template-rows: auto; grid-gap: 0.2in; place-items: stretch; }
 
-html.print.listings page.photos .photo-list .item { background-color: var(--si-small-contrast-color); }
+html.print.listings page.photos .photo-list .item { background-color: var(--si-small-contrast-color) !important; }
 
 html.print.listings page.photos .photo-list .item .photo { height: 1.75in; }
 
@@ -465,41 +483,35 @@ html.print.listings page.photos .photo-list .item .photo img { -o-object-fit: co
 
 html.print.listings page.photos .photo-list .item label { opacity: 0.75; text-align: center; text-transform: uppercase; padding: 0.1in; margin-bottom: 0px; }
 
-html.print.listings page.last-page .dock-left { width: 4.25in; display: -ms-grid; display: grid; -ms-grid-rows: 1fr auto auto; grid-template-rows: 1fr auto auto; gap: 0.25in; }
+html.print.listings page.last-page .dock-left { width: 4.75in; display: -ms-grid; display: grid; -ms-grid-rows: auto auto auto 1fr; grid-template-rows: auto auto auto 1fr; gap: 0.25in; }
 
 html.print.listings page.last-page .brokers .broker-list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; grid-gap: 0.1in; place-items: stretch; }
 
-html.print.listings page.last-page .brokers .broker-list .broker { background-color: var(--si-background-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--si-border-radius); grid-gap: 0.1in; }
+html.print.listings page.last-page .brokers .broker-list .broker { background-color: var(--si-small-contrast-color) !important; --text-color: var(--si-small-contrast-text-color); display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: start; overflow: hidden; border-radius: var(--si-border-radius); gap: 0.1in; padding: 0.1in; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .infos { width: 100%; padding: 0.1in; }
+html.print.listings page.last-page .brokers .broker-list .broker .infos { width: 100%; padding: 0.1in; display: -ms-grid; display: grid; gap: 1rem; font-size: 0.8rem; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .photo { width: 1in; height: 1.4in; -ms-grid-column: 1; grid-column: 1; }
+html.print.listings page.last-page .brokers .broker-list .broker .photo { font-size: 1.2in; width: 1em; place-self: start; -ms-grid-column: 1; grid-column: 1; height: 1.25em; border-radius: inherit; overflow: hidden; }
 
 html.print.listings page.last-page .brokers .broker-list .broker .photo img { -o-object-fit: cover; object-fit: cover; width: 100%; height: 100%; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .name { font-family: var(--si-title-font); font-size: 1.25rem; font-weight: 700; }
+html.print.listings page.last-page .brokers .broker-list .broker .name { font-family: var(--si-title-font); font-size: 1.1em; text-transform: uppercase; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .license { font-size: 0.8rem; }
+html.print.listings page.last-page .brokers .broker-list .broker .contact { display: -ms-grid; display: grid; gap: 0.5rem; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; place-items: end start; border-bottom: solid 0.01in var(--si-border-color); }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 0.5rem; line-height: 1; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item span { font-size: 0.8rem; }
+html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item em { font-style: normal; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item span::after { content: " "; }
+html.print.listings page.last-page .notepad { width: 3.5in; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item em { font-size: 1.15rem; font-style: normal; place-self: end; }
+html.print.listings page.last-page .notepad .personnal-note-container h3 { margin-bottom: 0.25in; }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item.email { margin-top: 0.5em; }
+html.print.listings page.last-page .notepad .handwrite-zone { height: calc(100% - 0.25in); }
 
-html.print.listings page.last-page .brokers .broker-list .broker .contact .contact-item.email em { grid-column: 1 / -1; place-self: stretch; overflow-wrap: break-word; }
+html.print.listings page.last-page .notepad .static-map-container { overflow: hidden; border-radius: var(--si-border-radius, 0); }
 
-html.print.listings page.last-page .notepad { width: 4.125in; }
-
-html.print.listings page.last-page .notepad .handwrite-zone { top: 1in; right: 0.25in; bottom: 4.25in; }
-
-html.print.listings page.last-page .notepad .static-map { position: absolute; bottom: 0.25in; right: 0.25in; }
-
-html.print.listings page.last-page .static-map { width: 4in; height: 4in; }
+html.print.listings page.last-page .static-map { width: 3in; height: 3in; }
 
 html.print.listings page.last-page .recap .price { font-size: 2rem; position: relative; }
 
@@ -518,3 +530,37 @@ html.print.listings page.annex .page-layout { display: -ms-grid; display: grid; 
 html.print.listings page.annex .page-layout h3 { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; }
 
 html.print.listings page.annex .addendum { white-space: pre; }
+
+html.print .print-com page.front-page .page-background { height: 5.5in; top: 0.75in; }
+
+html.print .print-com page.front-page .logo { position: absolute; top: 0in; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); z-index: 5; background: var(--si-background-color) !important; padding: 0.1in 0.25in; }
+
+html.print .print-com page.front-page .information-panel { position: absolute; top: 6.25in; width: 100%; left: 0; -webkit-transform: translateY(-0.75in); transform: translateY(-0.75in); }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .address { background: var(--si-highlight) !important; --text-color:var(--si-highlight-text-color)!important; color: var(--text-color) !important; padding: 0.1in; display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; gap: 0 0.1in; line-height: 1; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .address .civic { font-size: 0.6in; -ms-grid-row: 1; -ms-grid-row-span: 3; grid-row: 1 / span 3; color: inherit !important; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .address .street { font-size: 0.25in; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .address .street, html.print .print-com page.front-page .information-panel .information-panel-content .address .city, html.print .print-com page.front-page .information-panel .information-panel-content .address .transaction { -ms-grid-column: 2; grid-column: 2; color: inherit !important; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .address .transaction { text-transform: uppercase; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; gap: 0.25in; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume .resume-part { padding: 0.2in; display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; gap: 0.1in; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume .price { font-size: 0.35in; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume .available-area { font-size: 0.25in; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume .available-area label { font-weight: 400; font-size: 0.75em; margin: 0; }
+
+html.print .print-com page.front-page .information-panel .information-panel-content .resume .available-area span { font-weight: 700; }
+
+html.print .print-com page.details .page-layout { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: start stretch; gap: 0.2in; }
+
+html.print .print-com page.details .page-layout .page-side, html.print .print-com page.details .page-layout .financial { display: -ms-grid; display: grid; gap: 0.2in; }
+
+html.print .print-com page.texts .page-layout { display: -ms-grid; display: grid; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; place-items: stretch; padding: 0.1in; gap: 0.2in; }

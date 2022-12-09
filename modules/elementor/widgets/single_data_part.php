@@ -530,7 +530,7 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
 
         $classes = [
             'si',
-            'si-single',
+            'si-single-content',
             'si-elementor-widget',
             $contentType . '-single',
         ];
@@ -598,9 +598,10 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'allow_toggle_tablet' => 'tablet',
                 'allow_toggle_mobile' => 'mobile',
             ];
+            
             foreach ($allowToggleMaps as $key => $value) {
-                
-                if(isset($settings[$key]) && $settings[$key] != 'yes'){
+
+                if(isset($settings[$key]) && trim($settings[$key]) != 'yes'){
                     $partClasses[] = 'no-toggle-' . $value;
                 }
             }

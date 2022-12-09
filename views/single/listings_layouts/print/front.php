@@ -1,20 +1,32 @@
 <div class="page-background"><img src="<?php echo($model->photos[0]->url) ?>" /></div>
             
+<div class="logo">
+    <?php SourceImmo::view('single/listings_layouts/print/logo');?>
+</div>
+
             <div class="panel overlay dock-bottom padding-0">
                 
                 <div class="broker-infos padding-5">
                     
+
                     <div class="broker-list">
                     <?php
                     foreach ($model->brokers as $broker) {
                         SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
                     }
+                    // foreach ($model->brokers as $broker) {
+                    //     SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
+                    // }
+                    // foreach ($model->brokers as $broker) {
+                    //     SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
+                    // }
+                    // foreach ($model->brokers as $broker) {
+                    //     SourceImmo::view('single/listings_layouts/print/broker', array('broker'=>$broker));
+                    // }
+
                     ?>
                     </div>
 
-                    <div class="logo">
-                        <?php SourceImmo::view('single/listings_layouts/print/logo');?>
-                    </div>
                 </div>
             </div>
 
@@ -33,7 +45,10 @@
                 }
 
                 if(isset($model->description)){
+                    echo('<div class="si-truncated-text">');
                     echo($model->description);
+                    
+                    echo('</div>');
                 }
                 echo('</div>');
             }

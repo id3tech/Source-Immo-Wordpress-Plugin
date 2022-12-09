@@ -62,3 +62,21 @@ siApp
         return document.querySelectorAll($element).length > 0
     }
 })
+
+siApp
+.filter('siRoutePreview', ['$sce', function($sce){
+    return function($route){
+        const sanitizedRoute = $route.replace(/(\{\{([^\}]+)\}\})/gi, (m,g,g2) => {
+            //console.log('route part',g, m, g2);
+            return '<em>' + g2.split('.').last() + '</em>';
+        })
+        return $sce.trustAsHtml("/" + sanitizedRoute);
+    }
+}])
+
+siApp
+.filter('pluginRootRelative', function(){
+    return function($path){
+        return wpSiApiSettings.base_path + $path;
+    }
+})

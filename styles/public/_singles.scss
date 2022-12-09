@@ -1,7 +1,6 @@
 html, body{ scroll-behavior: smooth;}
 
-#top .si,
- .si{   
+.si-single-content{   
     
     &.listing-single, &.broker-single, &.office-single{
         //display:contents;
@@ -24,10 +23,10 @@ html, body{ scroll-behavior: smooth;}
 
     .si-part{
         display:grid;
-        place-items: inherit;
+        place-content: inherit;
 
         > div{
-            place-items: var(--si-part-align,inherit);
+            place-content: var(--si-part-align,inherit);
         }
         &.si-part-tabs{
             overflow:hidden;
@@ -296,10 +295,10 @@ html, body{ scroll-behavior: smooth;}
                 //     }
 
                 //     &.active{
-                //         background-color:var(--highlight);
+                //         background-color:var(--si-highlight);
                 //         color:var(--highlight-text-color);
                 //         &:hover{
-                //             background-color:var(--highlight);
+                //             background-color:var(--si-highlight);
                 //             color:var(--highlight-text-color);
                 //         }
                 //     }
@@ -485,7 +484,7 @@ html, body{ scroll-behavior: smooth;}
                     i{color:inherit;}
                     &::after,&::before{
                         content:"";
-                        background-color:var(--highlight);
+                        background-color:var(--si-highlight);
                         height:3px;width:0px;
                         position: absolute;bottom:0px;
                         left:50%;transform:translateX(-50%);
@@ -496,17 +495,17 @@ html, body{ scroll-behavior: smooth;}
                     }
                     &.selected{
                         font-weight: 600;
-                        color:var(--highlight);
+                        color:var(--si-highlight);
                         &::after{
                             width:100%;
-                            background-color:var(--highlight);
+                            background-color:var(--si-highlight);
                         }
                     }
                     &.videos{
-                        &::before{
-                            width:100%;
-                            background-color: var(--si-text-color);
-                        }
+                        // &::before{
+                        //     width:100%;
+                        //     background-color: var(--si-text-color);
+                        // }
                         // background:#333;
                         // color:#fff;
                         // &.selected{
@@ -522,10 +521,10 @@ html, body{ scroll-behavior: smooth;}
                         //     background:#fff;
                         //     color:#333;
                         // }
-                        &::before{
-                            width:100%;
-                            background-color: var(--si-text-color);
-                        }
+                        // &::before{
+                        //     width:100%;
+                        //     background-color: var(--si-text-color);
+                        // }
                     }
 
                 }
@@ -811,7 +810,7 @@ html, body{ scroll-behavior: smooth;}
             .location-path{
                 display:flex;
                 flex-wrap: wrap;
-                justify-content: center;
+                place-content: var(--si-part-align, center);
                 gap:0.5ex;
 
                 > div:not(:last-child){
@@ -826,10 +825,10 @@ html, body{ scroll-behavior: smooth;}
             opacity:0.5;
             &:before{content:var(--si-uls-label);}
         }
-        .address{
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+        // .address{
+        //     font-weight: 600;
+        //     text-transform: uppercase;
+        // }
         .near{
             opacity:0.75;
         }
@@ -917,8 +916,8 @@ html, body{ scroll-behavior: smooth;}
 
         .si-flags{
             display:inline-flex;
-            justify-content: center;
-            align-items: center;
+            // justify-content: center;
+            // align-items: center;
             flex-wrap:wrap;
             padding:0;
             gap:var(--si-layout-gutter);
@@ -927,7 +926,7 @@ html, body{ scroll-behavior: smooth;}
                 
                 text-align:center;
                 display:grid;
-                width:3rem;
+                //width:3rem;
                 grid-template-rows: 1fr 1.4rem;
                 place-items:center;
                 i{
@@ -946,7 +945,7 @@ html, body{ scroll-behavior: smooth;}
         }
 
         .open-houses{
-            background: var(--highlight);
+            background: var(--si-highlight);
             border-radius:var(--si-border-radius);
             --si-text-color:var(--highlight-text-color);
             padding:var(--si-layout-gutter);
@@ -983,7 +982,7 @@ html, body{ scroll-behavior: smooth;}
                             padding:5px 10px;
                             font-weight: 700;
                             background:var(--highlight-text-color);
-                            color:var(--highlight);
+                            color:var(--si-highlight);
                             border-radius:var(--si-border-radius);
                         }
                     }
@@ -1383,6 +1382,14 @@ html, body{ scroll-behavior: smooth;}
                 }
             }
         }
+
+        &.listing-sold{
+            .si-part-info-request-button{
+                .information_request{
+                    display:none;
+                }
+            }
+        }
     }
 
     // ---------------
@@ -1521,14 +1528,21 @@ html, body{ scroll-behavior: smooth;}
                 &.si-part-links{
                     //padding-bottom: var(--si-layout-gutter);
                     text-align:var(--content-align);
-                    
-                    .link-list{
+                    // .si-link-container{
+                    //     display:inline-flex;
+                    //     align-items: center;
+                    //     gap:var(--si-layout-gutter);
+                    // }
+                    .si-link-list{
                         display:flex;
                         flex-direction:row;
                         align-items: center;
                         gap:var(--si-layout-gutter);
+                        .si-link-item{
+                            font-size:2em;
+                        }
                     }
-                    .website{
+                    .si-website-link{
                         display:flex;
                         flex-direction:row;
                         align-items: center;
@@ -1543,7 +1557,7 @@ html, body{ scroll-behavior: smooth;}
                             }
                         }
                     }
-                    > .link{
+                    > .si-link-container{
                         display:flex;
                         flex-direction:row;
                         align-items: center;
@@ -2379,7 +2393,7 @@ html, body{ scroll-behavior: smooth;}
         
     }
 }
-#top .si{
+#top .si-single-content{
     &.listing-single,
     &.broker-single{
         > .container{margin:40px auto;}

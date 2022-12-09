@@ -385,7 +385,26 @@ siApp
         }
         return $value;
     }
-}])
+}]);
+
+siApp
+.filter('siFilterListLowerBound', function(){
+    return function($label, $last){
+        if(!$last) return $label;
+        
+        return $label + ' ' + 'and more'.translate();
+
+    }
+});
+
+siApp
+.filter('siFilterListUpperBound', function(){
+    return function($label, $last){
+        if(!$last) return $label;
+        
+        return $label + ' ' + 'or less'.translate();
+    }
+});
 
 
 function $lateBind($callback){

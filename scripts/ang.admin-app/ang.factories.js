@@ -1,7 +1,7 @@
 /* SERVICES */
 siApp
-.factory('$siUtils', ['$siApi','$q',
-function $siUtils($siApi,$q){
+.factory('$siUtils', ['$siApi','$q', '$mdToast',
+function $siUtils($siApi,$q,$mdToast){
   let $scope = {};
 
   $scope.stringToOptionList = function($source){
@@ -178,6 +178,47 @@ function $siUtils($siApi,$q){
     
   }
 
+  $scope.copyToClipboard = function($data){
+    let lContent = '';
+    if($data !== null && typeof $data === 'object'){
+      lContent = JSON.stringify($data);
+    }
+    else{
+      lContent = $data;
+    }
+
+    let lTextarea = document.createElement("textarea");
+    lTextarea.textContent = lContent;
+    lTextarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+    document.body.appendChild(lTextarea);
+    lTextarea.select();
+    try {
+      $scope.toast('Copied to clipboard');
+      document.execCommand("copy");  // Security exception may be thrown by some browsers.
+    } 
+    catch (ex) {
+        console.warn("Copy to clipboard failed.", ex);
+        return false;
+    } 
+    finally {
+      document.body.removeChild(lTextarea);
+    }
+
+  }
+
+  $scope.toast = function($message){
+    try{
+      $mdToast.show(
+        $mdToast.simple()
+          .textContent($message.translate())
+          .position('top right')
+          .hideDelay(2000)
+      );
+    }
+    catch($ex){
+      console.log($ex);
+    }
+  }
   
   return $scope;
 }]);
@@ -699,6 +740,35 @@ siApp
     );
   }
 
+   /**
+   * Display a prompt dialog box
+   * @param {string} $title Main confirm message
+   * @param {string} $message Optional. Additionnal information to help understand the main message. Default : empty
+   * @param {object} $options Optional. Additionnal options to configure button labels and more. Default : null
+   * @return {promise}
+   */
+    $scope.prompt = function($message, $options){
+      $message = typeof($message) == 'undefined' ? '' : $message;
+  
+      $options = angular.merge({
+        ev: null,
+        ok: 'OK',
+      }, $options);
+      
+      // Appending dialog to document.body to cover sidenav in docs app
+      const lDialog = $mdDialog.prompt()
+                      .clickOutsideToClose(false)
+                      .textContent($message.translate())
+                      .ok($options.ok)
+                      .multiple(true)
+                      .targetEvent($options.ev)
+                      lDialog._options.parent = angular.element(document.body);
+  
+      return $mdDialog.show(
+        lDialog
+      );
+    }
+
   /**
    * Display a confirmation box
    * @param {string} $title Main confirm message
@@ -938,6 +1008,10 @@ siApp
 
   $scope.updatePage  = function ($id, $newContent){
 
+  }
+
+  $scope.getPage = function(page){
+    return $siApi.rest('page/get',{page: page},{method: 'GET'});
   }
 
   $scope.addPage = function($title, $content, $lang, $originalId){

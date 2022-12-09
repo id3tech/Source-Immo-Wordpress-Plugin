@@ -9,7 +9,11 @@
         <h2>Version <?php echo SI_VERSION?></h2>
         <h4 lstr>What's new</h4>
         <p class="si-markdown-text" ng-bind-html="whatNewText"></p>
-        <md-button ng-click="showReadme()"><lstr>Read change logs</lstr></md-button>
+        <div layout="row" layout-align="start center">
+            <md-button ng-click="showReadme()"><lstr>Read change logs</lstr></md-button>
+            <md-button ng-click="showDocumentation()"><lstr>Show documentation</lstr></md-button>
+        </div>
+        
     </div>
 
     <div class="notice-list">

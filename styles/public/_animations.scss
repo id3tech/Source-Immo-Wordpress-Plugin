@@ -14,9 +14,15 @@
 }
 .si-animate-fast{
     --si-anim-duration: 0.125s;
+    transition-duration: var(--si-anim-duration)!important;
+}
+.si-animate-slower{
+    --si-anim-duration: 0.5s;
+    transition-duration: var(--si-anim-duration)!important;
 }
 .si-animate-slow{
     --si-anim-duration: 1s;
+    transition-duration: var(--si-anim-duration)!important;
 }
 
 .si-animate-delay{
@@ -44,6 +50,21 @@
     @extend .si-animate-base;
     opacity:1;
     --si-anim-name: siAnimFadeOut;
+}
+
+.si-animate-push-up{
+    //@extend .si-animate-base;
+    transform:translate(var(--si-anim-offset-x,0px), calc(var(--si-anim-offset-y,0px) - 1rem));
+    //--si-anim-name: siAnimPushUp;
+}
+.si-animate-push-down{
+    transform:translate(var(--si-anim-offset-x,0px), calc(var(--si-anim-offset-y,0px) + 1rem));
+}
+.si-animate-push-left{
+    transform:translate(calc(var(--si-anim-offset-x,0px) - 1rem), var(--si-anim-offset-y,0px));
+}
+.si-animate-push-right{
+    transform:translate(calc(var(--si-anim-offset-x,0px) + 1rem), var(--si-anim-offset-y,0px));
 }
 
 
@@ -100,6 +121,18 @@
     --si-anim-name: siAnimSlideOutRight;
 }
 
+.si-animate-scale-up{
+    @extend .si-animate-base;
+    --si-anim-name: siAnimScaleUp;
+}
+
+.si-animate-scale-down{
+    @extend .si-animate-base;
+    --si-anim-name: siAnimScaleDown;
+}
+
+
+
 .si-animate-test{
     @extend .si-animate-slide-in-bottom;
 }
@@ -116,6 +149,29 @@
         opacity:0;
     }
 }
+
+
+@keyframes siAnimPushUp {
+    100% {
+        transform:translate(var(--si-anim-offset-x), calc(var(--si-anim-offset-y) - 1rem));
+    }
+}
+@keyframes siAnimPushDown {
+    100% {
+        transform:translate(var(--si-anim-offset-x), var(--si-anim-offset-y) + 1rem);
+    }
+}
+@keyframes siAnimPushLeft {
+    100% {
+        transform:translate(var(--si-anim-offset-x) - 1rem, var(--si-anim-offset-y));
+    }
+}
+@keyframes siAnimPushRight {
+    100% {
+        transform:translate(var(--si-anim-offset-x) + 1rem, var(--si-anim-offset-y));
+    }
+}
+
 
 @keyframes siAnimSlideInBottom {
     100% {
@@ -169,4 +225,20 @@
         transform:translate(calc(100% + var(--si-anim-offset-x)), var(--si-anim-offset-y))
     }
 }
+
+@keyframes siAnimScaleUp {
+    100% {
+        opacity:1;
+        transform:scale(1.1);
+    }
+}
+
+
+@keyframes siAnimScaleDown {
+    100% {
+        opacity:1;
+        transform:scale(1.1);
+    }
+}
+
 

@@ -31,7 +31,7 @@ if($item->status_code=='SOLD'){
 	        <div class="open-houses">
                 <?php if(isset($item->open_houses) && count($item->open_houses)>0){ ?>
             	<div class="open-house-item">
-                    <i class="fal fa-calendar-alt"></i> <?php echo(apply_filters('si_label', __('Open house', SI))) ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
+                    <i class="fal fa-calendar-alt"></i> <?php si_label('Open house') ?> <span><?php echo(Moment::time_ago($item->open_houses[0]->start_date)) ?></span>
             	</div>
                 <?php } ?>
 	        </div>

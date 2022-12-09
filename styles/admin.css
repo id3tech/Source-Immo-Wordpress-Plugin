@@ -91,7 +91,7 @@ body.wp-admin #si-app .config-panel .sections { position: relative; }
 
 body.wp-admin #si-app .config-panel .sections section { overflow: hidden; max-height: 0px; -webkit-transition: 0.25s; transition: 0.25s; opacity: 0; }
 
-body.wp-admin #si-app .config-panel .sections section.selected { max-height: 150vh; opacity: 1; }
+body.wp-admin #si-app .config-panel .sections section.selected { max-height: 66vh; opacity: 1; overflow: hidden overlay; }
 
 body.wp-admin #si-app .config-panel .sections section.selected#styles { padding: 10px; }
 
@@ -165,6 +165,8 @@ body.wp-admin #si-app .list-list .list-item .infos button.md-button { margin: 0p
 
 body.wp-admin lstr { display: inline-block; }
 
+body.wp-admin [ng-click]:not([disabled]) { cursor: pointer; }
+
 body.wp-admin .grid-layout { display: -ms-grid; display: grid; grid-gap: 20px; }
 
 body.wp-admin .grid-row { display: -ms-grid; display: grid; }
@@ -209,6 +211,14 @@ body.wp-admin .si-markdown-text ul { list-style: initial; margin: initial; paddi
 
 body.wp-admin .si-markdown-text ul li { margin: initial; padding: initial; }
 
+body.wp-admin #si-app [lang], body.wp-admin .md-dialog-container [lang] { display: none; }
+
+html[lang^="fr"] #si-app [lang="fr"], html[lang^="fr"] .md-dialog-container [lang="fr"] { display: revert; }
+
+html[lang^="en"] #si-app [lang="en"], html[lang^="en"] .md-dialog-container [lang="en"] { display: revert; }
+
+#si-app { --scroll-button-bg: #b1e9ff; --scroll-highlight-color: #00b7ff; }
+
 #si-app * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 
 #si-app #listEdit .back-button { width: 60px; height: 60px; line-height: 1; }
@@ -231,11 +241,21 @@ body.wp-admin .si-markdown-text ul li { margin: initial; padding: initial; }
 
 #si-app #listEdit .list-layout .viewport { gap: var(--preview-layout-gutter); display: -ms-grid; display: grid; }
 
-#si-app *::-webkit-scrollbar { width: 5px; }
+#si-app * { /* Track */ /* Handle */ /* Handle on hover */ }
 
-#si-app *::-webkit-scrollbar-track { -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); }
+#si-app *::-webkit-scrollbar { width: 5px; opacity: 0.5; -webkit-transition: 0.25s; transition: 0.25s; }
 
-#si-app *::-webkit-scrollbar-thumb { background-color: darkgrey; outline: 1px solid slategrey; }
+#si-app *::-webkit-scrollbar:hover { opacity: 1; }
+
+#si-app *::-webkit-scrollbar-track { background: transparent; -webkit-transition: 0.25s; transition: 0.25s; margin: 1rem; }
+
+#si-app *::-webkit-scrollbar-thumb { background: var(--scroll-button-bg); border-radius: 10px; }
+
+#si-app *::-webkit-scrollbar-thumb:hover { background: var(--scroll-highlight-color); }
+
+#si-app *:hover::-webkit-scrollbar { width: 7px; }
+
+#si-app *:hover::-webkit-scrollbar-thumb { opacity: 1; }
 
 #si-app section#advanced .advanced-settings { display: -ms-grid; display: grid; gap: 1rem; padding: 1rem; }
 
@@ -260,6 +280,14 @@ md-dialog md-dialog-content .dialog-content-header { background: #d6edff; margin
 md-dialog > ng-include { display: contents; }
 
 md-dialog#account-login-dialog .md-dialog-content { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-align: stretch; -ms-flex-align: stretch; align-items: stretch; }
+
+md-dialog#lang-item-edit-dialog { width: 50vw; max-width: 1000px; }
+
+md-dialog#lang-item-edit-dialog .md-dialog-content { min-height: 40vh; padding: 0; }
+
+md-dialog#lang-item-edit-dialog .md-dialog-content md-tab-content { padding: 2rem; }
+
+md-dialog#lang-item-edit-dialog .md-dialog-content md-tab-content > div { display: -ms-grid; display: grid; gap: 1rem; }
 
 md-dialog#brokers-list-item-edit-dialog, md-dialog#offices-list-item-edit-dialog, md-dialog#agencies-list-item-edit-dialog, md-dialog#listings-list-item-edit-dialog { width: 80vw; max-width: 1200px; }
 
@@ -329,33 +357,59 @@ md-dialog#list-edit-dialog .list-item-rendering .list-item-layer-container .laye
 
 md-dialog#list-edit-dialog .list-item-rendering .list-item-layer-container .layer-preview.show-sold .si-price { display: none; }
 
-md-dialog#page-picker-dialog { width: clamp(640px, 50vw, 1000px); height: 80vh; }
+md-dialog#form-picker-dialog, md-dialog#page-picker-dialog { width: clamp(640px, 50vw, 1000px); height: 80vh; }
 
-md-dialog#page-picker-dialog .md-dialog-content { display: -ms-grid; display: grid; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; gap: 1rem; }
+md-dialog#form-picker-dialog .md-dialog-content, md-dialog#page-picker-dialog .md-dialog-content { display: -ms-grid; display: grid; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; gap: 1rem; }
 
-md-dialog#page-picker-dialog .si-search-container { display: -webkit-box; display: -ms-flexbox; display: flex; gap: 1rem; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
+md-dialog#form-picker-dialog .si-search-container, md-dialog#page-picker-dialog .si-search-container { display: -webkit-box; display: -ms-flexbox; display: flex; gap: 1rem; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
 
-md-dialog#page-picker-dialog .si-search-container i.fal { -webkit-box-ordinal-group: 0; -ms-flex-order: -1; order: -1; -webkit-transform: translateX(calc(100% + 1.5rem)); transform: translateX(calc(100% + 1.5rem)); -webkit-transition: 0.25s ease; transition: 0.25s ease; }
+md-dialog#form-picker-dialog .si-search-container i.fal, md-dialog#page-picker-dialog .si-search-container i.fal { -webkit-box-ordinal-group: 0; -ms-flex-order: -1; order: -1; -webkit-transform: translateX(calc(100% + 1.5rem)); transform: translateX(calc(100% + 1.5rem)); -webkit-transition: 0.25s ease; transition: 0.25s ease; }
 
-md-dialog#page-picker-dialog .si-search-container input { width: 250px; }
+md-dialog#form-picker-dialog .si-search-container input, md-dialog#page-picker-dialog .si-search-container input { width: 250px; }
 
-md-dialog#page-picker-dialog .si-search-container input:focus ~ i.fal { -webkit-transform: translateX(0); transform: translateX(0); }
+md-dialog#form-picker-dialog .si-search-container input:focus ~ i.fal, md-dialog#page-picker-dialog .si-search-container input:focus ~ i.fal { -webkit-transform: translateX(0); transform: translateX(0); }
 
-md-dialog#page-picker-dialog .si-page-list { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[2]; grid-template-columns: repeat(2, 1fr); place-items: stretch; gap: 1rem; overflow: hidden overlay; }
+md-dialog#form-picker-dialog .si-form-list, md-dialog#form-picker-dialog .si-page-list, md-dialog#page-picker-dialog .si-form-list, md-dialog#page-picker-dialog .si-page-list { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[2]; grid-template-columns: repeat(2, 1fr); place-items: stretch; gap: 1rem; overflow: hidden overlay; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item { padding: 1rem; border-radius: 0.5em; border: solid 2px transparent; -webkit-transition: 0.25s ease; transition: 0.25s ease; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item, md-dialog#form-picker-dialog .si-form-list .si-page-item, md-dialog#form-picker-dialog .si-page-list .si-form-item, md-dialog#form-picker-dialog .si-page-list .si-page-item, md-dialog#page-picker-dialog .si-form-list .si-form-item, md-dialog#page-picker-dialog .si-form-list .si-page-item, md-dialog#page-picker-dialog .si-page-list .si-form-item, md-dialog#page-picker-dialog .si-page-list .si-page-item { padding: 1rem; border-radius: 0.5em; border: solid 2px transparent; -webkit-transition: 0.25s ease; transition: 0.25s ease; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item:not(.selected) { cursor: pointer; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item:not(.selected), md-dialog#form-picker-dialog .si-form-list .si-page-item:not(.selected), md-dialog#form-picker-dialog .si-page-list .si-form-item:not(.selected), md-dialog#form-picker-dialog .si-page-list .si-page-item:not(.selected), md-dialog#page-picker-dialog .si-form-list .si-form-item:not(.selected), md-dialog#page-picker-dialog .si-form-list .si-page-item:not(.selected), md-dialog#page-picker-dialog .si-page-list .si-form-item:not(.selected), md-dialog#page-picker-dialog .si-page-list .si-page-item:not(.selected) { cursor: pointer; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item .page-name { font-size: 1.1rem; font-weight: 700; color: inherit; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item .form-name, md-dialog#form-picker-dialog .si-form-list .si-form-item .page-name, md-dialog#form-picker-dialog .si-form-list .si-page-item .form-name, md-dialog#form-picker-dialog .si-form-list .si-page-item .page-name, md-dialog#form-picker-dialog .si-page-list .si-form-item .form-name, md-dialog#form-picker-dialog .si-page-list .si-form-item .page-name, md-dialog#form-picker-dialog .si-page-list .si-page-item .form-name, md-dialog#form-picker-dialog .si-page-list .si-page-item .page-name, md-dialog#page-picker-dialog .si-form-list .si-form-item .form-name, md-dialog#page-picker-dialog .si-form-list .si-form-item .page-name, md-dialog#page-picker-dialog .si-form-list .si-page-item .form-name, md-dialog#page-picker-dialog .si-form-list .si-page-item .page-name, md-dialog#page-picker-dialog .si-page-list .si-form-item .form-name, md-dialog#page-picker-dialog .si-page-list .si-form-item .page-name, md-dialog#page-picker-dialog .si-page-list .si-page-item .form-name, md-dialog#page-picker-dialog .si-page-list .si-page-item .page-name { font-size: 1.1rem; font-weight: 700; color: inherit; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item .page-info { opacity: 0.75; color: inherit; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item .form-info, md-dialog#form-picker-dialog .si-form-list .si-form-item .page-info, md-dialog#form-picker-dialog .si-form-list .si-page-item .form-info, md-dialog#form-picker-dialog .si-form-list .si-page-item .page-info, md-dialog#form-picker-dialog .si-page-list .si-form-item .form-info, md-dialog#form-picker-dialog .si-page-list .si-form-item .page-info, md-dialog#form-picker-dialog .si-page-list .si-page-item .form-info, md-dialog#form-picker-dialog .si-page-list .si-page-item .page-info, md-dialog#page-picker-dialog .si-form-list .si-form-item .form-info, md-dialog#page-picker-dialog .si-form-list .si-form-item .page-info, md-dialog#page-picker-dialog .si-form-list .si-page-item .form-info, md-dialog#page-picker-dialog .si-form-list .si-page-item .page-info, md-dialog#page-picker-dialog .si-page-list .si-form-item .form-info, md-dialog#page-picker-dialog .si-page-list .si-form-item .page-info, md-dialog#page-picker-dialog .si-page-list .si-page-item .form-info, md-dialog#page-picker-dialog .si-page-list .si-page-item .page-info { opacity: 0.75; color: inherit; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item:hover { background: #dfdfdf; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item:hover, md-dialog#form-picker-dialog .si-form-list .si-page-item:hover, md-dialog#form-picker-dialog .si-page-list .si-form-item:hover, md-dialog#form-picker-dialog .si-page-list .si-page-item:hover, md-dialog#page-picker-dialog .si-form-list .si-form-item:hover, md-dialog#page-picker-dialog .si-form-list .si-page-item:hover, md-dialog#page-picker-dialog .si-page-list .si-form-item:hover, md-dialog#page-picker-dialog .si-page-list .si-page-item:hover { background: #dfdfdf; }
 
-md-dialog#page-picker-dialog .si-page-list .si-page-item.selected { pointer-events: none; border-color: #27B5CA; color: #27B5CA; }
+md-dialog#form-picker-dialog .si-form-list .si-form-item.selected, md-dialog#form-picker-dialog .si-form-list .si-page-item.selected, md-dialog#form-picker-dialog .si-page-list .si-form-item.selected, md-dialog#form-picker-dialog .si-page-list .si-page-item.selected, md-dialog#page-picker-dialog .si-form-list .si-form-item.selected, md-dialog#page-picker-dialog .si-form-list .si-page-item.selected, md-dialog#page-picker-dialog .si-page-list .si-form-item.selected, md-dialog#page-picker-dialog .si-page-list .si-page-item.selected { pointer-events: none; border-color: #27B5CA; color: #27B5CA; }
+
+md-dialog#documentation-dialog { min-height: 80vh; min-width: 80vw; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-search-container { margin-inline: auto; width: clamp(320px, 60%, 800px); padding: 4px; position: relative; font-size: 1.2rem; overflow: hidden; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-search-container input { padding: 0.5em 1em; width: 100%; outline: none; border: none; border-radius: 0.25em; -webkit-transition: 0.25s ease; transition: 0.25s ease; -webkit-box-shadow: 0 0 0 1px #ccc; box-shadow: 0 0 0 1px #ccc; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-search-container i.fal { position: absolute; top: 50%; right: 1rem; -webkit-transform: translate(100%, -50%); transform: translate(100%, -50%); opacity: 0; -webkit-transition: 0.25s ease; transition: 0.25s ease; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-search-container input:focus { -webkit-box-shadow: 0 0 0 2px var(--highlight, #27B5CA); box-shadow: 0 0 0 2px var(--highlight, #27B5CA); }
+
+md-dialog#documentation-dialog .md-dialog-content .si-search-container input:focus + i.fal { -webkit-transform: translate(0%, -50%); transform: translate(0%, -50%); opacity: 1; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-list { display: -ms-grid; display: grid; -ms-grid-columns: (1fr)[5]; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+
+@media screen and (max-width: 2500px) { md-dialog#documentation-dialog .md-dialog-content .si-list { -ms-grid-columns: (1fr)[4]; grid-template-columns: repeat(4, 1fr); } }
+
+@media screen and (max-width: 2000px) { md-dialog#documentation-dialog .md-dialog-content .si-list { -ms-grid-columns: (1fr)[3]; grid-template-columns: repeat(3, 1fr); } }
+
+md-dialog#documentation-dialog .md-dialog-content .si-list .si-list-item { display: -ms-grid; display: grid; -ms-grid-columns: 1fr auto; grid-template-columns: 1fr auto; padding: 1rem; background: #3332; border-radius: 0.25rem; cursor: pointer; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-list .si-list-item .si-item-name { font-size: 1.1rem; font-weight: 600; }
+
+md-dialog#documentation-dialog .md-dialog-content .si-list .si-list-item .si-item-actions { -ms-grid-column: 2; grid-column: 2; -ms-grid-row: 1; -ms-grid-row-span: 2; grid-row: 1 / span 2; }
 
 md-dialog#layer-var-edit-dialog { width: 640px; }
+
+md-dialog#layer-var-add-custom-dialog { width: 640px; }
 
 md-dialog#style-editor-dialog { width: 100%; height: 100%; max-height: 90%; }
 
@@ -541,6 +595,32 @@ md-dialog #si-app .unregister-box .registration-summary ol li.step.done::before 
 
 md-dialog #si-app .unregister-box .registration-trolley { display: -ms-grid; display: grid; -ms-grid-columns: (100%)[5]; grid-template-columns: repeat(5, 100%); -webkit-transform: translateX(calc(-100% * var(--register-step))); transform: translateX(calc(-100% * var(--register-step))); place-items: start center; -webkit-transition: 0.25s; transition: 0.25s; }
 
+body.wp-admin #si-app .si-working-state, .md-dialog-container .si-working-state { --text-color: #333; position: fixed; bottom: 1rem; left: 50vw; -webkit-transition: 0.25s ease; transition: 0.25s ease; translate: -50% 100%; opacity: 0; pointer-events: none; background: var(--bg-color, #dedede); padding: 1rem; border-radius: 0.25rem; -webkit-box-shadow: 0 0.5rem 0.5rem #00000099; box-shadow: 0 0.5rem 0.5rem #00000099; }
+
+body.wp-admin #si-app .si-working-state .state-container, .md-dialog-container .si-working-state .state-container { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; gap: 1rem; place-items: center stretch; }
+
+body.wp-admin #si-app .si-working-state .state-icon, .md-dialog-container .si-working-state .state-icon { font-size: 2rem; -webkit-transition: 0.5s ease; transition: 0.5s ease; -webkit-transform-style: preserve-3d; transform-style: preserve-3d; -webkit-transform-origin: center; transform-origin: center; -webkit-transform: rotateY(0deg); transform: rotateY(0deg); color: var(--text-color); }
+
+body.wp-admin #si-app .si-working-state .state-text, .md-dialog-container .si-working-state .state-text { font-size: 1.25rem; -webkit-transition: 0.25s ease; transition: 0.25s ease; opacity: 1; color: var(--text-color); }
+
+body.wp-admin #si-app .si-working-state.show, .md-dialog-container .si-working-state.show { opacity: 1; translate: -50% 0%; }
+
+body.wp-admin #si-app .si-working-state.si-switch, .md-dialog-container .si-working-state.si-switch { -webkit-transition: 1s ease; transition: 1s ease; scale: 0.5; }
+
+body.wp-admin #si-app .si-working-state.si-switch .state-icon, .md-dialog-container .si-working-state.si-switch .state-icon { -webkit-transform: rotateY(90deg); transform: rotateY(90deg); }
+
+body.wp-admin #si-app .si-working-state.si-switch .state-text, .md-dialog-container .si-working-state.si-switch .state-text { opacity: 0; }
+
+body.wp-admin #si-app .si-working-state.working, .md-dialog-container .si-working-state.working { --bg-color: #d4f6ff; }
+
+body.wp-admin #si-app .si-working-state.done, .md-dialog-container .si-working-state.done { --bg-color: #072; --text-color:#fff; }
+
+body.wp-admin #si-app si-svg, .md-dialog-container si-svg { display: inline-block; }
+
+body.wp-admin #si-app si-svg ng-include, .md-dialog-container si-svg ng-include { display: contents; }
+
+body.wp-admin #si-app si-svg svg, .md-dialog-container si-svg svg { width: 100%; height: 100%; }
+
 body.wp-admin #si-app .si-list-preview.si-style-editor-preview .config-button, .md-dialog-container .si-list-preview.si-style-editor-preview .config-button { -webkit-transition: 0.25s ease; transition: 0.25s ease; opacity: 0; -webkit-transform: translate(-50%, 50%); transform: translate(-50%, 50%); pointer-events: none; }
 
 body.wp-admin #si-app .si-list-preview.si-style-editor-preview .component-elements:hover .config-button, .md-dialog-container .si-list-preview.si-style-editor-preview .component-elements:hover .config-button { opacity: 1; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); pointer-events: auto; }
@@ -695,19 +775,29 @@ body.wp-admin #si-app .si-data-group-editor .content .group-section, .md-dialog-
 
 body.wp-admin #si-app .si-data-group-editor .content .group-section .group-section-title, .md-dialog-container .si-data-group-editor .content .group-section .group-section-title { position: absolute; top: 0; left: 2rem; -webkit-transform: translateY(-50%); transform: translateY(-50%); border-radius: 1em; padding: 0.5em 1em; background: #fff; font-size: 1.25rem; text-transform: uppercase; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list, .md-dialog-container .si-data-group-editor .content .lists .list { display: -ms-grid; display: grid; -ms-grid-columns: 1fr max-content max-content auto auto; grid-template-columns: 1fr -webkit-max-content -webkit-max-content auto auto; grid-template-columns: 1fr max-content max-content auto auto; place-items: center start; gap: 10px 20px; }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list, .md-dialog-container .si-data-group-editor .content .lists .list { display: -webkit-box; display: -ms-flexbox; display: flex; -ms-flex-wrap: wrap; flex-wrap: wrap; -webkit-box-pack: start; -ms-flex-pack: start; justify-content: flex-start; gap: 1rem; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item, .md-dialog-container .si-data-group-editor .content .lists .list .list-item { display: contents; }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item, .md-dialog-container .si-data-group-editor .content .lists .list .list-item { background: #fff; padding: 1rem; border-radius: 0.25rem; display: -ms-grid; display: grid; overflow: hidden; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main { place-self: center start; }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.list-item-header, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.list-item-header { display: none; }
+
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main { place-self: stretch; text-align: center; background: var(--header-color, #d1d1d1); padding: 1rem; margin: -1rem -1rem 0 -1rem; position: relative; }
+
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main h3, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main h3 { margin: 0; }
+
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main h3, body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main sub, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main h3, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main sub { color: var(--text-color, #333); }
 
 body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item .main > div, .md-dialog-container .si-data-group-editor .content .lists .list .list-item .main > div { font-size: 1rem; text-transform: uppercase; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default .main .list-alias::after, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default .main .list-alias::after { content: ""; font-family: 'Font Awesome 5 Pro'; font-weight: 400; font-size: 1em; }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default { --header-color: #4491CF; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default .main .list-alias::after, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default .main .list-alias::after { font-weight: 700; font-size: 0.7rem; padding: 0.15rem 0.5rem; }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default .main, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default .main { --text-color: #fff; }
 
-body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.data-row .main, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.data-row .main { border-left: solid 2px var(--row-color, #ccc); padding-left: 10px; color: var(--row-color, #333); }
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default .main::after, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default .main::after { content: ""; font-family: 'Font Awesome 5 Pro'; font-weight: 400; font-size: 1em; }
+
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.is-default .main::after, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.is-default .main::after { color: inherit; font-weight: 700; font-size: 1rem; padding: 0.15rem 0.5rem; position: absolute; top: 1rem; left: 0.5rem; opacity: 0.5; }
+
+body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.data-row .main, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.data-row .main { color: var(--row-color, #333); }
 
 body.wp-admin #si-app .si-data-group-editor .content .lists .list .list-item.data-row .shortcode, .md-dialog-container .si-data-group-editor .content .lists .list .list-item.data-row .shortcode { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; -webkit-box-align: center; -ms-flex-align: center; align-items: center; }
 
@@ -723,15 +813,27 @@ body.wp-admin #si-app .si-data-group-editor .content .single .lang-es, .md-dialo
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container, .md-dialog-container .si-data-group-editor .content .single .lang-list-container { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -ms-flex-direction: row; flex-direction: row; gap: 1rem; }
 
-body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item { border-radius: 10px; background: #fff; display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; -webkit-box-flex: 1; -ms-flex: 1; flex: 1; max-width: 450px; overflow: hidden; }
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item { border-radius: 10px; background: #fff; display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; -ms-grid-rows: auto 1fr; grid-template-rows: auto 1fr; }
 
-body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; padding: 0.5rem; padding-left: 1rem; background: var(--lang-item-color, #333); color: #fff; }
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .flag, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .flag { width: var(--size, 3rem); aspect-ratio: 4 / 3; border-radius: 0.25rem; overflow: hidden; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .flag si-svg, body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .flag img, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .flag si-svg, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .flag img { height: 100%; width: 100%; -o-object-fit: cover; object-fit: cover; -o-object-position: center; object-position: center; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; -webkit-box-pack: justify; -ms-flex-pack: justify; justify-content: space-between; padding: 0.5rem; padding-left: 1rem; background: var(--lang-item-color, #333); color: #fff; position: relative; border-radius: 0.25rem 0.25rem 0 0; }
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header h3, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header h3 { margin: 0; padding: 0; color: inherit; }
 
-body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; padding-bottom: 2rem; }
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header .flag, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-header .flag { position: absolute; left: 50%; top: 50%; translate: -50% -50%; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body { display: -ms-grid; display: grid; -ms-grid-columns: 1fr; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; place-items: center; }
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body h4, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body h4 { margin-bottom: 0; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes { display: -ms-grid; display: grid; -ms-grid-columns: auto 1fr; grid-template-columns: auto 1fr; gap: 1rem; place-items: center stretch; place-self: stretch; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes .item-route-items > div, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes .item-route-items > div { line-height: 1.25rem; min-height: 2rem; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes .item-route-items em, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .item-routes .item-route-items em { font-style: normal; background-color: #ddd; border-radius: 2em; padding: 0.25em 0.5em; }
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .route-item, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .route-item { display: contents; }
 
@@ -740,6 +842,14 @@ body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-containe
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .route-item .route-part md-menu, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body .route-item .route-part md-menu { position: absolute; right: -15px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); }
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body md-input-container .md-errors-spacer, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item .lang-item-body md-input-container .md-errors-spacer { display: none; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item.empty, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item.empty { -ms-grid-rows: auto; grid-template-rows: auto; background: transparent; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body { display: -webkit-box; display: -ms-flexbox; display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; -ms-flex-direction: column; flex-direction: column; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 0; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body .flag, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body .flag { --size: 4rem; }
+
+body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body div > span, .md-dialog-container .si-data-group-editor .content .single .lang-list-container .lang-item.empty .lang-item-body div > span { font-weight: bold; }
 
 body.wp-admin #si-app .si-data-group-editor .content .single .lang-list-container > md-menu, .md-dialog-container .si-data-group-editor .content .single .lang-list-container > md-menu { -ms-flex-item-align: center; -ms-grid-row-align: center; align-self: center; }
 
@@ -751,15 +861,17 @@ body.wp-admin #si-app .si-data-group-editor .content .route-list .route-item .ro
 
 body.wp-admin #si-app .si-data-group-editor .content .route-list .route-item .route-part md-menu, .md-dialog-container .si-data-group-editor .content .route-list .route-item .route-part md-menu { position: absolute; right: 0px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); }
 
-body.wp-admin #si-app .si-data-group-editor .content .layout-list, .md-dialog-container .si-data-group-editor .content .layout-list { display: -ms-grid; display: grid; gap: 0 10px; -ms-grid-columns: 200px 1fr max-content 1fr 1fr auto; grid-template-columns: 200px 1fr -webkit-max-content 1fr 1fr auto; grid-template-columns: 200px 1fr max-content 1fr 1fr auto; place-items: center stretch; }
+body.wp-admin #si-app .si-data-group-editor .content .layout-list, .md-dialog-container .si-data-group-editor .content .layout-list { display: -webkit-box; display: -ms-flexbox; display: flex; -ms-flex-wrap: wrap; flex-wrap: wrap; -webkit-box-pack: start; -ms-flex-pack: start; justify-content: flex-start; gap: 1rem; }
 
-body.wp-admin #si-app .si-data-group-editor .content .layout-list .layout-item, .md-dialog-container .si-data-group-editor .content .layout-list .layout-item { display: contents; }
+body.wp-admin #si-app .si-data-group-editor .content .layout-list .layout-item, .md-dialog-container .si-data-group-editor .content .layout-list .layout-item { padding: 0.5rem; background: #fff; border-radius: 0.25rem; }
 
 body.wp-admin #si-app .si-data-group-editor .content .layout-list .layout-item md-select, .md-dialog-container .si-data-group-editor .content .layout-list .layout-item md-select { margin: 0px; }
 
 body.wp-admin #si-app .si-data-group-editor .content .list, .md-dialog-container .si-data-group-editor .content .list { position: relative; }
 
 body.wp-admin #si-app .si-data-group-editor .content .list h3, .md-dialog-container .si-data-group-editor .content .list h3 { margin-bottom: 0px; }
+
+body.wp-admin #si-app .si-data-group-editor .content .list .list-item-header, .md-dialog-container .si-data-group-editor .content .list .list-item-header { display: none; }
 
 body.wp-admin #si-app .si-data-group-editor .content .list .list-item-header > div:not(:first-child), .md-dialog-container .si-data-group-editor .content .list .list-item-header > div:not(:first-child) { place-self: end stretch; font-size: 0.6rem; font-style: italic; opacity: 0.5; }
 
@@ -891,7 +1003,7 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-border-t
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-border-radius, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-border-curved, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-border-radius, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-border-curved { border-radius: var(--si-border-radius, 0); overflow: hidden; }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-border-round, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-border-round { border-radius: 10em; overflow: hidden; }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-border-round, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-border-round { border-radius: 100vh; overflow: hidden; aspect-ratio: 1; --item-aspect-ratio: 1; width: var(--si-image-width, 250px); place-self: start center; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-box-shadow, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-box-shadow { -webkit-box-shadow: 0.25rem 0.25rem 1rem #0008; box-shadow: 0.25rem 0.25rem 1rem #0008; }
 
@@ -922,6 +1034,8 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-font-emp
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-weight-emphasis, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-weight-emphasis { font-weight: 700; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-space-emphasis, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-space-emphasis { display: -webkit-inline-box; display: -ms-inline-flexbox; display: inline-flex; -webkit-box-align: center; -ms-flex-align: center; align-items: center; min-height: 2em; }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-font-2x, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-font-2x { font-size: 2em; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-content-small-gap, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-content-small-gap { --content-gap:calc(var(--layout-gutter,1rem) / 2); }
 
@@ -957,6 +1071,8 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-float-bo
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .rooms .prefix, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .rooms .label, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .contacts .prefix, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .contacts .label, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .counters .prefix, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .counters .label, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .phone-list .prefix, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .phone-list .label, .md-dialog-container .si-style-editor-preview .si-preview-viewport .rooms .prefix, .md-dialog-container .si-style-editor-preview .si-preview-viewport .rooms .label, .md-dialog-container .si-style-editor-preview .si-preview-viewport .contacts .prefix, .md-dialog-container .si-style-editor-preview .si-preview-viewport .contacts .label, .md-dialog-container .si-style-editor-preview .si-preview-viewport .counters .prefix, .md-dialog-container .si-style-editor-preview .si-preview-viewport .counters .label, .md-dialog-container .si-style-editor-preview .si-preview-viewport .phone-list .prefix, .md-dialog-container .si-style-editor-preview .si-preview-viewport .phone-list .label { display: none; }
 
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-layer-var.phone .prefix, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-layer-var.phone .prefix { display: none; }
+
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-hide-icons .icon, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-hide-icons .icon { display: none; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-show-labels .label, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-show-labels .label { display: inline-block; }
@@ -968,6 +1084,8 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-show-pre
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-container, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-container { display: -ms-grid; display: grid; position: relative; gap: var(--content-gap); }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-container.si-border:not(.si-padding), .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-container.si-border:not(.si-padding) { padding: var(--si-padding, var(--si-layout-gutter)); }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-gap, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-gap { gap: var(--si-layout-gutter); }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-element, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-element { position: relative; gap: var(--content-gap); }
 
@@ -1071,6 +1189,12 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-list-ite
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-list-item .si-layer-var > ng-include, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-list-item .si-layer-var > ng-include { display: contents; }
 
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout { width: -webkit-max-content; width: -moz-max-content; width: max-content; }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout .layer { display: -ms-grid; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; -ms-grid-columns: auto; grid-template-columns: auto; place-items: stretch; width: -webkit-max-content; width: -moz-max-content; width: max-content; }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout .layer .si-label-group, .md-dialog-container .si-style-editor-preview .si-preview-viewport .si-list-item.si-horizontal-layout .layer .si-label-group { -ms-grid-rows: (auto)[calc] 1fr; grid-template-rows: repeat(calc(var(--items-count) - 1), auto) 1fr; }
+
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .link-button, .md-dialog-container .si-style-editor-preview .si-preview-viewport .link-button { margin-top: 0.5em; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .list-toggler-button, .md-dialog-container .si-style-editor-preview .si-preview-viewport .list-toggler-button { display: -ms-inline-grid; display: inline-grid; grid-auto-flow: column; gap: 10px; place-items: center start; padding: 10px; }
@@ -1085,19 +1209,21 @@ body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-lis
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-list, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-list { -ms-grid-columns: (minmax(var(--si-broker-item-column-width), 1fr))[auto-fill]; grid-template-columns: repeat(auto-fill, minmax(var(--si-broker-item-column-width), 1fr)); }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item { position: relative; padding: 0; }
-
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item .layer { gap: var(--content-gap); }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item { position: relative; padding: 0; gap: 0; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item .layer .layer-content, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item .layer .layer-content, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item .layer .layer-content, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item .layer .layer-content, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item .layer .layer-content, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item .layer .layer-content, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item .layer .layer-content, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item .layer .layer-content, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item .layer .layer-content, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item .layer .layer-content { display: -ms-grid; display: grid; grid-auto-flow: row; grid-auto-rows: auto; place-items: center var(--si-text-align, stretch); gap: 0.25rem; overflow: hidden; }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-border:not(.si-padding) .layer { padding: var(--si-padding, var(--si-layout-gutter)); }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-border:not(.si-padding) .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-border:not(.si-padding) .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-border:not(.si-padding) .layer { padding: var(--si-padding); }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding .layer { padding: var(--si-padding, var(--si-layout-gutter)); }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding .layer { padding: var(--si-padding); }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding-inline .layer { padding: 0 var(--si-padding, var(--si-layout-gutter)); }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-inline .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-inline .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding-inline .layer { padding: 0 var(--si-padding); }
 
-body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding-block .layer { padding: var(--si-padding, var(--si-layout-gutter)) 0; }
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-block .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-padding-block .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-padding-block .layer { padding: var(--si-padding) 0; }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item.si-gap .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item.si-gap .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item.si-gap .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item.si-gap .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item.si-gap .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item.si-gap .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item.si-gap .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item.si-gap .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item.si-gap .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item.si-gap .layer { gap: var(--si-layout-gutter); }
+
+body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item .si-border-radius .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item .si-border-curved .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item .si-border-radius .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item .si-border-curved .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item .si-border-radius .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item .si-border-curved .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item .si-border-radius .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item .si-border-curved .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item .si-border-radius .layer, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item .si-border-curved .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item .si-border-radius .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item .si-border-curved .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item .si-border-radius .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item .si-border-curved .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item .si-border-radius .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item .si-border-curved .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item .si-border-radius .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item .si-border-curved .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item .si-border-radius .layer, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item .si-border-curved .layer { border-radius: var(--si-border-radius, 0); overflow: hidden; }
 
 body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .listing-item .rooms, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .broker-item .rooms, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .office-item .rooms, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .agency-item .rooms, body.wp-admin #si-app .si-style-editor-preview .si-preview-viewport .city-item .rooms, .md-dialog-container .si-style-editor-preview .si-preview-viewport .listing-item .rooms, .md-dialog-container .si-style-editor-preview .si-preview-viewport .broker-item .rooms, .md-dialog-container .si-style-editor-preview .si-preview-viewport .office-item .rooms, .md-dialog-container .si-style-editor-preview .si-preview-viewport .agency-item .rooms, .md-dialog-container .si-style-editor-preview .si-preview-viewport .city-item .rooms { display: -webkit-inline-box; display: -ms-inline-flexbox; display: inline-flex; gap: 0 0.5em; }
 
@@ -1281,7 +1407,11 @@ body.wp-admin #si-app .si-list-item-layer.layer-secondary .image, .md-dialog-con
 
 body.wp-admin #si-app .si-filter-item .value md-input-container, .md-dialog-container .si-filter-item .value md-input-container { width: 100%; }
 
-body.wp-admin #si-app .si-route-box, .md-dialog-container .si-route-box { display: -ms-grid; display: grid; -ms-grid-columns: 100px 2fr  1fr auto auto auto; grid-template-columns: 100px 2fr  1fr auto auto auto; -webkit-box-align: center; -ms-flex-align: center; align-items: center; grid-gap: 10px; }
+body.wp-admin #si-app .si-route-box, .md-dialog-container .si-route-box { display: -ms-grid; display: grid; -webkit-box-align: center; -ms-flex-align: center; align-items: center; gap: 0px; }
+
+body.wp-admin #si-app .si-route-box .route-part, .md-dialog-container .si-route-box .route-part { display: -webkit-box; display: -ms-flexbox; display: flex; }
+
+body.wp-admin #si-app .si-route-box .route-part input, .md-dialog-container .si-route-box .route-part input { -webkit-box-ordinal-group: 0; -ms-flex-order: -1; order: -1; }
 
 body.wp-admin #si-app .si-route-box md-input-container .md-errors-spacer, .md-dialog-container .si-route-box md-input-container .md-errors-spacer { display: none; }
 

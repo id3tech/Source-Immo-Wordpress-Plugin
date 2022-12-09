@@ -13,7 +13,8 @@
             <si-class-selector ng-model="model.classes" filter="layerVar"></si-class-selector>
         </md-input-container>
     
-        <md-input-container ng-if="!['group','photo'].includes(model.key)">
+        
+        <md-input-container ng-if="!['group','photo','link_button'].includes(model.key)">
             <label lstr>Fallback data</label>
             <md-select ng-model="model.fallback">
                 <md-option ng-value="undefined"></md-option>
@@ -21,7 +22,26 @@
             </md-select>
             <div class="hint" lstr>Use this fallback data if {{model.key}} is empty.</div>        
         </md-input-container>
+        
+        <md-input-container>
+            <label lstr>Custom style attribute</label>
+            <input type="text" ng-model="model.style">
+        </md-input-container>
 
+        <md-input-container ng-if="['link_button'].includes(model.key)">
+            <label lstr>Label</label>
+            <si-localized>
+                <input type="text" ng-model="model.label[$localized.current]" />
+            </si-localized>
+        </md-input-container>
+
+
+        <md-input-container ng-if="['custom'].includes(model.var_type)">
+            <label lstr>Label</label>
+            <si-localized>
+                <input type="text" ng-model="model.options.content[$localized.current]" />
+            </si-localized>
+        </md-input-container>
     </div>
     
 </md-dialog-content>

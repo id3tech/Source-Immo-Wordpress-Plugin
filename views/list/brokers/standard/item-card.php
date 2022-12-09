@@ -11,7 +11,7 @@
         <div class="phone phone-type-{{key}}" data-ng-repeat="(key,phone) in item.phones"><span class="si-label prefix">{{key.translate()}}:</span> <span class="si-value">{{phone}}</span></div>
     </div>
     <div class="actions" ng-show="hasListOf('brokers')">
-        <a href="{{item.permalink}}"><button class="si-button" type="button">{{'Other properties'.translate()}}</button></a>
+        <a href="{{item.permalink}}"><button class="si-button" type="button"><span>{{'Other properties'.translate()}}</span></button></a>
     </div>
     
 </article>

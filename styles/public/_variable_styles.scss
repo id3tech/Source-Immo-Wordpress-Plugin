@@ -89,7 +89,7 @@
 
     .si-highlight-background{
         background: var(--si-highlight);
-        --si-text-color: var(--si-highlight-text);
+        --si-text-color: var(--si-highlight-text-color);
 
         --layer-background-color: var(--si-highlight);
     }
@@ -119,6 +119,13 @@
         --si-text-color: var(--si-high-contrast-text-color);
         --layer-background-color: var(--si-high-contrast-color);
         --layer-text-color: var(--si-high-contrast-text-color);
+    }
+
+    .si-background-highlight{
+      background: var(--si-highlight);
+      --si-text-color: var(--si-highlight-text-color);
+      --layer-background-color: var(--si-highlight);
+      --layer-text-color: var(--si-highlight-text-color);
     }
 
     
@@ -209,28 +216,28 @@
 
     .si-padding-block{
       &.si-border{
-        --si-sub-padding: var(--si-padding) 0;
+        --si-sub-padding: var(--si-effective-padding, var(--si-padding,0)) 0;
       }
-      padding: var(--si-padding,0) 0;
+      padding: var(--si-effective-padding, var(--si-padding,0)) 0;
     }
 
     .si-padding-inline{
       &.si-border{
-        --si-sub-padding: 0 var(--si-padding);
+        --si-sub-padding: 0 var(--si-effective-padding, var(--si-padding, 0));
       }
-      padding: 0 var(--si-padding,0);
+      padding: 0 var(--si-effective-padding, var(--si-padding,0));
     }
     .si-padding-top{
-      padding-top: var(--si-padding,0);
+      padding-top: var(--si-effective-padding, var(--si-padding,0));
     }
     .si-padding-left{
-      padding-top: var(--si-padding,0);
+      padding-top: var(--si-effective-padding, var(--si-padding,0));
     }
     .si-padding-bottom{
-      padding-top: var(--si-padding,0);
+      padding-top: var(--si-effective-padding, var(--si-padding,0));
     }
     .si-padding-right{
-      padding-top: var(--si-padding,0);
+      padding-top: var(--si-effective-padding, var(--si-padding,0));
     }
 
     .si-border{
@@ -249,7 +256,10 @@
         overflow:hidden;
     }
     .si-border-round{
-      border-radius: 10em;
+      border-radius: 100vh;
+      aspect-ratio:1!important;
+
+      overflow:hidden;
     }
 
 
@@ -342,6 +352,9 @@
     .si-text-small{
       font-size: 0.75em;
     }
+    .si-font-2x{
+      font-size: 2em;
+    }
 
     .si-text-high-contrast{
       --si-text-color: var(--si-high-contrast-text-color);
@@ -398,7 +411,7 @@
         background: var(--si-button-bg-color);
         --si-text-color: var(--si-button-text-color);
         font-family: var(--si-button-font-name);
-        color: var(--si-text-color);
+        color: var(--si-button-text-color);
 
         
         padding: 1em 1.5em;
@@ -408,11 +421,12 @@
         outline:none;
         cursor: pointer;
 
-        i{color:inherit;}
+        i, span{color:var(--si-button-text-color);}
 
         &:hover{
           background: var(--si-button-hover-bg-color);
           --si-text-color: var(--si-button-hover-text-color);
+          --si-button-text-color: var(--si-button-hover-text-color);
           border-radius: var(--si-button-hover-border-radius, var(--si-button-border-radius));
           border: var(--si-button-hover-border-style,var(--si-button-border-style)) var(--si-button-hover-border-width,var(--si-button-border-width)) var(--si-button-hover-border-color,var(--si-button-border-color));
         }
@@ -773,4 +787,5 @@
         --si-anchor-offset-width: var(--#{$variant}-offset-width);
       }
     }
+
 }

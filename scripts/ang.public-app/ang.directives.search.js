@@ -1,7 +1,7 @@
 
 
 siApp
-.factory('$siSearchContext', ['$rootScope', function $siSearchContext($rootScope){
+.factory('$siSearchContext', ['$rootScope','$filter', function $siSearchContext($rootScope,$filter){
     const $scope = {};
 
     let lToday = new Date().round();    // save today
@@ -127,12 +127,25 @@ siApp
         return { caption: '{0} sqft'.translate().format(20000 * ($i+1)), value: 20000 * ($i+1)}
     }));
 
+
     // listing available areas
     $scope.available_areas = Array.from(Array(6)).map(function($e,$i){
         return { caption: '{0} sqft'.translate().format(250 * ($i+2)), value: 200 * ($i+2)}
     });
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(9)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format(1000 * ($i+2)), value: 1000 * ($i+2)}
+        return { caption: '{0} sqft'.translate().format($filter('number')(1000 * ($i+2))), value: 1000 * ($i+2)}
+    }));
+    $scope.available_areas = $scope.available_areas.concat(Array.from(Array(5)).map(function($e,$i){
+        return { caption: '{0} sqft'.translate().format($filter('number')(2000 * ($i+6))), value: 2000 * ($i+6)}
+    }));
+    $scope.available_areas = $scope.available_areas.concat(Array.from(Array(6)).map(function($e,$i){
+        return { caption: '{0} sqft'.translate().format($filter('number')(5000 * ($i+5))), value: 5000 * ($i+5)}
+    }));
+    $scope.available_areas = $scope.available_areas.concat(Array.from(Array(4)).map(function($e,$i){
+        return { caption: '{0} sqft'.translate().format($filter('number')(10000 * ($i+6))), value: 10000 * ($i+6)}
+    }));
+    $scope.available_areas = $scope.available_areas.concat(Array.from(Array(9)).map(function($e,$i){
+        return { caption: '{0} sqft'.translate().format($filter('number')( 50000 * ($i+2)) ), value: 50000 * ($i+3)}
     }));
 
     $scope.bedroomSuggestions = {buildFrom: { buildCountedList : ['{0}+ bedrooms',5]}}
@@ -929,7 +942,10 @@ siApp
                             $agency.officeList = $scope.officeList.filter(function($off){
                                 return $off.agency.id == $agency.id;
                             });
-                        })
+                        });
+                        $rootScope.$broadcast('si/list/offices', $scope.officeList.length );
+                        $rootScope.$broadcast('si/list/agencies', $scope.agencyList.length );
+                        
                         $rootScope.$broadcast('si/viewMeta:change', $scope.alias, $results[0]);
                     },
                     function($err){

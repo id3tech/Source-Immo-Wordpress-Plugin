@@ -94,6 +94,37 @@ $desktop : 1440px;
     --si-mobile-column-width: 1;
 }
 
+// SUPPORT FORM ID3-FRAMEWORK COLOR PALETTE
+body.id3-framework{
+    --si-text-color: var(--id3-color-primary-revert, #333);
+    --si-background-color: var(--id3-color-primary, #fff);
+    --si-highlight: var(--id3-color-action, #ff9900);
+    --si-highlight-text-color: var(--id3-color-action-revert,#333);
+    --si-button-bg-color: var(--id3-color-secondary,#333);
+    --si-button-text-color: var(--id3-color-secondary-revert,#fff);
+
+    --si-button-hover-bg-color: var(--id3-color-action, #ff9900);
+    --si-button-hover-text-color: var(--id3-color-action-revert,#333);
+
+    --si-high-contrast-color: var(--id3-color-secondary-a70); // hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-30));
+    --si-high-contrast-text-color: var(--id3-color-secondary-revert); // hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-100));
+    --si-medium-contrast-color: var(--id3-color-secondary-a50); //  hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-20));
+    --si-medium-contrast-text-color: var(--id3-color-secondary-revert); //  hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-100));
+    --si-small-contrast-color: var(--id3-color-secondary-a10); //  hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-10));
+    --si-small-contrast-text-color: hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-100));
+
+    // --si-high-contrast-color: var(--id3-color-secondary);
+    // --si-high-contrast-text-color: var(--id3-color-secondary-revert);
+    // --si-medium-contrast-color: hsl(var(--id3-color-base-secondary), var(--id3-color-secondary-l-20));
+    // --si-medium-contrast-text-color: hsl(var(--id3-color-base-secondary), var(--id3-color-secondary-l-100));
+    // --si-small-contrast-color: hsl(var(--id3-color-base-secondary), var(--id3-color-secondary-l-10));
+    // --si-small-contrast-text-color: hsl(var(--id3-color-base-secondary), var(--id3-color-secondary-l-100));
+
+
+    --si-border-color: hsl(var(--id3-color-base-primary), var(--id3-color-primary-l-20));
+
+    --si-element-border-radius : var(--id3-ui-corner);
+}
 
 @import "public/_mixins";
 

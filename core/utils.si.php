@@ -82,6 +82,13 @@ class StringPrototype{
     return $result;
   }
 
+  public static function formatNumber($value,$decimals=0){
+    $locale = si_get_locale();
+    $thousandSep = ($locale == 'fr') ? ' ' : ',';
+
+    return number_format($value,$decimals,'.',$thousandSep);
+  }
+
   public static function unsanitize($value){
     $lWords = explode('-',$value);
     foreach ($lWords as &$word) {
@@ -478,6 +485,7 @@ class HttpCall{
   }
 
 }
+
 if(!function_exists('hasValue')){
   function hasValue($expression, $allOrAny='any'){
     if(!isset($expression))return false;
@@ -551,4 +559,13 @@ function parseToObject($data, &$result){
     }
     
   }
+}
+
+function si_label($text){
+  echo _si_label($text);
+}
+function _si_label($text){
+  $result = apply_filters('si/label', __($text, SI));
+  $result = apply_filters('si_label', $result);
+  return $result;
 }

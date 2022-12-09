@@ -8,15 +8,47 @@ if(typeof String.prototype.format === 'undefined'){
                 lArgValue = arguments[i].toString();
             }
             let lRegExp = new RegExp('\\{' + i.toString() + '\\}', 'g');
+    
+            
             lResult = lResult.replace(lRegExp, lArgValue)
+            
+    
+            if(!isNaN(lArgValue)){
+                
+                const isPlural = parseInt(lArgValue) > 1;
+                const expression = '\\{' + i.toString() + '\\$:(\\w+\\/?\\w*)\\}';
+                //console.log(lArgValue, expression);
+                const lPluralRegExp = new RegExp(expression, 'g');
+                lResult = lResult.replace(lPluralRegExp, (m,g) => {
+                    let pluralForm = '', singularForm = '';
+                    // console.log(m)
+                    // console.log(g)
+                    if(g.indexOf('/') >= 0){
+                        [singularForm, pluralForm] = g.split('/');
+                    }
+                    else{
+                        pluralForm = g;
+                    }
+    
+                    if(isPlural) return pluralForm;
+                    return singularForm;
+                });
+                
+                //console.log(lResult);
+            }
         }
-
+    
         // clear any format tag left
-        let lRegExp = /\{\d+\}/g;
+        let lRegExp = /\{\d{1,3}\$:(.+)\}/g;
         lResult = lResult.replace(lRegExp,'');
-
+    
+        lRegExp = /\{\d{1,3}\}/g;
+        lResult = lResult.replace(lRegExp,'');
+        
+    
         return lResult;
     }
+    
 }
 
 if(typeof String.prototype.capitalize === 'undefined'){
@@ -80,6 +112,15 @@ if(typeof String.prototype.trimCharRight === 'undefined'){
 
 }
 
+if(typeof String.prototype.sanitize === 'undefined'){
+    String.prototype.sanitize = function(){
+        return this.toLowerCase().trim()
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, "")
+            .replace(/[\s|\/|']/g,'-');
+    }
+}
+
 
 if(typeof String.prototype.toCamelCase === 'undefined'){
     String.prototype.toCamelCase = function(){
@@ -91,6 +132,33 @@ if(typeof String.prototype.toCamelCase === 'undefined'){
     }
 }
 
+if(typeof String.prototype.humanize === 'undefined'){
+    String.prototype.humanize = function(){
+        let lResult = this;
+        if(lResult.length < 2) return lResult;
+        lResult = lResult.toLowerCase();
+
+        lResult = lResult.replace(/(_|-[a-z])/g, ($match) => {
+            return ' ' + $match.substring(1);
+        });
+        
+        return lResult.substring(0,1).toUpperCase() + lResult.substring(1);
+    }
+}
+
+// if(typeof String.prototype.pluralize === 'undefined'){
+//     String.prototype.pluralize = function(){
+//         let lResult = this;
+//         if(lResult.length < 2) return lResult;
+//         lResult = lResult.toLowerCase();
+
+//         lResult = lResult.replace(/(_|-[a-z])/g, ($match) => {
+//             return ' ' + $match.substring(1);
+//         });
+        
+//         return lResult.substring(0,1).toUpperCase() + lResult.substring(1);
+//     }
+// }
 
 
 if(typeof [].firstOrDefault === 'undefined'){
@@ -200,6 +268,22 @@ if(typeof isNullOrUndefined === 'undefined'){
 }
 
 
+class SourceImmoLexicon{
+    constructor(){
+        this._stringTable = [];
+        if(typeof $localLexicon != 'undefined'){
+            this._stringTable = $localLexicon;
+        }
+        
+    }
+
+    get($value){
+        if(this._stringTable[$value] == undefined) return $value;
+        return this._stringTable[$value];
+    }
+}
+
+
 if(typeof String.translate === 'undefined'){
     var $locales = {};
     (function locales($scope){
@@ -208,7 +292,7 @@ if(typeof String.translate === 'undefined'){
         $scope.file_path = '';
 
         $scope.init = function($used_language, $file=null){
-            console.log('translate support', $used_language);
+            //console.log('translate support', $used_language);
             // create language containers
             $scope.supported_languages.forEach(function($l){
                 $scope[$l] = {};
@@ -291,6 +375,8 @@ if(typeof String.translate === 'undefined'){
      */
     String.prototype.translate = function ($domain, $lang) {
         if ($locales != undefined) {
+            $siLexicon = new SourceImmoLexicon();
+
             $domain = (typeof ($domain) == 'undefined') ? 'global' : $domain;
             $lang = (typeof ($lang) == 'undefined') ? $locales._current_lang_ : $lang;
             $key = this.toString();
@@ -298,12 +384,12 @@ if(typeof String.translate === 'undefined'){
                 if ($domain in $locales[$lang]) {
                     if ($key in $locales[$lang][$domain]) {
                         //console.log($key, 'found in ',$locales[$lang][$domain])
-                        return $locales[$lang][$domain][$key];
+                        return $siLexicon.get($locales[$lang][$domain][$key]);
                     }
                 }
                 else if ($key in $locales[$lang]){
                     //console.log($key, 'found in ',$locales[$lang])
-                    return $locales[$lang][$key];
+                    return $siLexicon.get($locales[$lang][$key]);
                 }
                 else{
                     //console.log('"',$key,'" not found in', $locales[$lang]);
@@ -311,10 +397,10 @@ if(typeof String.translate === 'undefined'){
             }
         }
         else{
-            console.log('$locales is undefined');
+            //console.log('$locales is undefined');
         }
     
-        return $key;
+        return $siLexicon.get($key);
     }
 
 }
@@ -400,6 +486,7 @@ if(typeof $siGlobalHooks == 'undefined'){
     
     })($siGlobalHooks);
 }
+
 
 
 // object.watch

@@ -1,7 +1,7 @@
 
     <div class="filter-panel categories-panel {{isExpanded('categories')}} ">
         <div class="panel-header">
-            <h4><?php echo(apply_filters('si_label', __('Home types', SI))) ?></h4>
+            <h4><?php si_label('Home types') ?></h4>
             <button class="button" type="button"  ng-click="toggleExpand($event,'categories')"><i class="fal fa-times"></i></button>
         </div>
         
@@ -22,7 +22,7 @@
                                     class="sublist-all"
                                     data-ng-click="filter.addFilter('category_code','in',getSelection(dictionary.listing_category))"
                                     data-ng-model="category.selected"
-                                    data-label="<?php echo(apply_filters('si_label', __('All', SI))) ?> {{category.caption.toLowerCase()}}"
+                                    data-label="<?php si_label('All') ?> {{category.caption.toLowerCase()}}"
                                     ></si-checkbox>
                                     
                                 <si-checkbox
@@ -40,7 +40,7 @@
             </div>
 
             <div class="building-category filter-row">
-                <h4><?php echo(apply_filters('si_label', __('Building types',SI))) ?></h4>
+                <h4><?php si_label('Building types') ?></h4>
                 
                 <div class="grid-layout-column">
                     <si-checkbox

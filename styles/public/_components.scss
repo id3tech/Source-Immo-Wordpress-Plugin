@@ -70,11 +70,11 @@ si-checkbox, si-radio{
     &[disabled]{pointer-events:none;opacity:0.6;}
     margin: 0.5em;
     .pretty{
-        .state{
+        .si-input-state{
             label{
                 @include media($tablet){
                     text-indent: unset;
-                    padding-left: 1.5em;
+                    //padding-left: 1.5em;
                     white-space: normal;
                 }
             }
@@ -398,10 +398,16 @@ si-checkbox, si-radio{
                     transform: unset;
                     top:unset;
                     padding: 0;
+                    padding-right: 1em;
                 }
 
                 .si-dropdown-button{
                     text-transform: uppercase;
+                }
+
+                .si-dropdown{
+                    box-shadow: 0 0 0 1px currentColor;
+                    padding: 0.5em;
                 }
             }
             .value{
@@ -483,7 +489,8 @@ si-checkbox, si-radio{
     }
     &.has-button-icon{
         .si-dropdown-button{
-            position:relative;padding-right:20px;
+            position:relative;
+            padding-right:1.5em;
             &::after{
                 content:"\f107";
                 font-family: 'Font Awesome 5 Pro';font-weight: 300;
@@ -1075,12 +1082,12 @@ si-checkbox, si-radio{
         max-height 0.25s,
         opacity 0.25s;
     background-color:var(--si-background-color);
-    transform:translate(-50%,-50%);
+    transform:translate(-50%,calc(var(--relative-height) / -2));
     opacity:0;
     
     border: var(--si-input-border, var(--si-input-border-width,1px) var(--si-input-border-style,solid) var(--si-input-border-color,#ccc));
     border-radius: var(--si-input-border-radius, 0);
-
+    
     left:0px;
     width:0px;
     pointer-events: none;
@@ -1089,7 +1096,8 @@ si-checkbox, si-radio{
     top: calc(var(--relative-cy) + var(--relative-pageYOffset));
     left: var(--relative-cx);
     min-width: var(--relative-width);
-    
+    overscroll-behavior: contain;
+
     @include media($phone){
         position:fixed;
         //width:100vw;
@@ -1099,6 +1107,7 @@ si-checkbox, si-radio{
         bottom:0px;
         top:unset;
         transform:translate(0%, 0%);
+
     }
 
     > .fal{
@@ -1119,6 +1128,8 @@ si-checkbox, si-radio{
     .si-panel-child-container{
         max-height:var(--potential-height);
         overflow:hidden auto;
+        overflow:hidden overlay;
+        overscroll-behavior: contain;
         @include media($phone){
             padding:0.5rem 0;
             max-height: 80vh;
@@ -1151,6 +1162,9 @@ si-checkbox, si-radio{
             top:0px;
             z-index:5;
         }
+        .si-group-child{
+            z-index:1;
+        }
     }
     .si-option{
         display:flex;
@@ -1166,6 +1180,10 @@ si-checkbox, si-radio{
         transition:0.25s;
         box-sizing: content-box;
         z-index:2;
+        > div{
+            overflow:hidden;
+            text-overflow: ellipsis;
+        }
         &.selected{    
             border-left-color: var(--si-highlight);
             background:none;
@@ -1191,7 +1209,7 @@ si-checkbox, si-radio{
         @include media($phone){
             width:100vw;
             min-height:25vh;
-            max-height:75vh;
+            max-height:80vh;
         }
     }
 }
@@ -1719,7 +1737,7 @@ body.si-modal-open{
                         position: absolute;
                         top:50%;left:50%;
                         transform:translate(-50%,-50%);
-                        color:var(--si-high-contrast-text-color);
+                        color:#fff;
                         font-size:1.25rem;
                         text-shadow: rgba(#000,0.75) 1px 1px 2px;
                     }
@@ -1896,12 +1914,14 @@ body.si-modal-open{
         }
 
         .btn{
-            position:absolute;padding:10px;color:var(--si-high-contrast-text-color);
+            position:absolute;padding:10px;
+            color:var(--si-high-contrast-text-color);
             right:10px;bottom:10px;
             &.expand{
                 border-radius:0px;
                 padding:20px;
                 right:0px;bottom:0px;
+                color:#fff;
             }
         }
     }
@@ -2007,6 +2027,7 @@ body.si-modal-open{
                 top:50%;right:5px;transform:translateY(-50%);
                 grid-template-columns: auto;
                 text-shadow:1px 1px 2px #000000;
+                color:#fff;
                 label{display:none;}
             }
             &.picture-grid{
@@ -2647,9 +2668,13 @@ body{
 }
 
 #top .si,
+.si-select-panel,
 .si{
     .pretty{
         margin-right:0px;
+        input{
+            opacity:0!important;
+        }
         .si-input-state{
             position:relative;
             display:grid;

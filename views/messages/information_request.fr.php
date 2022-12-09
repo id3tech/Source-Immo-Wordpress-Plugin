@@ -20,7 +20,6 @@ foreach ($data as $item) {
 }
 ?>
 Vous êtes à un pas de clore cette vente.
-CONTACTEZ CETTE PERSONNE SANS TARDER!
 
 Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.
 
@@ -53,8 +52,7 @@ Content-Transfer-Encoding: 7bit
                         ?>
                     </table>
 
-                    <h3>Vous êtes à un pas de clore cette vente.<br />
-                    CONTACTEZ CETTE PERSONNE SANS TARDER!</h3>
+                    <p>Vous êtes à un pas de clore cette vente.</p>
                     <p>Ce prospect a été généré par votre service <?php echo(SI_NAME) ?>.</p>
                 </td>
             </tr>

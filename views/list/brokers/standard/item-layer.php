@@ -21,10 +21,10 @@
 </div>
 
 <div class="si-label listing-count" ng-show="layoutAllowVar('listing_count')">
-    {{item.listings_count == 0 ? '<?php echo(apply_filters('si_label', __("No listing",SI)))?>' : (item.listings_count==1) ? '<?php echo(apply_filters('si_label', __("1 listing",SI)))?>' : '<?php echo(apply_filters('si_label', __("{0} listings",SI)))?>'.format(item.listings_count)}}
+    {{item.listings_count == 0 ? '<?php si_label("No listing")?>' : (item.listings_count==1) ? '<?php si_label("1 listing")?>' : '<?php si_label("{0} listings")?>'.format(item.listings_count)}}
 </div>
 
 
 <div class="si-item-link-button">
-    <span class="si-button"><?php echo($linkButtonLabel)?></span>
+    <span class="si-button"><span><?php echo($linkButtonLabel)?></span></span>
 </div>
