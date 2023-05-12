@@ -1,4 +1,4 @@
-    <div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}" ng-if="configs.search_engine_options.tabbed">
+    <div class="si-main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}" ng-if="configs.search_engine_options.tabbed">
         <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
                 class="si-tab {{configs.current_view == tab.view_id ? 'active' : ''}}"
                 ng-click="selectView(tab.view_id)"
@@ -18,8 +18,8 @@
         
     </div>
 
-    <div class="inputs">
-        <div class="search-box">
+    <div class="si-inputs">
+        <div class="si-search-box">
             
             <si-search-box 
                     alias="<?php echo $configs->alias ?>"></si-search-box>
@@ -29,38 +29,38 @@
 
         <si-geo-filter si-alias="<?php echo $configs->alias ?>"></si-geo-filter>
 
-        <div class="si-panel-button si-hover-shade cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'has-filters' : ''}}"  
+        <div class="si-panel-button si-hover-shade si-element-padding-block-sm si-element-padding cities-button {{isExpanded('cities')}} {{filter.hasFilter(['regions','cities']) ? 'si-has-filters' : ''}}"  
                 ng-if="allowPanel('cities')"
                 ng-click="toggleExpand($event,'cities')"><span si-pluralize="{on:'dictionary/city', label:'<?php si_label('Cities') ?>'}"><?php si_label('City') ?></span> <i class="fal fa-angle-down"></i></div>
     
-        <div class="si-panel-button si-hover-shade price-button {{isExpanded('price')}} {{filter.hasFilter(['min_price','max_price']) ? 'has-filters' : ''}}"  
+        <div class="si-panel-button si-hover-shade si-element-padding-block-sm si-element-padding price-button {{isExpanded('price')}} {{filter.hasFilter(['min_price','max_price']) ? 'si-has-filters' : ''}}"  
                 ng-if="allowPanel('price')"
                 ng-click="toggleExpand($event,'price')"><span><?php si_label('Price') ?></span> <i class="fal fa-angle-down"></i></div>
     
-        <div class="si-panel-button si-hover-shade category-button {{isExpanded('categories')}} {{filter.hasFilter(['categories','building_categories','subcategories']) ? 'has-filters' : ''}}"  
+        <div class="si-panel-button si-hover-shade si-element-padding-block-sm si-element-padding category-button {{isExpanded('categories')}} {{filter.hasFilter(['categories','building_categories','subcategories']) ? 'si-has-filters' : ''}}"  
                 ng-if="allowPanel('categories')"
                 ng-click="toggleExpand($event,'categories')"><span si-pluralize="{on:['dictionary/listing_subcategory','dictionary/building_category'], label:'<?php si_label('Types') ?>'}"><?php si_label('Type') ?></span> <i class="fal fa-angle-down"></i></div>
         
         
-        <div class="si-panel-button si-hover-shade areas-button {{isExpanded('areas')}} {{filter.hasFilter(['available_min','available_max','land_min','land_max']) ? 'has-filters' : ''}}" 
+        <div class="si-panel-button si-hover-shade si-element-padding-block-sm si-element-padding areas-button {{isExpanded('areas')}} {{filter.hasFilter(['available_min','available_max','land_min','land_max']) ? 'si-has-filters' : ''}}" 
                 ng-if="allowPanel('areas')"
                 ng-click="toggleExpand($event,'areas')"><span><?php si_label('Areas') ?></span> <i class="fal fa-angle-down"></i></div>
 
         
-        <div class="si-panel-button si-hover-shade more-button {{isExpanded('others')}} 
-                {{ filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}"
-                ng-click="toggleExpand($event,'others')"><i class="fal fa-ellipsis-h-alt"></i></div>
+        <div class="si-panel-button si-hover-shade si-element-padding-block-sm si-element-padding more-button {{isExpanded('others')}} 
+                {{ filter.hasFilter(getOtherPanelFilterList()) ? 'si-has-filters' : '' }}"
+                ng-click="toggleExpand($event,'others')"><i class="fas fa-ellipsis-h"></i></div>
     
 
         
     </div>
     
 
-    <div class="search-action">
+    <div class="si-search-action">
         <button type="button" class="reset-button si-button" data-ng-if="filter.hasFilters()" data-ng-click="resetFilters()" title="<?php si_label('Reset') ?>"><i class="fal fa-undo"></i></button>
         
         
-        <div class="filter-menu">
+        <div class="si-filter-menu">
             <div class="si-dropdown" data-show-button-icon="false">
                 <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"><span class="label"><?php si_label("Filters") ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
                 <div class="si-dropdown-panel">
@@ -76,7 +76,7 @@
             </div>
         </div>
         
-        <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="<?php si_label('Search') ?>"><span class="label"><?php si_label('Search') ?></span> <i class="fal fa-search"></i></button>
+        <button type="button" class="trigger-button si-button" data-ng-if="result_url != null" data-ng-click="showResultPage()" title="<?php si_label('Search') ?>"><span class="label"><?php si_label('Search') ?></span> <i class="fal fa-search"></i></button>
     </div>
 
     <?php

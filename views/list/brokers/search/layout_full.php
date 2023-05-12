@@ -1,4 +1,4 @@
-<div class="main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}"
+<div class="si-main-filter-tabs si-tab-count-{{configs.search_engine_options.tabs.length}}"
         ng-if="configs.search_engine_options.tabbed">
     <div ng-repeat="tab in configs.search_engine_options.tabs track by $index"
             class="si-tab {{configs.current_view == tab.view_id ? 'active' : ''}}"
@@ -19,33 +19,33 @@
     
 </div>
 
-<div class="inputs {{(!isFieldFiltered('searchbox')) ? 'no-searchbox' : ''}}" >
-    <div class="search-box" ng-if="isFieldFiltered('searchbox')" >
+<div class="si-inputs {{(!isFieldFiltered('searchbox')) ? 'no-searchbox' : ''}}" >
+    <div class="si-search-box" ng-if="isFieldFiltered('searchbox')" >
         <si-search-box
             alias="<?php echo $configs->alias ?>" 
             placeholder="<?php si_label('Search by first or last name') ?>"></si-search-box>
 
     </div>
 
-    <div class="si-panel-button si-hover-shade letters {{isExpanded('letters')}} {{filter.hasFilter('letters') ? 'has-filters' : ''}}"  
+    <div class="si-panel-button  si-element-padding-block-sm si-element-padding letters {{isExpanded('letters')}} {{filter.hasFilter('letters') ? 'si-has-filters' : ''}}"  
         ng-click="toggleExpand($event,'letters')"
         ng-if="isFieldFiltered('letters')"><span><?php si_label('Letter') ?></span> <i class="fal fa-angle-down"></i></div>
-    <div class="si-panel-button si-hover-shade offices {{isExpanded('offices')}} {{filter.hasFilter('offices') ? 'has-filters' : ''}}" 
+    <div class="si-panel-button  si-element-padding-block-sm si-element-padding offices {{isExpanded('offices')}} {{filter.hasFilter('offices') ? 'si-has-filters' : ''}}" 
         ng-if="officeList.length > 1 && isFieldFiltered('offices')"
          ng-click="toggleExpand($event,'offices')"><span><?php si_label('Offices') ?></span> <i class="fal fa-angle-down"></i></div>
 
-    <div class="si-panel-button si-hover-shade more-button {{isExpanded('others')}} 
-        {{ filter.hasFilter(getOtherPanelFilterList()) ? 'has-filters' : '' }}"
-        ng-click="toggleExpand($event,'others')"><i class="fal fa-ellipsis-h-alt"></i></div>
+    <div class="si-panel-button  si-element-padding-block-sm si-element-padding more-button {{isExpanded('others')}} 
+        {{ filter.hasFilter(getOtherPanelFilterList()) ? 'si-has-filters' : '' }}"
+        ng-click="toggleExpand($event,'others')"><i class="fas fa-ellipsis-h"></i></div>
 
 </div>
 
-<div class="search-action">    
+<div class="si-search-action">    
     <button type="button" class="reset-button si-button" data-ng-show="filter.hasFilters()" data-ng-click="resetFilters()" title="<?php si_label('Reset') ?>"><i class="fal fa-undo"></i></button>
     <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="<?php si_label('Search') ?>"><i class="fal fa-search"></i></button>
         
 
-    <div class="filter-menu">
+    <div class="si-filter-menu">
         <div class="si-dropdown" data-show-button-icon="false">
             <div class="si-dropdown-button si-element {{filter.hasFilters() ? 'active' : ''}}"> <span class="label"><?php si_label("Filters") ?></span> <i class="fal fa-filter"><b ng-if="filter.hasFilters()">{{filter.count()}}</b></i></div>
             <div class="si-dropdown-panel">

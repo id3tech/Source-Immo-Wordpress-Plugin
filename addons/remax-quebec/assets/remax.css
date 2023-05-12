@@ -1,5 +1,11 @@
-#top .si.single-listing-remax .si-details, .si.single-listing-remax .si-details { grid-template-areas: unset; -ms-grid-columns: 1fr; grid-template-columns: 1fr; }
-
-#top .si.single-listing-remax .si-details.si-adapt-laptop-size .broker-list .list-container, .si.single-listing-remax .si-details.si-adapt-laptop-size .broker-list .list-container { -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; margin-bottom: var(--layout-gutter); }
-
-#top .si.single-listing-remax-framed iframe, .si.single-listing-remax-framed iframe { border: none; }
+#top .si.single-listing-remax .si-details, .si.single-listing-remax .si-details {
+  grid-template-areas: unset;
+  grid-template-columns: 1fr;
+}
+#top .si.single-listing-remax .si-details.si-adapt-laptop-size .broker-list .list-container, .si.single-listing-remax .si-details.si-adapt-laptop-size .broker-list .list-container {
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: var(--layout-gutter);
+}
+#top .si.single-listing-remax-framed iframe, .si.single-listing-remax-framed iframe {
+  border: none;
+}

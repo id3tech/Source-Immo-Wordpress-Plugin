@@ -18,7 +18,7 @@ if(isset($configs)){
 
     
     if(isset( $configs->list_item_layout->image_hover_effect)){
-        $scope_class[] = 'img-hover-effect-' . $configs->list_item_layout->image_hover_effect;    
+        $scope_class[] = 'si-img-hover-effect-' . $configs->list_item_layout->image_hover_effect;    
         if($configs->list_item_layout->image_hover_effect == 'gallery'){
             $attrs[] = 'si-image-rotator="{{item.ref_number}}:' . $configs->alias . '"';
         }
@@ -28,12 +28,13 @@ if(isset($configs)){
 
 <article 
     class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}" ng-cloak
+        data-ng-mouseover="handleListItemOver($event, item)"
         data-si-hover-class="<?php echo implode(' ',$scope_class_hover) ?>"
         <?php echo(implode(' ', $attrs)) ?> >
         
     <a href="{{item.permalink}}" ng-if="item">
-        <div class="item-content">
-            <div class="layer-container">
+        <div class="si-item-content">
+            <div class="si-layer-container">
                 <?php siShowStandardItemLayer($configs) ?>
             </div>
         </div>

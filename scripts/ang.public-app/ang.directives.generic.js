@@ -200,6 +200,37 @@ siApp
 ]);
 
 siApp
+.directive('siObserver', [function siObserver(){
+    return {
+        restrict: 'A',
+        link: function($scope,$element,$attr){
+            
+            const observerMap = {
+                resize: () => {
+                    const obs = new ResizeObserver( (entries) => {
+                        entries.forEach( entry => {
+                            
+                            const cssText = ['width','height','top','left'].map( k => {
+                                return `--si-size-${k}:${Math.round(entry.contentRect[k])}px`;
+                            }).join(';');
+                            entry.target.style.cssText = cssText;
+                        })
+
+                        
+                    });
+
+                    obs.observe($element[0]);
+                }
+            }
+
+            if(observerMap[$attr.siObserver] != undefined){
+                observerMap[$attr.siObserver]();
+            }
+        }
+    }
+}])
+
+siApp
 .directive('onBottomReached', function onBottomReached($document) {
     //This function will fire an event when the container/document is scrolled to the bottom of the page
     return {
@@ -832,6 +863,24 @@ siApp
     }
 }]);
 
+['Title'].forEach(key => {
+    siApp
+        .directive('lstr' + key, ['$parse', function ($parse){
+            return {
+                restrict: 'A',
+                compile: function compile(tElement, tAttrs, transclude) {
+                    return {
+                        pre: function preLink(scope, iElement, iAttrs, controller) {
+                            const content = iAttrs['lstr' + key];
+                            const translatedContent = content.translate();
+                            iElement[0].setAttribute(key.toLowerCase(), translatedContent);
+                        }
+                    }
+                }
+            }
+        }]);
+})
+
 
 
 //#region DEPRECATED
@@ -861,6 +910,65 @@ siApp
 
 //#endregion
 
+siApp
+.directive('siDonutChart', [function siDonutChart(){
+    return {
+        restrict: 'E',
+        replace:true,
+        transclude:true,
+        scope: {
+            series: '='
+        },
+        template: `
+        <div class="si-donut-chart">
+            <div class="si-graph-container">
+                <svg class="si-graph" width="100%" height="100%"  viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" style="--si-circ: {{circ}};--si-radius: {{radius}}">
+                    <circle class="si-graph-track" cx="21" cy="21" r="15.91549430918952" fill="transparent"></circle>
+                    <circle class="si-graph-bar" ng-repeat="(key, item) in series"
+                        style="--si-bar-color:{{item.color}};--si-bar-pct:{{item.value}};--si-bar-pct-offset: {{getItemOffsetPct($index)}}"
+                        cx="21" cy="21" r="15.91549430918952" fill="transparent"></circle>
+                </svg>
+                <div class="si-donut-content" ng-transclude></div>
+            </div>
+
+            <div class="si-chart-legend">
+                <div class="si-chart-legend-item" ng-repeat="(key, item) in series" style="--si-bar-color:{{item.color}}">
+                    <i class="si-bar-color"></i>
+                    <span>{{key.translate()}}</span>
+                </div>
+            </div>
+        </div>
+        `,
+        controller: function($scope,$element,$q,$timeout){
+
+            $scope.getItemOffsetPct = function($index){
+                if($scope.series == null) return 0;
+                if($scope.series == undefined) return 0;
+                if(Object.keys($scope.series).length == 0) return 0;
+                if($index == 0) return 0;
+
+                return 100 - Object.keys($scope.series).reduce( ($total,$cur,i) => {
+                    if(i >= $index) return $total;
+
+                    return $total + $scope.series[$cur].value;
+                },0);
+            }
+            // $scope.radius   = 80;
+            // $scope.circ     = Math.PI * $scope.radius * 2;
+
+            // $scope.$watch('series', function(){
+            //     $timeout(_ => {
+            //     // const circleElms = Array.from($element[0].querySelectorAll('circle'));    
+            //     //     circleElms.forEach(c => {
+            //     //         c.setAttribute('r', $scope.radius);
+            //     //     })
+            //     // })
+            // })
+            
+              
+        }
+    }
+}])
 
 siApp
 .directive('siStarRating', [function siStarRating(){

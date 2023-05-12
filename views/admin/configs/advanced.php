@@ -104,6 +104,21 @@
         </div>
     </div>
 
+    <div class="config-grid-block">
+        <h2 class="md-headline" lstr>Tools</h2>
+        <div class="block-content" layout="column" layout-align="start stretch">
+            <label lstr>Default interest rates (in %)</label>
+            <md-slider-container>
+                <md-input-container>
+                    <input type="number" ng-model="configs.default_interest_rate" ng-model-options="{updateOn: 'blur'}" ng-change="save_configs()">
+                </md-input-container>
+                <md-slider min="0" max="10" step="0.25" ng-model="configs.default_interest_rate" ng-change="debounce_save_configs()">
+                </md-slider>
+                
+            </md-slider-container>
+            
+        </div>
+    </div>
     
     <div class="config-grid-block">
         <h2 class="md-headline" lstr>New items</h2>

@@ -1,4 +1,6 @@
 <div class="si-header {{model.status=='SOLD'? 'is-sold':''}}">
+
+
     <div class="si-header-row">
         
         <div class="si-header-group group-location">

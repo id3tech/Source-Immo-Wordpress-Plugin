@@ -5,19 +5,19 @@
 
 $classes = array('city-' . $item->code, 'region-' . $item->region_code);
 if($item->has_custom_page){
-    $classes[] = 'has-custom-page';
+    $classes[] = 'si-has-custom-page';
 }
 if($item->listings_count > 100){
-    $classes[] = 'cluster-huge';
+    $classes[] = 'si-cluster-huge';
 }
 else if($item->listings_count > 50){
-    $classes[] = 'cluster-large';
+    $classes[] = 'si-cluster-large';
 }
 else if($item->listings_count > 25){
-    $classes[] = 'cluster-medium';
+    $classes[] = 'si-cluster-medium';
 }
 else if($item->listings_count > 12){
-    $classes[] = 'cluster-small';
+    $classes[] = 'si-cluster-small';
 }
 
 
@@ -26,8 +26,8 @@ else if($item->listings_count > 12){
 <article class="si-item si-city-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
     itemscope itemtype="http://schema.org/City">
     <a href="<?php echo($item->permalink) ?>">
-        <div class="item-content">
-            <div class="layer-container">
+        <div class="si-item-content">
+            <div class="si-layer-container">
             <?php
                 siShowDirectItemLayer($item, $configs);
                 ?>

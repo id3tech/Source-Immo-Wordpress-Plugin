@@ -75,6 +75,7 @@ body.wp-admin #si-app,
         height: 100%;
       }
     }
+
     .si-list-preview{
       &.si-style-editor-preview{
         .config-button{
@@ -124,26 +125,57 @@ body.wp-admin #si-app,
             }
             
             &.list-map-toggle{
-              place-self: center start;
+              place-self: center end;
               
               .toggles{
                 display:grid;
                 grid-auto-flow: column;
                 gap: 10px;
-                place-items: start;
+                place-items: center;
                 
                 .si-highlight{
                   padding:0px;
                   border-bottom: solid 2px currentColor;
                 }
                 .fal{padding-bottom:10px;}
+
+                .si-split-icons{
+                  display:flex;
+                  gap:5px;
+                  align-items: center;
+                  height:100%;
+                  position:relative;
+  
+                  &:after{
+                      content:"";
+                      height:80%;
+                      width:2px;
+                      background-color:currentColor;
+                      
+                      position:absolute;
+                      top:50%;
+                      left:50%;
+                      translate: -50% -50%;
+                      rotate: 20deg;
+                      box-shadow: 0 0 0 3px var(--si-background-color);
+                  }
+                  > i{
+                      width: 0.75rem;
+                      opacity: 0.75;
+                      &:last-child{
+                          text-align:right;
+                          
+                      }
+                  }
+  
+              }
               }
             }
             &.list-meta{
               place-self: center;
             }
             &.list-sort{
-              place-self: center end;
+              place-self: center start;
             }
             &.list-items{
               place-items: start stretch;
@@ -2591,4 +2623,17 @@ body.wp-admin #si-app,
         gap:10px;
       }
     }
+}
+
+.si-input{
+  display:block;
+  padding: 0.5em 1em;
+  margin-block: 0.5em;
+  border-radius: 0.25em;
+  border-style: none;
+  background: #ededed;
+  font-size: 1.2rem;
+  font-weight: 400;
+  width: clamp(320px, 100%, 800px);
+  margin-inline: auto;
 }

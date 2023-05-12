@@ -1,4 +1,4 @@
-<div class="si listing-single loaded si-elementor-widget">
+<div class="si listing-single si-loaded si-elementor-widget">
     <div class="si-content">
         <?php si_dummy_include('listing/header.php') ?>
 

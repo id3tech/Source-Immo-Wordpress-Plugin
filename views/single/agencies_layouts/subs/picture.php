@@ -1,1 +1,1 @@
-<div class="picture"></div>
+<div class="si-picture"></div>

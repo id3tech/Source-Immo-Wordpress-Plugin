@@ -1,4 +1,4 @@
-<si-small-list class="brokers broker-list si-list-of-brokers ng-isolate-scope loaded" si-options="{show_header:true, filter:{max_item_count: 0,sort_fields:[]}}" si-type="brokers" si-filters="getBrokerListFilter()">
+<si-small-list class="brokers broker-list si-list-of-brokers ng-isolate-scope si-loaded" si-options="{show_header:true, filter:{max_item_count: 0,sort_fields:[]}}" si-type="brokers" si-filters="getBrokerListFilter()">
     <div class="si-list-container" si-lazy-load="">
         <!-- ngRepeat: item in list | filter : filter_keywords -->
         <!-- ngInclude: getItemTemplateInclude() -->

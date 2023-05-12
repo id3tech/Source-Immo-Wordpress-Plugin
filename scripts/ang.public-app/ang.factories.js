@@ -847,28 +847,32 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
             }
 
             $item.short_price = $siUtils.formatPrice($item);
-            $item.location.civic_address = '{0} {1}'.format(
+            $item.location.civic_address = '{0} {1}'.siFormat(
                                                         $item.location.address.street_number || '',
                                                         $item.location.address.street_name
                                                     ).trim();
             if(!isNullOrEmpty($item.location.address.door)){
-                $item.location.civic_address += ', ' + '{1} {0}'.format($item.location.address.door,doorType);
+                $item.location.civic_address += ', ' + '{1} {0}'.siFormat($item.location.address.door,doorType);
             }
 
             if($item.location.civic_address != ''){
-                $item.location.full_address = '{0} {1}, {2}'.format(
+                $item.location.full_address = '{0} {1}, {2}'.siFormat(
                     $item.location.address.street_number || '',
                     $item.location.address.street_name,
                     $item.location.city
                 );
 
                 if(!isNullOrEmpty($item.location.address.door) && typeof  $item.location.address.door != 'undefined'){
-                    $item.location.full_address += ', ' + '{1} {0}'.format( $item.location.address.door, doorType);
+                    $item.location.full_address += ', ' + '{1} {0}'.siFormat( $item.location.address.door, doorType);
                 }
             }
             else{
                 $item.location.full_address = $item.location.city;
             }
+
+            // remove empty 
+            $item.location.civic_address = $item.location.civic_address.replace(/\{\d{1,3}\}/g, '');
+            $item.location.full_address = $item.location.full_address.replace(/\{\d{1,3}\}/g, '');
             
             if(!isNullOrEmpty($item.available_area)){
                 $item.available_area_unit = $siUtils.getCaption($item.available_area_unit_code,'dimension_unit',true);
@@ -877,6 +881,48 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
             $scope.compileListingRooms($item);
             $item.permalink = $siUtils.getPermalink($item);
 
+        }
+
+        $scope.compileListingTags($item);
+
+    }
+
+    // Add tags to listing item
+    $scope.compileListingTags = function($item){
+        $item.tags = [];
+
+        if($siConfig._data && $siConfig._data.new_item_time_limit > 0 ){
+            const date = ($item.contract && $item.contract.start_date) 
+                            ? $item.contract.start_date
+                            : $item.creation_date;
+            if(date != undefined){
+                if(moment(date).isValid()){
+                    if(moment(date).isAfter(moment().add(-1 * $siConfig._data.new_item_time_limit,'day'))){
+                        $item.tags.push({label: 'New'});
+                    }
+                }
+            }
+        }
+
+        if($item.availability_delay!=undefined && $item.availability_delay <= 10) $item.tags.push({label: 'Quick move-in'});
+        if($item.for_rent_flag || $item.price.rent) $item.tags.push({label: 'For rent'});
+        if($item.video_flag) $item.tags.push({label: 'Video'});
+        if($item.virtual_tour_flag) $item.tags.push({label: 'Virtual tour'});
+
+        if($item.attributes != undefined){
+            let attrs = $item.attributes;
+            if(Array.isArray(attrs)){ attrs = attrs.reduce( (o, e) => {
+                    o[e.code] = true;
+                    if(Array.isArray(e.values)){
+                        e.values.forEach(v => { o[v.code] = true});
+                    }
+                    return o;
+                }, {});
+            }
+
+            if(attrs.PANORAMIC_VIEW === true || attrs['VIEW PANORAMIC'] === true) $item.tags.push({label: 'Panoramic view'});
+            if(attrs.WATER_FRONT === true || attrs['VIEW WATER'] === true) $item.tags.push({label: 'Water front'});
+            if(attrs.POOL === true) $item.tags.push({label: 'Pool'});
         }
 
     }
@@ -904,17 +950,26 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
 
     $scope.compileBrokerItem = function($item){
 
-        if($item.phones != null){
-            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
-        }
-
-        $item.fullname = $item.first_name + ' ' + $item.last_name;
         if($item.office_ref_number != undefined){
             $officeList = $siList.getOfficeList();
             $item.office = $officeList.find(function($e) { return $e.ref_number == $item.office_ref_number});
             $scope.compileOfficeItem($item.office);
+
+            
         }
 
+        
+        if($item.phones != null){
+            if($item.phones.office == undefined && $item.office != undefined){
+                $item.phones.office = $item.office.phones.office_toll_free;
+            }
+            Object.keys($item.phones).forEach(function($key) { $item.phones[$key] = $siUtils.formatPhone($item.phones[$key]);}); 
+        }
+
+        $item.fullname = $item.first_name + ' ' + $item.last_name;
+        
+
+        
         if($item.license_type==undefined){
             $item.license_type = $siLexicon.get($siUtils.getCaption($item.license_type_code, 'broker_license_type'));
         }
@@ -931,23 +986,33 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
             if($item.units.length > 0) $item.main_unit = $item.units.find(function($u){ return $u.category_code == 'MAIN'});
         }
 
+        const lIconRef = {
+            'bathroom_count' : 'bath',
+            'bedroom_count' : 'bed',
+            'waterroom_count' : 'hand-holding-water'
+        }
+        const lLabelRef = {
+            'bathroom_count' : 'Bathroom',
+            'bedroom_count' : 'Bedroom',
+            'waterroom_count' : 'Powder room'
+        }
+        const lPluralLabelRef = {
+            'bathroom_count' : 'Bathrooms',
+            'bedroom_count' : 'Bedrooms',
+            'waterroom_count' : 'Powder rooms'
+        }
+
+        if($item.rooms != undefined && $item.main_unit == undefined){
+            $item.main_unit = {
+                'bathroom_count' : $item.rooms.filter(r => ['BTH'].includes(r.category_code)).length,
+                'waterroom_count' : $item.rooms.filter(r => ['xxx'].includes(r.category_code)).length,
+                'bedroom_count' : $item.rooms.filter(r => ['MBR','BDR'].includes(r.category_code)).length
+            }
+        }
+
         if(typeof $item.main_unit != 'undefined'){
             
-            const lIconRef = {
-                'bathroom_count' : 'bath',
-                'bedroom_count' : 'bed',
-                'waterroom_count' : 'hand-holding-water'
-            }
-            const lLabelRef = {
-                'bathroom_count' : 'Bathroom',
-                'bedroom_count' : 'Bedroom',
-                'waterroom_count' : 'Powder room'
-            }
-            const lPluralLabelRef = {
-                'bathroom_count' : 'Bathrooms',
-                'bedroom_count' : 'Bedrooms',
-                'waterroom_count' : 'Powder rooms'
-            }
+            
 
             $item.counters.rooms = {};
 
@@ -959,6 +1024,7 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
                 }
             });
         }
+
     }
 
     /**
@@ -982,14 +1048,14 @@ function $siCompiler($siConfig,$siList, $siUtils,$siLexicon){
         $item.location.state        = ($item.location.state == undefined) ? $siUtils.getCaption($item.location.state_code, 'state') : $item.location.state;
         $item.location.city         = ($item.location.city == undefined) ? $siUtils.getCaption($item.location.city_code, 'city') : $item.location.city;
         
-        $item.location.street_address = '{0} {1}'.format(
+        $item.location.street_address = '{0} {1}'.siFormat(
                                                     $item.location.address.street_number,
                                                     $item.location.address.street_name
                                                 );
         if(!isNullOrEmpty($item.location.address.door)){
-            $item.location.street_address += ', suite {0}'.translate().format($item.location.address.door);
+            $item.location.street_address += ', suite {0}'.translate().siFormat($item.location.address.door);
         }
-        $item.location.full_address = '{0} {1}, {2}'.format(
+        $item.location.full_address = '{0} {1}, {2}'.siFormat(
                                                 $item.location.address.street_number,
                                                 $item.location.address.street_name,
                                                 $item.location.city
@@ -1132,14 +1198,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce, $siConfig,$siHo
         }
 
         if(lTimespan.as('day') < 60){
-            return '{0} days'.translate().format(Math.round(lTimespan.as('day')));
+            return '{0} days'.translate().siFormat(Math.round(lTimespan.as('day')));
         }
 
         if(lTimespan.as('month') < 24){
-            return '{0} months'.translate().format(Math.round(lTimespan.as('month')));
+            return '{0} months'.translate().siFormat(Math.round(lTimespan.as('month')));
         }
 
-        return '{0} years'.translate().format(Math.round(lTimespan.as('year')));
+        return '{0} years'.translate().siFormat(Math.round(lTimespan.as('year')));
     }
 
     /**
@@ -1186,7 +1252,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce, $siConfig,$siHo
 
                 if($format == 'long'){
                     const lTerm = ($key == 'sell') ? 'sale' : $key;
-                    let lStart = 'for {0} for '.format(lTerm).translate().capitalize();
+                    let lStart = 'for {0} for '.siFormat(lTerm).translate().siCapitalize();
 
                     lResult.push(lStart + '<span class="nowrap">' + lPart.join('/') + '</span>');
                 }
@@ -1240,7 +1306,7 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce, $siConfig,$siHo
                             $length = lLengthFeet + "'" + (lLengthInchLeft != 0 ? lLengthInchLeft + $unit : '');
                         }
 
-                        return '{0} x {1}'.format($width,$length);
+                        return '{0} x {1}'.siFormat($width,$length);
                     },
                     
                 }
@@ -1249,14 +1315,14 @@ function $siUtils($siDictionary,$siTemplate, $interpolate, $sce, $siConfig,$siHo
                     lResult = lUnitFormat[$dimension.unit_code]($dimension.width,$dimension.length,lUnit);
                 }
                 else{
-                    lResult = '{0}{2} x {1}{2}'.format($dimension.width,$dimension.length, lUnit);
+                    lResult = '{0}{2} x {1}{2}'.siFormat($dimension.width,$dimension.length, lUnit);
                 }
                 
                 
             }
             else if ($dimension.area != undefined){
                 let lUnit = $siDictionary.getCaption($dimension.area_unit_code,'dimension_unit',true);
-                lResult = '{0} {1}'.format($dimension.area, lUnit);
+                lResult = '{0} {1}'.siFormat($dimension.area, lUnit);
             }
     
             if($dimension.irregular === true){

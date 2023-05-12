@@ -4,6 +4,7 @@ body.wp-admin{
   md-toast{
     position:fixed;
     top: 50px;
+    z-index: 99999999;
   }
   md-icon{
     &.fas, &.fal, &.far{

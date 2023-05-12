@@ -1,6 +1,6 @@
-<div class="head">
-    <h1 class="name">
+<div class="si-head">
+    <h1 class="si-name">
         {{model.name}}
     </h1>
-    <div class="license-name">{{model.license_type}}</div> 
+    <div class="si-license-name">{{model.license_type}}</div> 
 </div>

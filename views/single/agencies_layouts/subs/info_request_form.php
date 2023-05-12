@@ -4,7 +4,7 @@ $layout = SourceImmo::current()->get_detail_layout('agency');
 $communication_mode = isset($layout->communication_mode) ? $layout->communication_mode : 'basic';
 ?>
 
-<div class="info-request form <?php echo $communication_mode ?>">
+<div class="si-info-request si-form <?php echo $communication_mode ?>">
     <?php
     if($communication_mode  == 'basic'){
     ?>

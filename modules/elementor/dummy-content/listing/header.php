@@ -1,5 +1,4 @@
 <div class="si-header">
-
     <div class="si-header-row">
         <div class="si-header-group group-location">
             <div class="subcategory">Subcategory</div>

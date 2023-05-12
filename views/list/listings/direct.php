@@ -56,7 +56,7 @@ foreach ($configs->list_layout->item_row_space as $key => $value) {
             }
             echo('</style>');
         }
-
+        
         echo('<div class="si-list">');
             $itemIndex = 0;
             foreach ($resultView->listings as $item) {

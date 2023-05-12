@@ -38,6 +38,13 @@
             @content;
         }
     }
+    $selector: &;
+    @at-root html.si-is-safari{
+        #{$selector}{
+            @content;
+        }
+        
+    }
 }
 
 @mixin absoluteFill(){

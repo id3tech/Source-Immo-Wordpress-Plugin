@@ -215,11 +215,16 @@ body.wp-admin{
         position: relative;
         section{
           overflow:hidden;
-          max-height:0px;
+          display:grid;
+          grid-template-rows: 0fr;
           transition:0.25s;
           opacity:0;
+          > div{
+            overflow:hidden;
+          }
+          
           &.selected{
-            max-height:66vh;
+            grid-template-rows: 1fr;
             opacity:1;
             overflow:hidden overlay;
 
@@ -319,7 +324,7 @@ body.wp-admin{
 
     .config-grid-block{
       display:grid;
-      grid-template-columns: 1fr 5fr;
+      grid-template-columns: 1fr;
       grid-gap: 10px;
       h2{margin:10px;}
       .block-content{

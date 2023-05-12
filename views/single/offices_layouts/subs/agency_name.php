@@ -1,3 +1,3 @@
-<div class="head ">
-    <h3 class="agency-name si-apply-typography">{{model.agency.name}}</h3> 
+<div class="si-head ">
+    <h3 class="si-agency-name si-apply-typography">{{model.agency.name}}</h3> 
 </div>

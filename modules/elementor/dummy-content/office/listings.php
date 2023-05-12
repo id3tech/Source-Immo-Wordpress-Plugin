@@ -1,4 +1,4 @@
-<si-small-list class="listing-list si-list-of-listings ng-isolate-scope loaded" style="--desktop-column-width:3; --laptop-column-width:3; --tablet-column-width:2; --mobile-column-width:1;">
+<si-small-list class="listing-list si-list-of-listings ng-isolate-scope si-loaded" style="--desktop-column-width:3; --laptop-column-width:3; --tablet-column-width:2; --mobile-column-width:1;">
     <div class="si-list-header">
         <h3>5 propriétés</h3>
         <div class="si-search-input">

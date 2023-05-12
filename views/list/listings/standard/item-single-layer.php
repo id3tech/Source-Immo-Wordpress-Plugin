@@ -18,7 +18,7 @@ if(isset($configs)){
 
     
     if(isset( $configs->list_item_layout->image_hover_effect)){
-        $scope_class[] = 'img-hover-effect-' . $configs->list_item_layout->image_hover_effect;    
+        $scope_class[] = 'si-img-hover-effect-' . $configs->list_item_layout->image_hover_effect;    
         if($configs->list_item_layout->image_hover_effect == 'gallery'){
             $attrs[] = 'si-image-rotator="{{item.ref_number}}:' . $configs->alias . '"';
         }
@@ -32,9 +32,9 @@ if(isset($configs)){
         <?php echo(implode(' ', $attrs)) ?> >
         
     <a href="{{item.permalink}}" ng-if="item">
-        <div class="item-content">
-            <div class="layer-container">
-                <div class="image si-lazy-loading">
+        <div class="si-item-content">
+            <div class="si-layer-container">
+                <div class="si-image si-lazy-loading">
                     <img data-si-src="{{item.photo_url}}" data-si-srcset="{{item.photo_url}}" />
                 </div>
                 

@@ -420,13 +420,20 @@ siApp
 
 
 siApp
-.controller("langItemEditDialogCtrl", function langItemEditDialogCtrl($scope,$rootScope,$q,$siApi,$siConfigs, $siUI){
+.controller("langItemEditDialogCtrl", function langItemEditDialogCtrl($scope,$rootScope,$q,$siApi,$siConfigs, $siUI, $siUtils){
   $scope.global_list = $rootScope.global_list;
   $scope.data_views = $rootScope.data_views;
   $scope.configs = {};
   $scope.routes = null;
   $scope.groupType = null;
 
+  $scope.shortCodeMaps = {
+    listings: '[si_listing]',
+    brokers: '[si_broker]',
+    offices: '[si_office]',
+    agencies: '[si_agency]',
+    cities: '[si_city]'
+  }
   $scope.details_defaults = {
     fr: {
       listings: {
@@ -459,6 +466,7 @@ siApp
           communication_mode: 'basic',
           form_id:null
         },
+       
       },
       cities: {
         route: {
@@ -466,6 +474,7 @@ siApp
           shortcut: 'ville/{{item.ref_number}}/'
         },
         layout: {},
+        
       }
     },
     en: {
@@ -582,7 +591,7 @@ siApp
     $scope.routes = $params.routes;
     $scope.groupType = $params.type;
     $scope.model = $params.model;  
-
+    $scope.detailsComponentShortcode = $scope.shortCodeMaps[$params.type];
     $siConfigs.load().then(function($response){
       $scope.configs = $response;
     });
@@ -595,7 +604,7 @@ siApp
         $result.push($cur.label.translate())
         return $result;
       },[]);
-    if(lLabels.length > 6) return '{0} out of {1} selected'.translate().format(lLabels.length, $scope.availVars.length);
+    if(lLabels.length > 6) return '{0} out of {1} selected'.translate().siFormat(lLabels.length, $scope.availVars.length);
 
     return lLabels.join(', ');
   }
@@ -637,7 +646,8 @@ siApp
     const dialogParams = {lang: $scope.model.lang};
         if($scope.model.layout == undefined) $scope.model.layout = {page:''};
         
-        dialogParams.page= $scope.model.layout.page
+        dialogParams.page = $scope.model.layout.page;
+        dialogParams.type = $scope.groupType;
 
         $siUI.dialog('page-picker', dialogParams).then($newPage => {
           $scope.model.layout.page = $newPage;
@@ -671,6 +681,10 @@ siApp
         form_id:null
     }, lDefault.route);
 
+  }
+
+  $scope.copyShortcodeToClipboard = function(){
+    $siUtils.copyToClipboard($scope.detailsComponentShortcode);
   }
 });
 
@@ -733,7 +747,7 @@ siApp
         $result.push($cur.label.translate())
         return $result;
       },[]);
-    if(lLabels.length > 6) return '{0} out of {1} selected'.translate().format(lLabels.length, $scope.availVars.length);
+    if(lLabels.length > 6) return '{0} out of {1} selected'.translate().siFormat(lLabels.length, $scope.availVars.length);
 
     return lLabels.join(', ');
   }
@@ -1344,7 +1358,7 @@ siApp
   }
 
   $scope.buildAndClose = function($data){
-    $data.key = $data.key.sanitize();
+    $data.key = $data.key.siSanitize();
     $scope.closeAndReturn($data);
   }
 
@@ -1554,13 +1568,13 @@ siApp
     const lPageDefMap = {
       listing: {
         title: 'Our listings',
-        content: '[si alias="Listings - all"]',
+        content: '[si alias="listings-all"]',
         title_details: 'Listing details',
         content_details: '[si_listing]'
       },
       broker: {
         title: 'Our team',
-        content: '[si alias="Brokers - all"]',
+        content: '[si alias="brokers-all"]',
         title_details: 'Broker details',
         content_details: '[si_broker]'
       }
@@ -1568,29 +1582,33 @@ siApp
 
     $scope.model.state = 'building';
 
-    $scope.model.layouts.forEach($layout => {
-      if($layout.page == 'NONE') return;
-      lMap = lPageDefMap[$layout.type];
+    $scope.model.layouts
+      .forEach($layout => {
+        //if($layout.page == 'NONE') return;
+        lMap = lPageDefMap[$layout.type];
 
-      if($layout.page != 'NONE'){
-        const params = {
-          page_id: $layout.page, 
-          title: lMap.title.translate(),
-          content: lMap.content
-        };
+        if($layout.page != 'NONE'){
+          const params = {
+            page_id: $layout.page, 
+            title: lMap.title.translate(),
+            content: lMap.content
+          };
 
-        lPageCalls.push( { create: _ => $siApi.rest('page',params), layout: $layout, attr: 'page'});
-      }
-      if($layout.detail_page != 'NONE'){
-        const params = {
-          page_id: $layout.detail_page, 
-          title: lMap.title_details.translate(),
-          content: lMap.content_details
-        };
+          lPageCalls.push( { create: _ => $siApi.rest('page',params), layout: $layout, attr: 'page'});
+        }
 
-        lPageCalls.push( { create: _ => $siApi.rest('page',params), layout: $layout, attr: 'detail_page' });
-      }
+        if($layout.detail_page != 'NONE'){
+          const params = {
+            page_id: $layout.detail_page, 
+            title: lMap.title_details.translate(),
+            content: lMap.content_details
+          };
+
+          lPageCalls.push( { create: _ => $siApi.rest('page',params), layout: $layout, attr: 'detail_page' });
+        }
     });
+
+    if(lPageCalls.length == 0) return $q.resolve();
 
     return $q( ($resolve,$reject) => {
       $q.all(
@@ -1675,18 +1693,18 @@ siApp
       $scope.model.layouts.forEach($layout => {
         const lContentMap = {
           listing: {
-            list: '[si alias="listings"]',
+            list: /\[si\s+alias="[^"]*listings[^"]*"\]/gi,
             details: '[si_listing]'
           },
           broker: {
-            list: '[si alias="brokers"]',
+            list: /\[si\s+alias="[^"]*brokers[^"]*"\]/gi,
             details: '[si_broker]'
           }
         }
         const lContentMatches = lContentMap[$layout.type];
                                   
-        const lFoundPage = $scope.pages.find($p => $p.post_content == lContentMatches.list);
-        const lFoundDetailPage = $scope.pages.find($p => $p.post_content == lContentMatches.details);
+        const lFoundPage = $scope.pages.find($p => lContentMatches.list.test($p.post_content));
+        const lFoundDetailPage = $scope.pages.find($p => $p.post_content.includes(lContentMatches.details));
         
         $layout.page = (lFoundPage != null) ? lFoundPage.ID : 'NEW';
         $layout.detail_page = (lFoundDetailPage != null) ? lFoundDetailPage.ID : 'NEW';
@@ -1750,20 +1768,41 @@ siApp
         $siUtils.createList($scope.model.default_view, 'listings', 'listings-all', 'contract_start_date', true, 30),
         $siUtils.createList($scope.model.default_view, 'brokers', 'brokers-all', 'last_name')
       ],
-      listing_routes : $scope.languages.list.map($locale => $locale.code).map($locale => {
-        return {lang: $locale, route: lTypeMap.listing[$locale].route, shortcut: lTypeMap.listing[$locale].route_shortcut}
-      }),
-      listing_layouts: $scope.languages.list.map($locale => $locale.code).map($locale => {
-        const detailPage = ($locale == $scope.languages.selected) ? $scope.model.layouts.find($l => $l.type=='listing').detail_page : null;
-        return {lang: $locale, communication_mode:'basic', item_row_space: [33,33,50,100], page: detailPage}
-      }),
-      broker_routes : $scope.languages.list.map($locale => $locale.code).map($locale => {
-        return {lang: $locale, route: lTypeMap.broker[$locale].route, shortcut: lTypeMap.broker[$locale].route_shortcut}
-      }),
-      broker_layouts: $scope.languages.list.map($locale => $locale.code).map($locale => {
-        const detailPage = ($locale == $scope.languages.selected) ? $scope.model.layouts.find($l => $l.type=='broker').detail_page : null;
-        return {lang: $locale, communication_mode:'basic', page: detailPage}
-      }),
+
+      listing_routes : $scope.languages.list
+        .map($locale => $locale.code)
+        .filter($locale => $locale == $scope.languages.selected)
+        .map($locale => {
+          return {lang: $locale, route: lTypeMap.listing[$locale].route, shortcut: lTypeMap.listing[$locale].route_shortcut}
+        }
+      ),
+      listing_layouts: $scope.languages.list
+        .map($locale => $locale.code)
+        .filter($locale => $locale == $scope.languages.selected)
+        .map($locale => {
+          const detailPageId = ($locale == $scope.languages.selected) ? $scope.model.layouts.find($l => $l.type=='listing').detail_page : null;
+          const detailPage = $scope.pages.find(p => p.ID == detailPageId).post_name;
+          return {lang: $locale, communication_mode:'basic', item_row_space: [33,33,50,100], page: detailPage}
+        }
+      ),
+
+      broker_routes : $scope.languages.list
+        .map($locale => $locale.code)
+        .filter($locale => $locale == $scope.languages.selected)
+        .map($locale => {
+          return {lang: $locale, route: lTypeMap.broker[$locale].route, shortcut: lTypeMap.broker[$locale].route_shortcut}
+        }
+      ),
+      broker_layouts: $scope.languages.list
+        .map($locale => $locale.code)
+        .filter($locale => $locale == $scope.languages.selected)
+        .map($locale => {
+          const detailPageId = ($locale == $scope.languages.selected) ? $scope.model.layouts.find($l => $l.type=='broker').detail_page : null;
+          const detailPage = $scope.pages.find(p => p.ID == detailPageId).post_name;
+          return {lang: $locale, communication_mode:'basic', page: detailPage}
+        }
+      ),
+
     }
 
     return lResult;
@@ -2080,17 +2119,67 @@ siApp
   $scope.selectedPage = null;
   $scope.pageList = [];
   $scope.isLoading = true;
-  $scope.actions = [
-    {label: 'Select',  action : _ => {$scope.buildAndClose();}, isValid: _ => { return $scope.pageList.some($p => $p._selected===true)}},
-    {label: 'Cancel', action : _ => {$scope.cancel();}, isValid: _ => true}
-  ]
+  $scope.isAddingPage = false;
+  $scope.newpage = {
+    name:''
+  }
+  
 
   $scope.init = function($params){
     $scope.model = $params;
+    $scope.model.type = {
+      'listings': 'listing',
+      'brokers' : 'broker',
+      'offices' : 'office',
+      'agencies' : 'agency',
+      'cities' : 'city'
+    }[$scope.model.type]
+    console.log($scope.model);
 
     $scope.fetchPages().then( _ => {
+      $scope.resetActions();
+    })
+  }
+
+  $scope.resetActions = function(){
+    $scope.actions = [
+      {label: 'Select',  action : _ => {$scope.buildAndClose();}, isValid: _ => { return $scope.pageList.some($p => $p._selected===true)}},
+      {label: 'Cancel', action : _ => {$scope.cancel();}, isValid: _ => true}
+    ]
+  }
+
+
+  $scope.addPage = function(){
+    $scope.newpage = {
+      name: 'Page for ' + $scope.model.type,
+      content: `[si_${$scope.model.type}]`
+    }
+
+    $scope.isAddingPage = true;
+    $scope.actions = [
+      {label: 'Create',  action : _ => {$scope.createPage();}, isValid: _ => { return $scope.newpage.name != ''}},
+      {label: 'Cancel', action : _ => {$scope.cancelCreatePage();}, isValid: _ => true}
+    ]
+
+  }
+
+  $scope.cancelCreatePage = function(){
+    $scope.isAddingPage = false;
+    $scope.resetActions();
+  }
+  $scope.createPage = function(){
+    console.log('creating page', $scope.newpage);
+    $siWP.addPage($scope.newpage.name, $scope.newpage.content, $scope.model.lang).then( $newPageInfo => {
+      console.log('creating page:result', $newPageInfo);
+      $scope.isAddingPage = false;
+      $scope.model.page = $newPageInfo;
+
+      $scope.fetchPages().then( _ => {
+        $scope.buildAndClose();
+      })
 
     })
+    
   }
 
   $scope.fetchPages = function(){

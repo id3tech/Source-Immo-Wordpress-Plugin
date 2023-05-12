@@ -170,7 +170,7 @@ html.print{
             .blur-#{$i}{filter:blur(#{$i}px);}
         }
         @for $i from 1 through 20{
-            .opacity-#{$i * 5}{opacity: #{($i * 5)/100};}
+            .opacity-#{$i * 5}{opacity: #{calc( ($i * 5) / 100 )};}
         }
         .si-truncated-text{
             position:relative;
@@ -795,6 +795,7 @@ html.print{
                     &.description,
                     &.addendum{
                         font-size:0.1in;
+                        line-height: 1;
                     }
 
                     &.description,

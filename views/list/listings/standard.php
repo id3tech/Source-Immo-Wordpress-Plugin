@@ -1,7 +1,7 @@
 
     <?php 
     if($configs->searchable){ 
-        $searchContainerClasses = ['search-container'];
+        $searchContainerClasses = ['si-search-container'];
         if(isset($configs->search_engine_options)){
             if(isset($configs->search_engine_options->tabs) && count($configs->search_engine_options->tabs)>1){
                 $searchContainerClasses[] = 'si-has-tabs';
@@ -50,7 +50,7 @@
             echo('</style>');
         }
         ?>
-        <div class="si-list" data-ng-if="(list && list.length>0) && display_mode=='list'" data-on-bottom-reached="checkNextPage()">      
+        <div class="si-list" data-ng-if="(list && list.length>0) && display_mode.includes('list')" data-on-bottom-reached="checkNextPage()">      
             <div ng-repeat="item in list track by item.id"  class="<?php echo(implode(' ',$itemClasses))?>" style="--si-item-index:{{$index}}">
             <?php 
                 SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
@@ -58,14 +58,14 @@
             </div>
         </div>
 
-        <div class="si-list si-list-of-ghost" data-ng-if="(ghost_list && ghost_list.length>0) && display_mode=='list'">      
+        <div class="si-list si-list-of-ghost" data-ng-if="(ghost_list && ghost_list.length>0) && display_mode.includes('list')">      
             <div ng-repeat="item in ghost_list">
             <?php 
                 SourceImmo::view("list/{$configs->type}/standard/item-{$configs->list_item_layout->layout}", array("configs" => $configs));
             ?>
             </div>
         </div>
-        <div class="next-page" data-ng-show="display_mode!='map' && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
+        <div class="next-page" data-ng-show="(display_mode.length > 1 || !display_mode.includes('map') ) && page_index>=2 && listMeta.next_token!=null && !is_loading_data">
             <button type="button" class="si-button load-next-page" ng-click="showNextPage(true)"><span><?php si_label('Load more') ?></span></button>
         </div>
         
@@ -74,7 +74,9 @@
         <?php
         // add map if the list is mappable
         if($configs->mappable){
-            echo('<si-map class="map-container" data-ng-show="display_mode==\'map\'" data-si-alias="' . $configs->alias . '"  data-si-configs="configs"></si-map>');
+            echo('<div class="map-container" data-ng-if="display_mode.length == 1 && display_mode.includes(\'map\')">');
+            echo('<si-map data-si-alias="' . $configs->alias . '"  data-si-configs="configs"></si-map>');
+            echo('</div>');
         }
         ?>
 

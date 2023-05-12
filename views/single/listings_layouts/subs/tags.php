@@ -1,0 +1,1 @@
+<si-tags list="model.tags"></si-tags>

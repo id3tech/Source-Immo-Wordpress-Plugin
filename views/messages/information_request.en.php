@@ -63,3 +63,4 @@ Content-Transfer-Encoding: 7bit
 
 
 --PHP-alt-<?php echo($random_hash) ?>--
+<?php

@@ -125,7 +125,7 @@ class Elementor_SI_List_Slider_Widget extends \Elementor\Widget_Base
     {
     ?>
         <div class="si-elementor-widget">
-            <div class="slider-type-hero si si-list-slider ng-isolate-scope list-of-listings loaded" si-alias="listings" si-options="{show_navigation:true, limit: 5}" style="--slider-width:100%;">
+            <div class="slider-type-hero si si-list-slider ng-isolate-scope list-of-listings si-loaded" si-alias="listings" si-options="{show_navigation:true, limit: 5}" style="--slider-width:100%;">
                 <div class="si-slide-container" style="--list-count:5; --current-index:0;">
                     
                     <div ng-include="getItemTemplateInclude()" class="si-slide ng-scope in-viewport" ng-repeat="item in list">

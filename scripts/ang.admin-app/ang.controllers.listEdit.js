@@ -19,7 +19,7 @@ siApp
 
     if(typeof $params == 'string'){
       $scope.model = {
-        alias: 'New {0} list'.translate().format($params.translate()),
+        alias: 'New {0} list'.translate().siFormat($params.translate()),
         $$source_id : $scope.configs.default_view,
         type: $params
       }

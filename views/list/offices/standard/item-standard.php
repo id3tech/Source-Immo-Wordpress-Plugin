@@ -30,11 +30,13 @@ if(isset($configs)){
 ?>
 
 <article 
-    class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}"  data-si-hover-class="<?php echo implode(' ',$scope_class_hover) ?>" ng-cloak
+    class="<?php echo(implode(' ', $scope_class)) ?> {{getClassList(item)}}"  
+    data-ng-mouseover="handleListItemOver($event,item)"
+    data-si-hover-class="<?php echo implode(' ',$scope_class_hover) ?>" ng-cloak
         <?php echo(implode(' ', $attrs)) ?> >
     <a href="{{item.permalink}}">
-        <div class="item-content">
-            <div class="layer-container">
+        <div class="si-item-content">
+            <div class="si-layer-container">
                <?php siShowStandardItemLayer($configs) ?>
             </div>
         </div>

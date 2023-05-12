@@ -1,42 +1,112 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,300,600,600italic,700,700italic);
-html { font-size: 15px; padding: 0px; margin: 0px; }
+html {
+  font-size: 15px;
+  padding: 0px;
+  margin: 0px;
+}
 
-body { padding: 0px; margin: 0px; font-family: 'Open Sans'; }
-
-body * { -webkit-box-sizing: border-box; box-sizing: border-box; }
-
-body #page { width: 100%; padding: 0px; margin: 0px; }
-
-body #page #infoBlock > .sectionTitle, body #page #infoBlock .sectionRedSia, body #page #infoBlock #mlsPhoto { display: none; }
-
-body #page #infoBlock .sectionTitleResp { display: -webkit-box; display: -ms-flexbox; display: flex; font-size: 1.5rem; line-height: 1em; width: 100%; border-left: none; text-align: center; height: 540px; -webkit-box-pack: center; -ms-flex-pack: center; justify-content: center; -webkit-box-align: center; -ms-flex-align: center; align-items: center; text-transform: none; font-weight: 400; }
-
-body #page .sectionTitle { border-bottom: none; border-left: solid 3px #ccc; text-transform: uppercase; font-size: 1.25rem; padding: 0.5em 1em; }
-
-body #page .sectionRed { font-size: 1rem; color: #333; padding: 0 1.5em; }
-
-body #page textarea, body #page input { font-size: 1rem; padding: 0.5em; font-family: 'Open Sans'; outline: none; width: 100%; }
-
-body #page #persoBlock { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 1fr; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 1rem 1.5rem; }
-
-body #page #persoBlock .sep { display: none; }
-
-body #page #persoBlock .sectionTitle, body #page #persoBlock .sectionRed { -ms-grid-column: 1; -ms-grid-column-span: 2; grid-column: 1 / span 2; margin: 0px; margin-left: -1.5rem; }
-
-body #page #persoBlock .lv { position: relative; margin: 0 0 1rem 0; }
-
-body #page #persoBlock .lv.ts { padding-top: unset; }
-
-body #page #persoBlock .lv .l { position: absolute; bottom: 0px; left: 0px; width: auto; text-align: left; font-weight: 400; -webkit-transform: translateY(100%); transform: translateY(100%); font-size: 0.75rem; }
-
-body #page #persoBlock .lv .v { display: block; padding-top: 0; }
-
-body #page #persoBlock .lv .v input { padding: 0px; border-style: none none solid none; font-weight: 700; }
-
-body #page #notesBlock .v { padding: 0rem 1.5rem; }
-
-body #page #buttonBlock { padding: 1rem 1.5rem; }
-
-body #page #buttonBlock #submitBlock { float: none; }
-
-body #page #buttonBlock input[type=button] { width: auto; color: #fff; background: #333; border: none; padding: 0.5em 1em; cursor: pointer; }
+body {
+  padding: 0px;
+  margin: 0px;
+  font-family: "Open Sans";
+}
+body * {
+  box-sizing: border-box;
+}
+body #page {
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+body #page #infoBlock > .sectionTitle, body #page #infoBlock .sectionRedSia, body #page #infoBlock #mlsPhoto {
+  display: none;
+}
+body #page #infoBlock .sectionTitleResp {
+  display: flex;
+  font-size: 1.5rem;
+  line-height: 1em;
+  width: 100%;
+  border-left: none;
+  text-align: center;
+  height: 540px;
+  justify-content: center;
+  align-items: center;
+  text-transform: none;
+  font-weight: 400;
+}
+body #page .sectionTitle {
+  border-bottom: none;
+  border-left: solid 3px #ccc;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  padding: 0.5em 1em;
+}
+body #page .sectionRed {
+  font-size: 1rem;
+  color: #333;
+  padding: 0 1.5em;
+}
+body #page textarea, body #page input {
+  font-size: 1rem;
+  padding: 0.5em;
+  font-family: "Open Sans";
+  outline: none;
+  width: 100%;
+}
+body #page #persoBlock {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+}
+body #page #persoBlock .sep {
+  display: none;
+}
+body #page #persoBlock .sectionTitle, body #page #persoBlock .sectionRed {
+  grid-column: 1/span 2;
+  margin: 0px;
+  margin-left: -1.5rem;
+}
+body #page #persoBlock .lv {
+  position: relative;
+  margin: 0 0 1rem 0;
+}
+body #page #persoBlock .lv.ts {
+  padding-top: unset;
+}
+body #page #persoBlock .lv .l {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: auto;
+  text-align: left;
+  font-weight: 400;
+  transform: translateY(100%);
+  font-size: 0.75rem;
+}
+body #page #persoBlock .lv .v {
+  display: block;
+  padding-top: 0;
+}
+body #page #persoBlock .lv .v input {
+  padding: 0px;
+  border-style: none none solid none;
+  font-weight: 700;
+}
+body #page #notesBlock .v {
+  padding: 0rem 1.5rem;
+}
+body #page #buttonBlock {
+  padding: 1rem 1.5rem;
+}
+body #page #buttonBlock #submitBlock {
+  float: none;
+}
+body #page #buttonBlock input[type=button] {
+  width: auto;
+  color: #fff;
+  background: #333;
+  border: none;
+  padding: 0.5em 1em;
+  cursor: pointer;
+}

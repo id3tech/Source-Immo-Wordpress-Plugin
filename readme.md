@@ -1,4 +1,4 @@
-# Version 2.1.19
+# Version 2.1.24
 
 
 ### Intuitive admin interface
@@ -111,9 +111,23 @@ Support for WPML and Polylang
 
 
 ## Change log
-version 2.1.19
+version 3.0.1
+* Split view map
+* Updated mortgage calculator
+    * Payment fragmentation graph
+    * Numeric value sliders
+* New Local Logic v3
+* Tags for listings (list and page)
+* Easier custom page for listings, brokers, offices, agencies and cities
+* Brokers ordering in listing page fixed
+* Minor bugs fix
+
+
+version 2.1.23
 * Normalization labels hook. Use filter "si/label" to overwrite static labels
 * Dynamic singular/plural search tabs label
+* Minor fix on print labels
+
 
 version 2.1.18
 * Add display custom data in lists

@@ -12,7 +12,7 @@ $panelKey = 'categories';
 
 
             <div class="listing-subcategory panel-list">
-                <h4><?php si_label('Property types') ?></h4>
+                <h4 si-pluralize="{on:'dictionary/listing_subcategory', label:'<?php si_label('Property types') ?>'}"><?php si_label('Property type') ?></h4>
                 
                 <div class="list-container subcategories" ng-if="subcategory_list.length <= 15">
                     <si-checkbox
@@ -57,7 +57,7 @@ $panelKey = 'categories';
             </div>
 
             <div class="building-category panel-list" ng-show="dictionary.building_category!=undefined" ng-if="!isMainFiltered(['commercial'])">
-                <h4><?php si_label('Building types') ?></h4>
+                <h4  si-pluralize="{on:'dictionary/building_category', label:'<?php si_label('Building types') ?>'}"><?php si_label('Building type') ?></h4>
                 
                 <div class="list-container">
                     <si-checkbox

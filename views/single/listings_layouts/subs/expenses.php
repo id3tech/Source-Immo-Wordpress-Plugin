@@ -5,12 +5,12 @@
     <div class="si-detail-section-content">
 
         <div class="label-value building-assessment" ng-show="model.building.assessment">
-            <label>{{'Building assessment ({0})'.translate().format(model.building.assessment.year)}}</label>
+            <label>{{'Building assessment ({0})'.translate().siFormat(model.building.assessment.year)}}</label>
             <div class="value">{{model.building.assessment.amount.formatPrice()}}</div>
         </div>
 
         <div class="label-value land-assessment" ng-show="model.land.assessment">
-            <label>{{'Land assessment ({0})'.translate().format(model.land.assessment.year)}}</label>
+            <label>{{'Land assessment ({0})'.translate().siFormat(model.land.assessment.year)}}</label>
             <div class="value">{{model.land.assessment.amount.formatPrice()}}</div>
         </div>
 

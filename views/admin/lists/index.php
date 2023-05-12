@@ -39,7 +39,7 @@
         
 
         <div layout="row" layout-align="space-between center">
-            <label>{{(model.limit > 0 ? "Shuffle first {0} elements" : "Shuffle first page").translate().format(model.limit)}}</label>
+            <label>{{(model.limit > 0 ? "Shuffle first {0} elements" : "Shuffle first page").translate().siFormat(model.limit)}}</label>
             <md-switch ng-model="model.shuffle"></md-switch>
         </div>  
 

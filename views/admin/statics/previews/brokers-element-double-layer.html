@@ -11,7 +11,7 @@
         <div class="phone si-label" ng-show="previewLayerHasVar('phone')">{{item.phone}}</div>
         <div class="email si-label" ng-show="previewLayerHasVar('email')">{{item.email}}</div>
 
-        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count')">{{'{0} listings'.translate().format(item.listing_count)}}</div>
+        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count')">{{'{0} listings'.translate().siFormat(item.listing_count)}}</div>
 
     </div>
 
@@ -25,6 +25,6 @@
         <div class="phone si-label" ng-show="previewLayerHasVar('phone','secondary')">{{item.phone}}</div>
         <div class="email si-label" ng-show="previewLayerHasVar('email','secondary')">{{item.email}}</div>
 
-        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count','secondary')">{{'{0} listings'.translate().format(item.listing_count)}}</div>
+        <div class="listing-count si-label" ng-show="previewLayerHasVar('listing_count','secondary')">{{'{0} listings'.translate().siFormat(item.listing_count)}}</div>
     </div>
 </div>

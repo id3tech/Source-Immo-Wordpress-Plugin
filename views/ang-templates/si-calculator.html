@@ -1,134 +1,210 @@
 <div class="si-calculator si-mode-{{mode}}">
-    <div ng-transclude></div>
-    <div class="si-input-container amount-input">
-        <label>{{'Property value'.translate()}}</label>
-        <div class="si-input" >
-            <input type="number" data-ng-model="data.amount" autocomplete="off" data-ng-change="process()" />
-            <i class="extra fal fa-dollar-sign"></i>
-        </div>
-    </div>
+    <div class="si-calculator-inputs">
+        <div ng-transclude></div>
 
-    <div class="si-amount-value">{{data.amount | formatPrice}}</div>
-
-    <div class="si-input-container">
-        <label>
-            <div>{{'Down payment'.translate()}}</div>
-            <div class="alt-method">
-                <si-radio
-                    data-ng-model="data.downpayment_method"
-                    data-si-value="percent"
-                    si-change="changeDownpaymentMethod()"
-                    data-label="%"
-                ></si-radio>
-
-                <si-radio
-                    data-ng-model="data.downpayment_method"
-                    data-si-value="cash"
-                    si-change="changeDownpaymentMethod()"
-                    data-label="$"
-                ></si-radio>
-
+        <div class="si-input-group si-amount-input">
+            <label>{{'Property value'.translate()}}</label>
+            <div class="si-range-input">
+                <div class="si-range-input-value"><i class="fad fa-circle-dollar"></i> <span>{{data.amount | formatPrice}}</span></div>
+                <input type="range" class="si-range" min="0" max="2000000" data-ng-model="data.amount" data-ng-change="process()" />
             </div>
-        </label>
-        <div class="si-input">
-            <input type="number" autocomplete="off" data-ng-model="data.downpayment" data-ng-change="process()" />
-            <i class="extra fal fa-{{(data.downpayment_method=='cash') ? 'dollar-sign' : 'percent'}}"></i>
         </div>
-        
-    </div>
 
-    <div class="si-input-container">
-        <label>{{'Interest rate'.translate()}}</label>
-        <div class="si-input">
-            <input type="number" autocomplete="off" data-ng-model="data.interest"  data-ng-change="process()" />
-            <i class="extra fal fa-percent"></i>
-        </div>
-        
-    </div>
-
-    <div class="si-input-container">
-        <label>{{'Amortization'.translate()}}</label>
-        <div class="si-input">
-            <input type="number" autocomplete="off" data-ng-model="data.amortization"  data-ng-change="process()" />
-            <i class="extra fal fa-calendar-alt"></i>
-        </div>
-        
-    </div>
-
-    <div class="si-input-container">
-        <label>{{'Payment frequency'.translate()}}</label>
-
-        <div class="si-input">
-            <div class="si-dropdown">
-                <div class="si-dropdown-button">
-                    {{frequencies[data.frequency].translate()}}
+        <div class="si-input-group si-downpayment-input">
+            <label>{{'Down payment'.translate()}}</label>
+            <div class="si-range-input">
+                <div class="si-range-input-value">
+                    <i class="fad fa-circle-dollar"></i> 
+                    <span class="si-range-input-value-with-input">
+                        <span>{{data.downpaymentTotal | formatPrice}}</span>
+                        <input type="number" ng-model="data.downpaymentTotal" ng-model-options="{debounce:750}" data-ng-change="convertDownpaymentToPercent(true)"/>
+                    </span> 
+                    <span>{{data.downpayment}}%</span>
+                    
                 </div>
-                <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
-                    <div class="si-dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
-                </div>
+                <input type="range" class="si-range" min="0" max="100" step="1" data-ng-model="data.downpayment" data-ng-change="convertDownpaymentToCash(true)" />
+
+                <label ng-if="data.downpayment<20"><si-checkbox ng-model="data.includeMortgageInsurance" si-change="process()" si-value="yes"></si-checkbox> {{'Include mortgage insurance (CMHC)'.translate()}}</label>
             </div>
-            <i class="extra fal fa-repeat"></i>
         </div>
-    </div>
 
-    <div class="si-calculator-results">
-        <div class="mortgage">
+        <div class="si-input-group si-interest-input">
+            <label>{{'Interest rate'.translate()}}</label>
+            <div class="si-range-input">
+                <div class="si-range-input-value">
+                    <i class="fad fa-calculator-simple"></i> <span>{{data.interest}}%</span>
+                </div>
+                <input type="range" class="si-range" min="0" max="10" step="0.1" data-ng-model="data.interest" data-ng-change="process()" />
+            </div>
+        </div>
+
+        <div class="si-input-group si-term-input">
+            <label>{{'Amortization period'.translate()}}</label>
+            <div class="si-range-input">
+                <div class="si-range-input-value">
+                    <i class="fad fa-calendar-alt"></i> 
+                    <span>{{data.amortization}} <span>{{(data.amortization > 1 ? 'years' : 'year').translate()}}</span></span>
+                </div>
+                <input type="range" class="si-range" min="0" max="35" step="5" data-ng-model="data.amortization" data-ng-change="process()" />
+            </div>
+        </div>
+
+        <div class="si-input-group si-frequency-input">
+            <label>{{'Payment frequency'.translate()}}</label>
+            <div class="">
+                <i class="fad fa-repeat"></i>
+
+                <div class="si-dropdown si-no-border">
+                    <div class="si-dropdown-button">
+                        {{frequencies[data.frequency].translate()}}
+                    </div>
+                    <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
+                        <div class="si-dropdown-item {{(data.frequency==value) ? 'active' : ''}}" data-ng-click="setFrequency(value)" data-ng-repeat="(value,label) in frequencies">{{label.translate()}}</div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+
+    </div>
+    <div class="si-calculator-results si-complex-results">
+        <div class="si-graphical-results">
+            <si-donut-chart series="series">
+                <si-donut-chart-center>
+                    <h3>{{result.mortgage.mortgage.formatPrice()}}</h3>
+                    <em>{{result.mortgage.payment.formatPrice()}}</em>
+                    <span>{{result.mortgage.frequency_caption.translate().toLowerCase()}}</span>
+                </si-donut-chart-center>
+            </si-donut-chart>
+        </div>
+
+        <div class="si-mortgage">
             <div class="si-mortgage-data-row">
                 <label>{{'Property value'.translate()}}</label>
                 
-                <div class="value">
-                    {{data.amount.formatPrice()}}
+                <div class="si-value">
+                    {{data.amount.formatPrice(0)}}
                 </div>
             </div>
             <div class="si-mortgage-data-row">
                 <label>{{'Down payment'.translate()}}</label>
                 
-                <div class="value">
-                    - {{result.mortgage.downpayment.formatPrice()}}
+                <div class="si-value">
+                    - {{result.mortgage.downpayment.formatPrice(0)}}
                 </div>
             </div>
             <div class="si-mortgage-data-row ">
-                <label>{{'Mortgage insurance'.translate()}}</label>
-                <div class="value">
-                    + {{result.mortgage.insurance.formatPrice()}}
+                <label>{{'Mortgage insurance (CMHC)'.translate()}}</label>
+                <div class="si-value">
+                    + {{result.mortgage.insurance.formatPrice(0)}}
                 </div>
             </div>
             <div class="si-mortgage-data-row total">
                 <label>{{'Estimated mortgage amount'.translate()}}</label>
-                <div class="value">
-                    {{result.mortgage.mortgage.formatPrice()}}
+                <div class="si-value">
+                    {{result.mortgage.mortgage.formatPrice(0)}}
                 </div>
             </div>
             
-            <div class="si-mortgage-data-row total-alt">
+            <div class="si-mortgage-data-row total-big">
                 <label>{{'Estimated payment'.translate()}}</label>
-                <div class="value">
-                    <em>{{result.mortgage.payment.formatPrice()}}</em>
+                <div class="si-value">
+                    <em>{{result.mortgage.payment.formatPrice(0)}}</em>
                     <span>{{result.mortgage.frequency_caption.translate().toLowerCase()}}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="si-calculator-results">
-        <h4>{{'Transfer duty'.translate()}}</h4>
-        <div class="transfer-taxes">
+    <div class="si-calculator-results si-simple-results">
+        
+        <si-donut-chart series="series">
+            <si-donut-chart-center>
+                <h3>{{result.mortgage.mortgage.formatPrice()}}</h3>
+                <em>{{result.mortgage.payment.formatPrice()}}</em>
+                <span>{{result.mortgage.frequency_caption.translate().toLowerCase()}}</span>
+            </si-donut-chart-center>
+        </si-donut-chart>
+
+        <div class="si-mortgage-data-row">
+            <label>{{'Property value'.translate()}}</label>
             
-            <div class="si-input-container">
-                <label>{{'Calculation method'.translate()}}:</label> 
-                <div class="si-input si-dropdown">
-                    <div class="si-dropdown-button">
-                        {{selectedCity.name || 'Generic'.translate()}}
+            <div class="si-value">
+                {{data.amount.formatPrice()}}
+            </div>
+        </div>
+        <div class="si-mortgage-data-row">
+            <label>{{'Down payment'.translate()}}</label>
+            
+            <div class="si-value" ng-if="result.mortgage.downpayment > 0">
+                - {{result.mortgage.downpayment.formatPrice(0)}}
+            </div>
+        </div>
+
+        <div class="si-mortgage-data-row ">
+            <label>{{'Mortgage insurance (CMHC)'.translate()}}</label>
+            <div class="si-value" ng-if="result.mortgage.insurance>0">
+                + {{result.mortgage.insurance.formatPrice(0)}}
+            </div>
+        </div>
+        <div class="si-mortgage-data-row total">
+            <label>{{'Estimated mortgage amount'.translate()}}</label>
+            <div class="si-value">
+                {{result.mortgage.mortgage.formatPrice(0)}}
+            </div>
+        </div>
+
+        <div class="si-result-item mortgage">
+            <label>{{'Estimated mortgage payments'.translate()}}</label>
+            <div class="si-value">
+                <em>{{result.mortgage.payment.formatPrice(0)}}</em>
+                <span>{{result.mortgage.frequency_caption.translate().toLowerCase()}}</span>
+            </div>
+        </div>
+        
+        <div class="si-result-item transfer-taxes">
+            <label>{{'Transfer duties'.translate()}}*</label>
+            <div class="si-value">
+                <em>{{result.transfer_tax.formatPrice(0)}}</em>
+            </div>
+        </div>
+
+        
+        <div class="si-notice">*{{'This amount is displayed for information only. The amount for the transfer duties is based on the scales imposed by the municipality or the basic calculations generally in effect in Québec. Consult your real estate broker for the exact amount.'.translate()}}</div>
+        
+    </div>
+
+    <div class="si-calculator-results si-transfer-taxes-results">
+        <h4>{{'Transfer duty'.translate()}}</h4>
+
+        <div class="si-results-container">
+            <div class="si-input-group si-location-input">
+                <label>{{"Select a city to apply its calculation algorithm".translate()}}</label>
+                <div class="">
+                    <i class="fad fa-map-marker-alt"></i>
+
+                    <div class="si-dropdown si-no-border">
+                        <div class="si-dropdown-button">
+                            {{selectedCity.name || 'No particular city'.translate()}}
+                        </div>
+                        <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
+                            <div class="si-dropdown-item" data-ng-click="selectCity(null)">{{'No particular city'.translate()}}</div>
+                            <div class="si-dropdown-item" data-ng-click="selectCity(city)" data-ng-repeat="city in cities">{{city.name}}</div>
+                        </div>
                     </div>
-                    <div class="si-dropdown-panel" aria-labelledby="dropdownMenuButton">
-                        <div class="si-dropdown-item" data-ng-click="selectCity(null)">{{'Generic'.translate()}}</div>
-                        <div class="si-dropdown-item" data-ng-click="selectCity(city)" data-ng-repeat="city in cities">{{city.name}}</div>
-                    </div>
+                    
                 </div>
+                
+                
             </div>
 
-            <div class="value"><em>{{result.transfer_tax.formatPrice()}}*</em></div>
-            <div class="notice">*{{'This amount is displayed for information only. This amount may vary depending on the city and may also change over time. Consult your real estate broker for more details.'.translate()}}</div>
+            <div class="si-value">
+                <em>{{result.transfer_tax.formatPrice()}}*</em>
+                <div class="si-notice">*{{'This amount is displayed for information only. This amount may vary depending on the city and may also change over time. Consult your real estate broker for more details.'.translate()}}</div>    
+            </div>
+            
+            
         </div>
     </div>
 </div>

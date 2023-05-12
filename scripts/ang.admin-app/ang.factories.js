@@ -1020,7 +1020,7 @@ siApp
         
         $resolve($response);
 
-        $scope.loadPages();
+        //$scope.loadPages();
       });
     });
   }

@@ -33,7 +33,7 @@ $communication_mode = isset($layout->communication_mode) ? $layout->communicatio
         <div class="email input-container">
             <label><?php _e('Email', SI) ?></label>
             <div class="input">
-                <input type="text" data-ng-model="message_model.email" required />
+                <input type="email" data-ng-model="message_model.email" required />
             </div>
         </div>
 

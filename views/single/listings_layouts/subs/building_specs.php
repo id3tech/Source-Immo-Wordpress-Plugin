@@ -8,7 +8,7 @@
     <div class="si-detail-section-content spec-grid">
         <div class="spec" data-ng-repeat="spec in model.building.attributes">
             <label>{{spec.caption}}</label>
-            <div><span data-ng-repeat="value in spec.values">{{value.caption}}</span></div>
+            <div ng-if="spec.values.length > 0" class="si-values"><span  class="si-value" ng-if="value.caption != ''" data-ng-repeat="value in spec.values">{{value.caption}}</span></div>
         </div>
     </div>
 </div>

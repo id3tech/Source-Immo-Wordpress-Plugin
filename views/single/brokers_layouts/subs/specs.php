@@ -1,4 +1,4 @@
-<div class="si-detail-section specs" ng-if="[model.languages,model.experience_start_date] | siHasValue">
+<div class="si-detail-section si-specs" ng-if="[model.languages,model.experience_start_date] | siHasValue">
 
         <div class="si-extra-item" ng-if="model.languages | siHasValue">
             <label><?php _e('Spoken language(s)',SI)?></label>
@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <div class="si-extra-item protections" ng-if="model.protection_codes | siHasValue">
+        <div class="si-extra-item si-protections" ng-if="model.protection_codes | siHasValue">
             <label><?php _e('Protections',SI)?></label>
             <div class="si-value .{{model.protection_codes.join(' .').toLowerCase()}}">
                 <span ng-repeat="protection in model.protection_codes" class="{{protection.toLowerCase()}}">

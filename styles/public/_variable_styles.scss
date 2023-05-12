@@ -73,8 +73,18 @@
         overflow:hidden;
     }
 
+
     .si-element-padding{
       padding: var(--si-padding);
+    }
+    .si-element-padding-sm{
+      padding: calc(var(--si-padding) / 2);
+    }
+    .si-element-padding-inline-sm{
+      padding-inline: calc(var(--si-padding) / 2);
+    }
+    .si-element-padding-block-sm{
+      padding-block: calc(var(--si-padding) / 2);
     }
 
     .si-container-padding{
@@ -103,26 +113,26 @@
     }
     
     .si-background-small-contrast{
-        background:var(--si-small-contrast-color);
+        background-color:var(--si-small-contrast-color);
         --si-text-color: var(--si-small-contrast-text-color);
     }
 
     .si-background-medium-contrast{
-        background:var(--si-medium-contrast-color);
+        background-color:var(--si-medium-contrast-color);
         --si-text-color: var(--si-medium-contrast-text-color);
         --layer-background-color: var(--si-medium-contrast-color);
         --layer-text-color: var(--si-medium-contrast-text-color);
     }
 
     .si-background-high-contrast{
-        background:var(--si-high-contrast-color);
+        background-color:var(--si-high-contrast-color);
         --si-text-color: var(--si-high-contrast-text-color);
         --layer-background-color: var(--si-high-contrast-color);
         --layer-text-color: var(--si-high-contrast-text-color);
     }
 
     .si-background-highlight{
-      background: var(--si-highlight);
+      background-color: var(--si-highlight);
       --si-text-color: var(--si-highlight-text-color);
       --layer-background-color: var(--si-highlight);
       --layer-text-color: var(--si-highlight-text-color);
@@ -255,6 +265,18 @@
         border-radius: var(--si-border-radius,0);
         overflow:hidden;
     }
+    .si-border-radius-sm,.si-border-curved-sm{
+      border-radius: calc(var(--si-border-radius,1rem) / 2);
+      overflow:hidden;
+    }
+    .si-border-radius-lg,.si-border-curved-lg{
+      border-radius: calc(var(--si-border-radius,1rem) * 2);
+      overflow:hidden;
+    }
+    .si-border-radius-max,.si-border-curved-max{
+      border-radius: 100vh;
+      overflow:hidden;
+    }
     .si-border-round{
       border-radius: 100vh;
       aspect-ratio:1!important;
@@ -288,7 +310,7 @@
       }
     }
     .si-show-labels{
-      .label{
+      .si-label{
         display:inline-block!important;
       }
     }
@@ -448,57 +470,57 @@
 
     .si-hover-shade{
         transition:0.25s;
-        
+        border-radius: var(--si-element-border-radius);
         &:hover{
-            border-radius: var(--element-border-radius);
+            //border-radius: var(--element-border-radius);
             background:var(--si-small-contrast-color);
             --si-text-color: var(--si-small-contrast-text-color);
         }
     }
 
-    .search-container{
+    .si-search-container{
       &.si-input-background-small-contrast{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           background: var(--si-small-contrast-color);
         }
       }
 
       &.si-input-background-medium-contrast{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           background: var(--si-medium-contrast-color);
         }
       }
 
       &.si-input-background-high-contrast{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           background: var(--si-high-contrast-color);
           --si-text-color: var(--si-high-contrast-text-color);
         }
       }
       &.si-input-border{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           border: var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc)); 
         }
       }
       &.si-input-border-bottom{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           border-bottom: var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc)); 
         }
       }
       &.si-input-border-top{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           border-top: var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc)); 
         }
       }
 
       &.si-input-radius{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           border-radius: var(--si-border-radius);
           overflow:hidden;
         }
       }
       &.si-input-big-radius{
-        .inputs .search-box{
+        .si-inputs .si-search-box{
           border-radius: 2em;
           overflow:hidden;
         }

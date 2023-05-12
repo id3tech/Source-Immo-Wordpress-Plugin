@@ -55,10 +55,10 @@
                     <div class="limit" ng-if="false">{{(list.limit==0)? 'unlimited'.translate() : list.limit}}</div>
 
                     <div class="actions" layout="row" layout-align="center center">
-                        <md-button class="md-icon-button" ng-click="edit(list)"><i class="fal fa-pencil"></i></md-button>
-                        <md-button class="md-icon-button"  ng-click="clone(list)"><i class="fal fa-copy"></i></md-button>
+                        <md-button class="md-icon-button" ng-click="edit(list)" ls-title="Edit"><i class="fal fa-pencil"></i></md-button>
+                        <md-button class="md-icon-button"  ng-click="clone(list)" ls-title="Clone"><i class="fal fa-copy"></i></md-button>
                         <md-divider></md-divider>
-                        <md-button class="md-icon-button"  ng-disabled="(configs.lists | filter : {'type' : groupType}).length==1" ng-click="remove(list)"><i class="fal fa-trash"></i></md-button>
+                        <md-button class="md-icon-button" ng-click="remove(list)" ls-title="Remove"><i class="fal fa-trash"></i></md-button>
                         
 
                         <md-menu ng-if="false">
@@ -108,7 +108,7 @@
                         </div>
 
                         <div class="actions" si-click-scope>
-                            <md-button class="md-icon-button" ng-click="editLayoutPage(langItem)" ls-title="Edit the layout page"><i class="fab fa-wordpress"></i></md-button>
+                            <md-button class="md-icon-button" ng-if="langItem.layout.page" ng-click="editLayoutPage(langItem)" ls-title="Edit the layout page"><i class="fab fa-wordpress"></i></md-button>
                             <md-button class="md-icon-button" ng-disabled="!hasMinLangCount()" ng-click="removeLang($index)" ls-title="Remove this language"><i class="fal fa-trash"></i></md-button>
                         </div>
                         

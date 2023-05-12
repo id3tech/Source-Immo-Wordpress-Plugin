@@ -151,7 +151,7 @@ class SourceImmoPageBuilder{
         if($isolation != 'ISOLATE'){
             add_filter( 'body_class',function($classes){
                 $className = $this->getSingleClassName();
-                $classes[] = "{{model!=null?'loaded':''}} si-single-content {$className}";
+                $classes[] = "{{model!=null?'si-loaded':''}} si-single-content {$className}";
                 return $classes;
             }, 1 );
             
@@ -178,7 +178,7 @@ class SourceImmoPageBuilder{
                         $ref_number = get_query_var( 'ref_number');
                         $controllerName = $this->getSingleControllerName();
                         $className = $this->getSingleClassName();
-                        $controller = "<div data-ng-controller=\"{$controllerName}\" ng-cloak data-ng-init=\"init('{$ref_number}')\" class=\"{{model!=null?'loaded':''}} si-single-content {$className}\"><div class=\"si-content\">";
+                        $controller = "<div data-ng-controller=\"{$controllerName}\" ng-cloak data-ng-init=\"init('{$ref_number}')\" class=\"{{model!=null?'si-loaded':''}} si-single-content {$className}\"><div class=\"si-content\">";
                         echo($controller);
                     } );
                 }
@@ -346,7 +346,7 @@ function siShowDirectItemLayer($item, $configs,$layerName="main"){
     $path = apply_filters("si/{$configs->type}/layer/{$layerName}", SI_PLUGIN_DIR . "views/list/{$configs->type}/direct/item-layer.php");
 
     $styles = [];
-    $classes = ['layer', $layerName . '-layer'];
+    $classes = ['si-layer', 'si-' . $layerName . '-layer'];
     
     $linkButtonLabel = _si_label('Learn more');
     
@@ -362,14 +362,19 @@ function siShowDirectItemLayer($item, $configs,$layerName="main"){
     if(class_exists($typedRendererClassName)) $rendererClassName = $typedRendererClassName;
 
 
-    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main) || !$rendererClassName::has('photo',$configs->list_item_layout->displayed_vars->main)){
+    if($rendererClassName::isSimple($configs->list_item_layout->displayed_vars->main)){
         $configs->list_item_layout->displayed_vars->main = $rendererClassName::updateToComplex($configs->list_item_layout->displayed_vars->main, $configs->type);
+    }
+    if(in_array($configs->type, ['listings','brokers'])){
+        if(!$rendererClassName::has('photo',$configs->list_item_layout->displayed_vars->main)){
+            $configs->list_item_layout->displayed_vars->main = $rendererClassName::updateToComplex($configs->list_item_layout->displayed_vars->main, $configs->type);
+        }
     }
 
 
     echo('<div class="' . implode(' ', $classes) . '" style="' . implode(';',$styles) . '">');
-    echo('<div class="layer-content">');
-
+    echo('<div class="si-layer-content">');
+    
     siShowLayerVars($configs->list_item_layout->displayed_vars->{$layerName},$item, $configs->type);
 
     if($layerName == 'main'){
@@ -395,7 +400,7 @@ function siShowStandardItemLayer($configs,$layerName="main"){
     $path = apply_filters("si/{$configs->type}/layer/{$layerName}", SI_PLUGIN_DIR . "views/list/{$configs->type}/standard/item-layer.php");
 
     $styles = [];
-    $classes = ['layer', $layerName . '-layer'];
+    $classes = ['si-layer', 'si-' . $layerName . '-layer'];
     
     $linkButtonLabel = _si_label('Learn more');
     
@@ -407,7 +412,7 @@ function siShowStandardItemLayer($configs,$layerName="main"){
     }
 
     echo('<div class="' . implode(' ', $classes) . '" style="' . implode(';',$styles) . '">');
-    echo('<div class="layer-content">');
+    echo('<div class="si-layer-content">');
     //include $path;
     
     $rendererClassName = 'siLayerVar';
@@ -426,7 +431,8 @@ function siShowStandardItemLayer($configs,$layerName="main"){
                 $varRenderer = new siLayerVar('flags');
                 $varRenderer->render();
             }
-            else if(!siLayerVar::has('flags', $configs->list_item_layout->displayed_vars->main)){
+            // Check listings mandatory vars: flags or tags must be present
+            else if(!siLayerVar::has('flags', $configs->list_item_layout->displayed_vars->main) && !siLayerVar::has('tags', $configs->list_item_layout->displayed_vars->main)){
                 $varRenderer = new siLayerVar('flags');
                 $varRenderer->render();
             }
@@ -602,7 +608,7 @@ class siLayerVar{
 
                 if($value != null){
                     if($filterFn != null) return '{{\'' . $value . '\' | ' . $filterFn . '}}';
-                    return $value;
+                    return apply_filters('si/label', $value);
                 }
             }
             return $default;
@@ -690,9 +696,40 @@ class siLayerVar{
         echo "</div>";
     }
 
+    function render_namex(){
+        $key = 'name';
+        if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
+        $keyClass = str_replace('_','-', $key);
+        $classes = implode(' ',$this->classes);
+        $value = $this->getValue($key);
+        if(strpos($value, '(') !== false){
+            
+            $pattern = '/\((.*?)\)/';
+            preg_match($pattern, $value, $matches);
+            $value = $matches[1];
+        }
+        
+        echo "<div class=\"si-label {$classes} {$keyClass} \" {$this->getAttributes()}>{$value}</div>";
+    }
+
+    function render_tags(){
+
+        $list = 'item.tags';
+        if($this->data != null){
+            $list = str_replace('"', "'", json_encode($this->data->tags));
+        }
+        $classes = implode(' ', $this->classes);
+
+        ?>
+        <div class="si-tags-container <?php echo $classes ?>" <?php echo $this->getAttributes() ?>>
+            <si-tags list="<?php echo $list ?>"></si-tags>
+        </div>
+        <?php
+    }
+
     function render_photo(){
         ?>
-        <div class="image si-lazy-loading <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
+        <div si-lazy-load class="si-image si-lazy-loading <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
             <img data-si-src="<?php echo $this->getValue('photo_url') ?>" data-si-srcset="<?php echo $this->getValue('photo_url') ?>" />
         </div>         
         <?php
@@ -701,8 +738,8 @@ class siLayerVar{
     function render_open_houses(){
         //if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
         ?>
-        <div class="si-label open-houses <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?> si-hide-empty="hard">
-            <div class="open-house-item">
+        <div class="si-label si-open-houses <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?> si-hide-empty="hard">
+            <div class="si-open-house-item">
                 <i class="fal fa-calendar-alt"></i> <span>{{'Open house'.translate()}}</span> <span am-time-ago="item.open_houses[0].start_date"></span>
             </div>
         </div>
@@ -712,13 +749,13 @@ class siLayerVar{
     function render_city(){
         //if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label city {$classes}\" {$this->getAttributes()}>{$this->getValue('location.city')}</div>";
+        echo "<div class=\"si-label si-city {$classes}\" {$this->getAttributes()}>{$this->getValue('location.city')}</div>";
     }
 
     function render_address(){
         //if(arr_empty($this->classes) && !$this->is_sub) $this->classes[] = 'si-padding-inline';
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label address {$classes}\" {$this->getAttributes()}>{$this->getValue('location.civic_address')}</div>";
+        echo "<div class=\"si-label si-address {$classes}\" {$this->getAttributes()}>{$this->getValue('location.civic_address')}</div>";
     }
 
     function render_price(){
@@ -728,7 +765,7 @@ class siLayerVar{
         
         if($price == '' || $price == null) $price = '&nbsp;';
 
-        echo "<div class=\"si-label {$classes} price\" {$this->getAttributes()}>{$price}</div>";
+        echo "<div class=\"si-label {$classes} si-price\" {$this->getAttributes()}>{$price}</div>";
         echo "<div class=\"si-label {$classes} si-price-sold\" {$this->getAttributes()}>{$price}</div>";
         
     }
@@ -739,8 +776,8 @@ class siLayerVar{
         $classes = implode(' ',$this->classes);
         $phoneValue = $this->getValue(['phones.mobile', 'phones.office']);
 
-        echo "<div class=\"si-label phone {$classes}\" {$this->getAttributes()} si-scope-href=\"tel:" . $phoneValue . "\">";
-        echo "<i class=\"icon fal fa-fw fa-phone\"></i> <span class=\"prefix\">" . _si_label('mobile') . "</span> <span class=\"label\">";
+        echo "<div class=\"si-label si-phone {$classes}\" {$this->getAttributes()} si-scope-href=\"tel:" . $phoneValue . "\">";
+        echo "<i class=\"si-icon fal fa-fw fa-phone\"></i> <span class=\"si-prefix\">" . _si_label('mobile') . "</span> <span class=\"si-label\">";
         echo $phoneValue;
         echo "</span>";
         echo "</div>";
@@ -754,13 +791,13 @@ class siLayerVar{
 
         $classes = implode(' ',$this->classes);
         
-        echo "<div class=\"si-label phone-list {$classes}\" {$this->getAttributes()}>";
+        echo "<div class=\"si-label si-phone-list {$classes}\" {$this->getAttributes()}>";
         ?>
         <div class="si-phone mobile" ng-if="<?php echo $mobileTest ?>" title="<?php si_label('mobile') ?>: <?php echo $mobileValue ?>" si-scope-href="tel:<?php echo $mobileValue ?>">
-            <i class="icon fal fa-fw fa-mobile"></i> <span class="prefix"><?php si_label('mobile') ?>:</span> <span class="label"><?php echo $mobileValue ?></span>
+            <i class="si-icon fal fa-fw fa-mobile"></i> <span class="si-prefix"><?php si_label('mobile') ?>:</span> <span class="si-label"><?php echo $mobileValue ?></span>
         </div>
         <div class="si-phone office" ng-if="<?php echo $officeTest ?>" title="<?php si_label('office') ?>: <?php echo $officeValue ?>" si-scope-href="tel:<?php echo $officeValue ?>">
-            <i class="icon fal fa-fw fa-building"></i> <span class="prefix"><?php si_label('office') ?>:</span> <span class="label"><?php echo $officeValue ?></span>
+            <i class="si-icon fal fa-fw fa-building"></i> <span class="si-prefix"><?php si_label('office') ?>:</span> <span class="si-label"><?php echo $officeValue ?></span>
         </div>
         <?php
         echo "</div>";
@@ -769,7 +806,7 @@ class siLayerVar{
 
     function render_email(){
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label email {$classes}\" {$this->getAttributes()}>{$this->getValue('email')}</div>";
+        echo "<div class=\"si-label si-email {$classes}\" {$this->getAttributes()}>{$this->getValue('email')}</div>";
     }
 
     
@@ -780,16 +817,16 @@ class siLayerVar{
         $emailTest = ($this->data == null) ? 'item.email' : "'' != '{$emailValue}'";
         ?>
         <div class="si-label <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
-            <div class="contacts ">
-                <div class="contact phone" title="<?php echo $phoneValue ?>">
-                    <i class="icon fal fa-fw fa-phone" si-scope-href="tel:<?php echo $phoneValue ?>"></i>
-                    <span class="prefix"><?php si_label('Phone') ?>:</span>
-                    <span class="label"><?php echo $phoneValue ?></span>
+            <div class="si-contacts ">
+                <div class="si-contact si-phone" title="<?php echo $phoneValue ?>">
+                    <i class="si-icon fal fa-fw fa-phone" si-scope-href="tel:<?php echo $phoneValue ?>"></i>
+                    <span class="si-prefix"><?php si_label('Phone') ?>:</span>
+                    <span class="si-label"><?php echo $phoneValue ?></span>
                 </div>
-                <div class="contact email" ng-if="<?php echo $emailTest ?>" title="<?php echo $emailValue ?>" si-scope-href="mailto:<?php echo $emailValue ?>">
-                    <i class="icon fal fa-fw fa-envelope"></i>
-                    <span class="prefix"><?php si_label('Email') ?>:</span>
-                    <span class="label si-text-truncate"><?php echo $emailValue ?></span>
+                <div class="si-contact si-email" ng-if="<?php echo $emailTest ?>" title="<?php echo $emailValue ?>" si-scope-href="mailto:<?php echo $emailValue ?>">
+                    <i class="si-icon fal fa-fw fa-envelope"></i>
+                    <span class="si-prefix"><?php si_label('Email') ?>:</span>
+                    <span class="si-label si-text-truncate"><?php echo $emailValue ?></span>
                 </div>
             </div>
         </div>
@@ -802,15 +839,15 @@ class siLayerVar{
         $classes = implode(' ',$this->classes);
 
         echo "<div class=\"si-label {$classes}\" {$this->getAttributes()}>";
-        echo '<div class="rooms">';
+        echo '<div class="si-rooms">';
 
         if($this->data == null){
-            echo '<div class="room {{icon}}" ng-repeat="(icon,room) in item.counters.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label.translate()}}</span></div>';
+            echo '<div class="si-room {{icon}}" ng-repeat="(icon,room) in item.counters.rooms"><i class="si-icon fal fa-fw fa-{{icon}}"></i> <span class="si-count">{{room.count}}</span> <span class="si-label">{{room.label.translate()}}</span></div>';
         }
         else{
             if(isset($this->data->counters->rooms)){
                 foreach ($this->data->counters->rooms as $icon => $room) {
-                    echo('<div class="room ' . $icon . '"><i class="icon fal fa-fw fa-' . $icon . '"></i> <span class="count">' . $room->count . '</span> <span class="label">' . $room->label . '</span></div>');
+                    echo('<div class="si-room ' . $icon . '"><i class="si-icon fal fa-fw fa-' . $icon . '"></i> <span class="si-count">' . $room->count . '</span> <span class="si-label">' . $room->label . '</span></div>');
                 }
             }
         }
@@ -823,10 +860,10 @@ class siLayerVar{
         }
         global $siLexicon;
         ?>
-        <div class="flags <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
-            <div class="flag video"><i class="icon far fa-video" title="{{'Video'.translate()}}"></i> <span class="label">{{'Video'.translate()}}</span></div>
-            <div class="flag virtual-tour"><i class="icon far fa-vr-cardboard" title="{{'Virtual tour'.translate()}}"></i> <span class="label">{{'Virtual tour'.translate()}}</span></div>
-            <div class="flag new-item"><i class="icon far fa-star" title="{{'New'.translate()}}"></i> <span class="label">{{'New'.translate()}}</span></div>
+        <div class="si-flags <?php echo implode(' ', $this->classes) ?>" <?php echo $this->getAttributes() ?>>
+            <div class="si-flag video"><i class="si-icon far fa-video" title="{{'Video'.translate()}}"></i> <span class="si-label">{{'Video'.translate()}}</span></div>
+            <div class="si-flag virtual-tour"><i class="si-icon far fa-vr-cardboard" title="{{'Virtual tour'.translate()}}"></i> <span class="si-label">{{'Virtual tour'.translate()}}</span></div>
+            <div class="si-flag new-item"><i class="si-icon far fa-star" title="{{'New'.translate()}}"></i> <span class="si-label">{{'New'.translate()}}</span></div>
         </div>
         <?php
     }
@@ -837,8 +874,8 @@ class siLayerVar{
         $listingValue = $this->getValue('listings_count', 0);
         $listingTest = ($this->data == null) ? 'item.listings_count>0' : "{$listingValue}>0";
         ?>
-        <div class="si-label counters <?php echo $classes ?>" <?php echo $this->getAttributes() ?>>
-            <div class="counter" ng-if="<?php echo $listingTest ?>"><i class="icon fal fa-fw fa-home"></i> <span class="count"><?php echo $listingValue ?></span> <span class="label"><lstr>listings</lstr></span></div>
+        <div class="si-label si-counters <?php echo $classes ?>" <?php echo $this->getAttributes() ?>>
+            <div class="si-counter" ng-if="<?php echo $listingTest ?>"><i class="icon fal fa-fw fa-home"></i> <span class="si-count"><?php echo $listingValue ?></span> <span class="si-label"><lstr>listings</lstr></span></div>
         </div>
         <?php
     }
@@ -991,9 +1028,9 @@ class siOfficesLayerVar extends siLayerVar{
         $brokerValue = $this->getValue('brokers_count', 0);
         $brokerTest = ($this->data == null) ? 'item.brokers_count>0' : "{$brokerValue}>0";
         ?>
-        <div class="si-label counters <?php echo  $classes ?>" <?php echo $this->getAttributes() ?> >
-            <div class="counter" ng-if="<?php echo $listingTest ?>"><i class="icon fal fa-fw fa-home"></i> <span class="count"><?php echo $listingValue ?></span> <span class="label"><lstr>listings</lstr></span></div>
-            <div class="counter" ng-if="<?php echo $brokerTest ?>"><i class="icon fal fa-fw fa-user-tie"></i> <span class="count"><?php echo $brokerValue ?></span> <span class="label"><lstr>brokers</lstr></span></div>
+        <div class="si-label si-counters <?php echo  $classes ?>" <?php echo $this->getAttributes() ?> >
+            <div class="si-counter" ng-if="<?php echo $listingTest ?>"><i class="si-icon fal fa-fw fa-home"></i> <span class="si-count"><?php echo $listingValue ?></span> <span class="si-label"><lstr>listings</lstr></span></div>
+            <div class="si-counter" ng-if="<?php echo $brokerTest ?>"><i class="si-icon fal fa-fw fa-user-tie"></i> <span class="si-count"><?php echo $brokerValue ?></span> <span class="si-label"><lstr>brokers</lstr></span></div>
         </div>
         <?php
     }
@@ -1006,7 +1043,7 @@ class siOfficesLayerVar extends siLayerVar{
                 'key' => 'group', 
                 'classes' => 'si-padding si-text-align-center si-layout-fill', 
                 'items' => [
-                    ['key'=>'agency_name', 'classes' => 'si-text-truncate si-space-emphasis si-text-upper'],
+                    ['key'=>'agency_name', 'classes' => 'si-text-truncate si-padding si-space-emphasis si-text-upper'],
                     ['key'=>'address'],
                     ['key'=>'spacer'],
                     ['key'=>'phone']
@@ -1015,6 +1052,18 @@ class siOfficesLayerVar extends siLayerVar{
             ['key' => 'counters', 'classes' => 'si-padding si-background-small-contrast si-weight-emphasis si-text-align-center'],
             
         ]));
+    }
+
+    function render_phone(){
+        
+        $classes = implode(' ',$this->classes);
+        $phoneValue = $this->getValue(['phones.office_toll_free', 'phones.office']);
+
+        echo "<div class=\"si-label si-phone {$classes}\" {$this->getAttributes()} si-scope-href=\"tel:" . $phoneValue . "\">";
+        echo "<i class=\"si-icon fal fa-fw fa-phone\"></i> <span class=\"si-prefix\">" . _si_label('toll free') . "</span> <span class=\"si-label\">";
+        echo $phoneValue;
+        echo "</span>";
+        echo "</div>";
     }
 }
 
@@ -1026,7 +1075,7 @@ class siAgenciesLayerVar extends siOfficesLayerVar{
 
     function render_license_type(){
         $classes = implode(' ',$this->classes);
-        echo "<div class=\"si-label si-text-truncate license-type {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type')}</div>";
+        echo "<div class=\"si-label si-license-type {$classes}\" {$this->getAttributes()}>{$this->getValue('license_type')}</div>";
     }
     function render_license(){
         return $this->render_license_type();
@@ -1064,7 +1113,7 @@ class siListingsLayerVar extends siLayerVar{
     }
 
     static function updateToComplex($varList){
-        return json_decode(json_encode([
+        $complexDef = [
             [
                 'key' => 'group', 
                 'classes' => 'si-background-high-contrast si-padding', 
@@ -1086,7 +1135,9 @@ class siListingsLayerVar extends siLayerVar{
             ],
             ['key' => 'open_houses', 'classes' => 'si-background-highlight si-padding si-big-emphasis si-float-bottom'],
             ['key' => 'flags', 'classes' => 'si-float-top-right si-padding si-padding-size-slim']
-        ]));
+        ];
+
+        return json_decode(json_encode($complexDef));
     }
 }
 
@@ -1098,7 +1149,7 @@ class siCitiesLayerVar extends siLayerVar{
 
     function render_region(){
         $classes = implode(' ',$this->classes);
-        echo("<div class=\"region si-label {$classes}\" {$this->getAttributes()} ");
+        echo("<div class=\"si-region si-label {$classes}\" {$this->getAttributes()} ");
         echo('itemscope itemtype="http://schema.org/Place" itemprop="containedInPlace"');
         echo("<span itemprop=\"name\">{$this->getValue('location.region')}</span>");
         echo('</div>');

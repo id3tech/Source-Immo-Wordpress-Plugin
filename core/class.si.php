@@ -400,6 +400,11 @@ class SourceImmo {
           $this->getRulesAndMatches($route->shortcut,$ruleKey,$matches);
           
           $newrules['^' . implode('/',$ruleKey) . '?'] = 'index.php?lang='. $route->lang .'&type=' . $plurial . '&mode=shortcut&' . implode('&', $matches);  
+
+          // Add a hardcoded shortcut for listings to simplify and make external call more robust
+          if($single == 'listing'){
+            $newrules['^si-redirect-listing/(.+)/(.+)?'] = 'index.php?lang=$matches[1]&ref_number=$matches[2]&type=listings&mode=shortcut';
+          }
         }
       }
     }
@@ -483,8 +488,8 @@ class SourceImmo {
   //#region REDIRECTS
   
   function redirect_listings($ref_number,$lang=null){
-    // load data
     
+    // load data
     $model = json_decode(SourceImmoApi::get_listing_data($ref_number));
     
     if($model != null){
@@ -811,9 +816,9 @@ class SourceImmo {
    * Add locale (language) JSON file reference to the document
    */
   public function load_locale_file(){
-    
+    $lRootUrl = $this->get_root_url();
     $lTwoLetterLocale = si_get_locale();
-
+    
     if($lTwoLetterLocale!='en'){
       $locale_file_paths = apply_filters('si-locale-file-paths',array(SI_PLUGIN_DIR . 'scripts/locales/global.' . $lTwoLetterLocale . '.js'));
       
@@ -824,10 +829,14 @@ class SourceImmo {
 
           $fileUrl = si_to_plugin_root($filePath);
           $localeName = basename($filePath);
+          $plugin_url = SI_PLUGIN_URL;
+          if($lRootUrl != '/'){
+            $plugin_url = str_replace($lRootUrl, "/", $plugin_url);
+          }
 
           wp_enqueue_script(
                             'si-locales-' . $localeName, 
-                            SI_PLUGIN_URL . $fileUrl, 
+                            $plugin_url . $fileUrl, 
                             ['si-prototype','si-init'], 
                             filemtime($filePath), 
                             true
@@ -1018,9 +1027,37 @@ class SourceImmo {
         else{
           $mode = '_detail_template';
         }
+
+        if( $this->custom_page_exists($ref_number, $pathToRedirect) ){ 
+          wp_redirect($pathToRedirect); 
+          exit();
+        }
+
         add_filter( 'template_include', array($this, 'include_' . $type . $mode), 99);
       }
     }
+  }
+  
+  function custom_page_exists($ref_number,&$pathToRedirect){
+    $path = $_SERVER['REQUEST_URI'];
+    $refIndex = strpos($path, $ref_number);
+    if($refIndex === false) return false;
+    $currentLocale = si_get_locale();
+
+    $basePath = substr($path, 0, $refIndex);
+
+
+    $pageVariations = [];
+    $pageVariations[] = $basePath;
+    $pageVariations[] = str_replace($currentLocale . '/','', $basePath);
+
+    foreach ($pageVariations as $path) {
+      if(get_page_by_path($path)){ 
+        $pathToRedirect = $basePath;
+        return true;
+      }
+    }
+    return false;
   }
 
   
@@ -1097,7 +1134,7 @@ class SourceImmo {
       $brokers = json_decode(SourceImmoApi::get_broker_list($brokerIds));
 
       // Load global dictionary
-      $model->dictionary = SourceImmoApi::get_dictionary();
+      $global_lexicon = SourceImmoApi::get_dictionary();
       // Assign broker list
       $model->brokers = $brokers;
       
@@ -1115,6 +1152,8 @@ class SourceImmo {
       $listingWrapper = new SourceImmoListingsResult();
       
       $dictionary = new SourceImmoDictionary($model->dictionary);
+      $dictionary->addEntries($global_lexicon);
+
       $listingWrapper->preprocess_item($model);
       $listingWrapper->extendedPreprocess($model);
       $model = apply_filters('si_listing_print_post_process', $model);
@@ -1127,8 +1166,12 @@ class SourceImmo {
       $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
       $model->tiny_url = SourceImmoTools::get_tiny_url($protocol . $_SERVER['HTTP_HOST'] . $model->permalink);
       
-      
-      wp_enqueue_style('listing-print', SI_PLUGIN_URL . 'styles/print.min.css', null, filemtime(SI_PLUGIN_DIR . '/styles/print.min.css'));
+      $lRootUrl = $this->get_root_url();
+      $plugin_url = SI_PLUGIN_URL;
+      if($lRootUrl != '/'){
+        $plugin_url = str_replace($lRootUrl, "/", $plugin_url);
+      }
+      wp_enqueue_style('listing-print', $plugin_url . 'styles/print.min.css', null, filemtime(SI_PLUGIN_DIR . '/styles/print.min.css'));
       do_action('si/listing/print:begin');
 
       $filePath = self::file('single/listings_print');

@@ -113,7 +113,7 @@ class SiShorcodes{
         $search_layout  = isset($listConfig->search_engine_options->type) ? $listConfig->search_engine_options->type : 'full';
         $search_tabbed  = isset($listConfig->search_engine_options->tabs) && count($listConfig->search_engine_options->tabs)>1;
 
-        $searchContainerClasses = array('search-container');
+        $searchContainerClasses = array('si-search-container');
         if($search_tabbed){
             $searchContainerClasses[] = 'si-has-tabs';
         }
@@ -177,7 +177,6 @@ class SiShorcodes{
                 //echo('<style for="' . $alias . '_item">' . str_replace('selector', '.' . trim(implode('.',$global_container_classes),'.') . ' .si-item' , $listConfig->list_item_layout->custom_css) . '</style>');
             }
 
-
             if(in_array($listConfig->list_layout->preset, array('direct'))){
                 SourceImmo::view("list/{$listConfig->type}/{$listConfig->list_layout->preset}", array("configs" => $listConfig, "sc_atts" => $atts));
             }
@@ -219,10 +218,11 @@ class SiShorcodes{
                 'type' => 'listings',
                 'where' => null,
                 'class' => '',
-                'layout' => 'small',
+                'layout' => '',
                 'show_header' => true,
                 'limit' => 0,
                 'sort' => '',
+                'sort_function' => null,
                 'options' => null
             ), $atts )
         );
@@ -266,13 +266,28 @@ class SiShorcodes{
         $listConfig = current(array_filter(SourceImmo::current()->configs->lists, function($l) use ($type) {
             return $type == $l->type && $l->is_default_type_configs;
         }));
-        if($listConfig != null){
-            $layout = $listConfig->list_item_layout->layout;
+
+        
+        if($layout == ''){
+            $layout =  ($type == 'listings') ? 'small' : 'small';
+
+            if($listConfig != null){
+                $layout = $listConfig->list_item_layout->layout;
+            }
+
         }
+        
+        
+
+        $sortByAttr = '';
+        if($sort_function!=null){
+            $sortByAttr = 'si-sort-by="' . $sort_function . '"';
+        }        
         ?>
         
         <si-small-list class="<?php echo($class) ?>"
                 si-options='<?php echo preg_replace('/"([a-zA-Z]+[a-zA-Z0-9_]*)":/','$1:', json_encode($options, JSON_FORCE_OBJECT)) ?>'
+                <?php echo($sortByAttr) ?>
                 si-type="<?php echo($type) ?>" si-filters="<?php echo($where) ?>" ></si-small-list>
         <?php
         echo('<script type="text/ng-template" id="si-template-for-'. $type . '">');
@@ -287,7 +302,7 @@ class SiShorcodes{
     public function sc_si_listing_brokers($atts, $content=null){
         $ref_number = get_query_var( 'ref_number');
         ob_start();
-            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" where="getBrokerListFilter()" options="{columns:{desktop:2, laptop:2}}"]');
+            echo do_shortcode('[si_small_list class="brokers broker-list si-list-of-brokers" layout="card" type="brokers" sort_function="sortBrokerList($list)" where="getBrokerListFilter()" options="{columns:{desktop:2, laptop:2}}"]');
         $lResult = ob_get_clean();
 
         return $lResult;
@@ -324,7 +339,7 @@ class SiShorcodes{
 
         ?>
         
-        <div class="si si-single-content broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content broker-single <?php echo($class) ?> {{model.status}} {{model!=null?'si-loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -449,7 +464,7 @@ class SiShorcodes{
         }
         ?>
         
-        <div class="si si-single-content office-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content office-single <?php echo($class) ?> {{model.status}} {{model!=null?'si-loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -609,7 +624,7 @@ class SiShorcodes{
 
         ?>
         
-        <div class="si si-single-content agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'loaded':''}}">
+        <div class="si si-single-content agency-single <?php echo($class) ?> {{model.status}} {{model!=null?'si-loaded':''}}">
             <?php
             do_action('si_start_of_template', $load_text);
             if($load_text != null){
@@ -785,7 +800,7 @@ class SiShorcodes{
         }
         do_action('si_start_of_template', null);
         
-        echo('<div class="si-content"  ng-cloak si-adaptative-class >');
+        echo('<div class="si-content"  ng-cloak>');
 
         SourceImmo::view('single/cities_layouts/standard', array(
             'model' => array(
@@ -847,7 +862,7 @@ class SiShorcodes{
             echo("<div data-ng-controller=\"singleListingCtrl\" data-ng-init=\"init('{$ref_number}')\">");
         }
 
-        echo("<div class=\"si si-single-content listing-single {$class} {{model.status}} {{model!=null?'loaded':''}}\">");
+        echo("<div class=\"si si-single-content listing-single {$class} {{model.status}} {{model!=null?'si-loaded':''}}\">");
         
 
         add_filter('si/mediabox/pictureFit', function($value) use ($media_picture_fit) {

@@ -56,13 +56,14 @@
       $item->fullname = $item->first_name . ' ' . $item->last_name;
       if(!isset($item->company_name)) $item->company_name = '';
      
-      if(isset($item->office)) {
+      if(isset($item->office) && !is_bool($item->office)) {
         $officeCompiler = new SourceImmoOfficesResult();
         $officeCompiler->preprocess_item($item->office);
 
         // $item->office->location->city = (isset($item->office->location->city_code)) ? $dictionary->getCaption($item->office->location->city_code , 'city') : '';
-        $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
-        
+        if(isset($item->office->location)){
+          $item->office->location->full_address = $item->office->location->address->street_number . ' ' . $item->office->location->address->street_name . ', ' . $item->office->location->city;
+        }
         if(!isset($item->agency) && isset($item->office->agency)) {
           $item->agency = $item->office->agency;
         }
@@ -72,10 +73,15 @@
       
       if(!isset($item->agency)) $item->agency = json_decode(json_encode(['name'=>'']));
       
+      if(!isset($item->phones->office)){
+        $item->phones->office = $item->office->phones->office_toll_free;
+      }
+
       foreach($item->phones as $key => $value){
         $item->phones->$key = $this->formatPhone($value);
       }
 
+      
       $item->main_phone = (isset($item->phones->mobile)) ? $item->phones->mobile : $item->phones->office;
   
       if(isset($item->license_type_code)){
@@ -165,7 +171,8 @@
   
         foreach ($this->listings as $item) {
           $this->preprocess_item($item);
-  
+          $this->compileTags($item);
+
           $item->permalink = self::buildPermalink($item, SourceImmo::current()->get_listing_permalink());
         }
   
@@ -233,7 +240,7 @@
   
       // Price
       if($item->status_code == 'SOLD'){
-        if(isset($item->price->sell)) {
+        if(isset($item->price->sell) || (!isset($item->price->sell) && !isset($item->price->sell) )) {
           $item->price_text = __('Sold', SI);
         }
         else{
@@ -411,6 +418,23 @@
         }
     }
 
+    public function compileTags(&$item){
+      //if($item->contract->start_date > )
+      $item->tags = [];
+
+      if(isset($item->availability_delay) && $item->availability_delay <= 10) $item->tags[] = ['label' =>  'Quick move-in'];
+      if($item->for_rent_flag) $item->tags[] = ['label' => 'For rent'];
+      if($item->video_flag) $item->tags[] = ['label' => 'Video'];
+      if($item->virtual_tour_flag) $item->tags[] = ['label' => 'Virtual tour'];
+
+      if(isset($item->attributes)){
+        if(isset($item->attributes->PANORAMIC_VIEW)) $item->tags[] = ['label' => 'Panoramic view'];
+        if(isset($item->attributes->WATER_FRONT)) $item->tags[] = ['label' => 'Water front'];
+        if(isset($item->attributes->POOL)) $item->tags[] = ['label' => 'Pool'];
+
+      }
+    }
+
     public function preprocessAttributes(&$item){
         global $dictionary;
 
@@ -547,7 +571,7 @@
       
       if(in_array($item->category_code, $filterCats)){return true;}
       else if(in_array($item->subcategory_code, $filterSubcats)){return true;}
-      else{
+      else if(isset($item->attributes) && $item->attributes != null){
         $itemAttr = array_map(
           function($att){
             if(!isset($att->value_code)) return null;
@@ -636,6 +660,8 @@
         'lease' => 'For rent'
       );
   
+      
+
       foreach ($item->price as $key => $value) {
         if(in_array($key, array('sell','lease'))){
           $lResult[] = __($keysToLabels[$key], SI);
@@ -775,6 +801,9 @@
       if($data!=null){
         $this->offices = $data->items;
         $this->metadata = $data->metadata;
+        // echo('<pre>');
+        // echo(json_encode($data, JSON_PRETTY_PRINT));
+        // echo('</pre>');
         //Debug::write($this->cities);
   
         foreach ($this->offices as $item) {
@@ -1069,31 +1098,33 @@ class BaseDataSchema{
       }
     }
 
-    $this->_schema['offers'] = array(
-      array(
+    $this->_schema['offers'] = [
+      [
         '@type' => 'Offer',
         'price' => $price,
         'priceCurrency' => $currency,
-        'category' => array(
+        'category' => [
           '@type' => $type,
           'name' => $this->_schema_basic_info->name,
           'image' => $mainImage,
           'photo' => $images,
           'description' => $this->_schema_basic_info->description,
-          'address' => array(
+          'address' => [
             '@type' => 'PostalAddress',
             'streetAddress' => $location->civic_address,
             'addressLocality' => $location->city
-          ),
+          ],
+        ]
+      ]
+    ];
 
-          'geo' => array(
-            '@type' => 'GeoCoordinates',
-            'latitude' => $location->latitude,
-            'longitude' => $location->longitude
-          )
-        )
-      )
-    );
+    if(isset($location->latitude)){
+      $this->_schema['offers'][0]['geo'] = [
+        '@type' => 'GeoCoordinates',
+        'latitude' => $location->latitude,
+        'longitude' => $location->longitude
+      ];
+    }
   }
 
   public function addLocation($type, $location){
@@ -1275,6 +1306,10 @@ class SourceImmoRoute{
      * Form id
      */
     public $form_id = '';
+    /**
+     * Form url - For external forms
+     */
+    public $form_url = '';
   
     public function __construct($lang='', $type='', $displayedVars=null){
       $this->lang = $lang;
@@ -1345,6 +1380,8 @@ class SourceImmoRoute{
     public $search_token = null;
     public $priority_group_sort = null;
     public $is_default_type_configs = false;
+    public $allow_split_view = false;
+
   
     public function __construct($source='',$alias='listings',$type='listings',$sort='',$displayedVars=null){
       $this->source = $source;
@@ -1518,6 +1555,12 @@ class SourceImmoDictionary{
   
     public function __construct($entries){
       $this->entries = $entries;
+    }
+
+    public function addEntries($entries){
+      foreach ($entries as $property => $value){
+        $this->entries->$property = $value;
+      }
     }
   
     public function getCaption($key, $domain, $asAbbr=false){

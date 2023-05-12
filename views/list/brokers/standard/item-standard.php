@@ -17,8 +17,8 @@ if(isset($configs)){
         data-ng-cloak
     >
     <a href="{{item.permalink}}">
-        <div class="item-content">
-            <div class="layer-container">
+        <div class="si-item-content">
+            <div class="si-layer-container">
 
                 
                 <?php siShowStandardItemLayer($configs) ?>

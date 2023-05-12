@@ -98,6 +98,24 @@ siApp
   }
 }]);
 
+['Title','Placeholder'].forEach( $k => {
+  siApp
+  .directive('ls' + $k, ['$parse','$compile','$timeout', function($parse,$compile,$timeout){
+    return {
+        restrict: 'A',
+        compile: function compile(tElement, tAttrs, transclude) {
+            return {
+               pre: function preLink(scope, iElement, iAttrs, controller) {
+                  const attValue = iAttrs[`ls${$k}`];
+                    iElement[0].setAttribute($k.toLowerCase(), attValue.translate())
+               }
+            }
+        }
+    }
+  }]);
+})
+
+
 siApp
 .directive('siWpMedia', ['$parse', function siWpMedia($parse){
   return {
@@ -449,12 +467,18 @@ function siDataGroupEditor(){
       }
 
       $scope.prepare = function(){
-        console.log('siDataGroupEditor/prepare',$scope.configs);
+        //console.log('siDataGroupEditor/prepare',$scope.configs);
 
         const langList = $scope.configs[$scope.routes].map($r => {
-          const layoutItem = $scope.configs[$scope.layout].find($l => $l.lang==$r.lang);
+          let layoutItem = $scope.configs[$scope.layout].filter($l => $l != null).find($l => $l.lang==$r.lang);
 
           //if(layoutItem != null && layoutItem.page != null && $siWP.pages[layoutItem.lang].find($p => $p.ID == layoutItem.page) == undefined) delete layoutItem.page;
+          if(layoutItem == null){
+            console.error('layout item for', $r, 'seems to be corrupted');
+            return null;
+            //layoutItem = {lang: $r.lang, page: null,communication_mode: 'basic', form_id:null };
+          }
+
 
           return {
             lang: $r.lang,
@@ -463,7 +487,7 @@ function siDataGroupEditor(){
           }
         });
 
-        $scope.langList = langList;
+        $scope.langList = langList.filter(l => l != null);
         
         console.log('siDataGroupEditor/prepare', langList);
       }
@@ -485,6 +509,8 @@ function siDataGroupEditor(){
 
         console.log('siDataGroupEditor/rebuild',$scope.configs);
         $scope.$emit('save-request');
+        console.log('save-request emitted');
+
       }
 
       $scope.langNotConfigure = function($item){
@@ -529,8 +555,10 @@ function siDataGroupEditor(){
       }
 
       $scope.editLangItem = function($langItem){
+        
         $siUI.dialog('lang-item-edit', {model: angular.copy($langItem), type: $scope.groupType, routes: $scope.routes}).then( $modified => {
           angular.merge($langItem, $modified);
+        
           $scope.rebuild();
         })
       }
@@ -571,35 +599,20 @@ function siDataGroupEditor(){
       $scope.add = function($type){
         const lOtherList = $scope.configs.lists.filter($l => $l.type == $type);
         $siUI.dialog('new-list',{type:$type, otherList: lOtherList}).then($result => {
-          //console.log($result);
           $scope.configs.lists.push($result);
-          $scope.$emit('save-request');
 
+          if($scope.langList == null || $scope.langList.length == 0){
+            $scope.addLangItem('fr');
+            $scope.addLangItem('en');
+          }
+          $scope.rebuild();
+          //$scope.$emit('save-request');
         })
-        // $scope.show_page('listEdit', $type).then(function($result){
-        //   lNew = $result;
-        //   $scope.configs.lists.push(lNew);
-        //   $scope.$emit('save-request');
-        // });
+        
       }
 
       $scope.edit = function($list){
         $scope.modify($list);
-        return;
-        
-        $scope.show_page('listEdit', $list).then(function($result){
-          console.log('new list data', $result);
-          for (const key in $result) {
-            if ($result.hasOwnProperty(key)) {
-              const element = $result[key];
-              $list[key] = element;
-            }
-          }
-          
-          //$scope.confirm("Do you want to save the changes you've made?").then(function(){
-            $scope.$emit('save-request');
-          //});
-        });
       }
 
       $scope.modify = function($list){
@@ -645,7 +658,7 @@ function siDataGroupEditor(){
           $scope.configs.lists = lNewlists;
 
           $scope.show_toast('List removed');
-          $scope.$emit('save-request');
+          $scope.rebuild(); //$scope.$emit('save-request');
         });
       }
 
@@ -689,18 +702,20 @@ function siDataGroupEditor(){
 
       //#endregion
 
-      $scope.selectPage = function($langItem){
-        const dialogParams = {lang: $langItem.lang};
-        if($langItem.layout == undefined) $langItem.layout = {page:''};
+      // $scope.selectPage = function($langItem){
+      //   const dialogParams = {lang: $langItem.lang};
+      //   if($langItem.layout == undefined) $langItem.layout = {page:''};
         
-        dialogParams.page= $langItem.layout.page
+      //   dialogParams.page= $langItem.layout.page
 
-        return $siUI.dialog('page-picker', dialogParams).then($newPage => {
-          $langItem.layout.page = $newPage;
-          $scope.$emit('save-request');
-          return $newPage;
-        })
-      }
+      //   return $siUI.dialog('page-picker', dialogParams).then($newPage => {
+      //     $langItem.layout.lang = $langItem.lang;
+      //     $newPage.lang = $langItem.lang;
+      //     $langItem.layout.page = $newPage;
+      //     $scope.$emit('save-request');
+      //     return $newPage;
+      //   })
+      // }
 
       // $scope.selectForm = function($langItem){
       //   const dialogParams = {lang: $langItem.lang};
@@ -1138,7 +1153,7 @@ siApp
             if($scope.filter.value.length==1){
               return '1 item selected'.translate()
             }
-            return '{0} items selected'.translate().format($scope.filter.value.length);
+            return '{0} items selected'.translate().siFormat($scope.filter.value.length);
           }
         }
 
@@ -1674,7 +1689,7 @@ siApp
             const lParams = $params.filter($p => $p != undefined);
 
             if(lParams.length > 0){
-              $scope.path = $format.format(...lParams);
+              $scope.path = $format.siFormat(...lParams);
             }
           }
         }
@@ -1740,21 +1755,6 @@ siApp
 
           <div class="si-container {{model.list_layout.scope_class}}">
               <div class="list-components si-grid" >
-                  <div class="component list-map-toggle {{!model.mappable ? 'inactive':'' }}">
-                      <md-checkbox ng-model="model.mappable"></md-checkbox>
-                      <div class="component-elements toggles">
-                          <i class="fal fa-2x fa-list si-highlight"></i>
-                          <i class="fal fa-2x fa-map-marker-alt"></i>
-                          <md-button class="config-button md-raised md-primary" ng-show="false" ng-click="editSearchEngine()"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
-                      </div>
-                      
-                  </div>
-
-                  <div class="component list-meta {{!model.show_list_meta ? 'inactive':'' }}">
-                      <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
-                      <label class="component-elements">{{localModel.previewItems.length}} {{model.type.translate()}}</label>
-                  </div>
-
                   <div class="component list-sort {{!model.sortable ? 'inactive':'' }}">
                       <md-checkbox ng-model="model.sortable"></md-checkbox>
                       <div class="component-elements  sort">
@@ -1762,6 +1762,26 @@ siApp
                       </div>
                   </div>
 
+                  <div class="component list-meta {{!model.show_list_meta ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.show_list_meta"></md-checkbox>
+                      <label class="component-elements">{{localModel.previewItems.length}} {{model.type.translate()}}</label>
+                  </div>
+
+                  <div class="component list-map-toggle {{!model.mappable ? 'inactive':'' }}">
+                      <md-checkbox ng-model="model.mappable"></md-checkbox>
+                      <div class="component-elements toggles">
+                          <i class="far fa-2x fa-list si-highlight"></i>
+                          <div class="si-split-icons" ng-if="model.allow_split_view">
+                              <i class="fal fa-list"></i>
+                              <i class="far fa-map-marker-alt"></i>
+                          </div>
+                          <i class="far fa-2x fa-map-marker-alt"></i>
+                          <md-button class="config-button md-raised md-primary" ng-show="false" ng-click="editSearchEngine()"><lstr>Configure</lstr> <i class="fal fa-cog"></i></md-button>
+                      </div>
+                      
+                  </div>
+
+                  
                   <div class="component list-items">
                       <md-checkbox ng-checked="true" disabled></md-checkbox>
                       
@@ -1885,6 +1905,18 @@ siApp
       <script type="text/ng-template" id="layout-for-description">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       </script>
+      <script type="text/ng-template" id="layout-for-namex">
+        Name (extracted)
+      </script>
+
+      <script type="text/ng-template" id="layout-for-tags">
+        <div class="si-tags">
+          <em class="si-tag-item">New</em>
+          <em class="si-tag-item">Open house</em>
+          <em class="si-tag-item">Water view</em>
+        </div>
+      </script>
+
 
       <script type="text/ng-template" id="layout-for-address">
         <div class="si-label civic-address">1597 boul. Dagenais O.</div>
@@ -3044,7 +3076,7 @@ siApp
       $scope.selectedItem = null;
       $scope.classList = [
         'si-padding','si-padding-inline','si-padding-block','si-padding-size-slim','si-padding-size-half','si-padding-size-quarter','si-padding-size-three-quarter',
-        'si-border','si-border-top', 'si-border-bottom','si-border-curved', 'si-border-round',
+        'si-border','si-border-top', 'si-border-bottom','si-border-curved','si-border-curved-sm','si-border-curved-lg','si-border-curved-max', 'si-border-round',
         'si-box-shadow','si-box-shadow-weak','si-box-shadow-strong',
         'si-no-background', 'si-background-small-contrast','si-background-medium-contrast','si-background-high-contrast',
         'si-text-align-left','si-text-align-center','si-text-align-right',

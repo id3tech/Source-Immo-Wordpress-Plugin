@@ -16,7 +16,9 @@ function publicCtrl($scope,$rootScope,$siDictionary, $siUtils,$siHooks,$siConfig
 
     $scope.init = function(){
         //console.log('publicCtrl/init');
-        
+        if(['iPhone','iPad','Mac OS','Macintosh'].some(keyword => navigator.userAgent.includes(keyword))){
+            document.querySelector('html').classList.add('si-is-safari');
+        }
 
         if( document.readyState !== 'loading' ) {
         //    console.log('publicCtrl/init :: ready');
@@ -283,7 +285,7 @@ function singleListingCtrl(
                 $siApi.getDefaultDataView().then(function($view){
                     // Load listing data from api
                     
-                    $siApi.api("listing/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("listing/view/{0}/{1}/items/ref_number/{2}".siFormat($view,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -303,7 +305,7 @@ function singleListingCtrl(
             })
             .then(function(){
                 // prepare message subject build from data
-                $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+                $scope.message_model.subject = 'Request information for : {0} ({1})'.translate().siFormat($scope.model.location.full_address,$scope.model.ref_number);
                 let lUserInfo = sessionStorage.getItem('user_infos');
                 if(typeof(lUserInfo) != 'undefined'){
                     lUserInfo = JSON.parse(lUserInfo);
@@ -365,7 +367,7 @@ function singleListingCtrl(
                                             : null;
         
         // if($scope.model.location.address.street_number!='' && $scope.model.location.address.street_name!=''){
-        //     $scope.model.location.civic_address = '{0} {1}'.format(
+        //     $scope.model.location.civic_address = '{0} {1}'.siFormat(
         //         $scope.model.location.address.street_number,
         //         $scope.model.location.address.street_name
         //     );
@@ -378,21 +380,22 @@ function singleListingCtrl(
         // }
 
         // if($scope.model.location.civic_address != ''){
-        //     $scope.model.location.full_address = '{0} {1}, {2}'.format(
+        //     $scope.model.location.full_address = '{0} {1}, {2}'.siFormat(
         //         $scope.model.location.address.street_number,
         //         $scope.model.location.address.street_name,
         //         $scope.model.location.city
         //     );
 
         //     if(!isNullOrEmpty($scope.model.location.address.door) && typeof  $scope.model.location.address.door != 'undefined'){
-        //         $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().format( $scope.model.location.address.door);
+        //         $scope.model.location.full_address += ', ' + 'apt. {0}'.translate().siFormat( $scope.model.location.address.door);
         //     }
         // }
         // else{
         //     $scope.model.location.full_address = $scope.model.location.city;
         // }
         
-        
+        console.log('model:tags', $scope.model.tags);
+
         $scope.model.building.attributes = [];
         $scope.model.land.attributes = [];
         $scope.model.other = {attributes : []};
@@ -431,7 +434,7 @@ function singleListingCtrl(
             $e.values.forEach(function($v){
                 $v.caption = $scope.getCaption($v.code,'attribute_value');
                 if($v.count){
-                    $v.caption = $v.caption.concat(' ({0})'.format($v.count));
+                    $v.caption = $v.caption.concat(' ({0})'.siFormat($v.count));
                 }
                 if($v.details){
                     $v.caption = $v.details;
@@ -507,8 +510,8 @@ function singleListingCtrl(
         if($scope.model.video != undefined){
             let lEmbedVideo = $scope.model.video.url;
             const lEmbedFormatFn = {
-                youtube : function(){ return '//www.youtube.com/embed/{0}?rel=0&showinfo=0&enablejsapi=1&origin=*'.format($scope.model.video.id);},
-                vimeo   : function(){ return '//player.vimeo.com/video/{0}'.format($scope.model.video.id);}
+                youtube : function(){ return '//www.youtube.com/embed/{0}?rel=0&showinfo=0&enablejsapi=1&origin=*'.siFormat($scope.model.video.id);},
+                vimeo   : function(){ return '//player.vimeo.com/video/{0}'.siFormat($scope.model.video.id);}
             }
             if(typeof lEmbedFormatFn[$scope.model.video.type] == 'function'){
                 lEmbedVideo = lEmbedFormatFn[$scope.model.video.type]();
@@ -537,6 +540,15 @@ function singleListingCtrl(
         };
         return $scope.broker_list_filter;
 
+    }
+
+    $scope.sortBrokerList = function($list){
+        if($scope.model.brokers_ref_numbers){
+            return $scope.model.brokers_ref_numbers.map( $id => {
+                return $list.find($m => $m.ref_number == $id);
+            })
+        }
+        return $list;
     }
     
 
@@ -622,7 +634,11 @@ function singleListingCtrl(
 
     $scope.print = function(){
         // reformat permalink to match print
-        const lSegmentToKeep    = 1 + ( siCtx.use_lang_in_path ? 1 : 0 );
+        let lSegmentToKeep = 1; // Keep the first part. It should be something like "listings" or "proprietes"
+        if( siCtx.use_lang_in_path ) lSegmentToKeep++;  // Add the language part if it's present. "fr" or "en"
+        if( siCtx.root_url != '/') lSegmentToKeep++;    // Add the subdirectory if the website is installed in a subdir instead of a domain
+
+
         const lPermalinkParts   = $scope.model.permalink.split('/')
                                                         .filter(function($p){
                                                             return $p != '';
@@ -681,7 +697,7 @@ function singleListingCtrl(
  */
 siApp
 .controller('singleBrokerCtrl', 
-function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks,$siDataLayer){
+function singleBrokerCtrl($scope,$element,$q,$timeout,$siApi,$siCompiler, $siDictionary, $siUtils,$siConfig,$siHooks,$siDataLayer){
     $scope.filter_keywords = '';
     $scope.message_model = {};
     $scope.context = {
@@ -691,6 +707,9 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
     // model data container - broker
     $scope.model = null;
     $scope.permalinks = null;
+    
+    $scope.reviewPageIndex = 0;
+    $scope.reviewPageLength = 3;
 
     // message model
     $scope.message_model = {};
@@ -759,6 +778,20 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                         })
                     }
                 })
+            })
+            .then( function(){
+                $timeout(_ => {
+                    const reviewListElm = document.body.querySelector('.si-part-reviews .si-review-list-viewport');
+                    const obs = new ResizeObserver( (entries) => {
+                        $scope.reviewPageLength = (entries[0].contentRect.width > 1024) ? 3 : 1;
+                        $timeout(_ => {
+                            const minHeight = Math.max(entries[0].contentRect.height, 330);
+                            document.body.querySelector('.si-part-reviews .si-review-list-container').style.cssText = `--si-min-height:${minHeight}px`;
+                        },250);
+                    });
+
+                    obs.observe(reviewListElm);
+                },1000);
             });
             
             
@@ -791,7 +824,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
                 $siApi.getDefaultDataView().then(function($view){
                     // Load broker data from api
                     //console.log($view);
-                    $siApi.api("broker/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("broker/view/{0}/{1}/items/ref_number/{2}".siFormat($view,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -806,7 +839,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
             // start preprocessing of data
             $scope.preprocess();
             // prepare message subject build from data
-            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().siFormat($scope.model.location.full_address,$scope.model.ref_number);
             // print data to console for further informations
             //console.log($scope.model);
 
@@ -1009,6 +1042,36 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
     $scope.getPhoneIcon = function($key){
         return $siUtils.getPhoneIcon($key);
     }
+
+    $scope.previousReviewPageIndex = function(){
+        
+        const displayedItems = $scope.reviewPageLength;
+
+        $scope.reviewPageLength = 0;
+        $timeout( _ => {
+            $scope.reviewPageLength = displayedItems;
+            $scope.reviewPageIndex = Math.max(0, $scope.reviewPageIndex-1);
+        },500);
+
+    }
+
+    $scope.nextReviewPageIndex = function(){
+        // const reviewListElm = document.body.querySelector('.si-part-reviews .si-review-list-viewport');
+        // const {width} = reviewListElm.getBoundingClientRect();
+        const displayedItems = $scope.reviewPageLength;
+
+        $scope.reviewPageLength = 0;
+        $timeout( _ => {
+            $scope.reviewPageLength = displayedItems;
+            $scope.reviewPageIndex = Math.min( Math.ceil(($scope.model.reviews.length / $scope.reviewPageLength) - 1), $scope.reviewPageIndex+1);
+        },500);
+        
+    }
+
+    $scope.reviewNavNextAvailable = function(){
+        const pageMax = Math.ceil(($scope.model.reviews.length / $scope.reviewPageLength) - 1);
+        return pageMax > $scope.reviewPageIndex;
+    }
 });
 
 
@@ -1017,7 +1080,7 @@ function singleBrokerCtrl($scope,$element,$q,$siApi,$siCompiler, $siDictionary, 
  */
 siApp
 .controller('singleOfficeCtrl', 
-function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks){
+function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks,$siDataLayer){
 
     // model data container - office
     $scope.model = null;
@@ -1082,7 +1145,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
                 $siApi.getDefaultDataView().then(function($view){
                     // Load broker data from api
                     //console.log($view);
-                    $siApi.api("office/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                    $siApi.api("office/view/{0}/{1}/items/ref_number/{2}".siFormat($view,siApiSettings.locale,$ref_number)).then(function($data){
                         $resolve($data);
                     });
                 });
@@ -1097,7 +1160,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
             // start preprocessing of data
             $scope.preprocess();
             // prepare message subject build from data
-            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+            //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().siFormat($scope.model.location.full_address,$scope.model.ref_number);
             // print data to console for further informations
             //console.log($scope.model);
 
@@ -1164,7 +1227,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
  */
  siApp
  .controller('singleAgencyCtrl', 
- function singleAgencyCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks){
+ function singleAgencyCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$siConfig,$siCompiler,$siHooks,$siDataLayer){
  
      // model data container - office
      $scope.model = null;
@@ -1228,7 +1291,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
                  $siApi.getDefaultDataView().then(function($view){
                      // Load broker data from api
                      //console.log($view);
-                     $siApi.api("agency/view/{0}/{1}/items/ref_number/{2}".format($view,siApiSettings.locale,$ref_number)).then(function($data){
+                     $siApi.api("agency/view/{0}/{1}/items/ref_number/{2}".siFormat($view,siApiSettings.locale,$ref_number)).then(function($data){
                          $resolve($data);
                      });
                  });
@@ -1243,7 +1306,7 @@ function singleOfficeCtrl($scope,$element,$q,$siApi, $siDictionary, $siUtils,$si
              // start preprocessing of data
              $scope.preprocess();
              // prepare message subject build from data
-             //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().format($scope.model.location.full_address,$scope.model.ref_number);
+             //$scope.message_model.subject = 'Request information for : {0} ({1})'.translate().siFormat($scope.model.location.full_address,$scope.model.ref_number);
              // print data to console for further informations
              //console.log($scope.model);
 

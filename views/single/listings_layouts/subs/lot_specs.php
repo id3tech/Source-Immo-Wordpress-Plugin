@@ -9,7 +9,7 @@
         
         <div class="spec" data-ng-repeat="spec in model.land.attributes">
             <label>{{spec.caption}}</label>
-            <div><span data-ng-repeat="value in spec.values">{{value.caption}}</span></div>
+            <div class="si-values"  ng-if="spec.values.length > 0"><span class="si-value"  data-ng-repeat="value in spec.values" ng-if="value.caption != ''">{{value.caption}}</span></div>
         </div>
     </div>
 </div>

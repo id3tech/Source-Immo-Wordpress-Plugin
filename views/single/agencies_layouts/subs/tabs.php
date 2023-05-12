@@ -1,4 +1,4 @@
-<si-tabs class="agency-list-tabs">
+<si-tabs class="si-agency-list-tabs">
 
     <si-tab>
         <si-tab-label><?php _e('Our listings',SI) ?></si-tab-label>

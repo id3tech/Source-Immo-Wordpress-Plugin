@@ -1,3 +1,12 @@
+body.settings_page_source-immo{
+  #wpbody-content{
+    > .notice,
+    > .error{
+      display:none;
+    }
+  }
+}
+
 #si-app{
     --scroll-button-bg: #b1e9ff;
     --scroll-highlight-color: #00b7ff;

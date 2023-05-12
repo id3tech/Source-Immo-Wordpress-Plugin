@@ -36,17 +36,20 @@ siApp
 
             $scope.init(lAmount);
         },
-        controller: function($scope, $q,$rootScope, $http,$siDataLayer) {
+        controller: function($scope, $q,$rootScope, $http,$siDataLayer, $siConfig) {
             $scope.downpayment_selection = 'manual';
             $scope.cities = {};
+            $scope.series = [];
 
             $scope.data = {
-                amount:0,
+                amount:500000,
                 amortization:25,
-                downpayment: 20,
+                downpayment: 15,
+                downpaymentTotal: 0,
                 interest: 3,
-                frequency: 26,
-                downpayment_method : 'percent'
+                frequency: 12,
+                downpayment_method : 'percent',
+                includeMortgageInsurance: 'yes'
             }
             $scope.frequencies = {
                 '12' : 'Monthly',
@@ -54,20 +57,34 @@ siApp
                 '52' : 'Weekly'
             }
             $scope.init = function($amount){
-                $amount = ($amount == undefined) ? 0 : $amount;
-                
+                $amount = ($amount == undefined) ? 500000 : $amount;
+                $siConfig.get().then(function($configs){
+                    $scope.configs = $configs;
+                    $scope.data.interest = $configs.default_interest_rate;
+                });
+
                 $scope.preload();
                 $scope.data.amount = $amount;
                 $scope.getCityTaxTransfers().then(function(){
+                    $scope.convertDownpaymentToCash();
                     $scope.process();
                 })
                 
             }
 
+
+            $scope.getFrequencyLabel = function($frequency){
+                if($frequency == undefined) return '';
+                if($scope.frequencies[$frequency] == undefined) return '';
+                return $scope.frequencies[$frequency].translate();
+            }
+
             $scope.getCityTaxTransfers = function(){
                 if($scope.transferTaxCityBoundaries != undefined) return $q.resolve();
 
-                return $http.get('https://api-v1.source.immo/lib/city-tax-transfer.json').then( function($response){
+                // const definitionPath ='https://api-v1.source.immo/lib/city-tax-transfer-staging.json';
+                const definitionPath ='https://api-v1.source.immo/lib/city-tax-transfer.json';
+                return $http.get(definitionPath).then( function($response){
                     if($response.status == 200){
                         return $response.data;
                     }
@@ -82,6 +99,7 @@ siApp
                     });
                 })
             }
+            
 
             $scope.selectCity = function($city){
                 
@@ -95,32 +113,25 @@ siApp
                 
                 $scope.process();
             }
-    
-            $scope.changeDownpaymentMethod = function(){
-                //console.log('changeDownpaymentMethod:triggered');
-                
-                //if($value != $scope.data.downpayment_method){
-                    $scope['convertDownpaymentTo_' + $scope.data.downpayment_method]();
-                    //$scope.data.downpayment_method = $value;
-    
-                    $scope.process();
-                //}
-            }
-    
-            $scope.convertDownpaymentTo_cash = function(){
+        
+            $scope.convertDownpaymentToCash = function($process=false){
                 let lResult = 0;
     
                 lResult = Math.round($scope.data.amount * ($scope.data.downpayment / 100));
     
-                $scope.data.downpayment = lResult;
+                $scope.data.downpaymentTotal = lResult;
+
+                if($process) $scope.process();
             }
     
-            $scope.convertDownpaymentTo_percent = function(){
+            $scope.convertDownpaymentToPercent = function($process=false){
                 let lResult = 0;
     
-                lResult = Math.round(100 / ($scope.data.amount / $scope.data.downpayment));
+                lResult = 100 / ($scope.data.amount / $scope.data.downpaymentTotal);
     
                 $scope.data.downpayment = lResult;
+
+                if($process) $scope.process();
             }
     
             $scope.setFrequency = function($value){
@@ -181,13 +192,13 @@ siApp
 
             
                 $scope.result = lResult;
-    
+                $scope.buildGraphSeries();
                 //console.log('processing triggered', lResult);
             }
     
             $scope.process_branch = function (branch, downpayment_ratio) {
                 branch.downpayment = $scope.getDownPayment($scope.data.amount, downpayment_ratio) + 0.000001;
-                branch.insurance = $scope.getMortgageInsurance($scope.data.amount, downpayment_ratio);
+                branch.insurance = $scope.data.includeMortgageInsurance ? $scope.getMortgageInsurance($scope.data.amount, downpayment_ratio) : 0;
                 branch.mortgage = $scope.data.amount - branch.downpayment + branch.insurance;
                 
                 const PrValue = branch.mortgage;  //Number($("input[name=calPropertyCost]").val()) - Number($("input[name=calCash]").val());
@@ -242,6 +253,24 @@ siApp
                 
                 return lResult;
             };
+
+            $scope.buildGraphSeries = function(){
+                
+                const fnPctOfTotal = (val) => Math.round((val / $scope.data.amount) * 100);
+                const fnPctOfMortgage = (val) => Math.round((val / $scope.result.mortgage.mortgage) * 100);
+                //let lRatio = ($scope.data.downpayment / $scope.data.amount);
+
+                const series = {};
+                series['Estimated mortgage amount'] = {value: fnPctOfTotal($scope.result.mortgage.mortgage - $scope.result.mortgage.insurance), color: '#888'};
+                series['Down payment'] = {value: fnPctOfTotal($scope.result.mortgage.downpayment), color: 'var(--id3-color-action, var(--si-highlight, #15c))'};
+
+                if(fnPctOfTotal($scope.result.mortgage.insurance) > 0){
+                    series['Mortgage insurance'] = {value: fnPctOfMortgage($scope.result.mortgage.insurance), color: 'var(--id3-color-action-400, #17a)'};
+                }
+                
+                console.log('buildGraphSeries',$scope.result,series);
+                $scope.series = series;
+            }
     
             $scope.getTransferTax = function ($amount, in_montreal) {
                 in_montreal = (typeof (in_montreal) == 'undefined') ? false : in_montreal;
@@ -939,7 +968,7 @@ siApp
                     
                     $siDataLayer.pushEvent('si/listing/startImageRotator', {id: $scope.options.ref_number});
                     const lShowNext = function(){
-                        const lPreviousImage = $scope.$element.querySelector('.image .rotator-picture');
+                        const lPreviousImage = $scope.$element.querySelector('.si-image .rotator-picture');
                         
                         $scope.showPicture(lPictureColl[lPictureIndex]).then(function(){
                             lPictureIndex = (lPictureIndex + 1) % lPictureColl.length;
@@ -994,7 +1023,7 @@ siApp
 
                 lImgElm.setAttribute('src',$picture.url);
                 
-                const lImgContainerElm = $scope.$element.querySelector('.image');
+                const lImgContainerElm = $scope.$element.querySelector('.si-image');
                 lImgContainerElm.append(lImgElm);
                 //console.log('rotator:showPicture',lImgContainerElm, lImgElm, $picture);
 
@@ -1017,7 +1046,7 @@ siApp
                 return new Promise(function($resolve,$reject){
                     // fade out picture, then remove it
                     $pictureElm = ($pictureElm == undefined) 
-                        ? $scope.$element.querySelector('.image .rotator-picture')
+                        ? $scope.$element.querySelector('.si-image .rotator-picture')
                         : $pictureElm;
                     
                     if($pictureElm != null){
@@ -1040,7 +1069,7 @@ siApp
             }
 
             $scope.removePictures = function(){
-                const lPictureElmColl = Array.from($scope.$element.querySelectorAll('.image .rotator-picture'));
+                const lPictureElmColl = Array.from($scope.$element.querySelectorAll('.si-image .rotator-picture'));
 
                 lPictureElmColl.forEach(function($elm,$i){
                     if($i == lPictureElmColl.length -1){
@@ -1087,7 +1116,7 @@ siApp
             })
 
             $scope.loadList = function(){
-                let lList = sessionStorage.getItem('si.list.listings.{0}'.format(siCtx.locale));
+                let lList = sessionStorage.getItem('si.list.listings.{0}'.siFormat(siCtx.locale));
                 if(lList != undefined){
                     lList = JSON.parse(lList);
                 }
@@ -1148,6 +1177,7 @@ siApp
             class: '@class',
             configs: '=?siConfigs',
             latlng: '=?latlng',
+            listings: '=?siList',
             zoom: '@'
         },
         controllerAs: 'ctrl',
@@ -1157,7 +1187,7 @@ siApp
             $scope.$element = element[0];
             $scope.init();
         },
-        controller: function($scope, $q, $siApi,$timeout, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
+        controller: function($scope, $q, $element, $compile, $siApi,$timeout, $rootScope,$siTemplate, $siUtils, $siCompiler, $siDictionary,$siHooks,$siConfig){
             $scope.ready = false;
             $scope.is_visible = false;
             $scope.zoom = 8;
@@ -1179,11 +1209,32 @@ siApp
                     //$scope.mapInit();
                 }
                 else{
-                    $scope.$on('si-{0}-display-switch-map'.format($scope.alias), $scope.onSwitchToMap);
-                    $scope.$on('si-{0}-display-switch-list'.format($scope.alias), $scope.onSwitchToList);
+                    $scope.$on('si-{0}-display-switch-map'.siFormat($scope.alias), $scope.onSwitchToMap);
+                    $scope.$on('si-{0}-display-switch-list'.siFormat($scope.alias), $scope.onSwitchToList);
                 }
 
-                $scope.$on('si-{0}-view-change'.format($scope.alias), function($event, $newView){
+                $scope.$watch('listings', function($old, $new){
+                    if($new == undefined) return;
+                    if($new == null) return;
+                    
+                    $scope.updateMarkersFromListings();
+                });
+
+                $scope.$on('si/listings/item:hover', function($event, $item){
+                    
+                    if($scope.list == null) return;
+                    if($scope.list == undefined) return;
+                    if($scope.list.length == 0) return;
+
+                    const marker = $scope.markers.find($m => $m.obj.id == $item.id);
+                    if(marker == null) return;
+                    $scope.handleListItemHover(marker);
+                    
+                    //$scope.pinClick(marker);
+                });
+
+                $scope.$on('si-{0}-view-change'.siFormat($scope.alias), function($event, $newView){
+                    //console.log()
                     $scope.getList();
                 })
     
@@ -1210,8 +1261,9 @@ siApp
     
                 return $q(function($resolve, $reject){   
                     $siConfig.get().then(function($config){
-                        if($scope.ready == false){
-                            //console.log('Map init', $config, $scope.zoom);
+                        console.log('mapInit', $scope.map )
+                        if($scope.ready == false || $scope.map==undefined){
+                            console.log('Map init', $config, $scope.zoom);
                             
                             let options = {
                                 center: new google.maps.LatLng(45.6025503,-73.8469538),
@@ -1285,6 +1337,8 @@ siApp
                 })
             }
             $scope.onSwitchToMap = function(){
+                console.log('siMap/onSwitchToMap',$scope.ready);
+
                 $scope.mapInit().then(function(){
                     if($scope.bounds){
                         //console.log('fit to bounds', $scope.bounds);
@@ -1299,10 +1353,31 @@ siApp
                 });
             }
             $scope.onSwitchToList = function(){
-                
                 $scope.is_visible = false;
             }
     
+
+            $scope.updateMarkersFromListings = function(){
+                $scope.is_loading_data = true;
+                console.log('updateMarkersFromList');
+                $scope.isReady(true).then(function(){
+                    $scope.list = $scope.listings.map($listing => {
+                        const marker = {
+                            id: $listing.id,
+                            ref_number: $listing.ref_number,
+                            status_code: $listing.status_code,
+                            category_code: $listing.category_code,
+                            longitude: $listing.location.longitude,
+                            latitude: $listing.location.latitude
+                        }
+                        $siCompiler.compileListingMapMarker(marker);
+                        return marker;
+                    });
+
+                    $scope.updateMarkerList();
+                    $scope.is_loading_data = false;
+                })
+            }
             /**
              * Call the API and return the list 
              * @param {string} $token Search token
@@ -1327,7 +1402,7 @@ siApp
             $scope.getEndpoint = function(){
                 let lOrigin = $scope.getEndpointType();
 
-                const lStoreViewId = sessionStorage.getItem('si/{0}/view'.format($scope.configs.alias));
+                const lStoreViewId = sessionStorage.getItem('si/{0}/view'.siFormat($scope.configs.alias));
                 const lActiveViewId = (lStoreViewId != null && $scope.configs.source.id != lStoreViewId)
                                         ? lStoreViewId
                                         : $scope.configs.source.id;
@@ -1383,8 +1458,13 @@ siApp
                     const lListConfig = $configs.lists.find(function($e) {return $e.alias==$scope.alias});
                     const lDefaultZoom = lListConfig.default_zoom_level || 'auto';
                     const lSmartFocusTolerance = lListConfig.smart_focus_tolerance || 5;
-    
+                    $scope.configs = lListConfig;
+
+                    console.log('updateMarkerList', $scope.list);
+
                     $scope.list.forEach(function($marker){
+                        if(!$marker.latitude || !$marker.longitude) return;
+
                         let lngLat = new google.maps.LatLng($marker.latitude, $marker.longitude);
                         if($marker.category_code == undefined) { 
                             //console.log('invalid map marker', $marker);
@@ -1406,7 +1486,8 @@ siApp
                             map: $scope.map,
                             obj: $marker,
                             markerClass: lMarkerClass,
-                            onPinClick: $scope.pinClick
+                            onPinClick: $scope.pinClick,
+                            //title: $marker.price
                         });
                         
                         $scope.markers.push($marker.marker);
@@ -1539,9 +1620,26 @@ siApp
                 $bounds.extend($lngLat);
             }
     
+            $scope.panAndZoomTo = function($marker){
+                $scope.map.panTo($marker.getPosition());
+                $scope.setZoom(15);
+            }
+
+            $scope.handleListItemHover = function($marker){
+                
+                //$scope.panAndZoomTo($marker);
+                //$scope.map.panTo($marker.getPosition());
+                //$timeout( _ => {
+                    $scope.highlightItem($marker);
+                //},250);
+            }
+                    
+
             $scope.pinClick = function($marker){
                 //console.log('Marker clicked', $marker);
                 $scope.map.panTo($marker.getPosition());
+                
+                $scope.$emit('si/listing/map/item:clicked', $marker.obj);
                 
                 $scope.selectItem($marker);
                 return;
@@ -1568,7 +1666,7 @@ siApp
                 
             }
             $scope.unselectItem = function(){
-                if($scope.selectedMarker!=undefined){
+                if($scope.selectedMarker!=undefined && $scope.selectedMarker.div_){
                     $scope.selectedMarker.div_.classList.remove('selected');
                     $scope.selectedMarker = undefined;
                 }
@@ -1586,10 +1684,81 @@ siApp
                 
             }
 
+            $scope.highlightItem = function($marker){
+                const lId = $marker.obj.id;
+                if($scope.selectedMarker!=undefined && $scope.selectedMarker.obj.id == lId) return;
+                
+                if($scope.selectedMarker!=undefined && $scope.selectedMarker.div_){
+                    // if not in cluster
+                    $scope.selectedMarker.div_.classList.remove('selected');
+                }
+
+                $scope.map.panTo($marker.getPosition());
+                $scope.selectedMarker = $marker;
+                // if not in cluster
+                if($scope.selectedMarker.div_) $scope.selectedMarker.div_.classList.add('selected');
+                
+                if($scope.infoWindow != undefined){
+                    $scope.infoWindow.close();
+                    $scope.clearInfoWindow();
+                }
+                
+                const map = $scope.map;
+                const infowindow = new google.maps.InfoWindow({
+                    content: `
+                    <div id="si-map-infowindow-content" class="si-info-window si-item">
+                        <i class="fal fa-spin fa-spinner-third"></i>
+                    </div>
+                    `
+                });
+
+                infowindow.open({
+                    anchor: $marker,
+                    map,
+                });
+                infowindow.addListener('closeclick', ()=>{
+                    $scope.clearInfoWindow();
+                });
+                $scope.infoWindow = infowindow;
+                
+                $siApi.api($scope.getEndpoint().concat('/',siApiSettings.locale,'/items/',lId)).then(function($response){
+                    $siDictionary.source = $response.dictionary;
+                    $siCompiler.compileListingItem($response);
+                    $scope.selectedItem = $response;
+
+                    const infoWindowElm = $element[0].querySelector('#si-map-infowindow-content');
+                    infoWindowElm.innerHTML = `
+                        <a href="{{selectedItem.permalink}}">
+                            <div class="si-item-picture-container"><img ng-src="{{selectedItem.photos[0].url}}"></div>
+                            <div class="si-item-info">
+                                <div class="si-label subcategory">{{selectedItem.subcategory}}</div>
+                                <div class="si-label price">{{selectedItem | formatPrice}}</div>
+                                <div class="si-label city">{{selectedItem.location.city}}</div>
+                                
+                            </div>
+                        </a>
+                    `;
+                    //infoWindowElm.append(contentElm);
+                    $compile(infoWindowElm)($scope)
+                    console.log($scope.selectedItem);
+                    
+                });
+                
+            }
+            
+            $scope.clearInfoWindow = function(){
+                delete $scope.infoWindow;
+                delete $scope.selectedMarker;
+                $scope.selectedItem = null;
+            }
             $scope.selectItem = function($marker){
                 const lId = $marker.obj.id;
-                if($scope.selectedMarker!=undefined){
+                if($scope.selectedMarker!=undefined && $scope.selectedMarker.div_){
                     $scope.selectedMarker.div_.classList.remove('selected');
+                }
+                if($scope.infoWindow != undefined){
+                    $scope.infoWindow.close();
+                    $scope.clearInfoWindow();
                 }
                 
                 $scope.selectedMarker = $marker;
@@ -1627,7 +1796,7 @@ siApp
     
     
     
-            $scope.isReady = function(){
+            $scope.isReady = function(initMap=false){
                 let lPromise = $q(function($resolve,$reject){
                     if($scope.ready==true){
                         $resolve();
@@ -1638,6 +1807,9 @@ siApp
                                 $resolve();
                             }
                         });
+                        if(initMap){
+                            $scope.mapInit();
+                        }
                     }
                 
                 });
@@ -1663,7 +1835,7 @@ siApp
             });
 
             $scope.addLegendItem = function($item, $addToStart){
-                $item.type = $item.type.toLowerCase();
+                $item.type = $item.type.toLowerCase().translate();
                 if($scope.legendList.some(function($l){ return $l.type == $item.type})) return;
                 if($addToStart == undefined || $addToStart === false){
                     $scope.legendList.push($item);
@@ -2238,7 +2410,7 @@ siApp
         }
         
 
-        $scope.isReady = function(){
+        $scope.isReady = function(initMap=false){
             let lPromise = $q(function($resolve,$reject){
                 if($scope.ready==true){
                     $resolve();
@@ -2249,6 +2421,9 @@ siApp
                             $resolve();
                         }
                     });
+                    if(initMap){
+                        $scope.mapInit();
+                    }
                 }
             });
 

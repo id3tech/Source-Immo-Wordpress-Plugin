@@ -85,6 +85,26 @@ function orderObjectByFilter(){
 });
 
 siApp
+.filter('sortLabel', function(){
+    return function($value){
+        if($value == undefined) $value = 'date_desc';
+        sortMap = {
+            date_desc: 'Latest',
+            date_asc: 'Oldest',
+            price_desc: 'Highest price',
+            price_desc: 'Lowest price',
+            name_asc : 'From A to Z',
+            name_desc : 'From Z to A',
+            listings_desc : 'Most listings',
+            listings_asc: 'Least listings'
+        };
+        if(sortMap[$value] != undefined) return sortMap[$value].translate();
+
+        return $value;
+    }
+})
+
+siApp
 .filter('textToHtml', [
 function textToHtml(){
     return function($value, $level){
@@ -209,10 +229,15 @@ siApp
 siApp
 .filter('formatPrice', ['$siUtils', function formatPrice($siUtils){
     return function($value){
-        if(!isNaN($value)){
+        if(isNullOrUndefined($value)){ return ''};
+        
+        if(!isNaN($value) && $value.price == undefined){
             return $value.formatPrice();
         }
-        else if(!isNullOrUndefined($value) && Object.keys($value).length > 0 && ($value.sell != undefined || $value.lease != undefined)){
+        else if(!isNullOrUndefined($value) && Object.keys($value).length > 0 && ($value.price.sell != undefined || $value.price.lease != undefined)){
+            return $siUtils.formatPrice($value)
+        }
+        else if(!isNullOrUndefined($value) && Object.keys($value).length > 0 && ($value.price != undefined)){
             return $siUtils.formatPrice($value)
         }
         else{
@@ -220,6 +245,16 @@ siApp
         }
     }
 }]);
+
+siApp
+.filter('formatPercent', function(){
+    return function($value, $total){
+        if($total == 0) return '0%';
+        
+        const pct = Math.round( ($value / $total) * 100 );
+        return `${pct}%`;
+    }
+})
 
 siApp
 .filter('filesize', ['$siUtils', function filesize($siUtils){
@@ -403,6 +438,14 @@ siApp
         if(!$last) return $label;
         
         return $label + ' ' + 'or less'.translate();
+    }
+});
+
+siApp
+.filter('startFrom', function() {
+    return function(list, start) {
+        start = +start; //parse to int
+        return list.slice(start);
     }
 });
 

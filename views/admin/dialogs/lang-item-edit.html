@@ -43,6 +43,11 @@
                         
                     </md-input-container>
             
+                    <div>
+                        <p><lstr>Use the following shortcode to display the component in the page</lstr>: <span ng-click="copyShortcodeToClipboard()">{{detailsComponentShortcode}} <i class="fal fa-copy"></i></span></p>
+                        
+                    </div>
+                    
                 </md-tab-body>
             </md-tab>
 
@@ -55,13 +60,19 @@
                             <md-option value="basic"><lstr>Basic</lstr></md-option>
                             <md-option value="wpcf7_contact_form">Contact Form 7</md-option>
                             <md-option value="gravity_form">Gravity Form</md-option>
+                            <md-option value="external"><lstr>External</lstr></md-option>
                         </md-select>
                     </md-input-container>
                         
-                    <md-input-container ng-if="!['cities'].includes(groupType)" ng-disabled="!['wpcf7_contact_form','gravity_form'].includes(model.layout.communication_mode)">
+                    <md-input-container ng-if="!['cities'].includes(groupType) && ['wpcf7_contact_form','gravity_form'].includes(model.layout.communication_mode)">
                         <label lstr>Form to use</label>
                         <input type="text" ng-model="model.layout.form_id"  ng-change="rebuild()" />
                         <md-icon class="fal fa-ellipsis-h" ng-click="selectForm(model)"></md-icon>
+                    </md-input-container>
+
+                    <md-input-container ng-if="!['cities'].includes(groupType) && model.layout.communication_mode == 'external'">
+                        <label lstr>Form url to use</label>
+                        <input type="text" ng-model="model.layout.form_url"  ng-change="rebuild()" />
                     </md-input-container>
                 </md-tab-body>
             </md-tab>

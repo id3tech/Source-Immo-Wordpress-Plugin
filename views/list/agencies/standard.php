@@ -1,6 +1,6 @@
 <?php 
     if($configs->searchable){ 
-        $searchContainerClasses = ['search-container'];
+        $searchContainerClasses = ['si-search-container'];
         
         if(isset($configs->search_engine_options->scope_class)) $searchContainerClasses[] = $configs->search_engine_options->scope_class;
 
@@ -19,9 +19,10 @@
     
     $list_styles = array();
     foreach ($configs->list_layout->item_row_space as $key => $value) {
-        $width = round(100 / $value);
-        $list_styles[] = "--{$key}-column-width:{$width}";
+        if($value > 10) $value = round(100 / $value);
+        $list_styles[] = "--{$key}-column-width:{$value}";
     }
+    
     ?>
 
     <div class="si-list-container display-mode-{{display_mode}}" style="<?php echo(implode(';', $list_styles)) ?>" si-lazy-load>

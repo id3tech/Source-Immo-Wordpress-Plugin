@@ -15,13 +15,11 @@
                         
 
                         <div class="si-data-label rooms" >
-                            <div class="room {{icon}}" ng-repeat="(icon,room) in selectedItem.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label | translate}}</span></div>
+                            <div class="room {{icon}}" ng-repeat="(icon,room) in selectedItem.counters.rooms"><i class="icon fal fa-fw fa-{{icon}}"></i> <span class="count">{{room.count}}</span> <span class="label">{{room.label | translate}}</span></div>
                         </div>
 
-                        
-                        
-                        
                     </div>
+                    
                     <div class="more-infos">
                         <a href="{{selectedItem.permalink}}"><button type="button" class="si-button">{{'More info' | translate}}</button></a>
                     </div>

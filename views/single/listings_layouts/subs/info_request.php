@@ -4,7 +4,7 @@ $layout = SourceImmo::current()->get_detail_layout('listing');
 $communication_mode = isset($layout->communication_mode) ? $layout->communication_mode : 'basic';
 ?>
 
-<div class="info-request form <?php echo $communication_mode ?>">
+<div class="si-info-request form <?php echo $communication_mode ?>">
     <?php
     if($communication_mode  == 'basic'){
     ?>
@@ -33,7 +33,7 @@ $communication_mode = isset($layout->communication_mode) ? $layout->communicatio
     <div class="email si-input-container si-float-label">
         <label><?php _e('Email', SI) ?></label>
         <div class="si-input">
-            <input type="text" data-ng-model="message_model.email" required />
+            <input type="email" data-ng-model="message_model.email" required />
         </div>
     </div>
 

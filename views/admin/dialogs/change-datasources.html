@@ -16,13 +16,17 @@
                 <md-tab-body>
                     <h2><lstr>Step 1: Select an account</lstr></h2>
                     
-                    <div class="loader" ng-if="lists.fetching == 'accounts'">
+                    <div class="si-loader" ng-if="lists.fetching == 'accounts'">
                         <i class="fal fa-2x fa-spinner-third fa-spin"></i>
+                    </div>
+
+                    <div ng-if="lists.fetching != 'accounts'">
+                        <input class="si-input" ng-model="accountKeywords" placeholder="{{'Type to filter accounts'.translate()}}">
                     </div>
 
                     <div class="si-list si-accounts">
                         <div class="si-list-item {{item._selected ? 'selected' : ''}}"
-                                ng-repeat="item in lists.accounts.items" ng-click="selectAccount(item)">
+                                ng-repeat="item in lists.accounts.items | filter: accountKeywords" ng-click="selectAccount(item)">
                             <div class="item-label account-name">{{item.account.name}}</div>
                         </div>
                     </div>
@@ -34,7 +38,7 @@
                 <md-tab-body>
                     <h2><lstr>Step 2: Select an API key</lstr></h2>
 
-                    <div class="loader" ng-if="lists.fetching == 'keys'">
+                    <div class="si-loader" ng-if="lists.fetching == 'keys'">
                         <i class="fal fa-2x fa-spinner-third fa-spin"></i>
                     </div>
 
@@ -52,7 +56,7 @@
                 <md-tab-body>
                     <h2><lstr>Step 3: Select a data view</lstr></h2>
 
-                    <div class="loader" ng-if="lists.fetching == 'views'">
+                    <div class="si-loader" ng-if="lists.fetching == 'views'">
                         <i class="fal fa-2x fa-spinner-third fa-spin"></i>
                     </div>
 

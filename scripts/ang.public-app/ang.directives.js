@@ -29,19 +29,20 @@ function siList(){
         link : function($scope, $element, $attrs){
             $scope.init();
         },
-        controller: function ($scope, $q,$siApi,$rootScope,$siDictionary, $timeout,
+        controller: function ($scope,$element, $compile, $q,$siApi,$rootScope,$siDictionary, $timeout,
                                 $siUtils,$siFavorites,$siConfig,$siList,$siHooks,
                                 $siCompiler) {
             $scope.configs = null;
             $scope._global_configs = null;
             $scope.current_view = null;
+            $scope.splitViewActive = false;
             $scope.list = null;
             $scope.page = 1;
             $scope.meta = null;
             $scope.dictionary = {};
             $scope.auth_token = null;
             $scope.is_ready = false;
-            $scope.display_mode = 'list';
+            $scope.display_mode = ['list'];
             $scope.page_index = 0;
             $scope.is_loading_data = false;
             $scope.client = {
@@ -57,33 +58,44 @@ function siList(){
              * Initialize the controller
              */
             $scope.init = function(){
+                const storeDisplayMode = sessionStorage.getItem(`si.list.${$scope.alias}.displayMode`);
                 
+
                 $scope.buildGhostList();
                 //return;
 
                 $rootScope.$on($scope.alias + 'FilterTokenChanged', $scope.onFilterTokenChanged);
                 
-                $scope.$on('si-{0}-display-switch-map'.format($scope.alias), function(){
-                    $scope.display_mode = 'map';
+                $scope.$on('si-{0}-display-switch-map'.siFormat($scope.alias), function(){
+                    $scope.display_mode = ['map'];
                 });
 
-                $scope.$on('si-{0}-display-switch-list'.format($scope.alias), function(){
-                    $scope.display_mode = 'list';
+                $scope.$on('si-{0}-display-switch-list'.siFormat($scope.alias), function(){
+                    $scope.display_mode = ['list'];
                     console.log('list display switched to list');
                     // Send the signal to childrens
                     $scope.$broadcast('si-display-switch-list');
                 });
 
-                $scope.$on('si-{0}-view-change'.format($scope.alias), function($event, $newView){
+                $scope.$on('si-{0}-view-change'.siFormat($scope.alias), function($event, $newView){
                     $scope.current_view = $newView;
                     $scope.getList();
                 })
 
                 $scope.$on('auth_token_refresh', function(){
-                    sessionStorage.removeItem('si.list.{0}.{1}'.format($scope.configs.type,siCtx.locale));
-                    sessionStorage.removeItem('si.listMeta.{0}.{1}'.format($scope.configs.type,siCtx.locale));
-                    sessionStorage.removeItem('si.pageIndex.{0}.{1}'.format($scope.configs.type,siCtx.locale));
+                    sessionStorage.removeItem('si.list.{0}.{1}'.siFormat($scope.configs.type,siCtx.locale));
+                    sessionStorage.removeItem('si.listMeta.{0}.{1}'.siFormat($scope.configs.type,siCtx.locale));
+                    sessionStorage.removeItem('si.pageIndex.{0}.{1}'.siFormat($scope.configs.type,siCtx.locale));
                 });
+
+                $scope.$on('si/listing/map/item:clicked', function($event, $item){
+                    
+                    const itemElm = $element[0].querySelector(`.si-item.ref-${$item.ref_number}`);
+                    if(itemElm == null) return;
+                    console.log('map item click',itemElm);
+                    itemElm.scrollIntoView({behavior:'smooth', block: 'nearest'});
+
+                })
 
                 $siHooks.addFilter('si/list/item/permalink', function($result, $item){
                     //console.log('siList@si/list/item/permalink');
@@ -104,17 +116,37 @@ function siList(){
                     return $result
                 });
                 
+                
+
                 $siConfig.getList($scope.alias).then(function($configs){
                     $scope.configs = $configs;
                     //if(isNullOrUndefined($scope.configs.current_view)) $scope.configs.current_view = $configs.source.id;
+                    $scope.client_sort = {
+                        'listings' : 'date_desc',
+                        'brokers' : 'name_asc'
+                    }[$scope.configs.type];
 
-                    let lClientSearchToken = sessionStorage.getItem("si.{0}.st".format($scope.configs.alias));
+                    if($scope.configs.allow_split_view){
+                        $element[0].classList.add('si-allow-split-view');
+                    }
+
+                    let lClientSearchToken = sessionStorage.getItem("si.{0}.st".siFormat($scope.configs.alias));
                     if(lClientSearchToken!=undefined){
                         $scope.client.search_token = lClientSearchToken;
                     }
 
                     $siApi.renewToken().then(function(){
-                        $scope.start();
+                        $scope.start().then( _ => {
+                            console.log('started', storeDisplayMode);
+                            if(storeDisplayMode != null){
+                                const displayMode = JSON.parse(storeDisplayMode);
+                                if(displayMode.length > 1 || !displayMode.includes('list')){
+                                    $timeout( _ => {
+                                        $scope.toggleDisplay(displayMode);
+                                    },1000)                 
+                                }
+                            }
+                        })
                         
                     });
                 });
@@ -143,8 +175,8 @@ function siList(){
              * Start the loading process
              */
             $scope.start = function(){
-                //return;
-                $siConfig.get().then(function($global_configs){
+                
+                return $siConfig.get().then(function($global_configs){
                     // Prepare Api
                     $scope._global_configs = $global_configs;
 
@@ -271,8 +303,8 @@ function siList(){
                     // clear list stored in session
                     if($scope.getLatestSearchToken() != $newToken){
                         //console.log('clear latest st for ', $newToken);
-                        sessionStorage.removeItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias, siCtx.locale));
-                        sessionStorage.removeItem('si.list.{0}.{1}'.format($scope.configs.type,siCtx.locale));
+                        sessionStorage.removeItem('si.{0}.latestSearchToken.{1}'.siFormat($scope.configs.alias, siCtx.locale));
+                        sessionStorage.removeItem('si.list.{0}.{1}'.siFormat($scope.configs.type,siCtx.locale));
                     }
                     
                     $scope.getList();
@@ -335,7 +367,7 @@ function siList(){
                             
                             const lSingularType = $siUtils.getSingularType($scope.configs.type,false);
                             if(lSingularType != null){
-                                const lCompileMethod = 'compile{0}List'.format(lSingularType);
+                                const lCompileMethod = 'compile{0}List'.siFormat(lSingularType);
                                 if(typeof $siCompiler[lCompileMethod] == 'function'){
                                     $siCompiler[lCompileMethod]($response.items);
                                 }
@@ -436,7 +468,7 @@ function siList(){
             }
             
             $scope.loadListFromStorage = function($type){
-                let lListDate = sessionStorage.getItem('si.list.date.{0}.{1}'.format($type,siCtx.locale));
+                let lListDate = sessionStorage.getItem('si.list.date.{0}.{1}'.siFormat($type,siCtx.locale));
                 if(lListDate==undefined){
                     return false;
                 }
@@ -448,9 +480,9 @@ function siList(){
                     }
                 }
 
-                let lList = sessionStorage.getItem('si.list.{0}.{1}'.format($type,siCtx.locale));
-                let lListMeta = sessionStorage.getItem('si.listMeta.{0}.{1}'.format($type,siCtx.locale));
-                let lPageIndex = sessionStorage.getItem('si.pageIndex.{0}.{1}'.format($type,siCtx.locale));
+                let lList = sessionStorage.getItem('si.list.{0}.{1}'.siFormat($type,siCtx.locale));
+                let lListMeta = sessionStorage.getItem('si.listMeta.{0}.{1}'.siFormat($type,siCtx.locale));
+                let lPageIndex = sessionStorage.getItem('si.pageIndex.{0}.{1}'.siFormat($type,siCtx.locale));
                 
                 if (lList != undefined){
                     $scope.list = JSON.parse(lList);
@@ -468,17 +500,17 @@ function siList(){
              * @param {string} $type Type of the list
              */
             $scope.saveListToStorage = function($type){
-                sessionStorage.setItem('si.list.{0}.{1}'.format($type,siCtx.locale), JSON.stringify($scope.list));
-                sessionStorage.setItem('si.listMeta.{0}.{1}'.format($type,siCtx.locale), JSON.stringify($scope.listMeta));
-                sessionStorage.setItem('si.pageIndex.{0}.{1}'.format($type,siCtx.locale), $scope.page_index);
+                sessionStorage.setItem('si.list.{0}.{1}'.siFormat($type,siCtx.locale), JSON.stringify($scope.list));
+                sessionStorage.setItem('si.listMeta.{0}.{1}'.siFormat($type,siCtx.locale), JSON.stringify($scope.listMeta));
+                sessionStorage.setItem('si.pageIndex.{0}.{1}'.siFormat($type,siCtx.locale), $scope.page_index);
             }
 
             $scope.getLatestSearchToken = function(){
-                return sessionStorage.getItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias,siCtx.locale));
+                return sessionStorage.getItem('si.{0}.latestSearchToken.{1}'.siFormat($scope.configs.alias,siCtx.locale));
             }
 
             $scope.saveLatestSearchToken = function($token){
-                sessionStorage.setItem('si.{0}.latestSearchToken.{1}'.format($scope.configs.alias,siCtx.locale), $token);
+                sessionStorage.setItem('si.{0}.latestSearchToken.{1}'.siFormat($scope.configs.alias,siCtx.locale), $token);
             }
 
 
@@ -589,18 +621,109 @@ function siList(){
                 
                 return lClassList.join(' ');
             }
+
+            $scope.toggleDisplay = function($mode){
+                $scope.display_mode = $mode;
+                sessionStorage.setItem(`si.list.${$scope.alias}.displayMode`, JSON.stringify($scope.display_mode));
+
+                // if($scope.display_mode.length == 1 && $scope.display_mode.includes($mode)) return;
+
+                // if($scope.display_mode.includes($mode)){
+                //     // remove mode
+                //     $scope.display_mode.splice($scope.display_mode.indexOf($mode),1);
+                // }
+                // else{
+                //     if($mode == 'list'){
+                //         $scope.$broadcast("si-list-loaded");
+                //     }
+                //     $scope.display_mode.push($mode)
+                // }
+
+                if($mode.includes('list')){
+                    $scope.$broadcast("si-list-loaded");
+                }
+
+                console.log('toggleDisplay', $scope.display_mode);
+
+                
+                if($scope.display_mode.length == 1){ 
+                    $scope.deactivateSplitView();
+                    return $scope.switchDisplayTo($scope.display_mode[0]);
+                }
+
+                
+                $scope.activateSplitView();
+            }
     
             /**
              * Calls for display mode switch
              * @param {string} $mode New display mode
              */
             $scope.switchDisplayTo = function($mode){
-                // Bail out early when mode is the same
-                if($scope.display_mode == $mode) return;
                 // switch mode
-                $scope.display_mode = $mode;
+                console.log('switching to ', $mode);
+
                 // broadcast the change to other component
-                $rootScope.$broadcast('si-{0}-display-switch-{1}'.format($scope.alias,$mode));
+                $timeout( _ => {
+                    $rootScope.$broadcast('si-{0}-display-switch-{1}'.siFormat($scope.alias,$mode));
+                },250)
+                
+            }
+
+            $scope.deactivateSplitView = function(){
+                const listContainerElm = $element[0].querySelector('.si-list-container');
+
+                if($element[0].classList.contains('si-split-view-active')){
+                    const mapContainer = listContainerElm.querySelector('.si-split-view-map-container');
+                    mapContainer.remove();
+                    $element[0].classList.remove('si-split-view-active')
+                    $scope.splitViewActive = false;
+                }
+            }
+            $scope.activateSplitView = function(){
+                
+                const listContainerElm = $element[0].querySelector('.si-list-container');
+
+                if(!$element[0].classList.contains('si-split-view-active')){
+                    const mapContainer = document.createElement('div');
+                    mapContainer.classList.add('si-split-view-map-container','si-animate-slide-in-right', 'si-animate-slower');
+                    mapContainer.innerHTML = `
+                        <si-map class="map-container" si-list="list" si-alias="${$scope.alias}"></si-map>
+                    `;
+
+                    $compile(mapContainer)($scope);
+                    listContainerElm.append(mapContainer);
+
+                    $element[0].classList.add('si-split-view-active');
+                    $scope.splitViewActive = true;
+                }
+
+            }
+
+            $scope.addToCompareList = function($item){
+
+            }
+
+            $scope.addToFavoriteList = function($item){
+
+            }
+
+            $scope.handleListItemOver = function(event, $item){
+                if($scope._handleListItemOverPtr){
+                    window.clearTimeout($scope._handleListItemOverPtr);
+                }
+                
+                event.target.addEventListener('mouseout', _ => {
+                    if($scope._handleListItemOverPtr){
+                        window.clearTimeout($scope._handleListItemOverPtr);
+                    } 
+                    
+                })
+
+                $scope._handleListItemOverPtr = window.setTimeout( _ => {
+                    const eventName = `si/${$scope.configs.type}/item:hover`;
+                    $scope.$broadcast(eventName, $item);
+                },500);
             }
     
             /**
@@ -718,6 +841,22 @@ function siListOfItem(){
     }
 })
 
+siApp
+.directive('siTags', 
+function siTags(){
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            list: '='
+        },
+        template: `
+        <div class="si-tags">
+            <div ng-repeat="tagItem in list" class="si-tag-item si-tag-{{tagItem.label.siSanitize()}}">{{tagItem.label.translate()}}</div>
+        </div>
+        `,
+    }
+})
 
 siApp
 .directive('siSmallList', ['$sce','$compile',
@@ -727,23 +866,22 @@ function siSmallList($sce,$compile){
         scope: {
             type: '@siType',
             filters: '=siFilters',
-            options: '=?siOptions'
+            options: '=?siOptions',
+            sortBy: '&?siSortBy'
         },
-        template: ['<div class="si-list-header" ng-if="options.show_header">', 
+        template: ['<div class="si-list-header" ng-if="options.show_header" ng-init="init()">', 
                         '<h3 ng-cloak>{{getListTitle()}} {{options.typeof_show_header}}</h3>',
                         '<div class="si-search-input" ng-show="list.length > 10"><input placeholder="{{getSearchPlaceholder()}}" ng-model="listFilter.keywords"><i class="far fa-search"></i></div>',
                     '</div>',
-                    '<div class="loader"><i class="fal fa-spinner fa-spin"></i></div>',
+                    '<div class="si-loader"><i class="fal fa-spinner fa-spin"></i></div>',
                     '<div class="si-list si-list-of-item si-list-container"  si-lazy-load><div ng-include="getItemTemplateInclude()" include-replace ng-repeat="item in list | filter : listFilter.keywords"></div></div>'].join(''),
         link: function($scope, $element, $attrs){
             if($scope.options != undefined){       
                 $scope.options.typeof_show_header = typeof($scope.options.show_header);
                 $scope.options.show_header = (typeof($scope.options.show_header) == 'string') ? $scope.options.show_header === 'true' : $scope.options.show_header;
             }
-
-            $scope.init();
         },
-        controller:function($scope,$rootScope,$element, $siHooks,$siFavorites, $siConfig, 
+        controller:function($scope,$rootScope,$element, $parse, $siHooks,$siFavorites, $siConfig, 
                             $siUtils,$siApi, $siFilters,$siDictionary,$q,$siList,$timeout,
                             $siCompiler){
             $scope.view_id = null;
@@ -809,9 +947,7 @@ function siSmallList($sce,$compile){
 
             $scope.getItemTemplateInclude = function(){
                 if($scope.options.item_template != undefined) return $scope.options.item_template.replace('~', siCtx.base_path + '/views');
-                // if($scope.listItemLayout){
-                //     return siCtx.base_path + 'views/list/' + $scope.type + '/' + $scope.listItemLayout.layout + '.php';
-                // }
+                
                 return 'si-template-for-' + $scope.type;
             }
 
@@ -826,6 +962,30 @@ function siSmallList($sce,$compile){
                 if($element[0].closest('.si') == null){
                     $element[0].parentElement.classList.add('si');
                 }
+
+                $scope.$resizeObsvr = new ResizeObserver( $entries => {
+                    
+                    
+                    $element[0].classList.remove('si-size-mobile','si-size-tablet','si-size-laptop');
+                    
+                    
+                    const elmRect = $element[0].getBoundingClientRect();
+
+                    if($entries[0].contentRect.width == 0){ 
+                        return;
+                    }
+
+                    if($entries[0].contentRect.width < 640){
+                        $element[0].classList.add('si-size-mobile');
+                    }
+                    else if($entries[0].contentRect.width < 800){
+                        $element[0].classList.add('si-size-tablet');
+                    }
+                    else if($entries[0].contentRect.width < 1024){
+                        $element[0].classList.add('si-size-laptop');
+                    }
+                });
+
 
                 $siConfig.get().then(function($configs){
                     $scope.configs = $configs;
@@ -882,30 +1042,22 @@ function siSmallList($sce,$compile){
     
                         
     
-                        $scope.fetchList();
+                        $scope.fetchList().then(_ => {
+                            $scope.$resizeObsvr.observe($element[0],{box: 'device-pixel-content-box'});
+                        });
                         
                     });
                 });
 
+                
+               
 
-                const resizeObserver = new ResizeObserver( $entries => {
-                    //console.log('smallList/resizeObs', $entries);
-                    if($entries[0].contentBoxSize[0].inlineSize < 640){
-                        $element[0].classList.add('si-size-mobile');
-                    }
-                    else if($entries[0].contentBoxSize[0].inlineSize < 800){
-                        $element[0].classList.add('si-size-tablet');
-                    }
-                    else if($entries[0].contentBoxSize[0].inlineSize < 1024){
-                        $element[0].classList.add('si-size-laptop');
-                    }
-                });
-
-                resizeObserver.observe($element[0]);
+                
+                
             }
 
             $scope.fetchList = function(){
-                if($scope.filters == null) return;
+                if($scope.filters == null) return $q.resolve();
                 const lBaseFilter = $scope.getBaseFilter();
                 const lFilters = angular.merge(lBaseFilter, {
                     filter_group:{
@@ -915,7 +1067,7 @@ function siSmallList($sce,$compile){
 
                 const lSingularType = $scope.typesHash[$scope.type];
                 
-                $siFilters.with().getSearchToken(lFilters).then(function($token){
+                return $siFilters.with().getSearchToken(lFilters).then(function($token){
 
                     //console.log('fetch list of',lSingularType);
 
@@ -933,11 +1085,19 @@ function siSmallList($sce,$compile){
                         $siList.offices = $results.offices ? $results.offices.items : [];
 
                         $scope.list = $siCompiler['compile' + lSingularType + 'List']($results.list.items);
-
+                        if($scope.options.sortBy != undefined){
+                            $scope.list.sort( (a,b) => {
+                                if(a[$scope.options.sortBy] > b[$scope.options.sortBy]) return 1;
+                                return -1;
+                            });
+                        }
+                        if($scope.sortBy != undefined){
+                            //if(typeof $scope.options.sort != 'function') $scope.options.sort = $compile($scope.options.sort);
+                            $scope.list = $scope.sortBy({$list: $scope.list})
+                        }
                         //console.log('List of',lSingularType,'fetched', $scope.list, $results.list.items);
                     
-
-                        $scope._element.addClass("loaded");
+                        $scope._element.addClass("si-loaded");
                         $timeout(function(){
                             $rootScope.$broadcast('si-list-loaded', $scope.type,$scope.list);
                         });
@@ -950,7 +1110,7 @@ function siSmallList($sce,$compile){
                     //         $scope.meta = $response.metadata;
                     //         $scope.list = $siCompiler['compile' + lSingularType + 'List']($response.items);
 
-                    //         $scope._element.addClass("loaded");
+                    //         $scope._element.addClass("si-loaded");
                     //     });
                     // })
                 })
@@ -994,7 +1154,8 @@ function siSmallList($sce,$compile){
             }
             
             $scope.applyColumnWidth = function(){
-                
+                //console.log('applyColumnWidth',$scope.columnWidths,$scope.type,$scope.options.columns );
+
                 let lWidths = angular.merge($scope.columnWidths[$scope.type],$scope.options.columns);
 
                 if($scope.listLayout){
@@ -1025,13 +1186,13 @@ function siSmallList($sce,$compile){
                 if($scope.meta == undefined) return '';
                 if($scope.meta.item_count == 0) return '';
                 if($scope.meta.item_count == 1) return lTypeCaptions[$scope.type].single.translate();
-                if($scope.meta.item_count > 1) return lTypeCaptions[$scope.type].plural.translate().format($scope.meta.item_count);
+                if($scope.meta.item_count > 1) return lTypeCaptions[$scope.type].plural.translate().siFormat($scope.meta.item_count);
 
             }
 
             $scope.getApiEndpoint = function($type, $view, $lang){
                 const lSingularType = $scope.typesHash[$scope.type].toLowerCase();
-                return '{0}/view/{1}/{2}/items'.format(lSingularType, $view, $lang );
+                return '{0}/view/{1}/{2}/items'.siFormat(lSingularType, $view, $lang );
             }
 
             $scope.removeFromList = function($event, $item){
@@ -1180,7 +1341,7 @@ function siListSlider($compile){
 
                         $scope.applyProperties();
 
-                        $scope._element.addClass("loaded");
+                        $scope._element.addClass("si-loaded");
                         $timeout(function(){
                             $resolve();
                         })
@@ -1221,8 +1382,8 @@ function siListSlider($compile){
                             
                         if($item.rooms.bed != undefined && $item.rooms.bed.count>0){
                             lTitle = $item.rooms.bed.count == 1 ? 
-                                        '1 Bedroom {0}'.translate().format($item.subcategory) : 
-                                        '{0} Bedrooms {1}'.translate().format($item.rooms.bed.count, $item.subcategory);
+                                        '1 Bedroom {0}'.translate().siFormat($item.subcategory) : 
+                                        '{0} Bedrooms {1}'.translate().siFormat($item.rooms.bed.count, $item.subcategory);
                         }
                         
                     }
@@ -1233,7 +1394,7 @@ function siListSlider($compile){
 
             $scope.getApiEndpoint = function($type, $view, $lang){
                 const lSingularType = $scope.typesHash[$type].toLowerCase();
-                return '{0}/view/{1}/{2}/items'.format(lSingularType, $view, $lang );
+                return '{0}/view/{1}/{2}/items'.siFormat(lSingularType, $view, $lang );
             }
 
             $scope.getItemTemplateInclude = function(){
@@ -1550,7 +1711,8 @@ siApp
                 const floatClass = Array.from(elm.classList).find($c => $c.startsWith('si-float-'));
                 if(floatClass == null) return;
 
-                const listContainer = elm.closest('.si-list-container');
+                let listContainer = elm.closest('.si-list-container');
+                if(listContainer == null) listContainer = elm.closest('.si-list');
                 if(listContainer == null || listContainer.style.cssText.indexOf('--' + floatClass + '-offset-top') >= 0) return;
 
                 if(!$selector.startsWith('.') && !$selector.startsWith('#')) $selector = '.' + $selector;
@@ -1601,7 +1763,7 @@ siApp
             options: '=siPluralize'
         },
         link: function($scope,$element,$attr){
-            console.log('siPluralize for', $scope.options);
+            //console.log('siPluralize for', $scope.options);
             if(!Array.isArray($scope.options.on)) $scope.options.on = [$scope.options.on];
             const counters = {};
 
@@ -1614,8 +1776,8 @@ siApp
                     if(total > 1){
                         $element[0].innerHTML = $scope.options.label;
                     }
-                    
-                    console.log('siPluralize for ', $key, $count);
+
+                    //console.log('siPluralize for ', $key, $count);
                 })
             })
             

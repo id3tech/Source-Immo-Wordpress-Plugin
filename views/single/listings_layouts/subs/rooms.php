@@ -20,7 +20,7 @@
                 style="--unit-flag-count:{{unit.flags.length}};">
                 <div class="unit-name">
                     <h4 data-ng-show="['OFFICE','INDUSTRY','COMMERCIAL'].includes(unit.category_code) || model.units.length>1">
-                        <span>{{'{0} unit'.translate().format(unit.category)}}</span>
+                        <span>{{'{0} unit'.translate().siFormat(unit.category)}}</span>
                         <span class="area" data-ng-show="unit.dimension | siHasValue">{{unit.dimension | formatDimension}}</span>
                     </h4>
                 </div>

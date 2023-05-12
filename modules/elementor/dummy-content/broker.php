@@ -3,7 +3,7 @@ $layout_mode = isset($settings['layout_mode']) ? $settings['layout_mode'] : 'lin
 ?>
 
 
-<div class="si broker-single si-layout-<?php echo($layout_mode) ?> loaded si-elementor-widget">
+<div class="si broker-single si-layout-<?php echo($layout_mode) ?> si-loaded si-elementor-widget">
     <div class="si-content">
        
         

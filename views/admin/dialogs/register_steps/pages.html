@@ -17,7 +17,7 @@
                 <md-select ng-model="layout.page">
                     <md-option value="NEW"><lstr>(Create a new page)</lstr></md-option>
                     <md-option value="NONE"><lstr>(None)</lstr></md-option>
-                    <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
+                    <md-option ng-repeat="item in pages track by $index" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
                 <label lstr>to display <em>the list</em></label>
             </div>
@@ -27,7 +27,7 @@
                 <md-select ng-model="layout.detail_page">
                     <md-option value="NEW"><lstr>(Create a new page)</lstr></md-option>
                     <md-option value="NONE"><lstr>(None)</lstr></md-option>
-                    <md-option ng-repeat="item in pages" value="{{item.ID}}" >{{item.post_title}}</md-option>
+                    <md-option ng-repeat="item in pages track by $index" value="{{item.ID}}" >{{item.post_title}}</md-option>
                 </md-select>
                 <label lstr>for <em>details</em>.</label>
             </div>
@@ -37,7 +37,7 @@
     <p>
         <lstr>Create or select pages in</lstr>
         <md-select ng-model="languages.selected" ng-change="updatePageList()">
-            <md-option ng-repeat="lang in languages.list" ng-value="lang.code">{{lang.name}}</md-option>
+            <md-option ng-repeat="lang in languages.list track by $index" ng-value="lang.code">{{lang.name}}</md-option>
         </md-select>
     </p>
     

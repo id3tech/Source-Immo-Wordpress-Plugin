@@ -756,7 +756,7 @@ function $siFilters($q,$siApi,$siUtils){
             $fm.query_text = null;
             $fm.data.keyword = '';
 
-            sessionStorage.removeItem(lKey.format('query'));
+            sessionStorage.removeItem(lKey.siFormat('query'));
         }
 
         $fm.resetSpecificFilters = function($filters, $update){
@@ -1004,19 +1004,19 @@ function $siFilters($q,$siApi,$siUtils){
             
             if($item_key == undefined){
                 $fm.state_loaded = false;
-                sessionStorage.setItem(lKey.format('filter_group'), JSON.stringify($fm.filter_group));
+                sessionStorage.setItem(lKey.siFormat('filter_group'), JSON.stringify($fm.filter_group));
                 if($fm.query_text!=null){
-                    sessionStorage.setItem(lKey.format('query'), $fm.query_text);
+                    sessionStorage.setItem(lKey.siFormat('query'), $fm.query_text);
                 }
-                sessionStorage.setItem(lKey.format('mainFilter'), JSON.stringify($fm.main_filter));
-                sessionStorage.setItem(lKey.format('data'), JSON.stringify($fm.data));
+                sessionStorage.setItem(lKey.siFormat('mainFilter'), JSON.stringify($fm.main_filter));
+                sessionStorage.setItem(lKey.siFormat('data'), JSON.stringify($fm.data));
             }
             else{
                 let lValue = $data;
                 if(typeof(lValue) == 'object'){
                     lValue = JSON.stringify(lValue);
                 }
-                sessionStorage.setItem(lKey.format($item_key), lValue);
+                sessionStorage.setItem(lKey.siFormat($item_key), lValue);
             }
             
 
@@ -1027,14 +1027,14 @@ function $siFilters($q,$siApi,$siUtils){
 
             if($item_key == undefined){
                 $fm.state_loaded = false;
-                sessionStorage.removeItem(lKey.format('filter_group'));
-                sessionStorage.removeItem(lKey.format('data'));
-                sessionStorage.removeItem(lKey.format('mainFilter'));
-                sessionStorage.removeItem(lKey.format('query'));
-                sessionStorage.removeItem(lKey.format('st'));
+                sessionStorage.removeItem(lKey.siFormat('filter_group'));
+                sessionStorage.removeItem(lKey.siFormat('data'));
+                sessionStorage.removeItem(lKey.siFormat('mainFilter'));
+                sessionStorage.removeItem(lKey.siFormat('query'));
+                sessionStorage.removeItem(lKey.siFormat('st'));
             }
             else{
-                sessionStorage.removeItem(lKey.format($item_key));
+                sessionStorage.removeItem(lKey.siFormat($item_key));
             }
         }
 
@@ -1042,12 +1042,12 @@ function $siFilters($q,$siApi,$siUtils){
             //console.log('filterManager.loadState');
             $key = 'si.' + $fm.alias + '.{0}';
             if($item_key == undefined && !$fm.state_loaded){
-                const lSessionFilterGroup = sessionStorage.getItem($key.format('filter_group'));
-                const lSessionData = sessionStorage.getItem($key.format('data'));
-                const lMainFilterData = sessionStorage.getItem($key.format('mainFilter'));
-                const lQuery = sessionStorage.getItem($key.format('query'));
+                const lSessionFilterGroup = sessionStorage.getItem($key.siFormat('filter_group'));
+                const lSessionData = sessionStorage.getItem($key.siFormat('data'));
+                const lMainFilterData = sessionStorage.getItem($key.siFormat('mainFilter'));
+                const lQuery = sessionStorage.getItem($key.siFormat('query'));
 
-                //let lSessionSearchKeyword = sessionStorage.getItem($key.format('search-keyword'));
+                //let lSessionSearchKeyword = sessionStorage.getItem($key.siFormat('search-keyword'));
                 if(lSessionFilterGroup != null){
                     $fm.filter_group = JSON.parse(lSessionFilterGroup);
                 }
@@ -1072,7 +1072,7 @@ function $siFilters($q,$siApi,$siUtils){
                 $fm.state_loaded = true;
             }
             else{
-                let lResult = sessionStorage.getItem($key.format($item_key));
+                let lResult = sessionStorage.getItem($key.siFormat($item_key));
                 try {
                     lResult = JSON.parse(lResult);
                 } catch (error) {
@@ -1124,7 +1124,7 @@ function $siFilters($q,$siApi,$siUtils){
                 return $format.format.apply(null, $attr);
             }
             else{
-                return $format.format($attr);
+                return $format.siFormat($attr);
             }
         }
 

@@ -17,6 +17,7 @@ if(isset($configs)){
 ?>
 
 <article class="si-item si-listing-item si-standard-item-layout <?php echo($configs->list_item_layout->scope_class) ?> <?php echo implode(' ',$classes) ?>"
+    
     itemscope itemtype="http://schema.org/Residence">
     <a itemprop="url" href="<?php echo($item->permalink) ?>">
         <div class="item-content" itemprop="name" content="<?php echo($item->subcategory);?> <?php echo($item->transaction);?>">

@@ -1,6 +1,6 @@
-<div class="inputs">
+<div class="si-inputs">
     <!-- SEARCHBOX -->
-    <div class="search-box"
+    <div class="si-search-box"
             ng-if="configs.search_engine_options.fields.includes('searchbox')">
         <si-search-box 
                 alias="<?php echo $configs->alias ?>" 
@@ -10,7 +10,7 @@
     </div>
 
     <!-- TRANSACTIONS -->
-    <div class="field-input field-transactions"
+    <div class="si-field-input field-transactions"
             ng-if="configs.search_engine_options.fields.includes('transactions')">
         
         <si-checkbox
@@ -27,7 +27,7 @@
 
 
     <!-- CATEGORIES -->
-    <div class="field-input field-categories"
+    <div class="si-field-input field-categories"
             ng-if="configs.search_engine_options.fields.includes('categories')">
                 
         <si-select si-model="filter.data.categories" si-change="filter.update()"
@@ -38,7 +38,7 @@
     </div>
 
     <!-- SUBCATEGORIES -->
-    <div class="field-input field-types"
+    <div class="si-field-input field-types"
             ng-if="configs.search_engine_options.fields.includes('types')">
                 
         <si-select si-model="filter.data.subcategories" si-change="filter.update()" si-multiple
@@ -49,7 +49,7 @@
     </div>
     
     <!-- CITIES -->
-    <div class="field-input field-cities"
+    <div class="si-field-input field-cities"
             ng-if="configs.search_engine_options.fields.includes('cities')">
                 
         <si-select si-model="filter.data.cities" si-change="filter.update()" si-multiple
@@ -63,7 +63,7 @@
     </div>
 
     <!-- PRICES -->
-    <div class="field-input field-prices"
+    <div class="si-field-input field-prices"
             ng-if="configs.search_engine_options.fields.includes('price')">
                 
         <si-select 
@@ -93,7 +93,7 @@
     </div>
 
     <!-- BEDROOMS -->
-    <div class="field-input field-bedrooms"
+    <div class="si-field-input field-bedrooms"
             ng-if="configs.search_engine_options.fields.includes('bedrooms')">
                 
         <si-select si-model="filter.data.bedrooms" si-change="filter.update()"
@@ -104,7 +104,7 @@
     </div>
 
     <!-- BATHROOMS -->
-    <div class="field-input field-bathrooms"
+    <div class="si-field-input field-bathrooms"
             ng-if="configs.search_engine_options.fields.includes('bathrooms')">
                 
         <si-select si-model="filter.data.bathrooms" si-change="filter.update()"
@@ -115,7 +115,7 @@
     </div>
 
     <!-- FEATURES -->
-    <div class="field-input field-features"
+    <div class="si-field-input field-features"
             ng-if="configs.search_engine_options.fields.includes('features')">
                 
         <si-select si-model="filter.data.attributes" si-change="filter.update()"
@@ -126,7 +126,7 @@
     </div>
 
     <!-- FILTERS -->
-    <div class="field-input field-filters"
+    <div class="si-field-input field-filters"
             ng-if="configs.search_engine_options.fields.includes('filters')">
                 
         <si-select si-model="filter.data.states" si-change="filter.update()"
@@ -137,7 +137,7 @@
     </div>
 
     <!-- AGE -->
-    <div class="field-input field-bathrooms"
+    <div class="si-field-input field-bathrooms"
             ng-if="configs.search_engine_options.fields.includes('bathrooms')">
              
         <si-input-container>
@@ -151,7 +151,7 @@
     </div>
 
     <!-- AVAIL. AREAS -->
-    <div class="field-input field-available-areas"
+    <div class="si-field-input field-available-areas"
             ng-if="configs.search_engine_options.fields.includes('available_area')">
            
         <si-input-container class="si-input-group">
@@ -170,7 +170,7 @@
     </div>
 
     <!-- PARKINGS -->
-    <div class="field-input field-parkings"
+    <div class="si-field-input field-parkings"
             ng-if="configs.search_engine_options.fields.includes('parkings')">
         <si-input-container>
             <label><?php si_label('Parkings') ?></label>
@@ -184,7 +184,7 @@
 
 </div>
 
-<div class="search-action">
-    <button type="button" class="trigger-button si-button" data-ng-show="result_url != null" data-ng-click="showResultPage()" title="<?php si_label('Search') ?>"><i class="fal fa-search"></i></button>
-    <button type="button" class="reset-button si-button" data-ng-show="filter.hasFilters()" data-ng-click="resetFilters()" title="<?php si_label('Reset') ?>"><i class="fal fa-undo"></i></button>
+<div class="si-search-action">
+    <button type="button" class="trigger-button si-button" data-ng-if="result_url != null" data-ng-click="showResultPage()" title="<?php si_label('Search') ?>"><i class="fal fa-search"></i></button>
+    <button type="button" class="reset-button si-button" data-ng-if="filter.hasFilters()" data-ng-click="resetFilters()" title="<?php si_label('Reset') ?>"><i class="fal fa-undo"></i></button>
 </div>

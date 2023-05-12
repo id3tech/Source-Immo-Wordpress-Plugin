@@ -1,0 +1,15 @@
+.locallogic-content-widget-container {
+  height: 640px;
+  position: relative;
+}
+.locallogic-content-widget-container .fas {
+  position: absolute;
+  font-size: 1.5rem;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  transition: opacity 0.25s ease;
+}
+.locallogic-content-widget-container.si-loaded .fas {
+  opacity: 0;
+}

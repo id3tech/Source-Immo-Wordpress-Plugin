@@ -57,7 +57,8 @@ class Elementor_SI_Single_Part extends \Elementor\Widget_Base
                 'image_grid' => __('Image grid', SI),
                 //'other_specs' => __('Other specs', SI),
                 //'rooms' => __('Rooms', SI),
-                'summary' => __('Summary *', SI)
+                'summary' => __('Summary *', SI),
+                'tags' => __('Tags', SI)
             ],
             'broker' => [
                 'name' => __('Name', SI),

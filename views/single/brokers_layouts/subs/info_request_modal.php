@@ -7,7 +7,7 @@ $communication_mode = isset($layout->communication_mode) ? $layout->communicatio
 
 <si-modal 
     data-modal-id="information_request" 
-    data-modal-title="{{'Message for {0}'.translate().format(model.first_name)}}"
+    data-modal-title="{{'Message for {0}'.translate().siFormat(model.first_name)}}"
     data-ok-label="Send"
     <?php
     if($communication_mode != 'basic'){

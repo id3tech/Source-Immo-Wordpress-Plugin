@@ -50,12 +50,19 @@ class SourceImmoConfig {
    * @var string
    */
   public $map_api_key = '';
+  
 
   /**
    * Default currency
    * @var string
    */
   public $default_currency = 'CAD';
+
+  /**
+   * Default interest rate for calculator
+   * @var numeric
+   */
+  public $default_interest_rate = 3;
 
   /**
    * Mode of processing. Use DEV when building configuration or testing stuff, PROD otherwise
@@ -526,6 +533,8 @@ class SourceImmoConfig {
     $fileContent = false;
 
     $lConfigFilePath = $lConfigPath . '/_configs.json';
+    if ( ! file_exists( $lConfigFilePath ) ) return false;
+
     try {
       $filePointer = fopen($lConfigFilePath,'r');
       $fileContent = fread($filePointer,max(filesize($lConfigFilePath),1));

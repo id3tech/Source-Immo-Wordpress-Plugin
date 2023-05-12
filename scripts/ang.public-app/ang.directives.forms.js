@@ -349,7 +349,7 @@ siApp
                     let lCaption = $scope.placeholder;
 
                     if(Array.isArray($scope.model) && $scope.model.length > 0){
-                        lCaption += ' ({0})'.format($scope.model.length);
+                        lCaption += ' ({0})'.siFormat($scope.model.length);
                     }
                     $scope.selectedCaption = lCaption;
                 }
@@ -799,11 +799,11 @@ siApp
                 }
 
                 $scope.getContentHeight = function($element){
-                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().height;
+                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().height + 5;
                 }
 
                 $scope.getContentWidth = function($element){
-                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().width;
+                    return $element.querySelector('.si-dropdown-panel-content').getBoundingClientRect().width  + 5;
                 }
 
                 $scope.closeMenu = function(){
@@ -919,8 +919,8 @@ siApp
                             Object.keys(lRelativeAttr).forEach(function($k){
                                 $scope._menu_elm.style.setProperty('--relative-' + $k, lRelativeAttr[$k] + 'px');
                             });
-                            $scope._menu_elm.style.setProperty('--potential-height', lMenuHeight + 'px');
-                            $scope._menu_elm.style.setProperty('--potential-width', lMenuWidth + 'px');
+                            $scope._menu_elm.style.setProperty('--potential-height', Math.ceil(lMenuHeight) + 'px');
+                            $scope._menu_elm.style.setProperty('--potential-width', Math.ceil(lMenuWidth) + 'px');
     
     
                             $resolve($scope._menu_elm);

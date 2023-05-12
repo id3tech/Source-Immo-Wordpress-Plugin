@@ -169,6 +169,7 @@ md-dialog{
                 gap:0 4rem;
                 place-items:stretch;
                 padding: 0 1rem;
+                padding-bottom: 2rem;
                 
                 &.layout-double-layer{
                     grid-template-columns: 1fr 1fr;
@@ -293,6 +294,8 @@ md-dialog{
                 border-radius: 0.5em;
                 border: solid 2px transparent;
                 transition: 0.25s ease;
+                background: #dfdfdf33;
+
                 &:not(.selected){
                     cursor:pointer;
                 }
@@ -317,6 +320,9 @@ md-dialog{
                     color:#27B5CA;
                 }
             }
+        }
+        .si-page-list{
+            grid-template-columns: repeat(3,1fr);
         }
     }
 
@@ -544,7 +550,7 @@ md-dialog{
         width: clamp(640px, 50vw, 1000px);
         height: 640px;
 
-        .loader{
+        .si-loader{
             padding:1rem;
             text-align:center;
         }

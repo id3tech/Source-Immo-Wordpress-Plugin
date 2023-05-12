@@ -2,18 +2,18 @@
     data-ng-click="close()">
     <div class="si-modal-dialog  {{showControls=='false' ? 'si-no-controls' : ''}}"
             data-ng-click="cancelEvent($event)">
-            <div class="modal-header">
-                    <h3 class="modal-title"><i class="fal fa-comments-alt"></i> {{modal_title.translate()}}</h3>
+            <div class="si-modal-header">
+                    <h3 class="si-modal-title"><i class="fal fa-comments-alt"></i> {{modal_title.translate()}}</h3>
                     <button type="button" data-ng-click="close()" class="si-button close" data-dismiss="modal" aria-label="Close">
                         <i class="fal fa-times"></i>
                     </button>
                 </div>
         <div class="si-modal-content">
     
-            <div class="modal-body" data-ng-transclude></div>
+            <div class="si-modal-body" data-ng-transclude></div>
     
         </div>
-        <div class="modal-footer">
+        <div class="si-modal-footer">
             <button type="button" class="si-button" data-ng-click="close()"  data-ng-show="options.close_label!=null"><span>{{options.close_label.translate()}}</span></button>
             <button type="button" class="si-button" data-ng-click="closeWithValue()" ng-disabled="!isFormValid()"><span>{{options.ok_label.translate()}}</span></button>
         </div>

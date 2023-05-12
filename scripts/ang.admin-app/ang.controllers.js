@@ -230,6 +230,7 @@ siApp
         {name:'region', label: 'Region'},
         {name:'available_area', label:'Available area'},
         {name:'flags',label: 'Flags'},
+        {name:'tags',label: 'Tags'},
         {name:'open_houses',label: 'Open houses'}
       ],
       brokers: [
@@ -252,6 +253,7 @@ siApp
       ],
       cities :[
         {name:'name',label: 'Name'},
+        {name:'namex',label: 'Name (extracted)'},
         {name:'region', label: 'Region'},
         {name:'counters',label:'Listings'},
         {name:'code',label: 'Code'}
@@ -533,22 +535,26 @@ siApp
         }
       )
       .then( _ => {
-            
         $scope.$on('save-request', function(){
+          console.log('save-request/received');
           $scope.save_configs();
         });
 
         $scope.$on('reload-pages', function(){
           //$scope.load_wp_pages();
-        })
+        })      
+        
 
         $scope.getWhatNew();
 
       })
       .catch($err => {
+
+        console.log('An error occured on loading data', $err);
         $scope._status = 'ready';
         $rootScope.$broadcast('si/ready');
       })
+
     });
     
   }
@@ -728,6 +734,16 @@ siApp
     $scope.save_configs();
   }
 
+  $scope.debounce_save_configs = function($delay=1000){
+    if($scope.$$save_timout != undefined){
+      $timeout.cancel($scope.$$save_timout);
+    }
+
+    $scope.$$save_timout = $timeout( () => {
+      $scope.save_configs();
+    }, $delay);
+  }
+
   $scope.save_configs = function($silent){
     $silent = (typeof $silent == 'undefined') ? false : $silent;
     return $q(function($resolve, $reject){
@@ -773,6 +789,8 @@ siApp
           })
         })
       });
+    
+    if(lDefaultSearchTokenRenew.length == 0) return $q.resolve();
       
     return $q
         .all(lDefaultSearchTokenRenew)
@@ -1367,7 +1385,7 @@ siApp
       
       $scope.addNotice(
         'Missing layouts', 
-        'Some list are missing a detail page layout. Please check the following section{1}: {0}'.translate().format(lMissingLayout.join(', '),  lMissingLayout.length>1 ? 's':''), 
+        'Some list are missing a detail page layout. Please check the following section{1}: {0}'.translate().siFormat(lMissingLayout.join(', '),  lMissingLayout.length>1 ? 's':''), 
         {
           actions: {
             'Create missing pages' : function(){
@@ -1529,10 +1547,11 @@ siApp
     return lFiltered
               .filter(function($type){
                 return $scope.configs[lLayoutMap[$type]].some(function($layout){
-                  return $layout.page==null
+                  return $layout==null || $layout.page==null
                 });
               });
   }
+
   $scope.hasEmptyLayouts = function(){
     return $scope.getEmptyLayouts().length > 0;
   }
@@ -1793,6 +1812,7 @@ siApp
     });
     
     $scope.$on('save-request', function(){
+      console.log('save-request/received');
       $scope.save_configs();
     });
 

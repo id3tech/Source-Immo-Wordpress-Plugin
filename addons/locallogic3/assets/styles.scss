@@ -1,0 +1,21 @@
+.locallogic-content-widget-container{
+
+    height: 640px;
+    position:relative;
+    
+    .fas{
+        position:absolute;
+        font-size: 1.5rem;
+        //opacity: 0.5;
+        top:50%;
+        left:50%;
+        translate: -50% -50%;
+        transition:opacity 0.25s ease;
+    }
+
+    &.si-loaded{
+        .fas{
+            opacity:0;
+        }
+    }
+}

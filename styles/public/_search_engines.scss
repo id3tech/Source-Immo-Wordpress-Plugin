@@ -1,6 +1,6 @@
 #top .si,
 .si{ 
-    .search-container{
+    .si-search-container{
         //grid-area: search;
         grid-row: 1;
         grid-column: 1 / span 3;
@@ -8,11 +8,17 @@
         grid-template-columns: 1fr auto;
         position:relative;
         align-items:center;
+        gap:var(--si-layout-gutter);
+
+        &:not(:has(.si-search-action .si-button)){
+            grid-template-columns: 1fr;
+        }
+
         // padding: var(--si-padding);
         
         // border:var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc));
         // border-radius:var(--si-border-radius);
-        background-color: var(--si-background-color);
+        //background-color: var(--si-background-color);
 
         @include media($phone){
             grid-template-columns: 1fr;
@@ -52,12 +58,17 @@
             border:none;
         }
 
-        .search-action{
+        .si-search-action{
             display:grid;
             grid-auto-flow: column;
             
             gap: 0.5rem;
             place-items: center stretch;
+            @include media-gt($phone){
+                &:not(:has(.si-button)){
+                    display:none;
+                }
+            }
             @include media($phone){
                 gap:1rem;
                 grid-auto-columns: 1fr;
@@ -65,18 +76,18 @@
             .si-button{
                 margin:0;
                 &:first-child{
-                    margin-left: var(--si-layout-gutter);
+                    //margin-left: var(--si-layout-gutter);
                     @include media($phone){
                         margin-left:0;
                     }
                 }
             }
 
-            .filter-menu{
+            .si-filter-menu{
                 display:none;
                 .si-dropdown{
                     width:100%;
-                    .label{padding-right:0.5rem;}
+                    .si-label{padding-right:0.5rem;}
                 }
                 .si-button.active{
                     i{font-weight: 700;}
@@ -85,17 +96,20 @@
             }
 
             @include media($phone){
-                .filter-menu{display:block;}
-                .reset-button{display:none;}
+                .si-filter-menu{display:block;}
+                .si-reset-button{display:none;}
             }
         }
 
         
-        .has-filters{
+        .si-has-filters{
             &::after{
                 content:"\f0b0";
                 font-family:"Font Awesome 5 Pro";
                 font-weight: 700;
+                margin-right: 0.25em;
+                opacity:0.5;
+                order:-1;
             }
         }
         &.si-has-tabs{
@@ -117,7 +131,7 @@
                 --si-tab-active-position: calc(100% - 1px);
             }
         }
-        .main-filter-tabs{
+        .si-main-filter-tabs{
             position: absolute;
             top:0px;
             left:1rem;
@@ -163,11 +177,11 @@
                     
                 }
 
-                &:not(.active){
+                &:not(.si-active){
                     
                     cursor: pointer;
                 }
-                &.active{
+                &.si-active{
                     border-left: var(--si-tab-border,none);
                     border-right: var(--si-tab-border,none);
                     border-radius: var(--si-tab-border-radius,0);
@@ -184,7 +198,7 @@
 
                 @include media($tablet){
                     //display:none;
-                    &:not(.active){
+                    &:not(.si-active){
                         display:none;
                     }
                 }
@@ -193,7 +207,7 @@
             .si-dropdown{
                 display:none;
                 width:100%;
-                .dropdown-item{
+                .si-dropdown-item{
                     text-transform: uppercase;
                 }
                 @include media($tablet){
@@ -207,7 +221,7 @@
             }
         }
 
-        .inputs{
+        .si-inputs{
             --input-count: 5;
             display:grid;
             grid-template-columns: 1fr repeat(var(--input-count), auto);
@@ -221,14 +235,14 @@
             .si-filter-label{
                 pointer-events: none;
                 opacity:0.5;
-                .label{
+                .si-label{
                     font-size:0.8rem;
                     font-style: italic;
                 }
             }
             
             .si-panel-button{
-                padding: var(--si-padding);
+                --si-element-border-radius: var(--si-button-border-radius);
                 font-weight:500;
                 white-space: nowrap;
                 cursor: pointer;
@@ -260,7 +274,7 @@
                     clip-path: polygon(0% 0%, 100% 0%, 100% 50%, calc(50% + 3px) 50%, 50% 100%, calc(50% - 3px) 50%, 0% 50%);
                 }
 
-                &.expanded{
+                &.si-expanded{
                     --si-text-color:var(--si-highlight);
                     &::before{
                         width:100%;
@@ -288,7 +302,7 @@
         }
 
         &.si-ready{
-            .inputs{
+            .si-inputs{
                 .si-panel-button{
                     position:relative;
                     opacity:1;
@@ -462,7 +476,7 @@
             grid-area: client_filters;
             display:grid;gap:var(--si-layout-gutter);
             align-items:center;
-            .label{grid-area: label;color:var(--si-text-color);background:unset;}
+            .si-label{grid-area: label;color:var(--si-text-color);background:unset;}
             .list{
                 grid-area: list;
                 display:flex;
@@ -522,15 +536,18 @@
 
             }
 
-            .inputs{
-                grid-template-columns:unset;
-                grid-auto-columns: 1fr;
-                grid-auto-flow:column;
+            .si-inputs{
+                &:not(:has(.si-search-box)){
+                    grid-template-columns:unset;
+                    grid-auto-columns: 1fr;
+                    grid-auto-flow:column;
+                }
+                
                 gap:var(--si-layout-gutter);
 
                 @include media($tablet){
-                    grid-auto-flow:row;
-                    grid-auto-columns: 1fr;
+                    grid-auto-flow:row!important;
+                    grid-auto-columns: 1fr!important;
                     grid-auto-rows: auto;
 
                 }
@@ -555,7 +572,7 @@
                 }
             }
 
-            .search-action{
+            .si-search-action{
                 place-items: center start;
                 @include media($tablet){
                     place-items: center end;
@@ -569,10 +586,10 @@
         }
     }
 
-    .search-container{
+    .si-search-container{
     
     
-        .search-box{
+        .si-search-box{
             display: grid;
             grid-template-columns: 1fr auto;
             place-items: center stretch;
@@ -628,7 +645,7 @@
             // }
 
             .si-searchbox{
-                .input{
+                .si-input{
                     .fal{display:none;}
                     input{padding-left:10px;}
                     .suggestion-placeholder{padding-left:10px;}
@@ -661,11 +678,11 @@
 
     &.si-filter-panel-container{
         position:absolute;
-        top:calc(var(--relative-top) - 2px);
-        left:calc(var(--relative-left) - 4px);
-        width: calc(var(--relative-width) + 4px);
+        top:calc(var(--relative-top) - 5px);
+        left:calc(var(--relative-left) - 8px);
+        width: calc(var(--relative-width) + 16px);
         max-width:100%;
-        padding-top: calc(var(--relative-height) + 2px);
+        padding-top: calc(var(--relative-height) + 5px);
         border-radius:var(--si-border-radius);
         border: var(--si-border, var(--si-border-width,1px) var(--si-border-style,solid) var(--si-border-color,#ccc));
         //border-top-color:transparent;
@@ -675,7 +692,7 @@
         z-index: 40;
         pointer-events: none;
         overflow:hidden;
-
+        overscroll-behavior: contain;
         &::before{
             content:"";
             position: absolute;
@@ -683,7 +700,7 @@
             top:calc(var(--relative-border-size) * 2);
             left: calc(0px + var(--si-border-radius));
             width: calc(100% - 0px - var(--si-border-radius));
-            height:var(--relative-height);
+            height:calc(var(--relative-height) + 10px);
             //height:calc( (var(--relative-height) - (var(--relative-border-size) * 2)) - (2 * var(--si-border-radius)));
             box-shadow: 0 0 0 100vh var(--si-background-color);
             z-index:1;
@@ -795,7 +812,7 @@
                         overflow:hidden;
                         transition:0.25s;
                         .sublist-container{
-                            padding:var(--si-padding);
+                            padding-inline:var(--si-padding);
                             display:grid;
                             grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
                         }
@@ -1328,7 +1345,7 @@
                 @include media($phone){
                     grid-template-columns: 1fr;
                     padding-left:20px; padding-right:20px;
-                    .label{
+                    .si-label{
                         display:none;
                     }
                 }
@@ -1526,6 +1543,12 @@
     }
 }
 
+@include media($phone){
+    html:has(.si-filter-panel-container.expanded){
+        overflow-y: hidden;
+    }
+}
+
 .si-tab-cursor{
     position: absolute;
     top: var(--ref-top);
@@ -1575,7 +1598,7 @@
                 @include media($phone){
                     grid-template-columns: 1fr;
                     padding-left:20px; padding-right:20px;
-                    .label{
+                    .si-label{
                         display:none;
                     }
                 }
@@ -1664,7 +1687,7 @@
 #top .si-searchbox,
 .si-searchbox{
     position:relative;
-    .input{
+    .si-input{
         position:relative;
         input[type='text']{
             position:relative;

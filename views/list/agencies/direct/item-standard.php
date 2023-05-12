@@ -25,8 +25,8 @@ if($item->has_custom_page){
     data-si-hover-class="<?php echo implode(' ',$scope_class_hover) ?>"
     itemscope itemtype="http://schema.org/office">
     <a href="<?php echo($item->permalink) ?>" id="agency-<?php echo($item->id) ?>">
-        <div class="item-content">
-            <div class="layer-container">
+        <div class="si-item-content">
+            <div class="si-layer-container">
             <?php
             siShowDirectItemLayer($item, $configs);
             ?>

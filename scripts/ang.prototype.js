@@ -1,6 +1,6 @@
-if(typeof String.prototype.format === 'undefined'){
+if(typeof String.prototype.siFormat === 'undefined'){
     
-    String.prototype.format = function(){
+    String.prototype.siFormat = function(){
         let lResult = this.toString();
         for (var i = 0; i < arguments.length; i++) {
             let lArgValue = '';
@@ -51,9 +51,9 @@ if(typeof String.prototype.format === 'undefined'){
     
 }
 
-if(typeof String.prototype.capitalize === 'undefined'){
+if(typeof String.prototype.siCapitalize === 'undefined'){
 
-    String.prototype.capitalize = function($allWords){
+    String.prototype.siCapitalize = function($allWords){
         $allWords = $allWords==undefined ? false : $allWords;
 
         const lSegments = $allWords ? this.split(' ') : [this];
@@ -112,8 +112,8 @@ if(typeof String.prototype.trimCharRight === 'undefined'){
 
 }
 
-if(typeof String.prototype.sanitize === 'undefined'){
-    String.prototype.sanitize = function(){
+if(typeof String.prototype.siSanitize === 'undefined'){
+    String.prototype.siSanitize = function(){
         return this.toLowerCase().trim()
             .normalize('NFD')
             .replace(/\p{Diacritic}/gu, "")
@@ -132,8 +132,8 @@ if(typeof String.prototype.toCamelCase === 'undefined'){
     }
 }
 
-if(typeof String.prototype.humanize === 'undefined'){
-    String.prototype.humanize = function(){
+if(typeof String.prototype.siHumanize === 'undefined'){
+    String.prototype.siHumanize = function(){
         let lResult = this;
         if(lResult.length < 2) return lResult;
         lResult = lResult.toLowerCase();
@@ -196,14 +196,14 @@ if(typeof [].any === 'undefined'){
 
 if(typeof Number.formatPrice === 'undefined' ){
 
-    Number.prototype.formatPrice = function($currency){
+    Number.prototype.formatPrice = function(digits=2,$currency=''){
         let lValue = this;
         lValue = Math.round(lValue * 100) / 100;
         if(Math.floor(lValue) < lValue){
-            lValue = lValue.toFixed(2);
+            lValue = lValue.toFixed(digits);
         }
 
-        $currency = ($currency==undefined)?'':$currency;
+        //$currency = ($currency==undefined)?'':$currency;
         $separator = {
             fr : ' ',
             en : ','
@@ -211,7 +211,7 @@ if(typeof Number.formatPrice === 'undefined' ){
 
 
         let lResult = lValue.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + $separator[$locales._current_lang_]);
-        lResult = '${0}'.translate().format(lResult);
+        lResult = '${0}'.translate().siFormat(lResult);
         return lResult;
     }
 
@@ -234,7 +234,7 @@ if(typeof Number.formatRank === 'undefined' ){
                 break;
         }
         
-        lResult = lFormat.translate().format(lValue);
+        lResult = lFormat.translate().siFormat(lValue);
         return lResult;
     }
 
@@ -302,7 +302,7 @@ if(typeof String.translate === 'undefined'){
             if($file!=null){
                 $scope.load($file);
             }
-            else if ($localePreload){
+            else if ($localePreload != undefined){
                 $scope[$scope._current_lang_].global = $localePreload;
             }
             

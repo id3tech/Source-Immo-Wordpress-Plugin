@@ -121,31 +121,31 @@ siApp
 
     // listing land areas
     $scope.land_areas = Array.from(Array(3)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format(5000 * ($i+1)), value: 5000 * ($i+1)}
+        return { caption: '{0} sqft'.translate().siFormat(5000 * ($i+1)), value: 5000 * ($i+1)}
     });
     $scope.land_areas = $scope.land_areas.concat(Array.from(Array(10)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format(20000 * ($i+1)), value: 20000 * ($i+1)}
+        return { caption: '{0} sqft'.translate().siFormat(20000 * ($i+1)), value: 20000 * ($i+1)}
     }));
 
 
     // listing available areas
     $scope.available_areas = Array.from(Array(6)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format(250 * ($i+2)), value: 200 * ($i+2)}
+        return { caption: '{0} sqft'.translate().siFormat(250 * ($i+2)), value: 200 * ($i+2)}
     });
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(9)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format($filter('number')(1000 * ($i+2))), value: 1000 * ($i+2)}
+        return { caption: '{0} sqft'.translate().siFormat($filter('number')(1000 * ($i+2))), value: 1000 * ($i+2)}
     }));
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(5)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format($filter('number')(2000 * ($i+6))), value: 2000 * ($i+6)}
+        return { caption: '{0} sqft'.translate().siFormat($filter('number')(2000 * ($i+6))), value: 2000 * ($i+6)}
     }));
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(6)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format($filter('number')(5000 * ($i+5))), value: 5000 * ($i+5)}
+        return { caption: '{0} sqft'.translate().siFormat($filter('number')(5000 * ($i+5))), value: 5000 * ($i+5)}
     }));
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(4)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format($filter('number')(10000 * ($i+6))), value: 10000 * ($i+6)}
+        return { caption: '{0} sqft'.translate().siFormat($filter('number')(10000 * ($i+6))), value: 10000 * ($i+6)}
     }));
     $scope.available_areas = $scope.available_areas.concat(Array.from(Array(9)).map(function($e,$i){
-        return { caption: '{0} sqft'.translate().format($filter('number')( 50000 * ($i+2)) ), value: 50000 * ($i+3)}
+        return { caption: '{0} sqft'.translate().siFormat($filter('number')( 50000 * ($i+2)) ), value: 50000 * ($i+3)}
     }));
 
     $scope.bedroomSuggestions = {buildFrom: { buildCountedList : ['{0}+ bedrooms',5]}}
@@ -199,8 +199,8 @@ siApp
         const fnNewItem = function($i){
             return {
                 value: $i,
-                label : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().format($i),
-                caption : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().format($i)
+                label : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().siFormat($i),
+                caption : ($i == 1 ? $singleLabelFormat : $labelFormat).translate().siFormat($i)
             }
         }
 
@@ -583,11 +583,11 @@ siApp
 
                     resizeObserver.observe($scope._element);
                     
-                    const inputsContainer = $scope._element.querySelector('.inputs');
+                    const inputsContainer = $scope._element.querySelector('.si-inputs');
                     const fnApplyInputCount = _ => {
                         
                         const lValidChild = Array.from(inputsContainer.children).filter($child => !$child.classList.contains('ng-hide'));
-                        //('fnApplyInputCount',lValidChild)
+                        console.log('fnApplyInputCount',lValidChild)
                         inputsContainer.style.setProperty('--input-count', lValidChild.length - 1);
                     }
                     fnApplyInputCount();
@@ -891,8 +891,8 @@ siApp
                 $scope.loadViewMeta($view_id, $scope.configs.type).then(function(){
                     //console.log('meta loaded');
                     
-                    $rootScope.$broadcast('si-{0}-view-change'.format($scope.alias), $view_id);
-                    $rootScope.$broadcast('si/{0}:viewChanged'.format($scope.alias), $view_id);
+                    $rootScope.$broadcast('si-{0}-view-change'.siFormat($scope.alias), $view_id);
+                    $rootScope.$broadcast('si/{0}:viewChanged'.siFormat($scope.alias), $view_id);
                 });
                 
                 $timeout(function(){
@@ -940,6 +940,7 @@ siApp
                         $scope.agencyList = $results[2] ? $results[2] : [];
                         $scope.agencyList.forEach(function($agency){
                             $agency.officeList = $scope.officeList.filter(function($off){
+                                if($off.agency == undefined) return false;
                                 return $off.agency.id == $agency.id;
                             });
                         });
@@ -1319,7 +1320,7 @@ siApp
                         let lPriceMax = Math.min(1000000, lValue * 2);
     
                         lResult = [
-                            {selected:true, label : 'Contains "{0}"'.translate().format(lValue), 
+                            {selected:true, label : 'Contains "{0}"'.translate().siFormat(lValue), 
                                 action : function(){ 
                                     $scope.query_text = lValue; 
                                     $scope.buildFilters();
@@ -1330,14 +1331,14 @@ siApp
                         if($scope.configs.type == 'listings'){
                             lResult = lResult.concat([
                                 // Price suggestions less than, more than, between A and B
-                                {label : 'Price is less than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMaxPrice(lValue);}},
-                                {label : 'Price is more than {0}'.translate().format(lValue.formatPrice()), action: function(){$scope.setMinPrice(lValue);}},
-                                {label : 'Price is between {0} and {1}'.translate().format(lPriceMin.formatPrice(), lPriceMax.formatPrice()), action: function(){
+                                {label : 'Price is less than {0}'.translate().siFormat(lValue.formatPrice()), action: function(){$scope.setMaxPrice(lValue);}},
+                                {label : 'Price is more than {0}'.translate().siFormat(lValue.formatPrice()), action: function(){$scope.setMinPrice(lValue);}},
+                                {label : 'Price is between {0} and {1}'.translate().siFormat(lPriceMin.formatPrice(), lPriceMax.formatPrice()), action: function(){
                                     $scope.setMinPrice(lPriceMin);
                                     $scope.setMaxPrice(lPriceMax);
                                 }},
                                 // civic adress suggestion
-                                {label : 'Has "{0}" as civic address'.translate().format(lValue), action: function(){$scope.filter.addFilter('location.address.street_number','equal',lValue, 'Has "{0}" as civic address'.translate().format(lValue))}}
+                                {label : 'Has "{0}" as civic address'.translate().siFormat(lValue), action: function(){$scope.filter.addFilter('location.address.street_number','equal',lValue, 'Has "{0}" as civic address'.translate().siFormat(lValue))}}
                             ]);
                         }
                     }
@@ -1349,7 +1350,7 @@ siApp
                         lResult = [
                             {
                                 selected:true, 
-                                label : 'Contains "{0}"'.translate().format(lValue), 
+                                label : 'Contains "{0}"'.translate().siFormat(lValue), 
                                 action : function(){ 
                                     $filter.query_text = lValue; 
                                     $filter.buildFilters(); 
@@ -1363,77 +1364,77 @@ siApp
                             for($key in $scope.dictionary.listing_category){
                                 let lElm = $scope.dictionary.listing_category[$key];
                                 if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                                    lResult.push({label: '{0} (category)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('category','in',$scope.getSelection($scope.dictionary.listing_category));} }) 
+                                    lResult.push({label: '{0} (category)'.translate().siFormat(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('category','in',$scope.getSelection($scope.dictionary.listing_category));} }) 
                                 }
                             }
                             // Add subcategories that match the keyword
                             for($key in $scope.dictionary.listing_subcategory){
                                 let lElm = $scope.dictionary.listing_subcategory[$key];
                                 if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                                    lResult.push({label: '{0} (subcategory)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));} }) 
+                                    lResult.push({label: '{0} (subcategory)'.translate().siFormat(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('subcategory','in',$scope.getSelection($scope.dictionary.listing_subcategory));} }) 
                                 }
                             }
                             // Add regions that match the keyword
                             for($key in $scope.dictionary.region){
                                 let lElm = $scope.dictionary.region[$key];
                                 if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                                    lResult.push({label: '{0} (region)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('location.region_code','in',$scope.getSelection($scope.dictionary.region));} }) 
+                                    lResult.push({label: '{0} (region)'.translate().siFormat(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('location.region_code','in',$scope.getSelection($scope.dictionary.region));} }) 
                                 }
                             }
                             // Add cities that match the keyword
                             for($key in $scope.dictionary.city){
                                 let lElm = $scope.dictionary.city[$key];
                                 if(lElm.caption.toLowerCase().indexOf(lValue)>=0){
-                                    lResult.push({label: '{0} (city)'.translate().format(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));} }) 
+                                    lResult.push({label: '{0} (city)'.translate().siFormat(lElm.caption), action: function(){ lElm.selected=true;  $scope.filter.addFilter('location.city_code','in',$scope.getSelection($scope.dictionary.city));} }) 
                                 }
                             }
                         }
                         else if($scope.configs.type == 'brokers'){
                             lResult.push({
-                                label: 'Last name is "{0}"'.translate().format($scope.data.keyword), 
+                                label: 'Last name is "{0}"'.translate().siFormat($scope.data.keyword), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('last_name','equal_to',$scope.data.keyword, 'Last name is "{0}"'.translate().format($scope.data.keyword));
+                                    $scope.filter.addFilter('last_name','equal_to',$scope.data.keyword, 'Last name is "{0}"'.translate().siFormat($scope.data.keyword));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
 
                             lResult.push({
-                                label: 'Last name starts with "{0}"'.translate().format(lValue), 
+                                label: 'Last name starts with "{0}"'.translate().siFormat(lValue), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('last_name','starts_with',lValue, 'Last name starts with "{0}"'.translate().format(lValue));
+                                    $scope.filter.addFilter('last_name','starts_with',lValue, 'Last name starts with "{0}"'.translate().siFormat(lValue));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
 
                             lResult.push({
-                                label: 'Last name ends with "{0}"'.translate().format(lValue), 
+                                label: 'Last name ends with "{0}"'.translate().siFormat(lValue), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('last_name','ends_with',lValue, 'Last name ends with "{0}"'.translate().format(lValue));
+                                    $scope.filter.addFilter('last_name','ends_with',lValue, 'Last name ends with "{0}"'.translate().siFormat(lValue));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
 
 
                             lResult.push({
-                                label: 'First name is "{0}"'.translate().format($scope.data.keyword), 
+                                label: 'First name is "{0}"'.translate().siFormat($scope.data.keyword), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('first_name','equal_to',$scope.data.keyword, 'First name is "{0}"'.translate().format($scope.data.keyword));
+                                    $scope.filter.addFilter('first_name','equal_to',$scope.data.keyword, 'First name is "{0}"'.translate().siFormat($scope.data.keyword));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
 
                             lResult.push({
-                                label: 'First name starts with "{0}"'.translate().format(lValue), 
+                                label: 'First name starts with "{0}"'.translate().siFormat(lValue), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('first_name','starts_with',lValue, 'First name starts with "{0}"'.translate().format(lValue));
+                                    $scope.filter.addFilter('first_name','starts_with',lValue, 'First name starts with "{0}"'.translate().siFormat(lValue));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
 
                             lResult.push({
-                                label: 'First name ends with "{0}"'.translate().format(lValue), 
+                                label: 'First name ends with "{0}"'.translate().siFormat(lValue), 
                                 action: function(){ 
-                                    $scope.filter.addFilter('first_name','ends_with',lValue, 'First name ends with "{0}"'.translate().format(lValue));
+                                    $scope.filter.addFilter('first_name','ends_with',lValue, 'First name ends with "{0}"'.translate().siFormat(lValue));
                                     $scope.buildFilters(); $scope.buildHints();
                                 } 
                             });
@@ -1796,7 +1797,7 @@ siApp
                 if($scope.priceRange[0] == 0) return $minLabel;
             
                 const lResult = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[0]);
-                return lResultFormat.translate().format(lResult.formatPrice());
+                return lResultFormat.translate().siFormat(lResult.formatPrice());
             }
 
             $scope.getMaxPriceLabel = function($maxLabel){
@@ -1810,7 +1811,7 @@ siApp
 
                 if($scope.priceRange[1]==1) return $maxLabel;
                 const lResult = fnRoundPrice(lPriceMaxBoundary * $scope.priceRange[1]);
-                return lResultFormat.translate().format(lResult.formatPrice());
+                return lResultFormat.translate().siFormat(lResult.formatPrice());
             }
 
             /**
@@ -1828,7 +1829,7 @@ siApp
                 // add filter
                 $scope.filter.addFilter(
                     'main_unit.bedroom_count',
-                    'greater_or_equal_to',$item.value, '{0}+ bedrooms'.translate().format($item.value),
+                    'greater_or_equal_to',$item.value, '{0}+ bedrooms'.translate().siFormat($item.value),
                     function(){
                         $scope.setBedroomCount({value:''});
                     }                
@@ -1980,7 +1981,7 @@ siApp
                         //console.log('query_text has something to say');
                         lResult.push({
                             item: "QUERY_TEXT", 
-                            label: 'Contains "{0}"'.translate().format($filter.query_text),
+                            label: 'Contains "{0}"'.translate().siFormat($filter.query_text),
                             reverse: function(){
                                 $filter.query_text = null;
                                 $filter.buildFilters(); 
@@ -2060,11 +2061,11 @@ siApp
                     
                     let lAreaLabels = ['Min','Max'];
                     if(lMinValue!=undefined){
-                        lAreaLabels[0] = '{0} sqft'.translate().format(lMinValue);
+                        lAreaLabels[0] = '{0} sqft'.translate().siFormat(lMinValue);
                     }
     
                     if(lMaxValue!=undefined && lMaxValue!=0){
-                        lAreaLabels[1] = '{0} sqft'.translate().format(lMaxValue);
+                        lAreaLabels[1] = '{0} sqft'.translate().siFormat(lMaxValue);
                     }
     
                     $hints.push({
@@ -2413,7 +2414,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
             $scope._view_id = null;
 
             $scope.init = function(){
-                $scope.$on('si/{0}:viewChanged'.format($scope.alias), function($event, $view_id){
+                $scope.$on('si/{0}:viewChanged'.siFormat($scope.alias), function($event, $view_id){
                     //console.log('siSearchbox/init/@si/[alias]:viewChanged',$view_id);
                     $scope.updateViewMeta();
                 });
@@ -2527,7 +2528,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                 lRect.height = window.getComputedStyle($scope._el).getPropertyValue('height').replace('px','');
 
                 
-                return 'top:{0}px;padding-top:{1}px;left:{2}px;width:{3}px;'.format(lRect.top, lRect.height - 1, lRect.left, lRect.width);
+                return 'top:{0}px;padding-top:{1}px;left:{2}px;width:{3}px;'.siFormat(lRect.top, lRect.height - 1, lRect.left, lRect.width);
             }
 
             $scope.updateViewMeta = function(){
@@ -2842,7 +2843,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         let lAdded = false;
 
                         if(lValue.indexOf(lElm.caption.toLowerCase())>=0){
-                            lLabelResults.push('in {0}'.translate().format(lElm.caption));
+                            lLabelResults.push('in {0}'.translate().siFormat(lElm.caption));
                             lActionResults.push(function(){ 
                                 lElm.selected=true;  
                                 $filter.addFilter('location.city_code','in',$filter.getSelection($scope.dictionary.city));
@@ -2851,7 +2852,7 @@ function siSearchBox($sce,$compile,$siUtils,$siFilters, $siConfig){
                         else{
                             lValueList.some(function($e){
                                 if(lElm.caption.toLowerCase().indexOf($e)>=0){
-                                    lLabelResults.push('in {0}'.translate().format(lElm.caption));
+                                    lLabelResults.push('in {0}'.translate().siFormat(lElm.caption));
                                     lActionResults.push(function(){ 
                                         lElm.selected=true;  
                                         $filter.addFilter('location.city_code','in',$filter.getSelection($scope.dictionary.city));
@@ -3135,7 +3136,7 @@ siApp
             $scope.reverseFilterMap = {
                 'bedrooms' : function($value){
                     return {
-                        text : (($value > 1) ? '{0} bedrooms' : '{0} bedroom').translate().format($value),
+                        text : (($value > 1) ? '{0} bedrooms' : '{0} bedroom').translate().siFormat($value),
                         remove: function(){
                             $scope.filter.data.bedrooms = null;
                             $scope.filter.update();
@@ -3144,7 +3145,7 @@ siApp
                 },
                 'bathrooms' : function($value){
                     return {
-                        text: (($value > 1) ? '{0} bathrooms' : '{0} bathroom').translate().format($value),
+                        text: (($value > 1) ? '{0} bathrooms' : '{0} bathroom').translate().siFormat($value),
                         remove: function(){
                             $scope.filter.data.bathrooms = null;
                             $scope.filter.update();
@@ -3153,7 +3154,7 @@ siApp
                 },
                 'parkings' : function($value){
                     return {
-                        text: (($value > 1) ? '{0} parkings' : '{0} parking').translate().format($value),
+                        text: (($value > 1) ? '{0} parkings' : '{0} parking').translate().siFormat($value),
                         remove: function(){
                             $scope.filter.data.parkings = null;
                             $scope.filter.update();
@@ -3241,7 +3242,7 @@ siApp
                 },
                 'transaction_type': function($value){
                     return {
-                        text: 'For {0}'.format($value).translate(),
+                        text: 'For {0}'.siFormat($value).translate(),
                         remove:function(){
                             $scope.filter.data.transaction_type = null;
                             $scope.filter.update();
@@ -3273,7 +3274,7 @@ siApp
                 'letter' : function($values){
                     return $values.map(function($val){
                         return {
-                            text: 'Begins with {0}'.translate().format($val),
+                            text: 'Begins with {0}'.translate().siFormat($val),
                             remove:function(){
                                 $scope.filter.data.letter = null;
                                 $scope.filter.update();
@@ -3284,7 +3285,7 @@ siApp
                 'office' : function($values){
                     return $values.map(function($val){
                         return {
-                            text: 'Works at {0}'.translate().format($val),
+                            text: 'Works at {0}'.translate().siFormat($val),
                             remove:function(){
                                 $scope.filter.data.office = null;
                                 $scope.filter.update();
@@ -3307,7 +3308,7 @@ siApp
                 'language' : function($values){
                     return $values.map(function($val){
                         return {
-                            text: 'Speaks {0}'.translate().format($val),
+                            text: 'Speaks {0}'.translate().siFormat($val),
                             remove:function(){
                                 $scope.filter.data.language = null;
                                 $scope.filter.update();
@@ -3353,7 +3354,7 @@ siApp
                         const lMaxPrice = ($scope.filter.data.max_price == null) ? 'Unlimited' : $scope.filter.data.max_price.formatPrice();
                         const lPriceItem = lList.find(function($e){ return $e.key == 'price'});
 
-                        lTextFormat = '{0} - {1}'.format(lMinPrice,lMaxPrice);
+                        lTextFormat = '{0} - {1}'.siFormat(lMinPrice,lMaxPrice);
                         if(lPriceItem != null){
                             lPriceItem.text = lTextFormat;
                         }
@@ -3423,7 +3424,7 @@ siApp
                 const lMax = (isNullOrEmpty($scope.filter.data[lKeyMax])) ? $options.max : $scope.getCaptionOfFilter($scope.filter.data[lKeyMax], $options.srcList,$options.listKey);
                 const lItem = $targetList.find(function($e){ return $e.key == lListKey});
 
-                lTextFormat = $options.textFormat.translate().format(lMin,lMax);
+                lTextFormat = $options.textFormat.translate().siFormat(lMin,lMax);
 
                 if(lItem != null){
                     lItem.text = lTextFormat;

@@ -10,14 +10,30 @@
 <md-dialog-content>
     
     <div class="md-dialog-content" >
-        <div class="si-search-container">
-            <input type="search" ng-model="pageFilterQuery">
-            <i class="fal fa-search"></i>
+        <div layout="row" layout-align="space-between center" ng-if="!isAddingPage">
+            <div class="si-search-container">
+                <input type="search" ng-model="pageFilterQuery">
+                <i class="fal fa-search"></i>
+            </div>
+
+            <md-button ng-click="addPage()" ng-disabled="isLoading"><lstr>Add page</lstr> <i class="fal fa-plus"></i></md-button>
+        </div>
+
+        <div class="new-page-form-container" ng-if="isAddingPage" layout="column" layout-align="center stretch">
+            <md-input-container>
+                <label lstr>New page name</label>
+                <input ng-model="newpage.name">
+            </md-input-container>
+
+            <p lstr>The new page will be created with the following content</p>
+            <code>
+                {{newpage.content}}
+            </code>
         </div>
 
         <div ng-if="isLoading"><i class="fal fa-fw fa-spinner fa-spin"></i></div>
         
-        <div class="si-page-list">
+        <div class="si-page-list" ng-if="!isAddingPage">
             <div class="si-page-item {{item._selected ? 'selected' : ''}}" ng-repeat="item in pageList | orderBy: 'post_title' | filter: pageFilterQuery" ng-click="selectPage(item)">
                 <div class="page-name">{{item.post_title}}</div>
                 <div class="page-info" layout="row" layout-align="start center" layout-gap="1">

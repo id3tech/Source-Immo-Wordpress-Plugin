@@ -135,14 +135,14 @@ html{
     .pages-container{
         grid-area: pages;
     }
-    .view-switch{
+    .si-view-switch{
         grid-area: switch;
         display:flex;
         flex-direction: row;
-        .switch-item{
-            font-size:24px;
+        .si-switch-item{
+            font-size:1.2rem;
             position:relative;
-            padding: 10px;
+            padding: 0.5em;
             color:var(--si-text-color);
             cursor:pointer;
             i{color:inherit;}
@@ -158,6 +158,62 @@ html{
                 &::after{
                     width:100%;
                 }
+            }
+
+            
+
+            .si-split-icons{
+                display:flex;
+                gap:5px;
+                align-items: center;
+                height:100%;
+                position:relative;
+
+                &:after{
+                    content:"";
+                    height:80%;
+                    width:2px;
+                    background-color:currentColor;
+                    
+                    position:absolute;
+                    top:50%;
+                    left:50%;
+                    translate: -50% -50%;
+                    rotate: 20deg;
+                    box-shadow: 0 0 0 3px var(--si-background-color);
+                }
+                > i{
+                    width: 0.75rem;
+                    opacity: 0.75;
+                    &:last-child{
+                        text-align:right;
+                        
+                    }
+                }
+
+            }
+
+            &.split-view{
+                padding-left:1em;
+                margin-left:1em;
+
+                &::before{
+                    content:"";
+                    height:100%;
+                    display:block;
+                    width:1px;
+                    background:var(--text-color);
+                    opacity:0.25;
+                    position:absolute;
+                    top:0;
+                    left:0;    
+                }
+            }
+        }
+
+        @include media($tablet){
+            .si-split-view-switch{
+                display:none;
             }
         }
     }
@@ -195,6 +251,13 @@ html{
         gap:var(--si-layout-gutter);
         grid-template-columns: 1fr 1fr 1fr;
         align-items: center;
+
+        > :last-child{
+            place-self: end;
+        }
+        > :nth-child(1){
+            place-self: center;
+        }
     }
     
     [class^=item]{
@@ -1033,12 +1096,18 @@ html{
             display:grid;
             grid-template-columns: 1fr 1fr;
             place-items:center start;
-    
+            :nth-child(1){
+                place-self:start;
+            }
+
             @include media($phone){
                 grid-template-columns: 1fr;
                 place-items:center;
                 gap:0;
                 padding:10px 0;
+                :nth-child(1){
+                    place-self:center;
+                }
             }
             .si-search-input{
                 place-self: center end;
@@ -1079,12 +1148,12 @@ html{
             opacity:0;max-height:0px;overflow:hidden;
             transition:0.25s;
         }
-        .loader{
+        .si-loader{
             text-align:center;
             transition:0.25s;
         }
-        &.loaded{
-            .loader{
+        &.si-loaded{
+            .si-loader{
                 opacity:0;
                 max-height:0px;
                 overflow:hidden;
@@ -1093,6 +1162,21 @@ html{
                 opacity:1;max-height:unset;overflow:unset;
                 display:grid;
                 gap:var(--si-layout-gutter);
+                grid-template-columns: repeat(var(--si-small-list-columns, var(--desktop-column-width)), 1fr);
+            }
+
+            &:not(.si-inherit-list-configs){
+
+            }
+
+            &.si-size-mobile{
+                --si-small-list-columns: var(--mobile-column-width);
+            }
+            &.si-size-tablet{
+                --si-small-list-columns: var(--tablet-column-width);
+            }
+            &.si-size-laptop{
+                --si-small-list-columns: var(--laptop-column-width);
             }
         }
 
@@ -1209,21 +1293,24 @@ html{
                 grid-column:  1 / span 3;
                 grid-row:1;
                 grid-template-areas:
-                    "switch meta sort";
+                    "sort meta switch";
                     
                 @include media($phone){
                     grid-template-columns:1fr 1fr;
                     grid-template-areas:
-                    "switch sort"
+                    "sort switch"
                     "meta meta";
                     place-items:center start; 
                 }
+                .view-switch{
+                    place-self: center end;
+                }
                 .si-sort-container{
                     grid-area:sort;
-                    place-self: center end;
-                    text-align:right;
+                    place-self: center start;
+                    text-align:left;
                     .si-dropdown-button{
-                        font-size:24px;
+                        font-size:1.2rem;
                     }
                 }
             }
@@ -1257,14 +1344,14 @@ html{
 
         &.si-list-of-brokers{
             .si-list-header{
-                grid-template-areas: "meta . sort";
+                grid-template-areas: "sort . meta";
                 .list-meta{
                     .list-count{
-                        text-align:left;
+                        text-align:right;
                     }
                 }
                 @include media($phone){
-                    grid-template-areas: "meta sort";
+                    grid-template-areas: "sort meta";
                 }
             }
             

@@ -3,7 +3,7 @@
         <a href="{{model.links.website}}" class="id3-button id3-type-normal" target="_blank"><span>{{'Website'.translate()}}</span> <i class="fal fa-external-link"></i></a>
     </div>
 
-    <div class="si-link-list" ng-if="model.links.socials.length > 0">
+    <div class="si-link-list" ng-if="model.links.website || model.links.socials.length > 0">
         <div class="si-link-item" ng-if="model.links.website">
             <a href="{{model.links.website}}" target="_blank"><i class="fal fa-globe"></i></a>
         </div>

@@ -1,3 +1,8 @@
-body#top.single-listings #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-broker #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-office #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-agency #wrap_all #main > .container_wrap_first.fullsize > .container { max-width: unset; margin: 0; padding: 0; }
-
-body#top.single-listings #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-broker #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-office #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-agency #wrap_all #main > .container_wrap_first.fullsize > .container > main { padding-top: 0; }
+body#top.single-listings #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-broker #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-office #wrap_all #main > .container_wrap_first.fullsize > .container, body#top.single-agency #wrap_all #main > .container_wrap_first.fullsize > .container {
+  max-width: unset;
+  margin: 0;
+  padding: 0;
+}
+body#top.single-listings #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-broker #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-office #wrap_all #main > .container_wrap_first.fullsize > .container > main, body#top.single-agency #wrap_all #main > .container_wrap_first.fullsize > .container > main {
+  padding-top: 0;
+}

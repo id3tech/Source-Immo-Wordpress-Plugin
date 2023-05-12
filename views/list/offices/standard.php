@@ -1,6 +1,6 @@
 <?php 
     if($configs->searchable){ 
-        $searchContainerClasses = ['search-container'];
+        $searchContainerClasses = ['si-search-container'];
         if(isset($configs->search_engine_options->scope_class)) $searchContainerClasses[] = $configs->search_engine_options->scope_class;
         if(isset($configs->search_engine_options)){
             if(isset($configs->search_engine_options->tabs) && count($configs->search_engine_options->tabs)>1){

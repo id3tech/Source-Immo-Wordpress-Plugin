@@ -1,2 +1,2 @@
-<div class="bio si-apply-typography">
+<div class="si-bio si-apply-typography">
 </div>
